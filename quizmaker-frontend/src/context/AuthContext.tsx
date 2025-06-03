@@ -1,0 +1,140 @@
+// ---------------------------------------------------------------------------
+// React context + provider that exposes authentication state & actions
+// ---------------------------------------------------------------------------
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+  useMemo,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axiosInstance';
+import {
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+  clearTokens,
+} from '../utils/tokenUtils';
+
+/* ------------------------------------------------------------------------ */
+/*                             Domain types                                 */
+/* ------------------------------------------------------------------------ */
+export interface UserDto {
+  id: string;
+  username: string;
+  email: string;
+  roles: string[];
+  isActive: boolean;
+}
+
+interface JwtResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface AuthContextType {
+  user: UserDto | null;
+  isLoggedIn: boolean;
+  login: (creds: { username: string; password: string }) => Promise<void>;
+  register: (details: {
+    username: string;
+    email: string;
+    password: string;
+  }) => Promise<void>;
+  logout: () => void;
+}
+
+/* ------------------------------------------------------------------------ */
+/*                            The Context itself                            */
+/* ------------------------------------------------------------------------ */
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<UserDto | null>(null);
+  const navigate = useNavigate();
+
+  /* Helper – centralises GET /auth/me + state sync */
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data } = await api.get<UserDto>('/auth/me');
+      setUser(data);
+    } catch {
+      // api instance has already tried a refresh. If we still get here
+      // the session is invalid → blow everything away.
+      clearTokens();
+      setUser(null);
+    }
+  }, []);
+
+  /* -------------------------------------------------------------------- */
+  /* On mount: if an accessToken is lying around try to resurrect session */
+  /* -------------------------------------------------------------------- */
+  useEffect(() => {
+    if (getAccessToken()) {
+      fetchCurrentUser();
+    }
+  }, [fetchCurrentUser]);
+
+  /* -------------------------------------------------------------------- */
+  /*  Public actions                                                      */
+  /* -------------------------------------------------------------------- */
+  const login = useCallback(
+    async (creds: { username: string; password: string }) => {
+      const { data } = await api.post<JwtResponse>('/auth/login', creds);
+
+      setTokens(data.accessToken, data.refreshToken);
+      await fetchCurrentUser();
+      navigate('/quizzes', { replace: true });
+    },
+    [fetchCurrentUser, navigate],
+  );
+
+  const register = useCallback(
+    async (details: {
+      username: string;
+      email: string;
+      password: string;
+    }) => {
+      await api.post('/auth/register', details);
+      navigate('/login', { replace: true });
+    },
+    [navigate],
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/auth/logout', { refreshToken: getRefreshToken() });
+    } finally {
+      clearTokens();
+      setUser(null);
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
+
+  /* Memoise context value to avoid re-renders of all consumers on every keystroke */
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      isLoggedIn: !!user,
+      login,
+      register,
+      logout,
+    }),
+    [user, login, register, logout],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+/* Convenience hook so components can just call useAuth() */
+export const useAuth = (): AuthContextType => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used inside <AuthProvider>');
+  }
+  return ctx;
+};

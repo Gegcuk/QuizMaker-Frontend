@@ -1,0 +1,32 @@
+.
+├── api
+│   └── axiosInstance.ts
+├── assets
+├── auth
+├── components
+│   ├── Navbar.tsx
+│   ├── ProtectedRoute.tsx
+│   └── Spinner.tsx
+├── context
+│   └── AuthContext.tsx
+├── hooks
+├── index.css
+├── main.tsx
+├── pages
+│   ├── HomePage.tsx
+│   ├── LoginPage.tsx
+│   ├── QuizAttemptPage.tsx
+│   ├── QuizDetailPage.tsx
+│   ├── QuizListPage.tsx
+│   ├── QuizResultPage.tsx
+│   └── RegisterPage.tsx
+├── project-tree.txt
+├── routes
+│   └── AppRoutes.tsx
+├── types
+│   └── api.d.ts
+├── utils
+│   └── tokenUtils.ts
+└── vite-env.d.ts
+
+11 directories, 19 files
