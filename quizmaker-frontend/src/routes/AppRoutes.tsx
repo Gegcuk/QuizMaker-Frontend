@@ -23,7 +23,7 @@ import QuizListPage from '../pages/QuizListPage';
 import QuizDetailPage from '../pages/QuizDetailPage';
 import QuizAttemptPage from '../pages/QuizAttemptPage';
 import QuizResultPage from '../pages/QuizResultPage';
-// import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
+import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
 
 /* ----------  Quiz CRUD / owner pages  ------------------------------------ */
 import MyQuizzesPage from '../pages/MyQuizzesPage';

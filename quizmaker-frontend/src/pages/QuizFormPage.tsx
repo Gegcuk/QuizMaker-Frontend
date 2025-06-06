@@ -66,16 +66,10 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
   /*  Fetch categories, tags, and (in edit) quiz data                       */
   /* ---------------------------------------------------------------------- */
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
         // 1. categories & tags in parallel
         const [catsRes, tagsRes] = await Promise.all([
-          getAllCategories<{ content: CategoryDto[] }>({
-            page: 0,
-            size: 100,
-          }),
-          getAllTags<{ content: TagDto[] }>({ page: 0, size: 100 }),
+          getAllCategories({ page: 0, size: 100 }),
+          getAllTags({ page: 0, size: 100 }),
         ]);
         setAllCategories(catsRes.data.content);
         setAllTags(tagsRes.data.content);

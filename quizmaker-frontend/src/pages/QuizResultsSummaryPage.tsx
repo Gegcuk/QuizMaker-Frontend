@@ -30,7 +30,7 @@ const QuizResultsSummaryPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getQuizResults(quizId);
+        const { data } = await getQuizResults(quizId);
         setResults(data);
       } catch (e: any) {
         setError(

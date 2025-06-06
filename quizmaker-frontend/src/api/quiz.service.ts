@@ -5,6 +5,7 @@ import {
   PageQuizDto,
   CreateQuizRequest,
   UpdateQuizRequest,
+  QuizResultSummaryDto
 } from '../types/api';
 
 type ListParams = { page: number; size?: number };
@@ -23,3 +24,6 @@ export const updateQuiz = (quizId: string, payload: UpdateQuizRequest) =>
 
 export const deleteQuiz = (quizId: string) =>
   api.delete<void>(`/quizzes/${quizId}`);
+
+export const getQuizResults = (quizId: string) =>
+  api.get<QuizResultSummaryDto>(`/quizzes/${quizId}/results-summary`);

@@ -127,6 +127,24 @@ export interface AttemptResultDto {
   answers: AnswerSubmissionDto[];
 }
 
+/* ----------  Quiz results summary  ------------------------------------ */
+export interface QuizQuestionStatsDto {
+  questionId: string;
+  timesAsked: number;
+  timesCorrect: number;
+  correctRate: number; // 0..1
+}
+
+export interface QuizResultSummaryDto {
+  attemptsCount: number;
+  averageScore: number;
+  bestScore: number;
+  worstScore: number;
+  passRate: number;
+  questionStats: QuizQuestionStatsDto[];
+}
+
+
 /* ----------  Answer submission payload  --------------------------------- */
 export interface AnswerSubmissionRequest {
   questionId: string;

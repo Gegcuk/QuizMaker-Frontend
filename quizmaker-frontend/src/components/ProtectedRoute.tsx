@@ -22,7 +22,7 @@ import { useAuth } from '../context/AuthContext';
 /** Expected prop shape for ProtectedRoute */
 export type ProtectedRouteProps = {
   /** The element tree that should only render when logged in */
-  children: JSX.Element;
+  children: React.ReactElement;
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {

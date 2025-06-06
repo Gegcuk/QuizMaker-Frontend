@@ -51,9 +51,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (token) {
     // Note: we preserve any custom headers the caller may have set.
     config.headers = {
-      ...config.headers,
+      ...(config.headers as any),
       Authorization: `Bearer ${token}`,
-    };
+    } as any;
   }
   return config;
 });
@@ -141,9 +141,9 @@ api.interceptors.response.use(
     /* ------------------------------------------------------------------ */
     if (original) {
       original.headers = {
-        ...original.headers,
+        ...(original.headers as any),
         Authorization: `Bearer ${newAccessToken}`,
-      };
+      } as any;
       return api(original);
     }
 

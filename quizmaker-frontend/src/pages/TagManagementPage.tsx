@@ -28,7 +28,7 @@ const TagManagementPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data: PageTagDto = await getAllTags({ page, size: 20 });
+      const { data } = await getAllTags({ page, size: 20 });
       setTags(data.content);
       setTotalPages(data.totalPages);
     } catch (err: any) {
