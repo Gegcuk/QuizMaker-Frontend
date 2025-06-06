@@ -46,7 +46,7 @@ export const getQuizQuestions = (
 
 /** Assign an existing question to a quiz */
 export const addQuestionToQuiz = (quizId: string, questionId: string) =>
-  api.post<void>(`/quizzes/${quizId}/questions`, { questionId });
+  api.post<void>(`/quizzes/${quizId}/questions/${questionId}`);
 
 /** Remove a question from a quiz */
 export const removeQuestionFromQuiz = (quizId: string, questionId: string) =>
