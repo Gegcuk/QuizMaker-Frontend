@@ -14,6 +14,7 @@ import {
   removeQuestionFromQuiz,
   createQuestion,
   QuestionPayload,
+  getAllQuestions,
 } from '../api/question.service';
 
 const QuizQuestionsPage: React.FC = () => {
@@ -29,18 +30,27 @@ const QuizQuestionsPage: React.FC = () => {
   const [difficulty, setDifficulty] = useState<QuestionDto['difficulty']>('EASY');
   const [content, setContent] = useState('{}');
   const [formError, setFormError] = useState<string | null>(null);
+  const [allQuestions, setAllQuestions] = useState<QuestionDto[]>([]);
+  const [qPage, setQPage] = useState(0);
+  const [qTotalPages, setQTotalPages] = useState(1);
+  const [loadingAll, setLoadingAll] = useState(false);
 
+  
   const loadData = async () => {
     if (!quizId) return;
     setLoading(true);
     setError(null);
     try {
-      const [{ data: quizData }, { data: qData }] = await Promise.all([
+      const [{ data: quizData }, qRes] = await Promise.all([
         getQuizById<QuizDto>(quizId),
         getQuizQuestions(quizId),
+        getQuizQuestions(quizId).catch((e) => {
+          if (e.response?.status === 404) return { data: [] };
+          throw e;
+        }),
       ]);
       setQuiz(quizData);
-      setQuestions(qData);
+      setQuestions(qRes.data);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load questions.');
     } finally {
@@ -112,6 +122,34 @@ const QuizQuestionsPage: React.FC = () => {
     }
   };
 
+    const fetchAllQuestions = async () => {
+    setLoadingAll(true);
+    try {
+      const { data } = await getAllQuestions({ page: qPage, size: 20 });
+      setAllQuestions(data.content);
+      setQTotalPages(data.totalPages);
+    } catch {
+      // ignore errors here
+    } finally {
+      setLoadingAll(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qPage]);
+
+  const handleAddExisting = async (qid: string) => {
+    if (!quizId) return;
+    try {
+      await addQuestionToQuiz(quizId, qid);
+      loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to add question.');
+    }
+  };
+
   if (loading) return <Spinner />;
 
   if (error) return <div className="text-red-500">{error}</div>;
@@ -157,6 +195,62 @@ const QuizQuestionsPage: React.FC = () => {
             ))}
           </tbody>
         </table>
+      )}
+
+      <h3 className="text-xl font-semibold mt-8 mb-2">Add Existing Question</h3>
+      {loadingAll ? (
+        <Spinner />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border mb-4">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 text-left">Text</th>
+                <th className="p-2 text-left">Type</th>
+                <th className="p-2 text-left">Difficulty</th>
+                <th className="p-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allQuestions
+                .filter((q) => !questions.find((qq) => qq.id === q.id))
+                .map((q) => (
+                  <tr key={q.id} className="hover:bg-gray-50">
+                    <td className="border px-2 py-1 max-w-xs truncate">{q.questionText}</td>
+                    <td className="border px-2 py-1">{q.type}</td>
+                    <td className="border px-2 py-1">{q.difficulty}</td>
+                    <td className="border px-2 py-1 text-center">
+                      <button
+                        onClick={() => handleAddExisting(q.id)}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        Add
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center items-center space-x-4">
+            <button
+              onClick={() => setQPage((p) => Math.max(p - 1, 0))}
+              disabled={qPage === 0}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <span>
+              Page {qPage + 1} of {qTotalPages}
+            </span>
+            <button
+              onClick={() => setQPage((p) => Math.min(p + 1, qTotalPages - 1))}
+              disabled={qPage + 1 === qTotalPages}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
 
       {showForm && (
