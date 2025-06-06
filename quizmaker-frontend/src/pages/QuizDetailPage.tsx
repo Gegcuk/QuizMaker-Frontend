@@ -126,6 +126,12 @@ const QuizDetailPage: React.FC = () => {
             >
               Edit
             </Link>
+                        <Link
+              to={`/quizzes/${quiz.id}/questions`}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+            >
+              Manage Questions
+            </Link>
             <button
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"

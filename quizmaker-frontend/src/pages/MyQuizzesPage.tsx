@@ -123,6 +123,12 @@ const MyQuizzesPage: React.FC = () => {
                     >
                       Edit
                     </button>
+                    <Link
+                      to={`/quizzes/${quiz.id}/questions`}
+                      className="text-indigo-600 hover:underline"
+                    >
+                      Manage Questions
+                    </Link>
                     <button
                       onClick={() => handleDelete(quiz.id)}
                       className="text-red-600 hover:underline"

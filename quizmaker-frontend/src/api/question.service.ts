@@ -30,3 +30,19 @@ export const updateQuestion = (id: string, payload: QuestionPayload) =>
   api.patch<void>(`/questions/${id}`, payload);
 
 export const deleteQuestion = (id: string) => api.delete<void>(`/questions/${id}`);
+
+// ---------------------------------------------------------------------------
+// Quiz-specific helpers
+// ---------------------------------------------------------------------------
+
+/** List all questions assigned to a given quiz */
+export const getQuizQuestions = (quizId: string) =>
+  api.get<QuestionDto[]>(`/quizzes/${quizId}/questions`);
+
+/** Assign an existing question to a quiz */
+export const addQuestionToQuiz = (quizId: string, questionId: string) =>
+  api.post<void>(`/quizzes/${quizId}/questions`, { questionId });
+
+/** Remove a question from a quiz */
+export const removeQuestionFromQuiz = (quizId: string, questionId: string) =>
+  api.delete<void>(`/quizzes/${quizId}/questions/${questionId}`);

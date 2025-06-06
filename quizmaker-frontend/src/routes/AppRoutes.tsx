@@ -33,6 +33,8 @@ import QuizFormPage from '../pages/QuizFormPage';
 import TagManagementPage from '../pages/TagManagementPage';
 import CategoryManagementPage from '../pages/CategoryManagementPage';
 import QuestionManagementPage from '../pages/QuestionManagementPage';
+import QuizQuestionsPage from '../pages/QuizQuestionPage';
+
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
@@ -124,7 +126,14 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
+      <Route
+        path="/quizzes/:quizId/questions"
+        element={
+          <ProtectedRoute>
+            <QuizQuestionsPage />
+          </ProtectedRoute>
+        }
+      />
       {/* Management sections */}
       <Route
         path="/tags"
