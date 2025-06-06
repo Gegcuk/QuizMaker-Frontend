@@ -66,42 +66,43 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
   /*  Fetch categories, tags, and (in edit) quiz data                       */
   /* ---------------------------------------------------------------------- */
   useEffect(() => {
-        // 1. categories & tags in parallel
-        const [catsRes, tagsRes] = await Promise.all([
-          getAllCategories({ page: 0, size: 100 }),
-          getAllTags({ page: 0, size: 100 }),
-        ]);
-        setAllCategories(catsRes.data.content);
-        setAllTags(tagsRes.data.content);
+  const fetchData = async () => {
+    try {
+      // 1. categories & tags in parallel
+      const [catsRes, tagsRes] = await Promise.all([
+        getAllCategories({ page: 0, size: 100 }),
+        getAllTags({ page: 0, size: 100 }),
+      ]);
+      setAllCategories(catsRes.data.content);
+      setAllTags(tagsRes.data.content);
 
-        // 2. quiz details if edit mode
-        if (mode === 'edit' && quizId) {
-          const { data } = await getQuizById<QuizDto>(quizId);
-          // pre-fill form
-          setTitle(data.title);
-          setDescription(data.description ?? '');
-          setVisibility(data.visibility);
-          setDifficulty(data.difficulty);
-          setEstimatedTime(data.estimatedTime);
-          setTimerEnabled(data.timerEnabled);
-          setTimerDuration(data.timerDuration ?? 5);
-          setCategoryId(data.categoryId ?? '');
-          setTagIds(data.tagIds ?? []);
-        }
-      } catch (e: any) {
-        setError(
-          e?.response?.data?.error ||
-            (mode === 'edit'
-              ? 'Failed to load quiz.'
-              : 'Failed to load reference data.'),
-        );
-      } finally {
-        setLoading(false);
+      // 2. quiz details if edit mode
+      if (mode === 'edit' && quizId) {
+        const { data } = await getQuizById<QuizDto>(quizId);
+        setTitle(data.title);
+        setDescription(data.description ?? '');
+        setVisibility(data.visibility);
+        setDifficulty(data.difficulty);
+        setEstimatedTime(data.estimatedTime);
+        setTimerEnabled(data.timerEnabled);
+        setTimerDuration(data.timerDuration ?? 5);
+        setCategoryId(data.categoryId ?? '');
+        setTagIds(data.tagIds ?? []);
       }
-    };
+    } catch (e: any) {
+      setError(
+        e?.response?.data?.error ||
+        (mode === 'edit'
+          ? 'Failed to load quiz.'
+          : 'Failed to load reference data.')
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [mode, quizId]);
+  fetchData();
+}, [mode, quizId]);
 
   /* ---------------------------------------------------------------------- */
   /*  Client-side validation helper                                         */
