@@ -4,31 +4,24 @@
 // and “edit”   (/quizzes/:quizId/edit) quiz workflows.
 // ---------------------------------------------------------------------------
 
-import React, { useEffect, useState } from 'react';
-import {
-  useParams,
-  useNavigate,
-} from 'react-router-dom';
-import Spinner from '../components/Spinner';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Spinner from "../components/Spinner";
 import {
   CategoryDto,
   TagDto,
   QuizDto,
   CreateQuizRequest,
   UpdateQuizRequest,
-} from '../types/api';
+} from "../types/api";
 
 // Service helpers ------------------------------------------------------------
-import {
-  getQuizById,
-  createQuiz,
-  updateQuiz,
-} from '../api/quiz.service';
-import { getAllCategories } from '../api/category.service';
-import { getAllTags } from '../api/tag.service';
+import { getQuizById, createQuiz, updateQuiz } from "../api/quiz.service";
+import { getAllCategories } from "../api/category.service";
+import { getAllTags } from "../api/tag.service";
 
 interface QuizFormPageProps {
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
 }
 
 const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
@@ -41,16 +34,16 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
   /* ---------------------------------------------------------------------- */
   /*  Form state                                                            */
   /* ---------------------------------------------------------------------- */
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [visibility, setVisibility] =
-    useState<'PUBLIC' | 'PRIVATE'>('PRIVATE');
-  const [difficulty, setDifficulty] =
-    useState<'EASY' | 'MEDIUM' | 'HARD'>('MEDIUM');
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PRIVATE");
+  const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">(
+    "MEDIUM"
+  );
   const [estimatedTime, setEstimatedTime] = useState<number>(10);
   const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
   const [timerDuration, setTimerDuration] = useState<number>(5);
-  const [categoryId, setCategoryId] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>("");
   const [tagIds, setTagIds] = useState<string[]>([]);
 
   // Lists from API
@@ -66,56 +59,56 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
   /*  Fetch categories, tags, and (in edit) quiz data                       */
   /* ---------------------------------------------------------------------- */
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // 1. categories & tags in parallel
-      const [catsRes, tagsRes] = await Promise.all([
-        getAllCategories({ page: 0, size: 100 }),
-        getAllTags({ page: 0, size: 100 }),
-      ]);
-      setAllCategories(catsRes.data.content);
-      setAllTags(tagsRes.data.content);
+    const fetchData = async () => {
+      try {
+        // 1. categories & tags in parallel
+        const [catsRes, tagsRes] = await Promise.all([
+          getAllCategories({ page: 0, size: 100 }),
+          getAllTags({ page: 0, size: 100 }),
+        ]);
+        setAllCategories(catsRes.data.content);
+        setAllTags(tagsRes.data.content);
 
-      // 2. quiz details if edit mode
-      if (mode === 'edit' && quizId) {
-        const { data } = await getQuizById<QuizDto>(quizId);
-        setTitle(data.title);
-        setDescription(data.description ?? '');
-        setVisibility(data.visibility);
-        setDifficulty(data.difficulty);
-        setEstimatedTime(data.estimatedTime);
-        setTimerEnabled(data.timerEnabled);
-        setTimerDuration(data.timerDuration ?? 5);
-        setCategoryId(data.categoryId ?? '');
-        setTagIds(data.tagIds ?? []);
+        // 2. quiz details if edit mode
+        if (mode === "edit" && quizId) {
+          const { data } = await getQuizById<QuizDto>(quizId);
+          setTitle(data.title);
+          setDescription(data.description ?? "");
+          setVisibility(data.visibility);
+          setDifficulty(data.difficulty);
+          setEstimatedTime(data.estimatedTime);
+          setTimerEnabled(data.timerEnabled);
+          setTimerDuration(data.timerDuration ?? 5);
+          setCategoryId(data.categoryId ?? "");
+          setTagIds(data.tagIds ?? []);
+        }
+      } catch (e: any) {
+        setError(
+          e?.response?.data?.error ||
+            (mode === "edit"
+              ? "Failed to load quiz."
+              : "Failed to load reference data.")
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (e: any) {
-      setError(
-        e?.response?.data?.error ||
-        (mode === 'edit'
-          ? 'Failed to load quiz.'
-          : 'Failed to load reference data.')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
-}, [mode, quizId]);
+    fetchData();
+  }, [mode, quizId]);
 
   /* ---------------------------------------------------------------------- */
   /*  Client-side validation helper                                         */
   /* ---------------------------------------------------------------------- */
   const validate = (): string | null => {
     if (title.trim().length < 3 || title.trim().length > 100) {
-      return 'Title must be between 3 and 100 characters.';
+      return "Title must be between 3 and 100 characters.";
     }
     if (estimatedTime < 1 || estimatedTime > 180) {
-      return 'Estimated time must be between 1 and 180 minutes.';
+      return "Estimated time must be between 1 and 180 minutes.";
     }
     if (timerEnabled && (timerDuration < 1 || timerDuration > 180)) {
-      return 'Timer duration must be between 1 and 180 minutes.';
+      return "Timer duration must be between 1 and 180 minutes.";
     }
     return null;
   };
@@ -148,9 +141,9 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
     setError(null);
 
     try {
-      if (mode === 'create') {
+      if (mode === "create") {
         const { data } = await createQuiz<QuizDto>(
-          payloadBase as CreateQuizRequest,
+          payloadBase as CreateQuizRequest
         );
         navigate(`/quizzes/${data.id}`);
       } else if (quizId) {
@@ -160,7 +153,7 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
     } catch (e: any) {
       setError(
         e?.response?.data?.error ||
-          'Failed to save quiz. Please check fields and try again.',
+          "Failed to save quiz. Please check fields and try again."
       );
       setSubmitting(false);
     }
@@ -174,7 +167,7 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
   return (
     <div className="max-w-2xl mx-auto p-4 border rounded">
       <h2 className="text-2xl font-semibold mb-4">
-        {mode === 'create' ? 'Create New Quiz' : 'Edit Quiz'}
+        {mode === "create" ? "Create New Quiz" : "Edit Quiz"}
       </h2>
 
       {error && <div className="text-red-500 mb-2">{error}</div>}
@@ -225,7 +218,7 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
               value={visibility}
               disabled={submitting}
               onChange={(e) =>
-                setVisibility(e.target.value as 'PUBLIC' | 'PRIVATE')
+                setVisibility(e.target.value as "PUBLIC" | "PRIVATE")
               }
               className="w-full border px-3 py-2 rounded"
             >
@@ -242,7 +235,7 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
               value={difficulty}
               disabled={submitting}
               onChange={(e) =>
-                setDifficulty(e.target.value as 'EASY' | 'MEDIUM' | 'HARD')
+                setDifficulty(e.target.value as "EASY" | "MEDIUM" | "HARD")
               }
               className="w-full border px-3 py-2 rounded"
             >
@@ -278,7 +271,12 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
                 type="checkbox"
                 checked={timerEnabled}
                 disabled={submitting}
-                onChange={(e) => setTimerEnabled(e.target.checked)}
+                onChange={(e) => {
+                  setTimerEnabled(e.target.checked);
+                  if (e.target.checked && timerDuration < 1) {
+                    setTimerDuration(1);
+                  }
+                }}
                 className="mr-2"
               />
               {timerEnabled && (
@@ -290,7 +288,7 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
                     className="border px-2 py-1 rounded w-20"
                     disabled={submitting}
                     value={timerDuration}
-                    onChange={(e) => setTimerDuration(Number(e.target.value))}
+                    onChange={(e) => setTimerDuration(e.target.valueAsNumber)}
                   />
                   <span className="ml-2 text-sm">minutes</span>
                 </>
@@ -351,16 +349,16 @@ const QuizFormPage: React.FC<QuizFormPageProps> = ({ mode }) => {
             className="px-6 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
           >
             {submitting
-              ? 'Saving…'
-              : mode === 'create'
-              ? 'Create Quiz'
-              : 'Save Changes'}
+              ? "Saving…"
+              : mode === "create"
+              ? "Create Quiz"
+              : "Save Changes"}
           </button>
           <button
             type="button"
             disabled={submitting}
             className="px-6 py-2 border rounded"
-            onClick={() => navigate('/quizzes')}
+            onClick={() => navigate("/quizzes")}
           >
             Cancel
           </button>

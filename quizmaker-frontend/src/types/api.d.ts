@@ -91,6 +91,26 @@ export interface QuestionDto {
   tagIds: string[];
 }
 
+export interface PageQuestionDto {
+  content: QuestionDto[];
+  totalPages: number;
+  number: number;
+}
+
+export interface CreateQuestionRequest {
+  type: QuestionDto['type'];
+  difficulty: QuestionDto['difficulty'];
+  questionText: string;
+  content: any;
+  hint?: string;
+  explanation?: string;
+  attachmentUrl?: string;
+  quizIds?: string[];
+  tagIds?: string[];
+}
+
+export type UpdateQuestionRequest = Partial<CreateQuestionRequest>;
+
 /* ----------  Attempts & answers  --------------------------------------- */
 export interface AttemptDto {
   attemptId: string;
