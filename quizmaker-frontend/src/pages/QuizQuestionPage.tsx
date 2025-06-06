@@ -41,16 +41,16 @@ const QuizQuestionsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [{ data: quizData }, qRes] = await Promise.all([
+      const [quizRes, qRes] = await Promise.all([
         getQuizById<QuizDto>(quizId),
         getQuizQuestions(quizId),
         getQuizQuestions(quizId).catch((e) => {
-          if (e.response?.status === 404) return { data: [] };
+          if (e.response?.status === 404) return { data: { content: [] } };
           throw e;
         }),
       ]);
-      setQuiz(quizData);
-      setQuestions(qRes.data);
+      setQuiz(quizRes.data);
+      setQuestions(qRes.data.content);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load questions.');
     } finally {

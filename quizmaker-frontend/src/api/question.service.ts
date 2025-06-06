@@ -36,8 +36,13 @@ export const deleteQuestion = (id: string) => api.delete<void>(`/questions/${id}
 // ---------------------------------------------------------------------------
 
 /** List all questions assigned to a given quiz */
-export const getQuizQuestions = (quizId: string) =>
-  api.get<QuestionDto[]>(`/quizzes/${quizId}/questions`);
+export const getQuizQuestions = (
+  quizId: string,
+  { page = 0, size = 20 }: PageParams = { page: 0, size: 20 },
+) =>
+  api.get<PageQuestionDto>('/questions', {
+    params: { quizId, page, size },
+  });
 
 /** Assign an existing question to a quiz */
 export const addQuestionToQuiz = (quizId: string, questionId: string) =>

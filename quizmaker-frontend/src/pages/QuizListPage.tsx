@@ -107,12 +107,20 @@ const QuizListPage: React.FC = () => {
       {/* Header --------------------------------------------------------- */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">All Quizzes</h1>
-        <button
-          onClick={() => navigate('/quizzes/create')}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-        >
-          Create Quiz
-        </button>
+        <div className="space-x-2">
+          <button
+            onClick={() => navigate('/quizzes/create')}
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          >
+            Create Quiz
+          </button>
+          <button
+            onClick={() => navigate('/questions')}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Create Question
+          </button>
+        </div>
       </div>
 
       {/* Filter --------------------------------------------------------- */}
