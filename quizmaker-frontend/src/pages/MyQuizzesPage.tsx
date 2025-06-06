@@ -1,6 +1,5 @@
-// src/pages/MyQuizzesPage.tsx
 // ---------------------------------------------------------------------------
-// Shows all quizzes **created by the logged-in user** with basic CRUD actions.
+// Shows all quizzes **created by the logged-in user** with CRUD actions.
 // Route: /my-quizzes   (wrapped by <ProtectedRoute />)
 // ---------------------------------------------------------------------------
 
@@ -14,7 +13,7 @@ import { getAllQuizzes, deleteQuiz } from '../api/quiz.service';
 
 const MyQuizzesPage: React.FC = () => {
   const { user } = useAuth();
-  const currentUserId = user?.id; // creatorId filter
+  const currentUserId = user?.id;
   const navigate = useNavigate();
 
   /* ------------------------------- state ----------------------------- */
@@ -32,18 +31,18 @@ const MyQuizzesPage: React.FC = () => {
     setError(null);
 
     try {
-      const { data } = await getAllQuizzes<PageQuizDto>({ page, size: 20 });
+      // ⚠️  NO generic type arg needed; getAllQuizzes already returns AxiosResponse<PageQuizDto>
+      const { data } = await getAllQuizzes({ page, size: 20 });
 
       // client-side filter by creatorId
-      const mine = data.content.filter(
-        (q) => q.creatorId === currentUserId,
-      );
+      const mine = data.content.filter((q) => q.creatorId === currentUserId);
 
       setMyQuizzes(mine);
       setTotalPages(data.totalPages);
     } catch (e: any) {
       setError(
-        e?.response?.data?.error || 'Failed to load your quizzes. Please retry.',
+        e?.response?.data?.error ||
+          'Failed to load your quizzes. Please retry.',
       );
     } finally {
       setLoading(false);
@@ -59,10 +58,11 @@ const MyQuizzesPage: React.FC = () => {
     if (!window.confirm('Delete this quiz?')) return;
     try {
       await deleteQuiz(quizId);
-      fetchPage(); // refresh current page
+      fetchPage(); // refresh list
     } catch (e: any) {
       alert(
-        e?.response?.data?.error || 'Could not delete quiz. Try again later.',
+        e?.response?.data?.error ||
+          'Could not delete quiz. Please try again later.',
       );
     }
   };

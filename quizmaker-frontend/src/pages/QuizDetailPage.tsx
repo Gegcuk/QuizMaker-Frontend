@@ -1,11 +1,12 @@
-// src/pages/QuizDetailPage.tsx
 // ---------------------------------------------------------------------------
 // Displays a single quiz with “Take”, “Edit”, “Delete” actions.
+// Route: /quizzes/:quizId
 // ---------------------------------------------------------------------------
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axiosInstance';
+import { deleteQuiz } from '../api/quiz.service';   // use same helper
 
 /* ---------------------------  Types  ------------------------------------ */
 interface QuizDto {
@@ -21,7 +22,7 @@ interface QuizDto {
   tagIds: string[];
 }
 
-/* --------------------------  Spinner  ----------------------------------- */
+/* -----------------------  Spinner (local)  ----------------------------- */
 const Spinner: React.FC = () => (
   <div className="flex justify-center items-center py-20">
     <svg
@@ -56,7 +57,7 @@ const QuizDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  /* Fetch quiz on mount / when quizId changes */
+  /* Fetch quiz on mount / id change */
   useEffect(() => {
     const fetchQuiz = async () => {
       if (!quizId) return;
@@ -78,9 +79,10 @@ const QuizDetailPage: React.FC = () => {
   const handleDelete = async () => {
     if (!quizId) return;
     if (!window.confirm('Are you sure you want to delete this quiz?')) return;
-    setLoading(true);
+
     try {
-      await api.delete(`/quizzes/${quizId}`);
+      setLoading(true);
+      await deleteQuiz(quizId);
       navigate('/quizzes', { replace: true });
     } catch (e: any) {
       setError(e?.response?.data?.error || 'Failed to delete quiz.');

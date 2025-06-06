@@ -1,6 +1,7 @@
 .
 ├── api
-│   └── axiosInstance.ts
+│   ├── axiosInstance.ts
+│   └── quiz.service.ts
 ├── assets
 ├── auth
 ├── components
@@ -15,6 +16,7 @@
 ├── pages
 │   ├── HomePage.tsx
 │   ├── LoginPage.tsx
+│   ├── MyQuizzesPage.tsx
 │   ├── QuizAttemptPage.tsx
 │   ├── QuizDetailPage.tsx
 │   ├── QuizListPage.tsx
@@ -29,4 +31,4 @@
 │   └── tokenUtils.ts
 └── vite-env.d.ts
 
-11 directories, 19 files
+11 directories, 21 files
