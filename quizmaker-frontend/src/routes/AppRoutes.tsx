@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -55,113 +56,115 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      {/* --------------------------  Public  ------------------------------ */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={authRedirect('login')} />
-      <Route path="/register" element={authRedirect('register')} />
+      <Route element={<Layout />}>
+        {/* --------------------------  Public  ------------------------------ */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={authRedirect('login')} />
+        <Route path="/register" element={authRedirect('register')} />
 
-      {/* -------------------------  Private  ------------------------------ */}
-      <Route
-        path="/quizzes"
-        element={
-          <ProtectedRoute>
-            <QuizListPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId"
-        element={
-          <ProtectedRoute>
-            <QuizDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId/attempt"
-        element={
-          <ProtectedRoute>
-            <QuizAttemptPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId/results"
-        element={
-          <ProtectedRoute>
-            <QuizResultPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/my-quizzes"
-        element={
-          <ProtectedRoute>
-            <MyQuizzesPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Quiz creation & editing share the same form component */}
-      <Route
-        path="/quizzes/create"
-        element={
-          <ProtectedRoute>
-            <QuizFormPage mode="create" />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId/edit"
-        element={
-          <ProtectedRoute>
-            <QuizFormPage mode="edit" />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId/results-summary"
-        element={
-          <ProtectedRoute>
-            <QuizResultsSummaryPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quizzes/:quizId/questions"
-        element={
-          <ProtectedRoute>
-            <QuizQuestionsPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Management sections */}
-      <Route
-        path="/tags"
-        element={
-          <ProtectedRoute>
-            <TagManagementPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/categories"
-        element={
-          <ProtectedRoute>
-            <CategoryManagementPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/questions"
-        element={
-          <ProtectedRoute>
-            <QuestionManagementPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* -------------------------  Private  ------------------------------ */}
+        <Route
+          path="/quizzes"
+          element={
+            <ProtectedRoute>
+              <QuizListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId"
+          element={
+            <ProtectedRoute>
+              <QuizDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/attempt"
+          element={
+            <ProtectedRoute>
+              <QuizAttemptPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/results"
+          element={
+            <ProtectedRoute>
+              <QuizResultPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-quizzes"
+          element={
+            <ProtectedRoute>
+              <MyQuizzesPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Quiz creation & editing share the same form component */}
+        <Route
+          path="/quizzes/create"
+          element={
+            <ProtectedRoute>
+              <QuizFormPage mode="create" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/edit"
+          element={
+            <ProtectedRoute>
+              <QuizFormPage mode="edit" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/results-summary"
+          element={
+            <ProtectedRoute>
+              <QuizResultsSummaryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/questions"
+          element={
+            <ProtectedRoute>
+              <QuizQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Management sections */}
+        <Route
+          path="/tags"
+          element={
+            <ProtectedRoute>
+              <TagManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <CategoryManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/questions"
+          element={
+            <ProtectedRoute>
+              <QuestionManagementPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ---------------  Fallback: 404 Not-Found  ------------------------- */}
-      <Route path="*" element={<NotFoundPage />} />
+        {/* ---------------  Fallback: 404 Not-Found  ------------------------- */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 };

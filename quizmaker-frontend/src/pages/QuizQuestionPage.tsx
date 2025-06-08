@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import {
   QuestionDto,
@@ -19,6 +19,7 @@ import {
 
 const QuizQuestionsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
+    const navigate = useNavigate();
   const [quiz, setQuiz] = useState<QuizDto | null>(null);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -159,12 +160,20 @@ const QuizQuestionsPage: React.FC = () => {
       <h2 className="text-2xl font-semibold mb-4">
         Manage Questions for {quiz?.title}
       </h2>
-      <button
-        onClick={openCreate}
-        className="px-4 py-2 mb-4 bg-green-600 text-white rounded"
-      >
-        + New Question
-      </button>
+      <div className="flex items-center space-x-4 mb-4">
+        <button
+          onClick={() => navigate('/quizzes')}
+          className="px-4 py-2 border rounded"
+        >
+          Back to Quizzes
+        </button>
+        <button
+          onClick={openCreate}
+          className="px-4 py-2 bg-green-600 text-white rounded"
+        >
+          + New Question
+        </button>
+      </div>
       {questions.length === 0 ? (
         <p>No questions added yet.</p>
       ) : (
