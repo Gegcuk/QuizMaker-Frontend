@@ -121,6 +121,11 @@ export interface AttemptDto {
   mode: 'ONE_BY_ONE' | 'ALL_AT_ONCE' | 'TIMED';
 }
 
+export interface StartAttemptDto {
+  attemptId: string;
+  firstQuestion: QuestionDto;
+}
+
 export interface AnswerSubmissionDto {
   answerId: string;
   questionId: string;

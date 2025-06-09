@@ -9,8 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axiosInstance';
 import Spinner from '../components/Spinner';
 import type {
-  AttemptDto,
-  AttemptDetailsDto,
+  StartAttemptDto,
   QuestionDto,
   AnswerSubmissionDto,
   AnswerSubmissionRequest,
@@ -46,20 +45,8 @@ const QuizAttemptPage: React.FC = () => {
         );
         setAttemptId(attempt.attemptId);
 
-        // 2. Fetch initial details (first question)
-        const {
-          data: details,
-        } = await api.get<AttemptDetailsDto>(`/attempts/${attempt.attemptId}`);
+        setCurrentQuestion(attempt.firstQuestion);
 
-        let nextQ: QuestionDto | null = null;
-        if (details.answers.length > 0) {
-          nextQ =
-            details.answers[details.answers.length - 1].nextQuestion ?? null;
-        } else {
-          /** Backend sometimes returns first Q in answers[0]?.nextQuestion */
-          nextQ = (details as any).nextQuestion ?? null;
-        }
-        setCurrentQuestion(nextQ);
       } catch {
         setError('Failed to start quiz attempt.');
       } finally {
