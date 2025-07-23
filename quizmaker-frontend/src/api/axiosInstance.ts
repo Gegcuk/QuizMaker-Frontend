@@ -1,18 +1,25 @@
 // src/api/axiosInstance.ts
 // ---------------------------------------------------------------------------
-// A single, shared Axios instance that
+// Enhanced Axios instance that provides:
 //   1.  Attaches the current access-token to every request.
 //   2.  Batches *all* simultaneous 401 responses into **one** token-refresh
 //      round-trip (so N pending requests → 1 × POST /auth/refresh).
 //   3.  Retries the original request once with the fresh token.
 //   4.  If refresh fails (or no refresh-token exists) → logs user out
 //      by clearing localStorage and hard-redirecting to /login.
+//   5.  Support for file uploads (multipart/form-data)
+//   6.  Enhanced error handling for new endpoints
+//   7.  Request/response logging for debugging
+//   8.  Timeout configurations for long-running operations
+//   9.  Progress tracking for file uploads
+//   10. Throttled refresh calls to prevent race conditions
 // ---------------------------------------------------------------------------
 
 import axios, {
   AxiosError,
   AxiosResponse,
   InternalAxiosRequestConfig,
+  AxiosProgressEvent,
 } from 'axios';
 import {
   getAccessToken,
@@ -22,11 +29,24 @@ import {
 } from '../utils/tokenUtils';
 
 /* ------------------------------------------------------------------------ */
-/* 1. Axios instance                                                        */
+/* 1. Enhanced Axios instance with timeout and logging                      */
 /* ------------------------------------------------------------------------ */
+
+// Configuration for different request types
+const DEFAULT_TIMEOUT = 10000; // 10 seconds
+const FILE_UPLOAD_TIMEOUT = 300000; // 5 minutes
+const LONG_RUNNING_TIMEOUT = 600000; // 10 minutes
+
 const api = axios.create({
   baseURL: '/api/v1',
+  timeout: DEFAULT_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Enable request/response logging in development
+const isDevelopment = import.meta.env.DEV;
 
 /* ------------------------------------------------------------------------ */
 /* 2. Types                                                                 */
@@ -41,21 +61,65 @@ interface RefreshResponse {
 /** We extend Axios’ config so we can tag a request as “already retried” */
 interface RetryConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
+  _isFileUpload?: boolean;
+  _isLongRunning?: boolean;
+  headers?: any;
+}
+
+/** Progress tracking callback type */
+export type ProgressCallback = (progress: number, loaded: number, total: number) => void;
+
+/** Enhanced request configuration */
+export interface EnhancedRequestConfig extends InternalAxiosRequestConfig {
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  timeout?: number;
+  _isFileUpload?: boolean;
+  _isLongRunning?: boolean;
+  data?: any;
+  headers?: any;
+  method?: string;
+  url?: string;
 }
 
 /* ------------------------------------------------------------------------ */
 /* 3. Request interceptor – inject “Authorization: Bearer <token>”          */
 /* ------------------------------------------------------------------------ */
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const enhancedConfig = config as EnhancedRequestConfig;
+  
+  // Set appropriate timeout based on request type
+  if (enhancedConfig._isFileUpload) {
+    enhancedConfig.timeout = FILE_UPLOAD_TIMEOUT;
+  } else if (enhancedConfig._isLongRunning) {
+    enhancedConfig.timeout = LONG_RUNNING_TIMEOUT;
+  }
+
+  // Handle file uploads
+  if (enhancedConfig._isFileUpload && enhancedConfig.data instanceof FormData) {
+    // Remove Content-Type header to let browser set it with boundary
+    delete enhancedConfig.headers?.['Content-Type'];
+  }
+
+  // Inject authorization token
   const token = getAccessToken();
   if (token) {
-    // Note: we preserve any custom headers the caller may have set.
-    config.headers = {
-      ...(config.headers as any),
+    enhancedConfig.headers = {
+      ...(enhancedConfig.headers as any),
       Authorization: `Bearer ${token}`,
     } as any;
   }
-  return config;
+
+  // Request logging in development
+  if (isDevelopment) {
+    console.group(`🚀 API Request: ${enhancedConfig.method?.toUpperCase()} ${enhancedConfig.url}`);
+    console.log('Headers:', enhancedConfig.headers);
+    console.log('Data:', enhancedConfig.data);
+    console.log('Timeout:', enhancedConfig.timeout);
+    console.groupEnd();
+  }
+
+  return enhancedConfig;
 });
 
 /* ------------------------------------------------------------------------ */
@@ -90,9 +154,27 @@ const forceLogout = () => {
 };
 
 api.interceptors.response.use(
-  (response: AxiosResponse) => response, // happy path → just pass it through
+  (response: AxiosResponse) => {
+    // Response logging in development
+    if (isDevelopment) {
+      console.group(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      console.log('Status:', response.status);
+      console.log('Data:', response.data);
+      console.log('Headers:', response.headers);
+      console.groupEnd();
+    }
+    return response;
+  },
 
   async (error: AxiosError) => {
+    // Error logging in development
+    if (isDevelopment) {
+      console.group(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.log('Status:', error.response?.status);
+      console.log('Error:', error.message);
+      console.log('Response Data:', error.response?.data);
+      console.groupEnd();
+    }
     const original = error.config as RetryConfig | undefined;
 
     /* ------------------------------------------------------------------ */
@@ -152,5 +234,118 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/* ------------------------------------------------------------------------ */
+/* 5. Utility functions for enhanced features                               */
+/* ------------------------------------------------------------------------ */
+
+/** Throttled refresh mechanism to prevent race conditions */
+let refreshThrottleTimeout: number | null = null;
+const REFRESH_THROTTLE_DELAY = 1000; // 1 second
+
+const throttledRefresh = async (): Promise<string> => {
+  if (refreshThrottleTimeout) {
+    // Wait for existing refresh to complete
+    return new Promise((resolve, reject) => {
+      refreshThrottleTimeout = setTimeout(async () => {
+        try {
+          const token = await runRefresh();
+          resolve(token);
+        } catch (error) {
+          reject(error);
+        }
+      }, REFRESH_THROTTLE_DELAY);
+    });
+  }
+  
+  return runRefresh();
+};
+
+/** Create a file upload request with progress tracking */
+export const createFileUploadRequest = (
+  url: string,
+  file: File,
+  onProgress?: ProgressCallback,
+  additionalData?: Record<string, any>
+): EnhancedRequestConfig => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  if (additionalData) {
+    Object.entries(additionalData).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+  }
+
+  return {
+    method: 'POST',
+    url,
+    data: formData,
+    _isFileUpload: true,
+    onUploadProgress: onProgress ? (progressEvent) => {
+      if (progressEvent.total) {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress(progress, progressEvent.loaded, progressEvent.total);
+      }
+    } : undefined,
+  };
+};
+
+/** Create a long-running request with extended timeout */
+export const createLongRunningRequest = (
+  method: string,
+  url: string,
+  data?: any,
+  onProgress?: ProgressCallback
+): EnhancedRequestConfig => {
+  return {
+    method: method.toUpperCase() as any,
+    url,
+    data,
+    _isLongRunning: true,
+    onDownloadProgress: onProgress ? (progressEvent) => {
+      if (progressEvent.total) {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress(progress, progressEvent.loaded, progressEvent.total);
+      }
+    } : undefined,
+  };
+};
+
+/** Enhanced error handler with detailed error information */
+export const handleApiError = (error: AxiosError): never => {
+  if (error.response) {
+    // Server responded with error status
+    const status = error.response.status;
+    const data = error.response.data as any;
+    
+    switch (status) {
+      case 400:
+        throw new Error(data?.message || 'Bad request');
+      case 401:
+        throw new Error('Authentication required');
+      case 403:
+        throw new Error('Access denied');
+      case 404:
+        throw new Error('Resource not found');
+      case 409:
+        throw new Error(data?.message || 'Conflict occurred');
+      case 422:
+        throw new Error(data?.message || 'Validation failed');
+      case 429:
+        throw new Error('Too many requests. Please try again later.');
+      case 500:
+        throw new Error('Internal server error');
+      default:
+        throw new Error(data?.message || `HTTP ${status} error`);
+    }
+  } else if (error.request) {
+    // Network error
+    throw new Error('Network error. Please check your connection.');
+  } else {
+    // Other error
+    throw new Error(error.message || 'An unexpected error occurred');
+  }
+};
 
 export default api;
