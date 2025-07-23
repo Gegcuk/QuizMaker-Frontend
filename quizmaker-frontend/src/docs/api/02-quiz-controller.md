@@ -507,6 +507,41 @@ Returns paginated list of public quizzes.
 
 **Response** (200 OK): Same format as List Quizzes endpoint
 
+### 15. Add Question to Quiz
+**POST** `/api/v1/quizzes/{quizId}/questions/{questionId}`
+
+Associates an existing question with a quiz (ADMIN only).
+
+**Path Parameters**:
+- `quizId`: UUID of the quiz (required)
+- `questionId`: UUID of the question (required)
+
+**Response** (204 No Content): Question successfully added to quiz
+
+**Error Responses**:
+- `400 Bad Request`: Invalid quiz or question ID
+- `401 Unauthorized`: Not authenticated
+- `403 Forbidden`: Not ADMIN role
+- `404 Not Found`: Quiz or question not found
+- `409 Conflict`: Question already associated with quiz
+
+### 16. Remove Question from Quiz
+**DELETE** `/api/v1/quizzes/{quizId}/questions/{questionId}`
+
+Removes a question from a quiz (ADMIN only).
+
+**Path Parameters**:
+- `quizId`: UUID of the quiz (required)
+- `questionId`: UUID of the question (required)
+
+**Response** (204 No Content): Question successfully removed from quiz
+
+**Error Responses**:
+- `400 Bad Request`: Invalid quiz or question ID
+- `401 Unauthorized`: Not authenticated
+- `403 Forbidden`: Not ADMIN role
+- `404 Not Found`: Quiz or question not found
+
 ## Integration Notes
 
 ### Quiz Generation Workflow

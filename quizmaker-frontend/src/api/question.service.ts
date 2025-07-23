@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import { QUESTION_ENDPOINTS } from './endpoints';
+import { QUESTION_ENDPOINTS, QUIZ_ENDPOINTS } from './endpoints';
 import { 
   CreateQuestionRequest,
   UpdateQuestionRequest,
@@ -147,13 +147,17 @@ export const deleteQuestion = (questionId: string) => questionService.deleteQues
 export const getQuizQuestions = (quizId: string) => questionService.getQuestions({ quizId });
 
 export const addQuestionToQuiz = async (quizId: string, questionId: string) => {
-  // This would need to be implemented in the QuestionService class
-  // For now, we'll throw an error indicating it needs implementation
-  throw new Error('addQuestionToQuiz not implemented yet');
+  try {
+    await api.post(QUIZ_ENDPOINTS.ADD_QUESTION(quizId, questionId));
+  } catch (error) {
+    throw new Error(`Failed to add question to quiz: ${error}`);
+  }
 };
 
 export const removeQuestionFromQuiz = async (quizId: string, questionId: string) => {
-  // This would need to be implemented in the QuestionService class
-  // For now, we'll throw an error indicating it needs implementation
-  throw new Error('removeQuestionFromQuiz not implemented yet');
+  try {
+    await api.delete(QUIZ_ENDPOINTS.REMOVE_QUESTION(quizId, questionId));
+  } catch (error) {
+    throw new Error(`Failed to remove question from quiz: ${error}`);
+  }
 };

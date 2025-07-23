@@ -11,14 +11,16 @@ import {
   Link,
   useNavigate,
 } from 'react-router-dom';
-import api from '../api/axiosInstance';
+import { AttemptService } from '../api/attempt.service';
 import { Spinner } from '../components/ui';
-import type { AttemptResultDto } from '../types/api';
+import type { AttemptResultDto } from '../types/attempt.types';
+import api from '../api/axiosInstance';
 
 const QuizResultPage: React.FC = () => {
-  const { quizId } = useParams<{ quizId: string }>(); // kept & used for “Back” URL
+  const { quizId } = useParams<{ quizId: string }>(); // kept & used for "Back" URL
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const attemptService = new AttemptService(api);
 
   const attemptId = searchParams.get('attemptId');
   const backUrl = quizId ? `/quizzes/${quizId}` : '/quizzes';
@@ -37,9 +39,7 @@ const QuizResultPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const { data } = await api.get<AttemptResultDto>(
-          `/attempts/${attemptId}`,
-        );
+        const data = await attemptService.getAttemptById(attemptId);
         setResults(data);
       } catch (e: any) {
         setError(
@@ -124,7 +124,7 @@ const QuizResultPage: React.FC = () => {
           {results.answers.map((ans) => (
             <li key={ans.answerId} className="border rounded p-4">
               <p className="font-medium">
-                {ans.nextQuestion?.questionText || ans.questionId}
+                Question ID: {ans.questionId}
               </p>
               <p>
                 Your answer was{' '}
@@ -135,11 +135,9 @@ const QuizResultPage: React.FC = () => {
                 )}
               </p>
               <p>Score Awarded: {ans.score}</p>
-              {ans.nextQuestion?.explanation && (
-                <p className="mt-2 text-gray-700">
-                  Explanation: {ans.nextQuestion.explanation}
-                </p>
-              )}
+              <p className="text-sm text-gray-500">
+                Answered at: {new Date(ans.answeredAt).toLocaleString()}
+              </p>
             </li>
           ))}
         </ul>

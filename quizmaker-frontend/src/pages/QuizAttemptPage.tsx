@@ -5,16 +5,19 @@
 // Auth & ProtectedRoute are assumed to be in place.
 // ---------------------------------------------------------------------------
 
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api from "../api/axiosInstance";
-import { Spinner } from "../components/ui";
-import type {
-  QuestionDto,
-  AnswerSubmissionDto,
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { QuestionRenderer } from '../components/question';
+import { Button, Alert, Spinner } from '../components/ui';
+import { Breadcrumb, PageHeader } from '../components/layout';
+import {
+  StartAttemptResponse,
   AnswerSubmissionRequest,
-  StartAttemptDto,
-} from "../types/api";
+  AnswerSubmissionDto,
+  QuestionForAttemptDto
+} from '../types/attempt.types';
+import { AttemptService } from '../api/attempt.service';
+import api from '../api/axiosInstance';
 
 // Shape of user answer input; varies by question type
 type AnswerInput = any;
@@ -22,22 +25,38 @@ type AnswerInput = any;
 const QuizAttemptPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-
-  const [attemptId, setAttemptId] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<QuestionDto | null>(
-    null
-  );
-  const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const attemptService = new AttemptService(api);
+  
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<QuestionForAttemptDto | null>(null);
+  const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const isAnswerProvided = () => {
-    if (answerInput === null || answerInput === undefined) return false;
-    if (typeof answerInput === "string") return answerInput.trim().length > 0;
-    if (Array.isArray(answerInput)) return answerInput.length > 0;
-    if (typeof answerInput === "object")
-      return Object.keys(answerInput).length > 0;
+    if (!currentQuestion) return false;
+
+    switch (currentQuestion.type) {
+      case "MCQ_SINGLE":
+        return Boolean(answerInput);
+      case "MCQ_MULTI":
+        return Array.isArray(answerInput) && answerInput.length > 0;
+      case "TRUE_FALSE":
+        return answerInput !== null && answerInput !== undefined;
+      case "OPEN":
+        return typeof answerInput === "string" && answerInput.trim().length > 0;
+      case "COMPLIANCE":
+        return Array.isArray(answerInput) && answerInput.length > 0;
+      case "FILL_GAP":
+        return answerInput && Object.keys(answerInput).length > 0;
+      case "HOTSPOT":
+        return Boolean(answerInput);
+      case "ORDERING":
+        return Array.isArray(answerInput) && answerInput.length > 0;
+      default:
+        return Object.keys(answerInput).length > 0;
+    }
 
     return true;
   };
@@ -50,14 +69,10 @@ const QuizAttemptPage: React.FC = () => {
 
     const startAttempt = async () => {
       try {
-        // 1. Create attempt
-        const { data: attempt } = await api.post<StartAttemptDto>(
-          `/attempts/quizzes/${quizId}`,
-          { mode: "ONE_BY_ONE" }
-        );
+        // 1. Create attempt using AttemptService
+        const attempt = await attemptService.startAttempt(quizId, { mode: "ONE_BY_ONE" });
         setAttemptId(attempt.attemptId);
-
-        setCurrentQuestion(attempt.firstQuestion);
+        setCurrentQuestion(attempt.firstQuestion || null);
       } catch {
         setError("Failed to start quiz attempt.");
       } finally {
@@ -112,10 +127,7 @@ const QuizAttemptPage: React.FC = () => {
     };
 
     try {
-      const { data } = await api.post<AnswerSubmissionDto>(
-        `/attempts/${attemptId}/answers`,
-        payload
-      );
+      const data = await attemptService.submitAnswer(attemptId, payload);
       console.log("Answer submitted:", data);
 
       // nextQuestion present → continue; otherwise finish attempt
@@ -123,7 +135,7 @@ const QuizAttemptPage: React.FC = () => {
         setCurrentQuestion(data.nextQuestion);
         setAnswerInput(null);
       } else {
-        await api.post(`/attempts/${attemptId}/complete`);
+        await attemptService.completeAttempt(attemptId);
         navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
       }
     } catch (e: any) {
@@ -140,11 +152,11 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   const renderOptions = () => {
     if (!currentQuestion) return null;
-    const { type, content } = currentQuestion;
+    const { type, safeContent } = currentQuestion;
 
     switch (type) {
       case "MCQ_SINGLE":
-        return content.options.map((opt: any, idx: number) => {
+        return safeContent.options.map((opt: any, idx: number) => {
           const optionValue = opt.id ?? idx;
           return (
             <label key={optionValue} className="flex items-center mb-2">
@@ -162,7 +174,7 @@ const QuizAttemptPage: React.FC = () => {
         });
 
       case "MCQ_MULTI":
-        return content.options.map((opt: any, idx: number) => {
+        return safeContent.options.map((opt: any, idx: number) => {
           const optionValue = opt.id ?? idx;
           return (
             <label key={optionValue} className="flex items-center mb-2">
@@ -224,7 +236,7 @@ const QuizAttemptPage: React.FC = () => {
         );
 
       case "COMPLIANCE":
-        return content.statements.map((stmt: any) => (
+        return safeContent.statements.map((stmt: any) => (
           <label key={stmt.id} className="flex items-center mb-2">
             <input
               type="checkbox"
@@ -246,7 +258,7 @@ const QuizAttemptPage: React.FC = () => {
         ));
 
       case "FILL_GAP":
-        return content.gaps.map((gap: any) => (
+        return safeContent.gaps.map((gap: any) => (
           <div key={gap.id} className="mb-2">
             <label className="mr-2">Gap {gap.id}:</label>
             <input
@@ -264,7 +276,7 @@ const QuizAttemptPage: React.FC = () => {
         ));
 
       case "HOTSPOT":
-        return content.regions.map((region: any) => (
+        return safeContent.regions.map((region: any) => (
           <label key={region.id} className="flex items-center mb-2">
             <input
               type="radio"
@@ -279,7 +291,7 @@ const QuizAttemptPage: React.FC = () => {
         ));
 
       case "ORDERING":
-        return content.items.map((it: any) => (
+        return safeContent.items.map((it: any) => (
           <div key={it.id} className="flex items-center mb-2 space-x-2">
             <span className="flex-1">{it.text}</span>
             <input

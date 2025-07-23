@@ -6,7 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '../../types/quiz.types';
-import { createQuiz, updateQuiz, getQuizById } from '../../api/quiz.service';
+import { getQuizById, createQuiz, updateQuiz } from '../../api/quiz.service';
+import { addQuestionToQuiz, removeQuestionFromQuiz, getQuizQuestions } from '../../api/question.service';
 import { QuizBasicInfo, QuizSettings, QuizPreview, QuizPublishModal, QuizQuestionManager, QuizTagManager, QuizCategoryManager } from './';
 import { PageHeader } from '../layout';
 import type { AxiosError } from 'axios';
@@ -25,11 +26,10 @@ interface FormErrors {
 }
 
 const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
-  const navigate = useNavigate();
   const { quizId } = useParams<{ quizId: string }>();
-  const isEditing = !!quizId;
-
-  // Form state
+  const navigate = useNavigate();
+  const isEditing = Boolean(quizId);
+  
   const [quizData, setQuizData] = useState<Partial<CreateQuizRequest | UpdateQuizRequest>>({
     title: '',
     description: '',
@@ -42,14 +42,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
     categoryId: undefined,
     tagIds: []
   });
-
-  // UI state
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+  const [currentQuiz, setCurrentQuiz] = useState<QuizDto | null>(null);
+  const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [showPublishModal, setShowPublishModal] = useState(false);
-  const [currentQuiz, setCurrentQuiz] = useState<QuizDto | null>(null);
   const [activeTab, setActiveTab] = useState<'basic' | 'settings' | 'questions' | 'tags' | 'category' | 'preview'>('basic');
+  const [showPublishModal, setShowPublishModal] = useState(false);
 
   // Load existing quiz data if editing
   useEffect(() => {
@@ -57,7 +57,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
       const loadQuiz = async () => {
         setIsLoading(true);
         try {
-          const quiz = await getQuizById(quizId);
+          const [quiz, questions] = await Promise.all([
+            getQuizById(quizId),
+            getQuizQuestions(quizId).catch(() => ({ content: [] })) // Handle case where quiz has no questions
+          ]);
+          
           setCurrentQuiz(quiz);
           setQuizData({
             title: quiz.title,
@@ -71,6 +75,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
             categoryId: quiz.categoryId,
             tagIds: quiz.tagIds
           });
+          
+          // Set existing questions
+          setSelectedQuestionIds(questions.content.map((q: any) => q.id));
         } catch (error) {
           const axiosError = error as AxiosError<{ message?: string }>;
           const errorMessage = axiosError.response?.data?.message || 'Failed to load quiz';
@@ -125,8 +132,10 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
 
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -136,17 +145,34 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
 
     setIsSaving(true);
     try {
+      let resultQuizId: string;
+      
       if (isEditing && quizId) {
         await updateQuiz(quizId, quizData as UpdateQuizRequest);
+        resultQuizId = quizId;
       } else {
         const result = await createQuiz(quizData as CreateQuizRequest);
-        // Navigate to the new quiz's edit page
-        navigate(`/quizzes/${result.quizId}/edit`);
-        return;
+        resultQuizId = result.quizId;
       }
       
-      // Show success message or redirect
-      navigate('/quizzes');
+      // Handle question management
+      if (selectedQuestionIds.length > 0) {
+        // Add selected questions to the quiz
+        for (const questionId of selectedQuestionIds) {
+          try {
+            await addQuestionToQuiz(resultQuizId, questionId);
+          } catch (error) {
+            console.warn(`Failed to add question ${questionId} to quiz:`, error);
+          }
+        }
+      }
+      
+      // Navigate to the quiz's edit page for new quizzes, or quiz list for existing ones
+      if (isEditing) {
+        navigate('/quizzes');
+      } else {
+        navigate(`/quizzes/${resultQuizId}/edit`);
+      }
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       const errorMessage = axiosError.response?.data?.message || 'Failed to save quiz';
@@ -177,8 +203,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
 
   // Handle question changes
   const handleQuestionsChange = (questionIds: string[]) => {
-    // TODO: Implement question management API calls
-    console.log('Questions changed:', questionIds);
+    setSelectedQuestionIds(questionIds);
   };
 
   // Handle tag changes
@@ -237,7 +262,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
             label: isEditing ? 'Update Quiz' : 'Create Quiz',
             type: 'create',
             variant: 'primary',
-            onClick: () => handleSubmit({} as React.FormEvent),
+            onClick: () => handleSubmit(),
             disabled: isSaving
           }
         ]}
@@ -302,7 +327,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
         {activeTab === 'questions' && (
           <QuizQuestionManager
             quizId={quizId || 'new'}
-            currentQuestionIds={[]} // TODO: Get from quiz data
+            currentQuestionIds={selectedQuestionIds}
             onQuestionsChange={handleQuestionsChange}
           />
         )}

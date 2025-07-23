@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner, Button, Modal, Alert, Breadcrumb } from '../components/ui';
-import { PageHeader } from '../components/layout';
+import { Spinner, Button, Modal, Alert } from '../components/ui';
+import { Breadcrumb, PageHeader } from '../components/layout';
 import {
   QuestionDto,
   QuizDto,
@@ -272,10 +272,10 @@ const QuizQuestionsPage: React.FC = () => {
   };
 
   const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Quizzes', href: '/quizzes' },
-    { label: quiz?.title || 'Quiz', href: `/quizzes/${quizId}` },
-    { label: 'Questions', href: `/quizzes/${quizId}/questions`, current: true },
+    { label: 'Home', path: '/' },
+    { label: 'Quizzes', path: '/quizzes' },
+    { label: quiz?.title || 'Quiz', path: `/quizzes/${quizId}` },
+    { label: 'Questions', path: `/quizzes/${quizId}/questions`, isCurrent: true },
   ];
 
   if (loading) {
@@ -304,7 +304,7 @@ const QuizQuestionsPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb customItems={breadcrumbItems} />
 
         {/* Page Header */}
         <PageHeader

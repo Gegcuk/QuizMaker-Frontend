@@ -12,7 +12,7 @@ import { DocumentDto, DocumentConfig, ChunkingStrategy } from '../../types/docum
 import { GenerateQuizFromDocumentRequest, QuizGenerationResponse } from '../../types/quiz.types';
 import api from '../../api/axiosInstance';
 import { Button, Modal, Alert, Badge } from '../ui';
-import { GenerationProgress } from '../ai/GenerationProgress';
+import { GenerationProgress } from '../ai';
 
 interface DocumentUploadProps {
   onUploadSuccess?: (document: DocumentDto) => void;
@@ -175,8 +175,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         quizDescription: quizConfig.quizDescription || `Quiz generated from ${uploadedDocument.title}`,
         questionsPerType: quizConfig.questionsPerType || {
           MCQ_SINGLE: 3,
+          MCQ_MULTI: 1,
           TRUE_FALSE: 2,
-          OPEN: 1
+          OPEN: 1,
+          FILL_GAP: 1,
+          COMPLIANCE: 0,
+          ORDERING: 0,
+          HOTSPOT: 0
         },
         difficulty: quizConfig.difficulty || 'MEDIUM',
         estimatedTimePerQuestion: quizConfig.estimatedTimePerQuestion || 2

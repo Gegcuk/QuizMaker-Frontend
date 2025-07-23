@@ -20,4 +20,7 @@ export * from './ui';
 export * from './question';
 
 // Attempt Components
-export * from './attempt'; 
+export * from './attempt';
+
+// AI Components
+export * from './ai'; 
