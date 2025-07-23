@@ -2,22 +2,29 @@
 // ---------------------------------------------------------------------------
 // Component for uploading documents with drag-and-drop support
 // Handles file validation, progress tracking, and upload configuration
+// Includes quiz generation functionality
 // ---------------------------------------------------------------------------
 
 import React, { useState, useCallback, useRef } from 'react';
 import { DocumentService } from '../../api/document.service';
+import { QuizService } from '../../api/quiz.service';
 import { DocumentDto, DocumentConfig, ChunkingStrategy } from '../../types/document.types';
+import { GenerateQuizFromDocumentRequest, QuizGenerationResponse } from '../../types/quiz.types';
 import api from '../../api/axiosInstance';
+import { Button, Modal, Alert, Badge } from '../ui';
+import { GenerationProgress } from '../ai/GenerationProgress';
 
 interface DocumentUploadProps {
   onUploadSuccess?: (document: DocumentDto) => void;
   onUploadError?: (error: string) => void;
+  onQuizGenerationStarted?: (response: QuizGenerationResponse) => void;
   className?: string;
 }
 
 const DocumentUpload: React.FC<DocumentUploadProps> = ({
   onUploadSuccess,
   onUploadError,
+  onQuizGenerationStarted,
   className = ''
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
@@ -30,9 +37,34 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     maxChunkSize: 1000
   });
   const [error, setError] = useState<string | null>(null);
+  const [uploadedDocument, setUploadedDocument] = useState<DocumentDto | null>(null);
+  const [showQuizGenerationModal, setShowQuizGenerationModal] = useState(false);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentService = new DocumentService(api);
+  const quizService = new QuizService(api);
+
+  // Quiz generation configuration
+  const [quizConfig, setQuizConfig] = useState<Partial<GenerateQuizFromDocumentRequest>>({
+    quizScope: 'ENTIRE_DOCUMENT',
+    quizTitle: '',
+    quizDescription: '',
+    questionsPerType: {
+      MCQ_SINGLE: 3,
+      MCQ_MULTI: 1,
+      TRUE_FALSE: 2,
+      OPEN: 1,
+      FILL_GAP: 1,
+      COMPLIANCE: 0,
+      ORDERING: 0,
+      HOTSPOT: 0
+    },
+    difficulty: 'MEDIUM',
+    estimatedTimePerQuestion: 2
+  });
 
   // Load document configuration on component mount
   React.useEffect(() => {
@@ -87,6 +119,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
     
     setSelectedFile(file);
+    // Auto-generate quiz title from filename
+    const fileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+    setQuizConfig(prev => ({
+      ...prev,
+      quizTitle: `${fileName} Quiz`,
+      quizDescription: `Quiz generated from ${fileName} document`
+    }));
   };
 
   const handleUpload = async () => {
@@ -105,6 +144,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       
       setUploadProgress(100);
       setSelectedFile(null);
+      setUploadedDocument(document);
       onUploadSuccess?.(document);
       
       // Reset form
@@ -118,6 +158,43 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+    }
+  };
+
+  const handleGenerateQuiz = async () => {
+    if (!uploadedDocument) return;
+    
+    setIsGeneratingQuiz(true);
+    setGenerationError(null);
+    
+    try {
+      const generationRequest: GenerateQuizFromDocumentRequest = {
+        documentId: uploadedDocument.id,
+        quizScope: quizConfig.quizScope || 'ENTIRE_DOCUMENT',
+        quizTitle: quizConfig.quizTitle || `${uploadedDocument.title} Quiz`,
+        quizDescription: quizConfig.quizDescription || `Quiz generated from ${uploadedDocument.title}`,
+        questionsPerType: quizConfig.questionsPerType || {
+          MCQ_SINGLE: 3,
+          TRUE_FALSE: 2,
+          OPEN: 1
+        },
+        difficulty: quizConfig.difficulty || 'MEDIUM',
+        estimatedTimePerQuestion: quizConfig.estimatedTimePerQuestion || 2
+      };
+      
+      const response = await quizService.generateQuizFromDocument(generationRequest);
+      
+      setShowQuizGenerationModal(false);
+      setActiveGenerationJob(response.jobId);
+      onQuizGenerationStarted?.(response);
+      
+      // Show success message
+      setError(null);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to start quiz generation';
+      setGenerationError(errorMessage);
+    } finally {
+      setIsGeneratingQuiz(false);
     }
   };
 
@@ -348,6 +425,264 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           <li>• You can configure chunking strategy for better quiz generation</li>
         </ul>
       </div>
+
+      {/* Quiz Generation Section */}
+      {uploadedDocument && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-green-900">Document Uploaded Successfully!</h3>
+              <p className="text-sm text-green-700">
+                "{uploadedDocument.title || uploadedDocument.originalFilename}" is ready for quiz generation
+              </p>
+            </div>
+            <Badge variant="success">✓ Processed</Badge>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="text-sm text-green-700">
+              <p><strong>Document Details:</strong></p>
+              <p>• Size: {formatFileSize(uploadedDocument.fileSize)}</p>
+              <p>• Pages: {uploadedDocument.totalPages}</p>
+              <p>• Chunks: {uploadedDocument.totalChunks}</p>
+              <p>• Status: {uploadedDocument.status}</p>
+            </div>
+            
+            <button
+              onClick={() => setShowQuizGenerationModal(true)}
+              className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            >
+              🎯 Generate Quiz from Document
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Quiz Generation Progress */}
+      {activeGenerationJob && (
+        <div className="mt-6">
+          <GenerationProgress
+            jobId={activeGenerationJob}
+            onGenerationComplete={(quizId) => {
+              setActiveGenerationJob(null);
+              // You can navigate to the quiz or show a success message
+              console.log('Quiz generation completed! Quiz ID:', quizId);
+            }}
+            onGenerationError={(error) => {
+              setActiveGenerationJob(null);
+              setGenerationError(error);
+            }}
+            onGenerationCancelled={() => {
+              setActiveGenerationJob(null);
+            }}
+          />
+        </div>
+      )}
+
+      {/* Quiz Generation Modal */}
+      <Modal
+        isOpen={showQuizGenerationModal}
+        onClose={() => setShowQuizGenerationModal(false)}
+        title="Generate Quiz from Document"
+      >
+        <div className="space-y-6">
+          {generationError && (
+            <Alert type="error" onDismiss={() => setGenerationError(null)}>
+              {generationError}
+            </Alert>
+          )}
+
+          <div className="space-y-4">
+            {/* Quiz Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quiz Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={quizConfig.quizTitle || ''}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  quizTitle: e.target.value
+                }))}
+                placeholder="Enter quiz title..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Quiz Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quiz Description
+              </label>
+              <textarea
+                value={quizConfig.quizDescription || ''}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  quizDescription: e.target.value
+                }))}
+                placeholder="Enter quiz description..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Quiz Scope */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quiz Scope
+              </label>
+              <select
+                value={quizConfig.quizScope || 'ENTIRE_DOCUMENT'}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  quizScope: e.target.value as any
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="ENTIRE_DOCUMENT">Entire Document</option>
+                <option value="SPECIFIC_CHUNKS">Specific Chunks</option>
+                <option value="SPECIFIC_CHAPTER">Specific Chapter</option>
+                <option value="SPECIFIC_SECTION">Specific Section</option>
+              </select>
+            </div>
+
+            {/* Difficulty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Difficulty Level
+              </label>
+              <select
+                value={quizConfig.difficulty || 'MEDIUM'}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  difficulty: e.target.value as any
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="EASY">Easy</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HARD">Hard</option>
+              </select>
+            </div>
+
+            {/* Questions Per Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Questions Per Type (per chunk)
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Multiple Choice</label>
+                  <input
+                    type="number"
+                    value={quizConfig.questionsPerType?.MCQ_SINGLE || 3}
+                    onChange={(e) => setQuizConfig(prev => ({
+                      ...prev,
+                      questionsPerType: {
+                        MCQ_SINGLE: parseInt(e.target.value) || 0,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
+                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
+                        OPEN: prev.questionsPerType?.OPEN || 1,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
+                        ORDERING: prev.questionsPerType?.ORDERING || 0,
+                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                      }
+                    }))}
+                    min="0"
+                    max="10"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">True/False</label>
+                  <input
+                    type="number"
+                    value={quizConfig.questionsPerType?.TRUE_FALSE || 2}
+                    onChange={(e) => setQuizConfig(prev => ({
+                      ...prev,
+                      questionsPerType: {
+                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
+                        TRUE_FALSE: parseInt(e.target.value) || 0,
+                        OPEN: prev.questionsPerType?.OPEN || 1,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
+                        ORDERING: prev.questionsPerType?.ORDERING || 0,
+                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                      }
+                    }))}
+                    min="0"
+                    max="10"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Open Questions</label>
+                  <input
+                    type="number"
+                    value={quizConfig.questionsPerType?.OPEN || 1}
+                    onChange={(e) => setQuizConfig(prev => ({
+                      ...prev,
+                      questionsPerType: {
+                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
+                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
+                        OPEN: parseInt(e.target.value) || 0,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
+                        ORDERING: prev.questionsPerType?.ORDERING || 0,
+                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                      }
+                    }))}
+                    min="0"
+                    max="5"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Estimated Time Per Question */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estimated Time Per Question (minutes)
+              </label>
+              <input
+                type="number"
+                value={quizConfig.estimatedTimePerQuestion || 2}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  estimatedTimePerQuestion: parseInt(e.target.value) || 1
+                }))}
+                min="1"
+                max="10"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              variant="secondary"
+              onClick={() => setShowQuizGenerationModal(false)}
+              disabled={isGeneratingQuiz}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleGenerateQuiz}
+              loading={isGeneratingQuiz}
+              disabled={!quizConfig.quizTitle?.trim()}
+            >
+              {isGeneratingQuiz ? 'Starting Generation...' : 'Start Quiz Generation'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

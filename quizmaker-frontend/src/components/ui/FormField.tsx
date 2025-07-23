@@ -28,11 +28,11 @@ const FormField = forwardRef<HTMLDivElement, FormFieldProps>(({
   const showError = (error || fieldError?.message) && touched;
 
   const enhancedChildren = React.cloneElement(children, {
-    ...children.props,
+    ...(children.props || {}),
     ...form.register(name),
     'aria-describedby': showError ? `${name}-error` : helperText ? `${name}-helper` : undefined,
     'aria-invalid': showError ? 'true' : undefined
-  });
+  } as any);
 
   return (
     <div ref={ref} className={`space-y-1 ${className}`}>

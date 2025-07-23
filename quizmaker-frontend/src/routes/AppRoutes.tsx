@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout, ProtectedRoute } from '../components';
 
 import { useAuth } from '../context/AuthContext';
@@ -35,9 +35,20 @@ import QuestionManagementPage from '../pages/QuestionManagementPage';
 import QuizQuestionsPage from '../pages/QuizQuestionPage';
 import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
+/* ----------  Document management pages  --------------------------------------- */
+import { DocumentList, DocumentUpload, DocumentViewer } from '../components/document';
+
+/* ----------  User profile pages  ----------------------------------------- */
+import { UserProfile, UserSettings } from '../components/user';
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
+
+// Wrapper component to extract documentId from URL params
+const DocumentViewerWrapper: React.FC = () => {
+  const { documentId } = useParams<{ documentId: string }>();
+  return <DocumentViewer documentId={documentId!} />;
+};
 
 const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -143,6 +154,7 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        
         {/* Management sections */}
         <Route
           path="/tags"
@@ -165,6 +177,50 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <QuestionManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Document Management Routes */}
+        <Route
+          path="/documents"
+          element={
+            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
+              <DocumentList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents/upload"
+          element={
+            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
+              <DocumentUpload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents/:documentId"
+          element={
+            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
+              <DocumentViewerWrapper />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* User Profile Routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <UserSettings />
             </ProtectedRoute>
           }
         />

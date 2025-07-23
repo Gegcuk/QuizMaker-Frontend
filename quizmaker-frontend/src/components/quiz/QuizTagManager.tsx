@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { TagDto } from '../../types/tag.types';
-import { getAllTags } from '../../api/tag.service';
+import { TagService } from '../../api/tag.service';
+import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
 interface QuizTagManagerProps {
@@ -25,6 +26,8 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   onTagsChange,
   className = ''
 }) => {
+  const tagService = new TagService(api);
+  
   const [tags, setTags] = useState<TagWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +35,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [newTagDescription, setNewTagDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   // Load available tags
   useEffect(() => {
@@ -40,7 +44,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
       setError(null);
       
       try {
-        const response = await getAllTags();
+        const response = await tagService.getTags();
         const tagsWithStatus = response.content.map(tag => ({
           ...tag,
           isSelected: currentTagIds.includes(tag.id)
@@ -92,26 +96,34 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
     if (!newTagName.trim()) return;
 
     try {
-      // TODO: Implement tag creation API call
-      // const newTag = await createTag({ name: newTagName, description: newTagDescription });
-      // setTags(prev => [...prev, { ...newTag, isSelected: false }]);
+      setIsCreating(true);
+      setError(null);
       
-      // For now, just add to local state
-      const mockNewTag: TagWithStatus = {
-        id: `temp-${Date.now()}`,
-        name: newTagName,
-        description: newTagDescription,
+      const response = await tagService.createTag({ 
+        name: newTagName.trim(), 
+        description: newTagDescription.trim() 
+      });
+      
+      // Create the new tag object with the response
+      const newTag: TagWithStatus = {
+        id: response.tagId,
+        name: newTagName.trim(),
+        description: newTagDescription.trim(),
         isSelected: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       
-      setTags(prev => [...prev, mockNewTag]);
+      setTags(prev => [...prev, newTag]);
       setNewTagName('');
       setNewTagDescription('');
       setShowCreateForm(false);
     } catch (err) {
-      setError('Failed to create tag');
+      const axiosError = err as AxiosError<{ message?: string }>;
+      const errorMessage = axiosError.response?.data?.message || 'Failed to create tag';
+      setError(errorMessage);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -201,10 +213,10 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
               <div className="flex space-x-2">
                 <button
                   onClick={handleCreateTag}
-                  disabled={!newTagName.trim()}
+                  disabled={!newTagName.trim() || isCreating}
                   className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  Create Tag
+                  {isCreating ? 'Creating...' : 'Create Tag'}
                 </button>
                 <button
                   onClick={() => {

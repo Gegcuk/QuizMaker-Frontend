@@ -16,9 +16,6 @@ export { QuestionService } from './question.service';
 // Document service (class-based)
 export { DocumentService } from './document.service';
 
-// AI service (class-based)
-export { AiService } from './ai.service';
-
 // Category service (class-based)
 export { CategoryService } from './category.service';
 

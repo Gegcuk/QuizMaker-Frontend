@@ -3,7 +3,7 @@
 // Responsive site header.  Renders two different link sets depending on
 // whether the user is logged in (from AuthContext).
 //  • Desktop (≥ md): logo on the left, links inline on the right.
-//  • Mobile  (< md): hamburger “☰” toggles a vertical dropdown.
+//  • Mobile  (< md): hamburger "☰" toggles a vertical dropdown.
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar: React.FC = () => {
-  const { isLoggedIn, logout } = useAuth();          // ← auth-aware menu
+  const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu
   const [isOpen, setIsOpen] = useState<boolean>(false); // ← mobile toggle
   const navigate = useNavigate();
 
@@ -19,6 +19,12 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
+  };
+
+  /** Check if user has required role */
+  const hasRole = (requiredRoles: string[]) => {
+    if (!user?.roles) return false;
+    return requiredRoles.some(role => user.roles.includes(role));
   };
 
   /* -------------------------------------------------------------------- */
@@ -43,14 +49,19 @@ const Navbar: React.FC = () => {
       <Link to="/my-quizzes" className="block px-4 py-2 hover:underline">
         My Quizzes
       </Link>
-      <Link to="/tags" className="block px-4 py-2 hover:underline">
-        Tags
-      </Link>
-      <Link to="/categories" className="block px-4 py-2 hover:underline">
-        Categories
-      </Link>
       <Link to="/questions" className="block px-4 py-2 hover:underline">
         Questions
+      </Link>
+      {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
+        <Link to="/documents" className="block px-4 py-2 hover:underline">
+          Documents
+        </Link>
+      )}
+      <Link to="/profile" className="block px-4 py-2 hover:underline">
+        Profile
+      </Link>
+      <Link to="/settings" className="block px-4 py-2 hover:underline">
+        Settings
       </Link>
       {/* Logout is a <button> so it can call logout() */}
       <button
@@ -89,7 +100,7 @@ const Navbar: React.FC = () => {
         {/* ----- Mobile dropdown (only when isOpen && below md) ---------- */}
         {isOpen && (
           <div className="md:hidden border-t py-2">
-            {/* Tailwind’s block/py-2 classes stack links vertically */}
+            {/* Tailwind's block/py-2 classes stack links vertically */}
             {isLoggedIn ? authLinks : guestLinks}
           </div>
         )}

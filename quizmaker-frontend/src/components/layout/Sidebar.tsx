@@ -155,40 +155,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
       icon: DocumentTextIcon,
       path: '/documents',
       roles: ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
-    },
-    {
-      id: 'categories-tags',
-      label: 'Categories & Tags',
-      icon: TagIcon,
-      path: '/categories',
       children: [
         {
-          id: 'categories',
-          label: 'Categories',
-          icon: FolderIcon,
-          path: '/categories',
+          id: 'documents',
+          label: 'All Documents',
+          icon: DocumentTextIcon,
+          path: '/documents',
         },
         {
-          id: 'tags',
-          label: 'Tags',
-          icon: TagIcon,
-          path: '/tags',
+          id: 'upload-document',
+          label: 'Upload Document',
+          icon: DocumentTextIcon,
+          path: '/documents/upload',
         },
       ],
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics & Reports',
-      icon: ChartBarIcon,
-      path: '/analytics',
-      roles: ['ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
-    },
-    {
-      id: 'admin',
-      label: 'Admin Panel',
-      icon: ShieldCheckIcon,
-      path: '/admin',
-      roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
     },
   ];
 

@@ -6,11 +6,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '../../api/document.service';
-import { DocumentConfig, ChunkingStrategy } from '../../types/document.types';
+import { DocumentConfig as DocumentConfigType, ChunkingStrategy } from '../../types/document.types';
 import api from '../../api/axiosInstance';
 
 interface DocumentConfigProps {
-  onConfigChange?: (config: Partial<DocumentConfig>) => void;
+  onConfigChange?: (config: Partial<DocumentConfigType>) => void;
   className?: string;
 }
 
@@ -18,11 +18,11 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
   onConfigChange,
   className = ''
 }) => {
-  const [config, setConfig] = useState<DocumentConfig | null>(null);
+  const [config, setConfig] = useState<DocumentConfigType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editConfig, setEditConfig] = useState<Partial<DocumentConfig>>({});
+  const [editConfig, setEditConfig] = useState<Partial<DocumentConfigType>>({});
   
   const documentService = new DocumentService(api);
 
@@ -193,7 +193,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Supported File Types</h3>
         <div className="p-4 bg-gray-50 rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {config.supportedFileTypes.map((fileType) => (
+            {config.supportedFileTypes.map((fileType: string) => (
               <div key={fileType} className="flex items-center space-x-2">
                 <span className="text-lg">📄</span>
                 <span className="text-sm font-medium text-gray-700">{fileType}</span>
@@ -234,7 +234,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
               </label>
               <select
                 value={editConfig.defaultChunkingStrategy || config.defaultChunkingStrategy}
-                onChange={(e) => setEditConfig(prev => ({
+                onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
                   ...prev,
                   defaultChunkingStrategy: e.target.value as ChunkingStrategy
                 }))}
@@ -259,7 +259,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
               <input
                 type="number"
                 value={editConfig.defaultMaxChunkSize || config.defaultMaxChunkSize}
-                onChange={(e) => setEditConfig(prev => ({
+                onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
                   ...prev,
                   defaultMaxChunkSize: parseInt(e.target.value) || config.defaultMaxChunkSize
                 }))}

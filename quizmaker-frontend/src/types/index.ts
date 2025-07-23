@@ -10,7 +10,6 @@ export * from './quiz.types';
 export * from './attempt.types';
 export * from './question.types';
 export * from './document.types';
-export * from './ai.types';
 export * from './category.types';
 export * from './tag.types';
 export * from './admin.types';

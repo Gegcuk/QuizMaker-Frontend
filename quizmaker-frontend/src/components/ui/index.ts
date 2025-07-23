@@ -10,8 +10,6 @@ export { default as Alert } from './Alert';
 export { default as Badge } from './Badge';
 export { default as Card, CardHeader, CardBody, CardFooter } from './Card';
 export { default as Spinner } from './Spinner';
-export { default as Breadcrumb } from './Breadcrumb';
-export { default as PageHeader } from './PageHeader';
 
 // Data Display Components
 export { default as Table } from './Table';
@@ -19,6 +17,7 @@ export { default as Chart } from './Chart';
 export { default as ProgressBar } from './ProgressBar';
 export { default as Rating } from './Rating';
 export { default as Avatar } from './Avatar';
+export { default as Pagination } from './Pagination';
 
 // Form Components
 export { default as Form, useFormContext } from './Form';
@@ -43,6 +42,7 @@ export type { ChartProps, ChartDataPoint } from './Chart';
 export type { ProgressBarProps } from './ProgressBar';
 export type { RatingProps } from './Rating';
 export type { AvatarProps } from './Avatar';
+export type { PaginationProps } from './Pagination';
 
 // Form Component Types
 export type { FormProps, FormContextValue, FieldValues, UseFormReturn, SubmitHandler } from './Form';

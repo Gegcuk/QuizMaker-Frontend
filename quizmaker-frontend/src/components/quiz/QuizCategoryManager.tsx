@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '../../types/category.types';
-import { getAllCategories } from '../../api/category.service';
+import { CategoryService } from '../../api/category.service';
+import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
 interface QuizCategoryManagerProps {
@@ -21,12 +22,15 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   onCategoryChange,
   className = ''
 }) => {
+  const categoryService = new CategoryService(api);
+  
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   // Load available categories
   useEffect(() => {
@@ -35,7 +39,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
       setError(null);
       
       try {
-        const response = await getAllCategories();
+        const response = await categoryService.getCategories();
         setCategories(response.content);
       } catch (err) {
         const axiosError = err as AxiosError<{ message?: string }>;
@@ -60,27 +64,28 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
     if (!newCategoryName.trim()) return;
 
     try {
-      // TODO: Implement category creation API call
-      // const newCategory = await createCategory({ name: newCategoryName, description: newCategoryDescription });
-      // setCategories(prev => [...prev, newCategory]);
-      // onCategoryChange(newCategory.id);
+      setIsCreating(true);
+      setError(null);
       
-      // For now, just add to local state
-      const mockNewCategory: CategoryDto = {
-        id: `temp-${Date.now()}`,
-        name: newCategoryName,
-        description: newCategoryDescription,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const result = await categoryService.createCategory({ 
+        name: newCategoryName.trim(), 
+        description: newCategoryDescription.trim() 
+      });
       
-      setCategories(prev => [...prev, mockNewCategory]);
-      onCategoryChange(mockNewCategory.id);
+      // Fetch the full category data
+      const newCategory = await categoryService.getCategoryById(result.categoryId);
+      
+      setCategories(prev => [...prev, newCategory]);
+      onCategoryChange(newCategory.id);
       setNewCategoryName('');
       setNewCategoryDescription('');
       setShowCreateForm(false);
     } catch (err) {
-      setError('Failed to create category');
+      const axiosError = err as AxiosError<{ message?: string }>;
+      const errorMessage = axiosError.response?.data?.message || 'Failed to create category';
+      setError(errorMessage);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -173,10 +178,10 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
               <div className="flex space-x-2">
                 <button
                   onClick={handleCreateCategory}
-                  disabled={!newCategoryName.trim()}
+                  disabled={!newCategoryName.trim() || isCreating}
                   className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  Create Category
+                  {isCreating ? 'Creating...' : 'Create Category'}
                 </button>
                 <button
                   onClick={() => {

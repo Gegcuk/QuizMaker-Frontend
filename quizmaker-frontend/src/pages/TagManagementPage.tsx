@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
-import { PageTagDto, TagDto } from '../types/api';
-import {
-  getAllTags,
-  createTag,
-  updateTag,
-  deleteTag,
-} from '../api/tag.service';
+import { TagDto } from '../types/tag.types';
+import { TagService } from '../api/tag.service';
+import api from '../api/axiosInstance';
 
 const TagManagementPage: React.FC = () => {
+  const tagService = new TagService(api);
+  
   /* ---------------------------- state --------------------------------- */
   const [tags, setTags] = useState<TagDto[]>([]);
   const [page, setPage] = useState<number>(0);
@@ -28,11 +26,11 @@ const TagManagementPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await getAllTags({ page, size: 20 });
-      setTags(data.content);
-      setTotalPages(data.totalPages);
+      const response = await tagService.getTags({ page, size: 20 });
+      setTags(response.content);
+      setTotalPages(response.pageable.totalPages);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to fetch tags.');
+      setError(err.message || 'Failed to fetch tags.');
     } finally {
       setLoading(false);
     }
@@ -73,17 +71,17 @@ const TagManagementPage: React.FC = () => {
 
     try {
       if (editingTag) {
-        await updateTag(editingTag.id, {
+        await tagService.updateTag(editingTag.id, {
           name: tagName.trim(),
           description: tagDesc.trim(),
         });
       } else {
-        await createTag({ name: tagName.trim(), description: tagDesc.trim() });
+        await tagService.createTag({ name: tagName.trim(), description: tagDesc.trim() });
       }
       setShowForm(false);
       await fetchTags();
     } catch (err: any) {
-      setFormError(err.response?.data?.error || 'Failed to save tag.');
+      setFormError(err.message || 'Failed to save tag.');
     } finally {
       setFormSubmitting(false);
     }
@@ -92,10 +90,10 @@ const TagManagementPage: React.FC = () => {
   const handleDelete = async (tagId: string) => {
     if (!window.confirm('Are you sure you want to delete this tag?')) return;
     try {
-      await deleteTag(tagId);
+      await tagService.deleteTag(tagId);
       await fetchTags();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete tag.');
+      setError(err.message || 'Failed to delete tag.');
     }
   };
 

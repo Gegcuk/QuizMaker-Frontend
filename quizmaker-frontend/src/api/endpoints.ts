@@ -107,13 +107,6 @@ export const DOCUMENT_ENDPOINTS = {
 } as const;
 
 /**
- * AI service endpoints
- */
-export const AI_ENDPOINTS = {
-  CHAT: '/ai/chat',
-} as const;
-
-/**
  * Result and analytics endpoints
  */
 export const RESULT_ENDPOINTS = {
@@ -174,7 +167,6 @@ export const ENDPOINTS = {
   TAG: TAG_ENDPOINTS,
   ATTEMPT: ATTEMPT_ENDPOINTS,
   DOCUMENT: DOCUMENT_ENDPOINTS,
-  AI: AI_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
   ADMIN: ADMIN_ENDPOINTS,
   SUPER_ADMIN: SUPER_ADMIN_ENDPOINTS,

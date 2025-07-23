@@ -1,8 +1,4 @@
-// AI Quiz Generation Components
-// Section 6.2: AI Quiz Generation
+// Quiz Generation Progress Components
+// Used for tracking quiz generation from documents
 
-export { default as AiQuizGenerator } from './AiQuizGenerator';
-export { default as GenerationProgress } from './GenerationProgress';
-export { default as GeneratedQuizPreview } from './GeneratedQuizPreview';
-export { default as AiChat } from './AiChat';
-export { default as AiSuggestions } from './AiSuggestions'; 
+export { default as GenerationProgress } from './GenerationProgress'; 

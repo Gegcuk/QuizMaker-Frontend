@@ -1,6 +1,7 @@
 // Document Upload & Processing Components
 // Section 6.1: Document Upload & Processing
 
+export { default as DocumentList } from './DocumentList';
 export { default as DocumentUpload } from './DocumentUpload';
 export { default as DocumentProcessor } from './DocumentProcessor';
 export { default as DocumentViewer } from './DocumentViewer';
