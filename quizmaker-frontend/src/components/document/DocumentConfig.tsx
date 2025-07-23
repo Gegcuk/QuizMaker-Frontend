@@ -1,0 +1,322 @@
+// src/components/document/DocumentConfig.tsx
+// ---------------------------------------------------------------------------
+// Component for displaying and configuring document processing settings
+// Shows current configuration and allows customization of processing parameters
+// ---------------------------------------------------------------------------
+
+import React, { useState, useEffect } from 'react';
+import { DocumentService } from '../../api/document.service';
+import { DocumentConfig, ChunkingStrategy } from '../../types/document.types';
+import api from '../../api/axiosInstance';
+
+interface DocumentConfigProps {
+  onConfigChange?: (config: Partial<DocumentConfig>) => void;
+  className?: string;
+}
+
+const DocumentConfig: React.FC<DocumentConfigProps> = ({
+  onConfigChange,
+  className = ''
+}) => {
+  const [config, setConfig] = useState<DocumentConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editConfig, setEditConfig] = useState<Partial<DocumentConfig>>({});
+  
+  const documentService = new DocumentService(api);
+
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  const loadConfig = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const documentConfig = await documentService.getDocumentConfig();
+      setConfig(documentConfig);
+      setEditConfig({
+        defaultChunkingStrategy: documentConfig.defaultChunkingStrategy,
+        defaultMaxChunkSize: documentConfig.defaultMaxChunkSize
+      });
+    } catch (err: any) {
+      setError(err.message || 'Failed to load document configuration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = () => {
+    onConfigChange?.(editConfig);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    if (config) {
+      setEditConfig({
+        defaultChunkingStrategy: config.defaultChunkingStrategy,
+        defaultMaxChunkSize: config.defaultMaxChunkSize
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const getChunkingStrategyDescription = (strategy: ChunkingStrategy): string => {
+    switch (strategy) {
+      case 'AUTO':
+        return 'Automatically determine the best chunking strategy based on document structure';
+      case 'CHAPTER_BASED':
+        return 'Split document by chapters for better topic organization';
+      case 'SECTION_BASED':
+        return 'Split document by sections for detailed content breakdown';
+      case 'SIZE_BASED':
+        return 'Split document by size limits for consistent chunk sizes';
+      case 'PAGE_BASED':
+        return 'Split document by page boundaries for page-based organization';
+      default:
+        return '';
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getChunkingStrategyIcon = (strategy: ChunkingStrategy): string => {
+    switch (strategy) {
+      case 'AUTO':
+        return '🤖';
+      case 'CHAPTER_BASED':
+        return '📖';
+      case 'SECTION_BASED':
+        return '📋';
+      case 'SIZE_BASED':
+        return '📏';
+      case 'PAGE_BASED':
+        return '📄';
+      default:
+        return '❓';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading document configuration...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+        <div className="text-center">
+          <div className="text-red-600 text-2xl mb-2">❌</div>
+          <p className="text-red-800">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+        <div className="text-center">
+          <p className="text-gray-600">No configuration available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Document Configuration</h2>
+          <p className="text-gray-600">Configure document processing settings</p>
+        </div>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            Edit Configuration
+          </button>
+        )}
+      </div>
+
+      {/* Current Configuration */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">Current Settings</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Default Chunking Strategy */}
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-lg">{getChunkingStrategyIcon(config.defaultChunkingStrategy)}</span>
+              <h4 className="font-medium text-gray-900">Default Chunking Strategy</h4>
+            </div>
+            <div className="text-sm text-gray-600 mb-2">
+              {config.defaultChunkingStrategy.replace('_', ' ')}
+            </div>
+            <div className="text-xs text-gray-500">
+              {getChunkingStrategyDescription(config.defaultChunkingStrategy)}
+            </div>
+          </div>
+
+          {/* Default Max Chunk Size */}
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-lg">📏</span>
+              <h4 className="font-medium text-gray-900">Default Max Chunk Size</h4>
+            </div>
+            <div className="text-2xl font-bold text-blue-600 mb-1">
+              {config.defaultMaxChunkSize.toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-600">characters</div>
+          </div>
+        </div>
+      </div>
+
+      {/* File Type Support */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">Supported File Types</h3>
+        <div className="p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {config.supportedFileTypes.map((fileType) => (
+              <div key={fileType} className="flex items-center space-x-2">
+                <span className="text-lg">📄</span>
+                <span className="text-sm font-medium text-gray-700">{fileType}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* File Size Limits */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">File Size Limits</h3>
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">💾</span>
+            <div>
+              <div className="text-lg font-bold text-blue-900">
+                Maximum File Size: {formatFileSize(config.maxFileSize)}
+              </div>
+              <div className="text-sm text-blue-700">
+                This limit applies to all uploaded documents
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Configuration Form */}
+      {isEditing && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h3 className="text-lg font-semibold text-yellow-900 mb-3">Edit Configuration</h3>
+          
+          <div className="space-y-4">
+            {/* Chunking Strategy */}
+            <div>
+              <label className="block text-sm font-medium text-yellow-800 mb-2">
+                Default Chunking Strategy
+              </label>
+              <select
+                value={editConfig.defaultChunkingStrategy || config.defaultChunkingStrategy}
+                onChange={(e) => setEditConfig(prev => ({
+                  ...prev,
+                  defaultChunkingStrategy: e.target.value as ChunkingStrategy
+                }))}
+                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+              >
+                <option value="AUTO">Auto - Best Strategy</option>
+                <option value="CHAPTER_BASED">Chapter Based</option>
+                <option value="SECTION_BASED">Section Based</option>
+                <option value="SIZE_BASED">Size Based</option>
+                <option value="PAGE_BASED">Page Based</option>
+              </select>
+              <p className="mt-1 text-xs text-yellow-700">
+                {getChunkingStrategyDescription(editConfig.defaultChunkingStrategy || config.defaultChunkingStrategy)}
+              </p>
+            </div>
+
+            {/* Max Chunk Size */}
+            <div>
+              <label className="block text-sm font-medium text-yellow-800 mb-2">
+                Default Max Chunk Size (characters)
+              </label>
+              <input
+                type="number"
+                value={editConfig.defaultMaxChunkSize || config.defaultMaxChunkSize}
+                onChange={(e) => setEditConfig(prev => ({
+                  ...prev,
+                  defaultMaxChunkSize: parseInt(e.target.value) || config.defaultMaxChunkSize
+                }))}
+                min="100"
+                max="10000"
+                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+              />
+              <p className="mt-1 text-xs text-yellow-700">
+                Recommended: 500-2000 characters for optimal quiz generation
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-4 flex space-x-3">
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            >
+              Save Changes
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Configuration Tips */}
+      <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <h3 className="text-sm font-medium text-indigo-900 mb-2">Configuration Tips:</h3>
+        <ul className="text-sm text-indigo-700 space-y-1">
+          <li>• <strong>Auto Strategy:</strong> Best for most documents, automatically chooses optimal chunking</li>
+          <li>• <strong>Chapter Based:</strong> Ideal for textbooks and structured documents</li>
+          <li>• <strong>Section Based:</strong> Good for detailed technical documents</li>
+          <li>• <strong>Size Based:</strong> Ensures consistent chunk sizes across all documents</li>
+          <li>• <strong>Page Based:</strong> Useful for documents with clear page boundaries</li>
+          <li>• <strong>Chunk Size:</strong> Larger chunks (1000-2000 chars) work better for comprehensive questions</li>
+          <li>• <strong>Chunk Size:</strong> Smaller chunks (500-1000 chars) are better for focused, specific questions</li>
+        </ul>
+      </div>
+
+      {/* Processing Information */}
+      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-2">Processing Information:</h3>
+        <div className="space-y-1 text-sm text-gray-700">
+          <div>• Configuration changes apply to new document uploads</div>
+          <div>• Existing documents retain their original processing settings</div>
+          <div>• You can reprocess existing documents with new settings</div>
+          <div>• Processing time depends on document size and chosen strategy</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DocumentConfig; 
