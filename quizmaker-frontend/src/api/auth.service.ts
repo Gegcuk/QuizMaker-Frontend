@@ -15,7 +15,7 @@ import { BaseService } from './base.service';
  */
 export class AuthService extends BaseService<UserDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/auth');
+    super(axiosInstance, '/v1/auth');
   }
 
   /**

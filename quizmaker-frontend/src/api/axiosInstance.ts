@@ -38,7 +38,7 @@ const FILE_UPLOAD_TIMEOUT = 300000; // 5 minutes
 const LONG_RUNNING_TIMEOUT = 600000; // 10 minutes
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: '/api',
   timeout: DEFAULT_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
@@ -63,7 +63,6 @@ interface RetryConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
   _isFileUpload?: boolean;
   _isLongRunning?: boolean;
-  headers?: any;
 }
 
 /** Progress tracking callback type */
@@ -77,7 +76,7 @@ export interface EnhancedRequestConfig extends InternalAxiosRequestConfig {
   _isFileUpload?: boolean;
   _isLongRunning?: boolean;
   data?: any;
-  headers?: any;
+  headers: any;
   method?: string;
   url?: string;
 }
@@ -139,7 +138,7 @@ const runRefresh = async (): Promise<string> => {
   }
 
   const { data } = await axios.post<RefreshResponse>(
-    'http://localhost:8080/api/v1/auth/refresh',
+    '/api/v1/auth/refresh',
     { refreshToken },
   );
 
@@ -281,6 +280,7 @@ export const createFileUploadRequest = (
     method: 'POST',
     url,
     data: formData,
+    headers: {},
     _isFileUpload: true,
     onUploadProgress: onProgress ? (progressEvent) => {
       if (progressEvent.total) {
@@ -302,6 +302,7 @@ export const createLongRunningRequest = (
     method: method.toUpperCase() as any,
     url,
     data,
+    headers: {},
     _isLongRunning: true,
     onDownloadProgress: onProgress ? (progressEvent) => {
       if (progressEvent.total) {

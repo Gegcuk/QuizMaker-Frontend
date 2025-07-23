@@ -14,7 +14,7 @@ import { BaseService } from './base.service';
  */
 export class DocumentService extends BaseService<DocumentDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/documents');
+    super(axiosInstance, '/documents');
   }
 
   /**

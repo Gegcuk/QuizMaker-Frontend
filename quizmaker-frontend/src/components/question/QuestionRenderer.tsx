@@ -1,0 +1,214 @@
+// ---------------------------------------------------------------------------
+// QuestionRenderer.tsx - Dynamic question display
+// Based on QuestionDto from API documentation
+// ---------------------------------------------------------------------------
+
+import React from 'react';
+import { QuestionDto, QuestionType } from '../../types/question.types';
+import McqQuestion from './McqQuestion';
+import TrueFalseQuestion from './TrueFalseQuestion';
+import OpenQuestion from './OpenQuestion';
+import FillGapQuestion from './FillGapQuestion';
+import ComplianceQuestion from './ComplianceQuestion';
+import OrderingQuestion from './OrderingQuestion';
+import HotspotQuestion from './HotspotQuestion';
+
+interface QuestionRendererProps {
+  question: QuestionDto;
+  onAnswerChange?: (answer: any) => void;
+  currentAnswer?: any;
+  showCorrectAnswer?: boolean;
+  disabled?: boolean;
+  className?: string;
+}
+
+const QuestionRenderer: React.FC<QuestionRendererProps> = ({
+  question,
+  onAnswerChange,
+  currentAnswer,
+  showCorrectAnswer = false,
+  disabled = false,
+  className = ''
+}) => {
+  const renderQuestionByType = () => {
+    switch (question.type) {
+      case 'MCQ_SINGLE':
+        return (
+          <McqQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+            isMultiSelect={false}
+          />
+        );
+
+      case 'MCQ_MULTI':
+        return (
+          <McqQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+            isMultiSelect={true}
+          />
+        );
+
+      case 'TRUE_FALSE':
+        return (
+          <TrueFalseQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'OPEN':
+        return (
+          <OpenQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'FILL_GAP':
+        return (
+          <FillGapQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'COMPLIANCE':
+        return (
+          <ComplianceQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'ORDERING':
+        return (
+          <OrderingQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'HOTSPOT':
+        return (
+          <HotspotQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      default:
+        return (
+          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span className="text-red-700 font-medium">Unsupported Question Type</span>
+            </div>
+            <p className="mt-1 text-sm text-red-600">
+              Question type "{question.type}" is not supported in this version.
+            </p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className={`question-renderer ${className}`}>
+      {/* Question Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-3">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {question.type.replace('_', ' ')}
+            </span>
+            {question.difficulty && (
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                question.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
+                question.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {question.difficulty}
+              </span>
+            )}
+          </div>
+          {/* Points display removed as it's not in QuestionDto */}
+        </div>
+
+        {/* Question Text */}
+        <div className="prose max-w-none">
+          <div 
+            className="text-lg font-medium text-gray-900 mb-4"
+            dangerouslySetInnerHTML={{ __html: question.questionText }}
+          />
+        </div>
+
+        {/* Question Metadata */}
+        {question.hint && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <div className="flex items-start space-x-2">
+              <svg className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Hint</p>
+                <p className="text-sm text-yellow-700 mt-1">{question.hint}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Question Content */}
+      <div className="question-content">
+        {renderQuestionByType()}
+      </div>
+
+      {/* Question Footer */}
+      {showCorrectAnswer && question.explanation && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+          <div className="flex items-start space-x-2">
+            <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-green-800">Explanation</p>
+              <div 
+                className="text-sm text-green-700 mt-1 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: question.explanation }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default QuestionRenderer; 

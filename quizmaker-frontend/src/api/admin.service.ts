@@ -16,7 +16,7 @@ export class AdminService {
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
-    this.basePath = '/api/v1/admin';
+    this.basePath = '/v1/admin';
   }
 
   /**

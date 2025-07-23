@@ -14,7 +14,7 @@ import api from './axiosInstance';
  */
 export class TagService extends BaseService<TagDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/tags');
+    super(axiosInstance, '/v1/tags');
   }
 
   /**

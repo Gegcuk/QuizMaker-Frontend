@@ -14,7 +14,7 @@ import api from './axiosInstance';
  */
 export class QuestionService extends BaseService<QuestionDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/questions');
+    super(axiosInstance, '/v1/questions');
   }
 
   /**

@@ -22,7 +22,7 @@ import api from './axiosInstance';
  */
 export class QuizService extends BaseService<QuizDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/quizzes');
+    super(axiosInstance, '/v1/quizzes');
   }
 
   /**

@@ -10,7 +10,7 @@ import { BaseService } from './base.service';
  */
 export class UserService extends BaseService<UserDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/users');
+    super(axiosInstance, '/v1/users');
   }
 
   /**

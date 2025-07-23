@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   /* Helper – centralises GET /auth/me + state sync */
   const fetchCurrentUser = useCallback(async () => {
     try {
-      const { data } = await api.get<UserDto>('/auth/me');
+      const { data } = await api.get<UserDto>('/v1/auth/me');
       setUser(data);
     } catch {
       // api instance has already tried a refresh. If we still get here
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   /* -------------------------------------------------------------------- */
   const login = useCallback(
     async (creds: { username: string; password: string }) => {
-      const { data } = await api.post<JwtResponse>('/auth/login', creds);
+      const { data } = await api.post<JwtResponse>('/v1/auth/login', creds);
 
       setTokens(data.accessToken, data.refreshToken);
       await fetchCurrentUser();
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email: string;
       password: string;
     }) => {
-      await api.post('/auth/register', details);
+      await api.post('/v1/auth/register', details);
       navigate('/login', { replace: true });
     },
     [navigate],
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout', { refreshToken: getRefreshToken() });
+      await api.post('/v1/auth/logout', { refreshToken: getRefreshToken() });
     } finally {
       clearTokens();
       setUser(null);

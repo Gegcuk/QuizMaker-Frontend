@@ -96,21 +96,21 @@ export const ATTEMPT_ENDPOINTS = {
  * Document management endpoints
  */
 export const DOCUMENT_ENDPOINTS = {
-  UPLOAD: '/api/documents/upload',
-  CONFIG: '/api/documents/config',
-  DOCUMENTS: '/api/documents',
-  DOCUMENT_BY_ID: (id: string) => `/api/documents/${id}`,
-  CHUNKS: (id: string) => `/api/documents/${id}/chunks`,
-  CHUNK_BY_INDEX: (id: string, index: number) => `/api/documents/${id}/chunks/${index}`,
-  STATUS: (id: string) => `/api/documents/${id}/status`,
-  REPROCESS: (id: string) => `/api/documents/${id}/reprocess`,
+  UPLOAD: '/documents/upload',
+  CONFIG: '/documents/config',
+  DOCUMENTS: '/documents',
+  DOCUMENT_BY_ID: (id: string) => `/documents/${id}`,
+  CHUNKS: (id: string) => `/documents/${id}/chunks`,
+  CHUNK_BY_INDEX: (id: string, index: number) => `/documents/${id}/chunks/${index}`,
+  STATUS: (id: string) => `/documents/${id}/status`,
+  REPROCESS: (id: string) => `/documents/${id}/reprocess`,
 } as const;
 
 /**
  * AI service endpoints
  */
 export const AI_ENDPOINTS = {
-  CHAT: '/api/ai/chat',
+  CHAT: '/ai/chat',
 } as const;
 
 /**

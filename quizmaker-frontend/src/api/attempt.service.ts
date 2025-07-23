@@ -23,7 +23,7 @@ export class AttemptService {
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
-    this.basePath = '/api/v1/attempts';
+    this.basePath = '/v1/attempts';
   }
 
   /**

@@ -16,7 +16,7 @@ export class AiService {
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
-    this.basePath = '/api/ai';
+    this.basePath = '/ai';
   }
 
   /**

@@ -14,7 +14,7 @@ import api from './axiosInstance';
  */
 export class CategoryService extends BaseService<CategoryDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/api/v1/categories');
+    super(axiosInstance, '/v1/categories');
   }
 
   /**
