@@ -6,16 +6,18 @@ export * from './common.types';
 
 // Domain-specific types (to be created in future steps)
 export * from './auth.types';
-// export * from './attempt.types';
-// export * from './document.types';
-// export * from './ai.types';
-// export * from './admin.types';
+export * from './quiz.types';
+export * from './attempt.types';
+export * from './question.types';
+export * from './document.types';
+export * from './ai.types';
+export * from './category.types';
+export * from './tag.types';
+export * from './admin.types';
 // export * from './user.types';
 // export * from './result.types';
-// export * from './quiz.types';
-// export * from './question.types';
 // export * from './category.types';
 // export * from './tag.types';
 
-// Re-export existing API types
-export * from './api.d'; 
+// Note: api.d.ts contains legacy types that conflict with new comprehensive types
+// Use the new domain-specific type files instead 
