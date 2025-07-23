@@ -6,6 +6,7 @@ import {
   UpdateCategoryRequest
 } from '../types/category.types';
 import { BaseService } from './base.service';
+import api from './axiosInstance';
 
 /**
  * Category service for handling category operations
@@ -124,3 +125,22 @@ export class CategoryService extends BaseService<CategoryDto> {
     return new Error(error.message || 'Network error occurred');
   }
 }
+
+export default api;
+
+// Create service instance
+const categoryService = new CategoryService(api);
+
+// Export individual functions for backward compatibility
+export const getAllCategories = (params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+}) => categoryService.getCategories(params);
+
+export const createCategory = (data: CreateCategoryRequest) => categoryService.createCategory(data);
+
+export const updateCategory = (categoryId: string, data: UpdateCategoryRequest) => 
+  categoryService.updateCategory(categoryId, data);
+
+export const deleteCategory = (categoryId: string) => categoryService.deleteCategory(categoryId);

@@ -14,6 +14,7 @@ import {
   UpdateQuizStatusRequest
 } from '../types/quiz.types';
 import { BaseService } from './base.service';
+import api from './axiosInstance';
 
 /**
  * Quiz service for handling quiz operations
@@ -299,3 +300,29 @@ export class QuizService extends BaseService<QuizDto> {
     return new Error(error.message || 'Network error occurred');
   }
 }
+
+// Create service instance
+const quizService = new QuizService(api);
+
+// Export individual functions for backward compatibility
+export const getAllQuizzes = (params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+  category?: string;
+  tag?: string;
+  authorName?: string;
+  search?: string;
+  difficulty?: string;
+}) => quizService.getQuizzes(params);
+
+export const getQuizById = (quizId: string) => quizService.getQuizById(quizId);
+
+export const createQuiz = (data: CreateQuizRequest) => quizService.createQuiz(data);
+
+export const updateQuiz = (quizId: string, data: UpdateQuizRequest) => 
+  quizService.updateQuiz(quizId, data);
+
+export const deleteQuiz = (quizId: string) => quizService.deleteQuiz(quizId);
+
+export const getQuizResults = (quizId: string) => quizService.getQuizResults(quizId);

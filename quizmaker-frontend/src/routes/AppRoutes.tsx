@@ -9,10 +9,9 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { Layout, ProtectedRoute } from '../components';
 
 import { useAuth } from '../context/AuthContext';
-import ProtectedRoute from '../components/ProtectedRoute';
 
 /* ----------  Public pages  ------------------------------------------------ */
 import HomePage from '../pages/HomePage';
@@ -20,21 +19,21 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
-import QuizListPage from '../pages/QuizListPage';
+import { QuizListPage } from '../components';
 import QuizDetailPage from '../pages/QuizDetailPage';
 import QuizAttemptPage from '../pages/QuizAttemptPage';
 import QuizResultPage from '../pages/QuizResultPage';
 import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
 
 /* ----------  Quiz CRUD / owner pages  ------------------------------------ */
-import MyQuizzesPage from '../pages/MyQuizzesPage';
-import QuizFormPage from '../pages/QuizFormPage';
+import { MyQuizzesPage, QuizForm } from '../components';
 
 /* ----------  Management pages  ------------------------------------------ */
 import TagManagementPage from '../pages/TagManagementPage';
 import CategoryManagementPage from '../pages/CategoryManagementPage';
 import QuestionManagementPage from '../pages/QuestionManagementPage';
 import QuizQuestionsPage from '../pages/QuizQuestionPage';
+import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
 
 /* ----------  Misc  ------------------------------------------------------- */
@@ -108,7 +107,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/create"
           element={
             <ProtectedRoute>
-              <QuizFormPage mode="create" />
+              <QuizForm />
             </ProtectedRoute>
           }
         />
@@ -116,7 +115,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/:quizId/edit"
           element={
             <ProtectedRoute>
-              <QuizFormPage mode="edit" />
+              <QuizForm />
             </ProtectedRoute>
           }
         />
@@ -133,6 +132,14 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <QuizQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/generation"
+          element={
+            <ProtectedRoute>
+              <QuizGenerationJobsPage />
             </ProtectedRoute>
           }
         />

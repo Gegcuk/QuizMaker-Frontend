@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Spinner from '../components/Spinner';
+import { Spinner } from '../components/ui';
 import { PageTagDto, TagDto } from '../types/api';
 import {
   getAllTags,

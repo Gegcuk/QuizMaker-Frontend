@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Spinner from '../components/Spinner';
+import { Spinner } from '../components/ui';
 import { CategoryDto } from '../types/api';
 import {
   getAllCategories,
@@ -26,9 +26,9 @@ const [showForm, setShowForm] = useState<boolean>(false);
     setLoading(true);
     setError(null);
     try {
-      const { data } = await getAllCategories({ page, size: 20 });
-      setCategories(data.content);
-      setTotalPages(data.totalPages);
+      const response = await getAllCategories({ page, size: 20 });
+      setCategories(response.content);
+      setTotalPages(response.pageable.totalPages);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to fetch categories.');
     } finally {

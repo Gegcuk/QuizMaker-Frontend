@@ -19,17 +19,7 @@ import {
   setTokens,
   clearTokens,
 } from '../utils/tokenUtils';
-
-/* ------------------------------------------------------------------------ */
-/*                             Domain types                                 */
-/* ------------------------------------------------------------------------ */
-export interface UserDto {
-  id: string;
-  username: string;
-  email: string;
-  roles: string[];
-  isActive: boolean;
-}
+import { UserDto } from '../types/auth.types';
 
 interface JwtResponse {
   accessToken: string;

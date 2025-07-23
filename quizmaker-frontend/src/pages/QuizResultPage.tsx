@@ -12,7 +12,7 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import api from '../api/axiosInstance';
-import Spinner from '../components/Spinner';
+import { Spinner } from '../components/ui';
 import type { AttemptResultDto } from '../types/api';
 
 const QuizResultPage: React.FC = () => {

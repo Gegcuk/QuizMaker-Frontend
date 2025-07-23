@@ -6,6 +6,7 @@ import {
   UpdateTagRequest
 } from '../types/tag.types';
 import { BaseService } from './base.service';
+import api from './axiosInstance';
 
 /**
  * Tag service for handling tag operations
@@ -124,3 +125,20 @@ export class TagService extends BaseService<TagDto> {
     return new Error(error.message || 'Network error occurred');
   }
 }
+
+// Create service instance
+const tagService = new TagService(api);
+
+// Export individual functions for backward compatibility
+export const getAllTags = (params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+}) => tagService.getTags(params);
+
+export const createTag = (data: CreateTagRequest) => tagService.createTag(data);
+
+export const updateTag = (tagId: string, data: UpdateTagRequest) => 
+  tagService.updateTag(tagId, data);
+
+export const deleteTag = (tagId: string) => tagService.deleteTag(tagId);

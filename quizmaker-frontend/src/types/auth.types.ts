@@ -45,12 +45,15 @@ export interface RefreshRequest {
  * User data transfer object
  * Matches UserDto from API documentation
  */
-export interface UserDto extends BaseEntity, AuditableEntity {
+export interface UserDto {
+  id: string;                  // Unique user identifier
   username: string;            // Username
   email: string;               // Email address
   isActive: boolean;           // Account status
   roles: string[];             // User roles (e.g., ["ROLE_USER"])
   lastLoginDate?: string;      // Last login time
+  createdAt: string;           // Account creation timestamp
+  updatedAt: string;           // Last update timestamp
 }
 
 /**

@@ -6,6 +6,7 @@ import {
   QuestionDto
 } from '../types/question.types';
 import { BaseService } from './base.service';
+import api from './axiosInstance';
 
 /**
  * Question service for handling question operations
@@ -124,3 +125,35 @@ export class QuestionService extends BaseService<QuestionDto> {
     return new Error(error.message || 'Network error occurred');
   }
 }
+
+// Create service instance
+const questionService = new QuestionService(api);
+
+// Export individual functions for backward compatibility
+export const getAllQuestions = (params?: {
+  quizId?: string;
+  pageNumber?: number;
+  size?: number;
+}) => questionService.getQuestions(params);
+
+export const createQuestion = (data: CreateQuestionRequest) => questionService.createQuestion(data);
+
+export const updateQuestion = (questionId: string, data: UpdateQuestionRequest) => 
+  questionService.updateQuestion(questionId, data);
+
+export const deleteQuestion = (questionId: string) => questionService.deleteQuestion(questionId);
+
+// Additional functions that pages are trying to import
+export const getQuizQuestions = (quizId: string) => questionService.getQuestions({ quizId });
+
+export const addQuestionToQuiz = async (quizId: string, questionId: string) => {
+  // This would need to be implemented in the QuestionService class
+  // For now, we'll throw an error indicating it needs implementation
+  throw new Error('addQuestionToQuiz not implemented yet');
+};
+
+export const removeQuestionFromQuiz = async (quizId: string, questionId: string) => {
+  // This would need to be implemented in the QuestionService class
+  // For now, we'll throw an error indicating it needs implementation
+  throw new Error('removeQuestionFromQuiz not implemented yet');
+};
