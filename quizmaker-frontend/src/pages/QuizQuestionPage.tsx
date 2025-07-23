@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner } from '../components/ui';
+import { Spinner, Button, Modal, Alert, Breadcrumb } from '../components/ui';
+import { PageHeader } from '../components/layout';
 import {
   QuestionDto,
   QuizDto,
 } from '../types/api';
+import { QuestionType } from '../types/question.types';
 import {
   getQuizById,
 } from '../api/quiz.service';
@@ -13,45 +15,100 @@ import {
   addQuestionToQuiz,
   removeQuestionFromQuiz,
   createQuestion,
-  QuestionPayload,
   getAllQuestions,
 } from '../api/question.service';
+import {
+  QuestionRenderer,
+  QuestionTypeSelector,
+  McqQuestionEditor,
+  TrueFalseEditor,
+  OpenQuestionEditor,
+  FillGapEditor,
+  ComplianceEditor,
+  OrderingEditor,
+  HotspotEditor,
+} from '../components/question';
 
 const QuizQuestionsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [quiz, setQuiz] = useState<QuizDto | null>(null);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
-  const [text, setText] = useState('');
-  const [type, setType] = useState<QuestionDto['type']>('TRUE_FALSE');
-  const [difficulty, setDifficulty] = useState<QuestionDto['difficulty']>('EASY');
-  const [content, setContent] = useState('{}');
   const [formError, setFormError] = useState<string | null>(null);
   const [allQuestions, setAllQuestions] = useState<QuestionDto[]>([]);
   const [qPage, setQPage] = useState(0);
   const [qTotalPages, setQTotalPages] = useState(1);
   const [loadingAll, setLoadingAll] = useState(false);
+  const [previewMode, setPreviewMode] = useState<boolean>(false);
 
-  
+  // Form state for question creation
+  const [questionText, setQuestionText] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<QuestionType>('TRUE_FALSE');
+  const [difficulty, setDifficulty] = useState<QuestionDto['difficulty']>('EASY');
+  const [hint, setHint] = useState<string>('');
+  const [explanation, setExplanation] = useState<string>('');
+  const [content, setContent] = useState<any>({});
+
+  const handleContentChange = useCallback((newContent: any) => {
+    setContent(newContent);
+  }, []);
+
+  const handleTypeChange = useCallback((newType: QuestionType) => {
+    setSelectedType(newType);
+    
+    // Initialize content for the new type
+    switch (newType) {
+      case 'TRUE_FALSE':
+        setContent({ answer: true });
+        break;
+      case 'OPEN':
+        setContent({ answer: '' });
+        break;
+      case 'MCQ_SINGLE':
+      case 'MCQ_MULTI':
+        setContent({ options: [
+          { id: 'a', text: '', correct: false },
+          { id: 'b', text: '', correct: false },
+          { id: 'c', text: '', correct: false },
+          { id: 'd', text: '', correct: false }
+        ]});
+        break;
+      case 'FILL_GAP':
+        setContent({ text: '', gaps: [] });
+        break;
+      case 'COMPLIANCE':
+        setContent({ statements: [] });
+        break;
+      case 'ORDERING':
+        setContent({ items: [] });
+        break;
+      case 'HOTSPOT':
+        setContent({ imageUrl: '', regions: [] });
+        break;
+      default:
+        setContent({});
+    }
+  }, []);
+
   const loadData = async () => {
     if (!quizId) return;
     setLoading(true);
     setError(null);
     try {
       const [quizRes, qRes] = await Promise.all([
-        getQuizById<QuizDto>(quizId),
+        getQuizById(quizId),
         getQuizQuestions(quizId),
         getQuizQuestions(quizId).catch((e) => {
-          if (e.response?.status === 404) return { data: { content: [] } };
+          if (e.response?.status === 404) return { content: [] };
           throw e;
         }),
       ]);
-      setQuiz(quizRes.data);
-      setQuestions(qRes.data.content);
+      setQuiz(quizRes);
+      setQuestions(qRes.content);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load questions.');
     } finally {
@@ -75,47 +132,42 @@ const QuizQuestionsPage: React.FC = () => {
   };
 
   const openCreate = () => {
-    setText('');
-    setType('TRUE_FALSE');
+    setQuestionText('');
+    setSelectedType('TRUE_FALSE');
     setDifficulty('EASY');
-    setContent('{}');
+    setHint('');
+    setExplanation('');
+    setContent({ answer: true });
     setFormError(null);
     setShowForm(true);
+    setPreviewMode(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!quizId) return;
     setFormError(null);
     setFormSubmitting(true);
 
-    if (text.trim().length < 3) {
-      setFormError('Question text too short.');
+    if (questionText.trim().length < 3 || questionText.trim().length > 1000) {
+      setFormError('Question text must be between 3 and 1000 characters.');
       setFormSubmitting(false);
       return;
     }
 
-    let parsed: any = {};
-    try {
-      parsed = JSON.parse(content || '{}');
-    } catch {
-      setFormError('Content must be valid JSON.');
-      setFormSubmitting(false);
-      return;
-    }
-
-    const payload: QuestionPayload = {
-      type,
+    const payload = {
+      type: selectedType,
       difficulty,
-      questionText: text.trim(),
-      content: parsed,
-      quizIds: [quizId],
+      questionText: questionText.trim(),
+      content,
+      hint: hint.trim() || undefined,
+      explanation: explanation.trim() || undefined,
     };
 
     try {
-      await createQuestion(payload);
+      const newQuestion = await createQuestion(payload);
+      await addQuestionToQuiz(quizId, newQuestion.questionId);
       setShowForm(false);
-      loadData();
+      await loadData();
     } catch (err: any) {
       setFormError(err.response?.data?.error || 'Failed to create question.');
     } finally {
@@ -123,14 +175,14 @@ const QuizQuestionsPage: React.FC = () => {
     }
   };
 
-    const fetchAllQuestions = async () => {
+  const fetchAllQuestions = async () => {
     setLoadingAll(true);
     try {
-      const { data } = await getAllQuestions({ page: qPage, size: 20 });
-      setAllQuestions(data.content);
-      setQTotalPages(data.totalPages);
-    } catch {
-      // ignore errors here
+      const response = await getAllQuestions({ pageNumber: qPage, size: 20 });
+      setAllQuestions(response.content || []);
+      setQTotalPages(response.pageable?.totalPages || 1);
+    } catch (err: any) {
+      console.error('Failed to fetch all questions:', err);
     } finally {
       setLoadingAll(false);
     }
@@ -138,7 +190,6 @@ const QuizQuestionsPage: React.FC = () => {
 
   useEffect(() => {
     fetchAllQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qPage]);
 
   const handleAddExisting = async (qid: string) => {
@@ -151,192 +202,442 @@ const QuizQuestionsPage: React.FC = () => {
     }
   };
 
-  if (loading) return <Spinner />;
+  const renderTypeSpecificEditor = () => {
+    switch (selectedType) {
+      case 'MCQ_SINGLE':
+        return (
+          <McqQuestionEditor
+            content={content as any}
+            onChange={handleContentChange}
+            isMultiSelect={false}
+          />
+        );
+      case 'MCQ_MULTI':
+        return (
+          <McqQuestionEditor
+            content={content as any}
+            onChange={handleContentChange}
+            isMultiSelect={true}
+          />
+        );
+      case 'TRUE_FALSE':
+        return (
+          <TrueFalseEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      case 'OPEN':
+        return (
+          <OpenQuestionEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      case 'FILL_GAP':
+        return (
+          <FillGapEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      case 'COMPLIANCE':
+        return (
+          <ComplianceEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      case 'ORDERING':
+        return (
+          <OrderingEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      case 'HOTSPOT':
+        return (
+          <HotspotEditor
+            content={content as any}
+            onChange={handleContentChange}
+          />
+        );
+      default:
+        return (
+          <div className="p-4 border border-gray-200 rounded-md bg-gray-50">
+            <p className="text-sm text-gray-600">Select a question type to continue.</p>
+          </div>
+        );
+    }
+  };
 
-  if (error) return <div className="text-red-500">{error}</div>;
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Quizzes', href: '/quizzes' },
+    { label: quiz?.title || 'Quiz', href: `/quizzes/${quizId}` },
+    { label: 'Questions', href: `/quizzes/${quizId}/questions`, current: true },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Quiz Not Found</h2>
+          <p className="text-gray-600 mb-4">The quiz you're looking for doesn't exist.</p>
+          <Button variant="primary" onClick={() => navigate('/quizzes')}>
+            Back to Quizzes
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-4">
-        Manage Questions for {quiz?.title}
-      </h2>
-      <div className="flex items-center space-x-4 mb-4">
-        <button
-          onClick={() => navigate('/quizzes')}
-          className="px-4 py-2 border rounded"
-        >
-          Back to Quizzes
-        </button>
-        <button
-          onClick={openCreate}
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          + New Question
-        </button>
-      </div>
-      {questions.length === 0 ? (
-        <p>No questions added yet.</p>
-      ) : (
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">Text</th>
-              <th className="p-2 text-left">Type</th>
-              <th className="p-2 text-left">Difficulty</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map((q) => (
-              <tr key={q.id}>
-                <td className="border px-2 py-1 max-w-xs truncate">{q.questionText}</td>
-                <td className="border px-2 py-1">{q.type}</td>
-                <td className="border px-2 py-1">{q.difficulty}</td>
-                <td className="border px-2 py-1 text-center">
-                  <button
-                    onClick={() => handleDelete(q.id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb items={breadcrumbItems} />
 
-      <h3 className="text-xl font-semibold mt-8 mb-2">Add Existing Question</h3>
-      {loadingAll ? (
-        <Spinner />
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border mb-4">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">Text</th>
-                <th className="p-2 text-left">Type</th>
-                <th className="p-2 text-left">Difficulty</th>
-                <th className="p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allQuestions
-                .filter((q) => !questions.find((qq) => qq.id === q.id))
-                .map((q) => (
-                  <tr key={q.id} className="hover:bg-gray-50">
-                    <td className="border px-2 py-1 max-w-xs truncate">{q.questionText}</td>
-                    <td className="border px-2 py-1">{q.type}</td>
-                    <td className="border px-2 py-1">{q.difficulty}</td>
-                    <td className="border px-2 py-1 text-center">
-                      <button
-                        onClick={() => handleAddExisting(q.id)}
-                        className="text-indigo-600 hover:underline"
+        {/* Page Header */}
+        <PageHeader
+          title={`Questions - ${quiz.title}`}
+          subtitle="Manage questions for this quiz"
+          actions={[
+            {
+              label: 'Add Question',
+              type: 'create',
+              variant: 'primary',
+              onClick: openCreate,
+              icon: () => (
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              )
+            }
+          ]}
+        />
+
+        {/* Error Display */}
+        {error && (
+          <Alert type="error" title="Error" className="mb-6">
+            {error}
+          </Alert>
+        )}
+
+        {/* Current Questions */}
+        <div className="bg-white shadow rounded-lg mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Current Questions ({questions.length})</h3>
+          </div>
+          <div className="p-6">
+            {questions.length === 0 ? (
+              <div className="text-center py-8">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No questions</h3>
+                <p className="mt-1 text-sm text-gray-500">Get started by adding questions to this quiz.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {questions.map((question) => (
+                  <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <QuestionRenderer
+                          question={question as QuestionDto & { createdAt: string; updatedAt: string }}
+                          showCorrectAnswer={false}
+                          disabled={true}
+                          className="border-0 shadow-none"
+                        />
+                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {question.type.replace('_', ' ')}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            question.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
+                            question.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {question.difficulty}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(question.id)}
+                        className="ml-4"
                       >
-                        Add
-                      </button>
-                    </td>
-                  </tr>
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-            </tbody>
-          </table>
-          <div className="flex justify-center items-center space-x-4">
-            <button
-              onClick={() => setQPage((p) => Math.max(p - 1, 0))}
-              disabled={qPage === 0}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <span>
-              Page {qPage + 1} of {qTotalPages}
-            </span>
-            <button
-              onClick={() => setQPage((p) => Math.min(p + 1, qTotalPages - 1))}
-              disabled={qPage + 1 === qTotalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-            <h3 className="text-xl font-semibold mb-4">New Question</h3>
-            {formError && <div className="text-red-500 mb-2">{formError}</div>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="qText" className="block mb-1">
-                  Question Text
-                </label>
-                <textarea
-                  id="qText"
-                  required
-                  minLength={3}
-                  className="w-full border px-3 py-2 rounded"
-                  rows={3}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                />
+        {/* Add Existing Questions */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Add Existing Questions</h3>
+          </div>
+          <div className="p-6">
+            {loadingAll ? (
+              <div className="flex justify-center py-8">
+                <Spinner />
               </div>
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <label htmlFor="qType" className="block mb-1">Type</label>
-                  <select
-                    id="qType"
-                    value={type}
-                    onChange={(e) => setType(e.target.value as QuestionDto['type'])}
-                    className="w-full border px-3 py-2 rounded"
-                  >
-                    <option value="TRUE_FALSE">TRUE_FALSE</option>
-                    <option value="MCQ_SINGLE">MCQ_SINGLE</option>
-                    <option value="MCQ_MULTI">MCQ_MULTI</option>
-                    <option value="OPEN">OPEN</option>
-                    <option value="FILL_GAP">FILL_GAP</option>
-                    <option value="COMPLIANCE">COMPLIANCE</option>
-                    <option value="ORDERING">ORDERING</option>
-                    <option value="HOTSPOT">HOTSPOT</option>
-                  </select>
+            ) : (
+              <div className="space-y-4">
+                {allQuestions
+                  .filter((q) => !questions.find((qq) => qq.id === q.id))
+                  .map((q) => (
+                    <div key={q.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <QuestionRenderer
+                            question={q as QuestionDto & { createdAt: string; updatedAt: string }}
+                            showCorrectAnswer={false}
+                            disabled={true}
+                            className="border-0 shadow-none"
+                          />
+                          <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {q.type.replace('_', ' ')}
+                            </span>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              q.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
+                              q.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {q.difficulty}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleAddExisting(q.id)}
+                          className="ml-4"
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                
+                {/* Pagination */}
+                {qTotalPages > 1 && (
+                  <div className="flex justify-center items-center space-x-4 mt-6">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setQPage((p) => Math.max(p - 1, 0))}
+                      disabled={qPage === 0}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-sm text-gray-600">
+                      Page {qPage + 1} of {qTotalPages}
+                    </span>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setQPage((p) => Math.min(p + 1, qTotalPages - 1))}
+                      disabled={qPage + 1 === qTotalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Question Creation Modal */}
+        <Modal
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          title={previewMode ? 'Preview Question' : 'Create New Question'}
+          size="xl"
+        >
+          <div className="space-y-6">
+            {previewMode ? (
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Question Type
+                  </label>
+                  <QuestionTypeSelector
+                    selectedType={selectedType}
+                    onTypeChange={handleTypeChange}
+                  />
                 </div>
-                <div className="flex-1">
-                  <label htmlFor="qDiff" className="block mb-1">Difficulty</label>
+                
+                {/* Preview the question */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Preview</h4>
+                  <QuestionRenderer
+                    question={{
+                      id: 'preview',
+                      type: selectedType,
+                      difficulty,
+                      questionText,
+                      content: (selectedType === 'TRUE_FALSE' ? { answer: true } :
+                              selectedType === 'OPEN' ? { answer: '' } :
+                              selectedType === 'MCQ_SINGLE' || selectedType === 'MCQ_MULTI' ? { options: [] } :
+                              selectedType === 'FILL_GAP' ? { text: '', gaps: [] } :
+                              selectedType === 'COMPLIANCE' ? { statements: [] } :
+                              selectedType === 'ORDERING' ? { items: [] } :
+                              selectedType === 'HOTSPOT' ? { imageUrl: '', regions: [] } : {}) as any,
+                      hint,
+                      explanation,
+                      quizIds: [],
+                      tagIds: [],
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    }}
+                    showCorrectAnswer={false}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Question Type Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Question Type
+                  </label>
+                  <QuestionTypeSelector
+                    selectedType={selectedType}
+                    onTypeChange={handleTypeChange}
+                  />
+                </div>
+
+                {/* Question Text */}
+                <div>
+                  <label htmlFor="questionText" className="block text-sm font-medium text-gray-700 mb-2">
+                    Question Text <span className="text-red-600">*</span>
+                  </label>
+                  <textarea
+                    id="questionText"
+                    required
+                    minLength={3}
+                    maxLength={1000}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    rows={4}
+                    value={questionText}
+                    onChange={(e) => setQuestionText(e.target.value)}
+                    placeholder="Enter your question here..."
+                  />
+                </div>
+
+                {/* Difficulty */}
+                <div>
+                  <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-2">
+                    Difficulty
+                  </label>
                   <select
-                    id="qDiff"
+                    id="difficulty"
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value as QuestionDto['difficulty'])}
-                    className="w-full border px-3 py-2 rounded"
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
                     <option value="EASY">Easy</option>
                     <option value="MEDIUM">Medium</option>
                     <option value="HARD">Hard</option>
                   </select>
                 </div>
+
+                {/* Hint */}
+                <div>
+                  <label htmlFor="hint" className="block text-sm font-medium text-gray-700 mb-2">
+                    Hint (Optional)
+                  </label>
+                  <textarea
+                    id="hint"
+                    maxLength={500}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    rows={2}
+                    value={hint}
+                    onChange={(e) => setHint(e.target.value)}
+                    placeholder="Provide a hint for students..."
+                  />
+                </div>
+
+                {/* Explanation */}
+                <div>
+                  <label htmlFor="explanation" className="block text-sm font-medium text-gray-700 mb-2">
+                    Explanation (Optional)
+                  </label>
+                  <textarea
+                    id="explanation"
+                    maxLength={2000}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    rows={3}
+                    value={explanation}
+                    onChange={(e) => setExplanation(e.target.value)}
+                    placeholder="Provide an explanation for the correct answer..."
+                  />
+                </div>
+                
+                {/* Question Type Specific Content Editor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {selectedType.replace('_', ' ')} Content
+                  </label>
+                  {renderTypeSpecificEditor()}
+                </div>
               </div>
-              <div>
-                <label htmlFor="qContent" className="block mb-1">Content (JSON)</label>
-                <textarea
-                  id="qContent"
-                  className="w-full border px-3 py-2 rounded font-mono"
-                  rows={4}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                />
-              </div>
-              <div className="flex justify-end space-x-2 pt-4">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border rounded">
+            )}
+
+            {/* Form Error */}
+            {formError && (
+              <Alert type="error" title="Error">
+                {formError}
+              </Alert>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+              <Button
+                variant="secondary"
+                onClick={() => setPreviewMode(!previewMode)}
+              >
+                {previewMode ? 'Edit' : 'Preview'}
+              </Button>
+              <div className="flex space-x-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowForm(false)}
+                >
                   Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded" disabled={formSubmitting}>
-                  {formSubmitting ? 'Saving...' : 'Create'}
-                </button>
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSubmit}
+                  disabled={formSubmitting || !questionText.trim()}
+                  loading={formSubmitting}
+                >
+                  {formSubmitting ? 'Creating...' : 'Create Question'}
+                </Button>
               </div>
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+        </Modal>
+      </div>
     </div>
   );
 };
