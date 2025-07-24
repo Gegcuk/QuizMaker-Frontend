@@ -33,6 +33,11 @@ const QuizAttemptPage: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState<any | null>(null);
   const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Progress tracking state
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
+  const [questionsAnswered, setQuestionsAnswered] = useState<number>(0);
+  const [currentQuestionNumber, setCurrentQuestionNumber] = useState<number>(1);
 
   const isAnswerProvided = () => {
     if (!currentQuestion) return false;
@@ -83,6 +88,48 @@ const QuizAttemptPage: React.FC = () => {
   };
 
   /* -------------------------------------------------------------------- */
+  /*  Progress tracking functions                                          */
+  /* -------------------------------------------------------------------- */
+  const fetchAttemptStats = async () => {
+    if (!attemptId) return;
+    
+    try {
+      const stats = await attemptService.getAttemptStats(attemptId);
+      console.log("Attempt stats received:", stats);
+      
+      setQuestionsAnswered(stats.questionsAnswered);
+      setCurrentQuestionNumber(stats.questionsAnswered + 1);
+      
+      // Estimate total questions based on completion percentage
+      if (totalQuestions === 0 && stats.completionPercentage > 0) {
+        const estimatedTotal = Math.round(stats.questionsAnswered / (stats.completionPercentage / 100));
+        console.log("Estimated total questions:", {
+          questionsAnswered: stats.questionsAnswered,
+          completionPercentage: stats.completionPercentage,
+          estimatedTotal
+        });
+        setTotalQuestions(estimatedTotal);
+      }
+    } catch (error) {
+      console.warn("Could not fetch attempt stats:", error);
+    }
+  };
+
+  const updateProgress = () => {
+    setQuestionsAnswered(prev => prev + 1);
+    setCurrentQuestionNumber(prev => prev + 1);
+  };
+
+  /* -------------------------------------------------------------------- */
+  /*  Fetch stats when attemptId changes                                   */
+  /* -------------------------------------------------------------------- */
+  useEffect(() => {
+    if (attemptId) {
+      fetchAttemptStats();
+    }
+  }, [attemptId]);
+
+  /* -------------------------------------------------------------------- */
   /*  Kick-off attempt & fetch first question                              */
   /* -------------------------------------------------------------------- */
   useEffect(() => {
@@ -103,6 +150,9 @@ const QuizAttemptPage: React.FC = () => {
             safeContent: attempt.firstQuestion.safeContent
           });
         }
+        
+        // Fetch initial attempt stats
+        await fetchAttemptStats();
       } catch {
         setError("Failed to start quiz attempt.");
       } finally {
@@ -177,6 +227,12 @@ const QuizAttemptPage: React.FC = () => {
         });
         setCurrentQuestion(data.nextQuestion);
         setAnswerInput(null);
+        
+        // Update progress for next question
+        updateProgress();
+        
+        // Fetch updated stats
+        await fetchAttemptStats();
       } else {
         await attemptService.completeAttempt(attemptId);
         navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
@@ -343,6 +399,38 @@ const QuizAttemptPage: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
+      {/* Progress Indicator */}
+      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm font-medium text-gray-700">
+            Question {currentQuestionNumber} of {totalQuestions || '?'}
+          </div>
+          <div className="text-sm text-gray-600">
+            {questionsAnswered} answered
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div 
+            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+            style={{ 
+              width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
+            }}
+          />
+        </div>
+        
+        {/* Progress Details */}
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>
+            {questionsAnswered} of {totalQuestions || '?'} questions completed
+          </span>
+          <span>
+            {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
+          </span>
+        </div>
+      </div>
+
       <h2 className="text-xl font-semibold mb-4">
         {currentQuestion.questionText}
       </h2>
