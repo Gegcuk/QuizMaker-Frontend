@@ -10,8 +10,7 @@ const TagManagementPage: React.FC = () => {
   
   /* ---------------------------- state --------------------------------- */
   const [tags, setTags] = useState<TagDto[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [displayedCount, setDisplayedCount] = useState<number>(5);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,9 +26,8 @@ const TagManagementPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await tagService.getTags({ page, size: 20 });
+      const response = await tagService.getTags({ page: 0, size: 100 });
       setTags(response.content);
-      setTotalPages(response.pageable.totalPages);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tags.');
     } finally {
@@ -40,7 +38,7 @@ const TagManagementPage: React.FC = () => {
   useEffect(() => {
     fetchTags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, []);
 
   /* --------------------------- form logic ----------------------------- */
   const openCreateForm = () => {
@@ -127,61 +125,67 @@ const TagManagementPage: React.FC = () => {
           <p className="text-gray-500">No tags found.</p>
         </div>
       ) : (
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tags.map((tag) => (
-                <tr key={tag.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tag.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{tag.description}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => openEditForm(tag)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tag.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        <div className="space-y-4">
+          {/* Header with count */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Tags</h3>
+            <span className="text-sm text-gray-500">
+              {tags.length > displayedCount 
+                ? `Showing ${displayedCount} of ${tags.length} tags`
+                : `${tags.length} tag${tags.length !== 1 ? 's' : ''} available`
+              }
+            </span>
+          </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-6 space-x-4">
-          <button
-            onClick={() => setPage((p) => Math.max(p - 1, 0))}
-            disabled={page === 0}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {page + 1} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
-            disabled={page + 1 === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
+          {/* Tags list */}
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tags.slice(0, displayedCount).map((tag) => (
+                  <tr key={tag.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tag.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{tag.description}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => openEditForm(tag)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tag.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Show More Button */}
+          {tags.length > displayedCount && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setDisplayedCount(prev => Math.min(prev + 5, tags.length))}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Show 5 More
+              </button>
+            </div>
+          )}
         </div>
       )}
 

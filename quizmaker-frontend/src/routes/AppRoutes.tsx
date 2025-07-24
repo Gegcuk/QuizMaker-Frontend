@@ -26,7 +26,8 @@ import QuizResultPage from '../pages/QuizResultPage';
 import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
 
 /* ----------  Quiz CRUD / owner pages  ------------------------------------ */
-import { MyQuizzesPage, QuizForm } from '../components';
+import { MyQuizzesPage } from '../components';
+import QuizFormPage from '../pages/QuizFormPage';
 
 /* ----------  Management pages  ------------------------------------------ */
 import TagManagementPage from '../pages/TagManagementPage';
@@ -37,7 +38,8 @@ import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
 /* ----------  Document management pages  --------------------------------------- */
 import DocumentListPage from '../pages/DocumentListPage';
-import { DocumentUpload, DocumentViewer } from '../components/document';
+import DocumentUploadPage from '../pages/DocumentUploadPage';
+import { DocumentViewer } from '../components/document';
 import DocumentUploadWithQuizPage from '../pages/DocumentUploadWithQuizPage';
 
 /* ----------  User profile pages  ----------------------------------------- */
@@ -121,7 +123,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/create"
           element={
             <ProtectedRoute>
-              <QuizForm />
+              <QuizFormPage />
             </ProtectedRoute>
           }
         />
@@ -129,7 +131,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/:quizId/edit"
           element={
             <ProtectedRoute>
-              <QuizForm />
+              <QuizFormPage />
             </ProtectedRoute>
           }
         />
@@ -197,7 +199,7 @@ const AppRoutes: React.FC = () => {
           path="/documents/upload"
           element={
             <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentUpload />
+              <DocumentUploadPage />
             </ProtectedRoute>
           }
         />

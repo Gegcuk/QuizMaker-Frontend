@@ -25,6 +25,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   const categoryService = new CategoryService(api);
   
   const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [displayedCount, setDisplayedCount] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -221,9 +222,16 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
 
         {/* Categories list */}
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">
-            Available Categories ({categories.length})
-          </h4>
+          {/* Header with count */}
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-gray-700">Available Categories</h4>
+            <span className="text-sm text-gray-500">
+              {categories.length > displayedCount 
+                ? `Showing ${displayedCount} of ${categories.length} categories`
+                : `${categories.length} categor${categories.length !== 1 ? 'ies' : 'y'} available`
+              }
+            </span>
+          </div>
           
           {categories.length === 0 ? (
             <div className="text-center py-8">
@@ -236,8 +244,8 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
               </p>
             </div>
           ) : (
-            <div className="max-h-64 overflow-y-auto space-y-2">
-              {categories.map((category) => (
+            <>
+              {categories.slice(0, displayedCount).map((category) => (
                 <div
                   key={category.id}
                   className={`border rounded-lg p-3 cursor-pointer transition-colors ${
@@ -278,7 +286,22 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
+
+              {/* Show More Button */}
+              {categories.length > displayedCount && (
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => setDisplayedCount(prev => Math.min(prev + 5, categories.length))}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Show 5 More
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

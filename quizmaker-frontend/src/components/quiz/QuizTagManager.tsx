@@ -29,6 +29,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   const tagService = new TagService(api);
   
   const [tags, setTags] = useState<TagWithStatus[]>([]);
+  const [displayedCount, setDisplayedCount] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -274,7 +275,18 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
         </div>
 
         {/* Tags list */}
-        <div className="space-y-2 max-h-64 overflow-y-auto">
+        <div className="space-y-2">
+          {/* Header with count */}
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-gray-700">Available Tags</h4>
+            <span className="text-sm text-gray-500">
+              {filteredTags.length > displayedCount 
+                ? `Showing ${displayedCount} of ${filteredTags.length} tags`
+                : `${filteredTags.length} tag${filteredTags.length !== 1 ? 's' : ''} available`
+              }
+            </span>
+          </div>
+
           {filteredTags.length === 0 ? (
             <div className="text-center py-8">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -286,41 +298,58 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
               </p>
             </div>
           ) : (
-            filteredTags.map((tag) => (
-              <div
-                key={tag.id}
-                className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                  tag.isSelected
-                    ? 'border-indigo-500 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => handleTagToggle(tag.id)}
-              >
-                <div className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={tag.isSelected}
-                    onChange={() => handleTagToggle(tag.id)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        #{tag.name}
-                      </span>
-                    </div>
-                    {tag.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {tag.description}
-                      </p>
-                    )}
-                    <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                      <span>Created: {new Date(tag.createdAt).toLocaleDateString()}</span>
+            <>
+              {filteredTags.slice(0, displayedCount).map((tag) => (
+                <div
+                  key={tag.id}
+                  className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                    tag.isSelected
+                      ? 'border-indigo-500 bg-indigo-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => handleTagToggle(tag.id)}
+                >
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={tag.isSelected}
+                      onChange={() => handleTagToggle(tag.id)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          #{tag.name}
+                        </span>
+                      </div>
+                      {tag.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {tag.description}
+                        </p>
+                      )}
+                      <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
+                        <span>Created: {new Date(tag.createdAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+
+              {/* Show More Button */}
+              {filteredTags.length > displayedCount && (
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => setDisplayedCount(prev => Math.min(prev + 5, filteredTags.length))}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Show 5 More
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

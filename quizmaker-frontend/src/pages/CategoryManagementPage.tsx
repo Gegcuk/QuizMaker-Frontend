@@ -11,12 +11,11 @@ import {
 
 const CategoryManagementPage: React.FC = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [displayedCount, setDisplayedCount] = useState<number>(5);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-const [showForm, setShowForm] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
   const [editing, setEditing] = useState<CategoryDto | null>(null);
   const [name, setName] = useState<string>('');
   const [desc, setDesc] = useState<string>('');
@@ -27,9 +26,8 @@ const [showForm, setShowForm] = useState<boolean>(false);
     setLoading(true);
     setError(null);
     try {
-      const response = await getAllCategories({ page, size: 20 });
+      const response = await getAllCategories({ page: 0, size: 100 });
       setCategories(response.content);
-      setTotalPages(response.pageable.totalPages);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to fetch categories.');
     } finally {
@@ -40,7 +38,7 @@ const [showForm, setShowForm] = useState<boolean>(false);
   useEffect(() => {
     fetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, []);
 
   const openCreate = () => {
     setEditing(null);
@@ -122,55 +120,61 @@ const [showForm, setShowForm] = useState<boolean>(false);
           <p className="text-gray-500">No categories found.</p>
         </div>
       ) : (
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {categories.map((cat) => (
-                <tr key={cat.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{cat.description}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <button onClick={() => openEdit(cat)} className="text-indigo-600 hover:text-indigo-900">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(cat.id)} className="text-red-600 hover:text-red-900">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        <div className="space-y-4">
+          {/* Header with count */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Categories</h3>
+            <span className="text-sm text-gray-500">
+              {categories.length > displayedCount 
+                ? `Showing ${displayedCount} of ${categories.length} categories`
+                : `${categories.length} categor${categories.length !== 1 ? 'ies' : 'y'} available`
+              }
+            </span>
+          </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-6 space-x-4">
-          <button
-            onClick={() => setPage((p) => Math.max(p - 1, 0))}
-            disabled={page === 0}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {page + 1} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
-            disabled={page + 1 === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
+          {/* Categories list */}
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {categories.slice(0, displayedCount).map((cat) => (
+                  <tr key={cat.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{cat.description}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <button onClick={() => openEdit(cat)} className="text-indigo-600 hover:text-indigo-900">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(cat.id)} className="text-red-600 hover:text-red-900">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Show More Button */}
+          {categories.length > displayedCount && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setDisplayedCount(prev => Math.min(prev + 5, categories.length))}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Show 5 More
+              </button>
+            </div>
+          )}
         </div>
       )}
 
