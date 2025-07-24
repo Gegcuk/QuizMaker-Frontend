@@ -27,20 +27,22 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   disabled = false,
   className = ''
 }) => {
-  const [gapAnswers, setGapAnswers] = useState<Record<number, string>>(currentAnswer);
+  const [gapAnswers, setGapAnswers] = useState<Record<number, string>>(currentAnswer || {});
 
   useEffect(() => {
-    setGapAnswers(currentAnswer);
+    setGapAnswers(currentAnswer || {});
   }, [currentAnswer]);
 
   const handleGapChange = (gapId: number, value: string) => {
-    const newAnswers = { ...gapAnswers, [gapId]: value };
+    const newAnswers = { ...(gapAnswers || {}), [gapId]: value };
+    console.log("FillGapAnswer gap change:", { gapId, value, newAnswers });
     setGapAnswers(newAnswers);
     onAnswerChange(newAnswers);
   };
 
   const handleClearAll = () => {
     const emptyAnswers: Record<number, string> = {};
+    console.log("FillGapAnswer clear all:", emptyAnswers);
     setGapAnswers(emptyAnswers);
     onAnswerChange(emptyAnswers);
   };
@@ -48,6 +50,17 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   // Extract text and gaps from safe content
   const text = question.safeContent?.text || '';
   const gaps = question.safeContent?.gaps || [];
+
+  // Debug logging
+  console.log("FillGapAnswer data:", {
+    text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+    textLength: text.length,
+    gapsCount: gaps.length,
+    gaps: gaps,
+    currentAnswer: currentAnswer,
+    hasUnderscores: text.includes('___'),
+    underscoreCount: (text.match(/_{3,}/g) || []).length
+  });
 
   const renderTextWithGaps = () => {
     if (!text || gaps.length === 0) {
@@ -60,39 +73,56 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
     // Split text by gaps and render with input fields
     const parts: React.ReactNode[] = [];
-    let lastIndex = 0;
+    let currentText = text;
+    let gapIndex = 0;
 
-    gaps.forEach((gap: GapAnswer, index: number) => {
-      // Add text before gap
-      if (gap.id > lastIndex) {
+    // Find all gaps marked with ___ and replace them with input fields
+    const gapRegex = /_{3,}/g;
+    let match;
+    let lastIndex = 0;
+    const matches = currentText.match(gapRegex) || [];
+    
+    console.log("FillGapAnswer parsing:", {
+      textLength: currentText.length,
+      gapMatches: matches,
+      gapMatchesCount: matches.length,
+      gapsArrayLength: gaps.length,
+      gapIndex
+    });
+
+    while ((match = gapRegex.exec(currentText)) !== null && gapIndex < gaps.length) {
+      // Add text before the gap
+      if (match.index > lastIndex) {
         parts.push(
-          <span key={`text-${index}`} className="text-gray-900">
-            {text.substring(lastIndex, gap.id)}
+          <span key={`text-${gapIndex}`} className="text-gray-900">
+            {currentText.substring(lastIndex, match.index)}
           </span>
         );
       }
 
       // Add gap input
+      const gap = gaps[gapIndex];
       parts.push(
         <input
           key={`gap-${gap.id}`}
           type="text"
-          value={gapAnswers[gap.id] || ''}
+          value={gapAnswers?.[gap.id] || ''}
           onChange={(e) => handleGapChange(gap.id, e.target.value)}
           disabled={disabled}
-          placeholder={`Gap ${index + 1}`}
-          className="mx-2 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 min-w-[120px] text-center"
+          placeholder={`Gap ${gapIndex + 1}`}
+          className="mx-2 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 min-w-[120px] text-center bg-white"
         />
       );
 
-      lastIndex = gap.id;
-    });
+      lastIndex = match.index + match[0].length;
+      gapIndex++;
+    }
 
-    // Add remaining text
-    if (lastIndex < text.length) {
+    // Add remaining text after the last gap
+    if (lastIndex < currentText.length) {
       parts.push(
         <span key="text-end" className="text-gray-900">
-          {text.substring(lastIndex)}
+          {currentText.substring(lastIndex)}
         </span>
       );
     }
@@ -100,7 +130,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     return parts;
   };
 
-  const filledGaps = Object.values(gapAnswers).filter(answer => answer.trim().length > 0).length;
+  const filledGaps = gapAnswers ? Object.values(gapAnswers).filter(answer => answer && answer.trim().length > 0).length : 0;
   const totalGaps = gaps.length;
   const completionPercentage = totalGaps > 0 ? (filledGaps / totalGaps) * 100 : 0;
 
@@ -108,11 +138,12 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
       <div className="text-sm text-gray-600 mb-4">
-        Fill in the blanks with the correct words or phrases:
+        <p className="font-medium mb-2">Fill in the blanks with the correct words or phrases:</p>
+        <p className="text-xs text-gray-500">Read the text carefully and fill in each blank with the appropriate word or phrase.</p>
       </div>
 
       {/* Text with Gaps */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
         <div className="text-lg leading-relaxed">
           {renderTextWithGaps()}
         </div>
@@ -130,12 +161,12 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
           </div>
         </div>
 
-        {Object.keys(gapAnswers).length > 0 && (
+        {gapAnswers && Object.keys(gapAnswers).length > 0 && (
           <button
             type="button"
             onClick={handleClearAll}
             disabled={disabled}
-            className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 px-3 py-1 rounded border border-gray-300 hover:bg-gray-50"
           >
             Clear All
           </button>
@@ -164,13 +195,13 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
                 </span>
                 <input
                   type="text"
-                  value={gapAnswers[gap.id] || ''}
+                  value={gapAnswers?.[gap.id] || ''}
                   onChange={(e) => handleGapChange(gap.id, e.target.value)}
                   disabled={disabled}
                   placeholder={`Answer for gap ${index + 1}`}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
                 />
-                {gapAnswers[gap.id] && (
+                {gapAnswers?.[gap.id] && (
                   <span className="text-green-600 text-sm">✓</span>
                 )}
               </div>

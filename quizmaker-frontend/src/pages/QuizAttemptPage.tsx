@@ -47,6 +47,17 @@ const QuizAttemptPage: React.FC = () => {
       });
     }
 
+    // Debug logging for fill gap questions
+    if (currentQuestion.type === "FILL_GAP") {
+      console.log("Fill gap answer validation:", {
+        answerInput,
+        isObject: typeof answerInput === 'object',
+        keys: answerInput ? Object.keys(answerInput) : [],
+        values: answerInput ? Object.values(answerInput) : [],
+        isValid: answerInput && Object.keys(answerInput).length > 0
+      });
+    }
+
     switch (currentQuestion.type) {
       case "MCQ_SINGLE":
         return Boolean(answerInput);
@@ -83,6 +94,15 @@ const QuizAttemptPage: React.FC = () => {
         const attempt = await attemptService.startAttempt(quizId, { mode: "ONE_BY_ONE" });
         setAttemptId(attempt.attemptId);
         setCurrentQuestion(attempt.firstQuestion || null);
+        
+        // Debug logging for the first question
+        if (attempt.firstQuestion) {
+          console.log("First question received:", {
+            type: attempt.firstQuestion.type,
+            questionText: attempt.firstQuestion.questionText,
+            safeContent: attempt.firstQuestion.safeContent
+          });
+        }
       } catch {
         setError("Failed to start quiz attempt.");
       } finally {
@@ -117,15 +137,15 @@ const QuizAttemptPage: React.FC = () => {
           return { selectedStatementIds: answerInput ?? [] };
         case "FILL_GAP":
           return {
-            gaps: Object.entries(answerInput || {}).map(([id, ans]) => ({
-              id: Number(id),
+            answers: Object.entries(answerInput || {}).map(([id, ans]) => ({
+              gapId: Number(id),
               answer: String(ans).trim(),
             })),
           };
         case "HOTSPOT":
           return { regionId: answerInput };
         case "ORDERING":
-          return { itemIds: answerInput ?? [] };
+          return { orderedItemIds: answerInput ?? [] };
         default:
           return { answer: answerInput };
       }
@@ -136,12 +156,25 @@ const QuizAttemptPage: React.FC = () => {
       response: buildResponse(),
     };
 
+    // Debug logging for the payload
+    console.log("Submitting answer payload:", {
+      questionType: currentQuestion.type,
+      questionId: currentQuestion.id,
+      answerInput: answerInput,
+      response: payload.response
+    });
+
     try {
       const data = await attemptService.submitAnswer(attemptId, payload);
       console.log("Answer submitted:", data);
 
       // nextQuestion present → continue; otherwise finish attempt
       if (data.nextQuestion) {
+        console.log("Next question received:", {
+          type: data.nextQuestion.type,
+          questionText: data.nextQuestion.questionText,
+          safeContent: data.nextQuestion.safeContent
+        });
         setCurrentQuestion(data.nextQuestion);
         setAnswerInput(null);
       } else {
@@ -261,22 +294,14 @@ const QuizAttemptPage: React.FC = () => {
         ));
 
       case "FILL_GAP":
-        return safeContent.gaps.map((gap: any) => (
-          <div key={gap.id} className="mb-2">
-            <label className="mr-2">Gap {gap.id}:</label>
-            <input
-              type="text"
-              className="border px-2 py-1"
-              value={answerInput?.[gap.id] || ""}
-              onChange={(e) =>
-                setAnswerInput({
-                  ...(answerInput || {}),
-                  [gap.id]: e.target.value,
-                })
-              }
-            />
-          </div>
-        ));
+        return (
+          <FillGapAnswer
+            question={currentQuestion}
+            currentAnswer={answerInput}
+            onAnswerChange={setAnswerInput}
+            disabled={submitting}
+          />
+        );
 
       case "HOTSPOT":
         return safeContent.regions.map((region: any) => (
