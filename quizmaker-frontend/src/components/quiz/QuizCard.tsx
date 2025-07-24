@@ -6,6 +6,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '../../types/quiz.types';
+import { useQuizMetadata } from '../../hooks/useQuizMetadata';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -24,6 +25,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
   onStart,
   className = ''
 }) => {
+  const { getTagName, getCategoryName } = useQuizMetadata();
   // Helper function to get difficulty color
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -121,6 +123,12 @@ const QuizCard: React.FC<QuizCardProps> = ({
             </svg>
             <span>{quiz.visibility}</span>
           </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span>{getCategoryName(quiz.categoryId)}</span>
+          </div>
           {quiz.isRepetitionEnabled && (
             <div className="flex items-center text-sm text-gray-600">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +148,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                   key={tagId}
                   className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                 >
-                  #{tagId}
+                  #{getTagName(tagId)}
                 </span>
               ))}
               {quiz.tagIds.length > 3 && (
