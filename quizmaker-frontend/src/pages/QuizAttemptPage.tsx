@@ -1,23 +1,23 @@
 // src/pages/QuizAttemptPage.tsx
 // ---------------------------------------------------------------------------
-// ONE_BY_ONE quiz flow for MCQ_SINGLE and TRUE_FALSE questions only.
-// ONE_BY_ONE quiz flow supporting all question types.
-// Auth & ProtectedRoute are assumed to be in place.
+// Quiz attempt page - handles individual question answering
 // ---------------------------------------------------------------------------
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { QuestionRenderer } from '../components/question';
-import { Button, Alert, Spinner } from '../components/ui';
-import { Breadcrumb, PageHeader } from '../components/layout';
-import {
-  StartAttemptResponse,
-  AnswerSubmissionRequest,
-  AnswerSubmissionDto,
-  QuestionForAttemptDto
-} from '../types/attempt.types';
-import { AttemptService } from '../api/attempt.service';
-import api from '../api/axiosInstance';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { AttemptService } from "../api/attempt.service";
+import { AnswerSubmissionRequest } from "../types/attempt.types";
+import api from "../api/axiosInstance";
+import { Spinner } from "../components/ui";
+import { 
+  McqAnswer, 
+  TrueFalseAnswer, 
+  OpenAnswer, 
+  FillGapAnswer, 
+  ComplianceAnswer, 
+  OrderingAnswer, 
+  HotspotAnswer 
+} from "../components/attempt";
 
 // Shape of user answer input; varies by question type
 type AnswerInput = any;
@@ -30,12 +30,22 @@ const QuizAttemptPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<QuestionForAttemptDto | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<any | null>(null);
   const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const isAnswerProvided = () => {
     if (!currentQuestion) return false;
+
+    // Debug logging for ordering questions
+    if (currentQuestion.type === "ORDERING") {
+      console.log("Ordering answer validation:", {
+        answerInput,
+        isArray: Array.isArray(answerInput),
+        length: answerInput?.length,
+        isValid: Array.isArray(answerInput) && answerInput.length > 0
+      });
+    }
 
     switch (currentQuestion.type) {
       case "MCQ_SINGLE":
@@ -151,60 +161,52 @@ const QuizAttemptPage: React.FC = () => {
   /*  Rendering helpers                                                   */
   /* -------------------------------------------------------------------- */
   const renderOptions = () => {
-    if (!currentQuestion) return null;
-    const { type, safeContent } = currentQuestion;
+    const { safeContent } = currentQuestion;
 
-    switch (type) {
+    switch (currentQuestion.type) {
       case "MCQ_SINGLE":
-        return safeContent.options.map((opt: any, idx: number) => {
-          const optionValue = opt.id ?? idx;
-          return (
-            <label key={optionValue} className="flex items-center mb-2">
-              <input
-                type="radio"
-                name={currentQuestion.id}
-                value={optionValue}
-                checked={answerInput === optionValue}
-                onChange={() => setAnswerInput(optionValue)}
-                className="mr-2"
-              />
-              {opt.text}
-            </label>
-          );
-        });
+        return safeContent.options.map((opt: any) => (
+          <label key={opt.id} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="option"
+              value={opt.id}
+              checked={answerInput === opt.id}
+              onChange={() => setAnswerInput(opt.id)}
+              className="mr-2"
+            />
+            {opt.text}
+          </label>
+        ));
 
       case "MCQ_MULTI":
-        return safeContent.options.map((opt: any, idx: number) => {
-          const optionValue = opt.id ?? idx;
-          return (
-            <label key={optionValue} className="flex items-center mb-2">
-              <input
-                type="checkbox"
-                value={optionValue}
-                checked={
-                  Array.isArray(answerInput) && answerInput.includes(optionValue)
+        return safeContent.options.map((opt: any) => (
+          <label key={opt.id} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              value={opt.id}
+              checked={answerInput?.includes(opt.id) || false}
+              onChange={(e) => {
+                const current = answerInput || [];
+                if (e.target.checked) {
+                  setAnswerInput([...current, opt.id]);
+                } else {
+                  setAnswerInput(current.filter((id: any) => id !== opt.id));
                 }
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setAnswerInput((prev: string[] = []) => {
-                    if (checked) return [...prev, optionValue];
-                    return prev.filter((id) => id !== optionValue);
-                  });
-                }}
-                className="mr-2"
-              />
-              {opt.text}
-            </label>
-          );
-        });
+              }}
+              className="mr-2"
+            />
+            {opt.text}
+          </label>
+        ));
 
       case "TRUE_FALSE":
         return (
-          <>
-            <label className="flex items-center mb-2">
+          <div className="space-y-2">
+            <label className="flex items-center">
               <input
                 type="radio"
-                name={currentQuestion.id}
+                name="trueFalse"
                 value="true"
                 checked={answerInput === true}
                 onChange={() => setAnswerInput(true)}
@@ -215,7 +217,7 @@ const QuizAttemptPage: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                name={currentQuestion.id}
+                name="trueFalse"
                 value="false"
                 checked={answerInput === false}
                 onChange={() => setAnswerInput(false)}
@@ -223,15 +225,17 @@ const QuizAttemptPage: React.FC = () => {
               />
               False
             </label>
-          </>
+          </div>
         );
 
       case "OPEN":
         return (
           <textarea
-            className="w-full border px-3 py-2 rounded"
-            value={typeof answerInput === "string" ? answerInput : ""}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            rows={4}
+            value={answerInput || ""}
             onChange={(e) => setAnswerInput(e.target.value)}
+            placeholder="Enter your answer here..."
           />
         );
 
@@ -241,15 +245,14 @@ const QuizAttemptPage: React.FC = () => {
             <input
               type="checkbox"
               value={stmt.id}
-              checked={
-                Array.isArray(answerInput) && answerInput.includes(stmt.id)
-              }
+              checked={answerInput?.includes(stmt.id) || false}
               onChange={(e) => {
-                const checked = e.target.checked;
-                setAnswerInput((prev: number[] = []) => {
-                  if (checked) return [...prev, stmt.id];
-                  return prev.filter((id) => id !== stmt.id);
-                });
+                const current = answerInput || [];
+                if (e.target.checked) {
+                  setAnswerInput([...current, stmt.id]);
+                } else {
+                  setAnswerInput(current.filter((id: any) => id !== stmt.id));
+                }
               }}
               className="mr-2"
             />
@@ -291,22 +294,14 @@ const QuizAttemptPage: React.FC = () => {
         ));
 
       case "ORDERING":
-        return safeContent.items.map((it: any) => (
-          <div key={it.id} className="flex items-center mb-2 space-x-2">
-            <span className="flex-1">{it.text}</span>
-            <input
-              type="number"
-              className="border px-2 py-1 w-20"
-              value={answerInput?.[it.id] || ""}
-              onChange={(e) =>
-                setAnswerInput({
-                  ...(answerInput || {}),
-                  [it.id]: e.target.value,
-                })
-              }
-            />
-          </div>
-        ));
+        return (
+          <OrderingAnswer
+            question={currentQuestion}
+            currentAnswer={answerInput}
+            onAnswerChange={setAnswerInput}
+            disabled={submitting}
+          />
+        );
 
       default:
         return <p>Unsupported question type</p>;

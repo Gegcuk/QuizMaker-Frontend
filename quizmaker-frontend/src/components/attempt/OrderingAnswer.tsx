@@ -34,7 +34,13 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   const originalItems: OrderingItem[] = question.safeContent?.items || [];
 
   useEffect(() => {
-    if (currentAnswer.length > 0) {
+    console.log("OrderingAnswer useEffect:", {
+      currentAnswer,
+      originalItems: originalItems.length,
+      hasCurrentAnswer: currentAnswer && currentAnswer.length > 0
+    });
+
+    if (currentAnswer && currentAnswer.length > 0) {
       // Reconstruct order from current answer
       const ordered = currentAnswer.map(id => 
         originalItems.find(item => item.id === id)
@@ -76,7 +82,9 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     newOrder.splice(targetIndex, 0, removed);
 
     setOrderedItems(newOrder);
-    onAnswerChange(newOrder.map(item => item.id));
+    const newAnswer = newOrder.map(item => item.id);
+    console.log("OrderingAnswer onAnswerChange:", newAnswer);
+    onAnswerChange(newAnswer);
     setDraggedItem(null);
   };
 
@@ -91,7 +99,9 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     [newOrder[index], newOrder[index - 1]] = [newOrder[index - 1], newOrder[index]];
     
     setOrderedItems(newOrder);
-    onAnswerChange(newOrder.map(item => item.id));
+    const newAnswer = newOrder.map(item => item.id);
+    console.log("OrderingAnswer moveUp onAnswerChange:", newAnswer);
+    onAnswerChange(newAnswer);
   };
 
   const handleMoveDown = (index: number) => {
@@ -101,11 +111,14 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
     
     setOrderedItems(newOrder);
-    onAnswerChange(newOrder.map(item => item.id));
+    const newAnswer = newOrder.map(item => item.id);
+    console.log("OrderingAnswer moveDown onAnswerChange:", newAnswer);
+    onAnswerChange(newAnswer);
   };
 
   const handleReset = () => {
     setOrderedItems([...originalItems]);
+    console.log("OrderingAnswer reset onAnswerChange:", []);
     onAnswerChange([]);
   };
 
@@ -121,19 +134,17 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
       <div className="text-sm text-gray-600 mb-4">
-        Arrange the items in the correct order by dragging and dropping:
+        <p className="font-medium mb-2">Arrange the items in the correct order:</p>
+        <p className="text-xs text-gray-500">Drag and drop items to reorder them, or use the arrow buttons to move items up and down.</p>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          {orderedItems.length} items to arrange
-        </div>
+      {/* Reset Button */}
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={handleReset}
           disabled={disabled}
-          className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+          className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 px-3 py-1 rounded border border-gray-300 hover:bg-gray-50"
         >
           Reset Order
         </button>
@@ -149,22 +160,22 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, item)}
             onDragEnd={handleDragEnd}
-            className={`flex items-center p-4 border rounded-lg transition-colors ${
+            className={`flex items-center p-4 border rounded-lg transition-all duration-200 ${
               draggedItem?.id === item.id
-                ? 'border-indigo-500 bg-indigo-50 opacity-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-indigo-500 bg-indigo-50 opacity-50 shadow-lg'
+                : 'border-gray-200 hover:border-gray-300 bg-white'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-move'}`}
           >
+            {/* Position Number */}
+            <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mr-3 flex-shrink-0">
+              {index + 1}
+            </div>
+
             {/* Drag Handle */}
-            <div className="mr-3 text-gray-400">
+            <div className="mr-3 text-gray-400 flex-shrink-0">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
               </svg>
-            </div>
-
-            {/* Position Number */}
-            <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mr-3">
-              {index + 1}
             </div>
 
             {/* Item Text */}
@@ -173,12 +184,12 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
             </div>
 
             {/* Move Controls */}
-            <div className="flex space-x-1 ml-3">
+            <div className="flex space-x-1 ml-3 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => handleMoveUp(index)}
                 disabled={disabled || index === 0}
-                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50 rounded"
                 title="Move up"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -189,7 +200,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
                 type="button"
                 onClick={() => handleMoveDown(index)}
                 disabled={disabled || index === orderedItems.length - 1}
-                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50 rounded"
                 title="Move down"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -201,34 +212,14 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
         ))}
       </div>
 
-      {/* Instructions */}
+      {/* Progress Indicator */}
       <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
         <div className="text-sm text-blue-700">
-          <strong>Instructions:</strong> Drag and drop items to arrange them in the correct order. You can also use the up/down arrows to move items.
+          <strong>Current Order:</strong> {orderedItems.map((item, index) => 
+            `${index + 1}. ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`
+          ).join(' → ')}
         </div>
       </div>
-
-      {/* Tips */}
-      <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-sm text-gray-700">
-          <strong>Tips:</strong>
-          <ul className="mt-1 ml-4 list-disc">
-            <li>Read all items before starting to arrange them</li>
-            <li>Look for logical sequences or chronological order</li>
-            <li>Use the position numbers to track your progress</li>
-            <li>You can reset the order if you need to start over</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Current Order Summary */}
-      {orderedItems.length > 0 && (
-        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-md">
-          <div className="text-sm text-indigo-700">
-            <strong>Current Order:</strong> {orderedItems.map((item, index) => `${index + 1}. ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`).join(' → ')}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
