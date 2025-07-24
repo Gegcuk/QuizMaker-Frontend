@@ -29,4 +29,7 @@ export { default as ScoreDisplay } from './ScoreDisplay';
 export { default as FeedbackDisplay } from './FeedbackDisplay';
 export { default as AttemptStats } from './AttemptStats';
 export { default as QuestionTiming } from './QuestionTiming';
-export { default as AttemptDetails } from './AttemptDetails'; 
+export { default as AttemptDetails } from './AttemptDetails';
+
+// User Attempts Management
+export { default as UserAttempts } from './UserAttempts'; 

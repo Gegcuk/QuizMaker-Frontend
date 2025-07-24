@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { QuizDto } from '../../types/quiz.types';
 import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
 import { QuizGrid, QuizList, QuizFilters, QuizSort, QuizPagination } from './';
+import { UserAttempts } from '../attempt';
 import { PageHeader } from '../layout';
 import type { SortOption } from './QuizSort';
 import type { AxiosError } from 'axios';
@@ -122,8 +123,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     <div className={className}>
       {/* Page Header */}
       <PageHeader
-        title="My Quizzes"
-        subtitle="Manage and organize your created quizzes"
+        title="My Quizzes & Attempts"
+        subtitle="Continue your quiz attempts and manage your created quizzes"
         showBreadcrumb={true}
         actions={[
           {
@@ -141,6 +142,23 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* User Attempts Section */}
+        <div className="mb-8">
+          <UserAttempts />
+        </div>
+
+        {/* Section Divider */}
+        <div className="border-t border-gray-200 my-8">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Your Created Quizzes</span>
+            </div>
+          </div>
+        </div>
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
