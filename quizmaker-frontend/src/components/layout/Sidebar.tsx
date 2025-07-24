@@ -322,7 +322,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
           {!isCollapsed && (
-            <Link to="/" className="text-xl font-semibold text-gray-900">
+            <Link to="/quizzes" className="text-xl font-semibold text-gray-900">
               QuizMaker
             </Link>
           )}
