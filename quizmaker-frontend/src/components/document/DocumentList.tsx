@@ -259,29 +259,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
-          <p className="text-gray-600">Manage your uploaded documents and AI processing</p>
-        </div>
-        <div className="flex space-x-3">
-          <Link
-            to="/documents/upload"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Upload Document
-          </Link>
-          <Link
-            to="/documents/upload-with-quiz"
-            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-          >
-            <DocumentArrowUpIcon className="h-5 w-5 mr-2" />
-            Upload & Generate Quiz
-          </Link>
-        </div>
-      </div>
 
       {/* Error Alert */}
       {error && (

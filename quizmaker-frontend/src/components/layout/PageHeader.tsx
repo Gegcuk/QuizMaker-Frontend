@@ -62,7 +62,7 @@ export const ActionIcons = {
 export interface ActionButton {
   label: string;
   type?: ActionType;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
   onClick?: () => void;
   href?: string;
   disabled?: boolean;
@@ -124,6 +124,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
       secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
       danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+      success: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
     };
 
     const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;

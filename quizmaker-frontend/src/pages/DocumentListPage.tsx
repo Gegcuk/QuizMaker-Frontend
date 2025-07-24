@@ -6,6 +6,7 @@
 import React from 'react';
 import { PageContainer } from '../components/layout';
 import { DocumentList } from '../components/document';
+import { PlusIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline';
 
 const DocumentListPage: React.FC = () => {
   return (
@@ -18,13 +19,15 @@ const DocumentListPage: React.FC = () => {
           label: 'Upload Document',
           type: 'create',
           variant: 'primary',
-          href: '/documents/upload'
+          href: '/documents/upload',
+          icon: PlusIcon
         },
         {
-          label: 'Upload with Quiz',
+          label: 'Upload & Generate Quiz',
           type: 'create',
-          variant: 'secondary',
-          href: '/documents/upload-with-quiz'
+          variant: 'success',
+          href: '/documents/upload-with-quiz',
+          icon: DocumentArrowUpIcon
         }
       ]}
     >
