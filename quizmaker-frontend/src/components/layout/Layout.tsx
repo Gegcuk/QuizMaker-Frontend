@@ -5,8 +5,8 @@ import { Outlet } from 'react-router-dom';
 const Layout: React.FC = () => (
   <>
     <Navbar />
-    {/* Wrap page content so spacing is consistent */}
-    <main className="py-4 px-2">
+    {/* Main content area with consistent max-width and padding */}
+    <main className="min-h-screen bg-gray-50">
       <Outlet />
     </main>
   </>

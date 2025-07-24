@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
+import { PageContainer } from '../components/layout';
 import { CategoryDto } from '../types/api';
 import {
   getAllCategories,
@@ -94,76 +95,94 @@ const [showForm, setShowForm] = useState<boolean>(false);
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Manage Categories</h2>
-        <button onClick={openCreate} className="px-4 py-2 bg-green-600 text-white rounded">
-          + New Category
-        </button>
-      </div>
-
+    <PageContainer
+      title="Manage Categories"
+      subtitle="Create, edit, and organize quiz categories"
+      showBreadcrumb={true}
+      actions={[
+        {
+          label: 'Create Category',
+          type: 'create',
+          variant: 'primary',
+          onClick: openCreate
+        }
+      ]}
+      containerClassName="max-w-4xl"
+    >
       {loading ? (
-        <Spinner />
+        <div className="flex justify-center py-8">
+          <Spinner size="lg" />
+        </div>
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
       ) : categories.length === 0 ? (
-        <p>No categories found.</p>
+        <div className="text-center py-8">
+          <p className="text-gray-500">No categories found.</p>
+        </div>
       ) : (
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">Name</th>
-              <th className="p-2 text-left">Description</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((cat) => (
-              <tr key={cat.id}>
-                <td className="border px-2 py-1">{cat.name}</td>
-                <td className="border px-2 py-1">{cat.description}</td>
-                <td className="border px-2 py-1 text-center space-x-2">
-                  <button onClick={() => openEdit(cat)} className="text-blue-600 hover:underline">
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(cat.id)} className="text-red-600 hover:underline">
-                    Delete
-                  </button>
-                </td>
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {categories.map((cat) => (
+                <tr key={cat.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{cat.description}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button onClick={() => openEdit(cat)} className="text-indigo-600 hover:text-indigo-900">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(cat.id)} className="text-red-600 hover:text-red-900">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      <div className="flex justify-center items-center mt-4 space-x-4">
-        <button
-          onClick={() => setPage((p) => Math.max(p - 1, 0))}
-          disabled={page === 0}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span>
-          Page {page + 1} of {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
-          disabled={page + 1 === totalPages}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-6 space-x-4">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={page === 0}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+            disabled={page + 1 === totalPages}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
+      {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-xl font-semibold mb-4">{editing ? 'Edit Category' : 'New Category'}</h3>
             {formError && <div className="text-red-500 mb-2">{formError}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="catName" className="block mb-1">
+                <label htmlFor="catName" className="block text-sm font-medium text-gray-700 mb-1">
                   Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -172,29 +191,37 @@ const [showForm, setShowForm] = useState<boolean>(false);
                   required
                   minLength={3}
                   maxLength={100}
-                  className="w-full border px-3 py-2 rounded"
+                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="catDesc" className="block mb-1">
+                <label htmlFor="catDesc" className="block text-sm font-medium text-gray-700 mb-1">
                   Description
                 </label>
                 <textarea
                   id="catDesc"
-                  className="w-full border px-3 py-2 rounded"
-                  rows={2}
+                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  rows={3}
                   maxLength={1000}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                 />
               </div>
-              <div className="flex justify-end space-x-2 pt-4">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border rounded">
+              <div className="flex justify-end space-x-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowForm(false)} 
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded" disabled={formSubmitting}>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50" 
+                  disabled={formSubmitting}
+                >
                   {formSubmitting ? 'Saving...' : editing ? 'Save' : 'Create'}
                 </button>
               </div>
@@ -202,7 +229,7 @@ const [showForm, setShowForm] = useState<boolean>(false);
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

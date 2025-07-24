@@ -36,11 +36,13 @@ import QuizQuestionsPage from '../pages/QuizQuestionPage';
 import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
 /* ----------  Document management pages  --------------------------------------- */
-import { DocumentList, DocumentUpload, DocumentViewer } from '../components/document';
+import DocumentListPage from '../pages/DocumentListPage';
+import { DocumentUpload, DocumentViewer } from '../components/document';
 import DocumentUploadWithQuizPage from '../pages/DocumentUploadWithQuizPage';
 
 /* ----------  User profile pages  ----------------------------------------- */
-import { UserProfile, UserSettings } from '../components/user';
+import ProfilePage from '../pages/ProfilePage';
+import SettingsPage from '../pages/SettingsPage';
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
@@ -187,7 +189,7 @@ const AppRoutes: React.FC = () => {
           path="/documents"
           element={
             <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentList />
+              <DocumentListPage />
             </ProtectedRoute>
           }
         />
@@ -221,7 +223,7 @@ const AppRoutes: React.FC = () => {
           path="/profile"
           element={
             <ProtectedRoute>
-              <UserProfile />
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
@@ -229,7 +231,7 @@ const AppRoutes: React.FC = () => {
           path="/settings"
           element={
             <ProtectedRoute>
-              <UserSettings />
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

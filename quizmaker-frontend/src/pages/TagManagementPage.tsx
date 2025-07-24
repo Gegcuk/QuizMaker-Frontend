@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
+import { PageContainer } from '../components/layout';
 import { TagDto } from '../types/tag.types';
 import { TagService } from '../api/tag.service';
 import api from '../api/axiosInstance';
@@ -99,91 +100,102 @@ const TagManagementPage: React.FC = () => {
 
   /* ------------------------------ JSX -------------------------------- */
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Manage Tags</h2>
-        <button
-          onClick={openCreateForm}
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          + New Tag
-        </button>
-      </div>
-
-      {/* main table or states */}
+    <PageContainer
+      title="Manage Tags"
+      subtitle="Create, edit, and organize quiz tags"
+      showBreadcrumb={true}
+      actions={[
+        {
+          label: 'Create Tag',
+          type: 'create',
+          variant: 'primary',
+          onClick: openCreateForm
+        }
+      ]}
+      containerClassName="max-w-4xl"
+    >
       {loading ? (
-        <Spinner />
+        <div className="flex justify-center py-8">
+          <Spinner size="lg" />
+        </div>
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
       ) : tags.length === 0 ? (
-        <p>No tags found.</p>
+        <div className="text-center py-8">
+          <p className="text-gray-500">No tags found.</p>
+        </div>
       ) : (
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">Name</th>
-              <th className="p-2 text-left">Description</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tags.map((tag) => (
-              <tr key={tag.id}>
-                <td className="border px-2 py-1">{tag.name}</td>
-                <td className="border px-2 py-1">{tag.description}</td>
-                <td className="border px-2 py-1 text-center space-x-2">
-                  <button
-                    onClick={() => openEditForm(tag)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(tag.id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tags.map((tag) => (
+                <tr key={tag.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tag.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{tag.description}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button
+                      onClick={() => openEditForm(tag)}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tag.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {/* pagination */}
-      <div className="flex justify-center items-center mt-4 space-x-4">
-        <button
-          onClick={() => setPage((p) => Math.max(p - 1, 0))}
-          disabled={page === 0}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span>
-          Page {page + 1} of {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
-          disabled={page + 1 === totalPages}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-6 space-x-4">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={page === 0}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+            disabled={page + 1 === totalPages}
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
-      {/* modal form */}
+      {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-xl font-semibold mb-4">
               {editingTag ? 'Edit Tag' : 'New Tag'}
             </h3>
             {formError && <div className="text-red-500 mb-2">{formError}</div>}
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
-                <label htmlFor="tagName" className="block mb-1">
+                <label htmlFor="tagName" className="block text-sm font-medium text-gray-700 mb-1">
                   Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -192,35 +204,35 @@ const TagManagementPage: React.FC = () => {
                   required
                   minLength={3}
                   maxLength={50}
-                  className="w-full border px-3 py-2 rounded"
+                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   value={tagName}
                   onChange={(e) => setTagName(e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="tagDesc" className="block mb-1">
+                <label htmlFor="tagDesc" className="block text-sm font-medium text-gray-700 mb-1">
                   Description
                 </label>
                 <textarea
                   id="tagDesc"
-                  className="w-full border px-3 py-2 rounded"
-                  rows={2}
+                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  rows={3}
                   maxLength={1000}
                   value={tagDesc}
                   onChange={(e) => setTagDesc(e.target.value)}
                 />
               </div>
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border rounded"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50"
                   disabled={formSubmitting}
                 >
                   {formSubmitting ? 'Saving...' : editingTag ? 'Save' : 'Create'}
@@ -230,7 +242,7 @@ const TagManagementPage: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Spinner } from '../components/ui';
-import { Breadcrumb, PageHeader } from '../components/layout';
+import { PageContainer } from '../components/layout';
 import { QuestionDto, QuestionType } from '../types/question.types';
 import {
   getAllQuestions,
@@ -254,22 +254,19 @@ const QuestionManagementPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Breadcrumb />
-        
-        <PageHeader
-          title="Question Management"
-          subtitle="Create, edit, and manage quiz questions"
-          actions={[
-            {
-              label: 'Create Question',
-              type: 'create',
-              variant: 'primary',
-              onClick: openCreate
-            }
-          ]}
-        />
+    <PageContainer
+      title="Question Management"
+      subtitle="Create, edit, and manage quiz questions"
+      showBreadcrumb={true}
+      actions={[
+        {
+          label: 'Create Question',
+          type: 'create',
+          variant: 'primary',
+          onClick: openCreate
+        }
+      ]}
+    >
 
         {/* Error Display */}
         {error && (
@@ -628,8 +625,7 @@ const QuestionManagementPage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
