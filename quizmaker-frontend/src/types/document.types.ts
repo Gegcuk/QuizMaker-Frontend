@@ -80,12 +80,10 @@ export interface ProcessDocumentRequest {
 }
 
 /**
- * Document configuration
- * Matches the config endpoint response from API documentation
+ * Document configuration DTO
+ * Matches DocumentConfigDto from API documentation
  */
 export interface DocumentConfig {
-  defaultChunkingStrategy: ChunkingStrategy;
-  defaultMaxChunkSize: number;
-  supportedFileTypes: string[];
-  maxFileSize: number;
+  defaultMaxChunkSize: number;           // Default maximum chunk size in characters
+  defaultStrategy: string;               // Default chunking strategy
 } 

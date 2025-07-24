@@ -52,7 +52,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     quizScope: 'ENTIRE_DOCUMENT',
     quizTitle: '',
     quizDescription: '',
-    questionsPerType: {
+    questionTypes: {
       MCQ_SINGLE: 3,
       MCQ_MULTI: 1,
       TRUE_FALSE: 2,
@@ -74,7 +74,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         setConfig(config);
         setUploadConfig(prev => ({
           ...prev,
-          chunkingStrategy: config.defaultChunkingStrategy,
+          chunkingStrategy: config.defaultStrategy as ChunkingStrategy,
           maxChunkSize: config.defaultMaxChunkSize
         }));
       } catch (err) {
@@ -87,13 +87,16 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const validateFile = (file: File): string | null => {
     if (!config) return 'Configuration not loaded';
     
+    // For now, we'll use reasonable defaults since the new config doesn't include these
+    const maxFileSize = 130 * 1024 * 1024; // 130MB limit
+    const supportedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/rtf'];
+    
     // Check file size
-    if (file.size > config.maxFileSize) {
-      return `File size exceeds maximum allowed size of ${formatFileSize(config.maxFileSize)}`;
+    if (file.size > maxFileSize) {
+      return `File size exceeds maximum allowed size of ${formatFileSize(maxFileSize)}`;
     }
     
     // Check file type
-    const supportedTypes = config.supportedFileTypes;
     if (!supportedTypes.includes(file.type)) {
       return `File type not supported. Supported types: ${supportedTypes.join(', ')}`;
     }
@@ -173,7 +176,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         quizScope: quizConfig.quizScope || 'ENTIRE_DOCUMENT',
         quizTitle: quizConfig.quizTitle || `${uploadedDocument.title} Quiz`,
         quizDescription: quizConfig.quizDescription || `Quiz generated from ${uploadedDocument.title}`,
-        questionsPerType: quizConfig.questionsPerType || {
+        questionTypes: quizConfig.questionTypes || {
           MCQ_SINGLE: 3,
           MCQ_MULTI: 1,
           TRUE_FALSE: 2,
@@ -301,8 +304,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               </div>
               {config && (
                 <div className="text-xs text-gray-500">
-                  Supported: {config.supportedFileTypes.join(', ')} • 
-                  Max size: {formatFileSize(config.maxFileSize)}
+                  Supported: PDF, DOCX, TXT, RTF • 
+                  Max size: 130 MB
                 </div>
               )}
             </div>
@@ -312,7 +315,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             ref={fileInputRef}
             type="file"
             onChange={handleFileInputChange}
-            accept={config?.supportedFileTypes.join(',')}
+            accept=".pdf,.docx,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/rtf"
             className="hidden"
           />
           
@@ -424,7 +427,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <h3 className="text-sm font-medium text-blue-900 mb-2">Upload Tips:</h3>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• Supported formats: PDF, DOCX, TXT, RTF</li>
-          <li>• Maximum file size: {config ? formatFileSize(config.maxFileSize) : 'Loading...'}</li>
+          <li>• Maximum file size: 130 MB</li>
           <li>• Documents are processed automatically after upload</li>
           <li>• Processing time depends on document size and complexity</li>
           <li>• You can configure chunking strategy for better quiz generation</li>
@@ -541,7 +544,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 value={quizConfig.quizScope || 'ENTIRE_DOCUMENT'}
                 onChange={(e) => setQuizConfig(prev => ({
                   ...prev,
-                  quizScope: e.target.value as any
+                  quizScope: e.target.value as QuizScope
                 }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
@@ -581,18 +584,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-gray-600 mb-1">Multiple Choice</label>
                   <input
                     type="number"
-                    value={quizConfig.questionsPerType?.MCQ_SINGLE || 3}
+                    value={quizConfig.questionTypes?.MCQ_SINGLE || 3}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
-                      questionsPerType: {
+                      questionTypes: {
                         MCQ_SINGLE: parseInt(e.target.value) || 0,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
-                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
-                        OPEN: prev.questionsPerType?.OPEN || 1,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
-                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
-                        ORDERING: prev.questionsPerType?.ORDERING || 0,
-                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                        MCQ_MULTI: prev.questionTypes?.MCQ_MULTI || 1,
+                        TRUE_FALSE: prev.questionTypes?.TRUE_FALSE || 2,
+                        OPEN: prev.questionTypes?.OPEN || 1,
+                        FILL_GAP: prev.questionTypes?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionTypes?.COMPLIANCE || 0,
+                        ORDERING: prev.questionTypes?.ORDERING || 0,
+                        HOTSPOT: prev.questionTypes?.HOTSPOT || 0
                       }
                     }))}
                     min="0"
@@ -604,18 +607,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-gray-600 mb-1">True/False</label>
                   <input
                     type="number"
-                    value={quizConfig.questionsPerType?.TRUE_FALSE || 2}
+                    value={quizConfig.questionTypes?.TRUE_FALSE || 2}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
-                      questionsPerType: {
-                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
+                      questionTypes: {
+                        MCQ_SINGLE: prev.questionTypes?.MCQ_SINGLE || 3,
+                        MCQ_MULTI: prev.questionTypes?.MCQ_MULTI || 1,
                         TRUE_FALSE: parseInt(e.target.value) || 0,
-                        OPEN: prev.questionsPerType?.OPEN || 1,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
-                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
-                        ORDERING: prev.questionsPerType?.ORDERING || 0,
-                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                        OPEN: prev.questionTypes?.OPEN || 1,
+                        FILL_GAP: prev.questionTypes?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionTypes?.COMPLIANCE || 0,
+                        ORDERING: prev.questionTypes?.ORDERING || 0,
+                        HOTSPOT: prev.questionTypes?.HOTSPOT || 0
                       }
                     }))}
                     min="0"
@@ -627,18 +630,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-gray-600 mb-1">Open Questions</label>
                   <input
                     type="number"
-                    value={quizConfig.questionsPerType?.OPEN || 1}
+                    value={quizConfig.questionTypes?.OPEN || 1}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
-                      questionsPerType: {
-                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
-                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
+                      questionTypes: {
+                        MCQ_SINGLE: prev.questionTypes?.MCQ_SINGLE || 3,
+                        MCQ_MULTI: prev.questionTypes?.MCQ_MULTI || 1,
+                        TRUE_FALSE: prev.questionTypes?.TRUE_FALSE || 2,
                         OPEN: parseInt(e.target.value) || 0,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
-                        COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
-                        ORDERING: prev.questionsPerType?.ORDERING || 0,
-                        HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
+                        FILL_GAP: prev.questionTypes?.FILL_GAP || 1,
+                        COMPLIANCE: prev.questionTypes?.COMPLIANCE || 0,
+                        ORDERING: prev.questionTypes?.ORDERING || 0,
+                        HOTSPOT: prev.questionTypes?.HOTSPOT || 0
                       }
                     }))}
                     min="0"

@@ -38,7 +38,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       const documentConfig = await documentService.getDocumentConfig();
       setConfig(documentConfig);
       setEditConfig({
-        defaultChunkingStrategy: documentConfig.defaultChunkingStrategy,
+        defaultStrategy: documentConfig.defaultStrategy,
         defaultMaxChunkSize: documentConfig.defaultMaxChunkSize
       });
     } catch (err: any) {
@@ -56,7 +56,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
   const handleCancel = () => {
     if (config) {
       setEditConfig({
-        defaultChunkingStrategy: config.defaultChunkingStrategy,
+        defaultStrategy: config.defaultStrategy,
         defaultMaxChunkSize: config.defaultMaxChunkSize
       });
     }
@@ -163,14 +163,14 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           {/* Default Chunking Strategy */}
           <div className="p-4 border border-gray-200 rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
-              <span className="text-lg">{getChunkingStrategyIcon(config.defaultChunkingStrategy)}</span>
+              <span className="text-lg">{getChunkingStrategyIcon(config.defaultStrategy as ChunkingStrategy)}</span>
               <h4 className="font-medium text-gray-900">Default Chunking Strategy</h4>
             </div>
             <div className="text-sm text-gray-600 mb-2">
-              {config.defaultChunkingStrategy.replace('_', ' ')}
+              {config.defaultStrategy.replace('_', ' ')}
             </div>
             <div className="text-xs text-gray-500">
-              {getChunkingStrategyDescription(config.defaultChunkingStrategy)}
+              {getChunkingStrategyDescription(config.defaultStrategy as ChunkingStrategy)}
             </div>
           </div>
 
@@ -193,12 +193,22 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Supported File Types</h3>
         <div className="p-4 bg-gray-50 rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {config.supportedFileTypes.map((fileType: string) => (
-              <div key={fileType} className="flex items-center space-x-2">
-                <span className="text-lg">📄</span>
-                <span className="text-sm font-medium text-gray-700">{fileType}</span>
-              </div>
-            ))}
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">📄</span>
+              <span className="text-sm font-medium text-gray-700">PDF</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">📄</span>
+              <span className="text-sm font-medium text-gray-700">DOCX</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">📄</span>
+              <span className="text-sm font-medium text-gray-700">TXT</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">📄</span>
+              <span className="text-sm font-medium text-gray-700">RTF</span>
+            </div>
           </div>
         </div>
       </div>
@@ -211,7 +221,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
             <span className="text-2xl">💾</span>
             <div>
               <div className="text-lg font-bold text-blue-900">
-                Maximum File Size: {formatFileSize(config.maxFileSize)}
+                Maximum File Size: 130 MB
               </div>
               <div className="text-sm text-blue-700">
                 This limit applies to all uploaded documents
@@ -233,10 +243,10 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 Default Chunking Strategy
               </label>
               <select
-                value={editConfig.defaultChunkingStrategy || config.defaultChunkingStrategy}
+                value={editConfig.defaultStrategy || config.defaultStrategy}
                 onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
                   ...prev,
-                  defaultChunkingStrategy: e.target.value as ChunkingStrategy
+                  defaultStrategy: e.target.value as ChunkingStrategy
                 }))}
                 className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
               >
@@ -247,7 +257,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 <option value="PAGE_BASED">Page Based</option>
               </select>
               <p className="mt-1 text-xs text-yellow-700">
-                {getChunkingStrategyDescription(editConfig.defaultChunkingStrategy || config.defaultChunkingStrategy)}
+                {getChunkingStrategyDescription((editConfig.defaultStrategy || config.defaultStrategy) as ChunkingStrategy)}
               </p>
             </div>
 

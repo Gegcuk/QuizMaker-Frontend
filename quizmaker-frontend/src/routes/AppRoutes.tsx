@@ -37,6 +37,7 @@ import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
 /* ----------  Document management pages  --------------------------------------- */
 import { DocumentList, DocumentUpload, DocumentViewer } from '../components/document';
+import DocumentUploadWithQuizPage from '../pages/DocumentUploadWithQuizPage';
 
 /* ----------  User profile pages  ----------------------------------------- */
 import { UserProfile, UserSettings } from '../components/user';
@@ -195,6 +196,14 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
               <DocumentUpload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents/upload-with-quiz"
+          element={
+            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
+              <DocumentUploadWithQuizPage />
             </ProtectedRoute>
           }
         />

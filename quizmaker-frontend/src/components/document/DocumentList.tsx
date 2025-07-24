@@ -175,8 +175,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         <div className="flex items-center space-x-3">
           <DocumentTextIcon className="h-8 w-8 text-gray-400" />
           <div>
-            <div className="font-medium text-gray-900">{document.title || document.originalFilename}</div>
-            <div className="text-sm text-gray-500">{document.originalFilename}</div>
+            <div className="font-medium text-gray-900">{document?.title || document?.originalFilename || 'Untitled Document'}</div>
+            <div className="text-sm text-gray-500">{document?.originalFilename || 'Unknown file'}</div>
           </div>
         </div>
       )
@@ -186,8 +186,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       header: 'Status',
       render: (document: DocumentDto) => (
         <div className="flex items-center space-x-2">
-          {getStatusIcon(document.status)}
-          {getStatusBadge(document.status)}
+          {getStatusIcon(document?.status || 'UPLOADED')}
+          {getStatusBadge(document?.status || 'UPLOADED')}
         </div>
       )
     },
@@ -196,9 +196,9 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       header: 'Details',
       render: (document: DocumentDto) => (
         <div className="text-sm text-gray-600">
-          <div>{formatFileSize(document.fileSize)}</div>
-          <div>{document.totalPages} pages</div>
-          <div>{document.totalChunks} chunks</div>
+          <div>{formatFileSize(document?.fileSize || 0)}</div>
+          <div>{document?.totalPages || 0} pages</div>
+          <div>{document?.totalChunks || 0} chunks</div>
         </div>
       )
     },
@@ -207,7 +207,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       header: 'Uploaded',
       render: (document: DocumentDto) => (
         <div className="text-sm text-gray-600">
-          {new Date(document.uploadedAt).toLocaleDateString()}
+          {document?.uploadedAt ? new Date(document.uploadedAt).toLocaleDateString() : 'Unknown'}
         </div>
       )
     },
@@ -217,14 +217,14 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       render: (document: DocumentDto) => (
         <div className="flex items-center space-x-2">
           <Link
-            to={`/documents/${document.id}`}
+            to={`/documents/${document?.id}`}
             className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
             title="View document"
           >
             <EyeIcon className="h-4 w-4" />
           </Link>
           
-          {document.status === 'FAILED' && (
+          {document?.status === 'FAILED' && (
             <button
               onClick={() => handleReprocess(document.id)}
               className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-md transition-colors"
@@ -265,13 +265,22 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
           <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
           <p className="text-gray-600">Manage your uploaded documents and AI processing</p>
         </div>
-        <Link
-          to="/documents/upload"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Upload Document
-        </Link>
+        <div className="flex space-x-3">
+          <Link
+            to="/documents/upload"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Upload Document
+          </Link>
+          <Link
+            to="/documents/upload-with-quiz"
+            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          >
+            <DocumentArrowUpIcon className="h-5 w-5 mr-2" />
+            Upload & Generate Quiz
+          </Link>
+        </div>
       </div>
 
       {/* Error Alert */}

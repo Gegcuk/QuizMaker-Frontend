@@ -261,6 +261,14 @@ const QuestionManagementPage: React.FC = () => {
         <PageHeader
           title="Question Management"
           subtitle="Create, edit, and manage quiz questions"
+          actions={[
+            {
+              label: 'Create Question',
+              type: 'create',
+              variant: 'primary',
+              onClick: openCreate
+            }
+          ]}
         />
 
         {/* Error Display */}

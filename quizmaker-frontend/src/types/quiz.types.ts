@@ -25,6 +25,7 @@ export type GenerationStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
 
 /**
  * Quiz generation scope
+ * Matches QuizScope enum from backend API
  */
 export type QuizScope = 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHUNKS' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_SECTION';
 
@@ -108,18 +109,15 @@ export interface QuizSearchCriteria {
 
 /**
  * Generate quiz from document request
- * Matches GenerateQuizFromDocumentRequest from API documentation
+ * Matches GenerateQuizFromDocumentRequest from backend API
  */
 export interface GenerateQuizFromDocumentRequest {
   documentId: string;               // Required: Document ID
-  quizScope?: QuizScope;            // Default: ENTIRE_DOCUMENT
-  chunkIndices?: number[];          // Required for SPECIFIC_CHUNKS scope
-  chapterTitle?: string;            // Required for SPECIFIC_CHAPTER/SECTION scope
-  chapterNumber?: number;           // Alternative for SPECIFIC_CHAPTER/SECTION scope
+  quizScope: QuizScope;             // Required: Quiz scope as string enum
+  questionTypes: Record<QuizQuestionType, number>; // Required: Questions per type per chunk
+  difficulty: Difficulty;           // Required: Question difficulty
   quizTitle?: string;               // Optional: Custom title (max 100 chars)
   quizDescription?: string;         // Optional: Custom description (max 500 chars)
-  questionsPerType: Record<QuizQuestionType, number>; // Required: Questions per type per chunk
-  difficulty: Difficulty;           // Required: Question difficulty
   estimatedTimePerQuestion?: number; // 1-10 minutes, default: 2
   categoryId?: string;              // Optional: Category ID
   tagIds?: string[];                // Optional: Tag IDs
@@ -134,6 +132,27 @@ export interface QuizGenerationResponse {
   status: GenerationStatus;         // Generation status
   message: string;                  // Status description
   estimatedTimeSeconds: number;     // Estimated completion time
+}
+
+/**
+ * Quiz generation status for progress monitoring
+ * Matches QuizGenerationStatus from backend API
+ */
+export interface QuizGenerationStatus {
+  jobId: string;                    // Job identifier
+  status: GenerationStatus;         // Current status
+  totalChunks: number;              // Total chunks to process
+  processedChunks: number;          // Chunks processed so far
+  progressPercentage: number;       // Progress percentage (0-100)
+  currentChunk: string;             // Current chunk being processed
+  estimatedCompletion: string;      // ISO timestamp for estimated completion
+  errorMessage: string | null;      // Error message if failed
+  totalQuestionsGenerated: number;  // Total questions generated so far
+  elapsedTimeSeconds: number;       // Time elapsed since start
+  estimatedTimeRemainingSeconds: number; // Estimated time remaining
+  generatedQuizId: string | null;   // Quiz ID when completed
+  startedAt: string;                // ISO timestamp when started
+  completedAt: string | null;       // ISO timestamp when completed
 }
 
 /**

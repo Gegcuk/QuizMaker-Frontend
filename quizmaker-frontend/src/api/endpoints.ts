@@ -42,6 +42,7 @@ export const QUIZ_ENDPOINTS = {
   REMOVE_TAG: (quizId: string, tagId: string) => `/v1/quizzes/${quizId}/tags/${tagId}`,
   CHANGE_CATEGORY: (quizId: string, categoryId: string) => `/v1/quizzes/${quizId}/category/${categoryId}`,
   GENERATE_FROM_DOCUMENT: '/v1/quizzes/generate-from-document',
+  GENERATE_FROM_UPLOAD: '/v1/quizzes/generate-from-upload',
   GENERATION_STATUS: (jobId: string) => `/v1/quizzes/generation-status/${jobId}`,
   GENERATED_QUIZ: (jobId: string) => `/v1/quizzes/generated-quiz/${jobId}`,
   GENERATION_JOBS: '/v1/quizzes/generation-jobs',

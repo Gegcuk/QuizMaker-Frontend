@@ -63,7 +63,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       setConfig(docConfig);
       setReprocessConfig(prev => ({
         ...prev,
-        chunkingStrategy: docConfig.defaultChunkingStrategy,
+        chunkingStrategy: docConfig.defaultStrategy as ChunkingStrategy,
         maxChunkSize: docConfig.defaultMaxChunkSize
       }));
     } catch (err) {

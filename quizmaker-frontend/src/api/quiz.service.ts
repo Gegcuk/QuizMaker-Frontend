@@ -8,6 +8,7 @@ import {
   QuizSearchCriteria,
   GenerateQuizFromDocumentRequest,
   QuizGenerationResponse,
+  QuizGenerationStatus,
   QuizResultSummaryDto,
   LeaderboardEntryDto,
   UpdateQuizVisibilityRequest,
@@ -125,18 +126,33 @@ export class QuizService extends BaseService<QuizDto> {
   }
 
   /**
+   * Generate quiz from document upload
+   * POST /api/v1/quizzes/generate-from-upload
+   */
+  async generateQuizFromUpload(formData: FormData): Promise<QuizGenerationResponse> {
+    try {
+      const response = await this.axiosInstance.post<QuizGenerationResponse>(
+        QUIZ_ENDPOINTS.GENERATE_FROM_UPLOAD, 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
    * Get generation status
    * GET /api/v1/quizzes/generation-status/{jobId}
    */
-  async getGenerationStatus(jobId: string): Promise<QuizGenerationResponse & {
-    progress?: {
-      processedChunks: number;
-      totalChunks: number;
-      percentage: number;
-    };
-  }> {
+  async getGenerationStatus(jobId: string): Promise<QuizGenerationStatus> {
     try {
-      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId));
+      const response = await this.axiosInstance.get<QuizGenerationStatus>(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId));
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);

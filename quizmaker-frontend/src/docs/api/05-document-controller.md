@@ -372,12 +372,16 @@ Gets the document processing configuration.
 **Response** (200 OK):
 ```json
 {
-  "defaultChunkingStrategy": "AUTO",
-  "defaultMaxChunkSize": 5000,
-  "supportedFileTypes": ["pdf", "docx", "txt"],
-  "maxFileSize": 10485760
+  "defaultMaxChunkSize": 50000,
+  "defaultStrategy": "CHAPTER_BASED"
 }
 ```
+
+**Schema Description**: Document processing configuration
+
+**Fields**:
+- `defaultMaxChunkSize`: Default maximum chunk size in characters (example: 50000)
+- `defaultStrategy`: Default chunking strategy (example: "CHAPTER_BASED")
 
 ## AiChatController Endpoints
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { QuizService } from '../../api/quiz.service';
 import api from '../../api/axiosInstance';
 import { 
-  QuizGenerationResponse,
+  QuizGenerationStatus,
   GenerationStatus
 } from '../../types/quiz.types';
 
@@ -21,16 +21,10 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
   onGenerationCancelled,
   className = '' 
 }) => {
-  const [generationStatus, setGenerationStatus] = useState<QuizGenerationResponse | null>(null);
-  const [progress, setProgress] = useState<{
-    processedChunks: number;
-    totalChunks: number;
-    percentage: number;
-  } | null>(null);
+  const [generationStatus, setGenerationStatus] = useState<QuizGenerationStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<number | null>(null);
 
   const quizService = new QuizService(api);
   const pollingIntervalRef = useRef<number | null>(null);
@@ -64,19 +58,11 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
       
       const status = await quizService.getGenerationStatus(jobId);
       setGenerationStatus(status);
-      
-      if (status.progress) {
-        setProgress(status.progress);
-      }
-
-      if (status.estimatedTimeSeconds) {
-        setEstimatedTimeRemaining(status.estimatedTimeSeconds);
-      }
 
       if (status.status === 'COMPLETED') {
         handleGenerationComplete();
       } else if (status.status === 'FAILED') {
-        handleGenerationError(status.message || 'Generation failed');
+        handleGenerationError(status.errorMessage || 'Generation failed');
       } else if (status.status === 'CANCELLED') {
         handleGenerationCancelled();
       } else {
@@ -85,19 +71,11 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           try {
             const updatedStatus = await quizService.getGenerationStatus(jobId);
             setGenerationStatus(updatedStatus);
-            
-            if (updatedStatus.progress) {
-              setProgress(updatedStatus.progress);
-            }
-
-            if (updatedStatus.estimatedTimeSeconds) {
-              setEstimatedTimeRemaining(updatedStatus.estimatedTimeSeconds);
-            }
 
             if (updatedStatus.status === 'COMPLETED') {
               handleGenerationComplete();
             } else if (updatedStatus.status === 'FAILED') {
-              handleGenerationError(updatedStatus.message || 'Generation failed');
+              handleGenerationError(updatedStatus.errorMessage || 'Generation failed');
             } else if (updatedStatus.status === 'CANCELLED') {
               handleGenerationCancelled();
             }
@@ -238,23 +216,29 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
       {/* Status Message */}
       <div className="mb-6">
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">{generationStatus.message}</p>
+          <p className="text-sm text-blue-800">
+            {generationStatus.status === 'PROCESSING' && `Processing chunk ${generationStatus.processedChunks} of ${generationStatus.totalChunks}`}
+            {generationStatus.status === 'PENDING' && 'Generation job is queued and will start shortly'}
+            {generationStatus.status === 'COMPLETED' && 'Quiz generation completed successfully!'}
+            {generationStatus.status === 'FAILED' && `Generation failed: ${generationStatus.errorMessage}`}
+            {generationStatus.status === 'CANCELLED' && 'Generation was cancelled'}
+          </p>
         </div>
       </div>
 
       {/* Progress Bar */}
-      {progress && (
+      {generationStatus.status === 'PROCESSING' && (
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">Progress</span>
             <span className="text-sm text-gray-500">
-              {progress.processedChunks} / {progress.totalChunks} chunks ({progress.percentage.toFixed(1)}%)
+              {generationStatus.processedChunks} / {generationStatus.totalChunks} chunks ({generationStatus.progressPercentage.toFixed(1)}%)
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress.percentage}%` }}
+              style={{ width: `${generationStatus.progressPercentage}%` }}
             ></div>
           </div>
         </div>
@@ -266,16 +250,16 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           <p className="text-xs text-gray-500">Time Elapsed</p>
           <p className="text-lg font-semibold text-gray-900">{formatTime(timeElapsed)}</p>
         </div>
-        {estimatedTimeRemaining !== null && (
+        {generationStatus.estimatedTimeRemainingSeconds !== undefined && (
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-500">Estimated Time Remaining</p>
-            <p className="text-lg font-semibold text-gray-900">{formatTime(estimatedTimeRemaining)}</p>
+            <p className="text-lg font-semibold text-gray-900">{formatTime(generationStatus.estimatedTimeRemainingSeconds)}</p>
           </div>
         )}
-        {generationStatus.estimatedTimeSeconds && (
+        {generationStatus.elapsedTimeSeconds !== undefined && (
           <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500">Total Estimated Time</p>
-            <p className="text-lg font-semibold text-gray-900">{formatTime(generationStatus.estimatedTimeSeconds)}</p>
+            <p className="text-xs text-gray-500">Total Elapsed Time</p>
+            <p className="text-lg font-semibold text-gray-900">{formatTime(generationStatus.elapsedTimeSeconds)}</p>
           </div>
         )}
       </div>
