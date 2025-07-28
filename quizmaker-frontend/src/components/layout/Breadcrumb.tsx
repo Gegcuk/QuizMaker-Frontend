@@ -101,7 +101,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     if (showHome) {
       breadcrumbs.push({
         label: 'Home',
-        path: '/',
+        path: '/quizzes',
         isCurrent: pathSegments.length === 0,
       });
     }

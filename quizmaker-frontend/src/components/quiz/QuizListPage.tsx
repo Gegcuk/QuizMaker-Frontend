@@ -5,10 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizDto, QuizSearchCriteria } from '../../types/quiz.types';
+import { QuizDto } from '../../types/quiz.types';
 import { getAllQuizzes } from '../../api/quiz.service';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { PageHeader } from '../layout';
+import { useQuizFiltering, useQuizPagination } from '../../hooks';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
@@ -32,118 +33,13 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
-  const [pagination, setPagination] = useState({
-    pageNumber: 1,
-    pageSize: 12,
-    totalElements: 0,
-    totalPages: 0
-  });
 
-  // Apply filters and sorting to quizzes
-  const filteredAndSortedQuizzes = React.useMemo(() => {
-    let result = [...quizzes];
+  // Use custom hooks for filtering, sorting, and pagination
+  const filteredAndSortedQuizzes = useQuizFiltering(quizzes, filters, sortBy);
+  const { paginatedQuizzes, pagination } = useQuizPagination(filteredAndSortedQuizzes, currentPage, pageSize);
 
-    // Apply filters
-    if (filters.difficulty?.length) {
-      result = result.filter(quiz => 
-        filters.difficulty!.includes(quiz.difficulty || 'MEDIUM')
-      );
-    }
-
-    if (filters.category?.length) {
-      result = result.filter(quiz => 
-        quiz.categoryId && filters.category!.includes(quiz.categoryId)
-      );
-    }
-
-    if (filters.tags?.length) {
-      result = result.filter(quiz => 
-        quiz.tagIds && quiz.tagIds.some(tagId => filters.tags!.includes(tagId))
-      );
-    }
-
-    if (filters.status?.length) {
-      result = result.filter(quiz => 
-        filters.status!.includes(quiz.status || 'DRAFT')
-      );
-    }
-
-    if (filters.estimatedTime?.min !== undefined || filters.estimatedTime?.max !== undefined) {
-      result = result.filter(quiz => {
-        const time = quiz.estimatedTime || 0;
-        const min = filters.estimatedTime?.min || 0;
-        const max = filters.estimatedTime?.max || Infinity;
-        return time >= min && time <= max;
-      });
-    }
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'newest':
-        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        break;
-      case 'title_asc':
-        result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-        break;
-      case 'title_desc':
-        result.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
-        break;
-      case 'createdAt_asc':
-        result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
-        break;
-      case 'createdAt_desc':
-        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        break;
-      case 'updatedAt_asc':
-        result.sort((a, b) => new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime());
-        break;
-      case 'updatedAt_desc':
-        result.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
-        break;
-      case 'difficulty_asc':
-        result.sort((a, b) => {
-          const difficultyOrder = { 'EASY': 1, 'MEDIUM': 2, 'HARD': 3 };
-          return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 2) - 
-                 (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 2);
-        });
-        break;
-      case 'difficulty_desc':
-        result.sort((a, b) => {
-          const difficultyOrder = { 'EASY': 1, 'MEDIUM': 2, 'HARD': 3 };
-          return (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 2) - 
-                 (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 2);
-        });
-        break;
-      case 'estimatedTime_asc':
-        result.sort((a, b) => (a.estimatedTime || 0) - (b.estimatedTime || 0));
-        break;
-      case 'estimatedTime_desc':
-        result.sort((a, b) => (b.estimatedTime || 0) - (a.estimatedTime || 0));
-        break;
-      case 'recommended':
-      default:
-        // Default sorting: newest first
-        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        break;
-    }
-
-    return result;
-  }, [quizzes, filters, sortBy]);
-
-  // Apply pagination
-  const paginatedQuizzes = React.useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return filteredAndSortedQuizzes.slice(startIndex, endIndex);
-  }, [filteredAndSortedQuizzes, currentPage, pageSize]);
-
-  // Update pagination when filters/sorting change
+  // Update pagination state when filters/sorting change
   React.useEffect(() => {
-    setPagination(prev => ({
-      ...prev,
-      totalElements: filteredAndSortedQuizzes.length,
-      totalPages: Math.ceil(filteredAndSortedQuizzes.length / pageSize)
-    }));
     // Reset to first page when filters/sorting change
     setCurrentPage(1);
   }, [filteredAndSortedQuizzes.length, pageSize]);
