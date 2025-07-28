@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Spinner } from '../components/ui';
 import { PageContainer } from '../components/layout';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import { QuestionDto, QuestionType } from '../types/question.types';
 import {
   getAllQuestions,
@@ -32,6 +33,11 @@ const QuestionManagementPage: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
   const [previewMode, setPreviewMode] = useState<boolean>(false);
+
+  // Confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Form state for different question types
   const [questionText, setQuestionText] = useState<string>('');
@@ -170,12 +176,23 @@ const QuestionManagementPage: React.FC = () => {
   }, [questionText, selectedType, difficulty, hint, explanation, editing, fetchQuestions]);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this question?')) return;
+    setQuestionToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!questionToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await deleteQuestion(id);
+      await deleteQuestion(questionToDelete);
       await fetchQuestions();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete question.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setQuestionToDelete(null);
     }
   };
 
@@ -625,6 +642,21 @@ const QuestionManagementPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setQuestionToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          title="Delete Question"
+          message="Are you sure you want to delete this question? This action cannot be undone."
+          confirmText="Delete Question"
+          variant="danger"
+          isLoading={isDeleting}
+        />
     </PageContainer>
   );
 };

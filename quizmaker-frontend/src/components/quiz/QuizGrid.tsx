@@ -11,9 +11,12 @@ interface QuizGridProps {
   quizzes: QuizDto[];
   isLoading?: boolean;
   showActions?: boolean;
+  selectedQuizzes?: string[];
   onEdit?: (quizId: string) => void;
   onDelete?: (quizId: string) => void;
   onStart?: (quizId: string) => void;
+  onSelect?: (quizId: string, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
   className?: string;
 }
 
@@ -21,9 +24,12 @@ const QuizGrid: React.FC<QuizGridProps> = ({
   quizzes,
   isLoading = false,
   showActions = true,
+  selectedQuizzes = [],
   onEdit,
   onDelete,
   onStart,
+  onSelect,
+  onSelectAll,
   className = ''
 }) => {
   if (isLoading) {
@@ -65,17 +71,36 @@ const QuizGrid: React.FC<QuizGridProps> = ({
   }
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${className}`}>
-      {quizzes.map((quiz) => (
-        <QuizCard
-          key={quiz.id}
-          quiz={quiz}
-          showActions={showActions}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onStart={onStart}
-        />
-      ))}
+    <div className={`space-y-4 ${className}`}>
+      {/* Select All Checkbox */}
+      {onSelectAll && (
+        <div className="flex items-center space-x-2 mb-4">
+          <input
+            type="checkbox"
+            checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
+            onChange={(e) => onSelectAll(e.target.checked)}
+            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label className="text-sm font-medium text-gray-700">
+            Select All ({selectedQuizzes.length}/{quizzes.length})
+          </label>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {quizzes.map((quiz) => (
+          <QuizCard
+            key={quiz.id}
+            quiz={quiz}
+            showActions={showActions}
+            isSelected={selectedQuizzes.includes(quiz.id)}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onStart={onStart}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
     </div>
   );
 };

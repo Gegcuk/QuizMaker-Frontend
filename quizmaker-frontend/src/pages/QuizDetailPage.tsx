@@ -7,9 +7,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getQuizById } from '../api/quiz.service';
+import { getQuizById, deleteQuiz } from '../api/quiz.service';
 import { QuizDto, QuizResultSummaryDto } from '../types/quiz.types';
 import { Spinner } from '../components/ui';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import {
   QuizDetailHeader,
   QuizStats,
@@ -17,7 +18,8 @@ import {
   QuizAnalytics,
   QuizShare,
   QuizExport,
-  QuizGenerationJobs
+  QuizGenerationJobs,
+  QuizManagementTab
 } from '../components/quiz';
 
 const QuizDetailPage: React.FC = () => {
@@ -28,7 +30,11 @@ const QuizDetailPage: React.FC = () => {
   const [quiz, setQuiz] = useState<QuizDto | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'leaderboard' | 'export' | 'generation'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'analytics' | 'leaderboard' | 'export' | 'generation'>('overview');
+
+  // Confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   
   // Mock data for components that need it
   const mockStats: QuizResultSummaryDto = {
@@ -73,12 +79,21 @@ const QuizDetailPage: React.FC = () => {
   };
 
   const handleDeleteQuiz = async () => {
-    if (!window.confirm('Are you sure you want to delete this quiz?')) return;
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizId) return;
+    
+    setIsDeleting(true);
     try {
-      // TODO: Implement delete quiz API call
+      await deleteQuiz(quizId);
       navigate('/quizzes');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to delete quiz.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -119,6 +134,7 @@ const QuizDetailPage: React.FC = () => {
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: '📊' },
+    { id: 'management', name: 'Management', icon: '⚙️' },
     { id: 'analytics', name: 'Analytics', icon: '📈' },
     { id: 'leaderboard', name: 'Leaderboard', icon: '🏆' },
     { id: 'export', name: 'Export', icon: '📤' },
@@ -169,6 +185,29 @@ const QuizDetailPage: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'management' && (
+          <QuizManagementTab
+            quizId={quizId!}
+            quizData={{
+              title: quiz.title,
+              description: quiz.description,
+              visibility: quiz.visibility,
+              difficulty: quiz.difficulty,
+              estimatedTime: quiz.estimatedTime,
+              isRepetitionEnabled: quiz.isRepetitionEnabled,
+              timerEnabled: quiz.timerEnabled,
+              timerDuration: quiz.timerDuration,
+              categoryId: quiz.categoryId,
+              tagIds: quiz.tagIds
+            }}
+            onDataChange={(updatedData) => {
+              // TODO: Implement quiz update logic
+              console.log('Quiz data updated:', updatedData);
+            }}
+            isEditing={true}
+          />
+        )}
+
         {activeTab === 'analytics' && (
           <QuizAnalytics stats={mockStats} />
         )}
@@ -185,6 +224,18 @@ const QuizDetailPage: React.FC = () => {
           <QuizGenerationJobs quizId={quizId!} />
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteQuiz}
+        title="Delete Quiz"
+        message="Are you sure you want to delete this quiz? This action cannot be undone."
+        confirmText="Delete Quiz"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

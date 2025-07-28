@@ -11,18 +11,22 @@ import { useQuizMetadata } from '../../hooks/useQuizMetadata';
 interface QuizCardProps {
   quiz: QuizDto;
   showActions?: boolean;
+  isSelected?: boolean;
   onEdit?: (quizId: string) => void;
   onDelete?: (quizId: string) => void;
   onStart?: (quizId: string) => void;
+  onSelect?: (quizId: string, selected: boolean) => void;
   className?: string;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({
   quiz,
   showActions = true,
+  isSelected = false,
   onEdit,
   onDelete,
   onStart,
+  onSelect,
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
@@ -71,19 +75,29 @@ const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${className}`}>
+    <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${isSelected ? 'ring-2 ring-indigo-500' : ''} ${className}`}>
       {/* Card Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              {quiz.title}
-            </h3>
-            {quiz.description && (
-              <p className="text-sm text-gray-600 line-clamp-2">
-                {truncateText(quiz.description, 120)}
-              </p>
+          <div className="flex items-start space-x-3 flex-1 min-w-0">
+            {onSelect && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={(e) => onSelect(quiz.id, e.target.checked)}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
+              />
             )}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                {quiz.title}
+              </h3>
+              {quiz.description && (
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {truncateText(quiz.description, 120)}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>

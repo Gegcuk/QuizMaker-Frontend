@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
 import { PageContainer } from '../components/layout';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import { TagDto } from '../types/tag.types';
 import { TagService } from '../api/tag.service';
 import api from '../api/axiosInstance';
@@ -20,6 +21,11 @@ const TagManagementPage: React.FC = () => {
   const [tagDesc, setTagDesc] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+
+  // Confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [tagToDelete, setTagToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   /* -------------------------- data fetch ------------------------------ */
   const fetchTags = async () => {
@@ -87,12 +93,23 @@ const TagManagementPage: React.FC = () => {
   };
 
   const handleDelete = async (tagId: string) => {
-    if (!window.confirm('Are you sure you want to delete this tag?')) return;
+    setTagToDelete(tagId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!tagToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await tagService.deleteTag(tagId);
+      await tagService.deleteTag(tagToDelete);
       await fetchTags();
     } catch (err: any) {
       setError(err.message || 'Failed to delete tag.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setTagToDelete(null);
     }
   };
 
@@ -246,6 +263,21 @@ const TagManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setTagToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Tag"
+        message="Are you sure you want to delete this tag? This action cannot be undone."
+        confirmText="Delete Tag"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </PageContainer>
   );
 };

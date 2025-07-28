@@ -98,6 +98,16 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
       });
     }
 
+    // Manage Questions action (prominent button)
+    if (onManageQuestions) {
+      actions.push({
+        label: 'Questions',
+        type: 'edit' as ActionType,
+        variant: 'primary' as const,
+        onClick: onManageQuestions
+      });
+    }
+
     // Edit action (only for creator or admin)
     if (onEdit) {
       actions.push({
@@ -105,16 +115,6 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
         type: 'edit' as ActionType,
         variant: 'secondary' as const,
         onClick: onEdit
-      });
-    }
-
-    // Manage Questions action
-    if (onManageQuestions) {
-      actions.push({
-        label: 'Manage Questions',
-        type: 'edit' as ActionType,
-        variant: 'secondary' as const,
-        onClick: onManageQuestions
       });
     }
 

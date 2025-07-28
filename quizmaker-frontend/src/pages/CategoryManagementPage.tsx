@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
 import { PageContainer } from '../components/layout';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import { CategoryDto } from '../types/api';
 import {
   getAllCategories,
@@ -21,6 +22,11 @@ const CategoryManagementPage: React.FC = () => {
   const [desc, setDesc] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+
+  // Confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -83,12 +89,23 @@ const CategoryManagementPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    setCategoryToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await deleteCategory(id);
+      await deleteCategory(categoryToDelete);
       await fetchCategories();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete category.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setCategoryToDelete(null);
     }
   };
 
@@ -233,6 +250,21 @@ const CategoryManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCategoryToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        confirmText="Delete Category"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </PageContainer>
   );
 };

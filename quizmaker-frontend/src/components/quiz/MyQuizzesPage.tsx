@@ -8,10 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { QuizDto } from '../../types/quiz.types';
 import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
-import { QuizGrid, QuizList, QuizFilters, QuizSort, QuizPagination } from './';
+import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '../attempt';
 import { PageHeader } from '../layout';
-import type { SortOption } from './QuizSort';
+import ConfirmationModal from '../common/ConfirmationModal';
+import type { SortOption } from './QuizSortDropdown';
+import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
 
 interface MyQuizzesPageProps {
@@ -30,8 +32,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [showFilters, setShowFilters] = useState(false);
 
   // Filters and pagination
-  const [filters, setFilters] = useState({});
-  const [sortBy, setSortBy] = useState<SortOption>('createdAt_desc');
+  const [filters, setFilters] = useState<FilterOptions>({});
+  const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [pagination, setPagination] = useState({
@@ -40,6 +42,15 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     totalElements: 0,
     totalPages: 0
   });
+
+  // Bulk selection
+  const [selectedQuizzes, setSelectedQuizzes] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  // Confirmation modals
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
 
   // Load quizzes
   useEffect(() => {
@@ -79,15 +90,64 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (window.confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
-      try {
-        await deleteQuiz(quizId);
-        // Remove from local state
-        setQuizzes(prev => prev.filter(quiz => quiz.id !== quizId));
-      } catch (error) {
-        console.error('Failed to delete quiz:', error);
-        alert('Failed to delete quiz. Please try again.');
-      }
+    setQuizToDelete(quizId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizToDelete) return;
+
+    try {
+      await deleteQuiz(quizToDelete);
+      // Remove from local state
+      setQuizzes(prev => prev.filter(quiz => quiz.id !== quizToDelete));
+      // Remove from selected if present
+      setSelectedQuizzes(prev => prev.filter(id => id !== quizToDelete));
+    } catch (error) {
+      console.error('Failed to delete quiz:', error);
+      alert('Failed to delete quiz. Please try again.');
+    } finally {
+      setShowDeleteModal(false);
+      setQuizToDelete(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedQuizzes.length === 0) return;
+    setShowBulkDeleteModal(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      // Delete all selected quizzes
+      await Promise.all(selectedQuizzes.map(quizId => deleteQuiz(quizId)));
+      
+      // Remove from local state
+      setQuizzes(prev => prev.filter(quiz => !selectedQuizzes.includes(quiz.id)));
+      setSelectedQuizzes([]);
+    } catch (error) {
+      console.error('Failed to delete quizzes:', error);
+      alert('Failed to delete some quizzes. Please try again.');
+    } finally {
+      setIsBulkDeleting(false);
+      setShowBulkDeleteModal(false);
+    }
+  };
+
+  const handleSelectQuiz = (quizId: string, selected: boolean) => {
+    if (selected) {
+      setSelectedQuizzes(prev => [...prev, quizId]);
+    } else {
+      setSelectedQuizzes(prev => prev.filter(id => id !== quizId));
+    }
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedQuizzes(quizzes.map(quiz => quiz.id));
+    } else {
+      setSelectedQuizzes([]);
     }
   };
 
@@ -100,7 +160,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     setCurrentPage(1);
   };
 
-  const handleFiltersChange = (newFilters: any) => {
+  const handleFiltersChange = (newFilters: FilterOptions) => {
     setFilters(newFilters);
     setCurrentPage(1);
   };
@@ -120,111 +180,99 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   };
 
   return (
-    <div className={className}>
-      {/* Page Header */}
-      <PageHeader
-        title="My Quizzes & Attempts"
-        subtitle="Continue your quiz attempts and manage your created quizzes"
-        showBreadcrumb={true}
-        actions={[
-          {
-            label: 'Create Quiz',
-            type: 'create',
-            variant: 'primary',
-            href: '/quizzes/create'
-          },
-          {
-            label: showFilters ? 'Hide Filters' : 'Show Filters',
-            variant: 'secondary',
-            onClick: () => setShowFilters(!showFilters)
-          }
-        ]}
-      />
+    <>
+      <div className={className}>
+        {/* Page Header */}
+        <PageHeader
+          title="My Quizzes & Attempts"
+          subtitle="Continue your quiz attempts and manage your created quizzes"
+          showBreadcrumb={true}
+          actions={[
+            {
+              label: 'Create Quiz',
+              type: 'create',
+              variant: 'primary',
+              href: '/quizzes/create'
+            },
+            {
+              label: showFilters ? 'Hide Filters' : 'Show Filters',
+              variant: 'secondary',
+              onClick: () => setShowFilters(!showFilters)
+            }
+          ]}
+        />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* User Attempts Section */}
-        <div className="mb-8">
-          <UserAttempts />
-        </div>
-
-        {/* Section Divider */}
-        <div className="border-t border-gray-200 my-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Your Created Quizzes</span>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* User Attempts Section */}
+          <div className="mb-8">
+            <UserAttempts />
           </div>
-        </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
+          {/* Section Divider */}
+          <div className="border-t border-gray-200 my-8">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Your Created Quizzes</span>
               </div>
             </div>
           </div>
-        )}
 
-        {/* Empty State */}
-        {!isLoading && !error && quizzes.length === 0 && (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No quizzes yet</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Get started by creating your first quiz.
-            </p>
-            <div className="mt-6">
-              <button
-                onClick={() => navigate('/quizzes/create')}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Create Quiz
-              </button>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Quiz Content */}
-        {!isLoading && !error && quizzes.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar - Filters and Sort */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Filters */}
-              {showFilters && (
-                <QuizFilters
-                  filters={filters}
-                  onFiltersChange={handleFiltersChange}
-                  onClearFilters={handleClearFilters}
-                />
-              )}
-
-              {/* Sort Options */}
-              <QuizSort
-                sortBy={sortBy}
-                onSortChange={handleSortChange}
-              />
+          {/* Empty State */}
+          {!isLoading && !error && quizzes.length === 0 && (
+            <div className="text-center py-12">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No quizzes yet</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating your first quiz.
+              </p>
+              <div className="mt-6">
+                <button
+                  onClick={() => navigate('/quizzes/create')}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create Quiz
+                </button>
+              </div>
             </div>
+          )}
 
-            {/* Main Content */}
-            <div className="lg:col-span-3">
-              {/* View Mode Toggle and Results Info */}
+          {/* Quiz Content */}
+          {!isLoading && !error && quizzes.length > 0 && (
+            <div>
+              {/* Controls Bar */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    {pagination.totalElements} quizzes found
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  {/* View Mode Toggle */}
                   <div className="flex items-center bg-white border border-gray-300 rounded-md shadow-sm">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -251,38 +299,85 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                       </svg>
                     </button>
                   </div>
-                  <span className="text-sm text-gray-600">
-                    {pagination.totalElements} quizzes found
-                  </span>
-                </div>
 
-                {/* Mobile Filters Toggle */}
-                <div className="lg:hidden">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    {showFilters ? 'Hide' : 'Show'} Filters
-                  </button>
+                  {/* Filter Dropdown */}
+                  <QuizFilterDropdown
+                    filters={filters}
+                    onFiltersChange={handleFiltersChange}
+                    onClearFilters={handleClearFilters}
+                  />
+
+                  {/* Sort Dropdown */}
+                  <QuizSortDropdown
+                    sortBy={sortBy}
+                    onSortChange={handleSortChange}
+                  />
                 </div>
               </div>
+
+              {/* Bulk Actions */}
+              {selectedQuizzes.length > 0 && (
+                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-sm font-medium text-blue-900">
+                        {selectedQuizzes.length} quiz(zes) selected
+                      </span>
+                      <button
+                        onClick={() => setSelectedQuizzes([])}
+                        className="text-sm text-blue-600 hover:text-blue-500"
+                      >
+                        Clear selection
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleBulkDelete}
+                      disabled={isBulkDeleting}
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    >
+                      {isBulkDeleting ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete Selected
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Quiz Display */}
               {viewMode === 'grid' ? (
                 <QuizGrid
                   quizzes={quizzes}
                   isLoading={isLoading}
+                  selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
                   onStart={handleStartQuiz}
+                  onSelect={handleSelectQuiz}
+                  onSelectAll={handleSelectAll}
                 />
               ) : (
                 <QuizList
                   quizzes={quizzes}
                   isLoading={isLoading}
+                  selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
                   onStart={handleStartQuiz}
+                  onSelect={handleSelectQuiz}
+                  onSelectAll={handleSelectAll}
                 />
               )}
 
@@ -294,10 +389,35 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 className="mt-6"
               />
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setQuizToDelete(null);
+        }}
+        onConfirm={confirmDeleteQuiz}
+        title="Delete Quiz"
+        message="Are you sure you want to delete this quiz? This action cannot be undone."
+        confirmText="Delete Quiz"
+        variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={showBulkDeleteModal}
+        onClose={() => setShowBulkDeleteModal(false)}
+        onConfirm={confirmBulkDelete}
+        title="Delete Multiple Quizzes"
+        message={`Are you sure you want to delete ${selectedQuizzes.length} quiz(zes)? This action cannot be undone.`}
+        confirmText="Delete Selected"
+        variant="danger"
+        isLoading={isBulkDeleting}
+      />
+    </>
   );
 };
 

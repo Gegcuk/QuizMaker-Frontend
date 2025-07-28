@@ -339,6 +339,9 @@ export const createQuiz = (data: CreateQuizRequest) => quizService.createQuiz(da
 export const updateQuiz = (quizId: string, data: UpdateQuizRequest) => 
   quizService.updateQuiz(quizId, data);
 
+export const updateQuizStatus = (quizId: string, data: UpdateQuizStatusRequest) => 
+  quizService.updateQuizStatus(quizId, data);
+
 export const deleteQuiz = (quizId: string) => quizService.deleteQuiz(quizId);
 
 export const getQuizResults = (quizId: string) => quizService.getQuizResults(quizId);

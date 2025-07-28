@@ -12,9 +12,12 @@ interface QuizListProps {
   quizzes: QuizDto[];
   isLoading?: boolean;
   showActions?: boolean;
+  selectedQuizzes?: string[];
   onEdit?: (quizId: string) => void;
   onDelete?: (quizId: string) => void;
   onStart?: (quizId: string) => void;
+  onSelect?: (quizId: string, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
   className?: string;
 }
 
@@ -22,9 +25,12 @@ const QuizList: React.FC<QuizListProps> = ({
   quizzes,
   isLoading = false,
   showActions = true,
+  selectedQuizzes = [],
   onEdit,
   onDelete,
   onStart,
+  onSelect,
+  onSelectAll,
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
@@ -112,13 +118,38 @@ const QuizList: React.FC<QuizListProps> = ({
 
   return (
     <div className={`bg-white shadow overflow-hidden sm:rounded-md ${className}`}>
+      {/* Select All Checkbox */}
+      {onSelectAll && (
+        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
+              onChange={(e) => onSelectAll(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label className="text-sm font-medium text-gray-700">
+              Select All ({selectedQuizzes.length}/{quizzes.length})
+            </label>
+          </div>
+        </div>
+      )}
+      
       <ul className="divide-y divide-gray-200">
         {quizzes.map((quiz) => (
-          <li key={quiz.id} className="hover:bg-gray-50 transition-colors duration-150">
+          <li key={quiz.id} className={`hover:bg-gray-50 transition-colors duration-150 ${selectedQuizzes.includes(quiz.id) ? 'bg-indigo-50' : ''}`}>
             <div className="px-4 py-4 sm:px-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3">
+                    {onSelect && (
+                      <input
+                        type="checkbox"
+                        checked={selectedQuizzes.includes(quiz.id)}
+                        onChange={(e) => onSelect(quiz.id, e.target.checked)}
+                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                    )}
                     <h3 className="text-lg font-medium text-gray-900 truncate">
                       {quiz.title}
                     </h3>

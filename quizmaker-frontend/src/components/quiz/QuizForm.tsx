@@ -6,10 +6,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '../../types/quiz.types';
-import { getQuizById, createQuiz, updateQuiz } from '../../api/quiz.service';
+import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../../api/quiz.service';
 import { addQuestionToQuiz, removeQuestionFromQuiz, getQuizQuestions } from '../../api/question.service';
-import { QuizBasicInfo, QuizSettings, QuizPreview, QuizPublishModal, QuizQuestionManager, QuizTagManager, QuizCategoryManager } from './';
-import { PageHeader } from '../layout';
+import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionManager } from './';
+import ConfirmationModal from '../common/ConfirmationModal';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {
@@ -48,8 +48,10 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [activeTab, setActiveTab] = useState<'basic' | 'settings' | 'questions' | 'tags' | 'category' | 'preview'>('basic');
+  const [activeTab, setActiveTab] = useState<'management' | 'questions' | 'preview'>('management');
   const [showPublishModal, setShowPublishModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load existing quiz data if editing
   useEffect(() => {
@@ -125,9 +127,19 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
   // Handle form data changes
   const handleDataChange = (newData: Partial<CreateQuizRequest | UpdateQuizRequest>) => {
     setQuizData(prev => ({ ...prev, ...newData }));
-    // Clear general errors when user makes changes
-    if (errors.general) {
-      setErrors(prev => ({ ...prev, general: undefined }));
+    
+    // Clear errors for fields that are being updated
+    const fieldsToClear = Object.keys(newData);
+    if (fieldsToClear.length > 0) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        fieldsToClear.forEach(field => {
+          if (newErrors[field]) {
+            delete newErrors[field];
+          }
+        });
+        return newErrors;
+      });
     }
   };
 
@@ -187,11 +199,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
     if (!quizId) return;
 
     try {
-      // TODO: Implement updateQuizStatus API call
-      // await updateQuizStatus(quizId, { status });
+      // Update quiz status on the backend
+      const updatedQuiz = await updateQuizStatus(quizId, { status });
+      
+      // Update local state
       if (currentQuiz) {
-        setCurrentQuiz({ ...currentQuiz, status });
+        setCurrentQuiz(updatedQuiz);
       }
+      
       // Navigate to quiz list after status change
       navigate('/quizzes');
     } catch (error) {
@@ -201,19 +216,74 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
     }
   };
 
+  // Handle quiz deletion
+  const handleDeleteQuiz = async () => {
+    if (!quizId) return;
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizId) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteQuiz(quizId);
+      // Navigate to quiz list after successful deletion
+      navigate('/quizzes');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const errorMessage = axiosError.response?.data?.message || 'Failed to delete quiz';
+      setErrors({ general: errorMessage });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   // Handle question changes
   const handleQuestionsChange = (questionIds: string[]) => {
     setSelectedQuestionIds(questionIds);
   };
 
-  // Handle tag changes
-  const handleTagsChange = (tagIds: string[]) => {
-    setQuizData(prev => ({ ...prev, tagIds }));
+  // Check if quiz is ready to be created
+  const isQuizReady = () => {
+    // Check required fields
+    const title = quizData.title?.trim() || '';
+    const hasTitle = title.length >= 3 && title.length <= 100;
+    const hasEstimatedTime = quizData.estimatedTime && quizData.estimatedTime >= 1 && quizData.estimatedTime <= 180;
+    const hasTimerDuration = !quizData.timerEnabled || (quizData.timerDuration && quizData.timerDuration >= 1 && quizData.timerDuration <= 180);
+    const hasQuestions = selectedQuestionIds.length > 0;
+    
+    return hasTitle && hasEstimatedTime && hasTimerDuration && hasQuestions;
   };
 
-  // Handle category change
-  const handleCategoryChange = (categoryId?: string) => {
-    setQuizData(prev => ({ ...prev, categoryId }));
+  // Get validation messages for missing fields
+  const getValidationMessages = () => {
+    const messages: string[] = [];
+    
+    // Check title validation
+    const title = quizData.title?.trim() || '';
+    if (!title) {
+      messages.push('Quiz title is required');
+    } else if (title.length < 3) {
+      messages.push('Quiz title must be at least 3 characters');
+    } else if (title.length > 100) {
+      messages.push('Quiz title must be no more than 100 characters');
+    }
+    
+    if (!quizData.estimatedTime || quizData.estimatedTime < 1 || quizData.estimatedTime > 180) {
+      messages.push('Estimated time is required (1-180 minutes)');
+    }
+    
+    if (quizData.timerEnabled && (!quizData.timerDuration || quizData.timerDuration < 1 || quizData.timerDuration > 180)) {
+      messages.push('Timer duration is required when timer is enabled (1-180 minutes)');
+    }
+    
+    if (selectedQuestionIds.length === 0) {
+      messages.push('At least one question must be selected');
+    }
+    
+    return messages;
   };
 
   if (isLoading) {
@@ -235,39 +305,13 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
   }
 
   const tabs = [
-    { id: 'basic', name: 'Basic Info', icon: '📝' },
-    { id: 'settings', name: 'Settings', icon: '⚙️' },
-    { id: 'questions', name: 'Questions', icon: '❓' },
-    { id: 'tags', name: 'Tags', icon: '🏷️' },
-    { id: 'category', name: 'Category', icon: '📁' },
-    { id: 'preview', name: 'Preview', icon: '👁️' }
+    { id: 'management', name: 'Management', icon: '⚙️', description: 'Basic info, settings, tags, and category' },
+    { id: 'questions', name: 'Questions', icon: '❓', description: 'Add and manage quiz questions' },
+    { id: 'preview', name: 'Preview', icon: '👁️', description: 'Preview your quiz' }
   ] as const;
 
   return (
     <div className={className}>
-      {/* Page Header */}
-      <PageHeader
-        title={isEditing ? 'Edit Quiz' : 'Create New Quiz'}
-        subtitle={isEditing ? 'Update your quiz settings and content' : 'Build a new quiz from scratch'}
-        showBreadcrumb={true}
-        showBackButton={true}
-        backTo="/quizzes"
-        actions={[
-          {
-            label: 'Cancel',
-            variant: 'secondary',
-            href: '/quizzes'
-          },
-          {
-            label: isEditing ? 'Update Quiz' : 'Create Quiz',
-            type: 'create',
-            variant: 'primary',
-            onClick: () => handleSubmit(),
-            disabled: isSaving
-          }
-        ]}
-      />
-
       {/* Error message */}
       {errors.general && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
@@ -293,12 +337,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-indigo-500 text-indigo-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
+                  title={tab.description}
                 >
                   <span className="mr-2">{tab.icon}</span>
                   {tab.name}
@@ -308,17 +354,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
           </div>
           
           <div className="p-6">
-        {activeTab === 'basic' && (
-          <QuizBasicInfo
-            quizData={quizData}
-            onDataChange={handleDataChange}
-            errors={errors as Record<string, string>}
-            isEditing={true}
-          />
-        )}
-
-        {activeTab === 'settings' && (
-          <QuizSettings
+        {activeTab === 'management' && (
+          <QuizManagementTab
+            quizId={quizId}
             quizData={quizData}
             onDataChange={handleDataChange}
             errors={errors as Record<string, string>}
@@ -327,44 +365,149 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
         )}
 
         {activeTab === 'questions' && (
-          <QuizQuestionManager
-            quizId={quizId || 'new'}
-            currentQuestionIds={selectedQuestionIds}
-            onQuestionsChange={handleQuestionsChange}
-          />
-        )}
-
-        {activeTab === 'tags' && (
-          <QuizTagManager
-            quizId={quizId || 'new'}
-            currentTagIds={quizData.tagIds || []}
-            onTagsChange={handleTagsChange}
-          />
-        )}
-
-        {activeTab === 'category' && (
-          <QuizCategoryManager
-            quizId={quizId || 'new'}
-            currentCategoryId={quizData.categoryId}
-            onCategoryChange={handleCategoryChange}
-          />
+          <div className="space-y-6">
+            <QuizQuestionManager
+              quizId={quizId || 'new'}
+              currentQuestionIds={selectedQuestionIds}
+              onQuestionsChange={handleQuestionsChange}
+            />
+            
+            {/* Create Quiz Button for Questions Tab */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="text-lg font-medium text-gray-900">Ready to Create Quiz?</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {selectedQuestionIds.length > 0 
+                      ? `${selectedQuestionIds.length} questions selected` 
+                      : 'No questions selected yet'}
+                  </p>
+                  
+                  {/* Validation Messages */}
+                  {!isQuizReady() && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
+                      <ul className="text-sm text-red-600 space-y-1">
+                        {getValidationMessages().map((message, index) => (
+                          <li key={index} className="flex items-center">
+                            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            {message}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <div className="ml-6">
+                  <button
+                    type="button"
+                    onClick={() => handleSubmit()}
+                    disabled={isSaving || !isQuizReady()}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Create Quiz
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {activeTab === 'preview' && (
-          <QuizPreview
-            quizData={currentQuiz || quizData}
-          />
+          <div className="space-y-6">
+            <QuizPreview
+              quizData={currentQuiz || quizData}
+            />
+            
+            {/* Create Quiz Button for Preview Tab */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="text-lg font-medium text-gray-900">Ready to Create Quiz?</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Review your quiz details above and create when ready
+                  </p>
+                  
+                  {/* Validation Messages */}
+                  {!isQuizReady() && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
+                      <ul className="text-sm text-red-600 space-y-1">
+                        {getValidationMessages().map((message, index) => (
+                          <li key={index} className="flex items-center">
+                            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            {message}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <div className="ml-6">
+                  <button
+                    type="button"
+                    onClick={() => handleSubmit()}
+                    disabled={isSaving || !isQuizReady()}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Create Quiz
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* Manage Status Button for Editing */}
+        {/* Action Buttons for Editing */}
         {isEditing && currentQuiz && (
-          <div className="flex justify-center pt-6 border-t border-gray-200">
+          <div className="flex justify-center space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={() => setShowPublishModal(true)}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Manage Status
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete Quiz
             </button>
           </div>
         )}
@@ -381,6 +524,18 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
           quiz={currentQuiz}
         />
       )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteQuiz}
+        title="Delete Quiz"
+        message={`Are you sure you want to delete "${currentQuiz?.title}"? This action cannot be undone.`}
+        confirmText="Delete Quiz"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 };
