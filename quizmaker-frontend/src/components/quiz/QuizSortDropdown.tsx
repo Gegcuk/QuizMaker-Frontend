@@ -29,56 +29,15 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const sortOptions = [
-    {
-      value: 'recommended' as SortOption,
-      label: 'Recommended',
-      description: 'Best matches for you'
-    },
-    {
-      value: 'newest' as SortOption,
-      label: 'Newest',
-      description: 'Recently created quizzes'
-    },
-    {
-      value: 'title_asc' as SortOption,
-      label: 'A-Z',
-      description: 'Alphabetical order'
-    },
-    {
-      value: 'title_desc' as SortOption,
-      label: 'Z-A',
-      description: 'Reverse alphabetical order'
-    },
-    {
-      value: 'createdAt_desc' as SortOption,
-      label: 'Newest First',
-      description: 'Most recently created'
-    },
-    {
-      value: 'createdAt_asc' as SortOption,
-      label: 'Oldest First',
-      description: 'Least recently created'
-    },
-    {
-      value: 'difficulty_asc' as SortOption,
-      label: 'Easy to Hard',
-      description: 'Difficulty level ascending'
-    },
-    {
-      value: 'difficulty_desc' as SortOption,
-      label: 'Hard to Easy',
-      description: 'Difficulty level descending'
-    },
-    {
-      value: 'estimatedTime_asc' as SortOption,
-      label: 'Quick to Long',
-      description: 'Shortest duration first'
-    },
-    {
-      value: 'estimatedTime_desc' as SortOption,
-      label: 'Long to Quick',
-      description: 'Longest duration first'
-    }
+    { value: 'recommended' as SortOption, label: 'Recommended' },
+    { value: 'newest' as SortOption, label: 'Newest First' },
+    { value: 'createdAt_asc' as SortOption, label: 'Oldest First' },
+    { value: 'title_asc' as SortOption, label: 'A-Z' },
+    { value: 'title_desc' as SortOption, label: 'Z-A' },
+    { value: 'difficulty_asc' as SortOption, label: 'Easy to Hard' },
+    { value: 'difficulty_desc' as SortOption, label: 'Hard to Easy' },
+    { value: 'estimatedTime_asc' as SortOption, label: 'Quick to Long' },
+    { value: 'estimatedTime_desc' as SortOption, label: 'Long to Quick' }
   ];
 
   const getCurrentSortLabel = () => {
@@ -131,15 +90,12 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
               <button
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
-                className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
+                className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
                   sortBy === option.value ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{option.label}</div>
-                    <div className="text-sm text-gray-500">{option.description}</div>
-                  </div>
+                  <div className="text-sm font-medium">{option.label}</div>
                   {sortBy === option.value && (
                     <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

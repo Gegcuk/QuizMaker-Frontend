@@ -40,6 +40,115 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
     totalPages: 0
   });
 
+  // Apply filters and sorting to quizzes
+  const filteredAndSortedQuizzes = React.useMemo(() => {
+    let result = [...quizzes];
+
+    // Apply filters
+    if (filters.difficulty?.length) {
+      result = result.filter(quiz => 
+        filters.difficulty!.includes(quiz.difficulty || 'MEDIUM')
+      );
+    }
+
+    if (filters.category?.length) {
+      result = result.filter(quiz => 
+        quiz.categoryId && filters.category!.includes(quiz.categoryId)
+      );
+    }
+
+    if (filters.tags?.length) {
+      result = result.filter(quiz => 
+        quiz.tagIds && quiz.tagIds.some(tagId => filters.tags!.includes(tagId))
+      );
+    }
+
+    if (filters.status?.length) {
+      result = result.filter(quiz => 
+        filters.status!.includes(quiz.status || 'DRAFT')
+      );
+    }
+
+    if (filters.estimatedTime?.min !== undefined || filters.estimatedTime?.max !== undefined) {
+      result = result.filter(quiz => {
+        const time = quiz.estimatedTime || 0;
+        const min = filters.estimatedTime?.min || 0;
+        const max = filters.estimatedTime?.max || Infinity;
+        return time >= min && time <= max;
+      });
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'newest':
+        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        break;
+      case 'title_asc':
+        result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        break;
+      case 'title_desc':
+        result.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        break;
+      case 'createdAt_asc':
+        result.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        break;
+      case 'createdAt_desc':
+        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        break;
+      case 'updatedAt_asc':
+        result.sort((a, b) => new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime());
+        break;
+      case 'updatedAt_desc':
+        result.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
+        break;
+      case 'difficulty_asc':
+        result.sort((a, b) => {
+          const difficultyOrder = { 'EASY': 1, 'MEDIUM': 2, 'HARD': 3 };
+          return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 2) - 
+                 (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 2);
+        });
+        break;
+      case 'difficulty_desc':
+        result.sort((a, b) => {
+          const difficultyOrder = { 'EASY': 1, 'MEDIUM': 2, 'HARD': 3 };
+          return (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 2) - 
+                 (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 2);
+        });
+        break;
+      case 'estimatedTime_asc':
+        result.sort((a, b) => (a.estimatedTime || 0) - (b.estimatedTime || 0));
+        break;
+      case 'estimatedTime_desc':
+        result.sort((a, b) => (b.estimatedTime || 0) - (a.estimatedTime || 0));
+        break;
+      case 'recommended':
+      default:
+        // Default sorting: newest first
+        result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        break;
+    }
+
+    return result;
+  }, [quizzes, filters, sortBy]);
+
+  // Apply pagination
+  const paginatedQuizzes = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredAndSortedQuizzes.slice(startIndex, endIndex);
+  }, [filteredAndSortedQuizzes, currentPage, pageSize]);
+
+  // Update pagination when filters/sorting change
+  React.useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      totalElements: filteredAndSortedQuizzes.length,
+      totalPages: Math.ceil(filteredAndSortedQuizzes.length / pageSize)
+    }));
+    // Reset to first page when filters/sorting change
+    setCurrentPage(1);
+  }, [filteredAndSortedQuizzes.length, pageSize]);
+
   // Load quizzes
   useEffect(() => {
     const loadQuizzes = async () => {
@@ -50,12 +159,6 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
         // TODO: Update this to use proper search API with filters, sorting, and pagination
         const response = await getAllQuizzes();
         setQuizzes(response.content || []);
-        setPagination({
-          pageNumber: response.pageable?.pageNumber || 1,
-          pageSize: response.pageable?.pageSize || 12,
-          totalElements: response.pageable?.totalElements || 0,
-          totalPages: response.pageable?.totalPages || 0
-        });
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
         setError(axiosError.response?.data?.message || 'Failed to load quizzes');
@@ -65,7 +168,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
     };
 
     loadQuizzes();
-  }, [filters, sortBy, currentPage, pageSize]);
+  }, []);
 
   // Handle quiz actions
   const handleEditQuiz = (quizId: string) => {
@@ -149,13 +252,13 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
           )}
 
           {/* Quiz Content */}
-          {!isLoading && !error && quizzes.length > 0 && (
+          {!isLoading && !error && filteredAndSortedQuizzes.length > 0 && (
             <div>
               {/* Controls Bar */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-gray-600">
-                    {pagination.totalElements} quizzes found
+                    {filteredAndSortedQuizzes.length} quizzes found
                   </span>
                 </div>
 
@@ -206,7 +309,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
               {/* Quiz Display */}
               {viewMode === 'grid' ? (
                 <QuizGrid
-                  quizzes={quizzes}
+                  quizzes={paginatedQuizzes}
                   isLoading={isLoading}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
@@ -214,7 +317,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                 />
               ) : (
                 <QuizList
-                  quizzes={quizzes}
+                  quizzes={paginatedQuizzes}
                   isLoading={isLoading}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
@@ -233,7 +336,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
           )}
 
           {/* Empty State */}
-          {!isLoading && !error && quizzes.length === 0 && (
+          {!isLoading && !error && filteredAndSortedQuizzes.length === 0 && (
             <div className="text-center py-12">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
