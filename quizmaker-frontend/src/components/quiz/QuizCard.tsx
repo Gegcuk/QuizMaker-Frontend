@@ -187,7 +187,13 @@ const QuizCard: React.FC<QuizCardProps> = ({
               {onStart && (
                 <button
                   onClick={() => onStart(quiz.id)}
-                  className="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  disabled={quiz.status === 'DRAFT'}
+                  className={`px-3 py-1 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    quiz.status === 'DRAFT'
+                      ? 'text-gray-400 bg-gray-200 cursor-not-allowed'
+                      : 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
+                  }`}
+                  title={quiz.status === 'DRAFT' ? 'Quiz must be published before it can be started' : 'Start this quiz'}
                 >
                   Start Quiz
                 </button>

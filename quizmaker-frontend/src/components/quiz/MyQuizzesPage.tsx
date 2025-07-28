@@ -29,7 +29,6 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Filters and pagination
   const [filters, setFilters] = useState<FilterOptions>({});
@@ -295,11 +294,6 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
               type: 'create',
               variant: 'primary',
               href: '/quizzes/create'
-            },
-            {
-              label: showFilters ? 'Hide Filters' : 'Show Filters',
-              variant: 'secondary',
-              onClick: () => setShowFilters(!showFilters)
             }
           ]}
         />

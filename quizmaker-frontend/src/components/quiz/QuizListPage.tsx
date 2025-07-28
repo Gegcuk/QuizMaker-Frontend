@@ -25,7 +25,6 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
 
   // Filters and pagination
