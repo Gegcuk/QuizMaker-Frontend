@@ -6,9 +6,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizDto } from '../../types/quiz.types';
-import { getAllQuizzes } from '../../api/quiz.service';
+import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { PageHeader } from '../layout';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { useQuizFiltering, useQuizPagination } from '../../hooks';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
@@ -27,6 +28,11 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showSort, setShowSort] = useState(false);
+
+  // Delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filters and pagination
   const [filters, setFilters] = useState<FilterOptions>({});
@@ -71,15 +77,25 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (window.confirm('Are you sure you want to delete this quiz?')) {
-      try {
-        // TODO: Implement delete quiz API call
-        console.log('Deleting quiz:', quizId);
-        // Remove from local state
-        setQuizzes(prev => prev.filter(quiz => quiz.id !== quizId));
-      } catch (error) {
-        console.error('Failed to delete quiz:', error);
-      }
+    setQuizToDelete(quizId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteQuiz(quizToDelete);
+      // Remove from local state
+      setQuizzes(prev => prev.filter(quiz => quiz.id !== quizToDelete));
+    } catch (error) {
+      console.error('Failed to delete quiz:', error);
+      alert('Failed to delete quiz. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setQuizToDelete(null);
     }
   };
 
@@ -244,6 +260,21 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setQuizToDelete(null);
+        }}
+        onConfirm={confirmDeleteQuiz}
+        title="Delete Quiz"
+        message="Are you sure you want to delete this quiz? This action cannot be undone."
+        confirmText="Delete Quiz"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </>
   );
 };

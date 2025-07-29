@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 export { default as AttemptStart } from './AttemptStart';
+export { default as AttemptContinuation } from './AttemptContinuation';
 export { default as AttemptProgress } from './AttemptProgress';
 export { default as AttemptTimer } from './AttemptTimer';
 export { default as AttemptNavigation } from './AttemptNavigation';

@@ -13,6 +13,7 @@ interface AttemptBatchAnswersProps {
   attemptId: string;
   answers: Record<string, any>;
   totalQuestions: number;
+  existingAnswers?: Record<string, any>; // Track already submitted answers
   onSubmissionComplete: (results: any[]) => void;
   onSubmissionError: (error: string) => void;
   className?: string;
@@ -22,6 +23,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
   attemptId,
   answers,
   totalQuestions,
+  existingAnswers = {},
   onSubmissionComplete,
   onSubmissionError,
   className = ''
@@ -69,8 +71,20 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
     setSubmissionProgress(0);
 
     try {
-      // Convert answers to batch submission format
-      const batchAnswers: AnswerSubmissionRequest[] = Object.entries(answers).map(([questionId, response]) => ({
+      // Filter out answers that have already been submitted
+      const newAnswers = Object.entries(answers).filter(([questionId, response]) => {
+        // Only include answers that are not in existingAnswers or have changed
+        return !existingAnswers[questionId] || existingAnswers[questionId] !== response;
+      });
+
+      if (newAnswers.length === 0) {
+        // No new answers to submit, just complete the attempt
+        onSubmissionComplete([]);
+        return;
+      }
+
+      // Convert new answers to batch submission format
+      const batchAnswers: AnswerSubmissionRequest[] = newAnswers.map(([questionId, response]) => ({
         questionId,
         response
       }));

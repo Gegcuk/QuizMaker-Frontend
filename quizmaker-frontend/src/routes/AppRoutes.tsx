@@ -22,6 +22,7 @@ import RegisterPage from '../pages/RegisterPage';
 import { QuizListPage } from '../components';
 import QuizDetailPage from '../pages/QuizDetailPage';
 import QuizAttemptPage from '../pages/QuizAttemptPage';
+import QuizAttemptFlowPage from '../pages/QuizAttemptFlowPage';
 import QuizResultPage from '../pages/QuizResultPage';
 import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
 
@@ -96,6 +97,14 @@ const AppRoutes: React.FC = () => {
         />
         <Route
           path="/quizzes/:quizId/attempt"
+          element={
+            <ProtectedRoute>
+              <QuizAttemptFlowPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/:quizId/attempt/start"
           element={
             <ProtectedRoute>
               <QuizAttemptPage />

@@ -12,6 +12,7 @@ interface McqAnswerProps {
   currentAnswer?: string | string[];
   onAnswerChange: (answer: string | string[]) => void;
   disabled?: boolean;
+  singleChoice?: boolean;
   className?: string;
 }
 
@@ -25,10 +26,11 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
   currentAnswer,
   onAnswerChange,
   disabled = false,
+  singleChoice = false,
   className = ''
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const isMultiChoice = question.type === 'MCQ_MULTI';
+  const isMultiChoice = !singleChoice && question.type === 'MCQ_MULTI';
 
   useEffect(() => {
     if (currentAnswer) {

@@ -7,6 +7,59 @@ The QuizController handles quiz creation, management, AI-powered generation from
 
 **Authentication**: Most endpoints require ADMIN role authentication via Bearer token.
 
+## Error Handling
+
+All endpoints use a consistent error response format:
+
+### ErrorResponse
+```json
+{
+  "timestamp": "2025-01-27T10:30:00Z",   // Error timestamp
+  "status": 400,                         // HTTP status code
+  "error": "Bad Request",                // Error type
+  "details": [                           // Error details
+    "Validation failed for field 'title'",
+    "Quiz not found"
+  ]
+}
+```
+
+### Common HTTP Status Codes
+- **400 Bad Request**: Validation errors, invalid request data
+- **401 Unauthorized**: Missing or invalid authentication token
+- **403 Forbidden**: Authenticated but insufficient permissions (ADMIN required)
+- **404 Not Found**: Resource not found (quiz, document, job)
+- **409 Conflict**: State conflicts (duplicate quiz title, active generation job)
+- **422 Unprocessable Entity**: Business logic validation failures
+- **500 Internal Server Error**: Unexpected server errors
+
+### Error Examples
+```json
+// 400 Bad Request - Validation Error
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "details": ["Title is required", "Estimated time must be between 1 and 180 minutes"]
+}
+
+// 404 Not Found - Resource Not Found
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "details": ["Quiz not found"]
+}
+
+// 409 Conflict - State Conflict
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 409,
+  "error": "Conflict",
+  "details": ["User already has an active generation job"]
+}
+```
+
 ## DTO Schemas
 
 ### CreateQuizRequest
@@ -44,6 +97,28 @@ The QuizController handles quiz creation, management, AI-powered generation from
   "timerDuration": 10,            // 1-180 minutes, optional
   "categoryId": "uuid",           // Optional
   "tagIds": ["uuid1", "uuid2"]    // Optional array
+}
+```
+
+### BulkQuizUpdateRequest
+```json
+{
+  "quizIds": ["uuid1", "uuid2"],  // Array of quiz IDs to update
+  "update": {                     // UpdateQuizRequest fields
+    "visibility": "PUBLIC",
+    "difficulty": "HARD"
+  }
+}
+```
+
+### BulkQuizUpdateOperationResultDto
+```json
+{
+  "successes": ["uuid1", "uuid2"], // Successfully updated quiz IDs
+  "failures": {                    // Failed updates with error messages
+    "uuid3": "Quiz not found",
+    "uuid4": "Validation failed"
+  }
 }
 ```
 
@@ -111,6 +186,29 @@ The QuizController handles quiz creation, management, AI-powered generation from
 - `ORDERING`: Ordering questions
 - `HOTSPOT`: Hotspot questions
 
+### GenerateQuizFromUploadRequest
+```json
+{
+  "chunkingStrategy": "SENTENCE|PARAGRAPH|SECTION", // Document chunking strategy
+  "maxChunkSize": 1000,           // Maximum chunk size in characters
+  "quizScope": "ENTIRE_DOCUMENT|SPECIFIC_CHUNKS|SPECIFIC_CHAPTER|SPECIFIC_SECTION",
+  "chunkIndices": [0, 1, 2],      // For SPECIFIC_CHUNKS scope
+  "chapterTitle": "string",       // For SPECIFIC_CHAPTER/SECTION scope
+  "chapterNumber": 1,             // Alternative for SPECIFIC_CHAPTER/SECTION scope
+  "quizTitle": "string",          // Custom title (max 100 chars)
+  "quizDescription": "string",    // Custom description (max 500 chars)
+  "questionsPerType": {           // Questions per type per chunk
+    "MCQ_SINGLE": 3,
+    "TRUE_FALSE": 2,
+    "OPEN": 1
+  },
+  "difficulty": "EASY|MEDIUM|HARD", // Question difficulty
+  "estimatedTimePerQuestion": 2,  // 1-10 minutes, default: 2
+  "categoryId": "uuid",           // Category ID
+  "tagIds": ["uuid1", "uuid2"]    // Tag IDs
+}
+```
+
 ### QuizGenerationResponse
 ```json
 {
@@ -118,6 +216,26 @@ The QuizController handles quiz creation, management, AI-powered generation from
   "status": "PENDING|PROCESSING|COMPLETED|FAILED|CANCELLED",
   "message": "string",            // Status description
   "estimatedTimeSeconds": 300     // Estimated completion time
+}
+```
+
+### QuizGenerationStatus
+```json
+{
+  "jobId": "string",              // Job identifier
+  "status": "PENDING|PROCESSING|COMPLETED|FAILED|CANCELLED",
+  "totalChunks": 10,              // Total chunks to process
+  "processedChunks": 3,           // Chunks processed so far
+  "progressPercentage": 30.0,     // Progress percentage
+  "currentChunk": 3,              // Currently processing chunk
+  "estimatedCompletion": "2025-01-27T10:45:00Z", // Estimated completion time
+  "errorMessage": "string",       // Error message if failed
+  "totalQuestionsGenerated": 15,  // Total questions generated
+  "durationSeconds": 180,         // Time elapsed in seconds
+  "estimatedTimeRemainingSeconds": 120, // Estimated time remaining
+  "generatedQuizId": "uuid",      // Generated quiz ID (when completed)
+  "startedAt": "2025-01-27T10:30:00Z", // Job start time
+  "completedAt": "2025-01-27T10:45:00Z" // Job completion time
 }
 ```
 
@@ -147,6 +265,20 @@ The QuizController handles quiz creation, management, AI-powered generation from
   "userId": "uuid",               // User identifier
   "username": "string",           // Username
   "bestScore": 95.0               // Best score for the quiz
+}
+```
+
+### VisibilityUpdateRequest
+```json
+{
+  "visibility": "PUBLIC|PRIVATE"  // New visibility setting
+}
+```
+
+### QuizStatusUpdateRequest
+```json
+{
+  "status": "DRAFT|PUBLISHED|ARCHIVED"  // New status
 }
 ```
 
@@ -208,11 +340,6 @@ Creates a new quiz (ADMIN only).
   "quizId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
 }
 ```
-
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
 
 ### 2. List Quizzes
 **GET** `/api/v1/quizzes`
@@ -291,9 +418,6 @@ Returns a specific quiz by its ID.
 }
 ```
 
-**Error Responses**:
-- `404 Not Found`: Quiz not found
-
 ### 4. Update Quiz
 **PATCH** `/api/v1/quizzes/{quizId}`
 
@@ -311,25 +435,168 @@ Updates an existing quiz (ADMIN only).
 
 **Response** (200 OK): Returns updated QuizDto
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Quiz not found
+### 5. Bulk Update Quizzes
+**PATCH** `/api/v1/quizzes/bulk-update`
 
-### 5. Delete Quiz
+Updates multiple quizzes at once (ADMIN only).
+
+**Request Body**:
+```json
+{
+  "quizIds": ["uuid1", "uuid2", "uuid3"],
+  "update": {
+    "visibility": "PUBLIC",
+    "difficulty": "HARD"
+  }
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "successes": ["uuid1", "uuid2"],
+  "failures": {
+    "uuid3": "Quiz not found"
+  }
+}
+```
+
+### 6. Delete Quiz
 **DELETE** `/api/v1/quizzes/{quizId}`
 
 Deletes a quiz (ADMIN only).
 
 **Response** (204 No Content): No response body
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Quiz not found
+### 7. Bulk Delete Quizzes
+**DELETE** `/api/v1/quizzes?ids=id1,id2,id3`
 
-### 6. Generate Quiz from Document
+Deletes multiple quizzes by comma-separated IDs (ADMIN only).
+
+**Response** (204 No Content): No response body
+
+### 8. Add Question to Quiz
+**POST** `/api/v1/quizzes/{quizId}/questions/{questionId}`
+
+Associates an existing question with a quiz (ADMIN only).
+
+**Response** (204 No Content): Question successfully added to quiz
+
+### 9. Remove Question from Quiz
+**DELETE** `/api/v1/quizzes/{quizId}/questions/{questionId}`
+
+Removes a question from a quiz (ADMIN only).
+
+**Response** (204 No Content): Question successfully removed from quiz
+
+### 10. Add Tag to Quiz
+**POST** `/api/v1/quizzes/{quizId}/tags/{tagId}`
+
+Associates a tag with a quiz (ADMIN only).
+
+**Response** (204 No Content): Tag successfully added to quiz
+
+### 11. Remove Tag from Quiz
+**DELETE** `/api/v1/quizzes/{quizId}/tags/{tagId}`
+
+Removes a tag from a quiz (ADMIN only).
+
+**Response** (204 No Content): Tag successfully removed from quiz
+
+### 12. Change Quiz Category
+**PATCH** `/api/v1/quizzes/{quizId}/category/{categoryId}`
+
+Changes the category of a quiz (ADMIN only).
+
+**Response** (204 No Content): Category successfully changed
+
+### 13. Get Quiz Results Summary
+**GET** `/api/v1/quizzes/{quizId}/results`
+
+Gets aggregated quiz results and statistics.
+
+**Response** (200 OK):
+```json
+{
+  "quizId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "attemptsCount": 150,
+  "averageScore": 75.5,
+  "bestScore": 95.0,
+  "worstScore": 25.0,
+  "passRate": 68.0,
+  "questionStats": [
+    {
+      "questionId": "a1b2c3d4-0000-0000-0000-000000000000",
+      "timesAsked": 150,
+      "timesCorrect": 120,
+      "correctRate": 80.0
+    }
+  ]
+}
+```
+
+### 14. Get Quiz Leaderboard
+**GET** `/api/v1/quizzes/{quizId}/leaderboard`
+
+Gets the leaderboard for a quiz.
+
+**Query Parameters**:
+- `top`: Number of top entries (default: 10)
+
+**Response** (200 OK):
+```json
+[
+  {
+    "userId": "123e4567-e89b-12d3-a456-426614174000",
+    "username": "topUser",
+    "bestScore": 95.0
+  },
+  {
+    "userId": "456e7890-e89b-12d3-a456-426614174000",
+    "username": "secondUser",
+    "bestScore": 88.0
+  }
+]
+```
+
+### 15. Update Quiz Visibility
+**PATCH** `/api/v1/quizzes/{quizId}/visibility`
+
+Changes quiz visibility (ADMIN only).
+
+**Request Body**:
+```json
+{
+  "visibility": "PUBLIC"
+}
+```
+
+**Response** (200 OK): Returns updated QuizDto
+
+### 16. Update Quiz Status
+**PATCH** `/api/v1/quizzes/{quizId}/status`
+
+Changes quiz status (ADMIN only).
+
+**Request Body**:
+```json
+{
+  "status": "PUBLISHED"
+}
+```
+
+**Response** (200 OK): Returns updated QuizDto
+
+### 17. Get Public Quizzes
+**GET** `/api/v1/quizzes/public`
+
+Returns paginated list of public quizzes.
+
+**Query Parameters**: Same as List Quizzes endpoint
+
+**Response** (200 OK): Same format as List Quizzes endpoint
+
+### 18. Generate Quiz from Document
 **POST** `/api/v1/quizzes/generate-from-document`
 
 Starts AI-powered quiz generation from document (ADMIN only).
@@ -363,14 +630,16 @@ Starts AI-powered quiz generation from document (ADMIN only).
 }
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Document not found
-- `409 Conflict`: User already has active generation job
+### 19. Generate Quiz from Upload
+**POST** `/api/v1/quizzes/generate-from-upload`
 
-### 7. Get Generation Status
+Uploads document and generates quiz in one operation (ADMIN only).
+
+**Request**: Multipart form data with file and parameters
+
+**Response** (202 Accepted): Same as Generate Quiz from Document
+
+### 20. Get Generation Status
 **GET** `/api/v1/quizzes/generation-status/{jobId}`
 
 Gets the status of a quiz generation job.
@@ -380,167 +649,79 @@ Gets the status of a quiz generation job.
 {
   "jobId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "status": "PROCESSING",
-  "message": "Processing chunk 3 of 10",
-  "estimatedTimeSeconds": 180,
-  "progress": {
-    "processedChunks": 3,
-    "totalChunks": 10,
-    "percentage": 30.0
-  }
+  "totalChunks": 10,
+  "processedChunks": 3,
+  "progressPercentage": 30.0,
+  "currentChunk": 3,
+  "estimatedCompletion": "2025-01-27T10:45:00Z",
+  "totalQuestionsGenerated": 15,
+  "durationSeconds": 180,
+  "estimatedTimeRemainingSeconds": 120,
+  "startedAt": "2025-01-27T10:30:00Z"
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not authorized to access this job
-- `404 Not Found`: Generation job not found
-
-### 8. Get Generated Quiz
+### 21. Get Generated Quiz
 **GET** `/api/v1/quizzes/generated-quiz/{jobId}`
 
 Retrieves the generated quiz once generation is completed.
 
 **Response** (200 OK): Returns QuizDto
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not authorized to access this quiz
-- `404 Not Found`: Generation job or quiz not found
-- `409 Conflict`: Generation job not yet completed
-
-### 9. Cancel Generation Job
+### 22. Cancel Generation Job
 **DELETE** `/api/v1/quizzes/generation-status/{jobId}`
 
 Cancels an active quiz generation job (ADMIN only).
 
 **Response** (200 OK): Returns updated QuizGenerationStatus
 
-**Error Responses**:
-- `400 Bad Request`: Job cannot be cancelled
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Generation job not found
+### 23. List Generation Jobs
+**GET** `/api/v1/quizzes/generation-jobs`
 
-### 10. Get Quiz Results Summary
-**GET** `/api/v1/quizzes/{quizId}/results`
-
-Gets aggregated quiz results and statistics.
-
-**Response** (200 OK):
-```json
-{
-  "quizId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "attemptsCount": 150,
-  "averageScore": 75.5,
-  "bestScore": 95.0,
-  "worstScore": 25.0,
-  "passRate": 68.0,
-  "questionStats": [
-    {
-      "questionId": "a1b2c3d4-0000-0000-0000-000000000000",
-      "timesAsked": 150,
-      "timesCorrect": 120,
-      "correctRate": 80.0
-    }
-  ]
-}
-```
-
-### 11. Get Quiz Leaderboard
-**GET** `/api/v1/quizzes/{quizId}/leaderboard`
-
-Gets the leaderboard for a quiz.
+Gets paginated list of user's quiz generation jobs.
 
 **Query Parameters**:
-- `top`: Number of top entries (default: 10)
+- `page`: Page number (default: 0)
+- `size`: Page size (default: 20)
+
+**Response** (200 OK): Page of QuizGenerationStatus objects
+
+### 24. Get Generation Job Statistics
+**GET** `/api/v1/quizzes/generation-jobs/statistics`
+
+Gets statistics about user's quiz generation jobs.
 
 **Response** (200 OK):
 ```json
-[
-  {
-    "userId": "123e4567-e89b-12d3-a456-426614174000",
-    "username": "topUser",
-    "bestScore": 95.0
-  },
-  {
-    "userId": "456e7890-e89b-12d3-a456-426614174000",
-    "username": "secondUser",
-    "bestScore": 88.0
-  }
-]
-```
-
-### 12. Update Quiz Visibility
-**PATCH** `/api/v1/quizzes/{quizId}/visibility`
-
-Changes quiz visibility (ADMIN only).
-
-**Request Body**:
-```json
 {
-  "visibility": "PUBLIC"
+  "totalJobs": 25,
+  "completedJobs": 20,
+  "failedJobs": 3,
+  "cancelledJobs": 2,
+  "averageGenerationTimeSeconds": 180,
+  "successRate": 80.0
 }
 ```
 
-**Response** (200 OK): Returns updated QuizDto
+### 25. Cleanup Stale Jobs
+**POST** `/api/v1/quizzes/generation-jobs/cleanup-stale`
 
-### 13. Update Quiz Status
-**PATCH** `/api/v1/quizzes/{quizId}/status`
+Cleans up pending jobs that have been pending for too long.
 
-Changes quiz status (ADMIN only).
-
-**Request Body**:
+**Response** (200 OK):
 ```json
-{
-  "status": "PUBLISHED"
-}
+"Cleaned up 3 stale jobs"
 ```
 
-**Response** (200 OK): Returns updated QuizDto
+### 26. Force Cancel Job
+**POST** `/api/v1/quizzes/generation-jobs/{jobId}/force-cancel`
 
-### 14. Get Public Quizzes
-**GET** `/api/v1/quizzes/public`
+Force cancels a specific generation job (ADMIN only).
 
-Returns paginated list of public quizzes.
-
-**Query Parameters**: Same as List Quizzes endpoint
-
-**Response** (200 OK): Same format as List Quizzes endpoint
-
-### 15. Add Question to Quiz
-**POST** `/api/v1/quizzes/{quizId}/questions/{questionId}`
-
-Associates an existing question with a quiz (ADMIN only).
-
-**Path Parameters**:
-- `quizId`: UUID of the quiz (required)
-- `questionId`: UUID of the question (required)
-
-**Response** (204 No Content): Question successfully added to quiz
-
-**Error Responses**:
-- `400 Bad Request`: Invalid quiz or question ID
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Quiz or question not found
-- `409 Conflict`: Question already associated with quiz
-
-### 16. Remove Question from Quiz
-**DELETE** `/api/v1/quizzes/{quizId}/questions/{questionId}`
-
-Removes a question from a quiz (ADMIN only).
-
-**Path Parameters**:
-- `quizId`: UUID of the quiz (required)
-- `questionId`: UUID of the question (required)
-
-**Response** (204 No Content): Question successfully removed from quiz
-
-**Error Responses**:
-- `400 Bad Request`: Invalid quiz or question ID
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Quiz or question not found
+**Response** (200 OK):
+```json
+"Job force cancelled successfully"
+```
 
 ## Integration Notes
 
@@ -559,8 +740,22 @@ Removes a question from a quiz (ADMIN only).
 - Handle 401/403 responses for authentication/authorization
 - Implement retry logic for generation status polling
 - Show appropriate error messages for validation failures
+- All errors return consistent ErrorResponse format
 
 ### Real-time Updates
 - Consider implementing WebSocket connections for generation status updates
 - Poll generation status every 5-10 seconds for long-running jobs
-- Show progress indicators for better user experience 
+- Show progress indicators for better user experience
+
+### Security Considerations
+- Most endpoints require ADMIN role
+- Quiz ownership is validated for updates/deletes
+- Generation jobs are user-scoped
+- Public quizzes are accessible to all authenticated users
+
+### Performance Considerations
+- Pagination for large quiz lists
+- Efficient querying with proper indexing
+- Caching for frequently accessed data
+- Asynchronous processing for quiz generation
+- Bulk operations for multiple quiz updates 

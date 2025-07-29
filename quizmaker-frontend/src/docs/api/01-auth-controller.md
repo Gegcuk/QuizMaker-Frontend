@@ -7,6 +7,57 @@ The AuthController handles user authentication, registration, and session manage
 
 **Authentication**: Most endpoints require authentication via Bearer token in Authorization header.
 
+## Error Handling
+
+All endpoints use a consistent error response format:
+
+### ErrorResponse
+```json
+{
+  "timestamp": "2025-01-27T10:30:00Z",   // Error timestamp
+  "status": 400,                         // HTTP status code
+  "error": "Bad Request",                // Error type
+  "details": [                           // Error details
+    "Username is required",
+    "Invalid credentials"
+  ]
+}
+```
+
+### Common HTTP Status Codes
+- **400 Bad Request**: Validation errors, invalid request data
+- **401 Unauthorized**: Missing or invalid authentication token, invalid credentials
+- **403 Forbidden**: Authenticated but insufficient permissions
+- **409 Conflict**: Username or email already exists
+- **500 Internal Server Error**: Unexpected server errors
+
+### Error Examples
+```json
+// 400 Bad Request - Validation Error
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "details": ["Username is required", "Password must be at least 8 characters"]
+}
+
+// 401 Unauthorized - Invalid Credentials
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 401,
+  "error": "Unauthorized",
+  "details": ["Invalid username or password"]
+}
+
+// 409 Conflict - User Already Exists
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 409,
+  "error": "Conflict",
+  "details": ["Username already exists"]
+}
+```
+
 ## DTO Schemas
 
 ### LoginRequest
@@ -73,6 +124,40 @@ The AuthController handles user authentication, registration, and session manage
 - `ROLE_ADMIN`: Can manage users, categories, and system settings
 - `ROLE_SUPER_ADMIN`: Full system access
 
+### ChangePasswordRequest
+```json
+{
+  "currentPassword": "string",  // Current password
+  "newPassword": "string"       // New password (8-100 characters)
+}
+```
+
+**Validation Rules**:
+- `currentPassword`: Required, not blank
+- `newPassword`: Required, 8-100 characters, must be different from current password
+
+### ForgotPasswordRequest
+```json
+{
+  "email": "string"  // Email address associated with the account
+}
+```
+
+**Validation Rules**:
+- `email`: Required, valid email format, max 254 characters
+
+### ResetPasswordRequest
+```json
+{
+  "token": "string",      // Password reset token
+  "newPassword": "string" // New password (8-100 characters)
+}
+```
+
+**Validation Rules**:
+- `token`: Required, not blank, max 512 characters
+- `newPassword`: Required, 8-100 characters
+
 ## Endpoints
 
 ### 1. Register User
@@ -103,10 +188,6 @@ Creates a new user account.
 }
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `409 Conflict`: Username or email already exists
-
 ### 2. Login
 **POST** `/api/v1/auth/login`
 
@@ -130,9 +211,6 @@ Authenticates user and returns JWT tokens.
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Invalid credentials
-
 ### 3. Refresh Tokens
 **POST** `/api/v1/auth/refresh`
 
@@ -155,9 +233,6 @@ Exchanges refresh token for new access token.
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Invalid or expired refresh token
-
 ### 4. Logout
 **POST** `/api/v1/auth/logout`
 
@@ -169,9 +244,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response** (204 No Content): No response body
-
-**Error Responses**:
-- `401 Unauthorized`: Invalid or missing token
 
 ### 5. Get Current User
 **GET** `/api/v1/auth/me`
@@ -197,9 +269,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-
 ## Integration Notes
 
 ### Token Management
@@ -211,9 +280,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - Handle 401 responses by redirecting to login
 - Implement retry logic for token refresh
 - Show appropriate error messages for validation failures
+- All errors return consistent ErrorResponse format
 
 ### Security Considerations
 - Never store sensitive data in client-side storage
 - Use HTTPS in production
 - Implement proper token expiration handling
-- Consider implementing refresh token rotation for enhanced security 
+- Consider implementing refresh token rotation for enhanced security
+- Validate passwords on both client and server side
+- Implement rate limiting for login attempts
+
+### Best Practices
+- Use strong password requirements (8+ characters, mixed case, numbers, symbols)
+- Implement account lockout after failed login attempts
+- Store refresh tokens securely with proper expiration
+- Log authentication events for security monitoring
+- Implement proper session management
+- Consider implementing 2FA for enhanced security 

@@ -1,12 +1,15 @@
 // src/pages/QuizAttemptPage.tsx
 // ---------------------------------------------------------------------------
-// Quiz attempt page - handles individual question answering
+// Quiz attempt page - handles different attempt modes and paused attempts
+// Supports ONE_BY_ONE, ALL_AT_ONCE, and TIMED modes
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { AttemptService } from "../api/attempt.service";
-import { AnswerSubmissionRequest } from "../types/attempt.types";
+import { QuizService } from "../api/quiz.service";
+import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../types/attempt.types";
+import { QuizDto } from "../types/quiz.types";
 import api from "../api/axiosInstance";
 import { Spinner } from "../components/ui";
 import { 
@@ -16,7 +19,10 @@ import {
   FillGapAnswer, 
   ComplianceAnswer, 
   OrderingAnswer, 
-  HotspotAnswer 
+  HotspotAnswer,
+  AttemptPause,
+  AttemptBatchAnswers,
+  AttemptTimer
 } from "../components/attempt";
 
 // Shape of user answer input; varies by question type
@@ -25,12 +31,23 @@ type AnswerInput = any;
 const QuizAttemptPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const attemptService = new AttemptService(api);
+  const quizService = new QuizService(api);
   
+  // State for attempt management
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [attemptMode, setAttemptMode] = useState<AttemptMode>('ONE_BY_ONE');
+  const [attemptStatus, setAttemptStatus] = useState<AttemptStatus>('IN_PROGRESS');
+  const [quiz, setQuiz] = useState<QuizDto | null>(null);
+  
+  // State for questions and answers
   const [currentQuestion, setCurrentQuestion] = useState<any | null>(null);
+  const [allQuestions, setAllQuestions] = useState<any[]>([]);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [existingAnswers, setExistingAnswers] = useState<Record<string, any>>({});
   const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
   const [submitting, setSubmitting] = useState(false);
   
@@ -39,29 +56,102 @@ const QuizAttemptPage: React.FC = () => {
   const [questionsAnswered, setQuestionsAnswered] = useState<number>(0);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState<number>(1);
 
+  // Check for existing attempts
+  const checkExistingAttempts = async (): Promise<string | null> => {
+    if (!quizId) return null;
+    
+    try {
+      const response = await attemptService.getAttempts({ quizId });
+      const existingAttempt = response.content.find(
+        attempt => attempt.status === 'PAUSED' || attempt.status === 'IN_PROGRESS'
+      );
+      return existingAttempt ? existingAttempt.attemptId : null;
+    } catch (error) {
+      console.warn('Could not check for existing attempts:', error);
+      return null;
+    }
+  };
+
+  // Load quiz details
+  const loadQuizDetails = async () => {
+    if (!quizId) return;
+    
+    try {
+      const quizData = await quizService.getQuizById(quizId);
+      setQuiz(quizData);
+    } catch (error) {
+      console.warn('Could not load quiz details:', error);
+    }
+  };
+
+  // Initialize attempt
+  const initializeAttempt = async () => {
+    if (!quizId) return;
+
+    try {
+      // Check for existing attempts first
+      const existingAttemptId = await checkExistingAttempts();
+      
+      if (existingAttemptId) {
+        // Resume existing attempt
+        const attemptDetails = await attemptService.getAttemptById(existingAttemptId);
+        setAttemptId(existingAttemptId);
+        setAttemptMode(attemptDetails.mode);
+        setAttemptStatus(attemptDetails.status);
+        
+        // Load existing answers
+        const existingAnswers: Record<string, any> = {};
+        attemptDetails.answers.forEach(answer => {
+          // Convert answer back to input format based on question type
+          // This is a simplified conversion - you might need more complex logic
+          existingAnswers[answer.questionId] = answer.response;
+        });
+        setAnswers(existingAnswers);
+        setExistingAnswers(existingAnswers); // Track what was originally loaded
+        
+        // For ONE_BY_ONE and TIMED modes, get the next question
+        if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
+          // Get shuffled questions to find the next one
+          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+          const answeredQuestionIds = attemptDetails.answers.map(a => a.questionId);
+          const nextQuestion = shuffledQuestions.find(q => !answeredQuestionIds.includes(q.id));
+          setCurrentQuestion(nextQuestion || null);
+          setCurrentQuestionNumber(answeredQuestionIds.length + 1);
+        } else {
+          // For ALL_AT_ONCE mode, load all questions
+          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+          setAllQuestions(shuffledQuestions);
+          setTotalQuestions(shuffledQuestions.length);
+        }
+        
+        setQuestionsAnswered(attemptDetails.answers.length);
+      } else {
+        // Start new attempt
+        const mode = searchParams.get('mode') as AttemptMode || 'ONE_BY_ONE';
+        const attempt = await attemptService.startAttempt(quizId, { mode });
+        setAttemptId(attempt.attemptId);
+        setAttemptMode(mode);
+        setAttemptStatus('IN_PROGRESS');
+        
+        if (mode === 'ONE_BY_ONE' || mode === 'TIMED') {
+          setCurrentQuestion(attempt.firstQuestion || null);
+          setCurrentQuestionNumber(1);
+        } else {
+          // For ALL_AT_ONCE mode, load all questions
+          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+          setAllQuestions(shuffledQuestions);
+          setTotalQuestions(shuffledQuestions.length);
+        }
+      }
+    } catch (error) {
+      setError("Failed to initialize quiz attempt.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const isAnswerProvided = () => {
     if (!currentQuestion) return false;
-
-    // Debug logging for ordering questions
-    if (currentQuestion.type === "ORDERING") {
-      console.log("Ordering answer validation:", {
-        answerInput,
-        isArray: Array.isArray(answerInput),
-        length: answerInput?.length,
-        isValid: Array.isArray(answerInput) && answerInput.length > 0
-      });
-    }
-
-    // Debug logging for fill gap questions
-    if (currentQuestion.type === "FILL_GAP") {
-      console.log("Fill gap answer validation:", {
-        answerInput,
-        isObject: typeof answerInput === 'object',
-        keys: answerInput ? Object.keys(answerInput) : [],
-        values: answerInput ? Object.values(answerInput) : [],
-        isValid: answerInput && Object.keys(answerInput).length > 0
-      });
-    }
 
     switch (currentQuestion.type) {
       case "MCQ_SINGLE":
@@ -81,10 +171,8 @@ const QuizAttemptPage: React.FC = () => {
       case "ORDERING":
         return Array.isArray(answerInput) && answerInput.length > 0;
       default:
-        return Object.keys(answerInput).length > 0;
+        return Object.keys(answerInput || {}).length > 0;
     }
-
-    return true;
   };
 
   /* -------------------------------------------------------------------- */
@@ -95,19 +183,15 @@ const QuizAttemptPage: React.FC = () => {
     
     try {
       const stats = await attemptService.getAttemptStats(attemptId);
-      console.log("Attempt stats received:", stats);
-      
       setQuestionsAnswered(stats.questionsAnswered);
-      setCurrentQuestionNumber(stats.questionsAnswered + 1);
       
-      // Estimate total questions based on completion percentage
+      if (attemptMode === 'ONE_BY_ONE') {
+        setCurrentQuestionNumber(stats.questionsAnswered + 1);
+      }
+      
+      // Update total questions if not set
       if (totalQuestions === 0 && stats.completionPercentage > 0) {
         const estimatedTotal = Math.round(stats.questionsAnswered / (stats.completionPercentage / 100));
-        console.log("Estimated total questions:", {
-          questionsAnswered: stats.questionsAnswered,
-          completionPercentage: stats.completionPercentage,
-          estimatedTotal
-        });
         setTotalQuestions(estimatedTotal);
       }
     } catch (error) {
@@ -117,62 +201,20 @@ const QuizAttemptPage: React.FC = () => {
 
   const updateProgress = () => {
     setQuestionsAnswered(prev => prev + 1);
-    setCurrentQuestionNumber(prev => prev + 1);
+    if (attemptMode === 'ONE_BY_ONE') {
+      setCurrentQuestionNumber(prev => prev + 1);
+    }
   };
 
   /* -------------------------------------------------------------------- */
-  /*  Fetch stats when attemptId changes                                   */
+  /*  Submit current answer (ONE_BY_ONE mode)                             */
   /* -------------------------------------------------------------------- */
-  useEffect(() => {
-    if (attemptId) {
-      fetchAttemptStats();
-    }
-  }, [attemptId]);
-
-  /* -------------------------------------------------------------------- */
-  /*  Kick-off attempt & fetch first question                              */
-  /* -------------------------------------------------------------------- */
-  useEffect(() => {
-    if (!quizId) return;
-
-    const startAttempt = async () => {
-      try {
-        // 1. Create attempt using AttemptService
-        const attempt = await attemptService.startAttempt(quizId, { mode: "ONE_BY_ONE" });
-        setAttemptId(attempt.attemptId);
-        setCurrentQuestion(attempt.firstQuestion || null);
-        
-        // Debug logging for the first question
-        if (attempt.firstQuestion) {
-          console.log("First question received:", {
-            type: attempt.firstQuestion.type,
-            questionText: attempt.firstQuestion.questionText,
-            safeContent: attempt.firstQuestion.safeContent
-          });
-        }
-        
-        // Fetch initial attempt stats
-        await fetchAttemptStats();
-      } catch {
-        setError("Failed to start quiz attempt.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    startAttempt();
-  }, [quizId]);
-
-  /* -------------------------------------------------------------------- */
-  /*  Submit current answer                                               */
-  /* -------------------------------------------------------------------- */
-  const handleSubmit = async () => {
+  const handleSubmitAnswer = async () => {
     if (!attemptId || !currentQuestion) return;
 
     setSubmitting(true);
     setError(null);
 
-    // Build response object depending on question type
     const buildResponse = () => {
       switch (currentQuestion.type) {
         case "MCQ_SINGLE":
@@ -206,32 +248,19 @@ const QuizAttemptPage: React.FC = () => {
       response: buildResponse(),
     };
 
-    // Debug logging for the payload
-    console.log("Submitting answer payload:", {
-      questionType: currentQuestion.type,
-      questionId: currentQuestion.id,
-      answerInput: answerInput,
-      response: payload.response
-    });
-
     try {
       const data = await attemptService.submitAnswer(attemptId, payload);
-      console.log("Answer submitted:", data);
+      
+      // Update answers for ALL_AT_ONCE mode
+      setAnswers(prev => ({
+        ...prev,
+        [currentQuestion.id]: buildResponse()
+      }));
 
-      // nextQuestion present → continue; otherwise finish attempt
       if (data.nextQuestion) {
-        console.log("Next question received:", {
-          type: data.nextQuestion.type,
-          questionText: data.nextQuestion.questionText,
-          safeContent: data.nextQuestion.safeContent
-        });
         setCurrentQuestion(data.nextQuestion);
         setAnswerInput(null);
-        
-        // Update progress for next question
         updateProgress();
-        
-        // Fetch updated stats
         await fetchAttemptStats();
       } else {
         await attemptService.completeAttempt(attemptId);
@@ -247,212 +276,431 @@ const QuizAttemptPage: React.FC = () => {
   };
 
   /* -------------------------------------------------------------------- */
-  /*  Rendering helpers                                                   */
+  /*  Submit all answers (ALL_AT_ONCE mode)                               */
   /* -------------------------------------------------------------------- */
-  const renderOptions = () => {
-    const { safeContent } = currentQuestion;
-
-    switch (currentQuestion.type) {
-      case "MCQ_SINGLE":
-        return safeContent.options.map((opt: any) => (
-          <label key={opt.id} className="flex items-center mb-2">
-            <input
-              type="radio"
-              name="option"
-              value={opt.id}
-              checked={answerInput === opt.id}
-              onChange={() => setAnswerInput(opt.id)}
-              className="mr-2"
-            />
-            {opt.text}
-          </label>
-        ));
-
-      case "MCQ_MULTI":
-        return safeContent.options.map((opt: any) => (
-          <label key={opt.id} className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              value={opt.id}
-              checked={answerInput?.includes(opt.id) || false}
-              onChange={(e) => {
-                const current = answerInput || [];
-                if (e.target.checked) {
-                  setAnswerInput([...current, opt.id]);
-                } else {
-                  setAnswerInput(current.filter((id: any) => id !== opt.id));
-                }
-              }}
-              className="mr-2"
-            />
-            {opt.text}
-          </label>
-        ));
-
-      case "TRUE_FALSE":
-        return (
-          <div className="space-y-2">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="trueFalse"
-                value="true"
-                checked={answerInput === true}
-                onChange={() => setAnswerInput(true)}
-                className="mr-2"
-              />
-              True
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="trueFalse"
-                value="false"
-                checked={answerInput === false}
-                onChange={() => setAnswerInput(false)}
-                className="mr-2"
-              />
-              False
-            </label>
-          </div>
-        );
-
-      case "OPEN":
-        return (
-          <textarea
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            rows={4}
-            value={answerInput || ""}
-            onChange={(e) => setAnswerInput(e.target.value)}
-            placeholder="Enter your answer here..."
-          />
-        );
-
-      case "COMPLIANCE":
-        return safeContent.statements.map((stmt: any) => (
-          <label key={stmt.id} className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              value={stmt.id}
-              checked={answerInput?.includes(stmt.id) || false}
-              onChange={(e) => {
-                const current = answerInput || [];
-                if (e.target.checked) {
-                  setAnswerInput([...current, stmt.id]);
-                } else {
-                  setAnswerInput(current.filter((id: any) => id !== stmt.id));
-                }
-              }}
-              className="mr-2"
-            />
-            {stmt.text}
-          </label>
-        ));
-
-      case "FILL_GAP":
-        return (
-          <FillGapAnswer
-            question={currentQuestion}
-            currentAnswer={answerInput}
-            onAnswerChange={setAnswerInput}
-            disabled={submitting}
-          />
-        );
-
-      case "HOTSPOT":
-        return safeContent.regions.map((region: any) => (
-          <label key={region.id} className="flex items-center mb-2">
-            <input
-              type="radio"
-              name="region"
-              value={region.id}
-              checked={answerInput === region.id}
-              onChange={() => setAnswerInput(region.id)}
-              className="mr-2"
-            />
-            Region {region.id}
-          </label>
-        ));
-
-      case "ORDERING":
-        return (
-          <OrderingAnswer
-            question={currentQuestion}
-            currentAnswer={answerInput}
-            onAnswerChange={setAnswerInput}
-            disabled={submitting}
-          />
-        );
-
-      default:
-        return <p>Unsupported question type</p>;
+  const handleSubmitAllAnswers = async (results: any[]) => {
+    try {
+      await attemptService.completeAttempt(attemptId!);
+      navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
+    } catch (error) {
+      setError('Failed to complete attempt. Please try again.');
     }
   };
 
   /* -------------------------------------------------------------------- */
-  /*  JSX                                                                 */
+  /*  Handle answer changes (ALL_AT_ONCE mode)                            */
+  /* -------------------------------------------------------------------- */
+  const handleAnswerChange = (questionId: string, answer: any) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }));
+  };
+
+  /* -------------------------------------------------------------------- */
+  /*  Handle pause/resume                                                  */
+  /* -------------------------------------------------------------------- */
+  const handleStatusChange = (status: AttemptStatus) => {
+    setAttemptStatus(status);
+  };
+
+  const handlePause = () => {
+    // Could show a message or redirect
+    console.log('Attempt paused');
+  };
+
+  const handleResume = () => {
+    // Refresh attempt data
+    fetchAttemptStats();
+  };
+
+  /* -------------------------------------------------------------------- */
+  /*  Effects                                                              */
+  /* -------------------------------------------------------------------- */
+  useEffect(() => {
+    if (quizId) {
+      loadQuizDetails();
+      initializeAttempt();
+    }
+  }, [quizId]);
+
+  useEffect(() => {
+    if (attemptId) {
+      fetchAttemptStats();
+    }
+  }, [attemptId]);
+
+  /* -------------------------------------------------------------------- */
+  /*  Rendering helpers                                                   */
+  /* -------------------------------------------------------------------- */
+  const renderQuestion = (question: any, isCurrent: boolean = false) => {
+    // For ONE_BY_ONE and TIMED modes, use answerInput; for ALL_AT_ONCE mode, use answers state
+    let currentAnswer;
+    let onAnswerChange;
+    
+    if (attemptMode === 'ALL_AT_ONCE') {
+      // For ALL_AT_ONCE mode, use answers state
+      currentAnswer = answers[question.id];
+      if (currentAnswer === null || currentAnswer === undefined) {
+        // Set appropriate default based on question type
+        switch (question.type) {
+          case "MCQ_SINGLE":
+          case "MCQ_MULTI":
+          case "OPEN":
+          case "FILL_GAP":
+          case "COMPLIANCE":
+          case "HOTSPOT":
+            currentAnswer = '';
+            break;
+          case "TRUE_FALSE":
+            currentAnswer = null; // null is valid for boolean questions
+            break;
+          case "ORDERING":
+            currentAnswer = [];
+            break;
+          default:
+            currentAnswer = '';
+        }
+      }
+      onAnswerChange = (answer: any) => handleAnswerChange(question.id, answer);
+    } else {
+      // For ONE_BY_ONE and TIMED modes, use answerInput
+      currentAnswer = answerInput;
+      onAnswerChange = (answer: any) => setAnswerInput(answer);
+    }
+    
+    const isDisabled = submitting || !isCurrent;
+
+    switch (question.type) {
+      case "MCQ_SINGLE":
+        return (
+          <McqAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+            singleChoice={true}
+          />
+        );
+      case "MCQ_MULTI":
+        return (
+          <McqAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+            singleChoice={false}
+          />
+        );
+      case "TRUE_FALSE":
+        return (
+          <TrueFalseAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "OPEN":
+        return (
+          <OpenAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "COMPLIANCE":
+        return (
+          <ComplianceAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "FILL_GAP":
+        return (
+          <FillGapAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "HOTSPOT":
+        return (
+          <HotspotAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "ORDERING":
+        return (
+          <OrderingAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      default:
+        return <p>Unsupported question type: {question.type}</p>;
+    }
+  };
+
+  const renderONE_BY_ONE_Mode = () => {
+    if (!currentQuestion) return <p>No question available.</p>;
+
+    return (
+      <div className="max-w-2xl mx-auto py-8 px-4">
+        {/* Progress Indicator */}
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium text-gray-700">
+              Question {currentQuestionNumber} of {totalQuestions || '?'}
+            </div>
+            <div className="text-sm text-gray-600">
+              {questionsAnswered} answered
+            </div>
+          </div>
+          
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
+              }}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>
+              {questionsAnswered} of {totalQuestions || '?'} questions completed
+            </span>
+            <span>
+              {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
+            </span>
+          </div>
+        </div>
+
+        <h2 className="text-xl font-semibold mb-4">
+          {currentQuestion.questionText}
+        </h2>
+
+        {currentQuestion.hint && (
+          <p className="text-sm text-gray-500 mb-4 italic">
+            Hint: {currentQuestion.hint}
+          </p>
+        )}
+
+        {/* Question Options */}
+        <div className="space-y-2 mb-6">
+          {renderQuestion(currentQuestion, true)}
+        </div>
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
+
+        <button
+          onClick={handleSubmitAnswer}
+          disabled={submitting || !isAnswerProvided()}
+          className="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded disabled:opacity-50"
+        >
+          {submitting ? "Submitting..." : "Submit Answer"}
+        </button>
+      </div>
+    );
+  };
+
+  const renderALL_AT_ONCE_Mode = () => {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4">
+        {/* Progress and Timer */}
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium text-gray-700">
+              All Questions Mode
+            </div>
+            <div className="text-sm text-gray-600">
+              {Object.keys(answers).length} of {totalQuestions} answered
+            </div>
+          </div>
+          
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${totalQuestions > 0 ? (Object.keys(answers).length / totalQuestions) * 100 : 0}%` 
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Questions */}
+        <div className="space-y-8">
+          {allQuestions.map((question, index) => (
+            <div key={question.id} className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Question {index + 1}
+                </h3>
+                {answers[question.id] && (
+                  <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                    ✓ Answered
+                  </span>
+                )}
+              </div>
+              
+              <p className="text-gray-700 mb-4">{question.questionText}</p>
+              
+              {question.hint && (
+                <p className="text-sm text-gray-500 mb-4 italic">
+                  Hint: {question.hint}
+                </p>
+              )}
+
+              {renderQuestion(question, true)}
+            </div>
+          ))}
+        </div>
+
+        {/* Submit All Button */}
+        <div className="mt-8">
+          <AttemptBatchAnswers
+            attemptId={attemptId!}
+            answers={answers}
+            totalQuestions={totalQuestions}
+            existingAnswers={existingAnswers}
+            onSubmissionComplete={handleSubmitAllAnswers}
+            onSubmissionError={setError}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderTIMED_Mode = () => {
+    if (!currentQuestion) return <p>No question available.</p>;
+
+    return (
+      <div className="max-w-2xl mx-auto py-8 px-4">
+        {/* Timer and Progress */}
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium text-gray-700">
+              Question {currentQuestionNumber} of {totalQuestions || '?'} (Timed Mode)
+            </div>
+            <div className="text-sm text-gray-600">
+              {questionsAnswered} answered
+            </div>
+          </div>
+          
+          {quiz?.timerDuration && (
+            <AttemptTimer
+              duration={quiz.timerDuration}
+              onTimeUp={() => {
+                // Auto-submit current answer when time is up
+                if (isAnswerProvided()) {
+                  handleSubmitAnswer();
+                } else {
+                  // If no answer provided, submit empty answer and complete attempt
+                  handleSubmitAnswer();
+                }
+              }}
+            />
+          )}
+          
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
+              }}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>
+              {questionsAnswered} of {totalQuestions || '?'} questions completed
+            </span>
+            <span>
+              {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
+            </span>
+          </div>
+        </div>
+
+        <h2 className="text-xl font-semibold mb-4">
+          {currentQuestion.questionText}
+        </h2>
+
+        {currentQuestion.hint && (
+          <p className="text-sm text-gray-500 mb-4 italic">
+            Hint: {currentQuestion.hint}
+          </p>
+        )}
+
+        {/* Render the current question */}
+        {renderQuestion(currentQuestion, true)}
+
+        {/* Navigation buttons */}
+        <div className="flex justify-between mt-8">
+          <button
+            onClick={handleSubmitAnswer}
+            disabled={submitting || !isAnswerProvided()}
+            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {submitting ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                Submitting...
+              </div>
+            ) : (
+              'Submit Answer'
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  /* -------------------------------------------------------------------- */
+  /*  Main Render                                                         */
   /* -------------------------------------------------------------------- */
   if (loading) return <Spinner />;
   if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
-  if (!currentQuestion)
-    return <p className="text-center py-10">No question available.</p>;
+  if (!attemptId) return <p className="text-center py-10">Failed to initialize attempt.</p>;
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      {/* Progress Indicator */}
-      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-medium text-gray-700">
-            Question {currentQuestionNumber} of {totalQuestions || '?'}
-          </div>
-          <div className="text-sm text-gray-600">
-            {questionsAnswered} answered
-          </div>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-          <div 
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ 
-              width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
-            }}
+    <div className="min-h-screen bg-gray-50">
+      {/* Pause/Resume Controls */}
+      {attemptId && (
+        <div className="max-w-4xl mx-auto pt-4 px-4">
+          <AttemptPause
+            attemptId={attemptId}
+            currentStatus={attemptStatus}
+            onStatusChange={handleStatusChange}
+            onPause={handlePause}
+            onResume={handleResume}
+            className="mb-4"
           />
         </div>
-        
-        {/* Progress Details */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>
-            {questionsAnswered} of {totalQuestions || '?'} questions completed
-          </span>
-          <span>
-            {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
-          </span>
-        </div>
-      </div>
-
-      <h2 className="text-xl font-semibold mb-4">
-        {currentQuestion.questionText}
-      </h2>
-
-      {currentQuestion.hint && (
-        <p className="text-sm text-gray-500 mb-4 italic">
-          Hint: {currentQuestion.hint}
-        </p>
       )}
 
-      {/* Options */}
-      <div className="space-y-2">{renderOptions()}</div>
+      {/* Error Display */}
+      {error && (
+        <div className="max-w-4xl mx-auto px-4 mb-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600">{error}</p>
+          </div>
+        </div>
+      )}
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-
-      <button
-        onClick={handleSubmit}
-        disabled={submitting || !isAnswerProvided()}
-        className="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded disabled:opacity-50"
-      >
-        {submitting ? "Submitting..." : "Submit Answer"}
-      </button>
+      {/* Mode-specific rendering */}
+      {attemptMode === 'ONE_BY_ONE' && renderONE_BY_ONE_Mode()}
+      {attemptMode === 'ALL_AT_ONCE' && renderALL_AT_ONCE_Mode()}
+      {attemptMode === 'TIMED' && renderTIMED_Mode()}
     </div>
   );
 };

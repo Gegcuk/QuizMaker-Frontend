@@ -2,13 +2,16 @@
 // ---------------------------------------------------------------------------
 // Component for starting a new quiz attempt
 // Handles attempt initialization with different modes and error handling
+// Integrates with quiz settings to provide appropriate mode options
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui';
 import { AttemptService } from '../../api/attempt.service';
+import { QuizService } from '../../api/quiz.service';
 import { StartAttemptRequest, AttemptMode } from '../../types/attempt.types';
+import { QuizDto } from '../../types/quiz.types';
 import api from '../../api/axiosInstance';
 
 interface AttemptStartProps {
@@ -27,9 +30,36 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
   const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<AttemptMode>('ONE_BY_ONE');
   const [isStarting, setIsStarting] = useState(false);
+  const [isLoadingQuiz, setIsLoadingQuiz] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quiz, setQuiz] = useState<QuizDto | null>(null);
 
   const attemptService = new AttemptService(api);
+  const quizService = new QuizService(api);
+
+  // Load quiz details to determine available modes
+  useEffect(() => {
+    const loadQuizDetails = async () => {
+      try {
+        const quizData = await quizService.getQuizById(quizId);
+        setQuiz(quizData);
+        
+        // Set default mode based on quiz settings
+        if (quizData.timerEnabled && quizData.timerDuration) {
+          setSelectedMode('TIMED');
+        } else {
+          setSelectedMode('ONE_BY_ONE');
+        }
+      } catch (error) {
+        console.warn('Could not load quiz details:', error);
+        // Continue with default mode
+      } finally {
+        setIsLoadingQuiz(false);
+      }
+    };
+
+    loadQuizDetails();
+  }, [quizId]);
 
   const handleStartAttempt = async () => {
     setIsStarting(true);
@@ -48,7 +78,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
       }
 
       // Navigate to the attempt page
-      navigate(`/quizzes/${quizId}/attempt?attemptId=${response.attemptId}`);
+      navigate(`/quizzes/${quizId}/attempt/start?mode=${selectedMode}&attemptId=${response.attemptId}`);
     } catch (err: any) {
       setError(err.message || 'Failed to start quiz attempt. Please try again.');
     } finally {
@@ -61,6 +91,98 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
     setError(null);
   };
 
+  const getModeDescription = (mode: AttemptMode) => {
+    switch (mode) {
+      case 'ONE_BY_ONE':
+        return {
+          title: 'One by One',
+          description: 'Questions are presented one at a time with immediate feedback',
+          icon: '📝',
+          features: [
+            'See one question at a time',
+            'Get immediate feedback after each answer',
+            'Can review and change answers before proceeding',
+            'Best for focused, step-by-step learning'
+          ]
+        };
+      case 'ALL_AT_ONCE':
+        return {
+          title: 'All at Once',
+          description: 'All questions are visible, submit everything at once',
+          icon: '📋',
+          features: [
+            'See all questions on a single page',
+            'Navigate between questions freely',
+            'Submit all answers together',
+            'Best for comprehensive review and planning'
+          ]
+        };
+      case 'TIMED':
+        return {
+          title: 'Timed',
+          description: 'Timed attempt with countdown timer',
+          icon: '⏱️',
+          features: [
+            'Limited time to complete the quiz',
+            'Timer visible throughout the attempt',
+            'Auto-submit when time expires',
+            'Best for time management practice'
+          ]
+        };
+      default:
+        return {
+          title: 'Unknown Mode',
+          description: 'Unknown attempt mode',
+          icon: '❓',
+          features: []
+        };
+    }
+  };
+
+  const isModeRecommended = (mode: AttemptMode) => {
+    if (!quiz) return false;
+    
+    switch (mode) {
+      case 'TIMED':
+        return quiz.timerEnabled && quiz.timerDuration;
+      case 'ONE_BY_ONE':
+        return !quiz.timerEnabled;
+      case 'ALL_AT_ONCE':
+        return true; // Always available
+      default:
+        return false;
+    }
+  };
+
+  const getModeAvailability = (mode: AttemptMode) => {
+    if (!quiz) return { available: true, reason: '' };
+    
+    switch (mode) {
+      case 'TIMED':
+        return {
+          available: quiz.timerEnabled && quiz.timerDuration,
+          reason: quiz.timerEnabled && quiz.timerDuration 
+            ? `Timer set to ${quiz.timerDuration} minutes`
+            : 'Quiz does not have timer enabled'
+        };
+      default:
+        return { available: true, reason: '' };
+    }
+  };
+
+  if (isLoadingQuiz) {
+    return (
+      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+        <div className="flex justify-center items-center py-8">
+          <Spinner size="lg" />
+          <span className="ml-3 text-gray-600">Loading quiz details...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const modeInfo = getModeDescription(selectedMode);
+
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
       <div className="text-center mb-6">
@@ -72,62 +194,116 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
         </p>
       </div>
 
+      {/* Quiz Information */}
+      {quiz && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Quiz Information</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm text-blue-800">
+            <div>
+              <span className="font-medium">Difficulty:</span> {quiz.difficulty}
+            </div>
+            <div>
+              <span className="font-medium">Estimated Time:</span> {quiz.estimatedTime} min
+            </div>
+            {quiz.timerEnabled && quiz.timerDuration && (
+              <div className="col-span-2">
+                <span className="font-medium">Timer:</span> {quiz.timerDuration} minutes
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Attempt Mode Selection */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Attempt Mode
         </label>
         <div className="space-y-3">
-          <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="attemptMode"
-              value="ONE_BY_ONE"
-              checked={selectedMode === 'ONE_BY_ONE'}
-              onChange={() => handleModeChange('ONE_BY_ONE')}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-            />
-            <div className="ml-3">
-              <div className="text-sm font-medium text-gray-900">One by One</div>
-              <div className="text-sm text-gray-500">
-                Questions are presented one at a time with immediate feedback
-              </div>
-            </div>
-          </label>
+          {(['ONE_BY_ONE', 'ALL_AT_ONCE', 'TIMED'] as AttemptMode[]).map((mode) => {
+            const modeData = getModeDescription(mode);
+            const availability = getModeAvailability(mode);
+            const isRecommended = isModeRecommended(mode);
+            const isSelected = selectedMode === mode;
 
-          <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="attemptMode"
-              value="ALL_AT_ONCE"
-              checked={selectedMode === 'ALL_AT_ONCE'}
-              onChange={() => handleModeChange('ALL_AT_ONCE')}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-            />
-            <div className="ml-3">
-              <div className="text-sm font-medium text-gray-900">All at Once</div>
-              <div className="text-sm text-gray-500">
-                All questions are visible, submit everything at once
-              </div>
-            </div>
-          </label>
+            return (
+              <label
+                key={mode}
+                className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
+                  isSelected
+                    ? 'border-indigo-500 bg-indigo-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                } ${!availability.available ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="attemptMode"
+                  value={mode}
+                  checked={isSelected}
+                  onChange={() => handleModeChange(mode)}
+                  disabled={!availability.available}
+                  className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="text-xl mr-2">{modeData.icon}</span>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {modeData.title}
+                          {isRecommended && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                              Recommended
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {modeData.description}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Features */}
+                  <div className="mt-3">
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      {modeData.features.map((feature, index) => (
+                        <li key={index} className="flex items-center">
+                          <span className="mr-2">•</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-          <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="attemptMode"
-              value="TIMED"
-              checked={selectedMode === 'TIMED'}
-              onChange={() => handleModeChange('TIMED')}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-            />
-            <div className="ml-3">
-              <div className="text-sm font-medium text-gray-900">Timed</div>
-              <div className="text-sm text-gray-500">
-                Timed attempt with countdown timer
-              </div>
-            </div>
-          </label>
+                  {/* Availability Info */}
+                  {!availability.available && (
+                    <div className="mt-2 text-xs text-gray-500">
+                      {availability.reason}
+                    </div>
+                  )}
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Selected Mode Details */}
+      <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <h4 className="text-sm font-medium text-indigo-900 mb-2">
+          {modeInfo.icon} {modeInfo.title} Mode
+        </h4>
+        <p className="text-sm text-indigo-700 mb-3">
+          {modeInfo.description}
+        </p>
+        <div className="text-xs text-indigo-600">
+          <strong>What to expect:</strong>
+          <ul className="mt-1 ml-4 list-disc">
+            {modeInfo.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))}
+          </ul>
         </div>
       </div>
 
@@ -142,7 +318,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
       <div className="flex justify-center">
         <button
           onClick={handleStartAttempt}
-          disabled={isStarting}
+          disabled={isStarting || !getModeAvailability(selectedMode).available}
           className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isStarting ? (
@@ -151,26 +327,20 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
               <span className="ml-2">Starting...</span>
             </div>
           ) : (
-            'Start Quiz'
+            `Start ${modeInfo.title} Attempt`
           )}
         </button>
       </div>
 
-      {/* Mode-specific instructions */}
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <h4 className="text-sm font-medium text-blue-900 mb-1">
-          {selectedMode === 'ONE_BY_ONE' && 'One by One Mode'}
-          {selectedMode === 'ALL_AT_ONCE' && 'All at Once Mode'}
-          {selectedMode === 'TIMED' && 'Timed Mode'}
-        </h4>
-        <p className="text-sm text-blue-700">
-          {selectedMode === 'ONE_BY_ONE' && 
-            'You will see one question at a time. Answer each question to proceed to the next.'}
-          {selectedMode === 'ALL_AT_ONCE' && 
-            'All questions will be displayed on a single page. Review and answer all questions before submitting.'}
-          {selectedMode === 'TIMED' && 
-            'You will have a limited time to complete the quiz. The timer will be visible throughout the attempt.'}
-        </p>
+      {/* Important Notes */}
+      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h4 className="text-sm font-medium text-yellow-900 mb-2">Important Notes</h4>
+        <ul className="text-sm text-yellow-800 space-y-1">
+          <li>• You can pause and resume your attempt at any time</li>
+          <li>• Your progress is automatically saved</li>
+          <li>• You cannot change attempt mode once started</li>
+          <li>• Make sure you have a stable internet connection</li>
+        </ul>
       </div>
     </div>
   );

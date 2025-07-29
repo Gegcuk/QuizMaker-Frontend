@@ -7,6 +7,59 @@ The AttemptController handles quiz attempts, answer submission, progress trackin
 
 **Authentication**: All endpoints require authentication via Bearer token.
 
+## Error Handling
+
+All endpoints use a consistent error response format:
+
+### ErrorResponse
+```json
+{
+  "timestamp": "2025-01-27T10:30:00Z",   // Error timestamp
+  "status": 400,                         // HTTP status code
+  "error": "Bad Request",                // Error type
+  "details": [                           // Error details
+    "Validation failed for field 'questionId'",
+    "Question not found in attempt"
+  ]
+}
+```
+
+### Common HTTP Status Codes
+- **400 Bad Request**: Validation errors, invalid request data
+- **401 Unauthorized**: Missing or invalid authentication token
+- **403 Forbidden**: Authenticated but insufficient permissions
+- **404 Not Found**: Resource not found (quiz, attempt, question)
+- **409 Conflict**: State conflicts (attempt already completed, duplicate answers)
+- **422 Unprocessable Entity**: Business logic validation failures
+- **500 Internal Server Error**: Unexpected server errors
+
+### Error Examples
+```json
+// 400 Bad Request - Validation Error
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "details": ["Question ID is required", "Response cannot be empty"]
+}
+
+// 404 Not Found - Resource Not Found
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "details": ["Attempt not found"]
+}
+
+// 409 Conflict - State Conflict
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 409,
+  "error": "Conflict",
+  "details": ["Attempt is already completed"]
+}
+```
+
 ## DTO Schemas
 
 ### StartAttemptRequest
@@ -226,10 +279,7 @@ Starts a new attempt for a quiz.
 }
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Invalid request
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Quiz not found
+**Error Responses**: 400, 401, 404
 
 ### 2. List Attempts
 **GET** `/api/v1/attempts`
@@ -264,6 +314,8 @@ Returns paginated list of user's attempts.
 }
 ```
 
+**Error Responses**: 400, 401
+
 ### 3. Get Attempt Details
 **GET** `/api/v1/attempts/{attemptId}`
 
@@ -291,9 +343,7 @@ Returns detailed information about a specific attempt.
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
+**Error Responses**: 401, 404
 
 ### 4. Submit Single Answer
 **POST** `/api/v1/attempts/{attemptId}/answers`
@@ -333,10 +383,7 @@ Submits an answer to a specific question.
 }
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt or question not found
+**Error Responses**: 400, 401, 404, 409
 
 ### 5. Submit Batch Answers
 **POST** `/api/v1/attempts/{attemptId}/answers/batch`
@@ -386,11 +433,7 @@ Submits multiple answers at once (ALL_AT_ONCE mode only).
 ]
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
-- `409 Conflict`: Invalid attempt mode or duplicate answers
+**Error Responses**: 400, 401, 404, 409
 
 ### 6. Complete Attempt
 **POST** `/api/v1/attempts/{attemptId}/complete`
@@ -423,10 +466,7 @@ Marks the attempt as completed and returns results.
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
-- `409 Conflict`: Attempt in invalid state
+**Error Responses**: 401, 404, 409
 
 ### 7. Get Attempt Statistics
 **GET** `/api/v1/attempts/{attemptId}/stats`
@@ -459,9 +499,7 @@ Returns detailed statistics for an attempt.
 }
 ```
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
+**Error Responses**: 401, 404
 
 ### 8. Pause Attempt
 **POST** `/api/v1/attempts/{attemptId}/pause`
@@ -470,10 +508,7 @@ Pauses an in-progress attempt.
 
 **Response** (200 OK): Returns updated AttemptDto
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
-- `409 Conflict`: Attempt cannot be paused
+**Error Responses**: 401, 404, 409
 
 ### 9. Resume Attempt
 **POST** `/api/v1/attempts/{attemptId}/resume`
@@ -482,10 +517,7 @@ Resumes a paused attempt.
 
 **Response** (200 OK): Returns updated AttemptDto
 
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `404 Not Found`: Attempt not found
-- `409 Conflict`: Attempt cannot be resumed
+**Error Responses**: 401, 404, 409
 
 ### 10. Get Shuffled Questions
 **GET** `/api/v1/attempts/quizzes/{quizId}/questions/shuffled`
@@ -511,6 +543,9 @@ Gets questions for a quiz in randomized order (safe, without answers).
   }
 ]
 ```
+
+**Error Responses**: 401, 404
+
 ## Integration Notes
 
 ### Attempt Modes
@@ -532,8 +567,21 @@ Gets questions for a quiz in randomized order (safe, without answers).
 - Handle 401/403 responses for authentication
 - Implement retry logic for network failures
 - Show appropriate error messages for validation failures
+- All errors return consistent ErrorResponse format
 
 ### Real-time Features
 - Consider implementing WebSocket connections for real-time updates
 - Show live progress indicators
-- Implement auto-save functionality for long attempts 
+- Implement auto-save functionality for long attempts
+
+### Security Considerations
+- All endpoints require authentication
+- Users can only access their own attempts
+- Attempt ownership is validated on each request
+- Question content is sanitized to prevent answer leakage
+
+### Performance Considerations
+- Pagination for large attempt lists
+- Efficient querying with proper indexing
+- Caching for frequently accessed data
+- Optimized batch operations for answer submission 

@@ -26,11 +26,14 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   minLength = 3,
   className = ''
 }) => {
-  const [answer, setAnswer] = useState(currentAnswer);
+  // Ensure currentAnswer is always a string, not null
+  const safeCurrentAnswer = currentAnswer || '';
+  const [answer, setAnswer] = useState(safeCurrentAnswer);
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    setAnswer(currentAnswer);
+    // Ensure currentAnswer is always a string, not null
+    setAnswer(currentAnswer || '');
   }, [currentAnswer]);
 
   const handleAnswerChange = (value: string) => {
@@ -43,7 +46,9 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
     onAnswerChange('');
   };
 
-  const characterCount = answer.length;
+  // Ensure answer is always a string for safe length access
+  const safeAnswer = answer || '';
+  const characterCount = safeAnswer.length;
   const isOverLimit = characterCount > maxLength;
   const isUnderLimit = characterCount < minLength;
   const isValidLength = characterCount >= minLength && characterCount <= maxLength;
@@ -76,7 +81,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       {/* Text Area */}
       <div className="relative">
         <textarea
-          value={answer}
+          value={safeAnswer}
           onChange={(e) => handleAnswerChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -120,7 +125,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
         </div>
 
         {/* Clear Button */}
-        {answer.length > 0 && (
+        {safeAnswer.length > 0 && (
           <button
             type="button"
             onClick={handleClear}
@@ -158,7 +163,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       </div>
 
       {/* No Answer Warning */}
-      {answer.length === 0 && (
+      {safeAnswer.length === 0 && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div className="text-sm text-yellow-700">
             Please provide an answer to continue.

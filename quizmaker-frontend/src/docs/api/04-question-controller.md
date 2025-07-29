@@ -7,6 +7,57 @@ The QuestionController handles question creation, management, and retrieval for 
 
 **Authentication**: Most endpoints require ADMIN role authentication via Bearer token.
 
+## Error Handling
+
+All endpoints use a consistent error response format:
+
+### ErrorResponse
+```json
+{
+  "timestamp": "2025-01-27T10:30:00Z",   // Error timestamp
+  "status": 400,                         // HTTP status code
+  "error": "Bad Request",                // Error type
+  "details": [                           // Error details
+    "Validation failed for field 'questionText'",
+    "Question not found"
+  ]
+}
+```
+
+### Common HTTP Status Codes
+- **400 Bad Request**: Validation errors, invalid request data
+- **401 Unauthorized**: Missing or invalid authentication token
+- **403 Forbidden**: Authenticated but insufficient permissions (ADMIN required)
+- **404 Not Found**: Resource not found (question)
+- **500 Internal Server Error**: Unexpected server errors
+
+### Error Examples
+```json
+// 400 Bad Request - Validation Error
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "details": ["Question text is required", "Question type must be valid"]
+}
+
+// 404 Not Found - Resource Not Found
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "details": ["Question not found"]
+}
+
+// 403 Forbidden - Insufficient Permissions
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 403,
+  "error": "Forbidden",
+  "details": ["ADMIN role required"]
+}
+```
+
 ## DTO Schemas
 
 ### CreateQuestionRequest
@@ -65,6 +116,21 @@ The QuestionController handles question creation, management, and retrieval for 
   "tagIds": ["uuid1", "uuid2"]           // Associated tag IDs
 }
 ```
+
+### QuestionForAttemptDto
+```json
+{
+  "id": "uuid",                          // Question identifier
+  "type": "MCQ_SINGLE|MCQ_MULTI|OPEN|FILL_GAP|COMPLIANCE|TRUE_FALSE|ORDERING|HOTSPOT",
+  "difficulty": "EASY|MEDIUM|HARD",
+  "questionText": "string",              // Question text
+  "safeContent": {},                     // Safe content without correct answers
+  "hint": "string",                      // Optional hint
+  "attachmentUrl": "string"              // Optional attachment URL
+}
+```
+
+**Note**: This DTO is used during quiz attempts to provide questions without exposing correct answers to users.
 
 ## Question Type-Specific Content Structures
 
@@ -327,11 +393,6 @@ Creates a new question (ADMIN only).
 }
 ```
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-
 ### 2. List Questions
 **GET** `/api/v1/questions`
 
@@ -444,9 +505,6 @@ Returns a specific question by its ID.
 }
 ```
 
-**Error Responses**:
-- `404 Not Found`: Question not found
-
 ### 4. Update Question
 **PATCH** `/api/v1/questions/{id}`
 
@@ -489,23 +547,12 @@ Updates an existing question (ADMIN only).
 
 **Response** (200 OK): Returns updated QuestionDto
 
-**Error Responses**:
-- `400 Bad Request`: Validation errors
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Question not found
-
 ### 5. Delete Question
 **DELETE** `/api/v1/questions/{id}`
 
 Deletes a question (ADMIN only).
 
 **Response** (204 No Content): No response body
-
-**Error Responses**:
-- `401 Unauthorized`: Not authenticated
-- `403 Forbidden`: Not ADMIN role
-- `404 Not Found`: Question not found
 
 ## Frontend Integration Examples
 
@@ -671,9 +718,17 @@ const deleteQuestion = async (questionId) => {
 - Handle 401/403 responses for authentication/authorization
 - Validate content structure before submission
 - Show appropriate error messages for validation failures
+- All errors return consistent ErrorResponse format
+
+### Security Considerations
+- Most endpoints require ADMIN role
+- Question ownership is validated for updates/deletes
+- QuestionForAttemptDto provides safe content for user attempts
+- Correct answers are never exposed to users during attempts
 
 ### Best Practices
 - Use appropriate difficulty levels for target audience
 - Provide helpful hints and explanations
 - Ensure questions test understanding, not just memorization
-- Use attachments sparingly and ensure accessibility 
+- Use attachments sparingly and ensure accessibility
+- Validate question content structure on both client and server 
