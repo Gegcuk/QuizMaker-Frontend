@@ -38,10 +38,26 @@ export type ProtectedRouteProps = {
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, isLoading } = useAuth();
+
+  console.log('ProtectedRoute: isLoggedIn =', isLoggedIn);
+  console.log('ProtectedRoute: user =', user);
+  console.log('ProtectedRoute: requiredRoles =', requiredRoles);
+  console.log('ProtectedRoute: isLoading =', isLoading);
+
+  // Show loading while authentication state is being determined
+  if (isLoading) {
+    console.log('ProtectedRoute: Still loading auth state, showing loading...');
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   // If the user is *not* logged in, redirect to the login page.
   if (!isLoggedIn) {
+    console.log('ProtectedRoute: User not logged in, redirecting to /login');
     /* `replace` prevents the protected URL from sticking around in history,
        so hitting "Back" after logging in won't send the user back here. */
     return <Navigate to="/login" replace />;
@@ -50,12 +66,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles
   // If required roles are specified, check if user has any of them
   if (requiredRoles && requiredRoles.length > 0) {
     const hasRequiredRole = user?.roles?.some(role => requiredRoles.includes(role));
+    console.log('ProtectedRoute: hasRequiredRole =', hasRequiredRole);
     if (!hasRequiredRole) {
+      console.log('ProtectedRoute: User does not have required roles, redirecting to /');
       // Redirect to unauthorized page or home
       return <Navigate to="/" replace />;
     }
   }
 
+  console.log('ProtectedRoute: Rendering protected children');
   // Otherwise, render the protected children as-is.
   return children;
 };

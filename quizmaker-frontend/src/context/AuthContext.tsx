@@ -29,6 +29,7 @@ interface JwtResponse {
 interface AuthContextType {
   user: UserDto | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   login: (creds: { username: string; password: string }) => Promise<void>;
   register: (details: {
     username: string;
@@ -45,6 +46,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserDto | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   /* Helper – centralises GET /auth/me + state sync */
@@ -57,6 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // the session is invalid → blow everything away.
       clearTokens();
       setUser(null);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -66,6 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (getAccessToken()) {
       fetchCurrentUser();
+    } else {
+      setIsLoading(false);
     }
   }, [fetchCurrentUser]);
 
@@ -110,11 +116,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     () => ({
       user,
       isLoggedIn: !!user,
+      isLoading,
       login,
       register,
       logout,
     }),
-    [user, login, register, logout],
+    [user, isLoading, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

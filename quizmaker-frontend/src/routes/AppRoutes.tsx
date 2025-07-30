@@ -49,6 +49,7 @@ import SettingsPage from '../pages/SettingsPage';
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
+import AiAnalysisPage from '../pages/AiAnalysisPage';
 
 // Wrapper component to extract documentId from URL params
 const DocumentViewerWrapper: React.FC = () => {
@@ -225,6 +226,20 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
               <DocumentViewerWrapper />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* AI Analysis Route */}
+        <Route
+          path="/ai-analysis"
+          element={
+            <ProtectedRoute>
+              <div>
+                <h1>AI Analysis Test Page</h1>
+                <p>If you can see this, the route is working!</p>
+                <AiAnalysisPage />
+              </div>
             </ProtectedRoute>
           }
         />
