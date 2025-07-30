@@ -190,6 +190,27 @@ All endpoints use a consistent error response format:
 }
 ```
 
+### CurrentQuestionDto
+```json
+{
+  "question": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "type": "MCQ_SINGLE",
+    "difficulty": "MEDIUM",
+    "questionText": "What is the capital of France?",
+    "safeContent": {
+      "question": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"]
+    },
+    "hint": "Think about European geography",
+    "attachmentUrl": null
+  },
+  "questionNumber": 3,
+  "totalQuestions": 10,
+  "attemptStatus": "IN_PROGRESS"
+}
+```
+
 ### BatchAnswerSubmissionRequest
 ```json
 {
@@ -244,55 +265,48 @@ All endpoints use a consistent error response format:
 - `ABANDONED`: Attempt was abandoned by user
 - `PAUSED`: Attempt is temporarily paused
 
-## Endpoints
+## 📋 **Endpoints**
 
-### 1. Start Attempt
-**POST** `/api/v1/attempts/quizzes/{quizId}`
+### **🎯 Start Attempt**
+```http
+POST /api/v1/attempts/quizzes/{quizId}
+```
 
-Starts a new attempt for a quiz.
+**Description:** Start a new attempt for a quiz.
 
-**Path Parameters**:
-- `quizId`: UUID of the quiz to attempt
-
-**Request Body** (Optional):
+**Request Body (Optional):**
 ```json
 {
   "mode": "ONE_BY_ONE"
 }
 ```
 
-**Response** (201 Created):
+**Response:**
 ```json
 {
   "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "firstQuestion": {
-    "id": "abcdef12-3456-7890-abcd-ef1234567890",
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "type": "MCQ_SINGLE",
-    "difficulty": "MEDIUM",
     "questionText": "What is the capital of France?",
     "safeContent": {
-      "options": ["London", "Paris", "Berlin", "Madrid"]
-    },
-    "hint": "Think about famous landmarks",
-    "attachmentUrl": null
+      "question": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"]
+    }
   }
 }
 ```
 
-**Error Responses**: 400, 401, 404
+**Error Responses:** 400, 401, 404
 
-### 2. List Attempts
-**GET** `/api/v1/attempts`
+### **📋 List Attempts**
+```http
+GET /api/v1/attempts?page=0&size=20&quizId={quizId}&userId={userId}
+```
 
-Returns paginated list of user's attempts.
+**Description:** Get paginated list of attempts with optional filtering.
 
-**Query Parameters**:
-- `page`: Page number (default: 0)
-- `size`: Page size (default: 20)
-- `quizId`: Filter by quiz UUID (optional)
-- `userId`: Filter by user UUID (optional)
-
-**Response** (200 OK):
+**Response:**
 ```json
 {
   "content": [
@@ -305,23 +319,23 @@ Returns paginated list of user's attempts.
       "mode": "ONE_BY_ONE"
     }
   ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 20,
-    "totalElements": 1,
-    "totalPages": 1
-  }
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 20,
+  "number": 0
 }
 ```
 
-**Error Responses**: 400, 401
+**Error Responses:** 400, 401
 
-### 3. Get Attempt Details
-**GET** `/api/v1/attempts/{attemptId}`
+### **🔍 Get Attempt Details**
+```http
+GET /api/v1/attempts/{attemptId}
+```
 
-Returns detailed information about a specific attempt.
+**Description:** Get detailed information about a specific attempt including all answers.
 
-**Response** (200 OK):
+**Response:**
 ```json
 {
   "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -337,33 +351,100 @@ Returns detailed information about a specific attempt.
       "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
       "isCorrect": true,
       "score": 1.0,
-      "answeredAt": "2025-05-20T14:35:00Z"
+      "answeredAt": "2025-05-20T14:35:00Z",
+      "nextQuestion": null
     }
   ]
 }
 ```
 
-**Error Responses**: 401, 404
+**Error Responses:** 400, 401, 404
 
-### 4. Submit Single Answer
-**POST** `/api/v1/attempts/{attemptId}/answers`
+### **❓ Get Current Question**
+```http
+GET /api/v1/attempts/{attemptId}/current-question
+```
 
-Submits an answer to a specific question.
+**Description:** Get the current question for an in-progress attempt. This is useful when resuming an attempt after closing the browser or when the frontend needs to determine which question to display next.
 
-**Path Parameters**:
-- `attemptId`: UUID of the attempt
+**Parameters:**
+- `attemptId` (path): UUID of the attempt
 
-**Request Body**:
+**Response:**
 ```json
 {
-  "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
-  "response": {
-    "answer": "Paris"
-  }
+  "question": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "type": "MCQ_SINGLE",
+    "difficulty": "MEDIUM",
+    "questionText": "What is the capital of France?",
+    "safeContent": {
+      "options": [
+        {"id": "1", "text": "London", "correct": false},
+        {"id": "2", "text": "Berlin", "correct": false},
+        {"id": "3", "text": "Paris", "correct": true},
+        {"id": "4", "text": "Madrid", "correct": false}
+      ]
+    },
+    "hint": "Think about European geography",
+    "attachmentUrl": null
+  },
+  "questionNumber": 3,
+  "totalQuestions": 10,
+  "attemptStatus": "IN_PROGRESS"
 }
 ```
 
-**Response** (200 OK):
+**Error Responses:**
+- **400 Bad Request**: Invalid attempt ID format
+- **401 Unauthorized**: Missing or invalid authentication token
+- **403 Forbidden**: User does not own the attempt
+- **404 Not Found**: Attempt not found
+- **409 Conflict**: Attempt is not in progress or all questions have already been answered
+
+**Error Examples:**
+```json
+// 403 Forbidden - User does not own the attempt
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 403,
+  "error": "Forbidden",
+  "details": ["You do not have access to attempt 3fa85f64-5717-4562-b3fc-2c963f66afa6"]
+}
+
+// 409 Conflict - Attempt not in progress
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 409,
+  "error": "Conflict",
+  "details": ["Can only get current question for attempts that are in progress"]
+}
+
+// 409 Conflict - All questions answered
+{
+  "timestamp": "2025-01-27T10:30:00Z",
+  "status": 409,
+  "error": "Conflict",
+  "details": ["All questions have already been answered"]
+}
+```
+
+### **✏️ Submit Answer**
+```http
+POST /api/v1/attempts/{attemptId}/answers
+```
+
+**Description:** Submit an answer to a specific question within an attempt.
+
+**Request Body:**
+```json
+{
+  "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
+  "answer": "Paris"
+}
+```
+
+**Response:**
 ```json
 {
   "answerId": "4b3a2c1d-0f9e-8d7c-6b5a-4c3b2a1d0e9f",
@@ -372,48 +453,43 @@ Submits an answer to a specific question.
   "score": 1.0,
   "answeredAt": "2025-05-20T14:35:00Z",
   "nextQuestion": {
-    "id": "ghijkl34-5678-9012-ghij-kl3456789012",
-    "type": "TRUE_FALSE",
-    "difficulty": "EASY",
-    "questionText": "Is the Earth round?",
-    "safeContent": {},
-    "hint": null,
-    "attachmentUrl": null
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "type": "MCQ_SINGLE",
+    "questionText": "What is 2+2?",
+    "safeContent": {
+      "question": "What is 2+2?",
+      "options": ["3", "4", "5", "6"]
+    }
   }
 }
 ```
 
-**Error Responses**: 400, 401, 404, 409
+**Error Responses:** 400, 401, 404
 
-### 5. Submit Batch Answers
-**POST** `/api/v1/attempts/{attemptId}/answers/batch`
+### **📦 Submit Batch Answers**
+```http
+POST /api/v1/attempts/{attemptId}/answers/batch
+```
 
-Submits multiple answers at once (ALL_AT_ONCE mode only).
+**Description:** Submit multiple answers at once (only for ALL_AT_ONCE mode).
 
-**Path Parameters**:
-- `attemptId`: UUID of the attempt
-
-**Request Body**:
+**Request Body:**
 ```json
 {
   "answers": [
     {
       "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
-      "response": {
-        "answer": "Paris"
-      }
+      "answer": "Paris"
     },
     {
-      "questionId": "ghijkl34-5678-9012-ghij-kl3456789012",
-      "response": {
-        "answer": true
-      }
+      "questionId": "fedcba21-6543-0987-badc-fe6543210987",
+      "answer": "4"
     }
   ]
 }
 ```
 
-**Response** (200 OK):
+**Response:**
 ```json
 [
   {
@@ -421,29 +497,30 @@ Submits multiple answers at once (ALL_AT_ONCE mode only).
     "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
     "isCorrect": true,
     "score": 1.0,
-    "answeredAt": "2025-05-20T14:35:00Z"
+    "answeredAt": "2025-05-20T14:35:00Z",
+    "nextQuestion": null
   },
   {
-    "answerId": "5c4b3d2e-1g0f-9e8d-7c6b-5d4c3b2e1f0g",
-    "questionId": "ghijkl34-5678-9012-ghij-kl3456789012",
+    "answerId": "5c4b3a2e-1g0f-9h8i-7j6k-5l4m3n2o1p0q",
+    "questionId": "fedcba21-6543-0987-badc-fe6543210987",
     "isCorrect": true,
     "score": 1.0,
-    "answeredAt": "2025-05-20T14:35:00Z"
+    "answeredAt": "2025-05-20T14:35:00Z",
+    "nextQuestion": null
   }
 ]
 ```
 
-**Error Responses**: 400, 401, 404, 409
+**Error Responses:** 400, 401, 404, 409
 
-### 6. Complete Attempt
-**POST** `/api/v1/attempts/{attemptId}/complete`
+### **✅ Complete Attempt**
+```http
+POST /api/v1/attempts/{attemptId}/complete
+```
 
-Marks the attempt as completed and returns results.
+**Description:** Mark an attempt as completed and get results.
 
-**Path Parameters**:
-- `attemptId`: UUID of the attempt
-
-**Response** (200 OK):
+**Response:**
 ```json
 {
   "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -451,36 +528,39 @@ Marks the attempt as completed and returns results.
   "userId": "9f8e7d6c-5b4a-3c2d-1b0a-9f8e7d6c5b4a",
   "startedAt": "2025-05-20T14:30:00Z",
   "completedAt": "2025-05-20T14:45:00Z",
-  "totalScore": 5.0,
-  "correctCount": 5,
-  "totalQuestions": 5,
+  "totalScore": 8.5,
+  "correctAnswers": 8,
+  "totalQuestions": 10,
   "answers": [
     {
       "answerId": "4b3a2c1d-0f9e-8d7c-6b5a-4c3b2a1d0e9f",
       "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
       "isCorrect": true,
       "score": 1.0,
-      "answeredAt": "2025-05-20T14:35:00Z"
+      "answeredAt": "2025-05-20T14:35:00Z",
+      "nextQuestion": null
     }
   ]
 }
 ```
 
-**Error Responses**: 401, 404, 409
+**Error Responses:** 400, 401, 404, 409
 
-### 7. Get Attempt Statistics
-**GET** `/api/v1/attempts/{attemptId}/stats`
+### **📊 Get Attempt Statistics**
+```http
+GET /api/v1/attempts/{attemptId}/stats
+```
 
-Returns detailed statistics for an attempt.
+**Description:** Get detailed statistics for a specific attempt.
 
-**Response** (200 OK):
+**Response:**
 ```json
 {
   "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "totalTime": "PT15M30S",
-  "averageTimePerQuestion": "PT3M6S",
-  "questionsAnswered": 5,
-  "correctAnswers": 4,
+  "averageTimePerQuestion": "PT1M33S",
+  "questionsAnswered": 10,
+  "correctAnswers": 8,
   "accuracyPercentage": 80.0,
   "completionPercentage": 100.0,
   "questionTimings": [
@@ -488,63 +568,87 @@ Returns detailed statistics for an attempt.
       "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
       "questionType": "MCQ_SINGLE",
       "difficulty": "MEDIUM",
-      "timeSpent": "PT2M30S",
+      "timeSpent": "PT1M30S",
       "isCorrect": true,
-      "questionStartedAt": "2025-01-27T10:30:00Z",
-      "answeredAt": "2025-01-27T10:32:30Z"
+      "startedAt": "2025-05-20T14:30:00Z",
+      "answeredAt": "2025-05-20T14:31:30Z"
     }
   ],
-  "startedAt": "2025-01-27T10:30:00Z",
-  "completedAt": "2025-01-27T10:45:30Z"
+  "startedAt": "2025-05-20T14:30:00Z",
+  "completedAt": "2025-05-20T14:45:30Z"
 }
 ```
 
-**Error Responses**: 401, 404
+**Error Responses:** 400, 401, 404
 
-### 8. Pause Attempt
-**POST** `/api/v1/attempts/{attemptId}/pause`
+### **⏸️ Pause Attempt**
+```http
+POST /api/v1/attempts/{attemptId}/pause
+```
 
-Pauses an in-progress attempt.
+**Description:** Pause an in-progress attempt.
 
-**Response** (200 OK): Returns updated AttemptDto
+**Response:**
+```json
+{
+  "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "quizId": "1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+  "userId": "9f8e7d6c-5b4a-3c2d-1b0a-9f8e7d6c5b4a",
+  "startedAt": "2025-05-20T14:30:00Z",
+  "status": "PAUSED",
+  "mode": "ONE_BY_ONE"
+}
+```
 
-**Error Responses**: 401, 404, 409
+**Error Responses:** 400, 401, 404, 409
 
-### 9. Resume Attempt
-**POST** `/api/v1/attempts/{attemptId}/resume`
+### **▶️ Resume Attempt**
+```http
+POST /api/v1/attempts/{attemptId}/resume
+```
 
-Resumes a paused attempt.
+**Description:** Resume a paused attempt.
 
-**Response** (200 OK): Returns updated AttemptDto
+**Response:**
+```json
+{
+  "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "quizId": "1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+  "userId": "9f8e7d6c-5b4a-3c2d-1b0a-9f8e7d6c5b4a",
+  "startedAt": "2025-05-20T14:30:00Z",
+  "status": "IN_PROGRESS",
+  "mode": "ONE_BY_ONE"
+}
+```
 
-**Error Responses**: 401, 404, 409
+**Error Responses:** 400, 401, 404, 409
 
-### 10. Get Shuffled Questions
-**GET** `/api/v1/attempts/quizzes/{quizId}/questions/shuffled`
+### **🎲 Get Shuffled Questions**
+```http
+GET /api/v1/attempts/quizzes/{quizId}/questions/shuffled
+```
 
-Gets questions for a quiz in randomized order (safe, without answers).
+**Description:** Get questions for a quiz in randomized order (safe, without answers).
 
-**Path Parameters**:
-- `quizId`: UUID of the quiz
-
-**Response** (200 OK):
+**Response:**
 ```json
 [
   {
-    "id": "abcdef12-3456-7890-abcd-ef1234567890",
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "type": "MCQ_SINGLE",
     "difficulty": "MEDIUM",
     "questionText": "What is the capital of France?",
     "safeContent": {
-      "options": ["London", "Paris", "Berlin", "Madrid"]
+      "question": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"]
     },
-    "hint": "Think about famous landmarks",
+    "hint": "Think about European geography",
     "attachmentUrl": null
   }
 ]
 ```
 
-**Error Responses**: 401, 404
+**Error Responses:** 400, 401, 404
 
 ## Integration Notes
 

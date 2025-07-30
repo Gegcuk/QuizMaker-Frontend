@@ -99,7 +99,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/:quizId/attempt"
           element={
             <ProtectedRoute>
-              <QuizAttemptFlowPage />
+              <QuizAttemptPage />
             </ProtectedRoute>
           }
         />
@@ -107,7 +107,7 @@ const AppRoutes: React.FC = () => {
           path="/quizzes/:quizId/attempt/start"
           element={
             <ProtectedRoute>
-              <QuizAttemptPage />
+              <QuizAttemptFlowPage />
             </ProtectedRoute>
           }
         />

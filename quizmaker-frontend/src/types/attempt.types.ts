@@ -63,6 +63,17 @@ export interface QuestionForAttemptDto {
 }
 
 /**
+ * Current question DTO
+ * Matches CurrentQuestionDto from API documentation
+ */
+export interface CurrentQuestionDto {
+  question: QuestionForAttemptDto;      // Current question
+  questionNumber: number;               // Current question number
+  totalQuestions: number;               // Total number of questions
+  attemptStatus: AttemptStatus;         // Current attempt status
+}
+
+/**
  * Attempt DTO
  * Matches AttemptDto from API documentation
  */

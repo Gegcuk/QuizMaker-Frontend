@@ -10,7 +10,8 @@ import {
   BatchAnswerSubmissionRequest,
   AttemptResultDto,
   AttemptStatsDto,
-  QuestionForAttemptDto
+  QuestionForAttemptDto,
+  CurrentQuestionDto
 } from '../types/attempt.types';
 
 /**
@@ -187,6 +188,33 @@ export class AttemptService {
         ATTEMPT_ENDPOINTS.SHUFFLED_QUESTIONS(quizId)
       );
       return response.data;
+    } catch (error) {
+      throw this.handleAttemptError(error);
+    }
+  }
+
+  /**
+   * Get current question for an in-progress attempt
+   * GET /api/v1/attempts/{attemptId}/current-question
+   */
+  async getCurrentQuestion(attemptId: string): Promise<CurrentQuestionDto> {
+    try {
+      const response = await this.axiosInstance.get<CurrentQuestionDto>(
+        ATTEMPT_ENDPOINTS.CURRENT_QUESTION(attemptId)
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAttemptError(error);
+    }
+  }
+
+  /**
+   * Delete attempt
+   * DELETE /api/v1/attempts/{attemptId}
+   */
+  async deleteAttempt(attemptId: string): Promise<void> {
+    try {
+      await this.axiosInstance.delete(ATTEMPT_ENDPOINTS.DELETE_ATTEMPT(attemptId));
     } catch (error) {
       throw this.handleAttemptError(error);
     }

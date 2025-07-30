@@ -90,6 +90,8 @@ export const ATTEMPT_ENDPOINTS = {
   ATTEMPT_STATS: (id: string) => `/v1/attempts/${id}/stats`,
   PAUSE_ATTEMPT: (id: string) => `/v1/attempts/${id}/pause`,
   RESUME_ATTEMPT: (id: string) => `/v1/attempts/${id}/resume`,
+  DELETE_ATTEMPT: (id: string) => `/v1/attempts/${id}`,
+  CURRENT_QUESTION: (id: string) => `/v1/attempts/${id}/current-question`,
   SHUFFLED_QUESTIONS: (quizId: string) => `/v1/attempts/quizzes/${quizId}/questions/shuffled`,
 } as const;
 

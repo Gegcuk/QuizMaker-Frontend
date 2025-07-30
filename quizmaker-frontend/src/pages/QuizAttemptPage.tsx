@@ -29,6 +29,8 @@ import {
 type AnswerInput = any;
 
 const QuizAttemptPage: React.FC = () => {
+  console.log('QuizAttemptPage: Component rendering...');
+  
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -89,6 +91,76 @@ const QuizAttemptPage: React.FC = () => {
     if (!quizId) return;
 
     try {
+      // First check if attemptId is provided in URL parameters (from resume flow)
+      const attemptIdFromUrl = searchParams.get('attemptId');
+      
+      console.log('QuizAttemptPage: Initializing attempt...');
+      console.log('QuizAttemptPage: quizId:', quizId);
+      console.log('QuizAttemptPage: attemptIdFromUrl:', attemptIdFromUrl);
+      console.log('QuizAttemptPage: all search params:', Object.fromEntries(searchParams.entries()));
+      
+      if (attemptIdFromUrl) {
+        console.log(`Resuming attempt from URL: ${attemptIdFromUrl}`);
+        console.log('About to call getCurrentQuestion API...');
+        
+        try {
+          // Get current question for the attempt
+          console.log('Calling attemptService.getCurrentQuestion...');
+          const currentQuestionData = await attemptService.getCurrentQuestion(attemptIdFromUrl);
+          console.log('getCurrentQuestion response:', currentQuestionData);
+          
+          console.log('Calling attemptService.getAttemptById...');
+          const attemptDetails = await attemptService.getAttemptById(attemptIdFromUrl);
+          console.log('getAttemptById response:', attemptDetails);
+          
+          setAttemptId(attemptIdFromUrl);
+          setAttemptMode(attemptDetails.mode);
+          setAttemptStatus(attemptDetails.status);
+          
+          // Load existing answers
+          const existingAnswers: Record<string, any> = {};
+          attemptDetails.answers.forEach(answer => {
+            existingAnswers[answer.questionId] = answer.response;
+          });
+          setAnswers(existingAnswers);
+          setExistingAnswers(existingAnswers);
+          
+          // Set current question and progress
+          if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
+            setCurrentQuestion(currentQuestionData.question);
+            setCurrentQuestionNumber(currentQuestionData.questionNumber);
+            setTotalQuestions(currentQuestionData.totalQuestions);
+          } else {
+            // For ALL_AT_ONCE mode, load all questions
+            const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+            setAllQuestions(shuffledQuestions);
+            setTotalQuestions(shuffledQuestions.length);
+          }
+          
+          setQuestionsAnswered(attemptDetails.answers.length);
+          console.log(`Successfully resumed attempt. Current question: ${currentQuestionData.questionNumber}/${currentQuestionData.totalQuestions}`);
+        } catch (error) {
+          console.error('Failed to resume attempt from URL:', error);
+          // Fall back to normal flow
+          await initializeAttemptNormal();
+        }
+      } else {
+        console.log('No attemptId in URL, using normal flow...');
+        // Normal flow - check for existing attempts or start new one
+        await initializeAttemptNormal();
+      }
+    } catch (error) {
+      setError("Failed to initialize quiz attempt.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Normal attempt initialization (existing logic)
+  const initializeAttemptNormal = async () => {
+    if (!quizId) return;
+
+    try {
       // Check for existing attempts first
       const existingAttemptId = await checkExistingAttempts();
       
@@ -144,9 +216,7 @@ const QuizAttemptPage: React.FC = () => {
         }
       }
     } catch (error) {
-      setError("Failed to initialize quiz attempt.");
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
@@ -317,12 +387,20 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Effects                                                              */
   /* -------------------------------------------------------------------- */
+  
+  // Debug effect to see when component mounts and searchParams change
+  useEffect(() => {
+    console.log('QuizAttemptPage: Component mounted or searchParams changed');
+    console.log('QuizAttemptPage: Current searchParams:', Object.fromEntries(searchParams.entries()));
+    console.log('QuizAttemptPage: Current quizId:', quizId);
+  }, [searchParams, quizId]);
+
   useEffect(() => {
     if (quizId) {
       loadQuizDetails();
       initializeAttempt();
     }
-  }, [quizId]);
+  }, [quizId, searchParams]);
 
   useEffect(() => {
     if (attemptId) {
@@ -675,7 +753,7 @@ const QuizAttemptPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Pause/Resume Controls */}
-      {attemptId && (
+      {attemptId && (quiz?.timerEnabled || attemptMode === 'TIMED') && (
         <div className="max-w-4xl mx-auto pt-4 px-4">
           <AttemptPause
             attemptId={attemptId}
