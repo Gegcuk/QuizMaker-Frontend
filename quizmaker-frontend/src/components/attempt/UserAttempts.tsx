@@ -275,32 +275,15 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
                         Started: {formatDate(attempt.startedAt)}
                       </p>
                       
-                      {attempt.stats && (
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <span>
-                            {attempt.stats.questionsAnswered} questions answered
-                          </span>
-                          <span>
-                            {attempt.stats.correctAnswers} correct
-                          </span>
-                          <span>
-                            {Math.round(attempt.stats.completionPercentage)}% complete
-                          </span>
-                        </div>
-                      )}
 
-                      {attempt.currentQuestion && (
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <span className="font-medium text-indigo-600">
-                            Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
-                          </span>
-                          {attempt.currentQuestion.question && (
-                            <span className="text-gray-500 truncate">
-                              {attempt.currentQuestion.question.questionText.substring(0, 50)}...
-                            </span>
-                          )}
-                        </div>
-                      )}
+
+                                             {attempt.currentQuestion && (
+                         <div className="flex items-center space-x-4 text-sm text-gray-600">
+                           <span className="font-medium text-indigo-600">
+                             Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
+                           </span>
+                         </div>
+                       )}
 
                       {attempt.stats && attempt.stats.completionPercentage > 0 && (
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
