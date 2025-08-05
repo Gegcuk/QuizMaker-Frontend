@@ -53,15 +53,12 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
     if (selectedAnswer === isTrue) {
       return isTrue ? '✅' : '❌';
     }
-    return isTrue ? '☑️' : '☐';
+    return isTrue ? '✓' : '✗';
   };
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
-        Select the correct answer:
-      </div>
+
 
       {/* True/False Options */}
       <div className="grid grid-cols-2 gap-4">
@@ -73,9 +70,8 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
           className={getAnswerButtonClass(true)}
         >
           <div className="flex flex-col items-center space-y-2">
-            <span className="text-2xl">{getAnswerIcon(true)}</span>
+            <span className="text-3xl font-bold">{getAnswerIcon(true)}</span>
             <span className="font-semibold">True</span>
-            <span className="text-sm opacity-75">Correct statement</span>
           </div>
         </button>
 
@@ -87,37 +83,13 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
           className={getAnswerButtonClass(false)}
         >
           <div className="flex flex-col items-center space-y-2">
-            <span className="text-2xl">{getAnswerIcon(false)}</span>
+            <span className="text-3xl font-bold">{getAnswerIcon(false)}</span>
             <span className="font-semibold">False</span>
-            <span className="text-sm opacity-75">Incorrect statement</span>
           </div>
         </button>
       </div>
 
-      {/* Selection Summary */}
-      {selectedAnswer !== null && (
-        <div className="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-md">
-          <div className="text-sm text-indigo-700">
-            <strong>Selected:</strong> {selectedAnswer ? 'True' : 'False'}
-          </div>
-        </div>
-      )}
 
-      {/* No Selection Warning */}
-      {selectedAnswer === null && (
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <div className="text-sm text-yellow-700">
-            Please select True or False to continue.
-          </div>
-        </div>
-      )}
-
-      {/* Additional Instructions */}
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <div className="text-sm text-blue-700">
-          <strong>Tip:</strong> Read the statement carefully and determine if it's true or false based on the information provided.
-        </div>
-      </div>
     </div>
   );
 };
