@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto, AnswerSubmissionRequest } from '../../types/attempt.types';
 import { AttemptService } from '../../api/attempt.service';
 import api from '../../api/axiosInstance';
+import { HintDisplay } from './';
 
 interface AnswerFormProps {
   question: QuestionForAttemptDto;
@@ -218,11 +219,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
 
         {/* Hint */}
         {question.hint && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md mb-4">
-            <div className="text-sm text-blue-700">
-              <strong>Hint:</strong> {question.hint}
-            </div>
-          </div>
+          <HintDisplay hint={question.hint} />
         )}
 
         {/* Attachment */}

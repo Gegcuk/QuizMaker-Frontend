@@ -33,4 +33,7 @@ export { default as QuestionTiming } from './QuestionTiming';
 export { default as AttemptDetails } from './AttemptDetails';
 
 // User Attempts Management
-export { default as UserAttempts } from './UserAttempts'; 
+export { default as UserAttempts } from './UserAttempts';
+
+// Hint Display
+export { default as HintDisplay } from './HintDisplay'; 

@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { AttemptService } from '../../api/attempt.service';
 import { QuestionForAttemptDto } from '../../types/attempt.types';
 import api from '../../api/axiosInstance';
+import { HintDisplay } from './';
 
 interface AttemptShuffledQuestionsProps {
   quizId: string;
@@ -221,11 +222,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
           </div>
 
           {questions[currentQuestionIndex].hint && (
-            <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="text-xs text-blue-700">
-                <strong>Hint:</strong> {questions[currentQuestionIndex].hint}
-              </div>
-            </div>
+            <HintDisplay hint={questions[currentQuestionIndex].hint} />
           )}
         </div>
       )}

@@ -22,7 +22,8 @@ import {
   HotspotAnswer,
   AttemptPause,
   AttemptBatchAnswers,
-  AttemptTimer
+  AttemptTimer,
+  HintDisplay
 } from "../components/attempt";
 
 // Shape of user answer input; varies by question type
@@ -569,9 +570,7 @@ const QuizAttemptPage: React.FC = () => {
         </h2>
 
         {currentQuestion.hint && (
-          <p className="text-sm text-gray-500 mb-4 italic">
-            Hint: {currentQuestion.hint}
-          </p>
+          <HintDisplay hint={currentQuestion.hint} />
         )}
 
         {/* Question Options */}
@@ -634,9 +633,7 @@ const QuizAttemptPage: React.FC = () => {
               <p className="text-gray-700 mb-4">{question.questionText}</p>
               
               {question.hint && (
-                <p className="text-sm text-gray-500 mb-4 italic">
-                  Hint: {question.hint}
-                </p>
+                <HintDisplay hint={question.hint} />
               )}
 
               {renderQuestion(question, true)}
@@ -714,9 +711,7 @@ const QuizAttemptPage: React.FC = () => {
         </h2>
 
         {currentQuestion.hint && (
-          <p className="text-sm text-gray-500 mb-4 italic">
-            Hint: {currentQuestion.hint}
-          </p>
+          <HintDisplay hint={currentQuestion.hint} />
         )}
 
         {/* Render the current question */}
