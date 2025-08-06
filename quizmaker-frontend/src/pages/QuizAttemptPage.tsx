@@ -120,9 +120,10 @@ const QuizAttemptPage: React.FC = () => {
           
           // Load existing answers
           const existingAnswers: Record<string, any> = {};
-          attemptDetails.answers.forEach(answer => {
-            existingAnswers[answer.questionId] = answer.response;
-          });
+          // Note: API response doesn't include the original response data, only answer metadata
+          // attemptDetails.answers.forEach(answer => {
+          //   existingAnswers[answer.questionId] = answer.response;
+          // });
           setAnswers(existingAnswers);
           setExistingAnswers(existingAnswers);
           
@@ -174,22 +175,22 @@ const QuizAttemptPage: React.FC = () => {
         
         // Load existing answers
         const existingAnswers: Record<string, any> = {};
-        attemptDetails.answers.forEach(answer => {
-          // Convert answer back to input format based on question type
-          // This is a simplified conversion - you might need more complex logic
-          existingAnswers[answer.questionId] = answer.response;
-        });
+        // Note: API response doesn't include the original response data, only answer metadata
+        // attemptDetails.answers.forEach(answer => {
+        //   // Convert answer back to input format based on question type
+        //   // This is a simplified conversion - you might need more complex logic
+        //   existingAnswers[answer.questionId] = answer.response;
+        // });
         setAnswers(existingAnswers);
         setExistingAnswers(existingAnswers); // Track what was originally loaded
         
         // For ONE_BY_ONE and TIMED modes, get the next question
         if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
-          // Get shuffled questions to find the next one
-          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-          const answeredQuestionIds = attemptDetails.answers.map(a => a.questionId);
-          const nextQuestion = shuffledQuestions.find(q => !answeredQuestionIds.includes(q.id));
-          setCurrentQuestion(nextQuestion || null);
-          setCurrentQuestionNumber(answeredQuestionIds.length + 1);
+          // Get current question for the attempt
+          const currentQuestionData = await attemptService.getCurrentQuestion(existingAttemptId);
+          setCurrentQuestion(currentQuestionData.question);
+          setCurrentQuestionNumber(currentQuestionData.questionNumber);
+          setTotalQuestions(currentQuestionData.totalQuestions);
         } else {
           // For ALL_AT_ONCE mode, load all questions
           const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
@@ -207,8 +208,11 @@ const QuizAttemptPage: React.FC = () => {
         setAttemptStatus('IN_PROGRESS');
         
         if (mode === 'ONE_BY_ONE' || mode === 'TIMED') {
-          setCurrentQuestion(attempt.firstQuestion || null);
-          setCurrentQuestionNumber(1);
+          // Get current question after starting attempt
+          const currentQuestionData = await attemptService.getCurrentQuestion(attempt.attemptId);
+          setCurrentQuestion(currentQuestionData.question);
+          setCurrentQuestionNumber(currentQuestionData.questionNumber);
+          setTotalQuestions(currentQuestionData.totalQuestions);
         } else {
           // For ALL_AT_ONCE mode, load all questions
           const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
@@ -258,12 +262,6 @@ const QuizAttemptPage: React.FC = () => {
       
       if (attemptMode === 'ONE_BY_ONE') {
         setCurrentQuestionNumber(stats.questionsAnswered + 1);
-      }
-      
-      // Update total questions if not set
-      if (totalQuestions === 0 && stats.completionPercentage > 0) {
-        const estimatedTotal = Math.round(stats.questionsAnswered / (stats.completionPercentage / 100));
-        setTotalQuestions(estimatedTotal);
       }
     } catch (error) {
       console.warn("Could not fetch attempt stats:", error);
@@ -674,7 +672,7 @@ const QuizAttemptPage: React.FC = () => {
           
           {quiz?.timerDuration && (
             <AttemptTimer
-              duration={quiz.timerDuration}
+              durationMinutes={quiz.timerDuration}
               onTimeUp={() => {
                 // Auto-submit current answer when time is up
                 if (isAnswerProvided()) {

@@ -45,7 +45,6 @@ export interface StartAttemptRequest {
  */
 export interface StartAttemptResponse {
   attemptId: string;                    // Attempt identifier
-  firstQuestion?: QuestionForAttemptDto; // First question (if any)
 }
 
 /**

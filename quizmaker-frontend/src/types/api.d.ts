@@ -123,7 +123,6 @@ export interface AttemptDto {
 
 export interface StartAttemptDto {
   attemptId: string;
-  firstQuestion: QuestionDto;
 }
 
 export interface AnswerSubmissionDto {
