@@ -36,7 +36,8 @@ export type AttemptDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
  * Matches StartAttemptRequest DTO from API documentation
  */
 export interface StartAttemptRequest {
-  mode: AttemptMode;  // Required: Attempt mode
+  // Optional per API; defaults to ALL_AT_ONCE when omitted
+  mode?: AttemptMode;
 }
 
 /**
@@ -45,6 +46,11 @@ export interface StartAttemptRequest {
  */
 export interface StartAttemptResponse {
   attemptId: string;                    // Attempt identifier
+  quizId: string;                       // Quiz identifier
+  mode: AttemptMode;                    // Attempt mode
+  totalQuestions: number;               // Number of questions in the quiz
+  timeLimitMinutes: number | null;      // Null when timer is disabled
+  startedAt: string;                    // Start timestamp
 }
 
 /**

@@ -276,7 +276,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
                   />
                 </div>
                 <div className="mt-2 text-xs text-gray-500">
-                  {attempt.stats.questionsAnswered} of {attempt.stats.questionsAnswered + (attempt.stats.totalQuestions - attempt.stats.questionsAnswered)} questions answered
+                  {attempt.stats.questionsAnswered} questions answered • {getProgressPercentage(attempt)}% complete
                 </div>
               </div>
             )}

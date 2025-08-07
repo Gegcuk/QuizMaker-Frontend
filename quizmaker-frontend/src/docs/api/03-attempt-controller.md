@@ -65,26 +65,22 @@ All endpoints use a consistent error response format:
 ### StartAttemptRequest
 ```json
 {
-  "mode": "ONE_BY_ONE|ALL_AT_ONCE|TIMED"  // Required: Attempt mode
+  "mode": "ONE_BY_ONE|ALL_AT_ONCE|TIMED"  // Optional: defaults to ALL_AT_ONCE
 }
 ```
 
 **Validation Rules**:
-- `mode`: Required, must be one of the valid attempt modes
+- `mode`: Optional, if provided must be one of the valid attempt modes
 
 ### StartAttemptResponse
 ```json
 {
-  "attemptId": "uuid",                    // Attempt identifier
-  "firstQuestion": {                      // First question (if any)
-    "id": "uuid",
-    "type": "MCQ_SINGLE",
-    "difficulty": "MEDIUM",
-    "questionText": "string",
-    "safeContent": {},
-    "hint": "string",
-    "attachmentUrl": "string"
-  }
+  "attemptId": "uuid",                 // Attempt identifier
+  "quizId": "uuid",                    // Quiz identifier
+  "mode": "ONE_BY_ONE|ALL_AT_ONCE|TIMED",
+  "totalQuestions": 5,                  // Number of questions in the quiz
+  "timeLimitMinutes": 30,               // Null when timer is disabled
+  "startedAt": "2025-05-20T14:30:00Z"  // Start timestamp
 }
 ```
 
@@ -285,19 +281,15 @@ POST /api/v1/attempts/quizzes/{quizId}
 ```json
 {
   "attemptId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "firstQuestion": {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "type": "MCQ_SINGLE",
-    "questionText": "What is the capital of France?",
-    "safeContent": {
-      "question": "What is the capital of France?",
-      "options": ["London", "Berlin", "Paris", "Madrid"]
-    }
-  }
+  "quizId": "1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+  "mode": "ALL_AT_ONCE",
+  "totalQuestions": 10,
+  "timeLimitMinutes": null,
+  "startedAt": "2025-05-20T14:30:00Z"
 }
 ```
 
-**Error Responses:** 400, 401, 404
+**Error Responses:** 400, 403, 404
 
 ### **📋 List Attempts**
 ```http
@@ -326,7 +318,7 @@ GET /api/v1/attempts?page=0&size=20&quizId={quizId}&userId={userId}
 }
 ```
 
-**Error Responses:** 400, 401
+**Error Responses:** 400, 403
 
 ### **🔍 Get Attempt Details**
 ```http
@@ -440,7 +432,7 @@ POST /api/v1/attempts/{attemptId}/answers
 ```json
 {
   "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
-  "answer": "Paris"
+  "response": { "selectedOptionId": "2" }
 }
 ```
 
@@ -464,7 +456,7 @@ POST /api/v1/attempts/{attemptId}/answers
 }
 ```
 
-**Error Responses:** 400, 401, 404
+**Error Responses:** 400, 403, 404, 409
 
 ### **📦 Submit Batch Answers**
 ```http
@@ -479,11 +471,11 @@ POST /api/v1/attempts/{attemptId}/answers/batch
   "answers": [
     {
       "questionId": "abcdef12-3456-7890-abcd-ef1234567890",
-      "answer": "Paris"
+      "response": { "selectedOptionId": "2" }
     },
     {
       "questionId": "fedcba21-6543-0987-badc-fe6543210987",
-      "answer": "4"
+      "response": { "selectedOptionId": "A" }
     }
   ]
 }
@@ -579,7 +571,7 @@ GET /api/v1/attempts/{attemptId}/stats
 }
 ```
 
-**Error Responses:** 400, 401, 404
+**Error Responses:** 400, 403, 404
 
 ### **⏸️ Pause Attempt**
 ```http
@@ -689,3 +681,30 @@ GET /api/v1/attempts/quizzes/{quizId}/questions/shuffled
 - Efficient querying with proper indexing
 - Caching for frequently accessed data
 - Optimized batch operations for answer submission 
+
+## Business Rules (Implementation Notes)
+
+- Ownership enforcement: Users may only access their own attempts. All read/write operations validate the authenticated user against the attempt owner and return 403 when mismatched.
+- Timer validation (TIMED mode): When `mode` is TIMED and the quiz has timer enabled, the server enforces a timeout window of `timerDuration` minutes starting from `startedAt`. Submissions after the timeout result in attempt status transitioning to ABANDONED and a 409 Conflict response for further submissions.
+- Duplicate answer prevention: The same question cannot be answered twice within a single attempt. Subsequent submissions for an already-answered question return 409 Conflict.
+- Safe question payloads: Any question content returned by attempt endpoints omits correct answers and other sensitive fields.
+- Scoring: Scores are computed from saved answers. Completion aggregates total score and correct count based on the attempt’s answers.
+
+## End-to-End Flows
+
+### Start Attempt
+
+1. Client sends optional `{ "mode": "ONE_BY_ONE|ALL_AT_ONCE|TIMED" }` to `POST /api/v1/attempts/quizzes/{quizId}`.
+2. Server creates an `IN_PROGRESS` attempt and returns metadata only:
+   - `attemptId`, `quizId`, `mode`, `totalQuestions`, `timeLimitMinutes` (nullable), `startedAt`.
+
+### Submit Answer
+
+1. Client posts `{ "questionId": "...", "response": { ... } }` to `POST /api/v1/attempts/{attemptId}/answers`.
+2. Server validates ownership, status, timer (if applicable), question membership, and duplicates.
+3. Server persists the answer, returns result with `isCorrect`, `score`, and `nextQuestion` in ONE_BY_ONE mode.
+
+### Complete Attempt
+
+1. Client calls `POST /api/v1/attempts/{attemptId}/complete`.
+2. Server verifies status, computes total score and correct count, sets `COMPLETED`, and returns aggregated results.

@@ -123,6 +123,11 @@ export interface AttemptDto {
 
 export interface StartAttemptDto {
   attemptId: string;
+  quizId: string;
+  mode: 'ONE_BY_ONE' | 'ALL_AT_ONCE' | 'TIMED';
+  totalQuestions: number;
+  timeLimitMinutes: number | null;
+  startedAt: string;
 }
 
 export interface AnswerSubmissionDto {
