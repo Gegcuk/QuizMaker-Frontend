@@ -168,6 +168,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
           icon: DocumentTextIcon,
           path: '/documents/upload',
         },
+        
       ],
     },
   ];

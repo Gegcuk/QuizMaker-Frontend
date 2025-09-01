@@ -43,6 +43,7 @@ export const QUIZ_ENDPOINTS = {
   CHANGE_CATEGORY: (quizId: string, categoryId: string) => `/v1/quizzes/${quizId}/category/${categoryId}`,
   GENERATE_FROM_DOCUMENT: '/v1/quizzes/generate-from-document',
   GENERATE_FROM_UPLOAD: '/v1/quizzes/generate-from-upload',
+  GENERATE_FROM_TEXT: '/v1/quizzes/generate-from-text',
   GENERATION_STATUS: (jobId: string) => `/v1/quizzes/generation-status/${jobId}`,
   GENERATED_QUIZ: (jobId: string) => `/v1/quizzes/generated-quiz/${jobId}`,
   GENERATION_JOBS: '/v1/quizzes/generation-jobs',
@@ -110,6 +111,18 @@ export const DOCUMENT_ENDPOINTS = {
 } as const;
 
 /**
+ * Document Process endpoints
+ */
+export const DOCUMENT_PROCESS_ENDPOINTS = {
+  DOCUMENT_BY_ID: (id: string) => `/v1/documentProcess/documents/${id}`,
+  DOCUMENT_HEAD: (id: string) => `/v1/documentProcess/documents/${id}/head`,
+  TEXT_SLICE: (id: string) => `/v1/documentProcess/documents/${id}/text`,
+  STRUCTURE: (id: string) => `/v1/documentProcess/documents/${id}/structure`,
+  BUILD_STRUCTURE: (id: string) => `/v1/documentProcess/documents/${id}/structure`,
+  EXTRACT_CONTENT: (id: string) => `/v1/documentProcess/documents/${id}/extract`,
+} as const;
+
+/**
  * Result and analytics endpoints
  */
 export const RESULT_ENDPOINTS = {
@@ -170,6 +183,7 @@ export const ENDPOINTS = {
   TAG: TAG_ENDPOINTS,
   ATTEMPT: ATTEMPT_ENDPOINTS,
   DOCUMENT: DOCUMENT_ENDPOINTS,
+  DOCUMENT_PROCESS: DOCUMENT_PROCESS_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
   ADMIN: ADMIN_ENDPOINTS,
   SUPER_ADMIN: SUPER_ADMIN_ENDPOINTS,

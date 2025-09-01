@@ -28,6 +28,16 @@ export interface CardFooterProps {
   className?: string;
 }
 
+export interface CardContentProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export interface CardTitleProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
 const Card: React.FC<CardProps> = ({
   children,
   header,
@@ -133,6 +143,18 @@ const CardFooter: React.FC<CardFooterProps> = ({ children, className = '' }) => 
   </div>
 );
 
+const CardContent: React.FC<CardContentProps> = ({ children, className = '' }) => (
+  <div className={`px-6 py-4 ${className}`}>
+    {children}
+  </div>
+);
+
+const CardTitle: React.FC<CardTitleProps> = ({ children, className = '' }) => (
+  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>
+    {children}
+  </h3>
+);
+
 // Export the main component and sub-components
-export { CardHeader, CardBody, CardFooter };
+export { CardHeader, CardBody, CardFooter, CardContent, CardTitle };
 export default Card; 

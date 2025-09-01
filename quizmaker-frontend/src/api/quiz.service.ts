@@ -7,6 +7,7 @@ import {
   QuizDto,
   QuizSearchCriteria,
   GenerateQuizFromDocumentRequest,
+  GenerateQuizFromTextRequest,
   QuizGenerationResponse,
   QuizGenerationStatus,
   QuizResultSummaryDto,
@@ -139,6 +140,22 @@ export class QuizService extends BaseService<QuizDto> {
             'Content-Type': 'multipart/form-data',
           },
         }
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Generate quiz from text
+   * POST /api/v1/quizzes/generate-from-text
+   */
+  async generateQuizFromText(data: GenerateQuizFromTextRequest): Promise<QuizGenerationResponse> {
+    try {
+      const response = await this.axiosInstance.post<QuizGenerationResponse>(
+        QUIZ_ENDPOINTS.GENERATE_FROM_TEXT, 
+        data
       );
       return response.data;
     } catch (error) {

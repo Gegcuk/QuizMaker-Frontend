@@ -13,6 +13,28 @@ export type DocumentStatus =
   | 'FAILED';      // Document processing failed
 
 /**
+ * Document Process status enum
+ */
+export type DocumentProcessStatus = 
+  | 'INGESTED'     // Document uploaded and ingested successfully
+  | 'NORMALIZED'   // Document has been normalized
+  | 'STRUCTURED'   // Document has been processed and structured
+  | 'FAILED';      // Processing failed
+
+/**
+ * Node type enum for document structure
+ */
+export type NodeType = 
+  | 'CHAPTER';     // Individual chapter with clear title
+
+/**
+ * Structure format enum
+ */
+export type StructureFormat = 
+  | 'tree'         // Hierarchical structure format (default)
+  | 'flat';        // Linear structure format
+
+/**
  * Chunk type enum
  */
 export type ChunkType = 
@@ -48,6 +70,105 @@ export interface DocumentDto extends BaseEntity, AuditableEntity {
   totalChunks?: number;                  // Total number of chunks
   processingError?: string;              // Error message if processing failed
   chunks?: DocumentChunkDto[];           // Array of document chunks
+}
+
+/**
+ * Document Process DTO
+ * Matches actual API response structure
+ */
+export interface DocumentProcessDto {
+  id: string;                            // UUID of the document
+  name?: string;                         // Document name (optional)
+  charCount?: number;                    // Character count (optional)
+  status: DocumentProcessStatus;         // Document status
+}
+
+/**
+ * Document Process View DTO
+ * Matches actual API response structure
+ */
+export interface DocumentProcessViewDto {
+  id: string;                            // UUID of the document
+  name?: string;                         // Document name (optional)
+  charCount?: number;                    // Character count (optional)
+  status: DocumentProcessStatus;         // Document status
+}
+
+/**
+ * Ingest Request DTO
+ * Matches IngestRequest from API documentation
+ */
+export interface IngestRequestDto {
+  text: string;                          // Document content as text
+  language: string;                      // Language code (e.g., 'en')
+}
+
+/**
+ * Text Slice Response DTO
+ * Matches TextSliceResponse from API documentation
+ */
+export interface TextSliceResponseDto {
+  documentId: string;                    // UUID of the document
+  start: number;                         // Starting character position
+  end: number;                           // Ending character position
+  text: string;                          // Extracted text content
+}
+
+/**
+ * Document Structure Node DTO
+ */
+export interface DocumentStructureNodeDto {
+  id: string;                            // UUID of the node
+  title: string;                         // Node title
+  type: NodeType;                        // Node type
+  depth: number;                         // Depth in hierarchy
+  startOffset: number;                   // Starting character offset
+  endOffset: number;                     // Ending character offset
+  startAnchor?: string;                  // Start anchor text (tree format only)
+  endAnchor?: string;                    // End anchor text (tree format only)
+  aiConfidence: number;                  // AI confidence score (0.0-1.0)
+}
+
+/**
+ * Structure Tree Response DTO
+ * Matches StructureTreeResponse from API documentation
+ */
+export interface StructureTreeResponseDto {
+  documentId: string;                    // UUID of the document
+  structure: DocumentStructureNodeDto[]; // Hierarchical structure
+}
+
+/**
+ * Structure Flat Response DTO
+ * Matches StructureFlatResponse from API documentation
+ */
+export interface StructureFlatResponseDto {
+  documentId: string;                    // UUID of the document
+  nodes: DocumentStructureNodeDto[];     // Linear structure
+}
+
+/**
+ * Structure Build Response DTO
+ * Matches StructureBuildResponse from API documentation
+ */
+export interface StructureBuildResponseDto {
+  status: string;                        // Status (STRUCTURED, FAILED, ERROR)
+  message: string;                       // Status message
+}
+
+/**
+ * Extract Response DTO
+ * Matches ExtractResponse from API documentation
+ */
+export interface ExtractResponseDto {
+  documentId: string;                    // UUID of the document
+  nodeId: string;                        // UUID of the node
+  nodeTitle: string;                     // Node title
+  nodeType: NodeType;                    // Node type
+  startOffset: number;                   // Starting character offset
+  endOffset: number;                     // Ending character offset
+  content: string;                       // Extracted content
+  contentLength: number;                 // Content length
 }
 
 /**

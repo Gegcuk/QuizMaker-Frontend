@@ -24,4 +24,7 @@ export { default as QuizShare } from './QuizShare';
 export { default as QuizExport } from './QuizExport';
 export { default as QuizGenerationJobs } from './QuizGenerationJobs';
 export { default as QuizListPage } from './QuizListPage';
-export { default as MyQuizzesPage } from './MyQuizzesPage'; 
+export { default as MyQuizzesPage } from './MyQuizzesPage';
+export { QuizCreationTabs } from './QuizCreationTabs';
+export { TextGenerationTab } from './TextGenerationTab';
+export { DocumentUploadTab } from './DocumentUploadTab'; 

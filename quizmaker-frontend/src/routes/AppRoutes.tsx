@@ -41,7 +41,6 @@ import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 import DocumentListPage from '../pages/DocumentListPage';
 import DocumentUploadPage from '../pages/DocumentUploadPage';
 import { DocumentViewer } from '../components/document';
-import DocumentUploadWithQuizPage from '../pages/DocumentUploadWithQuizPage';
 
 /* ----------  User profile pages  ----------------------------------------- */
 import ProfilePage from '../pages/ProfilePage';
@@ -213,14 +212,7 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/documents/upload-with-quiz"
-          element={
-            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentUploadWithQuizPage />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/documents/:documentId"
           element={
@@ -229,6 +221,8 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
+
+        
 
         {/* AI Analysis Route */}
         <Route

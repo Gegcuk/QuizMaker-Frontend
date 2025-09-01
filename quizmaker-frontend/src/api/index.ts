@@ -16,6 +16,9 @@ export { QuestionService } from './question.service';
 // Document service (class-based)
 export { DocumentService } from './document.service';
 
+// Document Process service (class-based)
+export { DocumentProcessService } from './documentProcess.service';
+
 // Category service (class-based)
 export { CategoryService } from './category.service';
 

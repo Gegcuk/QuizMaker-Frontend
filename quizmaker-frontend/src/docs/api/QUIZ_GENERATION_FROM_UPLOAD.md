@@ -1,387 +1,375 @@
-# Quiz Generation from Upload - Frontend Documentation
+# Quiz Generation from Text - Frontend API Documentation
 
 ## Overview
 
-The `/api/v1/quizzes/generate-from-upload` endpoint allows you to upload a document and start quiz generation in a single API call. This simplifies the frontend integration by combining document upload, processing, and quiz generation initiation into one operation. The actual quiz generation happens asynchronously in the background.
+The `POST /api/v1/quizzes/generate-from-text` endpoint allows frontend applications to generate quizzes directly from plain text content. This endpoint processes the text, chunks it appropriately, and starts an asynchronous quiz generation process.
 
-## Endpoint Details
+**Endpoint:** `POST /api/v1/quizzes/generate-from-text`  
+**Authentication:** Required (Admin role)  
+**Content-Type:** `application/json`
 
-**URL:** `POST /api/v1/quizzes/generate-from-upload`  
-**Content-Type:** `multipart/form-data`  
-**Authorization:** `Bearer <access_token>` (Admin role required)  
-**Response:** `QuizGenerationResponse` (job ID for tracking progress)
+## Request Format
 
-## Request Parameters
+### Request Body Schema
 
-### Required Parameters
+```typescript
+interface GenerateQuizFromTextRequest {
+  // Required fields
+  text: string;                                    // Plain text content (1-300,000 characters)
+  questionsPerType: Record<QuestionType, number>; // Question types and counts
+  difficulty: Difficulty;                          // Question difficulty level
+  
+  // Optional fields
+  language?: string;                              // Language code (e.g., "en", "es")
+  chunkingStrategy?: ChunkingStrategy;            // Document processing strategy
+  maxChunkSize?: number;                          // Max characters per chunk (1000-300000)
+  quizScope?: QuizScope;                          // Quiz generation scope
+  chunkIndices?: number[];                        // Specific chunk indices (for SPECIFIC_CHUNKS scope)
+  chapterTitle?: string;                          // Chapter title (for SPECIFIC_CHAPTER/SECTION scope)
+  chapterNumber?: number;                         // Chapter number (for SPECIFIC_CHAPTER/SECTION scope)
+  quizTitle?: string;                             // Custom quiz title (max 100 chars)
+  quizDescription?: string;                       // Custom quiz description (max 500 chars)
+  estimatedTimePerQuestion?: number;              // Minutes per question (1-10)
+  categoryId?: string;                            // Category UUID
+  tagIds?: string[];                              // Array of tag UUIDs
+}
 
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `file` | File | The document file to upload | `document.pdf` |
-| `questionsPerType` | String (JSON) | Number of questions per type to generate per chunk | `"{\"MCQ_SINGLE\": 3, \"TRUE_FALSE\": 2}"` |
-| `difficulty` | String | Difficulty level for generated questions | `"MEDIUM"` |
+// Enums
+enum QuestionType {
+  MCQ_SINGLE = "MCQ_SINGLE",      // Single choice multiple choice
+  MCQ_MULTI = "MCQ_MULTI",        // Multiple choice multiple answers
+  TRUE_FALSE = "TRUE_FALSE",      // True/False questions
+  OPEN = "OPEN",                  // Open-ended questions
+  FILL_GAP = "FILL_GAP",         // Fill in the blank
+  COMPLIANCE = "COMPLIANCE",      // Compliance questions
+  ORDERING = "ORDERING",         // Ordering questions
+  HOTSPOT = "HOTSPOT",           // Hotspot questions
+  MATCHING = "MATCHING"          // Matching questions
+}
 
-### Optional Parameters
+enum Difficulty {
+  EASY = "EASY",
+  MEDIUM = "MEDIUM", 
+  HARD = "HARD"
+}
 
-| Parameter | Type | Default | Description | Example |
-|-----------|------|---------|-------------|---------|
-| `chunkingStrategy` | String | `"CHAPTER_BASED"` | How to split the document into chunks | `"SIZE_BASED"` |
-| `maxChunkSize` | Number | `50000` | Maximum characters per chunk | `30000` |
-| `quizScope` | String | `"ENTIRE_DOCUMENT"` | Which parts of document to use | `"SPECIFIC_CHAPTER"` |
-| `chunkIndices` | Array[Number] | - | Specific chunks to include (for SPECIFIC_CHUNKS scope) | `[0, 1, 2]` |
-| `chapterTitle` | String | - | Chapter title (for SPECIFIC_CHAPTER/SECTION scope) | `"Introduction"` |
-| `chapterNumber` | Number | - | Chapter number (for SPECIFIC_CHAPTER/SECTION scope) | `1` |
-| `quizTitle` | String | - | Custom quiz title (AI generates if not provided) | `"My Quiz"` |
-| `quizDescription` | String | - | Custom quiz description (AI generates if not provided) | `"Test your knowledge"` |
-| `estimatedTimePerQuestion` | Number | `2` | Estimated minutes per question | `3` |
-| `categoryId` | UUID | - | Category ID for the quiz | `"uuid-here"` |
-| `tagIds` | Array[UUID] | `[]` | List of tag IDs for the quiz | `["tag1", "tag2"]` |
+enum ChunkingStrategy {
+  CHAPTER_BASED = "CHAPTER_BASED",   // Default: Chunk by chapters
+  SECTION_BASED = "SECTION_BASED",   // Chunk by sections
+  SIZE_BASED = "SIZE_BASED",         // Chunk by size
+  PAGE_BASED = "PAGE_BASED"          // Chunk by pages
+}
 
-## Parameter Values
+enum QuizScope {
+  ENTIRE_DOCUMENT = "ENTIRE_DOCUMENT",           // Default: Generate for entire document
+  SPECIFIC_CHUNKS = "SPECIFIC_CHUNKS",           // Generate for specific chunks
+  SPECIFIC_CHAPTER = "SPECIFIC_CHAPTER",         // Generate for specific chapter
+  SPECIFIC_SECTION = "SPECIFIC_SECTION"          // Generate for specific section
+}
+```
 
-### Chunking Strategies
-- `"AUTO"` - Automatically determine best strategy
-- `"CHAPTER_BASED"` - Split by chapters only
-- `"SECTION_BASED"` - Split by sections only
-- `"SIZE_BASED"` - Split by size only
-- `"PAGE_BASED"` - Split by page count
+### Default Values
 
-### Quiz Scopes
-- `"ENTIRE_DOCUMENT"` - Generate from all chunks
-- `"SPECIFIC_CHUNKS"` - Generate from specific chunk indices
-- `"SPECIFIC_CHAPTER"` - Generate from specific chapter
-- `"SPECIFIC_SECTION"` - Generate from specific section
-
-### Question Types
-- `"MCQ_SINGLE"` - Multiple choice (single answer)
-- `"MCQ_MULTIPLE"` - Multiple choice (multiple answers)
-- `"TRUE_FALSE"` - True/False questions
-- `"OPEN"` - Open-ended questions
-- `"FILL_GAP"` - Fill in the gap
-- `"ORDERING"` - Ordering questions
-- `"HOTSPOT"` - Hotspot questions
-- `"COMPLIANCE"` - Compliance questions
-
-### Difficulty Levels
-- `"EASY"` - Easy questions
-- `"MEDIUM"` - Medium difficulty questions
-- `"HARD"` - Hard questions
+If not provided, the following defaults are applied:
+- `chunkingStrategy`: `CHAPTER_BASED`
+- `maxChunkSize`: `50000`
+- `quizScope`: `ENTIRE_DOCUMENT`
+- `estimatedTimePerQuestion`: `2`
+- `tagIds`: `[]`
+- `quizTitle`: AI will generate a title based on the content
+- `quizDescription`: AI will generate a description based on the content
 
 ## Response Format
 
-The endpoint returns a `QuizGenerationResponse` object:
+### Success Response (202 Accepted)
+
+```typescript
+interface QuizGenerationResponse {
+  jobId: string;                    // UUID for tracking the generation job
+  status: "PROCESSING";             // Always "PROCESSING" for this endpoint
+  message: string;                  // Human-readable message
+  estimatedTimeSeconds: number;     // Estimated completion time in seconds
+}
+```
+
+### Example Success Response
 
 ```json
 {
-  "jobId": "job-uuid-here",
+  "jobId": "d9e0c623-1a6f-4103-9a02-dd623c026c4f",
   "status": "PROCESSING",
   "message": "Quiz generation started successfully",
-  "estimatedTimeSeconds": 300
+  "estimatedTimeSeconds": 60
 }
 ```
 
-## Frontend Workflow
+## Error Responses
 
-1. **Upload document and start generation**
-2. **Get job ID immediately** (no waiting)
-3. **Continue using the app** (non-blocking)
-4. **Optionally check job status** when needed
-5. **See new quizzes in the list** when ready
+### 400 Bad Request - Validation Errors
 
-### Optional Status Checking
-
-You can check the generation progress using the existing endpoints:
-
-```javascript
-// Check job status (optional)
-const status = await fetch(`/api/v1/quizzes/generation-status/${jobId}`);
-const statusData = await status.json();
-
-// Get generated quiz when complete
-if (statusData.isCompleted()) {
-  const quiz = await fetch(`/api/v1/quizzes/generated-quiz/${jobId}`);
-  const quizData = await quiz.json();
-}
-```
-
-## Usage Examples
-
-### Basic Usage (JavaScript)
-
-```javascript
-async function startQuizGeneration(file) {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('questionsPerType', JSON.stringify({
-    "MCQ_SINGLE": 5,
-    "TRUE_FALSE": 3
-  }));
-  formData.append('difficulty', 'MEDIUM');
-  formData.append('quizScope', 'ENTIRE_DOCUMENT'); // ✅ Send as string, not object
-
-  try {
-    const response = await fetch('/api/v1/quizzes/generate-from-upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + getAuthToken()
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('Generation started:', result);
-    return result.jobId; // Return job ID for optional tracking
-  } catch (error) {
-    console.error('Error starting quiz generation:', error);
-    throw error;
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed",
+  "instance": "/api/v1/quizzes/generate-from-text",
+  "errors": {
+    "text": "Text content must not be blank",
+    "questionsPerType": "At least one question type must be specified",
+    "difficulty": "Difficulty must not be null"
   }
 }
 ```
 
-### Advanced Usage with All Parameters
-
-```javascript
-async function generateAdvancedQuiz(file) {
-  const formData = new FormData();
-  
-  // File
-  formData.append('file', file);
-  
-  // Document processing
-  formData.append('chunkingStrategy', 'CHAPTER_BASED');
-  formData.append('maxChunkSize', '40000');
-  
-  // Quiz generation
-  formData.append('quizScope', 'ENTIRE_DOCUMENT'); // ✅ String enum value
-  formData.append('questionsPerType', JSON.stringify({
-    "MCQ_SINGLE": 3,
-    "TRUE_FALSE": 2,
-    "OPEN": 1,
-    "FILL_GAP": 1
-  }));
-  formData.append('difficulty', 'HARD');
-  formData.append('quizTitle', 'Advanced Machine Learning Quiz');
-  formData.append('quizDescription', 'Comprehensive test of ML concepts');
-  formData.append('estimatedTimePerQuestion', '3');
-  formData.append('categoryId', 'category-uuid-here');
-  formData.append('tagIds', JSON.stringify(['tag1-uuid', 'tag2-uuid']));
-
-  const response = await fetch('/api/v1/quizzes/generate-from-upload', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + getAuthToken()
-    },
-    body: formData
-  });
-
-  return await response.json();
-}
-```
-
-### React Hook Example
-
-```javascript
-import { useState } from 'react';
-
-function useQuizGeneration() {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState(null);
-  const [quiz, setQuiz] = useState(null);
-
-  const generateQuiz = async (file, options = {}) => {
-    setIsGenerating(true);
-    setError(null);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('questionsPerType', JSON.stringify(options.questionsPerType || {
-        "MCQ_SINGLE": 5,
-        "TRUE_FALSE": 3
-      }));
-      formData.append('difficulty', options.difficulty || 'MEDIUM');
-      
-      if (options.quizTitle) formData.append('quizTitle', options.quizTitle);
-      if (options.quizDescription) formData.append('quizDescription', options.quizDescription);
-      if (options.chunkingStrategy) formData.append('chunkingStrategy', options.chunkingStrategy);
-      if (options.maxChunkSize) formData.append('maxChunkSize', options.maxChunkSize);
-
-      const response = await fetch('/api/v1/quizzes/generate-from-upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + getAuthToken()
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate quiz');
-      }
-
-      const generatedQuiz = await response.json();
-      setQuiz(generatedQuiz);
-      return generatedQuiz;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  return { generateQuiz, isGenerating, error, quiz };
-}
-```
-
-### Vue.js Example
-
-```javascript
-// Composition API
-import { ref } from 'vue';
-
-export function useQuizGeneration() {
-  const isGenerating = ref(false);
-  const error = ref(null);
-  const quiz = ref(null);
-
-  const generateQuiz = async (file, options = {}) => {
-    isGenerating.value = true;
-    error.value = null;
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('questionsPerType', JSON.stringify(options.questionsPerType || {
-        "MCQ_SINGLE": 5,
-        "TRUE_FALSE": 3
-      }));
-      formData.append('difficulty', options.difficulty || 'MEDIUM');
-
-      const response = await fetch('/api/v1/quizzes/generate-from-upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + getAuthToken()
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate quiz');
-      }
-
-      const generatedQuiz = await response.json();
-      quiz.value = generatedQuiz;
-      return generatedQuiz;
-    } catch (err) {
-      error.value = err.message;
-      throw err;
-    } finally {
-      isGenerating.value = false;
-    }
-  };
-
-  return {
-    generateQuiz,
-    isGenerating,
-    error,
-    quiz
-  };
-}
-```
-
-## Error Handling
-
-### Common Error Responses
-
-| Status Code | Description | Solution |
-|-------------|-------------|----------|
-| `400` | Bad Request - Invalid parameters | Check parameter values and format |
-| `401` | Unauthorized - Missing/invalid token | Ensure valid authentication token |
-| `403` | Forbidden - Insufficient permissions | Ensure user has ADMIN role |
-| `422` | Unprocessable Entity - Document processing failed | Check file format and content |
-| `500` | Internal Server Error | Contact support |
-
-### Error Response Format
+### 401 Unauthorized
 
 ```json
 {
-  "timestamp": "2025-07-23T22:15:00",
-  "status": 400,
-  "error": "Bad Request",
-  "details": "Invalid questionsPerType format",
-  "path": "/api/v1/quizzes/generate-from-upload"
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "JWT token missing or expired",
+  "instance": "/api/v1/quizzes/generate-from-text"
 }
 ```
 
-### Validation Errors
+### 403 Forbidden
 
-Common validation errors and their solutions:
+```json
+{
+  "type": "about:blank",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Access denied - ADMIN role required",
+  "instance": "/api/v1/quizzes/generate-from-text"
+}
+```
 
-- **Invalid questionsPerType JSON**: Ensure proper JSON format
-- **File too large**: Check file size limits
-- **Unsupported file type**: Use PDF, DOCX, or TXT files
-- **Invalid difficulty**: Use EASY, MEDIUM, or HARD
-- **Invalid chunking strategy**: Use valid strategy values
+### 409 Conflict
 
-## Performance Considerations
+```json
+{
+  "type": "about:blank",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "User already has an active generation job",
+  "instance": "/api/v1/quizzes/generate-from-text"
+}
+```
 
-- **Timeout**: The operation has a 5-minute timeout
-- **File Size**: Large documents may take longer to process
-- **Question Count**: More questions = longer generation time
-- **Chunking Strategy**: Different strategies affect processing time
+### 422 Unprocessable Entity
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "Text processing failed: [specific error message]",
+  "instance": "/api/v1/quizzes/generate-from-text"
+}
+```
+## Usage Examples
+
+### Basic Usage with Custom Title
+
+```javascript
+// Generate quiz with custom title
+const response = await fetch('/api/v1/quizzes/generate-from-text', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    text: "Machine learning is a subset of artificial intelligence that enables computers to learn and improve from experience without being explicitly programmed.",
+    quizTitle: "Machine Learning Fundamentals Quiz",  // Custom title
+    quizDescription: "Test your knowledge of machine learning basics",  // Custom description
+    questionsPerType: {
+      "MCQ_SINGLE": 3,
+      "TRUE_FALSE": 2
+    },
+    difficulty: "MEDIUM"
+  })
+});
+
+const result = await response.json();
+console.log('Job ID:', result.jobId);
+```
+
+### Advanced Usage with All Custom Fields
+
+```javascript
+// Advanced quiz generation with custom title and all settings
+const response = await fetch('/api/v1/quizzes/generate-from-text', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    text: "Your long text content here...",
+    language: "en",
+    chunkingStrategy: "SIZE_BASED",
+    maxChunkSize: 25000,
+    quizScope: "ENTIRE_DOCUMENT",
+    quizTitle: "Advanced Machine Learning Concepts",  // Custom title
+    quizDescription: "Comprehensive assessment of advanced ML algorithms and techniques",  // Custom description
+    questionsPerType: {
+      "MCQ_SINGLE": 5,
+      "MCQ_MULTI": 2,
+      "TRUE_FALSE": 3,
+      "OPEN": 1
+    },
+    difficulty: "HARD",
+    estimatedTimePerQuestion: 3,
+    categoryId: "d290f1ee-6c54-4b01-90e6-d701748f0851",
+    tagIds: ["a1b2c3d4-e5f6-7890-abcd-ef1234567890"]
+  })
+});
+```
+
+### Error Handling
+
+```javascript
+try {
+  const response = await fetch('/api/v1/quizzes/generate-from-text', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    
+    switch (response.status) {
+      case 400:
+        console.error('Validation error:', errorData.errors);
+        // Handle validation errors
+        break;
+      case 401:
+        console.error('Authentication required');
+        // Redirect to login
+        break;
+      case 403:
+        console.error('Admin access required');
+        // Show access denied message
+        break;
+      case 409:
+        console.error('User has active job');
+        // Show job in progress message
+        break;
+      case 422:
+        console.error('Processing failed:', errorData.detail);
+        // Show processing error
+        break;
+      default:
+        console.error('Unexpected error:', errorData);
+    }
+    return;
+  }
+
+  const result = await response.json();
+  console.log('Quiz generation started:', result.jobId);
+  
+} catch (error) {
+  console.error('Network error:', error);
+}
+```
+
+## Custom Quiz Title Guidelines
+
+### When to Use Custom Titles
+- **Specific Topics**: Use descriptive titles like "JavaScript Fundamentals Quiz"
+- **Course Content**: Match course/module titles like "Module 3: Database Design"
+- **Assessment Types**: Indicate purpose like "Final Exam: Advanced Algorithms"
+- **Difficulty Levels**: Include difficulty like "Beginner Python Quiz"
+
+### Title Best Practices
+- **Keep it concise**: Maximum 100 characters
+- **Be descriptive**: Clearly indicate the quiz content
+- **Use consistent naming**: Follow your application's naming conventions
+- **Include context**: Add course/module information when relevant
+
+### Examples of Good Custom Titles
+```javascript
+// Good examples
+quizTitle: "JavaScript ES6 Features Quiz"
+quizTitle: "Module 2: Object-Oriented Programming"
+quizTitle: "Final Assessment: Machine Learning Basics"
+quizTitle: "Quick Check: Database Normalization"
+quizTitle: "Advanced Topics: Neural Networks"
+
+// Avoid these
+quizTitle: "Quiz"  // Too generic
+quizTitle: "Test"  // Too generic
+quizTitle: "A very long title that exceeds the maximum character limit and should be avoided"  // Too long
+```
+
+## Job Tracking
+
+After receiving a successful response with a `jobId`, you can track the quiz generation progress using the existing job tracking endpoints:
+
+- `GET /api/v1/quizzes/generation-jobs/{jobId}` - Get job status
+- `GET /api/v1/quizzes/generation-jobs` - List user's jobs
+
+### Job Status Values
+
+```typescript
+enum JobStatus {
+  PENDING = "PENDING",           // Job created, waiting to start
+  PROCESSING = "PROCESSING",     // Job is running
+  COMPLETED = "COMPLETED",       // Job finished successfully
+  FAILED = "FAILED",            // Job failed
+  CANCELLED = "CANCELLED"       // Job was cancelled
+}
+```
+
+## Validation Rules
+
+### Text Content
+- **Required**: Yes
+- **Min length**: 1 character
+- **Max length**: 300,000 characters
+- **Cannot be**: Empty or whitespace-only
+
+### Questions Per Type
+- **Required**: Yes
+- **Min entries**: 1 question type
+- **Max per type**: 10 questions
+- **Min per type**: 1 question
+- **Valid types**: All QuestionType enum values
+
+### Difficulty
+- **Required**: Yes
+- **Valid values**: EASY, MEDIUM, HARD
+
+### Optional Fields
+- **quizTitle**: Max 100 characters
+- **quizDescription**: Max 500 characters
+- **estimatedTimePerQuestion**: 1-10 minutes
+- **maxChunkSize**: 1000-300000 characters
+
+### Scope-Specific Validation
+- **SPECIFIC_CHUNKS**: `chunkIndices` must be provided and non-negative
+- **SPECIFIC_CHAPTER/SECTION**: Either `chapterTitle` or `chapterNumber` must be provided
 
 ## Best Practices
 
-1. **Show Loading State**: Display a loading indicator during generation
-2. **Handle Errors Gracefully**: Provide user-friendly error messages
-3. **Validate File Type**: Check file format before upload
-4. **Set Reasonable Question Counts**: Don't exceed 10 questions per type per chunk
-5. **Use Appropriate Difficulty**: Match difficulty to target audience
-6. **Provide Meaningful Titles**: Help users identify generated quizzes
+1. **Text Length**: For best results, provide at least 500 characters of meaningful content
+2. **Question Distribution**: Balance question types based on content complexity
+3. **Chunking Strategy**: Use `CHAPTER_BASED` for structured content, `SIZE_BASED` for unstructured text
+4. **Error Handling**: Always implement proper error handling for network and validation errors
+5. **Job Tracking**: Implement job status polling to show progress to users
+6. **Rate Limiting**: Be mindful of API rate limits when making multiple requests
 
-## File Requirements
+## Integration Notes
 
-- **Supported Formats**: PDF, DOCX, TXT
-- **Maximum Size**: 150MB
-- **Content**: Text-based documents work best
-- **Language**: English is recommended for best AI results
-
-## Security Notes
-
-- Requires ADMIN role authentication
-- File content is processed securely
-- Generated quizzes are private by default
-- No sensitive data is logged
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"Invalid questionsPerType format"**
-   - Ensure JSON is properly formatted
-   - Check that question types are valid
-
-2. **"Document processing failed"**
-   - Verify file format is supported
-   - Check file isn't corrupted
-   - Ensure file contains readable text
-
-3. **"Generation timed out"**
-   - Try with smaller documents
-   - Reduce question count
-   - Use simpler chunking strategy
-
-4. **"Unauthorized"**
-   - Check authentication token
-   - Verify user has ADMIN role
-   - Ensure token hasn't expired
-
-5. **"Cannot deserialize QuizScope"**
-   - Send quizScope as string: `'ENTIRE_DOCUMENT'`
-   - NOT as object: `{"type": "ENTIRE_DOCUMENT"}`
-   - Valid values: `'ENTIRE_DOCUMENT'`, `'SPECIFIC_CHUNKS'`, `'SPECIFIC_CHAPTER'`, `'SPECIFIC_SECTION'` 
+- This endpoint is **asynchronous** - it returns immediately with a job ID
+- The actual quiz generation happens in the background
+- Use the job tracking endpoints to monitor progress and retrieve results
+- The generated quiz will be available through the standard quiz endpoints once the job completes
+- Failed jobs should be handled gracefully with user-friendly error messages

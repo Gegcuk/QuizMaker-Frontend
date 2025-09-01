@@ -53,9 +53,11 @@ const Navbar: React.FC = () => {
         Questions
       </Link>
       {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
-        <Link to="/documents" className="block px-4 py-2 hover:underline">
-          Documents
-        </Link>
+        <>
+          <Link to="/documents" className="block px-4 py-2 hover:underline">
+            Documents
+          </Link>
+        </>
       )}
       <Link to="/profile" className="block px-4 py-2 hover:underline">
         Profile

@@ -8,4 +8,8 @@ export { default as DocumentViewer } from './DocumentViewer';
 export { default as ChunkSelector } from './ChunkSelector';
 export { default as DocumentAnalytics } from './DocumentAnalytics';
 export { default as DocumentConfig } from './DocumentConfig';
-export { default as DocumentReprocess } from './DocumentReprocess'; 
+export { default as DocumentReprocess } from './DocumentReprocess';
+
+// Document Process Components
+export { default as DocumentProcessUpload } from './DocumentProcessUpload';
+export { default as DocumentProcessList } from './DocumentProcessList'; 

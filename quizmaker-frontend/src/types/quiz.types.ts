@@ -124,6 +124,28 @@ export interface GenerateQuizFromDocumentRequest {
 }
 
 /**
+ * Generate quiz from text request
+ * Matches GenerateQuizFromTextRequest from backend API
+ */
+export interface GenerateQuizFromTextRequest {
+  text: string;                                    // Required: Plain text content (1-300,000 characters)
+  questionsPerType: Record<QuizQuestionType, number>; // Required: Question types and counts
+  difficulty: Difficulty;                          // Required: Question difficulty level
+  language?: string;                              // Optional: Language code (e.g., "en", "es")
+  chunkingStrategy?: 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED'; // Optional: Document processing strategy
+  maxChunkSize?: number;                          // Optional: Max characters per chunk (1000-300000)
+  quizScope?: QuizScope;                          // Optional: Quiz generation scope
+  chunkIndices?: number[];                        // Optional: Specific chunk indices (for SPECIFIC_CHUNKS scope)
+  chapterTitle?: string;                          // Optional: Chapter title (for SPECIFIC_CHAPTER/SECTION scope)
+  chapterNumber?: number;                         // Optional: Chapter number (for SPECIFIC_CHAPTER/SECTION scope)
+  quizTitle?: string;                             // Optional: Custom quiz title (max 100 chars)
+  quizDescription?: string;                       // Optional: Custom quiz description (max 500 chars)
+  estimatedTimePerQuestion?: number;              // Optional: Minutes per question (1-10)
+  categoryId?: string;                            // Optional: Category UUID
+  tagIds?: string[];                              // Optional: Array of tag UUIDs
+}
+
+/**
  * Quiz generation response
  * Matches QuizGenerationResponse from API documentation
  */

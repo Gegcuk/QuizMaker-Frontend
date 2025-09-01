@@ -1,26 +1,18 @@
-// src/pages/DocumentUploadWithQuizPage.tsx
+// src/components/quiz/DocumentUploadTab.tsx
 // ---------------------------------------------------------------------------
-// Combined document upload and quiz generation page
-// Uses the new /api/v1/quizzes/generate-from-upload endpoint
-// Allows users to upload a document and immediately start quiz generation
+// Document upload and quiz generation tab
+// Extracted from DocumentUploadWithQuizPage for integration into the new tabbed interface
 // ---------------------------------------------------------------------------
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService } from '../api/quiz.service';
-import { QuizGenerationResponse, QuizQuestionType, Difficulty, QuizScope } from '../types/quiz.types';
-import { GenerationProgress } from '../components/ai';
-import { Button, Alert, Badge } from '../components/ui';
-import { Breadcrumb, PageHeader } from '../components/layout';
-import api from '../api/axiosInstance';
+import { QuizService } from '../../api/quiz.service';
+import { QuizQuestionType, Difficulty, QuizScope } from '../../types/quiz.types';
+import { GenerationProgress } from '../ai';
+import { Button, Alert } from '../ui';
+import api from '../../api/axiosInstance';
 
-interface DocumentUploadWithQuizPageProps {
-  className?: string;
-}
-
-const DocumentUploadWithQuizPage: React.FC<DocumentUploadWithQuizPageProps> = ({
-  className = ''
-}) => {
+export const DocumentUploadTab: React.FC = () => {
   const navigate = useNavigate();
   const quizService = new QuizService(api);
   
@@ -223,23 +215,11 @@ const DocumentUploadWithQuizPage: React.FC<DocumentUploadWithQuizPageProps> = ({
   };
 
   return (
-    <div className={`max-w-6xl mx-auto py-8 px-4 ${className}`}>
-      <PageHeader
-        title="Upload Document & Generate Quiz"
-        subtitle="Upload a document and immediately start quiz generation"
-        actions={[
-          {
-            label: 'Back to Documents',
-            variant: 'secondary',
-            onClick: () => navigate('/documents')
-          }
-        ]}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - File Upload */}
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Document Upload</h3>
             
             {/* File Upload Area */}
@@ -359,7 +339,7 @@ const DocumentUploadWithQuizPage: React.FC<DocumentUploadWithQuizPageProps> = ({
 
         {/* Right Column - Quiz Configuration */}
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
@@ -630,5 +610,3 @@ const DocumentUploadWithQuizPage: React.FC<DocumentUploadWithQuizPageProps> = ({
     </div>
   );
 };
-
-export default DocumentUploadWithQuizPage; 
