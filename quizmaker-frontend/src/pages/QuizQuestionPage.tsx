@@ -353,17 +353,9 @@ const QuizQuestionsPage: React.FC = () => {
                           disabled={true}
                           className="border-0 shadow-none"
                         />
-                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {question.type.replace('_', ' ')}
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            question.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
-                            question.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {question.difficulty}
-                          </span>
+                        <div className="mt-2 flex items-center space-x-2 text-sm text-gray-500">
+                          <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
+                          <Badge variant={question.difficulty === 'EASY' ? 'success' : question.difficulty === 'MEDIUM' ? 'warning' : 'danger'} size="sm">{question.difficulty}</Badge>
                         </div>
                       </div>
                       <Button
@@ -406,17 +398,9 @@ const QuizQuestionsPage: React.FC = () => {
                             disabled={true}
                             className="border-0 shadow-none"
                           />
-                          <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {q.type.replace('_', ' ')}
-                            </span>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              q.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
-                              q.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {q.difficulty}
-                            </span>
+                          <div className="mt-2 flex items-center space-x-2 text-sm text-gray-500">
+                            <Badge variant="info" size="sm">{q.type.replace('_', ' ')}</Badge>
+                            <Badge variant={q.difficulty === 'EASY' ? 'success' : q.difficulty === 'MEDIUM' ? 'warning' : 'danger'} size="sm">{q.difficulty}</Badge>
                           </div>
                         </div>
                         <Button

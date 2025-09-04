@@ -7,6 +7,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QuizDto } from '../../types/quiz.types';
 import { PageHeader } from '../layout';
+import { Badge } from '../ui';
 import { ActionType } from '../layout/types';
 
 interface QuizDetailHeaderProps {
@@ -34,45 +35,9 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Helper function to get difficulty color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'EASY':
-        return 'bg-green-100 text-green-800';
-      case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'HARD':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Helper function to get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PUBLISHED':
-        return 'bg-green-100 text-green-800';
-      case 'DRAFT':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'ARCHIVED':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Helper function to get visibility color
-  const getVisibilityColor = (visibility: string) => {
-    switch (visibility) {
-      case 'PUBLIC':
-        return 'bg-blue-100 text-blue-800';
-      case 'PRIVATE':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger') as const;
+  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary') as const;
+  const visibilityToBadge = (v: string) => (v === 'PUBLIC' ? 'info' : 'secondary') as const;
 
   // Helper function to format time
   const formatTime = (minutes: number) => {
@@ -190,12 +155,8 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Status</p>
                 <div className="flex items-center space-x-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(quiz.status)}`}>
-                    {quiz.status}
-                  </span>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getVisibilityColor(quiz.visibility)}`}>
-                    {quiz.visibility}
-                  </span>
+                  <Badge variant={statusToBadge(quiz.status)} size="sm">{quiz.status}</Badge>
+                  <Badge variant={visibilityToBadge(quiz.visibility)} size="sm">{quiz.visibility}</Badge>
                 </div>
               </div>
             </div>
@@ -211,9 +172,7 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Difficulty</p>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>
-                  {quiz.difficulty}
-                </span>
+                <Badge variant={difficultyToBadge(quiz.difficulty)} size="sm">{quiz.difficulty}</Badge>
               </div>
             </div>
 
