@@ -10,6 +10,7 @@ import { QuestionDifficulty } from '../../types/question.types';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../../api/quiz.service';
 import { addQuestionToQuiz, removeQuestionFromQuiz, getQuizQuestions } from '../../api/question.service';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
+import { Button } from '../ui';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useToast } from '../ui';
 import type { AxiosError } from 'axios';
@@ -448,54 +449,28 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                 </div>
                 <div className="ml-6 flex space-x-3">
                   {/* Create Draft Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handleCreateQuiz('DRAFT')}
                     disabled={isSaving || !isQuizMetaValid()}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    loading={isSaving}
                   >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {isEditing ? 'Saving...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        {isEditing ? 'Save Draft' : 'Create Draft'}
-                      </>
-                    )}
-                  </button>
+                    {isEditing ? 'Save Draft' : 'Create Draft'}
+                  </Button>
 
                   {/* Create & Publish Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={() => handleCreateQuiz('PUBLISHED')}
                     disabled={isSaving || !isReadyToPublish()}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    loading={isSaving}
                   >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {isEditing ? 'Saving...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {isEditing ? 'Save & Publish' : 'Create & Publish'}
-                      </>
-                    )}
-                  </button>
+                    {isEditing ? 'Save & Publish' : 'Create & Publish'}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -539,54 +514,28 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                 </div>
                 <div className="ml-6 flex space-x-3">
                   {/* Create Draft Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handleCreateQuiz('DRAFT')}
                     disabled={isSaving || !isQuizMetaValid()}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    loading={isSaving}
                   >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {isEditing ? 'Saving...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        {isEditing ? 'Save Draft' : 'Create Draft'}
-                      </>
-                    )}
-                  </button>
+                    {isEditing ? 'Save Draft' : 'Create Draft'}
+                  </Button>
 
                   {/* Create & Publish Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={() => handleCreateQuiz('PUBLISHED')}
                     disabled={isSaving || !isReadyToPublish()}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    loading={isSaving}
                   >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {isEditing ? 'Saving...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {isEditing ? 'Save & Publish' : 'Create & Publish'}
-                      </>
-                    )}
-                  </button>
+                    {isEditing ? 'Save & Publish' : 'Create & Publish'}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -596,28 +545,15 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
         {/* Action Buttons for Editing Existing Quizzes */}
         {isEditing && currentQuiz && (
           <div className="flex justify-center space-x-4 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => handleSubmit()}
-              disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowPublishModal(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
+            <Button type="button" variant="primary" size="sm" onClick={() => handleSubmit()} disabled={isSaving} loading={isSaving}>
+              Save Changes
+            </Button>
+            <Button type="button" variant="success" size="sm" onClick={() => setShowPublishModal(true)}>
               Manage Status
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
+            </Button>
+            <Button type="button" variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
               Delete Quiz
-            </button>
+            </Button>
           </div>
         )}
 

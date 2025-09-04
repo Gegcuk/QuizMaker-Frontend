@@ -7,6 +7,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '../../types/quiz.types';
 import { useQuizMetadata } from '../../hooks/useQuizMetadata';
+import { Badge, Button } from '../ui';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -30,33 +31,8 @@ const QuizCard: React.FC<QuizCardProps> = ({
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
-  // Helper function to get difficulty color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'EASY':
-        return 'bg-green-100 text-green-800';
-      case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'HARD':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Helper function to get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PUBLISHED':
-        return 'bg-green-100 text-green-800';
-      case 'DRAFT':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'ARCHIVED':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger') as const;
+  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary') as const;
 
   // Helper function to format time
   const formatTime = (minutes: number) => {
@@ -100,12 +76,8 @@ const QuizCard: React.FC<QuizCardProps> = ({
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>
-              {quiz.difficulty}
-            </span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(quiz.status)}`}>
-              {quiz.status}
-            </span>
+            <Badge variant={difficultyToBadge(quiz.difficulty)} size="sm">{quiz.difficulty}</Badge>
+            <Badge variant={statusToBadge(quiz.status)} size="sm">{quiz.status}</Badge>
           </div>
         </div>
 
@@ -185,46 +157,35 @@ const QuizCard: React.FC<QuizCardProps> = ({
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="flex space-x-2">
               {onStart && (
-                <button
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
                   onClick={() => onStart(quiz.id)}
                   disabled={quiz.status === 'DRAFT'}
-                  className={`px-3 py-1 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    quiz.status === 'DRAFT'
-                      ? 'text-gray-400 bg-gray-200 cursor-not-allowed'
-                      : 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
-                  }`}
                   title={quiz.status === 'DRAFT' ? 'Quiz must be published before it can be started' : 'Start this quiz'}
                 >
                   Start Quiz
-                </button>
+                </Button>
               )}
-              <Link
-                to={`/quizzes/${quiz.id}`}
-                className="px-3 py-1 text-sm font-medium text-indigo-600 bg-indigo-100 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                View Details
+              <Link to={`/quizzes/${quiz.id}`}>
+                <Button type="button" variant="outline" size="sm">View Details</Button>
               </Link>
             </div>
             <div className="flex space-x-2">
               {onEdit && (
-                <button
-                  onClick={() => onEdit(quiz.id)}
-                  className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => onEdit(quiz.id)} title="Edit quiz">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                </button>
+                </Button>
               )}
               {onDelete && (
-                <button
-                  onClick={() => onDelete(quiz.id)}
-                  className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => onDelete(quiz.id)} title="Delete quiz" className="text-red-600 hover:text-red-700">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                </button>
+                </Button>
               )}
             </div>
           </div>

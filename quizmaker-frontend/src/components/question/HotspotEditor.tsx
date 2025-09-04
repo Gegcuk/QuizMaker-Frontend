@@ -10,12 +10,14 @@ interface HotspotEditorProps {
   content: HotspotContent;
   onChange: (content: HotspotContent) => void;
   className?: string;
+  showPreview?: boolean;
 }
 
 const HotspotEditor: React.FC<HotspotEditorProps> = ({
   content,
   onChange,
-  className = ''
+  className = '',
+  showPreview = true
 }) => {
   const [imageUrl, setImageUrl] = useState<string>(content.imageUrl || '');
   const [regions, setRegions] = useState<HotspotRegion[]>(content.regions || []);
@@ -100,7 +102,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
           </div>
 
           {/* Image Preview */}
-          {imageUrl && (
+          {showPreview && imageUrl && (
             <div className="border border-gray-200 rounded-lg p-4 bg-white">
               <h5 className="text-sm font-medium text-gray-700 mb-2">Image Preview</h5>
               <div className="relative inline-block">
@@ -285,44 +287,46 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
       </div>
 
       {/* Preview */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
-        <div className="text-sm text-gray-600">
-          <p>Students will see:</p>
-          <div className="mt-2">
-            {imageUrl ? (
-              <div className="relative inline-block">
-                <img
-                  src={imageUrl}
-                  alt="Hotspot question preview"
-                  className="max-w-full h-auto border border-gray-300 rounded"
-                />
-                {regions.map((region) => (
-                  <div
-                    key={region.id}
-                    className="absolute border-2 border-dashed cursor-pointer"
-                    style={{
-                      left: `${region.x}%`,
-                      top: `${region.y}%`,
-                      width: `${region.width}%`,
-                      height: `${region.height}%`,
-                      borderColor: region.correct ? '#10B981' : '#EF4444'
-                    }}
-                    title={`Region ${region.id} (${region.correct ? 'Correct' : 'Incorrect'})`}
+      {showPreview && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
+          <div className="text-sm text-gray-600">
+            <p>Students will see:</p>
+            <div className="mt-2">
+              {imageUrl ? (
+                <div className="relative inline-block">
+                  <img
+                    src={imageUrl}
+                    alt="Hotspot question preview"
+                    className="max-w-full h-auto border border-gray-300 rounded"
                   />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-gray-100 border border-gray-300 rounded p-8 text-center text-gray-500">
-                <p>No image provided</p>
-              </div>
-            )}
+                  {regions.map((region) => (
+                    <div
+                      key={region.id}
+                      className="absolute border-2 border-dashed cursor-pointer"
+                      style={{
+                        left: `${region.x}%`,
+                        top: `${region.y}%`,
+                        width: `${region.width}%`,
+                        height: `${region.height}%`,
+                        borderColor: region.correct ? '#10B981' : '#EF4444'
+                      }}
+                      title={`Region ${region.id} (${region.correct ? 'Correct' : 'Incorrect'})`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-100 border border-gray-300 rounded p-8 text-center text-gray-500">
+                  <p>No image provided</p>
+                </div>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Students will click on the marked areas to answer the question.
+            </p>
           </div>
-          <p className="mt-2 text-xs text-gray-500">
-            Students will click on the marked areas to answer the question.
-          </p>
         </div>
-      </div>
+      )}
 
       {/* Region Summary */}
       {regions.length > 0 && (

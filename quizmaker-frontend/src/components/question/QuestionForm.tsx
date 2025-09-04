@@ -439,20 +439,22 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                             showPreview={false}
                           />
                         );
-                      case 'ORDERING':
-                        return (
-                          <OrderingEditor
-                            content={formData.content as any}
-                            onChange={handleContentChange}
-                          />
-                        );
-                      case 'HOTSPOT':
-                        return (
-                          <HotspotEditor
-                            content={formData.content as any}
-                            onChange={handleContentChange}
-                          />
-                        );
+                    case 'ORDERING':
+                      return (
+                        <OrderingEditor
+                          content={formData.content as any}
+                          onChange={handleContentChange}
+                          showPreview={false}
+                        />
+                      );
+                    case 'HOTSPOT':
+                      return (
+                        <HotspotEditor
+                          content={formData.content as any}
+                          onChange={handleContentChange}
+                          showPreview={false}
+                        />
+                      );
                       default:
                         return null;
                     }

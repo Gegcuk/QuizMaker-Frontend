@@ -10,12 +10,14 @@ interface OrderingEditorProps {
   content: OrderingContent;
   onChange: (content: OrderingContent) => void;
   className?: string;
+  showPreview?: boolean;
 }
 
 const OrderingEditor: React.FC<OrderingEditorProps> = ({
   content,
   onChange,
-  className = ''
+  className = '',
+  showPreview = true
 }) => {
   const [items, setItems] = useState<OrderingItem[]>(
     content.items || [
@@ -194,36 +196,38 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
       </div>
 
       {/* Preview */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
-        <div className="text-sm text-gray-600">
-          <p>Students will see:</p>
-          <div className="mt-2 space-y-2">
-            {items.map((item, index) => (
-              <div key={item.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded bg-white">
-                <div className="flex-shrink-0">
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">
-                    {index + 1}
-                  </span>
+      {showPreview && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
+          <div className="text-sm text-gray-600">
+            <p>Students will see:</p>
+            <div className="mt-2 space-y-2">
+              {items.map((item, index) => (
+                <div key={item.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded bg-white">
+                  <div className="flex-shrink-0">
+                    <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">
+                      {index + 1}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-sm">
+                      {item.text || `Item ${index + 1}`}
+                    </span>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <span className="text-sm">
-                    {item.text || `Item ${index + 1}`}
-                  </span>
-                </div>
-                <div className="flex-shrink-0">
-                  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
-                  </svg>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Students will drag items to arrange them in the correct order.
+            </p>
           </div>
-          <p className="mt-2 text-xs text-gray-500">
-            Students will drag items to arrange them in the correct order.
-          </p>
         </div>
-      </div>
+      )}
 
       {/* Order Summary */}
       {items.length > 0 && (
