@@ -10,12 +10,14 @@ interface ComplianceEditorProps {
   content: ComplianceContent;
   onChange: (content: ComplianceContent) => void;
   className?: string;
+  showPreview?: boolean;
 }
 
 const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   content,
   onChange,
-  className = ''
+  className = '',
+  showPreview = true
 }) => {
   const [statements, setStatements] = useState<ComplianceStatement[]>(
     content.statements || [
@@ -199,30 +201,31 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         </div>
       </div>
 
-      {/* Preview */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
-        <div className="text-sm text-gray-600">
-          <p>Students will see:</p>
-          <div className="mt-2 space-y-2">
-            {statements.map((statement) => (
-              <div key={statement.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded bg-white">
-                <input
-                  type="checkbox"
-                  disabled
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
-                />
-                <span className="text-sm">
-                  {statement.text || `Statement ${statement.id}`}
-                </span>
-              </div>
-            ))}
+      {showPreview && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
+          <div className="text-sm text-gray-600">
+            <p>Students will see:</p>
+            <div className="mt-2 space-y-2">
+              {statements.map((statement) => (
+                <div key={statement.id} className="flex items-start space-x-3 p-3 border border-gray-200 rounded bg-white">
+                  <input
+                    type="checkbox"
+                    disabled
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
+                  />
+                  <span className="text-sm">
+                    {statement.text || `Statement ${statement.id}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Students will check the statements they believe are compliant.
+            </p>
           </div>
-          <p className="mt-2 text-xs text-gray-500">
-            Students will check the statements they believe are compliant.
-          </p>
         </div>
-      </div>
+      )}
 
       {/* Compliance Summary */}
       {statements.length > 0 && (

@@ -8,8 +8,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '../../types/question.types';
 import { createQuestion, updateQuestion, getQuestionById } from '../../api/question.service';
 import QuestionTypeSelector from './QuestionTypeSelector';
-import QuestionEditor from './QuestionEditor';
-import QuestionPreview from './QuestionPreview';
+import { QuestionRenderer } from './';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../attempt';
+import { QuestionForAttemptDto } from '../../types/attempt.types';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -45,7 +46,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewMode, setPreviewMode] = useState(false);
+  // Live preview is rendered alongside the form; no toggle needed
 
   // Form state
   const [formData, setFormData] = useState<CreateQuestionRequest>({
@@ -179,6 +180,57 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     }));
   }, []);
 
+  // Build attempt-like question with safeContent (no correct answers)
+  const toAttemptQuestion = (): QuestionForAttemptDto => {
+    const { type, difficulty, questionText, content } = formData as any;
+    let safeContent: any = {};
+    switch (type) {
+      case 'MCQ_SINGLE':
+      case 'MCQ_MULTI':
+        safeContent = {
+          options: (content?.options || []).map((opt: any) => ({ id: opt.id, text: opt.text }))
+        };
+        break;
+      case 'FILL_GAP':
+        safeContent = {
+          text: content?.text || '',
+          gaps: (content?.gaps || []).map((g: any) => ({ id: g.id }))
+        };
+        break;
+      case 'COMPLIANCE':
+        safeContent = {
+          statements: (content?.statements || []).map((s: any) => ({ id: s.id, text: s.text }))
+        };
+        break;
+      case 'ORDERING':
+        safeContent = {
+          items: (content?.items || []).map((it: any) => ({ id: it.id, text: it.text }))
+        };
+        break;
+      case 'HOTSPOT':
+        safeContent = {
+          imageUrl: content?.imageUrl || '',
+          regions: content?.regions || []
+        };
+        break;
+      case 'TRUE_FALSE':
+      case 'OPEN':
+      default:
+        safeContent = {};
+    }
+    return {
+      id: 'preview',
+      type,
+      difficulty,
+      questionText: questionText || '',
+      safeContent,
+      hint: (formData as any).hint || undefined,
+      attachmentUrl: (formData as any).attachmentUrl || undefined,
+    } as QuestionForAttemptDto;
+  };
+
+  const [previewAnswer, setPreviewAnswer] = useState<any>(null);
+
   const handleSaveAndAddAnother = async () => {
     if (questionId) return; // Only for create flow
     setSaving(true);
@@ -255,63 +307,24 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         </div>
       )}
 
-      {/* Preview Toggle */}
-      <div className="mb-6 flex justify-end">
-        <button
-          type="button"
-          onClick={() => setPreviewMode(!previewMode)}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          {previewMode ? 'Edit Mode' : 'Preview Mode'}
-        </button>
-      </div>
-
-      {previewMode ? (
-        /* Preview Mode */
+      {/* Edit Mode with Live Preview */}
+      <form onSubmit={handleSubmit} className="space-y-8">
         <div className="bg-white shadow rounded-lg border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Question Details</h3>
+          </div>
           <div className="px-6 py-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Question Preview</h3>
-            <div className="prose max-w-none">
-              <p className="text-gray-700">{formData.questionText}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Type: {formData.type} | Difficulty: {formData.difficulty}
-              </p>
-            </div>
-          </div>
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setPreviewMode(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Back to Edit
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Edit Mode */
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="bg-white shadow rounded-lg border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Question Details</h3>
-            </div>
-            <div className="px-6 py-6 space-y-6">
-              {/* Question Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Question Type
-                </label>
-                <QuestionTypeSelector
-                  selectedType={formData.type}
-                  onTypeChange={handleTypeChange}
-                />
-              </div>
+            <div className="space-y-6">
+                {/* Question Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Question Type
+                  </label>
+                  <QuestionTypeSelector
+                    selectedType={formData.type}
+                    onTypeChange={handleTypeChange}
+                  />
+                </div>
 
                              {/* Question Text */}
                <div>
@@ -371,109 +384,176 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                  />
                </div>
 
-               {/* Type-specific Content */}
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                   {formData.type.replace('_', ' ')} Content
-                 </label>
-                 {(() => {
-                   switch (formData.type) {
-                     case 'MCQ_SINGLE':
-                       return (
-                         <McqQuestionEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                           isMultiSelect={false}
-                         />
-                       );
-                     case 'MCQ_MULTI':
-                       return (
-                         <McqQuestionEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                           isMultiSelect={true}
-                         />
-                       );
-                     case 'TRUE_FALSE':
-                       return (
-                         <TrueFalseEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     case 'OPEN':
-                       return (
-                         <OpenQuestionEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     case 'FILL_GAP':
-                       return (
-                         <FillGapEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     case 'COMPLIANCE':
-                       return (
-                         <ComplianceEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     case 'ORDERING':
-                       return (
-                         <OrderingEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     case 'HOTSPOT':
-                       return (
-                         <HotspotEditor
-                           content={formData.content as any}
-                           onChange={handleContentChange}
-                         />
-                       );
-                     default:
-                       return null;
-                   }
-                 })()}
-               </div>
+                {/* Type-specific Content */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {formData.type.replace('_', ' ')} Content
+                  </label>
+                  {(() => {
+                    switch (formData.type) {
+                      case 'MCQ_SINGLE':
+                        return (
+                          <McqQuestionEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            isMultiSelect={false}
+                          />
+                        );
+                      case 'MCQ_MULTI':
+                        return (
+                          <McqQuestionEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            isMultiSelect={true}
+                          />
+                        );
+                      case 'TRUE_FALSE':
+                        return (
+                          <TrueFalseEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            showPreview={false}
+                          />
+                        );
+                      case 'OPEN':
+                        return (
+                          <OpenQuestionEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            showPreview={false}
+                          />
+                        );
+                      case 'FILL_GAP':
+                        return (
+                          <FillGapEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            showPreview={false}
+                          />
+                        );
+                      case 'COMPLIANCE':
+                        return (
+                          <ComplianceEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                            showPreview={false}
+                          />
+                        );
+                      case 'ORDERING':
+                        return (
+                          <OrderingEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                          />
+                        );
+                      case 'HOTSPOT':
+                        return (
+                          <HotspotEditor
+                            content={formData.content as any}
+                            onChange={handleContentChange}
+                          />
+                        );
+                      default:
+                        return null;
+                    }
+                  })()}
+                </div>
+              {/* Live Preview at bottom */}
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Live Preview (Attempt-like)</h4>
+                {(() => {
+                  const q = toAttemptQuestion();
+                  switch (q.type) {
+                    case 'MCQ_SINGLE':
+                      return (
+                        <McqAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as string}
+                          onAnswerChange={setPreviewAnswer}
+                          singleChoice
+                        />
+                      );
+                    case 'MCQ_MULTI':
+                      return (
+                        <McqAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as string[]}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'TRUE_FALSE':
+                      return (
+                        <TrueFalseAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as boolean}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'OPEN':
+                      return (
+                        <OpenAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as string}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'FILL_GAP':
+                      return (
+                        <FillGapAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as Record<number, string>}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'COMPLIANCE':
+                      return (
+                        <ComplianceAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as Record<number, boolean>}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'ORDERING':
+                      return (
+                        <OrderingAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as number[]}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'HOTSPOT':
+                      return (
+                        <HotspotAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as any}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    default:
+                      return null;
+                  }
+                })()}
+              </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Cancel
+          </button>
+          {!questionId && (
             <button
               type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Cancel
-            </button>
-            {!questionId && (
-              <button
-                type="button"
-                onClick={handleSaveAndAddAnother}
-                disabled={saving || !formData.questionText.trim()}
-                className="inline-flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? (
-                  <>
-                    <Spinner />
-                    <span className="ml-2">Saving...</span>
-                  </>
-                ) : (
-                  'Save & Add Another'
-                )}
-              </button>
-            )}
-            <button
-              type="submit"
+              onClick={handleSaveAndAddAnother}
               disabled={saving || !formData.questionText.trim()}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>
@@ -481,12 +561,26 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   <span className="ml-2">Saving...</span>
                 </>
               ) : (
-                questionId ? 'Update Question' : 'Create Question'
+                'Save & Add Another'
               )}
             </button>
-          </div>
-        </form>
-      )}
+          )}
+          <button
+            type="submit"
+            disabled={saving || !formData.questionText.trim()}
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <>
+                <Spinner />
+                <span className="ml-2">Saving...</span>
+              </>
+            ) : (
+              questionId ? 'Update Question' : 'Create Question'
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

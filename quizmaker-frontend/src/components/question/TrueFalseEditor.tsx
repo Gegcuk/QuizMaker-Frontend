@@ -10,12 +10,14 @@ interface TrueFalseEditorProps {
   content: TrueFalseContent;
   onChange: (content: TrueFalseContent) => void;
   className?: string;
+  showPreview?: boolean;
 }
 
 const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
   content,
   onChange,
-  className = ''
+  className = '',
+  showPreview = true
 }) => {
   const [answer, setAnswer] = useState<boolean>(content.answer ?? true);
 
@@ -103,23 +105,24 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
         </div>
       </div>
 
-      {/* Preview */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
-        <div className="text-sm text-gray-600">
-          <p>Students will see:</p>
-          <div className="mt-2 space-y-2">
-            <div className="flex items-center space-x-2">
-              <input type="radio" disabled className="h-4 w-4 text-gray-400" />
-              <span>True</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input type="radio" disabled className="h-4 w-4 text-gray-400" />
-              <span>False</span>
+      {showPreview && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
+          <div className="text-sm text-gray-600">
+            <p>Students will see:</p>
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center space-x-2">
+                <input type="radio" disabled className="h-4 w-4 text-gray-400" />
+                <span>True</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input type="radio" disabled className="h-4 w-4 text-gray-400" />
+                <span>False</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

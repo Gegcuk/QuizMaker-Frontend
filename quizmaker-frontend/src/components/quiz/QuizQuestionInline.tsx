@@ -14,7 +14,7 @@ import {
   addQuestionToQuiz,
   removeQuestionFromQuiz,
 } from '../../api/question.service';
-import { Button, Modal, Spinner, Alert, useToast } from '../ui';
+import { Button, Modal, Spinner, Alert, useToast, Badge } from '../ui';
 import { QuestionForm } from '../question';
 import { PencilSquareIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -245,12 +245,17 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
                       <p className="text-sm text-gray-900 group-hover:text-indigo-700" title={text}>{truncated}</p>
                     </div>
                     <div className="flex items-center space-x-2 ml-2">
-                      {/* Type and difficulty badges before actions */}
-                      <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800 border border-blue-200" title={typeLabel}>
-                        {typeLabel}
+                      {/* Type and difficulty badges before actions (using shared Badge) */}
+                      <span className="hidden sm:inline-flex">
+                        <Badge variant="info" size="sm">{typeLabel}</Badge>
                       </span>
-                      <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs border ${diffClass.replace('bg', 'border')}`}>
-                        <span className={`${diffClass} px-0.5 py-0 rounded`}>{q.difficulty}</span>
+                      <span className="hidden sm:inline-flex">
+                        <Badge
+                          variant={q.difficulty === 'EASY' ? 'success' : q.difficulty === 'MEDIUM' ? 'warning' : 'danger'}
+                          size="sm"
+                        >
+                          {q.difficulty}
+                        </Badge>
                       </span>
                       <Button
                         type="button"

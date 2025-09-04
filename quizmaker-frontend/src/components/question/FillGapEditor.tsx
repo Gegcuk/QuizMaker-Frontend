@@ -10,12 +10,14 @@ interface FillGapEditorProps {
   content: FillGapContent;
   onChange: (content: FillGapContent) => void;
   className?: string;
+  showPreview?: boolean;
 }
 
 const FillGapEditor: React.FC<FillGapEditorProps> = ({
   content,
   onChange,
-  className = ''
+  className = '',
+  showPreview = true
 }) => {
   const [text, setText] = useState<string>(content.text || '');
   const [gaps, setGaps] = useState<GapAnswer[]>(content.gaps || []);
@@ -183,37 +185,38 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
         </div>
       </div>
 
-      {/* Preview */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
-        <div className="text-sm text-gray-600">
-          <p>Students will see:</p>
-          <div className="mt-2 bg-white p-3 rounded border">
-            {text ? (
-              <div className="space-y-2">
-                {text.split(/(___\d+___)/).map((part, index) => {
-                  const gapMatch = part.match(/___(\d+)___/);
-                  if (gapMatch) {
-                    const gapId = parseInt(gapMatch[1]);
-                    return (
-                      <input
-                        key={index}
-                        type="text"
-                        placeholder={`Gap ${gapId}`}
-                        disabled
-                        className="inline-block w-24 border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 text-sm"
-                      />
-                    );
-                  }
-                  return <span key={index}>{part}</span>;
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-400 italic">No text provided</p>
-            )}
+      {showPreview && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">Preview</h5>
+          <div className="text-sm text-gray-600">
+            <p>Students will see:</p>
+            <div className="mt-2 bg-white p-3 rounded border">
+              {text ? (
+                <div className="space-y-2">
+                  {text.split(/(___\d+___)/).map((part, index) => {
+                    const gapMatch = part.match(/___(\d+)___/);
+                    if (gapMatch) {
+                      const gapId = parseInt(gapMatch[1]);
+                      return (
+                        <input
+                          key={index}
+                          type="text"
+                          placeholder={`Gap ${gapId}`}
+                          disabled
+                          className="inline-block w-24 border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 text-sm"
+                        />
+                      );
+                    }
+                    return <span key={index}>{part}</span>;
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-400 italic">No text provided</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Answer Summary */}
       {gaps.length > 0 && (
