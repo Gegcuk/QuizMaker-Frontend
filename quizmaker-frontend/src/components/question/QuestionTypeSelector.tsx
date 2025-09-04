@@ -77,9 +77,10 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
   ];
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${className}`}>
       {questionTypes.map((questionType) => (
-        <div
+        <button
+          type="button"
           key={questionType.type}
           className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-colors ${
             selectedType === questionType.type
@@ -121,7 +122,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
               </svg>
             </div>
           )}
-        </div>
+        </button>
       ))}
     </div>
   );

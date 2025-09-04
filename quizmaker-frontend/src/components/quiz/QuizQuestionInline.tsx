@@ -286,7 +286,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
         isOpen={isModalOpen}
         onClose={closeModal}
         title={editingQuestionId ? 'Edit Question' : 'Create New Question'}
-        size="xl"
+        size="2xl"
       >
         <QuestionForm
           questionId={editingQuestionId || undefined}
