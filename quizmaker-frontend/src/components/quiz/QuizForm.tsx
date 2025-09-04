@@ -6,14 +6,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '../../types/quiz.types';
+import { QuestionDifficulty } from '../../types/question.types';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../../api/quiz.service';
 import { addQuestionToQuiz, removeQuestionFromQuiz, getQuizQuestions } from '../../api/question.service';
-import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionManager } from './';
+import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
 import ConfirmationModal from '../common/ConfirmationModal';
+import { useToast } from '../ui';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {
   className?: string;
+  defaultTab?: 'management' | 'questions' | 'preview';
 }
 
 interface FormErrors {
@@ -25,10 +28,11 @@ interface FormErrors {
   [key: string]: string | undefined;
 }
 
-const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
+const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(quizId);
+  const { addToast } = useToast();
   
   const [quizData, setQuizData] = useState<Partial<CreateQuizRequest | UpdateQuizRequest>>({
     title: '',
@@ -44,11 +48,12 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
   });
   
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+  const [initialQuestionIds, setInitialQuestionIds] = useState<string[]>([]);
   const [currentQuiz, setCurrentQuiz] = useState<QuizDto | null>(null);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [activeTab, setActiveTab] = useState<'management' | 'questions' | 'preview'>('management');
+  const [activeTab, setActiveTab] = useState<'management' | 'questions' | 'preview'>(defaultTab || 'management');
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -79,7 +84,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
           });
           
           // Set existing questions
-          setSelectedQuestionIds(questions.content.map((q: any) => q.id));
+          const existingIds = questions.content.map((q: any) => q.id);
+          setSelectedQuestionIds(existingIds);
+          setInitialQuestionIds(existingIds);
         } catch (error) {
           const axiosError = error as AxiosError<{ message?: string }>;
           const errorMessage = axiosError.response?.data?.message || 'Failed to load quiz';
@@ -166,19 +173,38 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
       if (isEditing && quizId) {
         await updateQuiz(quizId, quizData as UpdateQuizRequest);
         resultQuizId = quizId;
-      } else {
-        const result = await createQuiz(quizData as CreateQuizRequest);
-        resultQuizId = result.quizId;
-      }
-      
-      // Handle question management
-      if (selectedQuestionIds.length > 0) {
-        // Add selected questions to the quiz
-        for (const questionId of selectedQuestionIds) {
+
+        // Diff questions: add newly selected, remove deselected
+        const toAdd = selectedQuestionIds.filter((id) => !initialQuestionIds.includes(id));
+        const toRemove = initialQuestionIds.filter((id) => !selectedQuestionIds.includes(id));
+
+        for (const questionId of toAdd) {
           try {
             await addQuestionToQuiz(resultQuizId, questionId);
           } catch (error) {
             console.warn(`Failed to add question ${questionId} to quiz:`, error);
+          }
+        }
+
+        for (const questionId of toRemove) {
+          try {
+            await removeQuestionFromQuiz(resultQuizId, questionId);
+          } catch (error) {
+            console.warn(`Failed to remove question ${questionId} from quiz:`, error);
+          }
+        }
+      } else {
+        const result = await createQuiz(quizData as CreateQuizRequest);
+        resultQuizId = result.quizId;
+
+        // For new quizzes, attach all currently selected questions
+        if (selectedQuestionIds.length > 0) {
+          for (const questionId of selectedQuestionIds) {
+            try {
+              await addQuestionToQuiz(resultQuizId, questionId);
+            } catch (error) {
+              console.warn(`Failed to add question ${questionId} to quiz:`, error);
+            }
           }
         }
       }
@@ -187,7 +213,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
       if (!isEditing && status !== 'DRAFT') {
         await updateQuizStatus(resultQuizId, { status });
       }
-      
+
+      // Success toast
+      if (isEditing) {
+        addToast({ type: 'success', message: 'Quiz saved.' });
+      } else {
+        addToast({ type: 'success', message: status === 'PUBLISHED' ? 'Quiz created and published.' : 'Quiz draft created.' });
+      }
+
       // Navigate to the quiz's edit page for new quizzes, or quiz list for existing ones
       if (isEditing) {
         navigate('/quizzes');
@@ -198,6 +231,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
       const axiosError = error as AxiosError<{ message?: string }>;
       const errorMessage = axiosError.response?.data?.message || 'Failed to save quiz';
       setErrors({ general: errorMessage });
+      addToast({ type: 'error', message: errorMessage });
     } finally {
       setIsSaving(false);
     }
@@ -254,23 +288,19 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
     setSelectedQuestionIds(questionIds);
   };
 
-  // Check if quiz is ready to be created
-  const isQuizReady = () => {
-    // Check required fields
+  // Validation helpers
+  const isQuizMetaValid = () => {
     const title = quizData.title?.trim() || '';
     const hasTitle = title.length >= 3 && title.length <= 100;
     const hasEstimatedTime = quizData.estimatedTime && quizData.estimatedTime >= 1 && quizData.estimatedTime <= 180;
     const hasTimerDuration = !quizData.timerEnabled || (quizData.timerDuration && quizData.timerDuration >= 1 && quizData.timerDuration <= 180);
-    const hasQuestions = selectedQuestionIds.length > 0;
-    
-    return hasTitle && hasEstimatedTime && hasTimerDuration && hasQuestions;
+    return hasTitle && hasEstimatedTime && hasTimerDuration;
   };
 
-  // Get validation messages for missing fields
-  const getValidationMessages = () => {
+  const isReadyToPublish = () => isQuizMetaValid() && selectedQuestionIds.length > 0;
+
+  const getMetaValidationMessages = () => {
     const messages: string[] = [];
-    
-    // Check title validation
     const title = quizData.title?.trim() || '';
     if (!title) {
       messages.push('Quiz title is required');
@@ -279,19 +309,22 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
     } else if (title.length > 100) {
       messages.push('Quiz title must be no more than 100 characters');
     }
-    
+
     if (!quizData.estimatedTime || quizData.estimatedTime < 1 || quizData.estimatedTime > 180) {
       messages.push('Estimated time is required (1-180 minutes)');
     }
-    
+
     if (quizData.timerEnabled && (!quizData.timerDuration || quizData.timerDuration < 1 || quizData.timerDuration > 180)) {
       messages.push('Timer duration is required when timer is enabled (1-180 minutes)');
     }
-    
+    return messages;
+  };
+
+  const getPublishValidationMessages = () => {
+    const messages: string[] = [];
     if (selectedQuestionIds.length === 0) {
       messages.push('At least one question must be selected');
     }
-    
     return messages;
   };
 
@@ -375,10 +408,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
 
         {activeTab === 'questions' && (
           <div className="space-y-6">
-            <QuizQuestionManager
-              quizId={quizId || 'new'}
-              currentQuestionIds={selectedQuestionIds}
-              onQuestionsChange={handleQuestionsChange}
+            <QuizQuestionInline
+              quizId={quizId || undefined}
+              questionIds={selectedQuestionIds}
+              onChange={handleQuestionsChange}
+              defaultDifficulty={(quizData.difficulty as QuestionDifficulty) || 'MEDIUM'}
             />
             
             {/* Create Quiz Buttons for Questions Tab */}
@@ -396,11 +430,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   </p>
                   
                   {/* Validation Messages */}
-                  {!isQuizReady() && (
+                  {(!isQuizMetaValid() || !isReadyToPublish()) && (
                     <div className="mt-3">
                       <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
                       <ul className="text-sm text-red-600 space-y-1">
-                        {getValidationMessages().map((message, index) => (
+                        {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
                           <li key={index} className="flex items-center">
                             <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -417,7 +451,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   <button
                     type="button"
                     onClick={() => handleCreateQuiz('DRAFT')}
-                    disabled={isSaving || !isQuizReady()}
+                    disabled={isSaving || !isQuizMetaValid()}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? (
@@ -442,7 +476,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   <button
                     type="button"
                     onClick={() => handleCreateQuiz('PUBLISHED')}
-                    disabled={isSaving || !isQuizReady()}
+                    disabled={isSaving || !isReadyToPublish()}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? (
@@ -487,11 +521,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   </p>
                   
                   {/* Validation Messages */}
-                  {!isQuizReady() && (
+                  {(!isQuizMetaValid() || !isReadyToPublish()) && (
                     <div className="mt-3">
                       <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
                       <ul className="text-sm text-red-600 space-y-1">
-                        {getValidationMessages().map((message, index) => (
+                        {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
                           <li key={index} className="flex items-center">
                             <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -508,7 +542,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   <button
                     type="button"
                     onClick={() => handleCreateQuiz('DRAFT')}
-                    disabled={isSaving || !isQuizReady()}
+                    disabled={isSaving || !isQuizMetaValid()}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? (
@@ -533,7 +567,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '' }) => {
                   <button
                     type="button"
                     onClick={() => handleCreateQuiz('PUBLISHED')}
-                    disabled={isSaving || !isQuizReady()}
+                    disabled={isSaving || !isReadyToPublish()}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? (

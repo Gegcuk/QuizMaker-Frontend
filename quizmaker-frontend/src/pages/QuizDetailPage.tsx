@@ -102,7 +102,7 @@ const QuizDetailPage: React.FC = () => {
   };
 
   const handleManageQuestions = () => {
-    navigate(`/quizzes/${quizId}/questions`);
+    navigate(`/quizzes/${quizId}/edit?tab=questions`);
   };
 
   if (loading) {

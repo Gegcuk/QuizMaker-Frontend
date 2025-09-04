@@ -154,11 +154,7 @@ const AppRoutes: React.FC = () => {
         />
         <Route
           path="/quizzes/:quizId/questions"
-          element={
-            <ProtectedRoute>
-              <QuizQuestionsPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/quizzes/:quizId/edit?tab=questions" replace />}
         />
         <Route
           path="/quizzes/:quizId/generation"

@@ -7,13 +7,15 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { PageContainer } from '../components/layout';
 import { QuizForm } from '../components/quiz';
 import { QuizCreationTabs } from '../components/quiz/QuizCreationTabs';
 
 const QuizFormPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
+  const [params] = useSearchParams();
+  const defaultTab = (params.get('tab') as 'management' | 'questions' | 'preview' | null) || undefined;
   const isEditing = Boolean(quizId);
 
   // If editing, show only the manual form
@@ -26,7 +28,7 @@ const QuizFormPage: React.FC = () => {
         showBackButton={true}
         backTo="/my-quizzes"
       >
-        <QuizForm />
+        <QuizForm defaultTab={defaultTab} />
       </PageContainer>
     );
   }

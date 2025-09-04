@@ -10,6 +10,7 @@ export { default as Alert } from './Alert';
 export { default as Badge } from './Badge';
 export { default as Card, CardHeader, CardBody, CardFooter, CardContent, CardTitle } from './Card';
 export { default as Spinner } from './Spinner';
+export { ToastProvider, useToast } from './Toast';
 
 // Navigation Components
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';

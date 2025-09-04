@@ -13,6 +13,7 @@ export { default as QuizSettings } from './QuizSettings';
 export { default as QuizPreview } from './QuizPreview';
 export { default as QuizPublishModal } from './QuizPublishModal';
 export { default as QuizQuestionManager } from './QuizQuestionManager';
+export { default as QuizQuestionInline } from './QuizQuestionInline';
 export { default as QuizTagManager } from './QuizTagManager';
 export { default as QuizCategoryManager } from './QuizCategoryManager';
 export { default as QuizManagementTab } from './QuizManagementTab';

@@ -3,21 +3,30 @@
 // Based on CreateQuestionRequest from API documentation
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '../../types/question.types';
-import { createQuestion, updateQuestion } from '../../api/question.service';
+import { createQuestion, updateQuestion, getQuestionById } from '../../api/question.service';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import QuestionEditor from './QuestionEditor';
 import QuestionPreview from './QuestionPreview';
+import McqQuestionEditor from './McqQuestionEditor';
+import TrueFalseEditor from './TrueFalseEditor';
+import OpenQuestionEditor from './OpenQuestionEditor';
+import FillGapEditor from './FillGapEditor';
+import ComplianceEditor from './ComplianceEditor';
+import OrderingEditor from './OrderingEditor';
+import HotspotEditor from './HotspotEditor';
 import { Spinner } from '../ui';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
   quizId?: string; // If provided, we're creating a question for a specific quiz
-  onSuccess?: () => void;
+  onSuccess?: (res?: { questionId?: string; keepOpen?: boolean }) => void;
   onCancel?: () => void;
   className?: string;
+  compact?: boolean; // Hide large page header when embedded in a modal
+  defaultDifficulty?: QuestionDifficulty; // Pre-fill difficulty when creating
 }
 
 const QuestionForm: React.FC<QuestionFormProps> = ({
@@ -25,7 +34,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   quizId,
   onSuccess,
   onCancel,
-  className = ''
+  className = '',
+  compact = false,
+  defaultDifficulty
 }) => {
   const navigate = useNavigate();
   const { quizId: urlQuizId } = useParams<{ quizId: string }>();
@@ -48,7 +59,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         { id: 'd', text: '', correct: false }
       ]
     },
-    difficulty: 'MEDIUM',
+    difficulty: defaultDifficulty || 'MEDIUM',
     explanation: '',
     tagIds: []
   });
@@ -66,9 +77,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setLoading(true);
     setError(null);
     try {
-      // TODO: Implement getQuestionById in question.service.ts
-      // const question = await getQuestionById(questionId);
-      // setFormData(question);
+      const question = await getQuestionById(questionId);
+      setFormData({
+        type: question.type,
+        questionText: question.questionText,
+        content: question.content,
+        difficulty: question.difficulty,
+        explanation: question.explanation || '',
+        hint: question.hint || '',
+        tagIds: question.tagIds || []
+      });
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to load question');
     } finally {
@@ -85,6 +103,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Prevent bubbling to parent forms (e.g., QuizForm) through React portals
+    e.stopPropagation();
     setSaving(true);
     setError(null);
 
@@ -92,19 +112,94 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       if (questionId) {
         // Update existing question
         await updateQuestion(questionId, formData);
+        if (onSuccess) {
+          onSuccess();
+        } else if (actualQuizId) {
+          navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
+        } else {
+          navigate('/questions');
+        }
       } else {
         // Create new question
-        await createQuestion(formData);
+        const res = await createQuestion(formData);
+        if (onSuccess) {
+          onSuccess({ questionId: res.questionId });
+        } else if (actualQuizId) {
+          navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
+        } else {
+          navigate('/questions');
+        }
       }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to save question');
+    } finally {
+      setSaving(false);
+    }
+  };
 
-      // Success handling
+  const initContentForType = (type: QuestionType) => {
+    switch (type) {
+      case 'MCQ_SINGLE':
+      case 'MCQ_MULTI':
+        return {
+          options: [
+            { id: 'a', text: '', correct: false },
+            { id: 'b', text: '', correct: false },
+            { id: 'c', text: '', correct: false },
+            { id: 'd', text: '', correct: false },
+          ],
+        } as CreateQuestionRequest['content'];
+      case 'TRUE_FALSE':
+        return { answer: true } as CreateQuestionRequest['content'];
+      case 'OPEN':
+        return { answer: '' } as CreateQuestionRequest['content'];
+      case 'FILL_GAP':
+        return { text: '', gaps: [] } as CreateQuestionRequest['content'];
+      case 'COMPLIANCE':
+        return { statements: [] } as CreateQuestionRequest['content'];
+      case 'ORDERING':
+        return { items: [] } as CreateQuestionRequest['content'];
+      case 'HOTSPOT':
+        return { imageUrl: '', regions: [] } as CreateQuestionRequest['content'];
+      default:
+        return { options: [] } as any;
+    }
+  };
+
+  // Stable callbacks for child editors to prevent infinite re-renders
+  const handleContentChange = useCallback((content: any) => {
+    setFormData((prev) => ({ ...prev, content }));
+  }, []);
+
+  const handleTypeChange = useCallback((type: QuestionType) => {
+    setFormData((prev) => ({
+      ...prev,
+      type,
+      content: initContentForType(type),
+    }));
+  }, []);
+
+  const handleSaveAndAddAnother = async () => {
+    if (questionId) return; // Only for create flow
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await createQuestion(formData);
+      // Inform parent but keep the modal open
       if (onSuccess) {
-        onSuccess();
-      } else if (actualQuizId) {
-        navigate(`/quizzes/${actualQuizId}/questions`);
-      } else {
-        navigate('/questions');
+        onSuccess({ questionId: res.questionId, keepOpen: true });
       }
+      // Reset inputs for a new question, preserving type and difficulty
+      const prevType = formData.type;
+      const prevDifficulty = formData.difficulty;
+      setFormData({
+        type: prevType,
+        questionText: '',
+        content: initContentForType(prevType),
+        difficulty: prevDifficulty,
+        explanation: '',
+        tagIds: []
+      });
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save question');
     } finally {
@@ -116,7 +211,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     if (onCancel) {
       onCancel();
     } else if (actualQuizId) {
-      navigate(`/quizzes/${actualQuizId}/questions`);
+      navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
     } else {
       navigate('/questions');
     }
@@ -133,14 +228,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {questionId ? 'Edit Question' : 'Create New Question'}
-        </h1>
-        <p className="mt-2 text-gray-600">
-          {questionId ? 'Update the question details below.' : 'Fill in the details to create a new question.'}
-        </p>
-      </div>
+      {!compact && (
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {questionId ? 'Edit Question' : 'Create New Question'}
+          </h1>
+          <p className="mt-2 text-gray-600">
+            {questionId ? 'Update the question details below.' : 'Fill in the details to create a new question.'}
+          </p>
+        </div>
+      )}
 
       {/* Error Display */}
       {error && (
@@ -205,26 +302,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               <h3 className="text-lg font-medium text-gray-900">Question Details</h3>
             </div>
             <div className="px-6 py-6 space-y-6">
-                             {/* Question Type */}
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                   Question Type
-                 </label>
-                 <select
-                   value={formData.type}
-                   onChange={(e) => handleInputChange('type', e.target.value as QuestionType)}
-                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                 >
-                   <option value="MCQ_SINGLE">Multiple Choice (Single Answer)</option>
-                   <option value="MCQ_MULTI">Multiple Choice (Multiple Answers)</option>
-                   <option value="TRUE_FALSE">True/False</option>
-                   <option value="OPEN">Open Ended</option>
-                   <option value="FILL_GAP">Fill in the Blank</option>
-                   <option value="COMPLIANCE">Compliance</option>
-                   <option value="ORDERING">Ordering</option>
-                   <option value="HOTSPOT">Hotspot</option>
-                 </select>
-               </div>
+              {/* Question Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Question Type
+                </label>
+                <QuestionTypeSelector
+                  selectedType={formData.type}
+                  onTypeChange={handleTypeChange}
+                />
+              </div>
 
                              {/* Question Text */}
                <div>
@@ -256,6 +343,20 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                  </select>
                </div>
 
+               {/* Hint */}
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   Hint (Optional)
+                 </label>
+                 <textarea
+                   value={formData.hint || ''}
+                   onChange={(e) => handleInputChange('hint', e.target.value)}
+                   rows={2}
+                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   placeholder="Provide a hint for students..."
+                 />
+               </div>
+
                {/* Explanation */}
                <div>
                  <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -269,6 +370,77 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                    placeholder="Provide an explanation for the correct answer..."
                  />
                </div>
+
+               {/* Type-specific Content */}
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   {formData.type.replace('_', ' ')} Content
+                 </label>
+                 {(() => {
+                   switch (formData.type) {
+                     case 'MCQ_SINGLE':
+                       return (
+                         <McqQuestionEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                           isMultiSelect={false}
+                         />
+                       );
+                     case 'MCQ_MULTI':
+                       return (
+                         <McqQuestionEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                           isMultiSelect={true}
+                         />
+                       );
+                     case 'TRUE_FALSE':
+                       return (
+                         <TrueFalseEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     case 'OPEN':
+                       return (
+                         <OpenQuestionEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     case 'FILL_GAP':
+                       return (
+                         <FillGapEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     case 'COMPLIANCE':
+                       return (
+                         <ComplianceEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     case 'ORDERING':
+                       return (
+                         <OrderingEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     case 'HOTSPOT':
+                       return (
+                         <HotspotEditor
+                           content={formData.content as any}
+                           onChange={handleContentChange}
+                         />
+                       );
+                     default:
+                       return null;
+                   }
+                 })()}
+               </div>
             </div>
           </div>
 
@@ -281,6 +453,23 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
             >
               Cancel
             </button>
+            {!questionId && (
+              <button
+                type="button"
+                onClick={handleSaveAndAddAnother}
+                disabled={saving || !formData.questionText.trim()}
+                className="inline-flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <>
+                    <Spinner />
+                    <span className="ml-2">Saving...</span>
+                  </>
+                ) : (
+                  'Save & Add Another'
+                )}
+              </button>
+            )}
             <button
               type="submit"
               disabled={saving || !formData.questionText.trim()}

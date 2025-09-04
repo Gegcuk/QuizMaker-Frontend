@@ -143,6 +143,9 @@ export const updateQuestion = (questionId: string, data: UpdateQuestionRequest) 
 
 export const deleteQuestion = (questionId: string) => questionService.deleteQuestion(questionId);
 
+// Single-resource fetch
+export const getQuestionById = (questionId: string) => questionService.getQuestionById(questionId);
+
 // Additional functions that pages are trying to import
 export const getQuizQuestions = (quizId: string) => questionService.getQuestions({ quizId });
 
