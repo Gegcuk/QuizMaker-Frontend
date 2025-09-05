@@ -6,11 +6,13 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 const HomePage: React.FC = () => {
   const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 text-center bg-gradient-to-br from-indigo-50 to-white">
@@ -27,26 +29,17 @@ const HomePage: React.FC = () => {
 
       {/* Call-to-action section --------------------------------------- */}
       {isLoggedIn ? (
-        <Link
-          to="/quizzes"
-          className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-md text-lg font-medium hover:bg-indigo-700 transition"
-        >
+        <Button variant="primary" size="lg" onClick={() => navigate('/quizzes')}>
           Browse Quizzes
-        </Link>
+        </Button>
       ) : (
         <div className="flex space-x-4">
-          <Link
-            to="/login"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700 transition"
-          >
+          <Button variant="primary" size="md" onClick={() => navigate('/login')}>
             Login
-          </Link>
-          <Link
-            to="/register"
-            className="px-6 py-3 border border-indigo-600 text-indigo-600 rounded-md font-medium hover:bg-indigo-50 transition"
-          >
+          </Button>
+          <Button variant="outline" size="md" onClick={() => navigate('/register')}>
             Register
-          </Link>
+          </Button>
         </div>
       )}
     </main>

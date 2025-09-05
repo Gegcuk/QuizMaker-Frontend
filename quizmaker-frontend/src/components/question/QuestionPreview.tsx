@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Badge } from '../ui';
 import { CreateQuestionRequest, QuestionType } from '../../types/question.types';
 
 interface QuestionPreviewProps {
@@ -92,9 +93,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   {option.text || `Option ${option.id.toUpperCase()}`}
                 </label>
                 {option.correct && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Correct
-                  </span>
+                  <Badge variant="success" size="sm">Correct</Badge>
                 )}
               </div>
             ))}
@@ -116,9 +115,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   {option.text || `Option ${option.id.toUpperCase()}`}
                 </label>
                 {option.correct && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Correct
-                  </span>
+                  <Badge variant="success" size="sm">Correct</Badge>
                 )}
               </div>
             ))}
@@ -213,11 +210,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 <label htmlFor={`statement-${statement.id}`} className="text-sm text-gray-700">
                   {statement.text}
                 </label>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  statement.compliant ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <Badge variant={statement.compliant ? 'success' : 'danger'} size="sm">
                   {statement.compliant ? 'Compliant' : 'Non-compliant'}
-                </span>
+                </Badge>
               </div>
             ))}
           </div>
@@ -279,9 +274,18 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(question.difficulty)}`}>
+            <Badge
+              variant={
+                question.difficulty === 'EASY'
+                  ? 'success'
+                  : question.difficulty === 'MEDIUM'
+                  ? 'warning'
+                  : 'danger'
+              }
+              size="sm"
+            >
               {question.difficulty}
-            </span>
+            </Badge>
           </div>
         </div>
       </div>

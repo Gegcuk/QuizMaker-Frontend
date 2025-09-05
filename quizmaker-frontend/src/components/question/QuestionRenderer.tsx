@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Badge } from '../ui';
 import { QuestionDto, QuestionType } from '../../types/question.types';
 import McqQuestion from './McqQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
@@ -144,18 +145,21 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       {/* Question Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-3">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {question.type.replace('_', ' ')}
-            </span>
+          <div className="flex items-center space-x-2">
+            <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
             {question.difficulty && (
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                question.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
-                question.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
+              <Badge
+                variant={
+                  question.difficulty === 'EASY'
+                    ? 'success'
+                    : question.difficulty === 'MEDIUM'
+                    ? 'warning'
+                    : 'danger'
+                }
+                size="sm"
+              >
                 {question.difficulty}
-              </span>
+              </Badge>
             )}
           </div>
           {/* Points display removed as it's not in QuestionDto */}

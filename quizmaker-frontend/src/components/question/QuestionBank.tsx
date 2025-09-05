@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '../../types/question.types';
 import { getAllQuestions } from '../../api/question.service';
-import { Spinner } from '../ui';
+import { Spinner, Badge, Button } from '../ui';
 
 interface QuestionBankProps {
   onQuestionSelect?: (question: QuestionDto) => void;
@@ -238,7 +238,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
             return (
               <div
                 key={question.id}
-                className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                className={`p-3 group hover:bg-gray-50 cursor-pointer transition-colors ${
                   isSelected ? 'bg-indigo-50 border-l-4 border-indigo-400' : ''
                 }`}
                 onClick={() => handleQuestionSelect(question)}
@@ -259,15 +259,22 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-2">
                       <span className="text-lg">{getQuestionTypeIcon(question.type)}</span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(question.difficulty)}`}>
+                      <Badge
+                        variant={
+                          question.difficulty === 'EASY'
+                            ? 'success'
+                            : question.difficulty === 'MEDIUM'
+                            ? 'warning'
+                            : 'danger'
+                        }
+                        size="sm"
+                      >
                         {question.difficulty}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {question.type.replace('_', ' ')}
-                      </span>
+                      </Badge>
+                      <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
                     </div>
                     
-                    <h4 className="text-sm font-medium text-gray-900 mb-1">
+                    <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-indigo-700">
                       {truncateText(question.questionText, 100)}
                     </h4>
                     
@@ -290,16 +297,27 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
                   {/* Actions */}
                   <div className="flex-shrink-0">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      title={isSelected ? 'Deselect' : 'Select'}
+                      aria-label={isSelected ? 'Deselect question' : 'Select question'}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleQuestionSelect(question);
                       }}
-                      className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                     >
-                      {isSelected ? 'Deselect' : 'Select'}
-                    </button>
+                      {isSelected ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                        </svg>
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>

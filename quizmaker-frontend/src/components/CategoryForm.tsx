@@ -157,7 +157,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
                 errors.name ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter category name (3-100 characters)"
@@ -181,7 +181,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
                 errors.description ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter category description (optional, max 1000 characters)"

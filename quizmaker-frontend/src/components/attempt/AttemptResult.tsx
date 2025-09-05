@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Button } from '../ui';
 import { Link } from 'react-router-dom';
 import { AttemptResultDto, AnswerSubmissionDto } from '../../types/attempt.types';
 
@@ -164,30 +165,19 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
         {onReview && (
-          <button
-            onClick={onReview}
-            className="flex-1 px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
-          >
+          <Button onClick={onReview} variant="primary" size="md" className="flex-1">
             📋 Review Answers
-          </button>
+          </Button>
         )}
-        
         {onRetake && (
-          <button
-            onClick={onRetake}
-            className="flex-1 px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
-          >
+          <Button onClick={onRetake} variant="success" size="md" className="flex-1">
             🔄 Retake Quiz
-          </button>
+          </Button>
         )}
-        
         {onShare && (
-          <button
-            onClick={onShare}
-            className="flex-1 px-6 py-3 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
-          >
+          <Button onClick={onShare} variant="info" size="md" className="flex-1">
             📤 Share Results
-          </button>
+          </Button>
         )}
       </div>
 

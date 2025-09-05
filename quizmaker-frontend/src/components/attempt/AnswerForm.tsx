@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../ui';
 import { QuestionForAttemptDto, AnswerSubmissionRequest } from '../../types/attempt.types';
 import { AttemptService } from '../../api/attempt.service';
 import api from '../../api/axiosInstance';
@@ -253,20 +254,15 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
       {/* Submit Button */}
       {showSubmitButton && (
         <div className="flex justify-end">
-          <button
+          <Button
             onClick={handleSubmit}
             disabled={!isValid || isSubmitting}
-            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="primary"
+            size="md"
+            loading={isSubmitting}
           >
-            {isSubmitting ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Submitting...
-              </div>
-            ) : (
-              'Submit Answer'
-            )}
-          </button>
+            {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+          </Button>
         </div>
       )}
     </div>

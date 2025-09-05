@@ -119,8 +119,9 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     type="button"
                     onClick={() => moveItem(index, Math.max(0, index - 1))}
                     disabled={index === 0}
-                    className="text-gray-600 hover:text-gray-800 disabled:text-gray-300 disabled:cursor-not-allowed"
+                    className="text-gray-600 hover:text-gray-800 disabled:text-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded"
                     title="Move up"
+                    aria-label={`Move item ${index + 1} up`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -130,8 +131,9 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     type="button"
                     onClick={() => moveItem(index, Math.min(items.length - 1, index + 1))}
                     disabled={index === items.length - 1}
-                    className="text-gray-600 hover:text-gray-800 disabled:text-gray-300 disabled:cursor-not-allowed"
+                    className="text-gray-600 hover:text-gray-800 disabled:text-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded"
                     title="Move down"
+                    aria-label={`Move item ${index + 1} down`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -145,8 +147,9 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     type="button"
                     onClick={() => removeItem(item.id)}
                     disabled={items.length <= 2}
-                    className="text-red-600 hover:text-red-800 disabled:text-gray-300 disabled:cursor-not-allowed"
+                    className="text-red-600 hover:text-red-800 disabled:text-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded"
                     title="Remove item"
+                    aria-label={`Remove item ${index + 1}`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

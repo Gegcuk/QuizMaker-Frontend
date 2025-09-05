@@ -179,7 +179,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
       >
         <div
           onClick={handleToggle}
-          className={`w-full px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+          className={`w-full px-3 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
             propError ? 'border-red-300' : 'border-gray-300'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         >
@@ -242,7 +242,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                 placeholder="Search categories..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
 

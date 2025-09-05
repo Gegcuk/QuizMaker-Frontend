@@ -7,6 +7,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
+import { Input } from '../ui';
 import { CreateQuizRequest, UpdateQuizRequest } from '../../types/quiz.types';
 import { TagDto } from '../../types/tag.types';
 import { CategoryDto } from '../../types/category.types';
@@ -257,27 +258,18 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
           
           {/* Quiz Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Quiz Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
+            <Input
               id="title"
               name="title"
               value={quizData.title || ''}
               onChange={handleInputChange}
               placeholder="Enter quiz title..."
-              className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                combinedErrors.title ? 'border-red-300' : 'border-gray-300'
-              }`}
+              label="Quiz Title"
+              fullWidth
               disabled={!isEditing}
+              error={combinedErrors.title}
+              helperText={`${quizData.title?.length || 0}/100 characters`}
             />
-            {combinedErrors.title && (
-              <p className="mt-1 text-sm text-red-600">{combinedErrors.title}</p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              {quizData.title?.length || 0}/100 characters
-            </p>
           </div>
 
           {/* Quiz Description */}
@@ -352,26 +344,20 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
             {/* Estimated Time */}
             <div>
-              <label htmlFor="estimatedTime" className="block text-sm font-medium text-gray-700">
-                Estimated Time (minutes) <span className="text-red-500">*</span>
-              </label>
-              <input
+              <Input
                 type="number"
                 id="estimatedTime"
                 name="estimatedTime"
-                min="1"
-                max="180"
+                min={1}
+                max={180}
                 value={quizData.estimatedTime || ''}
                 onChange={handleInputChange}
                 placeholder="30"
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                  combinedErrors.estimatedTime ? 'border-red-300' : 'border-gray-300'
-                }`}
+                label="Estimated Time (minutes)"
+                fullWidth
                 disabled={!isEditing}
+                error={combinedErrors.estimatedTime}
               />
-              {combinedErrors.estimatedTime && (
-                <p className="mt-1 text-sm text-red-600">{combinedErrors.estimatedTime}</p>
-              )}
             </div>
 
             {/* Timer Duration */}
@@ -390,22 +376,19 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 </span>
               </label>
               {quizData.timerEnabled && (
-                <input
+                <Input
                   type="number"
+                  id="timerDuration"
                   name="timerDuration"
-                  min="1"
-                  max="180"
+                  min={1}
+                  max={180}
                   value={quizData.timerDuration || ''}
                   onChange={handleInputChange}
                   placeholder="30"
-                  className={`block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                    combinedErrors.timerDuration ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  fullWidth
                   disabled={!isEditing}
+                  error={combinedErrors.timerDuration}
                 />
-              )}
-              {combinedErrors.timerDuration && (
-                <p className="mt-1 text-sm text-red-600">{combinedErrors.timerDuration}</p>
               )}
             </div>
           </div>
@@ -453,7 +436,9 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                           <button
                             type="button"
                             onClick={() => handleTagToggle(tag.id)}
-                            className="ml-1 text-indigo-600 hover:text-indigo-500"
+                            className="ml-1 text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full"
+                            aria-label={`Remove tag ${tag.name}`}
+                            title={`Remove tag ${tag.name}`}
                           >
                             ×
                           </button>
@@ -495,7 +480,9 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                       <button
                         type="button"
                         onClick={() => handleCategorySelect(undefined)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded"
+                        aria-label={`Clear category ${selectedCategory.name}`}
+                        title={`Clear category ${selectedCategory.name}`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -553,16 +540,13 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                      <h4 className="text-sm font-medium text-gray-700 mb-3">Create New Tag</h4>
                      <div className="space-y-3">
                        <div>
-                         <label htmlFor="new-tag-name" className="block text-sm font-medium text-gray-700">
-                           Tag Name <span className="text-red-500">*</span>
-                         </label>
-                         <input
-                           type="text"
+                         <Input
                            id="new-tag-name"
                            value={newTagName}
                            onChange={(e) => setNewTagName(e.target.value)}
                            placeholder="Enter tag name..."
-                           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           label="Tag Name"
+                           fullWidth
                          />
                        </div>
                        <div>
@@ -664,16 +648,13 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                      <h4 className="text-sm font-medium text-gray-700 mb-3">Create New Category</h4>
                      <div className="space-y-3">
                        <div>
-                         <label htmlFor="new-category-name" className="block text-sm font-medium text-gray-700">
-                           Category Name <span className="text-red-500">*</span>
-                         </label>
-                         <input
-                           type="text"
+                         <Input
                            id="new-category-name"
                            value={newCategoryName}
                            onChange={(e) => setNewCategoryName(e.target.value)}
                            placeholder="Enter category name..."
-                           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           label="Category Name"
+                           fullWidth
                          />
                        </div>
                        <div>

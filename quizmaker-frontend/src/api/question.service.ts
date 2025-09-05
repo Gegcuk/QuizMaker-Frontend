@@ -48,8 +48,15 @@ export class QuestionService extends BaseService<QuestionDto> {
     };
   }> {
     try {
+      // Support both pageNumber and page query params for compatibility
+      const { pageNumber, ...rest } = params || {};
+      const mappedParams: any = { ...rest };
+      if (typeof pageNumber === 'number') {
+        mappedParams.pageNumber = pageNumber;
+        mappedParams.page = pageNumber;
+      }
       const response = await this.axiosInstance.get(QUESTION_ENDPOINTS.QUESTIONS, {
-        params
+        params: mappedParams
       });
       return response.data;
     } catch (error) {

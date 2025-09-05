@@ -26,7 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 }, ref) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
-  const baseClasses = 'block w-full border-gray-300 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';
+  const baseClasses = 'block w-full border-gray-300 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';
   
   const variantClasses = {
     default: 'border-gray-300 bg-white',

@@ -128,3 +128,46 @@ This document catalogs current visual/UX inconsistencies across pages and compon
 - When refactoring, limit changes to styling to avoid bundling behavior changes.
 - Prefer small, incremental PRs by file/feature area.
 
+---
+
+## Follow‑up Improvements (Actionable)
+
+The items below were identified during the cleanup and are good next targets to fully align the UI with the style guide.
+
+- Buttons: Replace raw Tailwind buttons with `ui/Button` where present
+  - `src/components/attempt/AttemptStart.tsx` — primary CTA (Start Attempt)
+  - `src/components/attempt/AnswerForm.tsx` — submit button
+  - `src/components/attempt/AttemptResult.tsx` — result CTAs
+  - `src/pages/HomePage.tsx` — hero CTAs (Browse/Login)
+  - `src/pages/QuestionManagementPage.tsx` — page actions
+  - Rationale: unify colors, hover/focus, disabled/loader via shared variants.
+
+- Badges: Convert raw span chips to `ui/Badge`
+  - `src/components/question/QuestionRenderer.tsx` — type + difficulty chips
+  - `src/components/question/QuestionPreview.tsx` — “Correct” chip + difficulty
+  - `src/components/quiz/QuizList.tsx` — status/difficulty chips
+  - `src/components/question/QuestionBank.tsx` — difficulty/type chips in rows
+  - Mapping: type → `info`; difficulty EASY→`success`, MEDIUM→`warning`, HARD→`danger`.
+
+- Inputs: Normalize input focus rings and borders to indigo per guide
+  - `src/components/category/CategoryForm.tsx`
+  - `src/components/category/CategoryList.tsx`
+  - `src/components/category/CategorySelector.tsx`
+  - Use: `focus:ring-indigo-500 focus:border-indigo-500` with `border-gray-300`.
+
+- List/Row pattern: Align older lists with hover/spacing/action conventions
+  - `src/components/question/QuestionBank.tsx` — use `p-3 group hover:bg-gray-50 transition-colors`; right actions as `Button` `variant="ghost" size="sm"` with `title`/`aria-label`.
+  - `src/components/quiz/QuizQuestionManager.tsx` — largely consistent; consider same `group`/ghost-actions pattern for parity.
+
+- Modal sizing: Use `size="2xl"` for question create/edit
+  - `src/pages/QuizQuestionPage.tsx` — change from `xl` → `2xl`.
+
+- Color tokens drift: Prefer shared `Button` (primary → blue) over ad‑hoc `bg-indigo-600`
+  - Replace raw indigo CTAs in attempt and landing components with `Button` primary or blue tokens to match the guide.
+
+- Toasts: Use `useToast()` for transient feedback
+  - `src/pages/QuizQuestionPage.tsx` updated; sweep others opportunistically when touching files to avoid `window.alert`.
+
+- Accessibility: Ensure icon‑only controls have `title`/`aria-label` + visible focus
+  - Editors and list rows updated in many places; extend the same pattern to category/tag lists as they’re refactored.
+

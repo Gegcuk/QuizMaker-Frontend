@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Spinner } from '../ui';
+import { Spinner, Button } from '../ui';
 import { AttemptService } from '../../api/attempt.service';
 import { QuizService } from '../../api/quiz.service';
 import { StartAttemptRequest, AttemptMode } from '../../types/attempt.types';
@@ -316,20 +316,15 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Start Button */}
       <div className="flex justify-center">
-        <button
+        <Button
           onClick={handleStartAttempt}
           disabled={isStarting || !getModeAvailability(selectedMode).available}
-          className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          variant="primary"
+          size="md"
+          loading={isStarting}
         >
-          {isStarting ? (
-            <div className="flex items-center">
-              <Spinner />
-              <span className="ml-2">Starting...</span>
-            </div>
-          ) : (
-            `Start ${modeInfo.title} Attempt`
-          )}
-        </button>
+          {isStarting ? 'Starting...' : `Start ${modeInfo.title} Attempt`}
+        </Button>
       </div>
 
       {/* Important Notes */}

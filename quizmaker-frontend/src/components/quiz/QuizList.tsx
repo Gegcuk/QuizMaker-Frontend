@@ -7,6 +7,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '../../types/quiz.types';
 import { useQuizMetadata } from '../../hooks/useQuizMetadata';
+import { Badge } from '../ui';
 
 interface QuizListProps {
   quizzes: QuizDto[];
@@ -78,7 +79,7 @@ const QuizList: React.FC<QuizListProps> = ({
         <ul className="divide-y divide-gray-200">
           {Array.from({ length: 5 }).map((_, index) => (
             <li key={index} className="animate-pulse">
-              <div className="px-4 py-4 sm:px-6">
+              <div className="px-4 py-4 sm:px-6 group hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="h-5 bg-gray-300 rounded w-1/3 mb-2"></div>
@@ -150,16 +151,34 @@ const QuizList: React.FC<QuizListProps> = ({
                         className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                       />
                     )}
-                    <h3 className="text-lg font-medium text-gray-900 truncate">
+                    <h3 className="text-lg font-medium text-gray-900 truncate group-hover:text-indigo-700">
                       {quiz.title}
                     </h3>
                     <div className="flex items-center space-x-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>
+                      <Badge
+                        variant={
+                          quiz.difficulty === 'EASY'
+                            ? 'success'
+                            : quiz.difficulty === 'MEDIUM'
+                            ? 'warning'
+                            : 'danger'
+                        }
+                        size="sm"
+                      >
                         {quiz.difficulty}
-                      </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(quiz.status)}`}>
+                      </Badge>
+                      <Badge
+                        variant={
+                          quiz.status === 'PUBLISHED'
+                            ? 'success'
+                            : quiz.status === 'DRAFT'
+                            ? 'warning'
+                            : 'secondary'
+                        }
+                        size="sm"
+                      >
                         {quiz.status}
-                      </span>
+                      </Badge>
                     </div>
                   </div>
                   {quiz.description && (

@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { QuestionDto, QuestionDifficulty } from '../../types/question.types';
 import {
   getQuizQuestions,
+  getAllQuestions,
   getQuestionById,
   addQuestionToQuiz,
   removeQuestionFromQuiz,
@@ -43,19 +44,58 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   const [working, setWorking] = useState<boolean>(false);
 
   const isEditingExistingQuiz = Boolean(quizId);
+  // Pagination state for existing quiz questions
+  const [qPage, setQPage] = useState<number>(0);
+  const [qSize, setQSize] = useState<number>(20);
+  const [qTotalPages, setQTotalPages] = useState<number>(1);
+  const [qTotalElements, setQTotalElements] = useState<number>(0);
+  const [showAll, setShowAll] = useState<boolean>(true);
 
   // Helpers
   const idsFromQuestions = useMemo(() => questions.map((q) => q.id), [questions]);
 
-  const loadForExistingQuiz = async (id: string) => {
+  const loadForExistingQuiz = async (id: string, page = 0, size = qSize) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getQuizQuestions(id);
+      const res = await getAllQuestions({ quizId: id, pageNumber: page, size });
       const list = res?.content || [];
       setQuestions(list);
+      setQTotalPages(res?.pageable?.totalPages || 1);
+      setQTotalElements(res?.pageable?.totalElements || list.length);
       // Keep parent selection in sync with backend
       const serverIds = list.map((q) => q.id);
+      if (serverIds.join(',') !== questionIds.join(',')) {
+        onChange(serverIds);
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load quiz questions');
+      setQuestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAllForExistingQuiz = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      let all: QuestionDto[] = [];
+      let p = 0;
+      const size = Math.max(qSize, 50);
+      // Fetch until a page returns fewer than size items (or safety cap)
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const res = await getAllQuestions({ quizId: id, pageNumber: p, size });
+        const batch = res?.content || [];
+        all = all.concat(batch);
+        if (!batch.length || batch.length < size || p > 200) break;
+        p += 1;
+      }
+      setQuestions(all);
+      setQTotalPages(p + 1);
+      setQTotalElements(all.length);
+      const serverIds = all.map((q) => q.id);
       if (serverIds.join(',') !== questionIds.join(',')) {
         onChange(serverIds);
       }
@@ -89,12 +129,16 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   // Initial and quizId changes
   useEffect(() => {
     if (quizId) {
-      loadForExistingQuiz(quizId);
+      if (showAll) {
+        loadAllForExistingQuiz(quizId);
+      } else {
+        loadForExistingQuiz(quizId, qPage, qSize);
+      }
     } else {
       loadForNewQuiz(questionIds);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quizId]);
+  }, [quizId, qPage, qSize, showAll]);
 
   // No extra lookups needed for type/difficulty badges
 
@@ -285,6 +329,8 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
           </div>
         )}
       </div>
+
+      {/* Pagination/Toggle removed: always showing all questions for clarity */}
 
       {/* Modal for create/edit */}
       <Modal

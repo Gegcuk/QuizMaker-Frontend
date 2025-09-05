@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Spinner } from '../components/ui';
+import { Spinner, Button, Modal } from '../components/ui';
 import { PageContainer } from '../components/layout';
 import ConfirmationModal from '../components/common/ConfirmationModal';
 import { QuestionDto, QuestionType } from '../types/question.types';
@@ -19,6 +19,7 @@ import {
   ComplianceEditor,
   OrderingEditor,
   HotspotEditor,
+  QuestionForm,
 } from '../components/question';
 
 const QuestionManagementPage: React.FC = () => {
@@ -315,15 +316,12 @@ const QuestionManagementPage: React.FC = () => {
             <h3 className="mt-2 text-sm font-medium text-gray-900">No questions</h3>
             <p className="mt-1 text-sm text-gray-500">Get started by creating a new question.</p>
             <div className="mt-6">
-              <button
-                onClick={openCreate}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+              <Button onClick={openCreate} variant="primary" size="sm">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 New Question
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -344,22 +342,8 @@ const QuestionManagementPage: React.FC = () => {
                           />
                         </div>
                         
-                        {/* Question Metadata */}
+                        {/* Question Metadata (no duplicate chips; renderer already shows type/difficulty) */}
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {question.type.replace('_', ' ')}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              question.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
-                              question.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {question.difficulty}
-                            </span>
-                          </div>
                           <div className="flex items-center">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -371,24 +355,26 @@ const QuestionManagementPage: React.FC = () => {
                       
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
-                        <button
+                        <Button
                           onClick={() => openEdit(question)}
-                          className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          variant="secondary"
+                          size="sm"
                         >
                           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleDelete(question.id)}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          variant="danger"
+                          size="sm"
                         >
                           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                           Delete
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -402,20 +388,23 @@ const QuestionManagementPage: React.FC = () => {
         {(questions || []).length > 0 && (
           <div className="flex items-center justify-between mt-6">
             <div className="flex-1 flex justify-between sm:hidden">
-              <button
+              <Button
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
                 disabled={page === 0}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                variant="secondary"
+                size="sm"
               >
                 Previous
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
                 disabled={page + 1 === totalPages}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                variant="secondary"
+                size="sm"
+                className="ml-3"
               >
                 Next
-              </button>
+              </Button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
@@ -453,195 +442,25 @@ const QuestionManagementPage: React.FC = () => {
         )}
 
         {/* Question Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {editing ? 'Edit Question' : 'Create New Question'}
-                  </h3>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setPreviewMode(!previewMode)}
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      {previewMode ? 'Edit' : 'Preview'}
-                    </button>
-                    <button
-                      onClick={() => setShowForm(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                {previewMode ? (
-                  <div className="space-y-4">
-                                         <div className="mb-4">
-                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                         Question Type
-                       </label>
-                       <QuestionTypeSelector
-                         selectedType={selectedType}
-                         onTypeChange={handleTypeChange}
-                       />
-                     </div>
-                    
-                    {/* Preview the question */}
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Preview</h4>
-                      <QuestionRenderer
-                                                 question={{
-                           id: 'preview',
-                           type: selectedType,
-                           difficulty,
-                           questionText,
-                           content: (selectedType === 'TRUE_FALSE' ? { answer: true } :
-                                   selectedType === 'OPEN' ? { answer: '' } :
-                                   selectedType === 'MCQ_SINGLE' || selectedType === 'MCQ_MULTI' ? { options: [] } :
-                                   selectedType === 'FILL_GAP' ? { text: '', gaps: [] } :
-                                   selectedType === 'COMPLIANCE' ? { statements: [] } :
-                                   selectedType === 'ORDERING' ? { items: [] } :
-                                   selectedType === 'HOTSPOT' ? { imageUrl: '', regions: [] } : {}) as any,
-                           hint,
-                           explanation,
-                           quizIds: [],
-                           tagIds: [],
-                           createdAt: new Date().toISOString(),
-                           updatedAt: new Date().toISOString(),
-                         }}
-                        showCorrectAnswer={false}
-                        disabled={true}
-                      />
-                    </div>
-                  </div>
-                                  ) : (
-                    <div className="space-y-6">
-                      {/* Question Type Selection */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Question Type
-                        </label>
-                        <QuestionTypeSelector
-                          selectedType={selectedType}
-                          onTypeChange={handleTypeChange}
-                        />
-                      </div>
-
-                      {/* Question Text */}
-                      <div>
-                        <label htmlFor="questionText" className="block text-sm font-medium text-gray-700 mb-2">
-                          Question Text <span className="text-red-600">*</span>
-                        </label>
-                        <textarea
-                          id="questionText"
-                          required
-                          minLength={3}
-                          maxLength={1000}
-                          className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          rows={4}
-                          value={questionText}
-                          onChange={(e) => setQuestionText(e.target.value)}
-                          placeholder="Enter your question here..."
-                        />
-                      </div>
-
-                      {/* Difficulty */}
-                      <div>
-                        <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-2">
-                          Difficulty
-                        </label>
-                        <select
-                          id="difficulty"
-                          value={difficulty}
-                          onChange={(e) => setDifficulty(e.target.value as QuestionDto['difficulty'])}
-                          className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        >
-                          <option value="EASY">Easy</option>
-                          <option value="MEDIUM">Medium</option>
-                          <option value="HARD">Hard</option>
-                        </select>
-                      </div>
-
-                      {/* Hint */}
-                      <div>
-                        <label htmlFor="hint" className="block text-sm font-medium text-gray-700 mb-2">
-                          Hint (Optional)
-                        </label>
-                        <textarea
-                          id="hint"
-                          maxLength={500}
-                          className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          rows={2}
-                          value={hint}
-                          onChange={(e) => setHint(e.target.value)}
-                          placeholder="Provide a hint for students..."
-                        />
-                      </div>
-
-                      {/* Explanation */}
-                      <div>
-                        <label htmlFor="explanation" className="block text-sm font-medium text-gray-700 mb-2">
-                          Explanation (Optional)
-                        </label>
-                        <textarea
-                          id="explanation"
-                          maxLength={2000}
-                          className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          rows={3}
-                          value={explanation}
-                          onChange={(e) => setExplanation(e.target.value)}
-                          placeholder="Provide an explanation for the correct answer..."
-                        />
-                      </div>
-                      
-                      {/* Question Type Specific Content Editor */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {selectedType.replace('_', ' ')} Content
-                        </label>
-                        {renderTypeSpecificEditor()}
-                      </div>
-                    </div>
-                  )}
-              </div>
-              
-              {/* Form Actions */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFormSubmit}
-                  disabled={formSubmitting || !questionText.trim()}
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                >
-                  {formSubmitting ? 'Saving...' : editing ? 'Save Changes' : 'Create Question'}
-                </button>
-              </div>
-
-              {/* Form Error */}
-              {formError && (
-                <div className="text-red-600 text-sm mt-2">{formError}</div>
-              )}
-            </div>
-          </div>
-        )}
+        <Modal
+          isOpen={showForm}
+          onClose={() => { setShowForm(false); setEditing(null); }}
+          title={editing ? 'Edit Question' : 'Create New Question'}
+          size="2xl"
+        >
+          <QuestionForm
+            questionId={editing ? editing.id : undefined}
+            onSuccess={(res) => {
+              fetchQuestions();
+              if (!res?.keepOpen) {
+                setShowForm(false);
+                setEditing(null);
+              }
+            }}
+            onCancel={() => { setShowForm(false); setEditing(null); }}
+            compact
+          />
+        </Modal>
 
         {/* Confirmation Modal */}
         <ConfirmationModal

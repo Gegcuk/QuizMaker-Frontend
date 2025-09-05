@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner, Button, Modal, Alert } from '../components/ui';
+import { Spinner, Button, Modal, Alert, Badge, useToast } from '../components/ui';
 import { Breadcrumb, PageHeader } from '../components/layout';
 import {
   QuestionDto,
@@ -32,6 +32,7 @@ import {
 const QuizQuestionsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [quiz, setQuiz] = useState<QuizDto | null>(null);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -126,8 +127,9 @@ const QuizQuestionsPage: React.FC = () => {
     try {
       await removeQuestionFromQuiz(quizId, qid);
       loadData();
+      addToast({ type: 'success', message: 'Question removed from quiz.' });
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to remove question.');
+      addToast({ type: 'error', message: err.response?.data?.error || 'Failed to remove question.' });
     }
   };
 
@@ -197,8 +199,9 @@ const QuizQuestionsPage: React.FC = () => {
     try {
       await addQuestionToQuiz(quizId, qid);
       loadData();
+      addToast({ type: 'success', message: 'Question added to quiz.' });
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to add question.');
+      addToast({ type: 'error', message: err.response?.data?.error || 'Failed to add question.' });
     }
   };
 
@@ -344,14 +347,14 @@ const QuizQuestionsPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {questions.map((question) => (
-                  <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={question.id} className="border border-gray-200 rounded-lg p-3 group hover:bg-gray-50 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <QuestionRenderer
                           question={question as QuestionDto & { createdAt: string; updatedAt: string }}
                           showCorrectAnswer={false}
                           disabled={true}
-                          className="border-0 shadow-none"
+                          className="border-0 shadow-none group-hover:text-indigo-700"
                         />
                         <div className="mt-2 flex items-center space-x-2 text-sm text-gray-500">
                           <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
@@ -359,12 +362,16 @@ const QuizQuestionsPage: React.FC = () => {
                         </div>
                       </div>
                       <Button
-                        variant="danger"
+                        variant="ghost"
                         size="sm"
+                        title="Remove from quiz"
+                        aria-label="Remove from quiz"
                         onClick={() => handleDelete(question.id)}
                         className="ml-4"
                       >
-                        Remove
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </Button>
                     </div>
                   </div>
@@ -389,14 +396,14 @@ const QuizQuestionsPage: React.FC = () => {
                 {allQuestions
                   .filter((q) => !questions.find((qq) => qq.id === q.id))
                   .map((q) => (
-                    <div key={q.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={q.id} className="border border-gray-200 rounded-lg p-3 group hover:bg-gray-50 transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <QuestionRenderer
                             question={q as QuestionDto & { createdAt: string; updatedAt: string }}
                             showCorrectAnswer={false}
                             disabled={true}
-                            className="border-0 shadow-none"
+                            className="border-0 shadow-none group-hover:text-indigo-700"
                           />
                           <div className="mt-2 flex items-center space-x-2 text-sm text-gray-500">
                             <Badge variant="info" size="sm">{q.type.replace('_', ' ')}</Badge>
@@ -404,12 +411,16 @@ const QuizQuestionsPage: React.FC = () => {
                           </div>
                         </div>
                         <Button
-                          variant="secondary"
+                          variant="ghost"
                           size="sm"
+                          title="Add to quiz"
+                          aria-label="Add to quiz"
                           onClick={() => handleAddExisting(q.id)}
                           className="ml-4"
                         >
-                          Add
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                          </svg>
                         </Button>
                       </div>
                     </div>

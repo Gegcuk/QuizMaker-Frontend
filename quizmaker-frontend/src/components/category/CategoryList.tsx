@@ -173,7 +173,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
               placeholder="Search categories..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
           <div className="flex gap-2">
@@ -184,7 +184,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
                 setSortBy(field as 'name' | 'createdAt');
                 setSortOrder(order as 'asc' | 'desc');
               }}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="name,asc">Name (A-Z)</option>
               <option value="name,desc">Name (Z-A)</option>
@@ -194,7 +194,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
             <select
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
@@ -231,7 +231,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
             {filteredCategories.map((category) => (
               <div
                 key={category.id}
-                className={`p-4 hover:bg-gray-50 transition-colors ${
+                className={`p-4 group hover:bg-gray-50 transition-colors ${
                   selectable ? 'cursor-pointer' : ''
                 } ${
                   selectedCategory === category.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
@@ -249,7 +249,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">
+                        <h4 className="text-sm font-medium text-gray-900 truncate group-hover:text-indigo-700">
                           {category.name}
                         </h4>
                         {category.description && (

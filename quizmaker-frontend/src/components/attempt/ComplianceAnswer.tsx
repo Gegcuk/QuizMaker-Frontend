@@ -27,10 +27,11 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   disabled = false,
   className = ''
 }) => {
-  const [selectedStatements, setSelectedStatements] = useState<number[]>(currentAnswer);
+  const normalize = (val: any): number[] => Array.isArray(val) ? val : [];
+  const [selectedStatements, setSelectedStatements] = useState<number[]>(normalize(currentAnswer));
 
   useEffect(() => {
-    setSelectedStatements(currentAnswer);
+    setSelectedStatements(normalize(currentAnswer));
   }, [currentAnswer]);
 
   const handleStatementToggle = (statementId: number) => {
