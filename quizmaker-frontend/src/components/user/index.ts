@@ -5,4 +5,5 @@ export { default as UserStats } from './UserStats';
 export { default as UserActivity } from './UserActivity';
 export { default as UserActivation } from './UserActivation';
 export { default as UserMenu } from './UserMenu';
-export { default as SearchBar } from './SearchBar'; 
+export { default as SearchBar } from './SearchBar';
+export { default as TokenTopUp } from './TokenTopUp';

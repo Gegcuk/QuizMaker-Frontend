@@ -3,13 +3,14 @@
 // User profile display and editing component based on UserDto
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { UserDto } from '../../types/auth.types';
 import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
 import { billingService } from '../../api/billing.service';
 import type { BalanceDto } from '../../types/billing.types';
+// import TokenTopUp from './TokenTopUp';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -30,6 +31,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   onError,
   className = ''
 }) => {
+  console.log('🚀 UserProfile component is rendering!');
   const { user: currentUser } = useAuth();
   const [user, setUser] = useState<UserDto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -47,6 +49,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
   // Determine if this is admin view
   const isAdminView = !!userId && userId !== currentUser?.id;
   const displayUser = user || currentUser;
+
+  // DEBUG: Log the state values
+  console.log('UserProfile DEBUG:', {
+    isAdminView,
+    billingDisabled,
+    balanceError,
+    balance,
+    currentUser: currentUser?.id,
+    userId
+  });
 
   // Load user data
   useEffect(() => {
@@ -83,44 +95,49 @@ const UserProfile: React.FC<UserProfileProps> = ({
     loadUser();
   }, [userId, currentUser, displayUser, onError]);
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (isAdminView || !currentUser) {
-        setBalance(null);
-        setBillingDisabled(false);
-        setBalanceError(null);
-        return;
-      }
 
-      setIsBalanceLoading(true);
-      setBalanceError(null);
+  const fetchBalance = useCallback(async () => {
+    if (isAdminView || !currentUser) {
+      setBalance(null);
       setBillingDisabled(false);
+      setBalanceError(null);
+      return;
+    }
 
-      try {
-        const balanceResponse = await billingService.getBalance();
-        setBalance(balanceResponse);
-      } catch (error) {
-        const axiosError = error as AxiosError<{ message?: string }>;
-        const status = axiosError.response?.status;
+    setIsBalanceLoading(true);
+    setBalanceError(null);
+    setBillingDisabled(false);
 
-        setBalance(null);
+    try {
+      const balanceResponse = await billingService.getBalance();
+      setBalance(balanceResponse);
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const status = axiosError.response?.status;
 
-        if (status === 404) {
-          setBillingDisabled(true);
-        } else if (status === 403) {
-          setBalanceError('You do not have permission to view billing information.');
-        } else {
-          const errorMessage = axiosError.response?.data?.message || 'Failed to load billing information';
-          setBalanceError(errorMessage);
-        }
-      } finally {
-        setIsBalanceLoading(false);
+      setBalance(null);
+
+      if (status === 404) {
+        setBillingDisabled(true);
+      } else if (status === 403) {
+        setBalanceError('You do not have permission to view billing information.');
+      } else {
+        const errorMessage = axiosError.response?.data?.message || 'Failed to load billing information';
+        setBalanceError(errorMessage);
       }
-    };
+    } finally {
+      setIsBalanceLoading(false);
+    }
+  }, [currentUser?.id, isAdminView]);
 
+  useEffect(() => {
     void fetchBalance();
-  }, [isAdminView, currentUser?.id]);
+  }, [fetchBalance]);
 
+  const handleRefreshBalance = () => {
+    void fetchBalance();
+  };
+  
   const renderBalanceSection = () => {
     if (isBalanceLoading) {
       return (
@@ -374,8 +391,47 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
         {!isAdminView && (
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Token Balance</h3>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h3 className="text-sm font-medium text-gray-700">Token Balance</h3>
+              {!billingDisabled && (
+                <button
+                  type="button"
+                  onClick={handleRefreshBalance}
+                  disabled={isBalanceLoading}
+                  className="text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isBalanceLoading ? 'Refreshing…' : 'Refresh balance'}
+                </button>
+              )}
+            </div>
             {renderBalanceSection()}
+          </div>
+        )}
+
+        {/* DEBUG: Token TopUp Section */}
+        <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded">
+          <div className="text-sm font-bold text-yellow-800">
+            DEBUG INFO:
+          </div>
+          <div className="text-sm text-yellow-700">
+            isAdminView: {isAdminView ? 'true' : 'false'}
+          </div>
+          <div className="text-sm text-yellow-700">
+            billingDisabled: {billingDisabled ? 'true' : 'false'}
+          </div>
+          <div className="text-sm text-yellow-700">
+            balanceError: {balanceError || 'null'}
+          </div>
+          <div className="text-sm text-yellow-700">
+            Should show TokenTopUp: {(!isAdminView && !billingDisabled && !balanceError) ? 'YES' : 'NO'}
+          </div>
+        </div>
+
+        {!isAdminView && !billingDisabled && !balanceError && (
+          <div className="mb-6">
+            <div className="p-4 bg-green-100 border border-green-300 rounded">
+              <p className="text-green-800">TokenTopUp component would appear here (temporarily disabled for debugging)</p>
+            </div>
           </div>
         )}
 
