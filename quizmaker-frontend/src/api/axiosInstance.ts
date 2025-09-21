@@ -349,4 +349,7 @@ export const handleApiError = (error: AxiosError): never => {
   }
 };
 
+export const axiosInstance = api;
+
+
 export default api;

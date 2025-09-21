@@ -78,6 +78,33 @@ export class BillingService {
     );
     return response.data;
   }
+
+  /**
+   * Helper method to format token balance for display
+   */
+  formatTokenBalance(balance: BalanceDto): string {
+    const total = balance.availableTokens + balance.reservedTokens;
+    if (balance.reservedTokens > 0) {
+      return `${balance.availableTokens.toLocaleString()} available (${total.toLocaleString()} total, ${balance.reservedTokens} reserved)`;
+    }
+    return `${balance.availableTokens.toLocaleString()} tokens`;
+  }
+
+  /**
+   * Helper method to check if user has sufficient tokens for an operation
+   */
+  hasSufficientTokens(balance: BalanceDto, requiredTokens: number): boolean {
+    return balance.availableTokens >= requiredTokens;
+  }
+
+  /**
+   * Helper method to get token balance status (low, medium, high)
+   */
+  getBalanceStatus(balance: BalanceDto): 'low' | 'medium' | 'high' {
+    if (balance.availableTokens < 100) return 'low';
+    if (balance.availableTokens < 500) return 'medium';
+    return 'high';
+  }
 }
 
 // Export default instance
