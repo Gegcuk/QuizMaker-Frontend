@@ -57,8 +57,8 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
       setError(null);
 
       try {
-        // TODO: Update this to use proper search API with filters, sorting, and pagination
-        const response = await getAllQuizzes();
+        // Show public quizzes that users can take
+        const response = await getAllQuizzes({ scope: 'public' });
         setQuizzes(response.content || []);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;

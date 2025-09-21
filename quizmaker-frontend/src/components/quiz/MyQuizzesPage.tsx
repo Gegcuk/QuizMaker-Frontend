@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { QuizDto } from '../../types/quiz.types';
-import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
+import { getMyQuizzes, deleteQuiz } from '../../api/quiz.service';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '../attempt';
 import { PageHeader } from '../layout';
@@ -59,17 +59,12 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   // Load quizzes
   useEffect(() => {
     const loadQuizzes = async () => {
-      if (!user?.id) return;
-
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await getAllQuizzes();
-        
-        // Filter quizzes created by current user
-        const myQuizzes = response.content?.filter(quiz => quiz.creatorId === user.id) || [];
-        setQuizzes(myQuizzes);
+        const response = await getMyQuizzes();
+        setQuizzes(response.content || []);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
         setError(axiosError.response?.data?.message || 'Failed to load your quizzes');
@@ -79,7 +74,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     };
 
     loadQuizzes();
-  }, [user?.id]);
+  }, []);
 
   // Handle quiz actions
   const handleEditQuiz = (quizId: string) => {

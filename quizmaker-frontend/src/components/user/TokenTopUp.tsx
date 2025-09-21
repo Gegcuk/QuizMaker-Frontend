@@ -84,7 +84,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
         packId: selectedPack.id,
         priceId: selectedPack.stripePriceId,
       });
-      window.location.assign(response.checkoutUrl);
+      window.location.assign(response.url);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;

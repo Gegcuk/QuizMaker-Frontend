@@ -78,6 +78,7 @@ export interface TokenPackDto {
     packId?: string;
   }
   
-  export interface CheckoutSessionResponse {
-    checkoutUrl: string;
-  }
+export interface CheckoutSessionResponse {
+  url: string;
+  sessionId: string;
+}

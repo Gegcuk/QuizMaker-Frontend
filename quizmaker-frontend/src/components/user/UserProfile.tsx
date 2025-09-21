@@ -212,7 +212,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         </div>
 
-        <TokenTopUp />
       </div>
     );
   };

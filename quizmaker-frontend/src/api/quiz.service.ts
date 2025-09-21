@@ -53,6 +53,7 @@ export class QuizService extends BaseService<QuizDto> {
     authorName?: string;
     search?: string;
     difficulty?: string;
+    scope?: string;
   }): Promise<{
     content: QuizDto[];
     pageable: {
@@ -65,6 +66,41 @@ export class QuizService extends BaseService<QuizDto> {
     try {
       const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.QUIZZES, {
         params
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Get user's own quizzes with pagination and filtering
+   * GET /api/v1/quizzes?scope=me
+   */
+  async getMyQuizzes(params?: {
+    page?: number;
+    size?: number;
+    sort?: string;
+    category?: string;
+    tag?: string;
+    authorName?: string;
+    search?: string;
+    difficulty?: string;
+  }): Promise<{
+    content: QuizDto[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      totalElements: number;
+      totalPages: number;
+    };
+  }> {
+    try {
+      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.QUIZZES, {
+        params: {
+          ...params,
+          scope: 'me'
+        }
       });
       return response.data;
     } catch (error) {
@@ -347,7 +383,19 @@ export const getAllQuizzes = (params?: {
   authorName?: string;
   search?: string;
   difficulty?: string;
+  scope?: string;
 }) => quizService.getQuizzes(params);
+
+export const getMyQuizzes = (params?: {
+  page?: number;
+  size?: number;
+  sort?: string;
+  category?: string;
+  tag?: string;
+  authorName?: string;
+  search?: string;
+  difficulty?: string;
+}) => quizService.getMyQuizzes(params);
 
 export const getQuizById = (quizId: string) => quizService.getQuizById(quizId);
 
