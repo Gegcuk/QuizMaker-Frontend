@@ -28,6 +28,8 @@ export { TagService } from './tag.service';
 // Admin service (class-based)
 export { AdminService } from './admin.service';
 
+export { BillingService } from './billing.service';
+
 // Base service and utilities
 export { BaseService } from './base.service';
 export { default as axiosInstance } from './axiosInstance';

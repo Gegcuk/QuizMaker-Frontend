@@ -8,6 +8,8 @@ import { useAuth } from '../../context/AuthContext';
 import { UserDto } from '../../types/auth.types';
 import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
+import { billingService } from '../../api/billing.service';
+import type { BalanceDto } from '../../types/billing.types';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -34,6 +36,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [balance, setBalance] = useState<BalanceDto | null>(null);
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
+  const [billingDisabled, setBillingDisabled] = useState(false);
 
   // Form state for editing
   const [formData, setFormData] = useState<Partial<UserDto>>({});
@@ -76,6 +82,112 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     loadUser();
   }, [userId, currentUser, displayUser, onError]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (isAdminView || !currentUser) {
+        setBalance(null);
+        setBillingDisabled(false);
+        setBalanceError(null);
+        return;
+      }
+
+      setIsBalanceLoading(true);
+      setBalanceError(null);
+      setBillingDisabled(false);
+
+      try {
+        const balanceResponse = await billingService.getBalance();
+        setBalance(balanceResponse);
+      } catch (error) {
+        const axiosError = error as AxiosError<{ message?: string }>;
+        const status = axiosError.response?.status;
+
+        setBalance(null);
+
+        if (status === 404) {
+          setBillingDisabled(true);
+        } else if (status === 403) {
+          setBalanceError('You do not have permission to view billing information.');
+        } else {
+          const errorMessage = axiosError.response?.data?.message || 'Failed to load billing information';
+          setBalanceError(errorMessage);
+        }
+      } finally {
+        setIsBalanceLoading(false);
+      }
+    };
+
+    void fetchBalance();
+  }, [isAdminView, currentUser?.id]);
+
+  const renderBalanceSection = () => {
+    if (isBalanceLoading) {
+      return (
+        <div className="bg-white border border-indigo-100 rounded-lg p-4">
+          <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <div className="h-3 bg-indigo-100 rounded w-24 mb-2" />
+              <div className="h-6 bg-indigo-100 rounded" />
+            </div>
+            <div>
+              <div className="h-3 bg-indigo-100 rounded w-20 mb-2" />
+              <div className="h-6 bg-indigo-100 rounded" />
+            </div>
+            <div>
+              <div className="h-3 bg-indigo-100 rounded w-28 mb-2" />
+              <div className="h-6 bg-indigo-100 rounded" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (billingDisabled) {
+      return (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
+          Billing features are not enabled for this environment yet. Token balance will appear here once available.
+        </div>
+      );
+    }
+
+    if (balanceError) {
+      return (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">
+          {balanceError}
+        </div>
+      );
+    }
+
+    if (balance) {
+      return (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Available Tokens</p>
+              <p className="mt-1 text-2xl font-semibold text-indigo-900">
+                {balance.availableTokens.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Reserved Tokens</p>
+              <p className="mt-1 text-lg font-semibold text-indigo-900">
+                {balance.reservedTokens.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Last Updated</p>
+              <p className="mt-1 text-sm text-indigo-900">
+                {balance.updatedAt ? new Date(balance.updatedAt).toLocaleString() : '—'}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   // Clear field errors when user starts typing
   const clearFieldError = (field: keyof FormErrors) => {
@@ -257,6 +369,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 <p className="text-sm text-red-800">{errors.general}</p>
               </div>
             </div>
+          </div>
+        )}
+
+        {!isAdminView && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Token Balance</h3>
+            {renderBalanceSection()}
           </div>
         )}
 

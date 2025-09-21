@@ -26,6 +26,18 @@ export const USER_ENDPOINTS = {
 } as const;
 
 /**
+ * Billing endpoints
+ */
+export const BILLING_ENDPOINTS = {
+  CONFIG: '/v1/billing/config',
+  BALANCE: '/v1/billing/balance',
+  TRANSACTIONS: '/v1/billing/transactions',
+  ESTIMATE_QUIZ_GENERATION: '/v1/billing/estimate/quiz-generation',
+  CHECKOUT_SESSIONS: '/v1/billing/checkout-sessions',
+} as const;
+
+
+/**
  * Quiz management endpoints
  */
 export const QUIZ_ENDPOINTS = {
@@ -177,6 +189,7 @@ export const createCrudEndpoints = (basePath: string) => ({
 export const ENDPOINTS = {
   AUTH: AUTH_ENDPOINTS,
   USER: USER_ENDPOINTS,
+  BILLING: BILLING_ENDPOINTS,
   QUIZ: QUIZ_ENDPOINTS,
   QUESTION: QUESTION_ENDPOINTS,
   CATEGORY: CATEGORY_ENDPOINTS,
