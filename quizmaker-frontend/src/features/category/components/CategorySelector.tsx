@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CategoryDto } from '../types/category.types';
-import { CategoryService } from '../api/category.service';
-import api from '../api/axiosInstance';
+import { categoryService } from '../services/category.service';
 
 interface CategorySelectorProps {
   selectedCategories: CategoryDto[];
@@ -34,7 +33,6 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   
-  const categoryService = new CategoryService(api);
 
   // Load categories on component mount
   useEffect(() => {

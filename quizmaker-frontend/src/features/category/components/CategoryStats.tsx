@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '../types/category.types';
 import { QuizDto, Difficulty } from '../types/quiz.types';
-import { CategoryService } from '../api/category.service';
-import { QuizService } from '../api/quiz.service';
-import api from '../api/axiosInstance';
+import { categoryService } from '../services/category.service';
+import { QuizService } from '../../../api/quiz.service';
+import api from '../../../api/axiosInstance';
 
 interface CategoryStatsProps {
   category: CategoryDto;
@@ -45,7 +45,6 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
 
-  const categoryService = new CategoryService(api);
   const quizService = new QuizService(api);
 
   useEffect(() => {

@@ -15,16 +15,6 @@ export const USER_ENDPOINTS = {
   BULK_DEACTIVATE: '/v1/users/bulk-deactivate',
 } as const;
 
-/**
- * Billing endpoints
- */
-export const BILLING_ENDPOINTS = {
-  CONFIG: '/v1/billing/config',
-  BALANCE: '/v1/billing/balance',
-  TRANSACTIONS: '/v1/billing/transactions',
-  ESTIMATE_QUIZ_GENERATION: '/v1/billing/estimate/quiz-generation',
-  CHECKOUT_SESSIONS: '/v1/billing/checkout-sessions',
-} as const;
 
 
 /**
@@ -61,14 +51,6 @@ export const QUESTION_ENDPOINTS = {
   ANALYTICS: (id: string) => `/v1/questions/${id}/analytics`,
 } as const;
 
-/**
- * Category management endpoints
- */
-export const CATEGORY_ENDPOINTS = {
-  CATEGORIES: '/v1/categories',
-  CATEGORY_BY_ID: (id: string) => `/v1/categories/${id}`,
-  ANALYTICS: (id: string) => `/v1/categories/${id}/analytics`,
-} as const;
 
 /**
  * Tag management endpoints
@@ -160,10 +142,8 @@ export const createCrudEndpoints = (basePath: string) => ({
  */
 export const ENDPOINTS = {
   USER: USER_ENDPOINTS,
-  BILLING: BILLING_ENDPOINTS,
   QUIZ: QUIZ_ENDPOINTS,
   QUESTION: QUESTION_ENDPOINTS,
-  CATEGORY: CATEGORY_ENDPOINTS,
   TAG: TAG_ENDPOINTS,
   ATTEMPT: ATTEMPT_ENDPOINTS,
   DOCUMENT: DOCUMENT_ENDPOINTS,

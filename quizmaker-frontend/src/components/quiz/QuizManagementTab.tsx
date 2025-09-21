@@ -12,7 +12,7 @@ import { CreateQuizRequest, UpdateQuizRequest } from '../../types/quiz.types';
 import { TagDto } from '../../types/tag.types';
 import { CategoryDto } from '../../types/category.types';
 import { TagService } from '../../api/tag.service';
-import { CategoryService } from '../../api/category.service';
+import { categoryService } from '../../features/category';
 import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
@@ -41,7 +41,6 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
   className = ''
 }) => {
   const tagService = new TagService(api);
-  const categoryService = new CategoryService(api);
 
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
   const [showTagModal, setShowTagModal] = useState(false);

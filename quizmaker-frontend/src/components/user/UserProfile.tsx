@@ -8,9 +8,9 @@ import { useAuth } from '../../features/auth';
 import { UserDto } from '../../features/auth/types/auth.types';
 import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
-import { billingService } from '../../api/billing.service';
-import type { BalanceDto } from '../../types/billing.types';
-import TokenTopUp from './TokenTopUp';
+import { billingService } from '../../features/billing';
+import type { BalanceDto } from '../../features/billing';
+import { TokenTopUp } from '../../features/billing';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user

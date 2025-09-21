@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '../types/category.types';
-import { CategoryService } from '../api/category.service';
-import Spinner from './ui/Spinner';
-import api from '../api/axiosInstance';
+import { categoryService } from '../services/category.service';
+import Spinner from '../../../components/ui/Spinner';
 
 interface CategoryListProps {
   onEditCategory: (category: CategoryDto) => void;
@@ -30,7 +29,6 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const categoryService = new CategoryService(api);
 
   const loadCategories = async () => {
     try {

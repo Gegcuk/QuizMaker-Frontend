@@ -10,12 +10,12 @@ export * from './quiz.types';
 export * from './attempt.types';
 export * from './question.types';
 export * from './document.types';
-export * from './category.types';
+export * from '../features/category/types/category.types';
 export * from './tag.types';
 export * from '../features/admin/types/admin.types';
 // export * from './user.types';
 // export * from './result.types';
-// export * from './category.types';
+// export * from '../features/category/types/category.types';
 // export * from './tag.types';
 
 // Note: api.d.ts contains legacy types that conflict with new comprehensive types

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '../../types/category.types';
-import { CategoryService } from '../../api/category.service';
+import { categoryService } from '../../features/category';
 import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
@@ -22,7 +22,6 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   onCategoryChange,
   className = ''
 }) => {
-  const categoryService = new CategoryService(api);
   
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [displayedCount, setDisplayedCount] = useState<number>(5);

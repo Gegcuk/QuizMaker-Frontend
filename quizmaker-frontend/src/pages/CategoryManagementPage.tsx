@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
 import { PageContainer } from '../components/layout';
 import ConfirmationModal from '../components/common/ConfirmationModal';
-import { CategoryDto } from '../types/api';
+import { CategoryDto } from '../features/category';
 import {
   getAllCategories,
   createCategory,
   updateCategory,
   deleteCategory,
-} from '../api/category.service';
+} from '../features/category';
 
 const CategoryManagementPage: React.FC = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);

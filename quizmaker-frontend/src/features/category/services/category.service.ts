@@ -1,12 +1,13 @@
 import type { AxiosInstance } from 'axios';
-import { CATEGORY_ENDPOINTS } from './endpoints';
+import { CATEGORY_ENDPOINTS } from './category.endpoints';
 import { 
   CategoryDto,
   CreateCategoryRequest,
-  UpdateCategoryRequest
+  UpdateCategoryRequest,
+  CategoryPage,
+  CreateCategoryResponse,
 } from '../types/category.types';
-import { BaseService } from './base.service';
-import api from './axiosInstance';
+import { BaseService } from '../../../api/base.service';
 
 /**
  * Category service for handling category operations
@@ -25,32 +26,15 @@ export class CategoryService extends BaseService<CategoryDto> {
     page?: number;
     size?: number;
     sort?: string;
-  }): Promise<{
-    content: CategoryDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+  }): Promise<CategoryPage> {
     try {
-      const response = await this.axiosInstance.get(CATEGORY_ENDPOINTS.CATEGORIES, {
-        params
+      const response = await this.axiosInstance.get<CategoryPage>(CATEGORY_ENDPOINTS.CATEGORIES, {
+        params: {
+          page: params?.page ?? 0,
+          size: params?.size ?? 20,
+          sort: params?.sort ?? 'name,asc',
+        }
       });
-      return response.data;
-    } catch (error) {
-      throw this.handleCategoryError(error);
-    }
-  }
-
-  /**
-   * Create a new category
-   * POST /api/v1/categories
-   */
-  async createCategory(data: CreateCategoryRequest): Promise<{ categoryId: string }> {
-    try {
-      const response = await this.axiosInstance.post<{ categoryId: string }>(CATEGORY_ENDPOINTS.CATEGORIES, data);
       return response.data;
     } catch (error) {
       throw this.handleCategoryError(error);
@@ -64,6 +48,19 @@ export class CategoryService extends BaseService<CategoryDto> {
   async getCategoryById(categoryId: string): Promise<CategoryDto> {
     try {
       const response = await this.axiosInstance.get<CategoryDto>(CATEGORY_ENDPOINTS.CATEGORY_BY_ID(categoryId));
+      return response.data;
+    } catch (error) {
+      throw this.handleCategoryError(error);
+    }
+  }
+
+  /**
+   * Create a new category
+   * POST /api/v1/categories
+   */
+  async createCategory(data: CreateCategoryRequest): Promise<CreateCategoryResponse> {
+    try {
+      const response = await this.axiosInstance.post<CreateCategoryResponse>(CATEGORY_ENDPOINTS.CATEGORIES, data);
       return response.data;
     } catch (error) {
       throw this.handleCategoryError(error);
@@ -102,16 +99,19 @@ export class CategoryService extends BaseService<CategoryDto> {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
       const message = error.response?.data?.message || error.message;
+      const details = error.response?.data?.details;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          return new Error(`Validation error: ${details ? details.join(', ') : message}`);
         case 401:
           return new Error('Authentication required');
         case 403:
-          return new Error('Insufficient permissions');
+          return new Error('Insufficient permissions - Admin role required');
         case 404:
           return new Error('Category not found');
+        case 409:
+          return new Error('Conflict: Category name already exists or category is in use');
         case 500:
         case 502:
         case 503:
@@ -126,10 +126,9 @@ export class CategoryService extends BaseService<CategoryDto> {
   }
 }
 
-export default api;
-
-// Create service instance
-const categoryService = new CategoryService(api);
+// Export default instance
+import api from '../../../api/axiosInstance';
+export const categoryService = new CategoryService(api);
 
 // Export individual functions for backward compatibility
 export const getAllCategories = (params?: {

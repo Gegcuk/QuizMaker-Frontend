@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '../types/category.types';
 import { QuizDto, Difficulty, Visibility, QuizStatus } from '../types/quiz.types';
-import { CategoryService } from '../api/category.service';
-import { QuizService } from '../api/quiz.service';
-import api from '../api/axiosInstance';
+import { categoryService } from '../services/category.service';
+import { QuizService } from '../../../api/quiz.service';
+import api from '../../../api/axiosInstance';
 
 interface CategoryAnalyticsProps {
   category: CategoryDto;
@@ -42,7 +42,6 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState(timeRange);
 
-  const categoryService = new CategoryService(api);
   const quizService = new QuizService(api);
 
   useEffect(() => {

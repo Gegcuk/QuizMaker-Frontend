@@ -1,8 +1,6 @@
 // Authentication-related type definitions
 // Used for user registration, login, token management, and user profile operations as documented in the API specification
 
-import { BaseEntity, AuditableEntity } from './common.types';
-
 /**
  * User registration request
  * Matches RegisterRequest DTO from API documentation

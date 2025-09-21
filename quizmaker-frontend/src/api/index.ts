@@ -20,7 +20,7 @@ export { DocumentService } from './document.service';
 export { DocumentProcessService } from './documentProcess.service';
 
 // Category service (class-based)
-export { CategoryService } from './category.service';
+export { CategoryService } from '../features/category';
 
 // Tag service (class-based)
 export { TagService } from './tag.service';
@@ -28,7 +28,7 @@ export { TagService } from './tag.service';
 // Admin service (class-based)
 export { AdminService } from '../features/admin';
 
-export { BillingService } from './billing.service';
+export { BillingService } from '../features/billing';
 
 // Base service and utilities
 export { BaseService } from './base.service';

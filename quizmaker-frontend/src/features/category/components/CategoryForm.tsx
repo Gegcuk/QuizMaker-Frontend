@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../types/category.types';
-import { CategoryService } from '../api/category.service';
-import api from '../api/axiosInstance';
+import { categoryService } from '../services/category.service';
 
 interface CategoryFormProps {
   category?: CategoryDto;
@@ -24,7 +23,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
-  const categoryService = new CategoryService(api);
   const isEditing = !!category;
 
   useEffect(() => {

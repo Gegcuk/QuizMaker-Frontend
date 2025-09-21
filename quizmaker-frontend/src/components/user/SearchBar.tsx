@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService } from '../../api/quiz.service';
-import { CategoryService } from '../../api/category.service';
+import { categoryService } from '../../features/category';
 import { TagService } from '../../api/tag.service';
 import { 
   QuizDto, 
@@ -65,7 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     const loadFilters = async () => {
       try {
         const [categoriesResponse, tagsResponse] = await Promise.all([
-          new CategoryService(api).getCategories({ size: 100 }),
+          categoryService.getCategories({ size: 100 }),
           new TagService(api).getTags({ size: 100 })
         ]);
         setCategories(categoriesResponse.content);
