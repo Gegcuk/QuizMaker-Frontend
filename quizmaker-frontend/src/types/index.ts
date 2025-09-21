@@ -7,7 +7,6 @@ export * from './common.types';
 // Domain-specific types (to be created in future steps)
 export * from '../features/auth/types/auth.types';
 export * from './quiz.types';
-export * from './attempt.types';
 export * from './question.types';
 export * from '../features/category/types/category.types';
 export * from './tag.types';

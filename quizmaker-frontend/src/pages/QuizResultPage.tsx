@@ -11,10 +11,10 @@ import {
   Link,
   useNavigate,
 } from 'react-router-dom';
-import { AttemptService } from '../api/attempt.service';
+import { AttemptService } from '../features/attempt';
 import { QuestionService } from '../api/question.service';
 import { Spinner } from '../components/ui';
-import type { AttemptResultDto, AnswerSubmissionDto } from '../types/attempt.types';
+import type { AttemptResultDto, AnswerSubmissionDto } from '../features/attempt';
 import type { QuestionDto } from '../types/question.types';
 import api from '../api/axiosInstance';
 
@@ -49,7 +49,7 @@ const QuizResultPage: React.FC = () => {
       setError(null);
       try {
         // First, get the attempt results
-        const attemptData = await attemptService.getAttemptById(attemptId);
+        const attemptData = await attemptService.getAttemptDetails(attemptId);
         
         // Convert to AttemptResultDto format if needed
         const resultData: AttemptResultDto = {

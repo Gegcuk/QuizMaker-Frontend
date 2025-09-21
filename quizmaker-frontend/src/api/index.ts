@@ -8,7 +8,7 @@ export { AuthService } from '../features/auth';
 export { QuizService } from './quiz.service';
 
 // Attempt service (class-based)
-export { AttemptService } from './attempt.service';
+export { AttemptService } from '../features/attempt';
 
 // Question service (class-based)
 export { QuestionService } from './question.service';

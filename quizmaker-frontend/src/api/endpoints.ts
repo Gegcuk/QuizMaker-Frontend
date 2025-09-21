@@ -61,24 +61,6 @@ export const TAG_ENDPOINTS = {
   ANALYTICS: (id: string) => `/v1/tags/${id}/analytics`,
 } as const;
 
-/**
- * Attempt management endpoints
- */
-export const ATTEMPT_ENDPOINTS = {
-  START_ATTEMPT: (quizId: string) => `/v1/attempts/quizzes/${quizId}`,
-  ATTEMPTS: '/v1/attempts',
-  ATTEMPT_BY_ID: (id: string) => `/v1/attempts/${id}`,
-  SUBMIT_ANSWER: (id: string) => `/v1/attempts/${id}/answers`,
-  SAVE_PROGRESS: (id: string) => `/v1/attempts/${id}/progress`,
-  BATCH_ANSWERS: (id: string) => `/v1/attempts/${id}/answers/batch`,
-  COMPLETE_ATTEMPT: (id: string) => `/v1/attempts/${id}/complete`,
-  ATTEMPT_STATS: (id: string) => `/v1/attempts/${id}/stats`,
-  PAUSE_ATTEMPT: (id: string) => `/v1/attempts/${id}/pause`,
-  RESUME_ATTEMPT: (id: string) => `/v1/attempts/${id}/resume`,
-  DELETE_ATTEMPT: (id: string) => `/v1/attempts/${id}`,
-  CURRENT_QUESTION: (id: string) => `/v1/attempts/${id}/current-question`,
-  SHUFFLED_QUESTIONS: (quizId: string) => `/v1/attempts/quizzes/${quizId}/questions/shuffled`,
-} as const;
 
 
 /**
@@ -120,6 +102,5 @@ export const ENDPOINTS = {
   QUIZ: QUIZ_ENDPOINTS,
   QUESTION: QUESTION_ENDPOINTS,
   TAG: TAG_ENDPOINTS,
-  ATTEMPT: ATTEMPT_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
 } as const; 

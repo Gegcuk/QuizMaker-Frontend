@@ -9,8 +9,8 @@ import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '../../t
 import { createQuestion, updateQuestion, getQuestionById } from '../../api/question.service';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import { QuestionRenderer } from './';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../attempt';
-import { QuestionForAttemptDto } from '../../types/attempt.types';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../../features/attempt';
+import { QuestionForAttemptDto } from '../../features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';

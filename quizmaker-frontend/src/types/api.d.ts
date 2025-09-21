@@ -111,50 +111,7 @@ export interface CreateQuestionRequest {
 
 export type UpdateQuestionRequest = Partial<CreateQuestionRequest>;
 
-/* ----------  Attempts & answers  --------------------------------------- */
-export interface AttemptDto {
-  attemptId: string;
-  quizId: string;
-  userId: string;
-  startedAt: string;
-  status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
-  mode: 'ONE_BY_ONE' | 'ALL_AT_ONCE' | 'TIMED';
-}
 
-export interface StartAttemptDto {
-  attemptId: string;
-  quizId: string;
-  mode: 'ONE_BY_ONE' | 'ALL_AT_ONCE' | 'TIMED';
-  totalQuestions: number;
-  timeLimitMinutes: number | null;
-  startedAt: string;
-}
-
-export interface AnswerSubmissionDto {
-  answerId: string;
-  questionId: string;
-  isCorrect: boolean;
-  score: number;
-  answeredAt: string;
-  nextQuestion?: QuestionDto;
-}
-
-export interface AttemptDetailsDto extends AttemptDto {
-  completedAt?: string;
-  answers: AnswerSubmissionDto[];
-}
-
-export interface AttemptResultDto {
-  attemptId: string;
-  quizId: string;
-  userId: string;
-  startedAt: string;
-  completedAt: string;
-  totalScore: number;
-  correctCount: number;
-  totalQuestions: number;
-  answers: AnswerSubmissionDto[];
-}
 
 /* ----------  Quiz results summary  ------------------------------------ */
 export interface QuizQuestionStatsDto {

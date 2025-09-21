@@ -9,7 +9,7 @@ import { useAuth } from '../../features/auth';
 import { QuizDto } from '../../types/quiz.types';
 import { getMyQuizzes, deleteQuiz } from '../../api/quiz.service';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
-import { UserAttempts } from '../attempt';
+import { UserAttempts } from '../../features/attempt';
 import { PageHeader } from '../layout';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useQuizFiltering, useQuizPagination } from '../../hooks';

@@ -6,9 +6,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { AttemptService } from "../api/attempt.service";
+import { AttemptService } from "../features/attempt";
 import { QuizService } from "../api/quiz.service";
-import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../types/attempt.types";
+import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../features/attempt";
 import { QuizDto } from "../types/quiz.types";
 import api from "../api/axiosInstance";
 import { Spinner } from "../components/ui";
@@ -24,7 +24,7 @@ import {
   AttemptBatchAnswers,
   AttemptTimer,
   HintDisplay
-} from "../components/attempt";
+} from "../features/attempt";
 
 // Shape of user answer input; varies by question type
 type AnswerInput = any;
@@ -110,9 +110,9 @@ const QuizAttemptPage: React.FC = () => {
           const currentQuestionData = await attemptService.getCurrentQuestion(attemptIdFromUrl);
           console.log('getCurrentQuestion response:', currentQuestionData);
           
-          console.log('Calling attemptService.getAttemptById...');
-          const attemptDetails = await attemptService.getAttemptById(attemptIdFromUrl);
-          console.log('getAttemptById response:', attemptDetails);
+          console.log('Calling attemptService.getAttemptDetails...');
+          const attemptDetails = await attemptService.getAttemptDetails(attemptIdFromUrl);
+          console.log('getAttemptDetails response:', attemptDetails);
           
           setAttemptId(attemptIdFromUrl);
           setAttemptMode(attemptDetails.mode);
@@ -168,7 +168,7 @@ const QuizAttemptPage: React.FC = () => {
       
       if (existingAttemptId) {
         // Resume existing attempt
-        const attemptDetails = await attemptService.getAttemptById(existingAttemptId);
+        const attemptDetails = await attemptService.getAttemptDetails(existingAttemptId);
         setAttemptId(existingAttemptId);
         setAttemptMode(attemptDetails.mode);
         setAttemptStatus(attemptDetails.status);

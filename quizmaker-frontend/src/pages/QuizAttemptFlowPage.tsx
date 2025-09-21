@@ -10,7 +10,7 @@ import { QuizService } from '../api/quiz.service';
 import { QuizDto } from '../types/quiz.types';
 import api from '../api/axiosInstance';
 import { Spinner } from '../components/ui';
-import { AttemptContinuation, AttemptStart } from '../components/attempt';
+import { AttemptContinuation, AttemptStart } from '../features/attempt';
 
 type AttemptFlowStep = 'checking' | 'continuation' | 'start' | 'attempting';
 
