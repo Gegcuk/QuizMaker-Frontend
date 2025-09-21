@@ -26,7 +26,7 @@ export { CategoryService } from './category.service';
 export { TagService } from './tag.service';
 
 // Admin service (class-based)
-export { AdminService } from './admin.service';
+export { AdminService } from '../features/admin';
 
 export { BillingService } from './billing.service';
 

@@ -12,7 +12,7 @@ export * from './question.types';
 export * from './document.types';
 export * from './category.types';
 export * from './tag.types';
-export * from './admin.types';
+export * from '../features/admin/types/admin.types';
 // export * from './user.types';
 // export * from './result.types';
 // export * from './category.types';

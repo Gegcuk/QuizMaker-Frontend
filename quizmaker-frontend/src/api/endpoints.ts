@@ -146,24 +146,6 @@ export const RESULT_ENDPOINTS = {
   EXPORT_RESULTS: (quizId: string) => `/v1/results/export/${quizId}`,
 } as const;
 
-/**
- * Admin management endpoints
- */
-export const ADMIN_ENDPOINTS = {
-  ROLES: '/v1/admin/roles',
-  ROLE_BY_ID: (id: string) => `/v1/admin/roles/${id}`,
-  ASSIGN_ROLE: (userId: string, roleId: string) => `/v1/admin/users/${userId}/roles/${roleId}`,
-  SYSTEM_INITIALIZE: '/v1/admin/system/initialize',
-  SYSTEM_STATUS: '/v1/admin/system/status',
-} as const;
-
-/**
- * Super admin endpoints (dangerous operations)
- */
-export const SUPER_ADMIN_ENDPOINTS = {
-  DANGEROUS_OPERATION: '/v1/admin/super/dangerous-operation',
-  BULK_OPERATIONS: '/v1/admin/super/bulk-operations',
-} as const;
 
 /**
  * Common CRUD endpoints pattern
@@ -198,6 +180,4 @@ export const ENDPOINTS = {
   DOCUMENT: DOCUMENT_ENDPOINTS,
   DOCUMENT_PROCESS: DOCUMENT_PROCESS_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
-  ADMIN: ADMIN_ENDPOINTS,
-  SUPER_ADMIN: SUPER_ADMIN_ENDPOINTS,
 } as const; 
