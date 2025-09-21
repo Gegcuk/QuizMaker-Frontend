@@ -10,7 +10,7 @@ import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
 import { billingService } from '../../api/billing.service';
 import type { BalanceDto } from '../../types/billing.types';
-// import TokenTopUp from './TokenTopUp';
+import TokenTopUp from './TokenTopUp';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -408,31 +408,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         )}
 
-        {/* DEBUG: Token TopUp Section */}
-        <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded">
-          <div className="text-sm font-bold text-yellow-800">
-            DEBUG INFO:
-          </div>
-          <div className="text-sm text-yellow-700">
-            isAdminView: {isAdminView ? 'true' : 'false'}
-          </div>
-          <div className="text-sm text-yellow-700">
-            billingDisabled: {billingDisabled ? 'true' : 'false'}
-          </div>
-          <div className="text-sm text-yellow-700">
-            balanceError: {balanceError || 'null'}
-          </div>
-          <div className="text-sm text-yellow-700">
-            Should show TokenTopUp: {(!isAdminView && !billingDisabled && !balanceError) ? 'YES' : 'NO'}
-          </div>
-        </div>
-
         {!isAdminView && !billingDisabled && !balanceError && (
-          <div className="mb-6">
-            <div className="p-4 bg-green-100 border border-green-300 rounded">
-              <p className="text-green-800">TokenTopUp component would appear here (temporarily disabled for debugging)</p>
-            </div>
-          </div>
+          <TokenTopUp className="mb-6" />
         )}
 
         {isEditing ? (
