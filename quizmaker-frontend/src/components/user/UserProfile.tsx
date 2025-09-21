@@ -141,24 +141,31 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const renderBalanceSection = () => {
     if (isBalanceLoading) {
       return (
-        <div className="bg-white border border-indigo-100 rounded-lg p-4">
-          <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <div className="h-3 bg-indigo-100 rounded w-24 mb-2" />
-              <div className="h-6 bg-indigo-100 rounded" />
+        <div className="space-y-4">
+          <div className="bg-white border border-indigo-100 rounded-lg p-4">
+            <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <div className="h-3 bg-indigo-100 rounded w-24 mb-2" />
+                <div className="h-6 bg-indigo-100 rounded" />
+              </div>
+              <div>
+                <div className="h-3 bg-indigo-100 rounded w-20 mb-2" />
+                <div className="h-6 bg-indigo-100 rounded" />
+              </div>
+              <div>
+                <div className="h-3 bg-indigo-100 rounded w-28 mb-2" />
+                <div className="h-6 bg-indigo-100 rounded" />
+              </div>
             </div>
-            <div>
-              <div className="h-3 bg-indigo-100 rounded w-20 mb-2" />
-              <div className="h-6 bg-indigo-100 rounded" />
-            </div>
-            <div>
-              <div className="h-3 bg-indigo-100 rounded w-28 mb-2" />
-              <div className="h-6 bg-indigo-100 rounded" />
-            </div>
+          </div>
+          <div className="bg-white border border-indigo-100 rounded-lg p-4">
+            <div className="h-4 bg-indigo-100 rounded w-40 mb-2 animate-pulse" />
+            <div className="h-16 bg-indigo-100 rounded animate-pulse" />
           </div>
         </div>
       );
     }
+
 
     if (billingDisabled) {
       return (
@@ -176,8 +183,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
       );
     }
 
-    if (balance) {
-      return (
+    if (!balance) {
+      return null;
+    }
+
+    return (
+      <div className="space-y-4">
         <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -200,10 +211,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
           </div>
         </div>
-      );
-    }
 
-    return null;
+        <TokenTopUp />
+      </div>
+    );
   };
 
   // Clear field errors when user starts typing
@@ -390,8 +401,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
         )}
 
         {!isAdminView && (
-          <div className="mb-6">
-            <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between gap-2">
               <h3 className="text-sm font-medium text-gray-700">Token Balance</h3>
               {!billingDisabled && (
                 <button
