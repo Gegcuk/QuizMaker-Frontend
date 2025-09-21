@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { QuizService } from '../../api/quiz.service';
-import api from '../../api/axiosInstance';
+import { QuizService } from '../../../api/quiz.service';
+import api from '../../../api/axiosInstance';
 import { 
   QuizGenerationStatus,
   GenerationStatus
-} from '../../types/quiz.types';
+} from '../../../types/quiz.types';
 
 interface GenerationProgressProps {
   jobId: string;

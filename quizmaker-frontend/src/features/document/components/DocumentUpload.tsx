@@ -12,7 +12,7 @@ import { DocumentDto, DocumentConfigDto, ChunkingStrategy } from '../types/docum
 import { GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '../../../types/quiz.types';
 import api from '../../../api/axiosInstance';
 import { Button, Modal, Alert, Badge } from '../../../components/ui';
-import { GenerationProgress } from '../../../components/ai';
+import { GenerationProgress } from '../../ai';
 
 interface DocumentUploadProps {
   onUploadSuccess?: (document: DocumentDto) => void;

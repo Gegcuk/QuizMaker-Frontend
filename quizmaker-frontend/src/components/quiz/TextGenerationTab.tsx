@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService } from '../../api/quiz.service';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '../../types/quiz.types';
-import { GenerationProgress } from '../ai';
+import { GenerationProgress } from '../../features/ai';
 import { Button, Alert } from '../ui';
 import api from '../../api/axiosInstance';
 
