@@ -4,9 +4,9 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../features/auth';
 import { userService } from '../../api/user.service';
-import { UserDto } from '../../types/auth.types';
+import { UserDto } from '../../features/auth/types/auth.types';
 import type { AxiosError } from 'axios';
 
 interface UserActivationProps {

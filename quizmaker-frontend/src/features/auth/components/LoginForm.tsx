@@ -6,8 +6,8 @@
 
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { LoginRequest } from '../../types/auth.types';
+import { useAuth } from '../AuthContext';
+import { LoginRequest } from '../types/auth.types';
 import type { AxiosError } from 'axios';
 
 interface LoginFormProps {

@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../features/auth';
 import { AttemptService } from '../../api/attempt.service';
 import { QuizService } from '../../api/quiz.service';
 import { AttemptDto, AttemptStatsDto, CurrentQuestionDto } from '../../types/attempt.types';

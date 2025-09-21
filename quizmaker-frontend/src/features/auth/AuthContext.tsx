@@ -12,14 +12,14 @@ import React, {
   useMemo,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosInstance';
+import api from '../../api/axiosInstance';
 import {
   getAccessToken,
   getRefreshToken,
   setTokens,
   clearTokens,
-} from '../utils/tokenUtils';
-import { UserDto } from '../types/auth.types';
+} from '../../utils/tokenUtils';
+import { UserDto } from './types/auth.types';
 
 interface JwtResponse {
   accessToken: string;

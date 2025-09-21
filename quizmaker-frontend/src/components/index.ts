@@ -5,7 +5,7 @@
 export * from './quiz';
 
 // Auth Components
-export * from './auth';
+export * from '../features/auth';
 
 // Layout Components
 export * from './layout';

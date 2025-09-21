@@ -1,13 +1,22 @@
 import type { AxiosInstance } from 'axios';
-import { AUTH_ENDPOINTS } from './endpoints';
+import { AUTH_ENDPOINTS } from './auth.endpoints';
 import { 
   LoginRequest, 
   RegisterRequest, 
   RefreshRequest, 
   JwtResponse, 
-  UserDto
+  UserDto,
+  AuthenticatedUserDto,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse
 } from '../types/auth.types';
-import { BaseService } from './base.service';
+import { BaseService } from '../../../api/base.service';
 
 /**
  * Authentication service for handling user authentication operations
@@ -74,9 +83,63 @@ export class AuthService extends BaseService<UserDto> {
    * Get current authenticated user details
    * GET /api/v1/auth/me
    */
-  async getCurrentUser(): Promise<UserDto> {
+  async getCurrentUser(): Promise<AuthenticatedUserDto> {
     try {
-      const response = await this.axiosInstance.get<UserDto>(AUTH_ENDPOINTS.ME);
+      const response = await this.axiosInstance.get<AuthenticatedUserDto>(AUTH_ENDPOINTS.ME);
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Initiate password reset flow
+   * POST /api/v1/auth/forgot-password
+   */
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const response = await this.axiosInstance.post<ForgotPasswordResponse>(AUTH_ENDPOINTS.FORGOT_PASSWORD, data);
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Reset password using a reset token
+   * POST /api/v1/auth/reset-password?token=<string>
+   */
+  async resetPassword(token: string, data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    try {
+      const response = await this.axiosInstance.post<ResetPasswordResponse>(AUTH_ENDPOINTS.RESET_PASSWORD, data, {
+        params: { token }
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Verify email using a verification token
+   * POST /api/v1/auth/verify-email
+   */
+  async verifyEmail(data: VerifyEmailRequest): Promise<VerifyEmailResponse> {
+    try {
+      const response = await this.axiosInstance.post<VerifyEmailResponse>(AUTH_ENDPOINTS.VERIFY_EMAIL, data);
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Resend email verification link
+   * POST /api/v1/auth/resend-verification
+   */
+  async resendVerification(data: ResendVerificationRequest): Promise<ResendVerificationResponse> {
+    try {
+      const response = await this.axiosInstance.post<ResendVerificationResponse>(AUTH_ENDPOINTS.RESEND_VERIFICATION, data);
       return response.data;
     } catch (error) {
       throw this.handleAuthError(error);
@@ -98,6 +161,8 @@ export class AuthService extends BaseService<UserDto> {
           return new Error('Authentication failed');
         case 409:
           return new Error('Username or email already exists');
+        case 429:
+          return new Error('Too many requests. Please try again later.');
         case 500:
         case 502:
         case 503:

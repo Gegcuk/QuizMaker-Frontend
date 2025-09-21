@@ -11,7 +11,7 @@ import React from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout, ProtectedRoute } from '../components';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../features/auth';
 
 /* ----------  Public pages  ------------------------------------------------ */
 import HomePage from '../pages/HomePage';

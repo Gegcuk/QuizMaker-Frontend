@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import AppRoutes from './routes/AppRoutes';
 import { ToastProvider } from './components/ui';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './features/auth';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

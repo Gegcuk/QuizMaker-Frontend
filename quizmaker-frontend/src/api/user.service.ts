@@ -1,7 +1,7 @@
 // src/api/user.service.ts
 import type { AxiosInstance } from 'axios';
 import { USER_ENDPOINTS } from './endpoints';
-import { UserDto } from '../types/auth.types';
+import { UserDto } from '../features/auth/types/auth.types';
 import { BaseService } from './base.service';
 
 /**

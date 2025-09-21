@@ -8,7 +8,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../features/auth';
 
 const HomePage: React.FC = () => {
   const { isLoggedIn } = useAuth();

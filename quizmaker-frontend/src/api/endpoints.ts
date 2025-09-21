@@ -1,16 +1,6 @@
 // Centralized endpoint definitions for maintainability
 // All API services should use these constants instead of hardcoded strings
 
-/**
- * Authentication endpoints
- */
-export const AUTH_ENDPOINTS = {
-  REGISTER: '/v1/auth/register',
-  LOGIN: '/v1/auth/login',
-  REFRESH: '/v1/auth/refresh',
-  LOGOUT: '/v1/auth/logout',
-  ME: '/v1/auth/me',
-} as const;
 
 /**
  * User management endpoints
@@ -169,7 +159,6 @@ export const createCrudEndpoints = (basePath: string) => ({
  * All endpoints grouped by domain
  */
 export const ENDPOINTS = {
-  AUTH: AUTH_ENDPOINTS,
   USER: USER_ENDPOINTS,
   BILLING: BILLING_ENDPOINTS,
   QUIZ: QUIZ_ENDPOINTS,

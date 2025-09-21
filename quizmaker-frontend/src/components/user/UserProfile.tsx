@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { UserDto } from '../../types/auth.types';
+import { useAuth } from '../../features/auth';
+import { UserDto } from '../../features/auth/types/auth.types';
 import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
 import { billingService } from '../../api/billing.service';

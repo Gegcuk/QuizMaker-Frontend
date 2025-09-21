@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types/auth.types';
+import { useAuth } from '../../features/auth';
+import { UserRole } from '../../features/auth/types/auth.types';
 
 interface UserMenuProps {
   className?: string;

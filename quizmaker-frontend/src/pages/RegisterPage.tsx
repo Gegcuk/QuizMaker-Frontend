@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { RegisterForm } from '../components/auth';
+import { RegisterForm } from '../features/auth';
 
 const RegisterPage: React.FC = () => {
   return (

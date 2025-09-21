@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../features/auth';
 
 // Heroicons imports (you'll need to install @heroicons/react)
 // If you prefer FontAwesome, replace these with FontAwesome icons

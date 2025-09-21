@@ -2,7 +2,7 @@
 // Centralized export point for all API services
 
 // Auth service (class-based)
-export { AuthService } from './auth.service';
+export { AuthService } from '../features/auth';
 
 // Quiz service (class-based)
 export { QuizService } from './quiz.service';
