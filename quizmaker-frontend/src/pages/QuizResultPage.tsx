@@ -65,7 +65,7 @@ const QuizResultPage: React.FC = () => {
         };
 
         // Calculate totals
-        resultData.totalScore = attemptData.answers.reduce((sum, answer) => sum + answer.score, 0);
+        resultData.totalScore = attemptData.answers.reduce((sum, answer) => sum + (answer.score ?? 0), 0);
         resultData.correctCount = attemptData.answers.filter(answer => answer.isCorrect).length;
         
         setResults(resultData);
@@ -302,8 +302,8 @@ const QuizResultPage: React.FC = () => {
                  </h3>
               </div>
               <div className="text-right">
-                <div className={`text-lg font-bold ${getScoreColor(item.answer.score, 1)}`}>
-                  {item.answer.score} pt{item.answer.score !== 1 ? 's' : ''}
+                <div className={`text-lg font-bold ${getScoreColor(item.answer.score ?? 0, 1)}`}>
+                  {item.answer.score ?? 0} pt{(item.answer.score ?? 0) !== 1 ? 's' : ''}
                 </div>
               </div>
             </div>
