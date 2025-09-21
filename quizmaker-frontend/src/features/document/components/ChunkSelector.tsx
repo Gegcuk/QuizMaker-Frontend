@@ -1,13 +1,13 @@
-// src/components/document/ChunkSelector.tsx
+// src/features/document/components/ChunkSelector.tsx
 // ---------------------------------------------------------------------------
 // Component for selecting document chunks for quiz generation
 // Provides multi-select interface with chunk preview and filtering
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { DocumentChunkDto, ChunkType } from '../../types/document.types';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import { DocumentChunkDto, ChunkType } from '../types/document.types';
+import api from '../../../api/axiosInstance';
 
 interface ChunkSelectorProps {
   documentId: string;

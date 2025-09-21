@@ -14,10 +14,7 @@ export { AttemptService } from './attempt.service';
 export { QuestionService } from './question.service';
 
 // Document service (class-based)
-export { DocumentService } from './document.service';
-
-// Document Process service (class-based)
-export { DocumentProcessService } from './documentProcess.service';
+export { DocumentService, DocumentProcessService } from '../features/document';
 
 // Category service (class-based)
 export { CategoryService } from '../features/category';

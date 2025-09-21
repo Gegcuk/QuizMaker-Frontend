@@ -6,11 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../components/layout';
-import { DocumentProcessUpload } from '../components/document';
-import { DocumentProcessList } from '../components/document';
+import { DocumentProcessUpload, DocumentProcessList, DocumentProcessor, DocumentProcessViewDto, DocumentProcessService } from '../features/document';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui';
-import { DocumentProcessViewDto } from '../types/document.types';
-import { DocumentProcessService } from '../api/documentProcess.service';
 import api from '../api/axiosInstance';
 
 const DocumentProcessPage: React.FC = () => {
@@ -18,7 +15,6 @@ const DocumentProcessPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const documentProcessService = new DocumentProcessService(api);
 
   // Note: The API doesn't provide a list endpoint, so we start with an empty list
   // Documents will be added to the list as they are uploaded

@@ -1,13 +1,13 @@
-// src/components/document/DocumentAnalytics.tsx
+// src/features/document/components/DocumentAnalytics.tsx
 // ---------------------------------------------------------------------------
 // Component for displaying document analytics and statistics
 // Shows content analysis, chunk distribution, and processing metrics
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { DocumentDto, DocumentChunkDto, ChunkType } from '../../types/document.types';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import { DocumentDto, DocumentChunkDto, ChunkType } from '../types/document.types';
+import api from '../../../api/axiosInstance';
 
 interface DocumentAnalyticsProps {
   documentId: string;

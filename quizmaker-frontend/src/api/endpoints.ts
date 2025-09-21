@@ -80,31 +80,6 @@ export const ATTEMPT_ENDPOINTS = {
   SHUFFLED_QUESTIONS: (quizId: string) => `/v1/attempts/quizzes/${quizId}/questions/shuffled`,
 } as const;
 
-/**
- * Document management endpoints
- */
-export const DOCUMENT_ENDPOINTS = {
-  UPLOAD: '/documents/upload',
-  CONFIG: '/documents/config',
-  DOCUMENTS: '/documents',
-  DOCUMENT_BY_ID: (id: string) => `/documents/${id}`,
-  CHUNKS: (id: string) => `/documents/${id}/chunks`,
-  CHUNK_BY_INDEX: (id: string, index: number) => `/documents/${id}/chunks/${index}`,
-  STATUS: (id: string) => `/documents/${id}/status`,
-  REPROCESS: (id: string) => `/documents/${id}/reprocess`,
-} as const;
-
-/**
- * Document Process endpoints
- */
-export const DOCUMENT_PROCESS_ENDPOINTS = {
-  DOCUMENT_BY_ID: (id: string) => `/v1/documentProcess/documents/${id}`,
-  DOCUMENT_HEAD: (id: string) => `/v1/documentProcess/documents/${id}/head`,
-  TEXT_SLICE: (id: string) => `/v1/documentProcess/documents/${id}/text`,
-  STRUCTURE: (id: string) => `/v1/documentProcess/documents/${id}/structure`,
-  BUILD_STRUCTURE: (id: string) => `/v1/documentProcess/documents/${id}/structure`,
-  EXTRACT_CONTENT: (id: string) => `/v1/documentProcess/documents/${id}/extract`,
-} as const;
 
 /**
  * Result and analytics endpoints
@@ -146,7 +121,5 @@ export const ENDPOINTS = {
   QUESTION: QUESTION_ENDPOINTS,
   TAG: TAG_ENDPOINTS,
   ATTEMPT: ATTEMPT_ENDPOINTS,
-  DOCUMENT: DOCUMENT_ENDPOINTS,
-  DOCUMENT_PROCESS: DOCUMENT_PROCESS_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
 } as const; 

@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import { DOCUMENT_PROCESS_ENDPOINTS } from './endpoints';
+import { DOCUMENT_PROCESS_ENDPOINTS } from './documentProcess.endpoints';
 import { 
   DocumentProcessDto,
   DocumentProcessViewDto,
@@ -11,7 +11,7 @@ import {
   ExtractResponseDto,
   StructureFormat
 } from '../types/document.types';
-import { BaseService } from './base.service';
+import { BaseService } from '../../../api/base.service';
 
 /**
  * Document Process service for handling document processing operations
@@ -185,8 +185,6 @@ export class DocumentProcessService extends BaseService<DocumentProcessDto> {
       throw this.handleError(error);
     }
   }
-
-
 
   /**
    * Handle document process specific errors

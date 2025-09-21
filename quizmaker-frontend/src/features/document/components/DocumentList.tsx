@@ -1,4 +1,4 @@
-// src/components/document/DocumentList.tsx
+// src/features/document/components/DocumentList.tsx
 // ---------------------------------------------------------------------------
 // Document list component for viewing and managing uploaded documents.
 // Features:
@@ -25,8 +25,8 @@ import {
   ClockIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
-import { DocumentService } from '../../api/document.service';
-import { DocumentDto } from '../../types/document.types';
+import { DocumentService } from '../services/document.service';
+import { DocumentDto } from '../types/document.types';
 import { 
   Button, 
   Input, 
@@ -38,8 +38,8 @@ import {
   Spinner,
   Table,
   Pagination
-} from '../ui';
-import api from '../../api/axiosInstance';
+} from '../../../components/ui';
+import api from '../../../api/axiosInstance';
 
 interface DocumentListProps {
   className?: string;

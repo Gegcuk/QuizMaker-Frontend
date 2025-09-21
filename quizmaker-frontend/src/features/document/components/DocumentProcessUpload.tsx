@@ -1,14 +1,14 @@
-// src/components/document/DocumentProcessUpload.tsx
+// src/features/document/components/DocumentProcessUpload.tsx
 // ---------------------------------------------------------------------------
 // Component for uploading documents to the document process API
 // Supports both file upload and text input with drag-and-drop functionality
 // ---------------------------------------------------------------------------
 
 import React, { useState, useCallback, useRef } from 'react';
-import { DocumentProcessService } from '../../api/documentProcess.service';
-import { DocumentProcessDto, DocumentProcessViewDto } from '../../types/document.types';
-import api from '../../api/axiosInstance';
-import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '../ui';
+import { DocumentProcessService } from '../services/documentProcess.service';
+import { DocumentProcessDto, DocumentProcessViewDto } from '../types/document.types';
+import api from '../../../api/axiosInstance';
+import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '../../../components/ui';
 import { 
   DocumentArrowUpIcon, 
   DocumentTextIcon, 

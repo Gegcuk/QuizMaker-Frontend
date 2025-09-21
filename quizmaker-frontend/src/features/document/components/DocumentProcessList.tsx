@@ -1,20 +1,20 @@
-// src/components/document/DocumentProcessList.tsx
+// src/features/document/components/DocumentProcessList.tsx
 // ---------------------------------------------------------------------------
 // Component for displaying and managing document process documents
 // Shows document list with status, actions, and structure management
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentProcessService } from '../../api/documentProcess.service';
+import { DocumentProcessService } from '../services/documentProcess.service';
 import { 
   DocumentProcessViewDto, 
   DocumentStructureNodeDto,
   StructureTreeResponseDto,
   StructureFlatResponseDto,
   ExtractResponseDto
-} from '../../types/document.types';
-import api from '../../api/axiosInstance';
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '../ui';
+} from '../types/document.types';
+import api from '../../../api/axiosInstance';
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '../../../components/ui';
 import { 
   DocumentTextIcon, 
   EyeIcon, 
@@ -204,7 +204,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
 
   if (error) {
     return (
-      <Alert variant="destructive">
+      <Alert type="error">
         <ExclamationTriangleIcon className="h-5 w-5" />
         <div>
           <h3 className="text-sm font-medium">Error</h3>
@@ -303,7 +303,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
           {/* Error Display */}
           {errors[document.id] && (
             <div className="px-6 pb-3">
-              <Alert variant="destructive">
+              <Alert type="error">
                 <ExclamationTriangleIcon className="h-4 w-4" />
                 <p className="text-sm">{errors[document.id]}</p>
               </Alert>
@@ -368,7 +368,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                             
                             {errors[`${document.id}-${node.id}`] && (
                               <div className="mt-2">
-                                <Alert variant="destructive" className="text-xs">
+                                <Alert type="error" className="text-xs">
                                   <ExclamationTriangleIcon className="h-3 w-3" />
                                   <p className="text-xs">{errors[`${document.id}-${node.id}`]}</p>
                                 </Alert>

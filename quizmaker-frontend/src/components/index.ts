@@ -23,4 +23,7 @@ export * from './question';
 export * from './attempt';
 
 // AI Components
-export * from './ai'; 
+export * from './ai';
+
+// Document Components
+export * from '../features/document'; 

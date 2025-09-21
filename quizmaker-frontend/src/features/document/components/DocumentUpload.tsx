@@ -1,4 +1,4 @@
-// src/components/document/DocumentUpload.tsx
+// src/features/document/components/DocumentUpload.tsx
 // ---------------------------------------------------------------------------
 // Component for uploading documents with drag-and-drop support
 // Handles file validation, progress tracking, and upload configuration
@@ -6,13 +6,13 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useCallback, useRef } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { QuizService } from '../../api/quiz.service';
-import { DocumentDto, DocumentConfig, ChunkingStrategy } from '../../types/document.types';
-import { GenerateQuizFromDocumentRequest, QuizGenerationResponse } from '../../types/quiz.types';
-import api from '../../api/axiosInstance';
-import { Button, Modal, Alert, Badge } from '../ui';
-import { GenerationProgress } from '../ai';
+import { DocumentService } from '../services/document.service';
+import { QuizService } from '../../../api/quiz.service';
+import { DocumentDto, DocumentConfigDto, ChunkingStrategy } from '../types/document.types';
+import { GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '../../../types/quiz.types';
+import api from '../../../api/axiosInstance';
+import { Button, Modal, Alert, Badge } from '../../../components/ui';
+import { GenerationProgress } from '../../../components/ai';
 
 interface DocumentUploadProps {
   onUploadSuccess?: (document: DocumentDto) => void;
@@ -31,7 +31,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [config, setConfig] = useState<DocumentConfig | null>(null);
+  const [config, setConfig] = useState<DocumentConfigDto | null>(null);
   const [uploadConfig, setUploadConfig] = useState({
     chunkingStrategy: 'AUTO' as ChunkingStrategy,
     maxChunkSize: 1000
@@ -450,7 +450,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           <div className="space-y-3">
             <div className="text-sm text-green-700">
               <p><strong>Document Details:</strong></p>
-              <p>• Size: {formatFileSize(uploadedDocument.fileSize)}</p>
+              <p>• Size: {formatFileSize(uploadedDocument.fileSize || 0)}</p>
               <p>• Pages: {uploadedDocument.totalPages}</p>
               <p>• Chunks: {uploadedDocument.totalChunks}</p>
               <p>• Status: {uploadedDocument.status}</p>

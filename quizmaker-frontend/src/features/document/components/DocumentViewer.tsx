@@ -1,13 +1,13 @@
-// src/components/document/DocumentViewer.tsx
+// src/features/document/components/DocumentViewer.tsx
 // ---------------------------------------------------------------------------
 // Component for viewing document content with navigation and search
 // Displays document chunks with pagination and content highlighting
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { DocumentDto, DocumentChunkDto } from '../../types/document.types';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import { DocumentDto, DocumentChunkDto } from '../types/document.types';
+import api from '../../../api/axiosInstance';
 
 interface DocumentViewerProps {
   documentId: string;

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { PageContainer } from '../components/layout';
-import { DocumentUpload } from '../components/document';
+import { DocumentUpload } from '../features/document';
 
 const DocumentUploadPage: React.FC = () => {
   return (

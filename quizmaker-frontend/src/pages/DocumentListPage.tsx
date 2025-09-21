@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { PageContainer } from '../components/layout';
-import { DocumentList } from '../components/document';
+import { DocumentList } from '../features/document';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 const DocumentListPage: React.FC = () => {

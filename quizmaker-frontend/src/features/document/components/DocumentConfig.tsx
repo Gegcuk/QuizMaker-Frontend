@@ -1,13 +1,13 @@
-// src/components/document/DocumentConfig.tsx
+// src/features/document/components/DocumentConfig.tsx
 // ---------------------------------------------------------------------------
 // Component for displaying and configuring document processing settings
 // Shows current configuration and allows customization of processing parameters
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { DocumentConfig as DocumentConfigType, ChunkingStrategy } from '../../types/document.types';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import { DocumentConfigDto as DocumentConfigType, ChunkingStrategy } from '../types/document.types';
+import api from '../../../api/axiosInstance';
 
 interface DocumentConfigProps {
   onConfigChange?: (config: Partial<DocumentConfigType>) => void;

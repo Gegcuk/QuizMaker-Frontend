@@ -1,8 +1,6 @@
 // Document and AI-related type definitions
 // Used for document upload, processing, and chunking as documented in the API specification
 
-import { BaseEntity, AuditableEntity } from './common.types';
-
 /**
  * Document status enum
  */
@@ -57,19 +55,20 @@ export type ChunkingStrategy =
  * Document DTO
  * Matches DocumentDto from API documentation
  */
-export interface DocumentDto extends BaseEntity, AuditableEntity {
-  originalFilename: string;              // Original file name
-  contentType: string;                   // MIME type (e.g., "application/pdf")
-  fileSize: number;                      // File size in bytes
-  status: DocumentStatus;                // Document processing status
-  uploadedAt: string;                    // Upload timestamp
-  processedAt?: string;                  // Processing completion timestamp
-  title?: string;                        // Document title (extracted)
-  author?: string;                       // Document author (extracted)
-  totalPages?: number;                   // Total number of pages
-  totalChunks?: number;                  // Total number of chunks
-  processingError?: string;              // Error message if processing failed
-  chunks?: DocumentChunkDto[];           // Array of document chunks
+export interface DocumentDto {
+  id: string;                 // UUID
+  originalFilename: string;
+  contentType: string;        // e.g., application/pdf
+  fileSize: number | null;    // bytes (Long in Java)
+  status: DocumentStatus;
+  uploadedAt: string;         // ISO date-time (LocalDateTime in Java)
+  processedAt: string | null; // ISO date-time (LocalDateTime in Java)
+  title?: string | null;
+  author?: string | null;
+  totalPages?: number | null; // Integer in Java
+  totalChunks?: number | null; // Integer in Java
+  processingError?: string | null;
+  chunks?: DocumentChunkDto[]; // may include full content; prefer chunk endpoints if large
 }
 
 /**
@@ -175,19 +174,21 @@ export interface ExtractResponseDto {
  * Document chunk DTO
  * Matches DocumentChunkDto from API documentation
  */
-export interface DocumentChunkDto extends BaseEntity, AuditableEntity {
-  chunkIndex: number;                    // Zero-based chunk index
-  title: string;                         // Chunk title
-  content: string;                       // Chunk content text
-  startPage: number;                     // Starting page number
-  endPage: number;                       // Ending page number
-  wordCount: number;                     // Number of words in chunk
-  characterCount: number;                // Number of characters in chunk
-  chapterTitle?: string;                 // Chapter title (if applicable)
-  sectionTitle?: string;                 // Section title (if applicable)
-  chapterNumber?: number;                // Chapter number (if applicable)
-  sectionNumber?: number;                // Section number (if applicable)
-  chunkType: ChunkType;                  // Type of chunk
+export interface DocumentChunkDto {
+  id: string;                 // UUID
+  chunkIndex: number;         // Integer in Java
+  title: string;
+  content: string;            // text content of the chunk
+  startPage: number | null;   // Integer in Java
+  endPage: number | null;     // Integer in Java
+  wordCount: number | null;   // Integer in Java
+  characterCount: number | null; // Integer in Java
+  createdAt: string;          // ISO date-time (LocalDateTime in Java)
+  chapterTitle?: string | null;
+  sectionTitle?: string | null;
+  chapterNumber?: number | null; // Integer in Java
+  sectionNumber?: number | null; // Integer in Java
+  chunkType: ChunkType;
 }
 
 /**
@@ -195,16 +196,42 @@ export interface DocumentChunkDto extends BaseEntity, AuditableEntity {
  * Matches ProcessDocumentRequest from API documentation
  */
 export interface ProcessDocumentRequest {
-  chunkingStrategy: ChunkingStrategy;    // Chunking strategy
-  maxChunkSize: number;                  // Maximum chunk size in characters
-  storeChunks: boolean;                  // Whether to store chunks in database
+  chunkingStrategy: ChunkingStrategy;    // required for reprocess; optional when uploading if you want defaults
+  maxChunkSize?: number;                 // 100..100000 characters
+  minChunkSize?: number;                 // default 1000
+  aggressiveCombinationThreshold?: number; // default 3000
+  storeChunks?: boolean;                 // default true
 }
 
 /**
  * Document configuration DTO
  * Matches DocumentConfigDto from API documentation
  */
-export interface DocumentConfig {
-  defaultMaxChunkSize: number;           // Default maximum chunk size in characters
-  defaultStrategy: string;               // Default chunking strategy
-} 
+export interface DocumentConfigDto {
+  defaultMaxChunkSize: number;           // Integer in Java
+  defaultStrategy: string;               // one of the chunking strategies
+}
+
+/**
+ * Page DTO for paginated responses
+ */
+export interface Page<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}

@@ -1,13 +1,13 @@
-// src/components/document/DocumentProcessor.tsx
+// src/features/document/components/DocumentProcessor.tsx
 // ---------------------------------------------------------------------------
 // Component for displaying document processing status and progress
 // Shows real-time updates, processing stages, and completion status
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, useRef } from 'react';
-import { DocumentService } from '../../api/document.service';
-import { DocumentDto, DocumentStatus } from '../../types/document.types';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import { DocumentDto, DocumentStatus } from '../types/document.types';
+import api from '../../../api/axiosInstance';
 
 interface DocumentProcessorProps {
   documentId: string;

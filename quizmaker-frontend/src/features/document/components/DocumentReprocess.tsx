@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../../api/document.service';
-import api from '../../api/axiosInstance';
+import { DocumentService } from '../services/document.service';
+import api from '../../../api/axiosInstance';
 import { 
   DocumentDto, 
   ProcessDocumentRequest, 
-  DocumentConfig,
+  DocumentConfigDto,
   ChunkingStrategy 
-} from '../../types/document.types';
+} from '../types/document.types';
 
 interface DocumentReprocessProps {
   documentId: string;

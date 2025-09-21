@@ -40,7 +40,7 @@ import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 /* ----------  Document management pages  --------------------------------------- */
 import DocumentListPage from '../pages/DocumentListPage';
 import DocumentUploadPage from '../pages/DocumentUploadPage';
-import { DocumentViewer } from '../components/document';
+import { DocumentViewer } from '../features/document';
 
 /* ----------  User profile pages  ----------------------------------------- */
 import ProfilePage from '../pages/ProfilePage';

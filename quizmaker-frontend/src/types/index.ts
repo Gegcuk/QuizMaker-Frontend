@@ -9,7 +9,6 @@ export * from '../features/auth/types/auth.types';
 export * from './quiz.types';
 export * from './attempt.types';
 export * from './question.types';
-export * from './document.types';
 export * from '../features/category/types/category.types';
 export * from './tag.types';
 export * from '../features/admin/types/admin.types';

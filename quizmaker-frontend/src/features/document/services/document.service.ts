@@ -1,12 +1,13 @@
 import type { AxiosInstance } from 'axios';
-import { DOCUMENT_ENDPOINTS } from './endpoints';
+import { DOCUMENT_ENDPOINTS } from './document.endpoints';
 import { 
   DocumentDto,
   DocumentChunkDto,
   ProcessDocumentRequest,
-  DocumentConfig
+  DocumentConfigDto,
+  Page
 } from '../types/document.types';
-import { BaseService } from './base.service';
+import { BaseService } from '../../../api/base.service';
 
 /**
  * Document service for handling document operations
@@ -14,7 +15,7 @@ import { BaseService } from './base.service';
  */
 export class DocumentService extends BaseService<DocumentDto> {
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/documents');
+    super(axiosInstance, '');
   }
 
   /**
@@ -69,17 +70,9 @@ export class DocumentService extends BaseService<DocumentDto> {
   async getDocuments(params?: {
     page?: number;
     size?: number;
-  }): Promise<{
-    content: DocumentDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+  }): Promise<Page<DocumentDto>> {
     try {
-      const response = await this.axiosInstance.get(DOCUMENT_ENDPOINTS.DOCUMENTS, {
+      const response = await this.axiosInstance.get<Page<DocumentDto>>(DOCUMENT_ENDPOINTS.DOCUMENTS, {
         params
       });
       return response.data;
@@ -156,9 +149,9 @@ export class DocumentService extends BaseService<DocumentDto> {
    * Get document configuration
    * GET /api/documents/config
    */
-  async getDocumentConfig(): Promise<DocumentConfig> {
+  async getDocumentConfig(): Promise<DocumentConfigDto> {
     try {
-      const response = await this.axiosInstance.get<DocumentConfig>(DOCUMENT_ENDPOINTS.CONFIG);
+      const response = await this.axiosInstance.get<DocumentConfigDto>(DOCUMENT_ENDPOINTS.CONFIG);
       return response.data;
     } catch (error) {
       throw this.handleDocumentError(error);
@@ -179,11 +172,11 @@ export class DocumentService extends BaseService<DocumentDto> {
         case 401:
           return new Error('Authentication required');
         case 403:
-          return new Error('Insufficient permissions');
+          return new Error('Insufficient permissions - only the document uploader may access this document');
         case 404:
           return new Error('Document not found');
         case 413:
-          return new Error('File size exceeds maximum allowed size');
+          return new Error('File size exceeds maximum allowed size (150MB)');
         case 500:
         case 502:
         case 503:
@@ -196,4 +189,4 @@ export class DocumentService extends BaseService<DocumentDto> {
 
     return new Error(error.message || 'Network error occurred');
   }
-} 
+}
