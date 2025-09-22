@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { Spinner } from '@/components';
-import { getQuizResults } from '../api/quiz.service';
+import { getQuizResults } from '@/services';
 
 import type { QuizResultSummaryDto } from '@/types';
 

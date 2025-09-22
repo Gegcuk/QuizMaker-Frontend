@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TagDto, CreateTagRequest, UpdateTagRequest } from '@/types';
-import { TagService } from '../api/tag.service';
-import api from '../api/axiosInstance';
+import { TagService, api } from '@/services';
 
 interface TagFormProps {
   tag?: TagDto;

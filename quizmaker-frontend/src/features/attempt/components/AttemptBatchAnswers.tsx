@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { AttemptService } from '@/services';
 import { BatchAnswerSubmissionRequest, AnswerSubmissionRequest } from '@/types';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface AttemptBatchAnswersProps {
   attemptId: string;

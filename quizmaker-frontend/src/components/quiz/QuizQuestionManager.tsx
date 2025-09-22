@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionDto, QuestionService } from '../../features/question';
+import { QuestionDto } from '@/types';
+import { QuestionService } from '@/services';
 import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 

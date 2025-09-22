@@ -6,11 +6,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService } from '../../api/quiz.service';
+import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '@/types';
 import { GenerationProgress } from '../../features/ai';
-import { Button, Alert } from '../ui';
-import api from '../../api/axiosInstance';
+import { Button, Alert } from '@/components';
 
 export const TextGenerationTab: React.FC = () => {
   const navigate = useNavigate();

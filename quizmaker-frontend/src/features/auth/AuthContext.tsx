@@ -12,7 +12,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/axiosInstance';
+import { api } from '@/services';
 import {
   getAccessToken,
   getRefreshToken,

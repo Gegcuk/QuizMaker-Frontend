@@ -13,7 +13,7 @@ import {
   StructureFlatResponseDto,
   ExtractResponseDto
 } from '@/types';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '@/components';
 import { 
   DocumentTextIcon, 

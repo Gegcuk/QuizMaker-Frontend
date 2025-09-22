@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AttemptService } from '@/services';
 import { AnswerSubmissionRequest } from '@/types';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface AttemptSaveProgressProps {
   attemptId: string;

@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
 import { DocumentProcessUpload, DocumentProcessList, DocumentProcessor, DocumentProcessViewDto, DocumentProcessService } from '../features/document';
-import api from '../api/axiosInstance';
+import { api } from '@/services';
 
 const DocumentProcessPage: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentProcessViewDto[]>([]);

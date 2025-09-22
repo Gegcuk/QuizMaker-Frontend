@@ -16,7 +16,7 @@ import { QuestionService } from '../features/question';
 import { Spinner } from '@/components';
 import type { AttemptResultDto, AnswerSubmissionDto } from '../features/attempt';
 import type { QuestionDto } from '../features/question';
-import api from '../api/axiosInstance';
+import { api } from '@/services';
 
 interface EnhancedAnswerResult {
   answer: AnswerSubmissionDto;

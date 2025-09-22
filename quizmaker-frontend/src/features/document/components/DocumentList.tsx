@@ -39,7 +39,7 @@ import {
   Table,
   Pagination
 } from '@/components';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface DocumentListProps {
   className?: string;

@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
-import { getQuizById } from '../api/quiz.service';
+import { getQuizById } from '@/services';
 import { QuizDto } from '@/types';
 import { Spinner, QuizGenerationJobs, PageHeader } from '@/components';
 

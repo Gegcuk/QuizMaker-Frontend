@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { QuizService } from '../../../api/quiz.service';
-import api from '../../../api/axiosInstance';
+import { QuizService, api } from '@/services';
 import { 
   QuizGenerationStatus,
   GenerationStatus

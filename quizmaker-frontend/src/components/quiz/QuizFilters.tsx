@@ -8,7 +8,7 @@ import { QuizSearchCriteria, Difficulty } from '@/types';
 import { CategoryDto } from '@/types';
 import { TagDto } from '@/types';
 import { getAllCategories } from '../../features/category';
-import { getAllTags } from '../../api/tag.service';
+import { getAllTags } from '@/services';
 import type { AxiosError } from 'axios';
 
 interface QuizFiltersProps {

@@ -6,9 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { QuizService } from '../api/quiz.service';
+import { QuizService, api } from '@/services';
 import { QuizDto } from '@/types';
-import api from '../api/axiosInstance';
 import { Spinner } from '@/components';
 import { AttemptContinuation, AttemptStart } from '../features/attempt';
 

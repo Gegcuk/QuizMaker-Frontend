@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentDto, DocumentStatus } from '@/types';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface DocumentProcessorProps {
   documentId: string;

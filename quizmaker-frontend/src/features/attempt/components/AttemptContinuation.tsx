@@ -7,9 +7,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttemptService } from '@/services';
-import { QuizService } from '../../../api/quiz.service';
+import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, QuizDto } from '@/types';
-import api from '../../../api/axiosInstance';
 import { Spinner } from '@/components';
 
 interface AttemptContinuationProps {

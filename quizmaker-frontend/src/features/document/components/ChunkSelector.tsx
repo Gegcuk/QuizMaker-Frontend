@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentChunkDto, ChunkType } from '@/types';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface ChunkSelectorProps {
   documentId: string;

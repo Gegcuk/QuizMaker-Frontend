@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService } from '../../api/quiz.service';
+import { QuizService, TagService, api } from '@/services';
 import { categoryService } from '../../features/category';
-import { TagService } from '../../api/tag.service';
 import { 
   QuizDto, 
   QuizSearchCriteria, 
-  Difficulty 
+  Difficulty,
+  CategoryDto,
+  TagDto
 } from '@/types';
-import { CategoryDto } from '@/types';
-import { TagDto } from '@/types';
-import api from '../../api/axiosInstance';
 
 interface SearchBarProps {
   className?: string;

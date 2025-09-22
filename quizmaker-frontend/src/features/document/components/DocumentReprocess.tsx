@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 import { 
   DocumentDto, 
   ProcessDocumentRequest, 

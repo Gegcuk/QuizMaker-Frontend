@@ -5,8 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TagDto } from '@/types';
-import { TagService } from '../../api/tag.service';
-import api from '../../api/axiosInstance';
+import { TagService, api } from '@/services';
 import type { AxiosError } from 'axios';
 
 interface QuizTagManagerProps {

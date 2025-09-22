@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '../index';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import { QuestionRenderer } from './';
 import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../../../features/attempt';

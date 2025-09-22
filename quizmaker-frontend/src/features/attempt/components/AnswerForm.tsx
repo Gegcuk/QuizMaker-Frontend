@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components';
 import { QuestionForAttemptDto, AnswerSubmissionRequest } from '@/types';
 import { AttemptService } from '@/services';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 import { HintDisplay } from './';
 
 interface AnswerFormProps {

@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '../index';
 import { Spinner, Badge, Button } from '@/components';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface QuestionBankProps {
   onQuestionSelect?: (question: QuestionDto) => void;

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizDto } from '@/types';
-import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
+import { getAllQuizzes, deleteQuiz } from '@/services';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { PageHeader } from '../layout';
 import ConfirmationModal from '../common/ConfirmationModal';

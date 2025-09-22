@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal } from '@/components';
 import { TagDto } from '@/types';
-import { TagService } from '../api/tag.service';
-import api from '../api/axiosInstance';
+import { TagService, api } from '@/services';
 
 const TagManagementPage: React.FC = () => {
   const tagService = new TagService(api);

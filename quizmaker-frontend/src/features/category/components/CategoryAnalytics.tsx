@@ -3,7 +3,7 @@ import { CategoryDto } from '@/types';
 import { QuizDto, Difficulty, Visibility, QuizStatus } from '@/types';
 import { categoryService } from '@/services';
 import { QuizService } from '../../../api/quiz.service';
-import api from '../../../api/axiosInstance';
+import { api } from '@/services';
 
 interface CategoryAnalyticsProps {
   category: CategoryDto;

@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import api from '../api/axiosInstance';
+import { api } from '@/services';
 
 const AiAnalysisPage: React.FC = () => {
   console.log('AiAnalysisPage: Component rendering');

@@ -8,7 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '@/types';
 import { QuestionDifficulty, QuestionService } from '../../features/question';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../../api/quiz.service';
-import api from '../../api/axiosInstance';
+import { api } from '@/services';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
 import { Button } from '../ui';
 import ConfirmationModal from '../common/ConfirmationModal';

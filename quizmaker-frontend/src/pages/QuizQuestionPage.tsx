@@ -8,8 +8,8 @@ import {
 import { QuestionType, QuestionService } from '../features/question';
 import {
   getQuizById,
-} from '../api/quiz.service';
-import api from '../api/axiosInstance';
+  api
+} from '@/services';
 import {
   QuestionRenderer,
   QuestionTypeSelector,

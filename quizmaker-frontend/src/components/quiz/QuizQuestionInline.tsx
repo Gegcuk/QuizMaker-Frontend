@@ -7,7 +7,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { QuestionDto, QuestionDifficulty, QuestionService } from '../../features/question';
+import { QuestionDto, QuestionDifficulty } from '@/types';
+import { QuestionService } from '@/services';
 import { Button, Modal, Spinner, Alert, useToast, Badge } from '../ui';
 import { QuestionForm } from '../../features/question';
 import api from '../../api/axiosInstance';

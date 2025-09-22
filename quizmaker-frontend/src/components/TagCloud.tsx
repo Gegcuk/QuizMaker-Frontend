@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TagDto, QuizDto } from '@/types';
-import { TagService } from '../api/tag.service';
-import { QuizService } from '../api/quiz.service';
-import Spinner from './ui/Spinner';
-import api from '../api/axiosInstance';
+import { TagService, QuizService, api } from '@/services';
+import { Spinner } from '@/components';
 
 interface TagCloudProps {
   onTagClick?: (tag: TagDto) => void;

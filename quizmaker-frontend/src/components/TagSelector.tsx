@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TagDto } from '@/types';
-import { TagService } from '../api/tag.service';
-import api from '../api/axiosInstance';
+import { TagService, api } from '@/services';
 
 interface TagSelectorProps {
   selectedTags: TagDto[];

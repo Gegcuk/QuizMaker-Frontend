@@ -7,9 +7,8 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { DocumentService } from '@/services';
-import { QuizService } from '../../../api/quiz.service';
+import { QuizService, api } from '@/services';
 import { DocumentDto, DocumentConfigDto, ChunkingStrategy, GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '@/types';
-import api from '../../../api/axiosInstance';
 import { Button, Modal, Alert, Badge } from '@/components';
 import { GenerationProgress } from '../../ai';
 

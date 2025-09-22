@@ -28,6 +28,6 @@ export { AttemptService } from '../features/attempt/services/attempt.service';
 // API services
 export { default as api } from '../api/axiosInstance';
 export { BaseService } from '../api/base.service';
-export { QuizService } from '../api/quiz.service';
-export { TagService } from '../api/tag.service';
-export { UserService } from '../api/user.service';
+export { QuizService, getAllQuizzes, getMyQuizzes, getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz, getQuizResults } from '../api/quiz.service';
+export { TagService, getAllTags } from '../api/tag.service';
+export { UserService, userService } from '../api/user.service';

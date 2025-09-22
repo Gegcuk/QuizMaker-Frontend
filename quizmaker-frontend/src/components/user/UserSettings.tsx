@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useAuth } from '../../features/auth';
-import { userService } from '../../api/user.service';
+import { userService } from '@/services';
 import type { AxiosError } from 'axios';
 
 interface UserSettingsProps {

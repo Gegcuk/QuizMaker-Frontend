@@ -11,9 +11,8 @@ import { Input } from '../ui';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';
-import { TagService } from '../../api/tag.service';
+import { TagService, api } from '@/services';
 import { categoryService } from '../../features/category';
-import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
 interface QuizManagementTabProps {
