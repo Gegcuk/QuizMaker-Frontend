@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
 import { QuizDto, Difficulty, Visibility, QuizStatus } from '@/types';
 import { categoryService } from '@/services';
-import { QuizService } from '../../../api/quiz.service';
+import { QuizService } from '@/services';
 import { api } from '@/services';
 
 interface CategoryAnalyticsProps {

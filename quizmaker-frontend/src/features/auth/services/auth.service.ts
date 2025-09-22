@@ -16,7 +16,7 @@ import {
   ResendVerificationRequest,
   ResendVerificationResponse
 } from '@/types';
-import { BaseService } from '../../../api/base.service';
+import { BaseService } from '@/services';
 
 /**
  * Authentication service for handling user authentication operations

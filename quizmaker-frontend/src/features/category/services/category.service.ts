@@ -7,7 +7,7 @@ import {
   CategoryPage,
   CreateCategoryResponse,
 } from '@/types';
-import { BaseService } from '../../../api/base.service';
+import { BaseService } from '@/services';
 
 /**
  * Category service for handling category operations

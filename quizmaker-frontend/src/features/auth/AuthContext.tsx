@@ -18,8 +18,8 @@ import {
   getRefreshToken,
   setTokens,
   clearTokens,
-} from '../../utils/tokenUtils';
-import { UserDto } from './types/auth.types';
+} from '@/utils';
+import { UserDto } from '@/types';
 
 interface JwtResponse {
   accessToken: string;

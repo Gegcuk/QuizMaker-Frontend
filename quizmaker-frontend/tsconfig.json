@@ -18,6 +18,7 @@
       "@/features/*": ["features/*"],
       "@/components/*": ["components/*"],
       "@/api/*": ["api/*"],
+      "@/utils": ["utils"],
       "@/utils/*": ["utils/*"],
       "@/pages/*": ["pages/*"],
       "@/routes/*": ["routes/*"],
