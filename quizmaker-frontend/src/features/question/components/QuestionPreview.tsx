@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Badge } from '../../../components/ui';
-import { CreateQuestionRequest, QuestionType } from '../../types/question.types';
+import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer } from '@/types';
 
 interface QuestionPreviewProps {
   question: CreateQuestionRequest;
@@ -80,7 +80,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'MCQ_SINGLE':
         return (
           <div className="space-y-3">
-            {question.content && 'options' in question.content && question.content.options.map((option, index) => (
+            {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
               <div key={option.id} className="flex items-center space-x-3">
                 <input
                   type="radio"
@@ -103,7 +103,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'MCQ_MULTI':
         return (
           <div className="space-y-3">
-            {question.content && 'options' in question.content && question.content.options.map((option, index) => (
+            {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
               <div key={option.id} className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -181,7 +181,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 <p>{question.content.text}</p>
               </div>
             )}
-            {question.content && 'gaps' in question.content && question.content.gaps.map((gap, index) => (
+            {question.content && 'gaps' in question.content && (question.content.gaps as GapAnswer[]).map((gap) => (
               <div key={gap.id} className="flex items-center space-x-2">
                 <span className="text-sm text-gray-700">Gap {gap.id}:</span>
                 <input
@@ -199,7 +199,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'COMPLIANCE':
         return (
           <div className="space-y-3">
-            {question.content && 'statements' in question.content && question.content.statements.map((statement, index) => (
+            {question.content && 'statements' in question.content && (question.content.statements as ComplianceStatement[]).map((statement) => (
               <div key={statement.id} className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -221,7 +221,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'ORDERING':
         return (
           <div className="space-y-3">
-            {question.content && 'items' in question.content && question.content.items.map((item, index) => (
+            {question.content && 'items' in question.content && (question.content.items as OrderingItem[]).map((item, index) => (
               <div key={item.id} className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-gray-500 w-8">{index + 1}.</span>
                 <div className="flex-1 text-sm text-gray-700">{item.text}</div>

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '../../types/question.types';
+import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '../index';
 import api from '../../../api/axiosInstance';
 import QuestionTypeSelector from './QuestionTypeSelector';

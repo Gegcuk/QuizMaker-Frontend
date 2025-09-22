@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuestionDto, TrueFalseContent } from '../../types/question.types';
+import { QuestionDto, TrueFalseContent } from '@/types';
 
 interface TrueFalseQuestionProps {
   question: QuestionDto;

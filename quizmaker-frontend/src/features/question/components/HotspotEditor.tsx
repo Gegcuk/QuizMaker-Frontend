@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { HotspotContent, HotspotRegion } from '../../types/question.types';
+import { HotspotContent, HotspotRegion } from '@/types';
 
 interface HotspotEditorProps {
   content: HotspotContent;

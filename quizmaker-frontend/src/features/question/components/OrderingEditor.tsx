@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { OrderingContent, OrderingItem } from '../../types/question.types';
+import { OrderingContent, OrderingItem } from '@/types';
 
 interface OrderingEditorProps {
   content: OrderingContent;

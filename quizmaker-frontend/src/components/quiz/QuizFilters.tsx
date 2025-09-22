@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuizSearchCriteria, Difficulty } from '../../types/quiz.types';
-import { CategoryDto } from '../../types/category.types';
+import { QuizSearchCriteria, Difficulty } from '@/types';
+import { CategoryDto } from '@/types';
 import { TagDto } from '../../types/tag.types';
 import { getAllCategories } from '../../features/category';
 import { getAllTags } from '../../api/tag.service';

@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuestionDto, OpenContent } from '../../types/question.types';
+import { QuestionDto, OpenContent } from '@/types';
 
 interface OpenQuestionProps {
   question: QuestionDto;

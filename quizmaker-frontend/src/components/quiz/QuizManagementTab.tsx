@@ -8,9 +8,9 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Input } from '../ui';
-import { CreateQuizRequest, UpdateQuizRequest } from '../../types/quiz.types';
+import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '../../types/tag.types';
-import { CategoryDto } from '../../types/category.types';
+import { CategoryDto } from '@/types';
 import { TagService } from '../../api/tag.service';
 import { categoryService } from '../../features/category';
 import api from '../../api/axiosInstance';

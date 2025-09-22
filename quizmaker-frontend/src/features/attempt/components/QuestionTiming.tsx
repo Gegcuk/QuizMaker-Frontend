@@ -5,10 +5,10 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuestionTimingDto } from '../types/attempt.types';
+import { QuestionTimingStatsDto } from '@/types';
 
 interface QuestionTimingProps {
-  timings: QuestionTimingDto[];
+  timings: QuestionTimingStatsDto[];
   showDetails?: boolean;
   className?: string;
 }

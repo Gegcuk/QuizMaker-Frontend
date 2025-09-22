@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuestionDto, FillGapContent, GapAnswer } from '../../types/question.types';
+import { QuestionDto, FillGapContent } from '@/types';
 
 interface FillGapQuestionProps {
   question: QuestionDto;

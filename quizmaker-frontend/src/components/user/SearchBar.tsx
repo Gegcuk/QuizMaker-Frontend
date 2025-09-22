@@ -7,8 +7,8 @@ import {
   QuizDto, 
   QuizSearchCriteria, 
   Difficulty 
-} from '../../types/quiz.types';
-import { CategoryDto } from '../../types/category.types';
+} from '@/types';
+import { CategoryDto } from '@/types';
 import { TagDto } from '../../types/tag.types';
 import api from '../../api/axiosInstance';
 

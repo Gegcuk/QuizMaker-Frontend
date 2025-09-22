@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { CreateQuizRequest, UpdateQuizRequest } from '../../types/quiz.types';
+import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 
 interface QuizBasicInfoProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest>;

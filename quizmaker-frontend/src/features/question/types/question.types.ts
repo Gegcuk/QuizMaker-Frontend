@@ -109,5 +109,113 @@ export interface Page<T> {
   empty: boolean;
 }
 
+// ============================================================================
+// Question Content Types
+// Based on JSON structures from question_controller.md
+// ============================================================================
+
+/**
+ * MCQ Option
+ */
+export interface McqOption {
+  id: string;
+  text: string;
+  correct: boolean;
+}
+
+/**
+ * MCQ Single/Multi Content
+ */
+export interface McqSingleContent {
+  options: McqOption[];
+}
+
+export interface McqMultiContent {
+  options: McqOption[];
+}
+
+/**
+ * True/False Content
+ */
+export interface TrueFalseContent {
+  answer: boolean;
+}
+
+/**
+ * Open Content
+ */
+export interface OpenContent {
+  answer: string;
+}
+
+/**
+ * Fill Gap Content
+ */
+export interface GapAnswer {
+  id: number;
+  answer: string;
+}
+
+export interface FillGapContent {
+  text: string;
+  gaps: GapAnswer[];
+}
+
+/**
+ * Compliance Content
+ */
+export interface ComplianceStatement {
+  id: number;
+  text: string;
+  compliant: boolean;
+}
+
+export interface ComplianceContent {
+  statements: ComplianceStatement[];
+}
+
+/**
+ * Ordering Content
+ */
+export interface OrderingItem {
+  id: number;
+  text: string;
+}
+
+export interface OrderingContent {
+  items: OrderingItem[];
+}
+
+/**
+ * Hotspot Content
+ */
+export interface HotspotRegion {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  correct: boolean;
+}
+
+export interface HotspotContent {
+  imageUrl: string;
+  regions: HotspotRegion[];
+}
+
+/**
+ * Matching Content
+ */
+export interface MatchingItem {
+  id: number;
+  text: string;
+  matchId?: number; // Only for left side items
+}
+
+export interface MatchingContent {
+  left: MatchingItem[];
+  right: MatchingItem[];
+}
+
 // Legacy type aliases for backward compatibility
 export type QuestionDifficulty = Difficulty;

@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { OpenContent } from '../../types/question.types';
+import { OpenContent } from '@/types';
+// No specific content types - API uses JsonNode
 
 interface OpenQuestionEditorProps {
   content: OpenContent;

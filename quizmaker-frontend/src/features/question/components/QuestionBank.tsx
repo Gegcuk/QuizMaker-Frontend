@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionDto, QuestionType, QuestionDifficulty } from '../../types/question.types';
+import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '../index';
 import { Spinner, Badge, Button } from '../../../components/ui';
 import api from '../../../api/axiosInstance';

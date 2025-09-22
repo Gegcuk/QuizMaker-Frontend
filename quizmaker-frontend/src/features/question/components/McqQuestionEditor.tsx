@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { McqSingleContent, McqMultiContent, McqOption } from '../../types/question.types';
+import { McqOption, McqSingleContent, McqMultiContent } from '@/types';
+// No specific content types - API uses JsonNode
 
 interface McqQuestionEditorProps {
   content: McqSingleContent | McqMultiContent;

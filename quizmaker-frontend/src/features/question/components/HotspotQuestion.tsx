@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuestionDto, HotspotContent, HotspotRegion } from '../../types/question.types';
+import { QuestionDto, HotspotContent, HotspotRegion } from '@/types';
 
 interface HotspotQuestionProps {
   question: QuestionDto;

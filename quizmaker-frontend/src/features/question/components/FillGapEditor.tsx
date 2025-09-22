@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { FillGapContent, GapAnswer } from '../../types/question.types';
+import { FillGapContent } from '@/types';
 
 interface FillGapEditorProps {
   content: FillGapContent;
@@ -19,8 +19,8 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
   className = '',
   showPreview = true
 }) => {
-  const [text, setText] = useState<string>(content.text || '');
-  const [gaps, setGaps] = useState<GapAnswer[]>(content.gaps || []);
+  const [text, setText] = useState<string>(content?.text || '');
+  const [gaps, setGaps] = useState<Array<{id: number; answer: string}>>(content?.gaps || []);
 
   // Update parent when content changes
   useEffect(() => {

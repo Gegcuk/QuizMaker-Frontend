@@ -22,7 +22,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
   className = '' 
 }) => {
   const [document, setDocument] = useState<DocumentDto | null>(null);
-  const [config, setConfig] = useState<DocumentConfig | null>(null);
+  const [config, setConfig] = useState<DocumentConfigDto | null>(null);
   const [reprocessConfig, setReprocessConfig] = useState<ProcessDocumentRequest>({
     chunkingStrategy: 'AUTO',
     maxChunkSize: 1000,
@@ -153,7 +153,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             <h4 className="font-medium text-gray-900 mb-2">Document Details</h4>
             <div className="space-y-1 text-sm">
               <p><span className="font-medium">Name:</span> {document.originalFilename}</p>
-              <p><span className="font-medium">Size:</span> {(document.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+              <p><span className="font-medium">Size:</span> {document.fileSize ? (document.fileSize / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
               <p><span className="font-medium">Type:</span> {document.contentType}</p>
               {document.title && <p><span className="font-medium">Title:</span> {document.title}</p>}
               {document.author && <p><span className="font-medium">Author:</span> {document.author}</p>}

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { QuizDto } from '../../types/quiz.types';
+import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../../hooks/useQuizMetadata';
 import { Badge, Button } from '../ui';
 
@@ -31,8 +31,8 @@ const QuizCard: React.FC<QuizCardProps> = ({
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
-  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger') as const;
-  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary') as const;
+  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger');
+  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary');
 
   // Helper function to format time
   const formatTime = (minutes: number) => {

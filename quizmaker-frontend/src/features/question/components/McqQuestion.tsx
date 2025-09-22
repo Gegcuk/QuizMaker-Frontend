@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuestionDto, McqSingleContent, McqMultiContent, McqOption } from '../../types/question.types';
+import { QuestionDto, McqSingleContent, McqMultiContent, McqOption } from '@/types';
 
 interface McqQuestionProps {
   question: QuestionDto;

@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuestionDto, OrderingContent, OrderingItem } from '../../types/question.types';
+import { QuestionDto, OrderingContent, OrderingItem } from '@/types';
 
 interface OrderingQuestionProps {
   question: QuestionDto;

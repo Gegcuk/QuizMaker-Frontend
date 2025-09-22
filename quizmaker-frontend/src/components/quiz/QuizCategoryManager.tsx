@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { CategoryDto } from '../../types/category.types';
+import { CategoryDto } from '@/types';
 import { categoryService } from '../../features/category';
 import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
@@ -278,9 +278,6 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                           {category.description}
                         </p>
                       )}
-                      <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                        <span>Created: {new Date(category.createdAt).toLocaleDateString()}</span>
-                      </div>
                     </div>
                   </div>
                 </div>

@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { TrueFalseContent } from '../../types/question.types';
+import { TrueFalseContent } from '@/types';
+// No specific content types - API uses JsonNode
 
 interface TrueFalseEditorProps {
   content: TrueFalseContent;

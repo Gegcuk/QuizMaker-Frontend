@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionDto, QuestionType, QuestionDifficulty } from '../../types/question.types';
+import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 // TODO: Implement getQuestionAnalytics in question.service.ts
 // import { getQuestionAnalytics } from '../../api/question.service';
 import { Spinner } from '../../../components/ui';
@@ -79,7 +79,8 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           FILL_GAP: 8,
           COMPLIANCE: 5,
           ORDERING: 4,
-          HOTSPOT: 3
+          HOTSPOT: 3,
+          MATCHING: 2
         },
         recentPerformance: [
           { date: '2024-01-15', correctRate: 82, attempts: 12 },

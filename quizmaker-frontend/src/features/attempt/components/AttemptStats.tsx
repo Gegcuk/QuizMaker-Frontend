@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { AttemptStatsDto, QuestionTimingDto } from '../types/attempt.types';
+import { AttemptStatsDto, QuestionTimingStatsDto } from '@/types';
 
 interface AttemptStatsProps {
   stats: AttemptStatsDto;

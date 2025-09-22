@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuestionDto, ComplianceContent, ComplianceStatement } from '../../types/question.types';
+import { QuestionDto, ComplianceContent, ComplianceStatement } from '@/types';
 
 interface ComplianceQuestionProps {
   question: QuestionDto;
@@ -22,7 +22,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
   disabled = false
 }) => {
   const content = question.content as ComplianceContent;
-  const statements = content.statements || [];
+  const statements = content?.statements || [];
 
   const handleStatementToggle = (statementId: number) => {
     if (disabled) return;

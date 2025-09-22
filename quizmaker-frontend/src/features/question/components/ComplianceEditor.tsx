@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { ComplianceContent, ComplianceStatement } from '../../types/question.types';
+import { ComplianceContent, ComplianceStatement } from '@/types';
 
 interface ComplianceEditorProps {
   content: ComplianceContent;

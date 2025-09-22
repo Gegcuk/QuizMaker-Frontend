@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuestionType } from '../../types/question.types';
+import { QuestionType } from '@/types';
 
 interface QuestionTypeSelectorProps {
   selectedType: QuestionType;

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { QuizDto } from '../../types/quiz.types';
+import { QuizDto } from '@/types';
 import { PageHeader } from '../layout';
 import { Badge } from '../ui';
 import { ActionType } from '../layout/types';
@@ -35,9 +35,9 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger') as const;
-  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary') as const;
-  const visibilityToBadge = (v: string) => (v === 'PUBLIC' ? 'info' : 'secondary') as const;
+  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger');
+  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary');
+  const visibilityToBadge = (v: string) => (v === 'PUBLIC' ? 'info' : 'secondary');
 
   // Helper function to format time
   const formatTime = (minutes: number) => {
