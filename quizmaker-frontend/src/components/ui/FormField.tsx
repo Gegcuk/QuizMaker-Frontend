@@ -1,72 +1,102 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { useFormContext } from './Form';
-import ValidationMessage from './ValidationMessage';
+import Input from './Input';
+import { logger } from '@/utils';
 
 export interface FormFieldProps {
   name: string;
   label?: string;
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  placeholder?: string;
   required?: boolean;
-  children: React.ReactElement;
   helperText?: string;
   className?: string;
-  error?: string;
-  touched?: boolean;
+  disabled?: boolean;
+  autoComplete?: string;
+  validation?: {
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    pattern?: RegExp;
+    custom?: (value: any, formData?: any) => string | null;
+  };
 }
 
-const FormField = forwardRef<HTMLDivElement, FormFieldProps>(({
+const FormField: React.FC<FormFieldProps> = ({
   name,
   label,
+  type = 'text',
+  placeholder,
   required = false,
-  children,
   helperText,
   className = '',
-  error,
-  touched = false
-}, ref) => {
+  disabled = false,
+  autoComplete,
+  validation = {}
+}) => {
   const { form } = useFormContext();
-  const fieldError = form.formState.errors[name];
-  const showError = (error || fieldError?.message) && touched;
-
-  const enhancedChildren = React.cloneElement(children, {
-    ...(children.props || {}),
-    ...form.register(name),
-    'aria-describedby': showError ? `${name}-error` : helperText ? `${name}-helper` : undefined,
-    'aria-invalid': showError ? 'true' : undefined
-  } as any);
-
+  const { register, formState: { errors } } = form;
+  
+  const fieldProps = register(name);
+  const fieldError = errors[name]?.message;
+  
+  // Enhanced validation on blur
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    let errorMessage: string | null = null;
+    
+    // Required validation
+    if (validation.required && (!value || value.trim() === '')) {
+      errorMessage = `${label || name} is required`;
+    }
+    // Min length validation
+    else if (validation.minLength && value && value.length < validation.minLength) {
+      errorMessage = `${label || name} must be at least ${validation.minLength} characters`;
+    }
+    // Max length validation
+    else if (validation.maxLength && value && value.length > validation.maxLength) {
+      errorMessage = `${label || name} must be no more than ${validation.maxLength} characters`;
+    }
+    // Pattern validation
+    else if (validation.pattern && value && !validation.pattern.test(value)) {
+      errorMessage = `${label || name} format is invalid`;
+    }
+    // Custom validation
+    else if (validation.custom) {
+      errorMessage = validation.custom(value, form.getValues());
+    }
+    
+    if (errorMessage) {
+      form.setError(name, { message: errorMessage });
+    } else {
+      form.clearErrors(name);
+    }
+    
+    // Call original onBlur
+    fieldProps.onBlur();
+  };
+  
+  // Log validation errors for debugging
+  if (fieldError) {
+    logger.debug('Form field validation error', 'FormField', { name, error: fieldError });
+  }
+  
   return (
-    <div ref={ref} className={`space-y-1 ${className}`}>
-      {label && (
-        <label
-          htmlFor={name}
-          className="block text-sm font-medium text-gray-700"
-        >
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-      )}
-      
-      {enhancedChildren}
-      
-      {helperText && !showError && (
-        <p
-          id={`${name}-helper`}
-          className="text-sm text-gray-500"
-        >
-          {helperText}
-        </p>
-      )}
-      
-      {showError && (
-        <ValidationMessage
-          id={`${name}-error`}
-          message={error || fieldError?.message}
-        />
-      )}
+    <div className={className}>
+      <Input
+        {...fieldProps}
+        type={type}
+        label={label}
+        placeholder={placeholder}
+        error={fieldError}
+        helperText={helperText}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        onBlur={handleBlur}
+        required={required}
+      />
     </div>
   );
-});
+};
 
-FormField.displayName = 'FormField';
-
-export default FormField; 
+export default FormField;

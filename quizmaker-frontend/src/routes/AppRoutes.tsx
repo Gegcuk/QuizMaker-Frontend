@@ -47,6 +47,7 @@ import { ProfilePage, SettingsPage } from '@/features/user';
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
 import AiAnalysisPage from '../pages/AiAnalysisPage';
+import FormTestPage from '../pages/FormTestPage';
 
 // Wrapper component to extract documentId from URL params
 const DocumentViewerWrapper: React.FC = () => {
@@ -229,6 +230,16 @@ const AppRoutes: React.FC = () => {
                 <p>If you can see this, the route is working!</p>
                 <AiAnalysisPage />
               </div>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Form Test Route */}
+        <Route
+          path="/form-test"
+          element={
+            <ProtectedRoute>
+              <FormTestPage />
             </ProtectedRoute>
           }
         />

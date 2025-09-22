@@ -51,8 +51,33 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Field validation function
+  const validateField = (name: string, value: any) => {
+    // Basic validation rules
+    const fieldErrors: { message?: string } = {};
+    
+    if (typeof value === 'string' && value.trim() === '') {
+      fieldErrors.message = `${name} is required`;
+    } else if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      fieldErrors.message = 'Please enter a valid email address';
+    } else if (name === 'password' && value && value.length < 6) {
+      fieldErrors.message = 'Password must be at least 6 characters';
+    }
+    
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(prev => ({ ...prev, [name]: fieldErrors }));
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
   const register = (name: string) => ({
     name,
+    value: values[name] || '',
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
       setValues(prev => ({ ...prev, [name]: value }));
@@ -66,16 +91,25 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
       }
     },
     onBlur: () => {
-      // Trigger validation on blur if needed
+      // Trigger validation on blur
+      validateField(name, values[name]);
     }
   });
 
-  const handleSubmit = (onSubmit: (data: T) => void) => (e: React.FormEvent) => {
+  const handleSubmit = (onSubmit: (data: T) => void) => async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors({}); // Clear previous errors
     
-    Promise.resolve(onSubmit(values))
-      .finally(() => setIsSubmitting(false));
+    try {
+      await Promise.resolve(onSubmit(values));
+    } catch (error: any) {
+      // Handle async submission errors
+      const errorMessage = error?.message || 'An error occurred while submitting the form';
+      setErrors({ general: { message: errorMessage } });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const setValue = (name: string, value: any) => {
