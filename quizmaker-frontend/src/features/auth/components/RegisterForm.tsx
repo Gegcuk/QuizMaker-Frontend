@@ -7,7 +7,7 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { RegisterRequest } from '../types/auth.types';
+import { RegisterRequest } from '@/types';
 import type { AxiosError } from 'axios';
 
 interface RegisterFormProps {

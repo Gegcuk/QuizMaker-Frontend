@@ -15,7 +15,7 @@ import type {
   SubscriptionResponse,
   UpdateSubscriptionRequest,
   CancelSubscriptionRequest,
-} from '../types/billing.types';
+} from '@/types';
 export class BillingService {
   private axiosInstance: AxiosInstance;
 

@@ -7,19 +7,20 @@ import {
   TextSliceResponseDto,
   StructureTreeResponseDto,
   StructureFlatResponseDto,
-  StructureBuildResponseDto,
   ExtractResponseDto,
   StructureFormat
-} from '../types/document.types';
+} from '@/types';
 import { BaseService } from '../../../api/base.service';
 
 /**
  * Document Process service for handling document processing operations
  * Implements all endpoints from the DocumentProcess API documentation
  */
-export class DocumentProcessService extends BaseService<DocumentProcessDto> {
+export class DocumentProcessService {
+  protected axiosInstance: AxiosInstance;
+
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/v1/documentProcess/documents');
+    this.axiosInstance = axiosInstance;
   }
 
   /**
@@ -157,9 +158,9 @@ export class DocumentProcessService extends BaseService<DocumentProcessDto> {
    * Build document structure (trigger AI processing)
    * POST /v1/documentProcess/documents/{id}/structure
    */
-  async buildDocumentStructure(id: string): Promise<StructureBuildResponseDto> {
+  async buildDocumentStructure(id: string): Promise<any> {
     try {
-      const response = await this.axiosInstance.post<StructureBuildResponseDto>(
+      const response = await this.axiosInstance.post(
         DOCUMENT_PROCESS_ENDPOINTS.BUILD_STRUCTURE(id)
       );
       return response.data;

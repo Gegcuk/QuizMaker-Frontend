@@ -15,7 +15,7 @@ import {
   VerifyEmailResponse,
   ResendVerificationRequest,
   ResendVerificationResponse
-} from '../types/auth.types';
+} from '@/types';
 import { BaseService } from '../../../api/base.service';
 
 /**

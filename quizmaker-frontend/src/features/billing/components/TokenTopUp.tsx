@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '../services/billing.service';
-import type { BillingConfigResponse, TokenPackDto } from '../types/billing.types';
+import type { BillingConfigResponse, TokenPackDto } from '@/types';
 
 interface TokenTopUpProps {
   className?: string;

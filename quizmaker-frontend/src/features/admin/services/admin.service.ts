@@ -10,7 +10,7 @@ import {
   ReconciliationResult,
   PolicyDiff,
   Page
-} from '../types/admin.types';
+} from '@/types';
 
 /**
  * Admin service for handling administrative operations

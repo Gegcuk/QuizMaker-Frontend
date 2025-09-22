@@ -6,16 +6,18 @@ import {
   ProcessDocumentRequest,
   DocumentConfigDto,
   Page
-} from '../types/document.types';
+} from '@/types';
 import { BaseService } from '../../../api/base.service';
 
 /**
  * Document service for handling document operations
  * Implements all endpoints from the DocumentController API documentation
  */
-export class DocumentService extends BaseService<DocumentDto> {
+export class DocumentService {
+  protected axiosInstance: AxiosInstance;
+
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '');
+    this.axiosInstance = axiosInstance;
   }
 
   /**

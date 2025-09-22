@@ -5,7 +5,7 @@ import {
   UpdateQuestionRequest,
   QuestionDto,
   Page
-} from '../types/question.types';
+} from '@/types';
 
 /**
  * Question service for handling question operations
