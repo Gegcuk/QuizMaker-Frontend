@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../../components/ui';
 import { QuestionForAttemptDto, AnswerSubmissionRequest } from '@/types';
-import { AttemptService } from '../services/attempt.service';
+import { AttemptService } from '@/services';
 import api from '../../../api/axiosInstance';
 import { HintDisplay } from './';
 

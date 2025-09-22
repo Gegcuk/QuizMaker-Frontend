@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AttemptService } from '../services/attempt.service';
+import { AttemptService } from '@/services';
 import { AnswerSubmissionRequest } from '@/types';
 import api from '../../../api/axiosInstance';
 

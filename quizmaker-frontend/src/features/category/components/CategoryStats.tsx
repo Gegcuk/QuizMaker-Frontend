@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
 import { QuizDto, Difficulty } from '@/types';
-import { categoryService } from '../services/category.service';
+import { categoryService } from '@/services';
 import { QuizService } from '../../../api/quiz.service';
 import api from '../../../api/axiosInstance';
 

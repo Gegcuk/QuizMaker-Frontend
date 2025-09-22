@@ -25,7 +25,7 @@ import {
   ClockIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
-import { DocumentService } from '../services/document.service';
+import { DocumentService } from '@/services';
 import { DocumentDto } from '@/types';
 import { 
   Button, 
@@ -103,7 +103,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     
     try {
       setDeleting(true);
-      await documentService.delete(selectedDocument.id);
+      await documentService.deleteDocument(selectedDocument.id);
       setShowDeleteModal(false);
       setSelectedDocument(null);
       loadDocuments();

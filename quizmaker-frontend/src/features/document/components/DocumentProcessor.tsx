@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, useRef } from 'react';
-import { DocumentService } from '../services/document.service';
+import { DocumentService } from '@/services';
 import { DocumentDto, DocumentStatus } from '@/types';
 import api from '../../../api/axiosInstance';
 

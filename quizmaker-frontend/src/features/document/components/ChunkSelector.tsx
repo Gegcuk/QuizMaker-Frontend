@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentService } from '../services/document.service';
+import { DocumentService } from '@/services';
 import { DocumentChunkDto, ChunkType } from '@/types';
 import api from '../../../api/axiosInstance';
 
@@ -295,7 +295,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                         </span>
                       </div>
                       <div className="text-sm text-gray-600">
-                        {formatWordCount(chunk.wordCount)}
+                        {formatWordCount(chunk.wordCount ?? 0)}
                       </div>
                     </div>
                     
@@ -358,7 +358,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
             <div className="p-6 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <div>
-                  {formatWordCount(previewChunk.wordCount)} • Pages {previewChunk.startPage}-{previewChunk.endPage}
+                  {formatWordCount(previewChunk.wordCount ?? 0)} • Pages {previewChunk.startPage}-{previewChunk.endPage}
                 </div>
                 <div>
                   {previewChunk.chunkType.replace('_', ' ')}

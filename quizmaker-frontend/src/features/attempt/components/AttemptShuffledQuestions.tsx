@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { AttemptService } from '../services/attempt.service';
+import { AttemptService } from '@/services';
 import { QuestionForAttemptDto } from '@/types';
 import api from '../../../api/axiosInstance';
 import { HintDisplay } from './';

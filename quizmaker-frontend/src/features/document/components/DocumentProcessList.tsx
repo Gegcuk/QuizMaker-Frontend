@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { DocumentProcessService } from '../services/documentProcess.service';
+import { DocumentProcessService } from '@/services';
 import { 
   DocumentProcessViewDto, 
   DocumentStructureNodeDto,
