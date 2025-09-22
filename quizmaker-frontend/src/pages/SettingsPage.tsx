@@ -4,8 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer } from '../components/layout';
-import { UserSettings } from '../components/user';
+import { PageContainer, UserSettings } from '@/components';
 
 const SettingsPage: React.FC = () => {
   return (

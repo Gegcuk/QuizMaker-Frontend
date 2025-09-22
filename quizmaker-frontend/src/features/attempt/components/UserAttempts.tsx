@@ -11,8 +11,7 @@ import { AttemptService } from '@/services';
 import { QuizService } from '../../../api/quiz.service';
 import { AttemptDto, AttemptStatsDto, CurrentQuestionDto, QuizDto } from '@/types';
 import api from '../../../api/axiosInstance';
-import { Spinner } from '../../../components/ui';
-import ConfirmationModal from '../../../components/common/ConfirmationModal';
+import { Spinner, ConfirmationModal } from '@/components';
 
 interface UserAttemptsProps {
   className?: string;

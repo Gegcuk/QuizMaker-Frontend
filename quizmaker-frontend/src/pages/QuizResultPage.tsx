@@ -13,7 +13,7 @@ import {
 } from 'react-router-dom';
 import { AttemptService } from '../features/attempt';
 import { QuestionService } from '../features/question';
-import { Spinner } from '../components/ui';
+import { Spinner } from '@/components';
 import type { AttemptResultDto, AnswerSubmissionDto } from '../features/attempt';
 import type { QuestionDto } from '../features/question';
 import api from '../api/axiosInstance';

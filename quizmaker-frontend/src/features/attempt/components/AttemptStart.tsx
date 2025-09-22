@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Spinner, Button } from '../../../components/ui';
+import { Spinner, Button } from '@/components';
 import { AttemptService } from '@/services';
 import { QuizService } from '../../../api/quiz.service';
 import { StartAttemptRequest, AttemptMode, QuizDto } from '@/types';

@@ -14,7 +14,7 @@ import {
   ExtractResponseDto
 } from '@/types';
 import api from '../../../api/axiosInstance';
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '../../../components/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '@/components';
 import { 
   DocumentTextIcon, 
   EyeIcon, 

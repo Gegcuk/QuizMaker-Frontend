@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Button } from '../../../components/ui';
+import { Button } from '@/components';
 import { Link } from 'react-router-dom';
 import { AttemptResultDto, AnswerSubmissionDto } from '@/types';
 

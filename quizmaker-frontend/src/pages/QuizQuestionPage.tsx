@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner, Button, Modal, Alert, Badge, useToast } from '../components/ui';
-import { Breadcrumb, PageHeader } from '../components/layout';
+import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader } from '@/components';
 import {
   QuestionDto,
   QuizDto,

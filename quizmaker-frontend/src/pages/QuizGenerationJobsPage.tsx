@@ -9,9 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { getQuizById } from '../api/quiz.service';
 import { QuizDto } from '@/types';
-import { Spinner } from '../components/ui';
-import { QuizGenerationJobs } from '../components/quiz';
-import { PageHeader } from '../components/layout';
+import { Spinner, QuizGenerationJobs, PageHeader } from '@/components';
 
 const QuizGenerationJobsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();

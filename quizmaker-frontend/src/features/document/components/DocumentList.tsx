@@ -38,7 +38,7 @@ import {
   Spinner,
   Table,
   Pagination
-} from '../../../components/ui';
+} from '@/components';
 import api from '../../../api/axiosInstance';
 
 interface DocumentListProps {

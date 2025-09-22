@@ -10,7 +10,7 @@ import { AttemptService } from '@/services';
 import { QuizService } from '../../../api/quiz.service';
 import { AttemptDto, AttemptStatsDto, QuizDto } from '@/types';
 import api from '../../../api/axiosInstance';
-import { Spinner } from '../../../components/ui';
+import { Spinner } from '@/components';
 
 interface AttemptContinuationProps {
   quizId: string;

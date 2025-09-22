@@ -8,9 +8,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { PageContainer } from '../components/layout';
-import { QuizForm } from '../components/quiz';
-import { QuizCreationTabs } from '../components/quiz/QuizCreationTabs';
+import { PageContainer, QuizForm, QuizCreationTabs } from '@/components';
 
 const QuizFormPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();

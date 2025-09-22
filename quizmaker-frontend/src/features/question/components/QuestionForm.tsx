@@ -19,7 +19,7 @@ import FillGapEditor from './FillGapEditor';
 import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
-import { Spinner } from '../../../components/ui';
+import { Spinner } from '@/components';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question

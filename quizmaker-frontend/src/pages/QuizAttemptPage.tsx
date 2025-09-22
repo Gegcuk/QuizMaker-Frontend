@@ -11,7 +11,7 @@ import { QuizService } from "../api/quiz.service";
 import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../features/attempt";
 import { QuizDto } from "@/types";
 import api from "../api/axiosInstance";
-import { Spinner } from "../components/ui";
+import { Spinner } from "@/components";
 import { 
   McqAnswer, 
   TrueFalseAnswer, 

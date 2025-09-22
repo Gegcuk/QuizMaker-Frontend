@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner } from '../components/ui';
-import { PageContainer } from '../components/layout';
-import ConfirmationModal from '../components/common/ConfirmationModal';
+import { Spinner, PageContainer, ConfirmationModal } from '@/components';
 import { CategoryDto } from '../features/category';
 import {
   getAllCategories,

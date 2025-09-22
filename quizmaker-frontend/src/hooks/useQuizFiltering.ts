@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { QuizDto } from '@/types';
-import type { SortOption } from '../components/quiz/QuizSortDropdown';
-import type { FilterOptions } from '../components/quiz/QuizFilterDropdown';
+import type { SortOption } from '@/components/quiz/QuizSortDropdown';
+import type { FilterOptions } from '@/components/quiz/QuizFilterDropdown';
 
 /**
  * Custom hook for filtering and sorting quizzes

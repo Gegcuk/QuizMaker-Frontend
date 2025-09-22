@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Spinner, Button, Modal } from '../components/ui';
-import { PageContainer } from '../components/layout';
-import ConfirmationModal from '../components/common/ConfirmationModal';
+import { Spinner, Button, Modal, PageContainer, ConfirmationModal } from '@/components';
 import { QuestionDto, QuestionType, QuestionService } from '../features/question';
 import api from '../api/axiosInstance';
 import {

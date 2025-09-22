@@ -9,9 +9,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { getQuizById, deleteQuiz } from '../api/quiz.service';
 import { QuizDto, QuizResultSummaryDto } from '@/types';
-import { Spinner } from '../components/ui';
-import ConfirmationModal from '../components/common/ConfirmationModal';
-import {
+import { 
+  Spinner, 
+  ConfirmationModal,
   QuizDetailHeader,
   QuizStats,
   QuizLeaderboard,
@@ -20,7 +20,7 @@ import {
   QuizExport,
   QuizGenerationJobs,
   QuizManagementTab
-} from '../components/quiz';
+} from '@/components';
 
 const QuizDetailPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();

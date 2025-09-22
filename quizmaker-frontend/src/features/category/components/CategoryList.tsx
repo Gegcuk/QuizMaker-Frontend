@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
 import { categoryService } from '@/services';
-import Spinner from '../../../components/ui/Spinner';
+import { Spinner } from '@/components';
 
 interface CategoryListProps {
   onEditCategory: (category: CategoryDto) => void;

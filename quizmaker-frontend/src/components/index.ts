@@ -8,10 +8,12 @@ export { default as Input } from './ui/Input';
 export { default as Alert } from './ui/Alert';
 export { default as Spinner } from './ui/Spinner';
 export { default as Modal } from './ui/Modal';
-export { default as Card } from './ui/Card';
+export { default as Card, CardHeader, CardContent, CardTitle } from './ui/Card';
 export { default as Table } from './ui/Table';
 export { default as Pagination } from './ui/Pagination';
 export { default as Dropdown } from './ui/Dropdown';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/Tabs';
+export { useToast } from './ui/Toast';
 
 // Layout Components
 export { default as Layout } from './layout/Layout';
@@ -48,6 +50,7 @@ export { default as QuizPublishModal } from './quiz/QuizPublishModal';
 export { default as QuizGenerationJobs } from './quiz/QuizGenerationJobs';
 export { TextGenerationTab } from './quiz/TextGenerationTab';
 export { DocumentUploadTab } from './quiz/DocumentUploadTab';
+export { QuizCreationTabs } from './quiz/QuizCreationTabs';
 export { default as MyQuizzesPage } from './quiz/MyQuizzesPage';
 export { default as QuizListPage } from './quiz/QuizListPage';
 

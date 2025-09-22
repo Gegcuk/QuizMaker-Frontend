@@ -5,9 +5,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { PageContainer } from '../components/layout';
+import { PageContainer, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
 import { DocumentProcessUpload, DocumentProcessList, DocumentProcessor, DocumentProcessViewDto, DocumentProcessService } from '../features/document';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui';
 import api from '../api/axiosInstance';
 
 const DocumentProcessPage: React.FC = () => {

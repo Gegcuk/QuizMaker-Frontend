@@ -4,8 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer } from '../components/layout';
-import { UserProfile } from '../components/user';
+import { PageContainer, UserProfile } from '@/components';
 
 const ProfilePage: React.FC = () => {
   return (

@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer } from '../components/layout';
+import { PageContainer } from '@/components';
 import { DocumentUpload } from '../features/document';
 
 const DocumentUploadPage: React.FC = () => {

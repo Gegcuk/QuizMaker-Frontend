@@ -8,7 +8,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { DocumentProcessService } from '@/services';
 import { DocumentProcessDto, DocumentProcessViewDto } from '@/types';
 import api from '../../../api/axiosInstance';
-import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '../../../components/ui';
+import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '@/components';
 import { 
   DocumentArrowUpIcon, 
   DocumentTextIcon, 

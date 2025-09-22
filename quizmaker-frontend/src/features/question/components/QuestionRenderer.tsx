@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Badge } from '../../../components/ui';
+import { Badge } from '@/components';
 import { QuestionDto, QuestionType } from '@/types';
 import McqQuestion from './McqQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
