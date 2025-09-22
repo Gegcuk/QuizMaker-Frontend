@@ -1,6 +1,6 @@
 // src/api/quiz.service.ts
 import type { AxiosInstance } from 'axios';
-import { QUIZ_ENDPOINTS, RESULT_ENDPOINTS } from './endpoints';
+import { QUIZ_ENDPOINTS, RESULT_ENDPOINTS } from '../../../api/endpoints';
 import { 
   CreateQuizRequest,
   UpdateQuizRequest,
@@ -15,8 +15,8 @@ import {
   UpdateQuizVisibilityRequest,
   UpdateQuizStatusRequest
 } from '@/types';
-import { BaseService } from './base.service';
-import api from './axiosInstance';
+import { BaseService } from '../../../api/base.service';
+import api from '../../../api/axiosInstance';
 
 /**
  * Quiz service for handling quiz operations

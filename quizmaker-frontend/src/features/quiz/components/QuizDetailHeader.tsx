@@ -6,9 +6,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QuizDto } from '@/types';
-import { PageHeader } from '../layout';
-import { Badge } from '../ui';
-import { ActionType } from '../layout/types';
+import { PageHeader, Badge } from '@/components';
+import { ActionType } from '@/components/layout/types';
 
 interface QuizDetailHeaderProps {
   quiz: QuizDto;

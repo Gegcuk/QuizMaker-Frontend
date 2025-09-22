@@ -5,7 +5,7 @@
 export * from './common.types';
 
 // Core domain types
-export * from './quiz.types';
+export * from '../features/quiz/types/quiz.types';
 export * from './tag.types';
 
 // Feature-specific types (with explicit exports to avoid conflicts)

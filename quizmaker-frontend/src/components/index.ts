@@ -29,30 +29,7 @@ export { default as ProtectedRoute } from './layout/ProtectedRoute';
 export { default as ConfirmationModal } from './common/ConfirmationModal';
 
 // Quiz Components
-export { default as QuizCard } from './quiz/QuizCard';
-export { default as QuizForm } from './quiz/QuizForm';
-export { default as QuizList } from './quiz/QuizList';
-export { default as QuizGrid } from './quiz/QuizGrid';
-export { default as QuizFilters } from './quiz/QuizFilters';
-export { default as QuizAnalytics } from './quiz/QuizAnalytics';
-export { default as QuizStats } from './quiz/QuizStats';
-export { default as QuizSettings } from './quiz/QuizSettings';
-export { default as QuizPreview } from './quiz/QuizPreview';
-export { default as QuizShare } from './quiz/QuizShare';
-export { default as QuizExport } from './quiz/QuizExport';
-export { default as QuizLeaderboard } from './quiz/QuizLeaderboard';
-export { default as QuizTagManager } from './quiz/QuizTagManager';
-export { default as QuizCategoryManager } from './quiz/QuizCategoryManager';
-export { default as QuizBasicInfo } from './quiz/QuizBasicInfo';
-export { default as QuizDetailHeader } from './quiz/QuizDetailHeader';
-export { default as QuizManagementTab } from './quiz/QuizManagementTab';
-export { default as QuizPublishModal } from './quiz/QuizPublishModal';
-export { default as QuizGenerationJobs } from './quiz/QuizGenerationJobs';
-export { TextGenerationTab } from './quiz/TextGenerationTab';
-export { DocumentUploadTab } from './quiz/DocumentUploadTab';
-export { QuizCreationTabs } from './quiz/QuizCreationTabs';
-export { default as MyQuizzesPage } from './quiz/MyQuizzesPage';
-export { default as QuizListPage } from './quiz/QuizListPage';
+export * from '../features/quiz/components';
 
 // Tag Components
 export { TagList } from './TagList';

@@ -1,7 +1,7 @@
 // Quiz-related type definitions
 // Used for quiz creation, management, AI-powered generation, and analytics as documented in the API specification
 
-import { BaseEntity, AuditableEntity } from './common.types';
+import { BaseEntity, AuditableEntity } from '../../../types/common.types';
 
 /**
  * Quiz visibility options

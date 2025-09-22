@@ -11,9 +11,7 @@ import { QuestionService } from '@/services';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '@/services';
 import { api } from '@/services';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
-import { Button } from '../ui';
-import ConfirmationModal from '../common/ConfirmationModal';
-import { useToast } from '../ui';
+import { Button, useToast, ConfirmationModal } from '@/components';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {

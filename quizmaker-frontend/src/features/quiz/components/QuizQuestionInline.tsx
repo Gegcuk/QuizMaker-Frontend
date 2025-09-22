@@ -9,7 +9,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { QuestionDto, QuestionDifficulty } from '@/types';
 import { QuestionService } from '@/services';
-import { Button, Modal, Spinner, Alert, useToast, Badge } from '../ui';
+import { Button, Modal, Spinner, Alert, useToast, Badge } from '@/components';
 import { QuestionForm } from '@/features/question';
 import { api } from '@/services';
 import { PencilSquareIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';

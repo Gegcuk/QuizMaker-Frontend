@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Input } from '../ui';
+import { Input } from '@/components';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';

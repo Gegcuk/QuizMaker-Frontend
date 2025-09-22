@@ -6,8 +6,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
-import { useQuizMetadata } from '@/hooks/useQuizMetadata';
-import { Badge } from '../ui';
+import { useQuizMetadata } from '../hooks/useQuizMetadata';
+import { Badge } from '@/components';
 
 interface QuizListProps {
   quizzes: QuizDto[];

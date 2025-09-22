@@ -5,7 +5,7 @@
 export { AuthService } from '../features/auth';
 
 // Quiz service (class-based)
-export { QuizService } from './quiz.service';
+// QuizService moved to features/quiz/services/
 
 // Attempt service (class-based)
 export { AttemptService } from '../features/attempt';

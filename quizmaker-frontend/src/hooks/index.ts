@@ -1,2 +1,2 @@
-export { useQuizMetadata } from './useQuizMetadata';
-export { useQuizFiltering, useQuizPagination } from './useQuizFiltering'; 
+export { useQuizMetadata } from '../features/quiz/hooks/useQuizMetadata';
+export { useQuizFiltering, useQuizPagination } from '../features/quiz/hooks/useQuizFiltering'; 
