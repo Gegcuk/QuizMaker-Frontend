@@ -32,12 +32,7 @@ export { default as ConfirmationModal } from './common/ConfirmationModal';
 export * from '../features/quiz/components';
 
 // Tag Components
-export { TagList } from './TagList';
-export { TagForm } from './TagForm';
-export { TagSelector } from './TagSelector';
-export { TagStats } from './TagStats';
-export { TagCloud } from './TagCloud';
-export { TagAnalytics } from './TagAnalytics';
+export * from '../features/tag/components';
 
 // User Components
 export { default as UserMenu } from './user/UserMenu';
@@ -47,3 +42,6 @@ export { default as UserStats } from './user/UserStats';
 export { default as UserActivity } from './user/UserActivity';
 export { default as UserActivation } from './user/UserActivation';
 export { default as SearchBar } from './user/SearchBar';
+
+// Result Components
+export * from '../features/result/components';

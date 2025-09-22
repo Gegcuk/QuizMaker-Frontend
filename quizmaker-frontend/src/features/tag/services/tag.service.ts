@@ -1,12 +1,11 @@
 import type { AxiosInstance } from 'axios';
-import { TAG_ENDPOINTS } from './endpoints';
+import { TAG_ENDPOINTS } from '@/api/endpoints';
 import { 
   TagDto,
   CreateTagRequest,
   UpdateTagRequest
 } from '@/types';
-import { BaseService } from './base.service';
-import api from './axiosInstance';
+import { BaseService, api } from '@/services';
 
 /**
  * Tag service for handling tag operations

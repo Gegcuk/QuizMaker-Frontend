@@ -11,7 +11,7 @@ import {
   Link,
   useNavigate,
 } from 'react-router-dom';
-import { AttemptService, QuestionService } from '@/services';
+import { AttemptService, QuestionService, ResultService } from '@/services';
 import { Spinner } from '@/components';
 import type { AttemptResultDto, AnswerSubmissionDto, QuestionDto } from '@/types';
 import { api } from '@/services';

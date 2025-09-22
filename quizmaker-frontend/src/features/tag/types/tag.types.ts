@@ -1,7 +1,7 @@
 // Tag-related type definitions
 // Used for quiz tag management as documented in the API specification
 
-import { BaseEntity } from './common.types';
+import { BaseEntity } from '@/types';
 
 /**
  * Tag data transfer object

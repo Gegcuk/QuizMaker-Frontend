@@ -23,11 +23,11 @@ export { default as ComplianceAnswer } from './ComplianceAnswer';
 export { default as OrderingAnswer } from './OrderingAnswer';
 export { default as HotspotAnswer } from './HotspotAnswer';
 
-// Results & Feedback Components
-export { default as AttemptResult } from './AttemptResult';
+// Results & Feedback Components (moved to result feature)
+// export { default as AttemptResult } from './AttemptResult';
 export { default as AnswerReview } from './AnswerReview';
-export { default as ScoreDisplay } from './ScoreDisplay';
-export { default as FeedbackDisplay } from './FeedbackDisplay';
+// export { default as ScoreDisplay } from './ScoreDisplay';
+// export { default as FeedbackDisplay } from './FeedbackDisplay';
 export { default as AttemptStats } from './AttemptStats';
 export { default as QuestionTiming } from './QuestionTiming';
 export { default as AttemptDetails } from './AttemptDetails';

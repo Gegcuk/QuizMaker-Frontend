@@ -23,15 +23,14 @@ import { QuizListPage } from '../components';
 import QuizDetailPage from '../pages/QuizDetailPage';
 import QuizAttemptPage from '../pages/QuizAttemptPage';
 import QuizAttemptFlowPage from '../pages/QuizAttemptFlowPage';
-import QuizResultPage from '../pages/QuizResultPage';
-import QuizResultsSummaryPage from '../pages/QuizResultsSummaryPage';
+import { QuizResultPage, QuizResultsSummaryPage } from '@/features/result';
 
 /* ----------  Quiz CRUD / owner pages  ------------------------------------ */
 import { MyQuizzesPage } from '../components';
 import QuizFormPage from '../pages/QuizFormPage';
 
 /* ----------  Management pages  ------------------------------------------ */
-import TagManagementPage from '../pages/TagManagementPage';
+import { TagManagementPage } from '@/features/tag';
 import CategoryManagementPage from '../pages/CategoryManagementPage';
 import QuestionManagementPage from '../pages/QuestionManagementPage';
 import QuizQuestionsPage from '../pages/QuizQuestionPage';

@@ -20,7 +20,7 @@ export { DocumentService, DocumentProcessService } from '../features/document';
 export { CategoryService } from '../features/category';
 
 // Tag service (class-based)
-export { TagService } from './tag.service';
+// TagService moved to features/tag/services/
 
 // Admin service (class-based)
 export { AdminService } from '../features/admin';
