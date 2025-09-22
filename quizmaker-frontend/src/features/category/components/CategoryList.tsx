@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CategoryDto } from '../types/category.types';
+import { CategoryDto } from '@/types';
 import { categoryService } from '../services/category.service';
 import Spinner from '../../../components/ui/Spinner';
 
@@ -43,8 +43,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
       });
 
       setCategories(response.content);
-      setTotalPages(response.pageable.totalPages);
-      setTotalElements(response.pageable.totalElements);
+      setTotalPages(response.totalPages);
+      setTotalElements(response.totalElements);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load categories');
     } finally {
@@ -168,9 +168,6 @@ export const CategoryList: React.FC<CategoryListProps> = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created
-              </th>
               {showActions && (
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -192,9 +189,6 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                   <div className="text-sm text-gray-500 max-w-xs truncate">
                     {category.description || 'No description'}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(category.createdAt).toLocaleDateString()}
                 </td>
                 {showActions && (
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -6,7 +6,7 @@ import {
   ProcessDocumentRequest, 
   DocumentConfigDto,
   ChunkingStrategy 
-} from '../types/document.types';
+} from '@/types';
 
 interface DocumentReprocessProps {
   documentId: string;

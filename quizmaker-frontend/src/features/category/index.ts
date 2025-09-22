@@ -7,7 +7,7 @@ export type {
   UpdateCategoryRequest,
   CategoryPage,
   CreateCategoryResponse,
-} from './types/category.types';
+} from '@/types';
 
 // Category components
 export * from './components';

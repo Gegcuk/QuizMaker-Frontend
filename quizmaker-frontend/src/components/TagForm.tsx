@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TagDto, CreateTagRequest, UpdateTagRequest } from '../types/tag.types';
+import { TagDto, CreateTagRequest, UpdateTagRequest } from '@/types';
 import { TagService } from '../api/tag.service';
 import api from '../api/axiosInstance';
 

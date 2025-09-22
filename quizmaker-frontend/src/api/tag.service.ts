@@ -4,7 +4,7 @@ import {
   TagDto,
   CreateTagRequest,
   UpdateTagRequest
-} from '../types/tag.types';
+} from '@/types';
 import { BaseService } from './base.service';
 import api from './axiosInstance';
 

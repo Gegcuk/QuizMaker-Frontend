@@ -9,7 +9,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { AttemptService } from "../features/attempt";
 import { QuizService } from "../api/quiz.service";
 import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../features/attempt";
-import { QuizDto } from "../types/quiz.types";
+import { QuizDto } from "@/types";
 import api from "../api/axiosInstance";
 import { Spinner } from "../components/ui";
 import { 

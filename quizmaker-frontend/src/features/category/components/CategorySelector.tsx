@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CategoryDto } from '../types/category.types';
+import { CategoryDto } from '@/types';
 import { categoryService } from '../services/category.service';
 
 interface CategorySelectorProps {

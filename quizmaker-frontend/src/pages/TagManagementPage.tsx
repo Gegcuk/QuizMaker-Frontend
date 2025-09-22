@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Spinner } from '../components/ui';
 import { PageContainer } from '../components/layout';
 import ConfirmationModal from '../components/common/ConfirmationModal';
-import { TagDto } from '../types/tag.types';
+import { TagDto } from '@/types';
 import { TagService } from '../api/tag.service';
 import api from '../api/axiosInstance';
 

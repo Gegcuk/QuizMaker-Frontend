@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
 import { useAuth } from '../../features/auth';
-import { UserDto } from '../../features/auth/types/auth.types';
+import { UserDto } from '@/types';
 import { userService } from '../../api/user.service';
 import type { AxiosError } from 'axios';
 import { billingService } from '../../features/billing';

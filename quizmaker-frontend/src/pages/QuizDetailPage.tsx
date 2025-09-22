@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { getQuizById, deleteQuiz } from '../api/quiz.service';
-import { QuizDto, QuizResultSummaryDto } from '../types/quiz.types';
+import { QuizDto, QuizResultSummaryDto } from '@/types';
 import { Spinner } from '../components/ui';
 import ConfirmationModal from '../components/common/ConfirmationModal';
 import {

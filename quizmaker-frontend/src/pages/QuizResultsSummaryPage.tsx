@@ -10,7 +10,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Spinner } from '../components/ui';
 import { getQuizResults } from '../api/quiz.service';
 
-import type { QuizResultSummaryDto } from '../types/api';
+import type { QuizResultSummaryDto } from '@/types';
 
 const QuizResultsSummaryPage: React.FC = () => {
   /* --------------------------- routing helpers ---------------------- */

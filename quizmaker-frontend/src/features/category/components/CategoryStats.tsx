@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CategoryDto } from '../types/category.types';
+import { CategoryDto } from '@/types';
 import { QuizDto, Difficulty } from '@/types';
 import { categoryService } from '../services/category.service';
 import { QuizService } from '../../../api/quiz.service';

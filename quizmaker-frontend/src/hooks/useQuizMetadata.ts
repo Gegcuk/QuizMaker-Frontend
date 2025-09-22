@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useEffect } from 'react';
-import { TagDto } from '../types/tag.types';
+import { TagDto } from '@/types';
 import { CategoryDto } from '../features/category';
 import { getAllTags } from '../api/tag.service';
 import { getAllCategories } from '../features/category';

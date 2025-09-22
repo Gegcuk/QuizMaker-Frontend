@@ -6,16 +6,18 @@ import {
   UpdateCategoryRequest,
   CategoryPage,
   CreateCategoryResponse,
-} from '../types/category.types';
+} from '@/types';
 import { BaseService } from '../../../api/base.service';
 
 /**
  * Category service for handling category operations
  * Implements all endpoints from the CategoryController API documentation
  */
-export class CategoryService extends BaseService<CategoryDto> {
+export class CategoryService {
+  protected axiosInstance: AxiosInstance;
+
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/v1/categories');
+    this.axiosInstance = axiosInstance;
   }
 
   /**

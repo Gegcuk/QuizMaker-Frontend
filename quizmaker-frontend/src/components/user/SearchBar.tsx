@@ -9,7 +9,7 @@ import {
   Difficulty 
 } from '@/types';
 import { CategoryDto } from '@/types';
-import { TagDto } from '../../types/tag.types';
+import { TagDto } from '@/types';
 import api from '../../api/axiosInstance';
 
 interface SearchBarProps {

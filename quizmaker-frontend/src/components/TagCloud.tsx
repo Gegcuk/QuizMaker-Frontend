@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TagDto } from '../types/tag.types';
-import { QuizDto } from '../types/quiz.types';
+import { TagDto, QuizDto } from '@/types';
 import { TagService } from '../api/tag.service';
 import { QuizService } from '../api/quiz.service';
 import Spinner from './ui/Spinner';

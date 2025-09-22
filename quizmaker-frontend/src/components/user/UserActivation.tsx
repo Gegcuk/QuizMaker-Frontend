@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../features/auth';
 import { userService } from '../../api/user.service';
-import { UserDto } from '../../features/auth/types/auth.types';
+import { UserDto } from '@/types';
 import type { AxiosError } from 'axios';
 
 interface UserActivationProps {

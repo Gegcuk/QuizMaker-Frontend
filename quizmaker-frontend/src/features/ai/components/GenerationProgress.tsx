@@ -4,7 +4,7 @@ import api from '../../../api/axiosInstance';
 import { 
   QuizGenerationStatus,
   GenerationStatus
-} from '../../../types/quiz.types';
+} from '@/types';
 
 interface GenerationProgressProps {
   jobId: string;

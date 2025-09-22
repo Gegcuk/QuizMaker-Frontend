@@ -7,7 +7,7 @@ import {
   QueryParams,
   BulkOperationResponse,
   ApiError
-} from '../types/common.types';
+} from '@/types';
 
 /**
  * Base service class providing common CRUD operations

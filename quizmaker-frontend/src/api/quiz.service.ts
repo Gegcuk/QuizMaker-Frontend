@@ -14,7 +14,7 @@ import {
   LeaderboardEntryDto,
   UpdateQuizVisibilityRequest,
   UpdateQuizStatusRequest
-} from '../types/quiz.types';
+} from '@/types';
 import { BaseService } from './base.service';
 import api from './axiosInstance';
 

@@ -78,7 +78,8 @@ export type {
   StructureFlatResponseDto,
   ExtractResponseDto,
   DocumentChunkDto,
-  DocumentConfigDto
+  DocumentConfigDto,
+  ProcessDocumentRequest
 } from '../features/document/types/document.types';
 
 // Note: api.d.ts contains legacy types that conflict with new comprehensive types

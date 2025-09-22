@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../types/category.types';
+import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '@/types';
 import { categoryService } from '../services/category.service';
 
 interface CategoryFormProps {

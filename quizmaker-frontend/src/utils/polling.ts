@@ -1,7 +1,7 @@
 // Polling utility for job status monitoring
 // Used for long-running operations like document processing and quiz generation
 
-import { JobStatus } from '../types/common.types';
+import { JobStatus } from '@/types';
 
 /**
  * Polling configuration options
@@ -227,7 +227,11 @@ export async function pollJobStatus<T>(
     throw new Error('Polling was cancelled');
   }
   
-  return result.data;
+  if (result.data === undefined) {
+    throw new Error('Polling completed but no data was returned');
+  }
+  
+  return result.data as T;
 }
 
 /**
