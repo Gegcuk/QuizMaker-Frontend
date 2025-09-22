@@ -7,7 +7,7 @@ import {
   DocumentConfigDto,
   Page
 } from '@/types';
-import { BaseService } from '../../../api/base.service';
+import { BaseService } from '@/services';
 
 /**
  * Document service for handling document operations

@@ -10,7 +10,7 @@ import {
   ExtractResponseDto,
   StructureFormat
 } from '@/types';
-import { BaseService } from '../../../api/base.service';
+import { BaseService } from '@/services';
 
 /**
  * Document Process service for handling document processing operations

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
-import { QuestionService } from '../index';
+import { QuestionService } from '@/services';
 import { Spinner, Badge, Button } from '@/components';
 import { api } from '@/services';
 
