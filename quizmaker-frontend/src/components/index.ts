@@ -16,8 +16,6 @@ export * from './user';
 // UI Components
 export * from './ui';
 
-// Question Components
-export * from './question';
 
 // Feature components should be imported directly from their respective features
 // Example: import { UserAttempts } from '../features/attempt'; 

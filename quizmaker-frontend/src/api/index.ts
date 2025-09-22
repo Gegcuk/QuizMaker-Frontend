@@ -11,7 +11,7 @@ export { QuizService } from './quiz.service';
 export { AttemptService } from '../features/attempt';
 
 // Question service (class-based)
-export { QuestionService } from './question.service';
+export { QuestionService } from '../features/question';
 
 // Document service (class-based)
 export { DocumentService, DocumentProcessService } from '../features/document';

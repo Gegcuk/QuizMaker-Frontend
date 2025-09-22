@@ -6,17 +6,10 @@ import {
   QuestionDto,
   QuizDto,
 } from '../types/api';
-import { QuestionType } from '../types/question.types';
+import { QuestionType, QuestionService } from '../features/question';
 import {
   getQuizById,
 } from '../api/quiz.service';
-import {
-  getQuizQuestions,
-  addQuestionToQuiz,
-  removeQuestionFromQuiz,
-  createQuestion,
-  getAllQuestions,
-} from '../api/question.service';
 import {
   QuestionRenderer,
   QuestionTypeSelector,
@@ -27,7 +20,7 @@ import {
   ComplianceEditor,
   OrderingEditor,
   HotspotEditor,
-} from '../components/question';
+} from '../features/question';
 
 const QuizQuestionsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();

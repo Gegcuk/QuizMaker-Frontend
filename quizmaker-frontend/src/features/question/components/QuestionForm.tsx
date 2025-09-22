@@ -6,11 +6,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '../../types/question.types';
-import { createQuestion, updateQuestion, getQuestionById } from '../../api/question.service';
+import { QuestionService } from '../index';
+import api from '../../../api/axiosInstance';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import { QuestionRenderer } from './';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../../features/attempt';
-import { QuestionForAttemptDto } from '../../features/attempt';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer } from '../../../features/attempt';
+import { QuestionForAttemptDto } from '../../../features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -18,7 +19,7 @@ import FillGapEditor from './FillGapEditor';
 import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
-import { Spinner } from '../ui';
+import { Spinner } from '../../../components/ui';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -39,6 +40,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   compact = false,
   defaultDifficulty
 }) => {
+  const questionService = new QuestionService(api);
   const navigate = useNavigate();
   const { quizId: urlQuizId } = useParams<{ quizId: string }>();
   const actualQuizId = quizId || urlQuizId;
@@ -78,7 +80,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const question = await getQuestionById(questionId);
+      const question = await questionService.getQuestionById(questionId);
       setFormData({
         type: question.type,
         questionText: question.questionText,
@@ -112,7 +114,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     try {
       if (questionId) {
         // Update existing question
-        await updateQuestion(questionId, formData);
+        await questionService.updateQuestion(questionId, formData);
         if (onSuccess) {
           onSuccess();
         } else if (actualQuizId) {
@@ -122,7 +124,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         }
       } else {
         // Create new question
-        const res = await createQuestion(formData);
+        const res = await questionService.createQuestion(formData);
         if (onSuccess) {
           onSuccess({ questionId: res.questionId });
         } else if (actualQuizId) {
@@ -236,7 +238,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setSaving(true);
     setError(null);
     try {
-      const res = await createQuestion(formData);
+      const res = await questionService.createQuestion(formData);
       // Inform parent but keep the modal open
       if (onSuccess) {
         onSuccess({ questionId: res.questionId, keepOpen: true });

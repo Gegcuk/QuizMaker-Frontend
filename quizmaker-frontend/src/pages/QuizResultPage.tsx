@@ -12,10 +12,10 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import { AttemptService } from '../features/attempt';
-import { QuestionService } from '../api/question.service';
+import { QuestionService } from '../features/question';
 import { Spinner } from '../components/ui';
 import type { AttemptResultDto, AnswerSubmissionDto } from '../features/attempt';
-import type { QuestionDto } from '../types/question.types';
+import type { QuestionDto } from '../features/question';
 import api from '../api/axiosInstance';
 
 interface EnhancedAnswerResult {

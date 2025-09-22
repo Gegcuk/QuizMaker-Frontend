@@ -2,13 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Spinner, Button, Modal } from '../components/ui';
 import { PageContainer } from '../components/layout';
 import ConfirmationModal from '../components/common/ConfirmationModal';
-import { QuestionDto, QuestionType } from '../types/question.types';
-import {
-  getAllQuestions,
-  createQuestion,
-  updateQuestion,
-  deleteQuestion,
-} from '../api/question.service';
+import { QuestionDto, QuestionType, QuestionService } from '../features/question';
+import api from '../api/axiosInstance';
 import {
   QuestionRenderer,
   QuestionTypeSelector,
@@ -20,9 +15,10 @@ import {
   OrderingEditor,
   HotspotEditor,
   QuestionForm,
-} from '../components/question';
+} from '../features/question';
 
 const QuestionManagementPage: React.FC = () => {
+  const questionService = new QuestionService(api);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -100,9 +96,9 @@ const QuestionManagementPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getAllQuestions({ pageNumber: page, size: 20 });
+      const response = await questionService.getQuestions({ pageNumber: page, size: 20 });
       setQuestions(response.content || []);
-      setTotalPages(response.pageable?.totalPages || 1);
+      setTotalPages(response.totalPages || 1);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to fetch questions.');
       setQuestions([]); // Ensure questions is always an array
@@ -163,9 +159,9 @@ const QuestionManagementPage: React.FC = () => {
 
     try {
       if (editing) {
-        await updateQuestion(editing.id, payload);
+        await questionService.updateQuestion(editing.id, payload);
       } else {
-        await createQuestion(payload);
+        await questionService.createQuestion(payload);
       }
       setShowForm(false);
       await fetchQuestions();
@@ -186,7 +182,7 @@ const QuestionManagementPage: React.FC = () => {
     
     setIsDeleting(true);
     try {
-      await deleteQuestion(questionToDelete);
+      await questionService.deleteQuestion(questionToDelete);
       await fetchQuestions();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete question.');

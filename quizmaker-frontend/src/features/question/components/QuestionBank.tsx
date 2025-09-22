@@ -5,8 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '../../types/question.types';
-import { getAllQuestions } from '../../api/question.service';
-import { Spinner, Badge, Button } from '../ui';
+import { QuestionService } from '../index';
+import { Spinner, Badge, Button } from '../../../components/ui';
+import api from '../../../api/axiosInstance';
 
 interface QuestionBankProps {
   onQuestionSelect?: (question: QuestionDto) => void;
@@ -23,6 +24,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
   quizId,
   className = ''
 }) => {
+  const questionService = new QuestionService(api);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +45,9 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
     setError(null);
     try {
       // TODO: Implement proper pagination and filtering in question.service.ts
-      const response = await getAllQuestions();
+      const response = await questionService.getQuestions();
       setQuestions(response.content);
-      setTotalPages(response.pageable.totalPages);
+      setTotalPages(response.totalPages);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to load questions');
     } finally {

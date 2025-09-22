@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionDto } from '../../types/question.types';
-import { getAllQuestions } from '../../api/question.service';
+import { QuestionDto, QuestionService } from '../../features/question';
+import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';
 
 interface QuizQuestionManagerProps {
@@ -25,6 +25,7 @@ const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
   onQuestionsChange,
   className = ''
 }) => {
+  const questionService = new QuestionService(api);
   const [questions, setQuestions] = useState<QuestionWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,7 @@ const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
       setError(null);
       
       try {
-        const response = await getAllQuestions();
+        const response = await questionService.getQuestions();
         const questionsWithStatus = response.content.map((question: QuestionDto) => ({
           ...question,
           isSelected: currentQuestionIds.includes(question.id)

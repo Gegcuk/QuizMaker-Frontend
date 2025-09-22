@@ -69,47 +69,6 @@ export interface CreateQuizRequest {
 
 export type UpdateQuizRequest = Partial<CreateQuizRequest>;
 
-/* ----------  Questions  ------------------------------------------------- */
-export interface QuestionDto {
-  id: string;
-  type:
-    | 'MCQ_SINGLE'
-    | 'TRUE_FALSE'
-    | 'MCQ_MULTI'
-    | 'OPEN'
-    | 'FILL_GAP'
-    | 'COMPLIANCE'
-    | 'ORDERING'
-    | 'HOTSPOT';
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-  questionText: string;
-  content: any;
-  hint?: string;
-  explanation?: string;
-  attachmentUrl?: string;
-  quizIds: string[];
-  tagIds: string[];
-}
-
-export interface PageQuestionDto {
-  content: QuestionDto[];
-  totalPages: number;
-  number: number;
-}
-
-export interface CreateQuestionRequest {
-  type: QuestionDto['type'];
-  difficulty: QuestionDto['difficulty'];
-  questionText: string;
-  content: any;
-  hint?: string;
-  explanation?: string;
-  attachmentUrl?: string;
-  quizIds?: string[];
-  tagIds?: string[];
-}
-
-export type UpdateQuestionRequest = Partial<CreateQuestionRequest>;
 
 
 

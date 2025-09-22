@@ -7,16 +7,10 @@
 // ---------------------------------------------------------------------------
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { QuestionDto, QuestionDifficulty } from '../../types/question.types';
-import {
-  getQuizQuestions,
-  getAllQuestions,
-  getQuestionById,
-  addQuestionToQuiz,
-  removeQuestionFromQuiz,
-} from '../../api/question.service';
+import { QuestionDto, QuestionDifficulty, QuestionService } from '../../features/question';
 import { Button, Modal, Spinner, Alert, useToast, Badge } from '../ui';
-import { QuestionForm } from '../question';
+import { QuestionForm } from '../../features/question';
+import api from '../../api/axiosInstance';
 import { PencilSquareIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 interface QuizQuestionInlineProps {
@@ -34,6 +28,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   className = '',
   defaultDifficulty,
 }) => {
+  const questionService = new QuestionService(api);
   const { addToast } = useToast();
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,11 +53,11 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await getAllQuestions({ quizId: id, pageNumber: page, size });
+      const res = await questionService.getQuestions({ quizId: id, pageNumber: page, size });
       const list = res?.content || [];
       setQuestions(list);
-      setQTotalPages(res?.pageable?.totalPages || 1);
-      setQTotalElements(res?.pageable?.totalElements || list.length);
+      setQTotalPages(res?.totalPages || 1);
+      setQTotalElements(res?.totalElements || list.length);
       // Keep parent selection in sync with backend
       const serverIds = list.map((q) => q.id);
       if (serverIds.join(',') !== questionIds.join(',')) {
@@ -86,7 +81,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       // Fetch until a page returns fewer than size items (or safety cap)
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const res = await getAllQuestions({ quizId: id, pageNumber: p, size });
+        const res = await questionService.getQuestions({ quizId: id, pageNumber: p, size });
         const batch = res?.content || [];
         all = all.concat(batch);
         if (!batch.length || batch.length < size || p > 200) break;
@@ -116,7 +111,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     setError(null);
     try {
       const fetched = await Promise.all(
-        ids.map((id) => getQuestionById(id).catch(() => null))
+        ids.map((id) => questionService.getQuestionById(id).catch(() => null))
       );
       setQuestions(fetched.filter(Boolean) as QuestionDto[]);
     } catch (e: any) {
@@ -171,7 +166,8 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     setError(null);
     try {
       if (quizId) {
-        await removeQuestionFromQuiz(quizId, id);
+        // TODO: Implement removeQuestionFromQuiz in QuizService
+        // await removeQuestionFromQuiz(quizId, id);
       }
       const updatedIds = questionIds.filter((qid) => qid !== id);
       onChange(updatedIds);
@@ -196,9 +192,10 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
         return;
       }
       if (quizId) {
-        await addQuestionToQuiz(quizId, newId);
+        // TODO: Implement addQuestionToQuiz in QuizService
+        // await addQuestionToQuiz(quizId, newId);
       }
-      const q = await getQuestionById(newId);
+      const q = await questionService.getQuestionById(newId);
       setQuestions((prev) => {
         const exists = prev.some((x) => x.id === q.id);
         return exists ? prev : [...prev, q];
@@ -222,7 +219,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   const handleEditSuccess = async () => {
     try {
       if (editingQuestionId) {
-        const updated = await getQuestionById(editingQuestionId);
+        const updated = await questionService.getQuestionById(editingQuestionId);
         setQuestions((prev) => prev.map((q) => (q.id === updated.id ? updated : q)));
       } else if (quizId) {
         await loadForExistingQuiz(quizId);

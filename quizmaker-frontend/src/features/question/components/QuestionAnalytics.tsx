@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '../../types/question.types';
 // TODO: Implement getQuestionAnalytics in question.service.ts
 // import { getQuestionAnalytics } from '../../api/question.service';
-import { Spinner } from '../ui';
+import { Spinner } from '../../../components/ui';
 
 interface QuestionAnalyticsProps {
   questionId?: string; // If provided, show analytics for specific question

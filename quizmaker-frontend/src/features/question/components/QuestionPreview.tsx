@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Badge } from '../ui';
+import { Badge } from '../../../components/ui';
 import { CreateQuestionRequest, QuestionType } from '../../types/question.types';
 
 interface QuestionPreviewProps {

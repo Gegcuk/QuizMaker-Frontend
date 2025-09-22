@@ -42,14 +42,6 @@ export const QUIZ_ENDPOINTS = {
   GENERATION_STATISTICS: '/v1/quizzes/generation-jobs/statistics',
 } as const;
 
-/**
- * Question management endpoints
- */
-export const QUESTION_ENDPOINTS = {
-  QUESTIONS: '/v1/questions',
-  QUESTION_BY_ID: (id: string) => `/v1/questions/${id}`,
-  ANALYTICS: (id: string) => `/v1/questions/${id}/analytics`,
-} as const;
 
 
 /**
@@ -100,7 +92,6 @@ export const createCrudEndpoints = (basePath: string) => ({
 export const ENDPOINTS = {
   USER: USER_ENDPOINTS,
   QUIZ: QUIZ_ENDPOINTS,
-  QUESTION: QUESTION_ENDPOINTS,
   TAG: TAG_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
 } as const; 
