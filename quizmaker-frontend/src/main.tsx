@@ -7,16 +7,19 @@ import AppRoutes from './routes/AppRoutes';
 import { ToastProvider } from './components/ui';
 import { AuthProvider } from './features/auth';
 import { QueryProvider } from './providers/QueryProvider';
+import { FeatureFlagProvider } from './utils';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <QueryProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <AppRoutes />
-        </ToastProvider>
-      </AuthProvider>
-    </QueryProvider>
+    <FeatureFlagProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </FeatureFlagProvider>
   </BrowserRouter>
 );

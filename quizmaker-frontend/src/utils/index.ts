@@ -22,3 +22,6 @@ export * from './sanitize';
 
 // Validation utilities
 export * from './validation';
+
+// Feature flag utilities
+export * from './featureFlags';

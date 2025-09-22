@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -32,6 +32,14 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [toasts, setToasts] = useState<ToastInternal[]>([]);
   const timers = useRef<Record<string, number>>({});
 
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(timers.current).forEach((timer) => window.clearTimeout(timer));
+      timers.current = {};
+    };
+  }, []);
+
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
     if (timers.current[id]) {
@@ -41,7 +49,8 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const addToast = useCallback((opts: ToastOptions) => {
-    const id = opts.id || Math.random().toString(36).slice(2);
+    // Use crypto.randomUUID for better ID generation, fallback to Math.random for older browsers
+    const id = opts.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
     const toast: ToastInternal = {
       id,
       title: opts.title || '',
