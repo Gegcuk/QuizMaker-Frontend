@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../features/auth';
+import { useAuth } from '@/features/auth';
 import type { AxiosError } from 'axios';
 
 interface UserStatsProps {

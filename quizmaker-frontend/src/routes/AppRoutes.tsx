@@ -42,8 +42,7 @@ import DocumentUploadPage from '../pages/DocumentUploadPage';
 import { DocumentViewer } from '../features/document';
 
 /* ----------  User profile pages  ----------------------------------------- */
-import ProfilePage from '../pages/ProfilePage';
-import SettingsPage from '../pages/SettingsPage';
+import { ProfilePage, SettingsPage } from '@/features/user';
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, TagService, api } from '@/services';
-import { categoryService } from '../../features/category';
+import { categoryService } from '@/services';
 import { 
   QuizDto, 
   QuizSearchCriteria, 

@@ -1,8 +1,8 @@
 // src/api/user.service.ts
 import type { AxiosInstance } from 'axios';
-import { USER_ENDPOINTS } from './endpoints';
+import { USER_ENDPOINTS } from '@/api/endpoints';
 import { UserDto } from '@/types';
-import { BaseService } from './base.service';
+import { BaseService } from '@/services';
 
 /**
  * User service for handling user profile operations
@@ -134,5 +134,5 @@ export class UserService extends BaseService<UserDto> {
 }
 
 // Export a default instance
-import api from './axiosInstance';
+import { api } from '@/services';
 export const userService = new UserService(api); 

@@ -35,13 +35,7 @@ export * from '../features/quiz/components';
 export * from '../features/tag/components';
 
 // User Components
-export { default as UserMenu } from './user/UserMenu';
-export { default as UserProfile } from './user/UserProfile';
-export { default as UserSettings } from './user/UserSettings';
-export { default as UserStats } from './user/UserStats';
-export { default as UserActivity } from './user/UserActivity';
-export { default as UserActivation } from './user/UserActivation';
-export { default as SearchBar } from './user/SearchBar';
+export * from '../features/user/components';
 
 // Result Components
 export * from '../features/result/components';

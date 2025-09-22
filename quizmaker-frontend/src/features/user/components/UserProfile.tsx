@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
-import { useAuth } from '../../features/auth';
+import { useAuth } from '@/features/auth';
 import { UserDto } from '@/types';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
-import { billingService } from '../../features/billing';
-import type { BalanceDto } from '../../features/billing';
-import { TokenTopUp } from '../../features/billing';
+import { billingService } from '@/services';
+import type { BalanceDto } from '@/types';
+import { TokenTopUp } from '@/features/billing';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user

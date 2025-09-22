@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../features/auth';
+import { useAuth } from '@/features/auth';
 import { UserRole } from '@/types';
 
 interface UserMenuProps {

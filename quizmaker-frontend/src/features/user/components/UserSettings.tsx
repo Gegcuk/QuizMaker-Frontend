@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
-import { useAuth } from '../../features/auth';
+import { useAuth } from '@/features/auth';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
 
