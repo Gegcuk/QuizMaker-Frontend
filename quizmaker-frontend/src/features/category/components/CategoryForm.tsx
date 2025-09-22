@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '@/types';
-import { categoryService } from '../services/category.service';
+import { categoryService } from '@/services';
 
 interface CategoryFormProps {
   category?: CategoryDto;

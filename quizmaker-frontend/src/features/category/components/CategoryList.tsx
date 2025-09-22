@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
-import { categoryService } from '../services/category.service';
+import { categoryService } from '@/services';
 import Spinner from '../../../components/ui/Spinner';
 
 interface CategoryListProps {
