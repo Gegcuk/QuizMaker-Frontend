@@ -27,6 +27,8 @@ export { default as ProtectedRoute } from './layout/ProtectedRoute';
 
 // Common Components
 export { default as ConfirmationModal } from './common/ConfirmationModal';
+export { default as ErrorBoundary } from './common/ErrorBoundary';
+export { default as SafeContent, SafeLink } from './common/SafeContent';
 
 // Quiz Components
 export * from '../features/quiz/components';

@@ -15,10 +15,9 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // ← mobile toggle
   const navigate = useNavigate();
 
-  /** Handles the logout click: call AuthContext → redirect to /login */
+  /** Handles the logout click: AuthProvider already handles navigation */
   const handleLogout = async () => {
     await logout();
-    navigate('/login', { replace: true });
   };
 
   /** Check if user has required role */

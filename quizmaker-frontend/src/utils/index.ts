@@ -13,3 +13,9 @@ export {
 
 // Polling utilities
 export * from './polling';
+
+// Logging utilities
+export { logger } from './logger';
+
+// Sanitization utilities
+export * from './sanitize';

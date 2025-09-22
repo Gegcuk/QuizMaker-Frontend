@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { Layout, ProtectedRoute } from '../components';
+import { Layout, ProtectedRoute, ErrorBoundary } from '../components';
 
 import { useAuth } from '../features/auth';
 
@@ -69,8 +69,9 @@ const AppRoutes: React.FC = () => {
     );
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
+    <ErrorBoundary>
+      <Routes>
+        <Route element={<Layout />}>
         {/* --------------------------  Public  ------------------------------ */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={authRedirect('login')} />
@@ -252,8 +253,9 @@ const AppRoutes: React.FC = () => {
 
         {/* ---------------  Fallback: 404 Not-Found  ------------------------- */}
         <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+        </Route>
+      </Routes>
+    </ErrorBoundary>
   );
 };
 
