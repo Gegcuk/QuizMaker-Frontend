@@ -4,11 +4,10 @@
 // Integrates all components from section 3.3 Quiz Details & Analytics
 // ---------------------------------------------------------------------------
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
-import { getQuizById, deleteQuiz } from '@/services';
-import { QuizDto, QuizResultSummaryDto } from '@/types';
+import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
 import { 
   Spinner, 
   ConfirmationModal,
@@ -27,51 +26,14 @@ const QuizDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [quiz, setQuiz] = useState<QuizDto | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'analytics' | 'leaderboard' | 'export' | 'generation'>('overview');
-
-  // Confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  
-  // Mock data for components that need it
-  const mockStats: QuizResultSummaryDto = {
-    quizId: quizId || '',
-    attemptsCount: 156,
-    averageScore: 78.5,
-    bestScore: 95.0,
-    worstScore: 45.0,
-    passRate: 82.3,
-    questionStats: []
-  };
 
-  const mockLeaderboardEntries = [
-    { userId: '1', username: 'John Doe', bestScore: 95 },
-    { userId: '2', username: 'Jane Smith', bestScore: 92 },
-    { userId: '3', username: 'Bob Johnson', bestScore: 88 },
-    { userId: '4', username: 'Alice Brown', bestScore: 85 },
-    { userId: '5', username: 'Charlie Wilson', bestScore: 82 }
-  ];
-
-  // Fetch quiz on mount / id change
-  useEffect(() => {
-    const fetchQuiz = async () => {
-      if (!quizId) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const quizData = await getQuizById(quizId);
-        setQuiz(quizData);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || 'Quiz not found.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQuiz();
-  }, [quizId]);
+  // React Query hooks
+  const { data: quiz, isLoading: quizLoading, error: quizError } = useQuiz(quizId!);
+  const { data: stats, isLoading: statsLoading } = useQuizStats(quizId!);
+  const { data: leaderboardEntries, isLoading: leaderboardLoading } = useQuizLeaderboard(quizId!);
+  const deleteQuizMutation = useDeleteQuiz();
 
   // Handle quiz actions
   const handleEditQuiz = () => {
@@ -85,14 +47,13 @@ const QuizDetailPage: React.FC = () => {
   const confirmDeleteQuiz = async () => {
     if (!quizId) return;
     
-    setIsDeleting(true);
     try {
-      await deleteQuiz(quizId);
+      await deleteQuizMutation.mutateAsync(quizId);
       navigate('/quizzes');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to delete quiz.');
+      // Error is handled by the mutation's onError callback
+      console.error('Delete failed:', err);
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   };
@@ -105,7 +66,7 @@ const QuizDetailPage: React.FC = () => {
     navigate(`/quizzes/${quizId}/edit?tab=questions`);
   };
 
-  if (loading) {
+  if (quizLoading) {
     return (
       <div className="flex justify-center items-center py-20">
         <Spinner />
@@ -113,7 +74,7 @@ const QuizDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !quiz) {
+  if (quizError || !quiz) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -124,7 +85,7 @@ const QuizDetailPage: React.FC = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error || 'Quiz not found'}</p>
+              <p className="text-sm text-red-800">{quizError?.message || 'Quiz not found'}</p>
             </div>
           </div>
         </div>
@@ -178,7 +139,7 @@ const QuizDetailPage: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Quiz Statistics */}
-            <QuizStats stats={mockStats} />
+            <QuizStats stats={stats} />
             
             {/* Social Sharing */}
             <QuizShare quiz={quiz} />
@@ -209,11 +170,11 @@ const QuizDetailPage: React.FC = () => {
         )}
 
         {activeTab === 'analytics' && (
-          <QuizAnalytics stats={mockStats} />
+          <QuizAnalytics stats={stats} />
         )}
 
         {activeTab === 'leaderboard' && (
-          <QuizLeaderboard entries={mockLeaderboardEntries} />
+          <QuizLeaderboard entries={leaderboardEntries} />
         )}
 
         {activeTab === 'export' && (
@@ -234,7 +195,7 @@ const QuizDetailPage: React.FC = () => {
         message="Are you sure you want to delete this quiz? This action cannot be undone."
         confirmText="Delete Quiz"
         variant="danger"
-        isLoading={isDeleting}
+        isLoading={deleteQuizMutation.isPending}
       />
     </div>
   );

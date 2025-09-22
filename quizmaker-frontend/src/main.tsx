@@ -6,16 +6,17 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import { ToastProvider } from './components/ui';
 import { AuthProvider } from './features/auth';
+import { QueryProvider } from './providers/QueryProvider';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-
-    <BrowserRouter>
+  <BrowserRouter>
+    <QueryProvider>
       <AuthProvider>
         <ToastProvider>
           <AppRoutes />
         </ToastProvider>
       </AuthProvider>
-    </BrowserRouter>
-
+    </QueryProvider>
+  </BrowserRouter>
 );

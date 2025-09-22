@@ -1,0 +1,26 @@
+# Developer Audit
+
+## Authentication & Access Control
+- `AuthProvider` owns navigation, token persistence, and user lookup. Consumers like `Navbar` still imperatively navigate to `/login` after awaiting `logout`, which itself already pushes and clears state. This double navigation can flash the login screen before the provider finishes resetting. Prefer exposing an async `logout` that resolves once navigation occurs, or let the provider handle routing entirely and remove the extra `navigate` call from `handleLogout`.【F:src/features/auth/AuthContext.tsx†L47-L125】【F:src/components/layout/Navbar.tsx†L18-L75】
+- `ProtectedRoute` renders bare "Loading..." text while auth resolves and logs multiple diagnostic `console.log` statements on every render. Swap the console noise for structured logging (only in development) and extract a spinner/skeleton component so protected pages have consistent loading UX. Also consider deferring render with `Suspense` plus a query cache so auth checks don't block routing on every navigation.【F:src/components/layout/ProtectedRoute.tsx†L40-L80】
+
+## State Management & Data Fetching
+- You ship `@tanstack/react-query` but continue to hand-roll async flows with `useEffect` and local state (e.g. `QuizDetailPage`). This means zero caching, retry, or deduplicated requests when navigating between detail tabs or re-entering the page. Move these fetches into React Query (`useQuery(['quiz', quizId], ...)`) so dependent components can subscribe and share status, and invalidate on mutations like `deleteQuiz` instead of navigating away manually.【F:src/pages/QuizDetailPage.tsx†L25-L133】【F:package.json†L12-L31】
+- `useQuizMetadata` and `QuizFilters` both fetch the same tag/category collections in isolated effects, leading to duplicate network calls and inconsistent loading states. Lift this into a React Query cache or a context provider and expose memoized selectors (`useCallback` or derived maps) so list components only re-render when the data actually changes. Add abort handling for unmounted components to avoid state updates on stale renders.【F:src/features/quiz/hooks/useQuizMetadata.ts†L21-L70】【F:src/features/quiz/components/QuizFilters.tsx†L21-L200】
+
+## Forms & Validation
+- The custom `Form` implementation re-creates a minimal version of React Hook Form but omits critical ergonomics: inputs don't receive their current `value`, blur handlers never validate, and async submission doesn't catch/rethrow errors. Adopting `react-hook-form` (with a Zod/Yup resolver) would remove this maintenance burden and give you native dirty/valid flags, schema validation, and better performance. At a minimum, ensure `register` passes `value` and support field-level validation instead of managing a manual `errors` map.【F:src/components/ui/Form.tsx†L1-L215】
+- `Input` generates a random ID on each render which breaks label association for screen readers and produces hydration mismatches. Switch to `const inputId = id ?? useId();` so the value stays stable between renders and matches SSR output.【F:src/components/ui/Input.tsx†L14-L106】
+
+## UI, Styling & UX
+- `ToastProvider` stores timeout handles but never clears them on provider unmount. Wrap the timer map cleanup in a `useEffect` return handler so hot reloads or route transitions don't leak timers. Also consider moving the `Math.random` ID generator behind `crypto.randomUUID()` or the toast payload so deterministic IDs can support testing.【F:src/components/ui/Toast.tsx†L31-L100】
+- Many of the advanced analytics blocks on `QuizDetailPage` still render placeholder mock data (`mockStats`, `mockLeaderboardEntries`). Hook those components up to real queries or hide them behind feature flags; otherwise the UI risks showing fictional insights that diverge from the actual quiz state.【F:src/pages/QuizDetailPage.tsx†L39-L142】
+
+## Security Considerations
+- Access and refresh tokens live in `localStorage`, exposing them to XSS. If you control the backend, prefer httpOnly cookies with SameSite=Lax/Strict and CSRF tokens. Where that isn't possible, wrap the token helpers with in-memory fallbacks, and sanitize all string fields rendered from the API (some components render `quiz.description` directly).【F:src/utils/tokenUtils.ts†L5-L28】【F:src/features/quiz/components/QuizList.tsx†L73-L188】
+
+## Testing & Observability
+- The project lacks any unit/e2e harness—no Vitest/Jest, React Testing Library, or MSW setup in `package.json`. Add at least a smoke test suite for auth flows, protected routing, and quiz CRUD. Parallel that with an error boundary (or Sentry integration) wrapping `AppRoutes` so API failures surface as actionable telemetry instead of silent console errors.【F:package.json†L7-L31】【F:src/routes/AppRoutes.tsx†L1-L200】
+
+## Developer Experience
+- Provide an `.env.example` with the expected API base URL and feature flags so contributors don't need to chase values through the Axios instance. Pair it with lint-staged or a pre-commit hook to enforce formatting; right now nothing guards against console logs or stray Tailwind classes landing in main.【F:src/api/axiosInstance.ts†L31-L205】

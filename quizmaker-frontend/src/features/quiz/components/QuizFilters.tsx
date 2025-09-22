@@ -3,13 +3,9 @@
 // Advanced filtering and search based on QuizSearchCriteria
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { QuizSearchCriteria, Difficulty } from '@/types';
-import { CategoryDto } from '@/types';
-import { TagDto } from '@/types';
-import { getAllCategories } from '@/services';
-import { getAllTags } from '@/services';
-import type { AxiosError } from 'axios';
+import { useQuizMetadata } from '@/features/quiz/hooks/useQuizMetadataQueries';
 
 interface QuizFiltersProps {
   filters: QuizSearchCriteria;
@@ -25,34 +21,14 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
   className = ''
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [tags, setTags] = useState<TagDto[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [isLoadingTags, setIsLoadingTags] = useState(false);
-
-  // Load categories and tags
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoadingCategories(true);
-      setIsLoadingTags(true);
-
-      try {
-        const [categoriesResponse, tagsResponse] = await Promise.all([
-          getAllCategories(),
-          getAllTags()
-        ]);
-        setCategories(categoriesResponse.content);
-        setTags(tagsResponse.content);
-      } catch (error) {
-        console.error('Failed to load filter data:', error);
-      } finally {
-        setIsLoadingCategories(false);
-        setIsLoadingTags(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  
+  // Use React Query for metadata
+  const { 
+    categories, 
+    tags, 
+    isLoading: metadataLoading,
+    error: metadataError 
+  } = useQuizMetadata();
 
   // Handle input changes
   const handleInputChange = (field: keyof QuizSearchCriteria, value: any) => {
@@ -173,7 +149,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Categories
             </label>
-            {isLoadingCategories ? (
+            {metadataLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div key={index} className="flex items-center">
@@ -207,7 +183,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tags
             </label>
-            {isLoadingTags ? (
+            {metadataLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <div key={index} className="flex items-center">
