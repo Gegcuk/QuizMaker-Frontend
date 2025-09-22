@@ -8,8 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AttemptService } from '../services/attempt.service';
 import { QuizService } from '../../../api/quiz.service';
-import { AttemptDto, AttemptStatsDto } from '../types/attempt.types';
-import { QuizDto } from '../../../types/quiz.types';
+import { AttemptDto, AttemptStatsDto, QuizDto } from '@/types';
 import api from '../../../api/axiosInstance';
 import { Spinner } from '../../../components/ui';
 

@@ -13,7 +13,7 @@ import {
   QuestionForAttemptDto,
   CurrentQuestionDto,
   Page
-} from '../types/attempt.types';
+} from '@/types';
 
 /**
  * Attempt service for handling quiz attempts and answer submissions

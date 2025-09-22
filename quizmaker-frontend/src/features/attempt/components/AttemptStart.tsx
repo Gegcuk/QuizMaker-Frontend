@@ -10,8 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Spinner, Button } from '../../../components/ui';
 import { AttemptService } from '../services/attempt.service';
 import { QuizService } from '../../../api/quiz.service';
-import { StartAttemptRequest, AttemptMode } from '../types/attempt.types';
-import { QuizDto } from '../../../types/quiz.types';
+import { StartAttemptRequest, AttemptMode, QuizDto } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface AttemptStartProps {

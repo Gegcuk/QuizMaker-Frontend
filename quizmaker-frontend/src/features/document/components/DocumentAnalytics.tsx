@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '../services/document.service';
-import { DocumentDto, DocumentChunkDto, ChunkType } from '../types/document.types';
+import { DocumentDto, DocumentChunkDto, ChunkType } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface DocumentAnalyticsProps {
@@ -95,8 +95,8 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
   const calculateAnalytics = () => {
     if (!document || chunks.length === 0) return null;
 
-    const totalWords = chunks.reduce((sum, chunk) => sum + chunk.wordCount, 0);
-    const totalCharacters = chunks.reduce((sum, chunk) => sum + chunk.characterCount, 0);
+    const totalWords = chunks.reduce((sum, chunk) => sum + (chunk.wordCount ?? 0), 0);
+    const totalCharacters = chunks.reduce((sum, chunk) => sum + (chunk.characterCount ?? 0), 0);
     const averageWordsPerChunk = Math.round(totalWords / chunks.length);
     const averageCharactersPerChunk = Math.round(totalCharacters / chunks.length);
     
@@ -110,16 +110,16 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
     const pageRanges = chunks.map(chunk => ({
       start: chunk.startPage,
       end: chunk.endPage,
-      pages: chunk.endPage - chunk.startPage + 1
+      pages: (chunk.endPage ?? 0) - (chunk.startPage ?? 0) + 1
     }));
     const totalPagesCovered = pageRanges.reduce((sum, range) => sum + range.pages, 0);
     const averagePagesPerChunk = Math.round(totalPagesCovered / chunks.length);
 
     // Word count distribution
     const wordCountRanges = {
-      small: chunks.filter(chunk => chunk.wordCount < 100).length,
-      medium: chunks.filter(chunk => chunk.wordCount >= 100 && chunk.wordCount < 500).length,
-      large: chunks.filter(chunk => chunk.wordCount >= 500).length
+      small: chunks.filter(chunk => (chunk.wordCount ?? 0) < 100).length,
+      medium: chunks.filter(chunk => (chunk.wordCount ?? 0) >= 100 && (chunk.wordCount ?? 0) < 500).length,
+      large: chunks.filter(chunk => (chunk.wordCount ?? 0) >= 500).length
     };
 
     // Processing time
@@ -296,7 +296,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
           )}
           <div>
             <span className="font-medium text-blue-700">File Size:</span>
-            <div className="text-blue-900">{formatFileSize(document.fileSize)}</div>
+            <div className="text-blue-900">{formatFileSize(document.fileSize ?? 0)}</div>
           </div>
           {analytics.processingTime > 0 && (
             <div>

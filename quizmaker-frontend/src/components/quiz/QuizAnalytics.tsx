@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuizResultSummaryDto, QuestionStatDto } from '../../types/quiz.types';
+import { QuizResultSummaryDto, QuestionStatDto } from '@/types';
 
 interface QuizAnalyticsProps {
   stats: QuizResultSummaryDto;

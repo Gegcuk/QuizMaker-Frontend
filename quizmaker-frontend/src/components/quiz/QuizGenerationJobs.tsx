@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuizGenerationResponse, GenerationStatus } from '../../types/quiz.types';
+import { QuizGenerationResponse, GenerationStatus } from '@/types';
 import type { AxiosError } from 'axios';
 
 interface QuizGenerationJobsProps {

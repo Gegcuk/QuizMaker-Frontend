@@ -6,7 +6,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { DocumentProcessService } from '../services/documentProcess.service';
-import { DocumentProcessDto, DocumentProcessViewDto } from '../types/document.types';
+import { DocumentProcessDto, DocumentProcessViewDto } from '@/types';
 import api from '../../../api/axiosInstance';
 import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '../../../components/ui';
 import { 
@@ -225,7 +225,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
       {/* Upload Mode Toggle */}
       <div className="flex space-x-4">
         <Button
-          variant={uploadMode === 'file' ? 'default' : 'outline'}
+          variant={uploadMode === 'file' ? 'primary' : 'outline'}
           onClick={() => setUploadMode('file')}
           className="flex items-center space-x-2"
         >
@@ -233,7 +233,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
           <span>File Upload</span>
         </Button>
         <Button
-          variant={uploadMode === 'text' ? 'default' : 'outline'}
+          variant={uploadMode === 'text' ? 'primary' : 'outline'}
           onClick={() => setUploadMode('text')}
           className="flex items-center space-x-2"
         >
@@ -418,7 +418,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
 
       {/* Error Message */}
       {error && (
-        <Alert variant="destructive">
+        <Alert type="error">
           <ExclamationTriangleIcon className="h-5 w-5" />
           <div>
             <h3 className="text-sm font-medium">Upload Error</h3>

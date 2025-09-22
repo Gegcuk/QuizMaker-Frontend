@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { TagDto } from '../../types/tag.types';
+import { TagDto } from '@/types';
 import { TagService } from '../../api/tag.service';
 import api from '../../api/axiosInstance';
 import type { AxiosError } from 'axios';

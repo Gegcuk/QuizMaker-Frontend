@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '../services/document.service';
-import { DocumentDto, DocumentChunkDto } from '../types/document.types';
+import { DocumentDto, DocumentChunkDto } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface DocumentViewerProps {

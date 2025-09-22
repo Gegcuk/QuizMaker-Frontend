@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuizDto } from '../../types/quiz.types';
+import { QuizDto } from '@/types';
 
 interface QuizShareProps {
   quiz: QuizDto;

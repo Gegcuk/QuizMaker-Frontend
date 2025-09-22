@@ -9,7 +9,7 @@ import {
   UpdateQuizRequest, 
   Visibility, 
   Difficulty 
-} from '../../types/quiz.types';
+} from '@/types';
 
 interface QuizSettingsProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest>;

@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { AnswerSubmissionDto, QuestionForAttemptDto } from '../types/attempt.types';
+import { AnswerSubmissionDto, QuestionForAttemptDto } from '@/types';
 
 interface AnswerReviewProps {
   answers: AnswerSubmissionDto[];
@@ -129,12 +129,12 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
           return (
             <div
               key={answer.answerId}
-              className={`border rounded-lg p-4 transition-colors ${getAnswerStatusColor(answer.isCorrect)}`}
+              className={`border rounded-lg p-4 transition-colors ${getAnswerStatusColor(answer.isCorrect ?? false)}`}
             >
               {/* Answer Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  <span className="text-lg">{getAnswerStatusIcon(answer.isCorrect)}</span>
+                  <span className="text-lg">{getAnswerStatusIcon(answer.isCorrect ?? false)}</span>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-gray-600">
                       Question {index + 1}
@@ -148,7 +148,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                   <span className={`text-sm font-medium ${
                     answer.isCorrect ? 'text-green-700' : 'text-red-700'
                   }`}>
-                    {getAnswerStatusText(answer.isCorrect)}
+                    {getAnswerStatusText(answer.isCorrect ?? false)}
                   </span>
                   <span className="text-sm text-gray-600">
                     Score: {answer.score}

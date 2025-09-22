@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { DocumentService } from '../services/document.service';
-import { DocumentDto, DocumentStatus } from '../types/document.types';
+import { DocumentDto, DocumentStatus } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface DocumentProcessorProps {
@@ -203,7 +203,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{document.originalFilename}</h3>
               <p className="text-sm text-gray-600">
-                {formatFileSize(document.fileSize)} • {document.contentType}
+                {formatFileSize(document.fileSize ?? 0)} • {document.contentType}
               </p>
             </div>
           </div>

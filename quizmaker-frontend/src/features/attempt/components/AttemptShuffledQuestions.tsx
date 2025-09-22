@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AttemptService } from '../services/attempt.service';
-import { QuestionForAttemptDto } from '../types/attempt.types';
+import { QuestionForAttemptDto } from '@/types';
 import api from '../../../api/axiosInstance';
 import { HintDisplay } from './';
 

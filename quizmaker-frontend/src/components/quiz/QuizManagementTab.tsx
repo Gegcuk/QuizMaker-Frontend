@@ -9,7 +9,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Input } from '../ui';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
-import { TagDto } from '../../types/tag.types';
+import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';
 import { TagService } from '../../api/tag.service';
 import { categoryService } from '../../features/category';

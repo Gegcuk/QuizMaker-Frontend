@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, useRef } from 'react';
-import { QuestionForAttemptDto } from '../types/attempt.types';
+import { QuestionForAttemptDto } from '@/types';
 
 interface HotspotAnswerProps {
   question: QuestionForAttemptDto;

@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '../services/document.service';
-import { DocumentConfigDto as DocumentConfigType, ChunkingStrategy } from '../types/document.types';
+import { DocumentConfigDto as DocumentConfigType, ChunkingStrategy } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface DocumentConfigProps {

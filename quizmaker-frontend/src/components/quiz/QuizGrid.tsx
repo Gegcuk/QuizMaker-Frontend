@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { QuizDto } from '../../types/quiz.types';
+import { QuizDto } from '@/types';
 import { QuizCard } from './';
 
 interface QuizGridProps {

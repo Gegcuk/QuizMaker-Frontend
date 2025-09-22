@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { AttemptService } from '../services/attempt.service';
-import { AttemptStatus } from '../types/attempt.types';
+import { AttemptStatus } from '@/types';
 import api from '../../../api/axiosInstance';
 
 interface AttemptPauseProps {

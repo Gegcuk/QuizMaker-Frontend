@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { AttemptResultDto, AnswerSubmissionDto } from '../types/attempt.types';
+import { AttemptResultDto, AnswerSubmissionDto } from '@/types';
 
 interface FeedbackDisplayProps {
   result: AttemptResultDto;

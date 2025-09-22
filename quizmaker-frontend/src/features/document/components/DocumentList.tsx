@@ -26,7 +26,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 import { DocumentService } from '../services/document.service';
-import { DocumentDto } from '../types/document.types';
+import { DocumentDto } from '@/types';
 import { 
   Button, 
   Input, 
@@ -89,7 +89,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       }
       
       setDocuments(filteredDocuments);
-      setTotalPages(response.pageable.totalPages);
+      setTotalPages(response.totalPages);
     } catch (err) {
       setError('Failed to load documents');
       console.error('Error loading documents:', err);

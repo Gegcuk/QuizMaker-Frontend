@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { LeaderboardEntryDto } from '../../types/quiz.types';
+import { LeaderboardEntryDto } from '@/types';
 
 interface QuizLeaderboardProps {
   entries: LeaderboardEntryDto[];

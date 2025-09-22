@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { QuizStatus, QuizDto } from '../../types/quiz.types';
+import { QuizStatus, QuizDto } from '@/types';
 
 interface QuizPublishModalProps {
   isOpen: boolean;

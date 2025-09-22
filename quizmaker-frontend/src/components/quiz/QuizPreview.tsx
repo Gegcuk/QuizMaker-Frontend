@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { CreateQuizRequest, UpdateQuizRequest, QuizDto } from '../../types/quiz.types';
+import { CreateQuizRequest, UpdateQuizRequest, QuizDto } from '@/types';
 
 interface QuizPreviewProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest> | QuizDto;

@@ -8,8 +8,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { DocumentService } from '../services/document.service';
 import { QuizService } from '../../../api/quiz.service';
-import { DocumentDto, DocumentConfigDto, ChunkingStrategy } from '../types/document.types';
-import { GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '../../../types/quiz.types';
+import { DocumentDto, DocumentConfigDto, ChunkingStrategy, GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '@/types';
 import api from '../../../api/axiosInstance';
 import { Button, Modal, Alert, Badge } from '../../../components/ui';
 import { GenerationProgress } from '../../ai';

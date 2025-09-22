@@ -48,16 +48,35 @@ export type {
   AttemptStatus,
   AttemptDto,
   StartAttemptRequest,
+  StartAttemptResponse,
+  AttemptDetailsDto,
+  AnswerSubmissionRequest,
+  BatchAnswerSubmissionRequest,
   AnswerSubmissionDto,
+  AttemptResultDto,
   AttemptStatsDto,
+  QuestionForAttemptDto,
+  CurrentQuestionDto,
   QuestionTimingStatsDto
 } from '../features/attempt/types/attempt.types';
 
 // Document types (explicit exports to avoid conflicts)
 export type {
   DocumentStatus,
+  DocumentProcessStatus,
+  NodeType,
+  StructureFormat,
+  ChunkType,
+  ChunkingStrategy,
   DocumentDto,
   DocumentProcessDto,
+  DocumentProcessViewDto,
+  IngestRequestDto,
+  TextSliceResponseDto,
+  DocumentStructureNodeDto,
+  StructureTreeResponseDto,
+  StructureFlatResponseDto,
+  ExtractResponseDto,
   DocumentChunkDto,
   DocumentConfigDto
 } from '../features/document/types/document.types';

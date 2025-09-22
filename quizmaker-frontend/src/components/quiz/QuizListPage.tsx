@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizDto } from '../../types/quiz.types';
+import { QuizDto } from '@/types';
 import { getAllQuizzes, deleteQuiz } from '../../api/quiz.service';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { PageHeader } from '../layout';

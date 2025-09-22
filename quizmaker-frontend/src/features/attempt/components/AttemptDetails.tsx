@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { AttemptDetailsDto, AnswerSubmissionDto } from '../types/attempt.types';
+import { AttemptDetailsDto, AnswerSubmissionDto } from '@/types';
 
 interface AttemptDetailsProps {
   details: AttemptDetailsDto;
@@ -87,7 +87,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
   const totalAnswers = details.answers.length;
   const correctAnswers = details.answers.filter(a => a.isCorrect).length;
   const accuracyPercentage = totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0;
-  const totalScore = details.answers.reduce((sum, a) => sum + a.score, 0);
+  const totalScore = details.answers.reduce((sum, a) => sum + (a.score ?? 0), 0);
   const averageScore = totalAnswers > 0 ? totalScore / totalAnswers : 0;
 
   // Group answers by time periods
@@ -100,7 +100,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
     }
     groups[timeSlot].count++;
     if (answer.isCorrect) groups[timeSlot].correct++;
-    groups[timeSlot].totalScore += answer.score;
+    groups[timeSlot].totalScore += answer.score ?? 0;
     return groups;
   }, {} as Record<string, { count: number; correct: number; totalScore: number }>);
 
@@ -140,7 +140,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
 
         <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
           <div className="text-2xl font-bold text-purple-600 mb-2">
-            {formatDuration(details.startedAt, details.completedAt)}
+            {formatDuration(details.startedAt, details.completedAt ?? undefined)}
           </div>
           <div className="text-sm text-purple-700">
             <div><strong>Started:</strong> {new Date(details.startedAt).toLocaleString()}</div>
@@ -265,7 +265,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
           <div>
             <span className="font-medium text-indigo-700">Duration:</span>
-            <div className="text-indigo-900">{formatDuration(details.startedAt, details.completedAt)}</div>
+            <div className="text-indigo-900">{formatDuration(details.startedAt, details.completedAt ?? undefined)}</div>
           </div>
         </div>
       </div>
