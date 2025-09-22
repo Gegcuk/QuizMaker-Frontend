@@ -6,9 +6,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { AttemptService } from "../features/attempt";
+import { AttemptService } from '@/services';
 import { QuizService, api } from "@/services";
-import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from "../features/attempt";
+import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from '@/types';
 import { QuizDto } from "@/types";
 import { Spinner } from "@/components";
 import { 
@@ -23,7 +23,7 @@ import {
   AttemptBatchAnswers,
   AttemptTimer,
   HintDisplay
-} from "../features/attempt";
+} from '@/features/attempt';
 
 // Shape of user answer input; varies by question type
 type AnswerInput = any;

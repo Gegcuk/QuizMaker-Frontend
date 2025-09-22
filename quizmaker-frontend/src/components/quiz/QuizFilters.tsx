@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { QuizSearchCriteria, Difficulty } from '@/types';
 import { CategoryDto } from '@/types';
 import { TagDto } from '@/types';
-import { getAllCategories } from '../../features/category';
+import { getAllCategories } from '@/services';
 import { getAllTags } from '@/services';
 import type { AxiosError } from 'axios';
 

@@ -12,7 +12,7 @@ export { billingService } from '../features/billing/services/billing.service';
 export { BillingService } from '../features/billing/services/billing.service';
 
 // Category services
-export { categoryService } from '../features/category/services/category.service';
+export { categoryService, getAllCategories, createCategory, updateCategory, deleteCategory } from '../features/category/services/category.service';
 export { CategoryService } from '../features/category/services/category.service';
 
 // Document services

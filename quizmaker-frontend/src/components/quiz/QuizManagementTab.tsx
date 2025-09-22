@@ -12,7 +12,7 @@ import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';
 import { TagService, api } from '@/services';
-import { categoryService } from '../../features/category';
+import { categoryService } from '@/services';
 import type { AxiosError } from 'axios';
 
 interface QuizManagementTabProps {

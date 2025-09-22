@@ -8,7 +8,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizQuestionType, Difficulty, QuizScope } from '@/types';
-import { GenerationProgress } from '../../features/ai';
+import { GenerationProgress } from '@/features/ai';
 import { Button, Alert } from '@/components';
 
 export const DocumentUploadTab: React.FC = () => {

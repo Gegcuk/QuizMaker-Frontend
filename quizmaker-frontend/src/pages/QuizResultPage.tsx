@@ -11,11 +11,9 @@ import {
   Link,
   useNavigate,
 } from 'react-router-dom';
-import { AttemptService } from '../features/attempt';
-import { QuestionService } from '../features/question';
+import { AttemptService, QuestionService } from '@/services';
 import { Spinner } from '@/components';
-import type { AttemptResultDto, AnswerSubmissionDto } from '../features/attempt';
-import type { QuestionDto } from '../features/question';
+import type { AttemptResultDto, AnswerSubmissionDto, QuestionDto } from '@/types';
 import { api } from '@/services';
 
 interface EnhancedAnswerResult {

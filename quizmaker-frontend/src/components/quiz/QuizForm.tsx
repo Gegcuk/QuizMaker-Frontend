@@ -6,8 +6,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '@/types';
-import { QuestionDifficulty, QuestionService } from '../../features/question';
-import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../../api/quiz.service';
+import { QuestionDifficulty } from '@/types';
+import { QuestionService } from '@/services';
+import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '@/services';
 import { api } from '@/services';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
 import { Button } from '../ui';

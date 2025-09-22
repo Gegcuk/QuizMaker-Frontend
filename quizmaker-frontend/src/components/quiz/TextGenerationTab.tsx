@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '@/types';
-import { GenerationProgress } from '../../features/ai';
+import { GenerationProgress } from '@/features/ai';
 import { Button, Alert } from '@/components';
 
 export const TextGenerationTab: React.FC = () => {

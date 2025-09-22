@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
 import { categoryService } from '@/services';
-import api from '../../api/axiosInstance';
+import { api } from '@/services';
 import type { AxiosError } from 'axios';
 
 interface QuizCategoryManagerProps {

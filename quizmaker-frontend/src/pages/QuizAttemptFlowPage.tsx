@@ -9,7 +9,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizDto } from '@/types';
 import { Spinner } from '@/components';
-import { AttemptContinuation, AttemptStart } from '../features/attempt';
+import { AttemptContinuation, AttemptStart } from '@/features/attempt';
 
 type AttemptFlowStep = 'checking' | 'continuation' | 'start' | 'attempting';
 

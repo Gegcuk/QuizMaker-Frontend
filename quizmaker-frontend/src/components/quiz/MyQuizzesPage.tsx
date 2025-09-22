@@ -5,14 +5,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../features/auth';
+import { useAuth } from '@/features/auth';
 import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
-import { UserAttempts } from '../../features/attempt';
+import { UserAttempts } from '@/features/attempt';
 import { PageHeader } from '../layout';
 import ConfirmationModal from '../common/ConfirmationModal';
-import { useQuizFiltering, useQuizPagination } from '../../hooks';
+import { useQuizFiltering, useQuizPagination } from '@/hooks';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';

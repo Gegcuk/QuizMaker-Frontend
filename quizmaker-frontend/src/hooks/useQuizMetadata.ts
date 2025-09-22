@@ -5,9 +5,9 @@
 
 import { useState, useEffect } from 'react';
 import { TagDto } from '@/types';
-import { CategoryDto } from '../features/category';
+import { CategoryDto } from '@/types';
 import { getAllTags } from '@/services';
-import { getAllCategories } from '../features/category';
+import { getAllCategories } from '@/services';
 
 interface UseQuizMetadataReturn {
   tags: TagDto[];

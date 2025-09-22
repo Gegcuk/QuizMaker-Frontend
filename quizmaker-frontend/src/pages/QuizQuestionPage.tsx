@@ -5,7 +5,8 @@ import {
   QuestionDto,
   QuizDto,
 } from '@/types';
-import { QuestionType, QuestionService } from '../features/question';
+import { QuestionType } from '@/types';
+import { QuestionService } from '@/services';
 import {
   getQuizById,
   api
@@ -20,7 +21,7 @@ import {
   ComplianceEditor,
   OrderingEditor,
   HotspotEditor,
-} from '../features/question';
+} from '@/features/question';
 
 // Create service instances
 const questionService = new QuestionService(api);

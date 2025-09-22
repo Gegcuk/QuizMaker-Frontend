@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../features/auth';
+import { useAuth } from '@/features/auth';
 import { getQuizById, deleteQuiz } from '@/services';
 import { QuizDto, QuizResultSummaryDto } from '@/types';
 import { 
