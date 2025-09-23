@@ -74,7 +74,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         Provide a detailed answer in the text area below:
       </div>
 
@@ -93,7 +93,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
         />
         
         {/* Character Counter */}
-        <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+        <div className="absolute bottom-2 right-2 text-xs text-theme-text-tertiary">
           {characterCount}/{maxLength}
         </div>
       </div>
@@ -130,7 +130,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
             type="button"
             onClick={handleClear}
             disabled={disabled}
-            className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            className="text-sm text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50"
           >
             Clear
           </button>
@@ -150,8 +150,8 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       </div>
 
       {/* Writing Tips */}
-      <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-sm text-gray-700">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="text-sm text-theme-text-secondary">
           <strong>Writing Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">
             <li>Structure your answer clearly</li>

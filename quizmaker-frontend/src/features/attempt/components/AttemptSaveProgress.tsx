@@ -158,7 +158,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
 
         <div className="flex items-center space-x-2">
           {autoSaveInterval > 0 && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-theme-text-tertiary">
               Auto-save: {autoSaveInterval}s
             </div>
           )}

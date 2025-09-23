@@ -281,7 +281,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
               ? 'bg-blue-50 border border-blue-200' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
-            <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-blue-600' : 'text-gray-400'}>
+            <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-blue-600' : 'text-theme-text-tertiary'}>
               {document.status === 'PROCESSING' ? '⚙️' : '✅'}
             </span>
             <div>
@@ -297,7 +297,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
               ? 'bg-green-50 border border-green-200' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
-            <span className={document.status === 'PROCESSED' ? 'text-green-600' : 'text-gray-400'}>
+            <span className={document.status === 'PROCESSED' ? 'text-green-600' : 'text-theme-text-tertiary'}>
               {document.status === 'PROCESSED' ? '✅' : '⏳'}
             </span>
             <div>

@@ -12,12 +12,12 @@ const FormTestPage: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-theme-bg-primary rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4 text-center">Login Form (Updated)</h2>
             <LoginForm />
           </div>
           
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-theme-bg-primary rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4 text-center">Quiz Creation Form Example</h2>
             <QuizCreationForm />
           </div>

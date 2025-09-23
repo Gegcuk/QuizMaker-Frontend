@@ -191,7 +191,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-theme-text-secondary">Score: {answer.score}</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-theme-text-tertiary">
                   {new Date(answer.answeredAt).toLocaleDateString()}
                 </span>
               </div>
@@ -216,7 +216,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <div className="font-medium text-gray-700">{data.count}</div>
-                        <div className="text-gray-500">Questions</div>
+                        <div className="text-theme-text-tertiary">Questions</div>
                       </div>
                       <div>
                         <div className="font-medium text-green-600">{data.correct}</div>

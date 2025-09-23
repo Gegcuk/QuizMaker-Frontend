@@ -214,7 +214,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
 
       {/* Improvement Suggestions */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Improvement Suggestions</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Improvement Suggestions</h3>
         <div className="space-y-2">
           {getImprovementSuggestions(score).map((suggestion, index) => (
             <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
@@ -227,7 +227,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
 
       {/* Study Recommendations */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Study Recommendations</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Study Recommendations</h3>
         <div className="space-y-2">
           {getStudyRecommendations(score).map((recommendation, index) => (
             <div key={index} className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
@@ -239,9 +239,9 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Performance Insights */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-900 mb-3">Performance Insights</h3>
-        <div className="space-y-2 text-sm text-gray-700">
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-3">Performance Insights</h3>
+        <div className="space-y-2 text-sm text-theme-text-secondary">
           <div>• You answered {answers.length} out of {result.totalQuestions} questions</div>
           <div>• Your accuracy rate is {Math.round(accuracy)}%</div>
           <div>• You spent an average of {averageTimePerQuestion} seconds per question</div>

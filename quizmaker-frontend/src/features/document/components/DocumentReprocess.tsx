@@ -93,7 +93,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PROCESSED': return 'text-green-600 bg-green-50';
-      case 'PROCESSING': return 'text-blue-600 bg-blue-50';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-50';
       case 'FAILED': return 'text-red-600 bg-red-50';
       default: return 'text-theme-text-secondary bg-theme-bg-secondary';
     }
@@ -135,8 +135,8 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Reprocess Document</h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <h3 className="text-lg font-semibold text-theme-text-primary">Reprocess Document</h3>
+          <p className="text-sm text-theme-text-secondary mt-1">
             Reprocess this document with different settings
           </p>
         </div>
@@ -147,10 +147,10 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       </div>
 
       {/* Document Info */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
+      <div className="bg-theme-bg-secondary rounded-lg p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Document Details</h4>
+            <h4 className="font-medium text-theme-text-primary mb-2">Document Details</h4>
             <div className="space-y-1 text-sm">
               <p><span className="font-medium">Name:</span> {document.originalFilename}</p>
               <p><span className="font-medium">Size:</span> {document.fileSize ? (document.fileSize / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
@@ -160,7 +160,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             </div>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Processing Info</h4>
+            <h4 className="font-medium text-theme-text-primary mb-2">Processing Info</h4>
             <div className="space-y-1 text-sm">
               <p><span className="font-medium">Uploaded:</span> {new Date(document.uploadedAt).toLocaleDateString()}</p>
               {document.processedAt && (
@@ -176,11 +176,11 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       {/* Reprocess Configuration */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="font-medium text-gray-900">Reprocess Configuration</h4>
+          <h4 className="font-medium text-theme-text-primary">Reprocess Configuration</h4>
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-theme-interactive-primary hover:text-blue-800"
           >
             {showAdvanced ? 'Hide' : 'Show'} Advanced Options
           </button>
@@ -189,7 +189,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
         <div className="space-y-4">
           {/* Chunking Strategy */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Chunking Strategy
             </label>
             <select
@@ -198,7 +198,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                 ...prev,
                 chunkingStrategy: e.target.value as ChunkingStrategy
               }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
               <option value="AUTO">Auto (Recommended)</option>
               <option value="CHAPTER_BASED">Chapter-based</option>
@@ -206,7 +206,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
               <option value="SIZE_BASED">Size-based</option>
               <option value="PAGE_BASED">Page-based</option>
             </select>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-theme-text-tertiary mt-1">
               Determines how the document will be split into chunks
             </p>
           </div>
@@ -216,7 +216,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             <div className="space-y-4 border-t pt-4">
               {/* Max Chunk Size */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Maximum Chunk Size (characters)
                 </label>
                 <input
@@ -228,9 +228,9 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                     ...prev,
                     maxChunkSize: parseInt(e.target.value) || 1000
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-theme-text-tertiary mt-1">
                   Maximum number of characters per chunk (100-10,000)
                 </p>
               </div>
@@ -245,9 +245,9 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                     ...prev,
                     storeChunks: e.target.checked
                   }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                 />
-                <label htmlFor="storeChunks" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="storeChunks" className="ml-2 block text-sm text-theme-text-secondary">
                   Store chunks in database
                 </label>
               </div>
@@ -274,7 +274,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           {document.processingError && (
             <p className="text-red-600">
               Previous error: {document.processingError}
@@ -286,7 +286,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             type="button"
             onClick={loadDocument}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Loading...' : 'Refresh'}
           </button>
@@ -294,7 +294,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             type="button"
             onClick={handleReprocess}
             disabled={isReprocessing || document.status === 'PROCESSING'}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isReprocessing ? (
               <>

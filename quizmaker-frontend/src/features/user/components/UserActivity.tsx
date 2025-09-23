@@ -321,8 +321,8 @@ const UserActivity: React.FC<UserActivityProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h2 className="text-xl font-semibold text-theme-text-primary">
           {isAdminView ? `${displayUser?.username}'s Activity` : 'My Activity'}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -331,7 +331,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-gray-50">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
@@ -378,7 +378,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No activities found</h3>
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No activities found</h3>
             <p className="mt-1 text-sm text-gray-500">
               {filter.search || filter.type || filter.dateRange !== 'all' 
                 ? 'Try adjusting your filters' 
@@ -401,7 +401,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
                       {getActivityIcon(activity.type)}
                       <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                         <div>
-                          <p className="text-sm text-gray-900">
+                          <p className="text-sm text-theme-text-primary">
                             {activity.title}
                             {activity.metadata?.score && (
                               <span className="ml-2 text-sm text-gray-500">

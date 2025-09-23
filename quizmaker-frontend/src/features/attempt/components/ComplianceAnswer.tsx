@@ -68,13 +68,13 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         Select all statements that are compliant with the given criteria:
       </div>
 
       {/* Controls */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           {selectedStatements.length} of {statements.length} statements selected
         </div>
         <div className="flex space-x-2">
@@ -90,7 +90,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
             type="button"
             onClick={handleClearAll}
             disabled={disabled}
-            className="text-xs text-gray-600 hover:text-gray-700 disabled:opacity-50"
+            className="text-xs text-theme-text-secondary hover:text-theme-text-secondary disabled:opacity-50"
           >
             Clear All
           </button>
@@ -109,7 +109,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
               className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
                 isSelected
                   ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  : 'border-theme-border-primary hover:border-theme-border-primary hover:bg-theme-bg-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <input
@@ -117,15 +117,15 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
-                className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-2"
+                className="mt-1 rounded border-theme-border-primary text-green-600 focus:ring-green-500 focus:ring-2"
               />
               
               <div className="ml-3 flex-1">
                 <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-gray-600 bg-gray-100 rounded-full mr-3 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-gray-100 rounded-full mr-3 flex-shrink-0">
                     {statementNumber}
                   </span>
-                  <div className="text-gray-900">
+                  <div className="text-theme-text-primary">
                     {statement.text}
                   </div>
                 </div>
@@ -181,8 +181,8 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       </div>
 
       {/* Tips */}
-      <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-sm text-gray-700">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="text-sm text-theme-text-secondary">
           <strong>Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">
             <li>Read each statement thoroughly</li>

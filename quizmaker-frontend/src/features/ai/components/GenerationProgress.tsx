@@ -135,7 +135,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
   const getStatusColor = (status: GenerationStatus) => {
     switch (status) {
       case 'COMPLETED': return 'text-green-600 bg-green-50';
-      case 'PROCESSING': return 'text-blue-600 bg-blue-50';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-50';
       case 'PENDING': return 'text-yellow-600 bg-yellow-50';
       case 'FAILED': return 'text-red-600 bg-red-50';
       case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-secondary';
@@ -170,7 +170,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
   if (isLoading && !generationStatus) {
     return (
-      <div className={`bg-white border rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border rounded-lg p-6 ${className}`}>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -182,8 +182,8 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
   if (!generationStatus) {
     return (
-      <div className={`bg-white border rounded-lg p-6 ${className}`}>
-        <div className="text-center text-gray-500">
+      <div className={`bg-theme-bg-primary border rounded-lg p-6 ${className}`}>
+        <div className="text-center text-theme-text-tertiary">
           <p>Generation status not available</p>
         </div>
       </div>
@@ -191,12 +191,12 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
   }
 
   return (
-    <div className={`bg-white border rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Quiz Generation Progress</h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <h3 className="text-lg font-semibold text-theme-text-primary">Quiz Generation Progress</h3>
+          <p className="text-sm text-theme-text-secondary mt-1">
             Job ID: {jobId}
           </p>
         </div>
@@ -223,14 +223,14 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
       {generationStatus.status === 'PROCESSING' && (
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm font-medium text-theme-text-secondary">Progress</span>
+            <span className="text-sm text-theme-text-tertiary">
               {generationStatus.processedChunks} / {generationStatus.totalChunks} chunks ({generationStatus.progressPercentage.toFixed(1)}%)
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${generationStatus.progressPercentage}%` }}
             ></div>
           </div>
@@ -239,20 +239,20 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
       {/* Time Information */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-500">Time Elapsed</p>
-          <p className="text-lg font-semibold text-gray-900">{formatTime(timeElapsed)}</p>
+        <div className="p-3 bg-theme-bg-secondary rounded-lg">
+          <p className="text-xs text-theme-text-tertiary">Time Elapsed</p>
+          <p className="text-lg font-semibold text-theme-text-primary">{formatTime(timeElapsed)}</p>
         </div>
         {generationStatus.estimatedTimeRemainingSeconds !== undefined && (
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500">Estimated Time Remaining</p>
-            <p className="text-lg font-semibold text-gray-900">{formatTime(generationStatus.estimatedTimeRemainingSeconds)}</p>
+          <div className="p-3 bg-theme-bg-secondary rounded-lg">
+            <p className="text-xs text-theme-text-tertiary">Estimated Time Remaining</p>
+            <p className="text-lg font-semibold text-theme-text-primary">{formatTime(generationStatus.estimatedTimeRemainingSeconds)}</p>
           </div>
         )}
         {generationStatus.elapsedTimeSeconds !== undefined && (
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500">Total Elapsed Time</p>
-            <p className="text-lg font-semibold text-gray-900">{formatTime(generationStatus.elapsedTimeSeconds)}</p>
+          <div className="p-3 bg-theme-bg-secondary rounded-lg">
+            <p className="text-xs text-theme-text-tertiary">Total Elapsed Time</p>
+            <p className="text-lg font-semibold text-theme-text-primary">{formatTime(generationStatus.elapsedTimeSeconds)}</p>
           </div>
         )}
       </div>
@@ -260,23 +260,23 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
       {/* Processing Stages */}
       {generationStatus.status === 'PROCESSING' && (
         <div className="mb-6">
-          <h4 className="font-medium text-gray-900 mb-3">Processing Stages</h4>
+          <h4 className="font-medium text-theme-text-primary mb-3">Processing Stages</h4>
           <div className="space-y-2">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-              <span className="text-sm text-gray-700">Document analysis completed</span>
+              <span className="text-sm text-theme-text-secondary">Document analysis completed</span>
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-              <span className="text-sm text-gray-700">AI question generation in progress</span>
+              <span className="text-sm text-theme-text-secondary">AI question generation in progress</span>
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
-              <span className="text-sm text-gray-500">Quiz compilation</span>
+              <span className="text-sm text-theme-text-tertiary">Quiz compilation</span>
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
-              <span className="text-sm text-gray-500">Final validation</span>
+              <span className="text-sm text-theme-text-tertiary">Final validation</span>
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           type="button"
           onClick={manualRefresh}
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50"
         >
           {isLoading ? 'Refreshing...' : 'Refresh'}
         </button>
@@ -313,7 +313,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
             type="button"
             onClick={handleCancelGeneration}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-red-300 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Cancelling...' : 'Cancel Generation'}
           </button>
@@ -322,7 +322,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           <button
             type="button"
             onClick={() => window.location.href = '/quizzes'}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
           >
             View Generated Quiz
           </button>

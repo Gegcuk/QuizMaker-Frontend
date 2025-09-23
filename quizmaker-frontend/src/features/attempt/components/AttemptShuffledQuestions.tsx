@@ -100,13 +100,13 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
       case 'HARD':
         return 'text-theme-interactive-danger bg-theme-bg-tertiary';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
   if (loading) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading questions...</p>
@@ -117,7 +117,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="text-red-600 mb-4">❌</div>
           <p className="text-red-600 mb-4">{error}</p>
@@ -134,7 +134,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
 
   if (questions.length === 0) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <p className="text-gray-600">No questions available for this quiz.</p>
         </div>
@@ -146,7 +146,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
   const totalQuestions = questions.length;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>

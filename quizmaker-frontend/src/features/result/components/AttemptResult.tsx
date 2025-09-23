@@ -79,13 +79,13 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
         <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full text-4xl mb-4 ${getScoreColor(score)}`}>
           {getScoreIcon(score)}
         </div>
-        <div className="text-4xl font-bold text-gray-900 mb-2">
+        <div className="text-4xl font-bold text-theme-text-primary mb-2">
           {Math.round(score)}%
         </div>
-        <div className="text-lg text-gray-600 mb-2">
+        <div className="text-lg text-theme-text-secondary mb-2">
           {getScoreMessage(score)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-theme-text-tertiary">
           Score: {result.totalScore} / {result.totalQuestions}
         </div>
       </div>
@@ -114,10 +114,10 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
 
       {/* Performance Breakdown */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance Breakdown</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance Breakdown</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Overall Score</span>
+            <span className="text-sm text-theme-text-secondary">Overall Score</span>
             <div className="flex items-center space-x-2">
               <div className="w-32 bg-gray-200 rounded-full h-2">
                 <div
@@ -125,11 +125,11 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
                   style={{ width: `${score}%` }}
                 />
               </div>
-              <span className="text-sm font-medium text-gray-900">{Math.round(score)}%</span>
+              <span className="text-sm font-medium text-theme-text-primary">{Math.round(score)}%</span>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Accuracy</span>
+            <span className="text-sm text-theme-text-secondary">Accuracy</span>
             <div className="flex items-center space-x-2">
               <div className="w-32 bg-gray-200 rounded-full h-2">
                 <div
@@ -137,16 +137,16 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
                   style={{ width: `${accuracy}%` }}
                 />
               </div>
-              <span className="text-sm font-medium text-gray-900">{Math.round(accuracy)}%</span>
+              <span className="text-sm font-medium text-theme-text-primary">{Math.round(accuracy)}%</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Attempt Details */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-900 mb-2">Attempt Details</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Attempt Details</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm text-theme-text-secondary">
           <div>
             <span className="font-medium">Started:</span> {new Date(result.startedAt).toLocaleString()}
           </div>
