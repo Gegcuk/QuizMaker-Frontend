@@ -216,11 +216,11 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
               onChange={(e) => setFilterType(e.target.value as ChunkType | 'ALL')}
               className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
-              <option value="ALL">All Types</option>
-              <option value="CHAPTER">Chapters</option>
-              <option value="SECTION">Sections</option>
-              <option value="PAGE_BASED">Page Based</option>
-              <option value="SIZE_BASED">Size Based</option>
+              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
+              <option value="CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Chapters</option>
+              <option value="SECTION" className="bg-theme-bg-primary text-theme-text-primary">Sections</option>
+              <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
+              <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
             </select>
           </div>
         </div>

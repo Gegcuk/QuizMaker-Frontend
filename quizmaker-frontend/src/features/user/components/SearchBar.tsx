@@ -436,10 +436,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty | '')}
                 className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
-                <option value="">All Difficulties</option>
-                <option value="EASY">Easy</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HARD">Hard</option>
+                <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
+                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
+                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
+                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
               </select>
             </div>
 
@@ -464,11 +464,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
-              <option value="relevance">Relevance</option>
-              <option value="title,asc">Title A-Z</option>
-              <option value="title,desc">Title Z-A</option>
-              <option value="createdDate,desc">Newest First</option>
-              <option value="createdDate,asc">Oldest First</option>
+              <option value="relevance" className="bg-theme-bg-primary text-theme-text-primary">Relevance</option>
+              <option value="title,asc" className="bg-theme-bg-primary text-theme-text-primary">Title A-Z</option>
+              <option value="title,desc" className="bg-theme-bg-primary text-theme-text-primary">Title Z-A</option>
+              <option value="createdDate,desc" className="bg-theme-bg-primary text-theme-text-primary">Newest First</option>
+              <option value="createdDate,asc" className="bg-theme-bg-primary text-theme-text-primary">Oldest First</option>
             </select>
           </div>
         </div>

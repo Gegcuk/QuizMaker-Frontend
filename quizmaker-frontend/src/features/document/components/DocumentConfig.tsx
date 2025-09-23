@@ -250,11 +250,11 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 }))}
                 className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
               >
-                <option value="AUTO">Auto - Best Strategy</option>
-                <option value="CHAPTER_BASED">Chapter Based</option>
-                <option value="SECTION_BASED">Section Based</option>
-                <option value="SIZE_BASED">Size Based</option>
-                <option value="PAGE_BASED">Page Based</option>
+                <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto - Best Strategy</option>
+                <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
+                <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section Based</option>
+                <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
+                <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
               </select>
               <p className="mt-1 text-xs text-theme-interactive-warning">
                 {getChunkingStrategyDescription((editConfig.defaultStrategy || config.defaultStrategy) as ChunkingStrategy)}

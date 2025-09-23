@@ -243,11 +243,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.privacy.profileVisibility}
                 onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
               >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="friends">Friends Only</option>
+                <option value="public" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
+                <option value="private" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
+                <option value="friends" className="bg-theme-bg-primary text-theme-text-primary">Friends Only</option>
               </select>
             </div>
 
@@ -280,11 +280,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.theme}
                 onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
               >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="auto">Auto</option>
+                <option value="light" className="bg-theme-bg-primary text-theme-text-primary">Light</option>
+                <option value="dark" className="bg-theme-bg-primary text-theme-text-primary">Dark</option>
+                <option value="auto" className="bg-theme-bg-primary text-theme-text-primary">Auto</option>
               </select>
             </div>
 
@@ -295,12 +295,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.language}
                 onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
               >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
+                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
+                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
+                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
+                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
               </select>
             </div>
           </div>

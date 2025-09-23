@@ -316,8 +316,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                 disabled={!isEditing}
               >
-                <option value="PRIVATE">Private</option>
-                <option value="PUBLIC">Public</option>
+                <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
+                <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
               </select>
             </div>
 
@@ -334,9 +334,9 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                 disabled={!isEditing}
               >
-                <option value="EASY">Easy</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HARD">Hard</option>
+                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
+                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
+                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
               </select>
             </div>
 

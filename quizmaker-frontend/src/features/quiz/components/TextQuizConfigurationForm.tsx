@@ -170,9 +170,9 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
                 onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
                 className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
-                <option value="EASY">Easy</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HARD">Hard</option>
+                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
+                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
+                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
               </select>
             </div>
           </div>
@@ -208,10 +208,10 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
                 onChange={(e) => handleGenerationConfigChange('language', e.target.value)}
                 className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
+                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
+                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
+                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
+                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
               </select>
             </div>
 
@@ -224,8 +224,8 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
                 onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
                 className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
-                <option value="CHAPTER_BASED">Chapter Based</option>
-                <option value="FIXED_SIZE">Fixed Size</option>
+                <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
+                <option value="FIXED_SIZE" className="bg-theme-bg-primary text-theme-text-primary">Fixed Size</option>
               </select>
             </div>
           </div>

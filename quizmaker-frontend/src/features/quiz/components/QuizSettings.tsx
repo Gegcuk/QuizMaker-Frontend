@@ -115,11 +115,11 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="visibility"
             value={quizData.visibility || 'PRIVATE'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             disabled={!isEditing}
           >
-            <option value="PRIVATE">Private - Only you can see and take this quiz</option>
-            <option value="PUBLIC">Public - Anyone can see and take this quiz</option>
+            <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private - Only you can see and take this quiz</option>
+            <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public - Anyone can see and take this quiz</option>
           </select>
           <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.visibility === 'PUBLIC' 
@@ -138,12 +138,12 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="difficulty"
             value={quizData.difficulty || 'MEDIUM'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             disabled={!isEditing}
           >
-            <option value="EASY">Easy - Suitable for beginners</option>
-            <option value="MEDIUM">Medium - Balanced difficulty</option>
-            <option value="HARD">Hard - Challenging questions</option>
+            <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy - Suitable for beginners</option>
+            <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium - Balanced difficulty</option>
+            <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard - Challenging questions</option>
           </select>
           <p className="mt-1 text-xs text-theme-text-tertiary">
             This helps users understand the expected difficulty level

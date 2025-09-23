@@ -143,16 +143,16 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               onChange={(e) => setSelectedType(e.target.value as QuestionType | 'ALL')}
               className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
-              <option value="ALL">All Types</option>
-              <option value="MCQ_SINGLE">Multiple Choice (Single)</option>
-              <option value="MCQ_MULTI">Multiple Choice (Multi)</option>
-              <option value="TRUE_FALSE">True/False</option>
-              <option value="OPEN">Open Ended</option>
-              <option value="FILL_GAP">Fill in the Blank</option>
-              <option value="COMPLIANCE">Compliance</option>
-              <option value="ORDERING">Ordering</option>
-              <option value="HOTSPOT">Hotspot</option>
-              <option value="MATCHING">Matching</option>
+              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
+              <option value="MCQ_SINGLE" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice (Single)</option>
+              <option value="MCQ_MULTI" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice (Multi)</option>
+              <option value="TRUE_FALSE" className="bg-theme-bg-primary text-theme-text-primary">True/False</option>
+              <option value="OPEN" className="bg-theme-bg-primary text-theme-text-primary">Open Ended</option>
+              <option value="FILL_GAP" className="bg-theme-bg-primary text-theme-text-primary">Fill in the Blank</option>
+              <option value="COMPLIANCE" className="bg-theme-bg-primary text-theme-text-primary">Compliance</option>
+              <option value="ORDERING" className="bg-theme-bg-primary text-theme-text-primary">Ordering</option>
+              <option value="HOTSPOT" className="bg-theme-bg-primary text-theme-text-primary">Hotspot</option>
+              <option value="MATCHING" className="bg-theme-bg-primary text-theme-text-primary">Matching</option>
             </select>
           </div>
 
@@ -164,10 +164,10 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               onChange={(e) => setSelectedDifficulty(e.target.value as QuestionDifficulty | 'ALL')}
               className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
-              <option value="ALL">All Difficulties</option>
-              <option value="EASY">Easy</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HARD">Hard</option>
+              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
+              <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
+              <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
+              <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
             </select>
           </div>
 

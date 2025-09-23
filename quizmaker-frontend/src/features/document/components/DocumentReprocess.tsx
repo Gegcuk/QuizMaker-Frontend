@@ -200,11 +200,11 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
               }))}
               className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
-              <option value="AUTO">Auto (Recommended)</option>
-              <option value="CHAPTER_BASED">Chapter-based</option>
-              <option value="SECTION_BASED">Section-based</option>
-              <option value="SIZE_BASED">Size-based</option>
-              <option value="PAGE_BASED">Page-based</option>
+              <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto (Recommended)</option>
+              <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter-based</option>
+              <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section-based</option>
+              <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size-based</option>
+              <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page-based</option>
             </select>
             <p className="text-xs text-theme-text-tertiary mt-1">
               Determines how the document will be split into chunks

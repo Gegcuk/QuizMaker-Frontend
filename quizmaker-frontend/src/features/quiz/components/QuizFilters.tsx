@@ -119,10 +119,10 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             onChange={(e) => handleInputChange('difficulty', e.target.value || undefined)}
             className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
           >
-            <option value="">All Difficulties</option>
-            <option value="EASY">Easy</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HARD">Hard</option>
+            <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
+            <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
+            <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
+            <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
           </select>
         </div>
 

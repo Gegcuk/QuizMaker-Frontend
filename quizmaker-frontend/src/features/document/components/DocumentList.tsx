@@ -290,11 +290,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-theme-border-primary rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
-              <option value="ALL">All Status</option>
-              <option value="UPLOADED">Uploaded</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="PROCESSED">Processed</option>
-              <option value="FAILED">Failed</option>
+              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Status</option>
+              <option value="UPLOADED" className="bg-theme-bg-primary text-theme-text-primary">Uploaded</option>
+              <option value="PROCESSING" className="bg-theme-bg-primary text-theme-text-primary">Processing</option>
+              <option value="PROCESSED" className="bg-theme-bg-primary text-theme-text-primary">Processed</option>
+              <option value="FAILED" className="bg-theme-bg-primary text-theme-text-primary">Failed</option>
             </select>
           </div>
         </div>

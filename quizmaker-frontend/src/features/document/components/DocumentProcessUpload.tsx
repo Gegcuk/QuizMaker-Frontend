@@ -338,16 +338,16 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 onChange={(e) => setLanguage(e.target.value)}
                 className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
               >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-                <option value="ru">Russian</option>
-                <option value="zh">Chinese</option>
-                <option value="ja">Japanese</option>
-                <option value="ko">Korean</option>
+                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
+                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
+                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
+                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
+                <option value="it" className="bg-theme-bg-primary text-theme-text-primary">Italian</option>
+                <option value="pt" className="bg-theme-bg-primary text-theme-text-primary">Portuguese</option>
+                <option value="ru" className="bg-theme-bg-primary text-theme-text-primary">Russian</option>
+                <option value="zh" className="bg-theme-bg-primary text-theme-text-primary">Chinese</option>
+                <option value="ja" className="bg-theme-bg-primary text-theme-text-primary">Japanese</option>
+                <option value="ko" className="bg-theme-bg-primary text-theme-text-primary">Korean</option>
               </select>
             </div>
 

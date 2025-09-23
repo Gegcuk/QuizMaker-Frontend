@@ -426,10 +426,10 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
               className="px-3 py-1 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
             >
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-              <option value="quarter">Quarter</option>
-              <option value="year">Year</option>
+              <option value="week" className="bg-theme-bg-primary text-theme-text-primary">Week</option>
+              <option value="month" className="bg-theme-bg-primary text-theme-text-primary">Month</option>
+              <option value="quarter" className="bg-theme-bg-primary text-theme-text-primary">Quarter</option>
+              <option value="year" className="bg-theme-bg-primary text-theme-text-primary">Year</option>
             </select>
           </div>
         </div>

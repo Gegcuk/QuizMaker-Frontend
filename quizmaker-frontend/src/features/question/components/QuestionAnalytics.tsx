@@ -171,10 +171,10 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
               onChange={(e) => setSelectedTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y')}
               className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
-              <option value="90d">Last 90 days</option>
-              <option value="1y">Last year</option>
+              <option value="7d" className="bg-theme-bg-primary text-theme-text-primary">Last 7 days</option>
+              <option value="30d" className="bg-theme-bg-primary text-theme-text-primary">Last 30 days</option>
+              <option value="90d" className="bg-theme-bg-primary text-theme-text-primary">Last 90 days</option>
+              <option value="1y" className="bg-theme-bg-primary text-theme-text-primary">Last year</option>
             </select>
           </div>
         </div>

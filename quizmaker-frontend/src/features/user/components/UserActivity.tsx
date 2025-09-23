@@ -348,24 +348,24 @@ const UserActivity: React.FC<UserActivityProps> = ({
               onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value as ActivityItem['type'] || undefined }))}
               className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
-              <option value="">All Types</option>
-              <option value="quiz_completed">Quiz Completed</option>
-              <option value="quiz_created">Quiz Created</option>
-              <option value="quiz_shared">Quiz Shared</option>
-              <option value="achievement_unlocked">Achievement Unlocked</option>
-              <option value="login">Login</option>
-              <option value="profile_updated">Profile Updated</option>
+              <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
+              <option value="quiz_completed" className="bg-theme-bg-primary text-theme-text-primary">Quiz Completed</option>
+              <option value="quiz_created" className="bg-theme-bg-primary text-theme-text-primary">Quiz Created</option>
+              <option value="quiz_shared" className="bg-theme-bg-primary text-theme-text-primary">Quiz Shared</option>
+              <option value="achievement_unlocked" className="bg-theme-bg-primary text-theme-text-primary">Achievement Unlocked</option>
+              <option value="login" className="bg-theme-bg-primary text-theme-text-primary">Login</option>
+              <option value="profile_updated" className="bg-theme-bg-primary text-theme-text-primary">Profile Updated</option>
             </select>
             <select
               value={filter.dateRange || 'week'}
               onChange={(e) => setFilter(prev => ({ ...prev, dateRange: e.target.value as ActivityFilter['dateRange'] }))}
               className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-              <option value="all">All Time</option>
+              <option value="today" className="bg-theme-bg-primary text-theme-text-primary">Today</option>
+              <option value="week" className="bg-theme-bg-primary text-theme-text-primary">This Week</option>
+              <option value="month" className="bg-theme-bg-primary text-theme-text-primary">This Month</option>
+              <option value="year" className="bg-theme-bg-primary text-theme-text-primary">This Year</option>
+              <option value="all" className="bg-theme-bg-primary text-theme-text-primary">All Time</option>
             </select>
           </div>
         </div>
