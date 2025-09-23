@@ -126,7 +126,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
                   onClick={() => onPageChange(page as number)}
                   className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                     page === pageNumber
-                      ? 'bg-theme-interactive-primary text-white'
+                      ? 'bg-theme-interactive-primary text-theme-text-primary'
                       : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
                   }`}
                 >

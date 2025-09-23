@@ -468,7 +468,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 bg-theme-interactive-primary text-white py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
+                className="flex-1 bg-theme-interactive-primary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </button>

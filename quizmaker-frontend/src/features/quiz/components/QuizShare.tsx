@@ -142,7 +142,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
       {/* Share Button */}
       <button
         onClick={shareNative}
-        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary ${className}`}
+        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-primary bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary ${className}`}
       >
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -181,7 +181,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
                   <button
                     key={platform.name}
                     onClick={platform.onClick}
-                    className={`flex flex-col items-center justify-center p-3 rounded-lg text-white ${platform.color} transition-colors`}
+                    className={`flex flex-col items-center justify-center p-3 rounded-lg text-theme-text-primary ${platform.color} transition-colors`}
                   >
                     {platform.icon}
                     <span className="text-xs mt-1">{platform.name}</span>
@@ -201,8 +201,8 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
                   onClick={copyToClipboard}
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                     copied
-                      ? 'bg-theme-bg-overlay text-white'
-                      : 'bg-theme-bg-overlay text-white hover:bg-theme-bg-overlay'
+                      ? 'bg-theme-bg-overlay text-theme-text-primary'
+                      : 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay'
                   }`}
                 >
                   {copied ? 'Copied!' : 'Copy'}

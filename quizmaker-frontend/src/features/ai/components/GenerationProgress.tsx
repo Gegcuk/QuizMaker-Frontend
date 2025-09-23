@@ -322,7 +322,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           <button
             type="button"
             onClick={() => window.location.href = '/quizzes'}
-            className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
+            className="px-4 py-2 text-sm font-medium text-theme-text-primary bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
           >
             View Generated Quiz
           </button>

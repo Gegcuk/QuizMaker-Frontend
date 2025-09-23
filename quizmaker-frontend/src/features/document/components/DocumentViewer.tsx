@@ -233,7 +233,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             <button
               onClick={() => navigateToChunk(currentChunkIndex - 1)}
               disabled={currentChunkIndex === 0}
-              className="px-4 py-2 text-sm bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              className="px-4 py-2 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
               ← Previous
             </button>
@@ -253,7 +253,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             <button
               onClick={() => navigateToChunk(currentChunkIndex + 1)}
               disabled={currentChunkIndex === chunks.length - 1}
-              className="px-4 py-2 text-sm bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              className="px-4 py-2 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
               Next →
             </button>

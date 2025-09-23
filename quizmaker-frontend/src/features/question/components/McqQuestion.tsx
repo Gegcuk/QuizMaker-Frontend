@@ -85,11 +85,11 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               <div className="flex-shrink-0 mt-1">
                 <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full ${
                   status === 'correct'
-                    ? 'bg-theme-bg-success0 text-white'
+                    ? 'bg-theme-bg-success0 text-theme-text-primary'
                     : status === 'incorrect'
-                    ? 'bg-theme-bg-danger0 text-white'
+                    ? 'bg-theme-bg-danger0 text-theme-text-primary'
                     : isSelected
-                    ? 'bg-theme-bg-primary0 text-white'
+                    ? 'bg-theme-bg-primary0 text-theme-text-primary'
                     : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {option.id.toUpperCase()}

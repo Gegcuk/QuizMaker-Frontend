@@ -118,7 +118,7 @@ const QuizAttemptFlowPage: React.FC = () => {
           <div className="mt-6">
             <button
               onClick={() => navigate('/quizzes')}
-              className="px-4 py-2 bg-theme-interactive-primary text-white font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
+              className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
             >
               Browse Quizzes
             </button>

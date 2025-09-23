@@ -78,7 +78,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     
     switch (status) {
       case 'answered':
-        return `${baseClass} bg-theme-bg-success0 text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-success`;
+        return `${baseClass} bg-theme-bg-success0 text-theme-text-primary hover:bg-theme-bg-overlay focus:ring-theme-interactive-success`;
       case 'current':
         return `${baseClass} bg-theme-interactive-primary text-theme-bg-primary hover:bg-theme-interactive-primary focus:ring-theme-interactive-primary`;
       case 'unanswered':
@@ -123,7 +123,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
           <p className="text-theme-interactive-danger mb-4">{error}</p>
           <button
             onClick={loadShuffledQuestions}
-            className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary transition-colors"
+            className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary transition-colors"
           >
             Try Again
           </button>

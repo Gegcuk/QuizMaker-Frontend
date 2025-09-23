@@ -179,7 +179,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                       onClick={() => setViewMode('grid')}
                       className={`px-3 py-2 text-sm font-medium rounded-l-md ${
                         viewMode === 'grid'
-                          ? 'bg-theme-interactive-primary text-white'
+                          ? 'bg-theme-interactive-primary text-theme-text-primary'
                           : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >
@@ -191,7 +191,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                       onClick={() => setViewMode('list')}
                       className={`px-3 py-2 text-sm font-medium rounded-r-md ${
                         viewMode === 'list'
-                          ? 'bg-theme-interactive-primary text-white'
+                          ? 'bg-theme-interactive-primary text-theme-text-primary'
                           : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >

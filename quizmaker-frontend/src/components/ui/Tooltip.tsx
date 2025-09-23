@@ -143,7 +143,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       {isVisible && (
         <div
           ref={tooltipRef}
-          className="fixed z-50 px-3 py-2 text-sm text-white bg-theme-bg-overlay rounded-md shadow-lg pointer-events-none"
+          className="fixed z-50 px-3 py-2 text-sm text-theme-text-primary bg-theme-bg-overlay rounded-md shadow-lg pointer-events-none"
           style={{
             left: coords.x,
             top: coords.y,

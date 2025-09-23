@@ -135,12 +135,12 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                     {/* Region Label */}
                     <div className={`absolute -top-2 -left-2 px-2 py-1 text-xs font-medium rounded ${
                       status === 'correct'
-                        ? 'bg-theme-bg-success0 text-white'
+                        ? 'bg-theme-bg-success0 text-theme-text-primary'
                         : status === 'incorrect'
-                        ? 'bg-theme-bg-danger0 text-white'
+                        ? 'bg-theme-bg-danger0 text-theme-text-primary'
                         : isClicked
-                        ? 'bg-theme-bg-primary0 text-white'
-                        : 'bg-theme-bg-secondary0 text-white'
+                        ? 'bg-theme-bg-primary0 text-theme-text-primary'
+                        : 'bg-theme-bg-secondary0 text-theme-text-primary'
                     }`}>
                       {region.id}
                     </div>

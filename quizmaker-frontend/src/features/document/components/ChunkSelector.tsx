@@ -229,25 +229,25 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             onClick={selectAllChunks}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select All
           </button>
           <button
             onClick={deselectAllChunks}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger"
           >
             Deselect All
           </button>
           <button
             onClick={() => selectChunksByType('CHAPTER')}
-            className="px-3 py-1 text-sm bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+            className="px-3 py-1 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
           >
             Select Chapters
           </button>
           <button
             onClick={() => selectChunksByType('SECTION')}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select Sections
           </button>
@@ -335,7 +335,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
 
       {/* Chunk Preview Modal */}
       {previewChunk && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-theme-bg-primary rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
             <div className="p-6 border-b border-theme-border-primary">
               <div className="flex items-center justify-between">

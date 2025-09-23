@@ -214,7 +214,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                 <button
                   onClick={handleCreateTag}
                   disabled={!newTagName.trim() || isCreating}
-                  className="px-3 py-1 text-sm bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary disabled:opacity-50"
+                  className="px-3 py-1 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:opacity-50"
                 >
                   {isCreating ? 'Creating...' : 'Create Tag'}
                 </button>

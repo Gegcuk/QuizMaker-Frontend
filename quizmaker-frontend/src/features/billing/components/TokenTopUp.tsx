@@ -185,7 +185,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               type="button"
               onClick={handleCheckout}
               disabled={!selectedPack || isProcessingCheckout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-theme-bg-primary0 disabled:cursor-not-allowed disabled:bg-theme-bg-tertiary"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-theme-text-primary shadow-sm hover:bg-theme-bg-primary0 disabled:cursor-not-allowed disabled:bg-theme-bg-tertiary"
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
             </button>

@@ -148,7 +148,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
+            className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
           >
             Edit Configuration
           </button>
@@ -287,13 +287,13 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           <div className="mt-4 flex space-x-3">
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               Save Changes
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
             >
               Cancel
             </button>

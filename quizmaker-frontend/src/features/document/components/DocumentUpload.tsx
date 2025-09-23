@@ -320,7 +320,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           {!selectedFile && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
             >
               Choose File
             </button>
@@ -413,7 +413,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="mt-6">
           <button
             onClick={handleUpload}
-            className="w-full px-6 py-3 bg-theme-bg-overlay text-white font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+            className="w-full px-6 py-3 bg-theme-bg-overlay text-theme-text-primary font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
           >
             📤 Upload Document
           </button>
@@ -456,7 +456,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             
             <button
               onClick={() => setShowQuizGenerationModal(true)}
-              className="w-full px-6 py-3 bg-theme-bg-overlay text-white font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+              className="w-full px-6 py-3 bg-theme-bg-overlay text-theme-text-primary font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               🎯 Generate Quiz from Document
             </button>

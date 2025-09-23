@@ -141,7 +141,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
 
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-theme-bg-primary rounded-lg p-6 max-w-md w-full mx-4">
             <div className="text-center">
               <div className="text-lg font-medium text-theme-text-primary mb-2">
@@ -175,13 +175,13 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
                   disabled={isLoading}
                   className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
                     action === 'pause'
-                      ? 'bg-theme-bg-overlay text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-warning'
-                      : 'bg-theme-bg-overlay text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-success'
+                      ? 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay focus:ring-theme-interactive-warning'
+                      : 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay focus:ring-theme-interactive-success'
                   }`}
                 >
                   {isLoading ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2" />
                       {action === 'pause' ? 'Pausing...' : 'Resuming...'}
                     </div>
                   ) : (

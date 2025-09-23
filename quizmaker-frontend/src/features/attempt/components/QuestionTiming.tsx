@@ -220,7 +220,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
             onClick={() => handleSort(option)}
             className={`px-3 py-1 text-sm rounded-md transition-colors ${
               sortBy === option
-                ? 'bg-theme-interactive-primary text-white'
+                ? 'bg-theme-interactive-primary text-theme-text-primary'
                 : 'bg-theme-bg-tertiary text-theme-text-secondary hover:bg-theme-bg-tertiary'
             }`}
           >

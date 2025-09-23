@@ -109,7 +109,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
         </svg>
         <span className="mr-2">Filters</span>
         {activeFiltersCount > 0 && (
-          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-theme-interactive-primary rounded-full">
+          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-theme-text-primary bg-theme-interactive-primary rounded-full">
             {activeFiltersCount}
           </span>
         )}

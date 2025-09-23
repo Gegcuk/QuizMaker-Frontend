@@ -98,7 +98,7 @@ const QuizCreationForm: React.FC = () => {
         <div className="flex space-x-4">
           <button
             type="submit"
-            className="flex-1 bg-theme-interactive-primary text-white py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+            className="flex-1 bg-theme-interactive-primary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
           >
             Create Quiz
           </button>

@@ -195,7 +195,7 @@ const CategoryManagementPage: React.FC = () => {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4 z-50">
+        <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-40 flex justify-center items-center p-4 z-50">
           <div className="bg-theme-bg-primary p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-xl font-semibold mb-4">{editing ? 'Edit Category' : 'New Category'}</h3>
             {formError && <div className="text-theme-interactive-danger mb-2">{formError}</div>}
@@ -238,7 +238,7 @@ const CategoryManagementPage: React.FC = () => {
                 </button>
                 <button 
                   type="submit" 
-                  className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary disabled:opacity-50" 
+                  className="px-4 py-2 text-sm font-medium text-theme-text-primary bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary disabled:opacity-50" 
                   disabled={formSubmitting}
                 >
                   {formSubmitting ? 'Saving...' : editing ? 'Save' : 'Create'}
