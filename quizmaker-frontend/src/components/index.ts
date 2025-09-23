@@ -19,6 +19,10 @@ export { useToast } from './ui/Toast';
 export { default as Form, useFormContext } from './ui/Form';
 export { default as FormField } from './ui/FormField';
 export { default as InstructionsModal } from './ui/InstructionsModal';
+export { default as QuestionEditorHeader } from './ui/QuestionEditorHeader';
+export { default as AddItemButton } from './ui/AddItemButton';
+export { default as QuestionPreviewSection } from './ui/QuestionPreviewSection';
+export { default as ItemManagementContainer } from './ui/ItemManagementContainer';
 
 // Example Components
 export { default as QuizCreationForm } from './examples/QuizCreationForm';

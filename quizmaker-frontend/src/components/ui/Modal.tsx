@@ -73,18 +73,18 @@ const Modal: React.FC<ModalProps> = ({
         {/* Modal */}
         <div
           ref={modalRef}
-          className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} ${className}`}
+          className={`relative bg-theme-bg-primary rounded-lg shadow-theme w-full ${sizeClasses[size]} ${className}`}
           role="dialog"
           aria-modal="true"
           aria-labelledby={title ? 'modal-title' : undefined}
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-theme-border-primary">
               {title && (
                 <h3
                   id="modal-title"
-                  className="text-lg font-medium text-gray-900"
+                  className="text-lg font-medium text-theme-text-primary"
                 >
                   {title}
                 </h3>
@@ -92,7 +92,7 @@ const Modal: React.FC<ModalProps> = ({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
                   aria-label="Close modal"
                 >
                   <svg

@@ -29,6 +29,10 @@ export { default as FormField } from './FormField';
 export { default as ValidationMessage } from './ValidationMessage';
 export { default as FileUpload } from './FileUpload';
 export { default as InstructionsModal } from './InstructionsModal';
+export { default as QuestionEditorHeader } from './QuestionEditorHeader';
+export { default as AddItemButton } from './AddItemButton';
+export { default as QuestionPreviewSection } from './QuestionPreviewSection';
+export { default as ItemManagementContainer } from './ItemManagementContainer';
 
 // Theme Components
 export { default as ThemeToggle } from './ThemeToggle';

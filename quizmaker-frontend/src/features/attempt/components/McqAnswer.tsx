@@ -87,8 +87,8 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
 
   if (options.length === 0) {
     return (
-      <div className={`p-4 bg-gray-50 border border-gray-200 rounded-md ${className}`}>
-        <div className="text-gray-500 text-center">No options available</div>
+      <div className={`p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-md ${className}`}>
+        <div className="text-theme-text-tertiary text-center">No options available</div>
       </div>
     );
   }
@@ -96,7 +96,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         {isMultiChoice ? (
           <div className="flex items-center justify-between">
             <span>Select all that apply:</span>
@@ -105,7 +105,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                 type="button"
                 onClick={handleSelectAll}
                 disabled={disabled}
-                className="text-xs text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+                className="text-xs text-theme-interactive-primary hover:text-theme-interactive-primary-hover disabled:opacity-50"
               >
                 Select All
               </button>
@@ -113,7 +113,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                 type="button"
                 onClick={handleClearAll}
                 disabled={disabled}
-                className="text-xs text-gray-600 hover:text-gray-700 disabled:opacity-50"
+                className="text-xs text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50"
               >
                 Clear All
               </button>
@@ -135,8 +135,8 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
               key={option.id}
               className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
                 isSelected
-                  ? 'border-indigo-500 bg-indigo-50'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-theme-interactive-primary bg-theme-bg-tertiary'
+                  : 'border-theme-border-primary hover:border-theme-border-secondary hover:bg-theme-bg-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <input
@@ -148,15 +148,15 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                 disabled={disabled}
                 className={`mt-1 ${
                   isMultiChoice ? 'rounded' : 'rounded-full'
-                } border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-2`}
+                } border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2`}
               />
               
               <div className="ml-3 flex-1">
                 <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-gray-600 bg-gray-100 rounded-full mr-3 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full mr-3 flex-shrink-0">
                     {optionLabel}
                   </span>
-                  <span className="text-gray-900">{option.text}</span>
+                  <span className="text-theme-text-primary">{option.text}</span>
                 </div>
               </div>
             </label>
@@ -166,8 +166,8 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
 
       {/* Selection Summary */}
       {isMultiChoice && selectedOptions.length > 0 && (
-        <div className="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-md">
-          <div className="text-sm text-indigo-700">
+        <div className="mt-4 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+          <div className="text-sm text-theme-text-secondary">
             <strong>Selected:</strong> {selectedOptions.length} option{selectedOptions.length !== 1 ? 's' : ''}
           </div>
         </div>

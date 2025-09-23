@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OrderingContent, OrderingItem } from '@/types';
-import { InstructionsModal } from '@/components';
+import { InstructionsModal, QuestionEditorHeader, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
 
 interface OrderingEditorProps {
   content: OrderingContent;
@@ -61,32 +61,20 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">Ordering Question</h4>
-          <p className="text-sm text-theme-text-tertiary">Arrange items in the correct order</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-theme-text-tertiary">
-            {items.length} item{items.length !== 1 ? 's' : ''}
-          </span>
-          {getEmptyItems().length > 0 && (
-            <span className="text-xs text-theme-text-danger">
-              {getEmptyItems().length} empty item{getEmptyItems().length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-      </div>
+      <QuestionEditorHeader
+        title="Ordering Question"
+        description="Arrange items in the correct order"
+        itemCount={items.length}
+        itemType="item"
+        emptyCount={getEmptyItems().length}
+      />
 
       {/* Items */}
-      <div className="bg-theme-bg-secondary rounded-lg p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h5 className="text-sm font-medium text-theme-text-secondary">Items to Order</h5>
-            <p className="text-xs text-theme-text-tertiary">Drag to reorder items</p>
-          </div>
-
-          <div className="space-y-3">
+      <ItemManagementContainer
+        title="Items to Order"
+        helperText="Drag to reorder items"
+      >
+        <div className="space-y-3">
             {items.map((item, index) => (
               <div key={item.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
                 {/* Drag Handle */}
@@ -162,20 +150,8 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
           </div>
 
           {/* Add Item Button */}
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={addItem}
-              className="inline-flex items-center px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Item
-            </button>
-          </div>
-        </div>
-      </div>
+          <AddItemButton onClick={addItem} itemType="Item" />
+      </ItemManagementContainer>
 
       {/* Instructions */}
       <InstructionsModal title="Instructions">
@@ -187,39 +163,33 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
         </ul>
       </InstructionsModal>
 
-      {/* Preview */}
-      {showPreview && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4">
-          <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
-          <div className="text-sm text-theme-text-secondary">
-            <p>Students will see:</p>
-            <div className="mt-2 space-y-2">
-              {items.map((item, index) => (
-                <div key={item.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary">
-                  <div className="flex-shrink-0">
-                    <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-sm">
-                      {item.text || `Item ${index + 1}`}
-                    </span>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
-                    </svg>
-                  </div>
-                </div>
-              ))}
+      <QuestionPreviewSection showPreview={showPreview}>
+        <p>Students will see:</p>
+        <div className="mt-2 space-y-2">
+          {items.map((item, index) => (
+            <div key={item.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary">
+              <div className="flex-shrink-0">
+                <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
+                  {index + 1}
+                </span>
+              </div>
+              <div className="flex-1">
+                <span className="text-sm">
+                  {item.text || `Item ${index + 1}`}
+                </span>
+              </div>
+              <div className="flex-shrink-0">
+                <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
+                </svg>
+              </div>
             </div>
-            <p className="mt-2 text-xs text-theme-text-tertiary">
-              Students will drag items to arrange them in the correct order.
-            </p>
-          </div>
+          ))}
         </div>
-      )}
+        <p className="mt-2 text-xs text-theme-text-tertiary">
+          Students will drag items to arrange them in the correct order.
+        </p>
+      </QuestionPreviewSection>
 
       {/* Order Summary */}
       {items.length > 0 && (
