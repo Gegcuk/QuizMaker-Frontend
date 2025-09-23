@@ -222,12 +222,12 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="animate-pulse flex items-center space-x-4">
-                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                <div className="w-8 h-8 bg-theme-bg-tertiary rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-theme-bg-tertiary rounded w-1/3 mb-2"></div>
+                  <div className="h-3 bg-theme-bg-tertiary rounded w-1/2"></div>
                 </div>
-                <div className="h-4 bg-gray-300 rounded w-16"></div>
+                <div className="h-4 bg-theme-bg-tertiary rounded w-16"></div>
               </div>
             ))}
           </div>
@@ -299,9 +299,9 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                     <div className="flex items-center space-x-2">
                       {/* Progress Bar for Processing Jobs */}
                       {job.status === 'PROCESSING' && job.progress !== undefined && (
-                        <div className="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                        <div className="w-20 bg-theme-bg-tertiary rounded-full h-2 mr-2">
                           <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                             style={{ width: `${job.progress}%` }}
                           ></div>
                         </div>
@@ -422,9 +422,9 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                         <span>Completion</span>
                         <span>{selectedJob.progress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${selectedJob.progress}%` }}
                         ></div>
                       </div>

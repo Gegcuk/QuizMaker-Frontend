@@ -312,7 +312,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                       </span>
                       <button
                         onClick={() => setSelectedQuizzes([])}
-                        className="text-sm text-blue-600 hover:text-blue-500"
+                        className="text-sm text-theme-interactive-primary hover:text-blue-500"
                       >
                         Clear selection
                       </button>

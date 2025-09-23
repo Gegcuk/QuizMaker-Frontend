@@ -126,7 +126,7 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
       )}
 
       {/* Progress bar */}
-      <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
+      <div className="mt-2 w-full bg-theme-bg-tertiary rounded-full h-1">
         <div
           className={`h-1 rounded-full transition-all duration-1000 ${
             isCritical ? 'bg-theme-interactive-danger' : isWarning ? 'bg-theme-interactive-warning' : 'bg-theme-interactive-info'

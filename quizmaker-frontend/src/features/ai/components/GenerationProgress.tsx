@@ -172,9 +172,9 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
     return (
       <div className={`bg-theme-bg-primary border rounded-lg p-6 ${className}`}>
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-theme-bg-tertiary rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-theme-bg-tertiary rounded w-1/2 mb-2"></div>
+          <div className="h-4 bg-theme-bg-tertiary rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -228,7 +228,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
               {generationStatus.processedChunks} / {generationStatus.totalChunks} chunks ({generationStatus.progressPercentage.toFixed(1)}%)
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
             <div 
               className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${generationStatus.progressPercentage}%` }}
@@ -271,11 +271,11 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
               <span className="text-sm text-theme-text-secondary">AI question generation in progress</span>
             </div>
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-tertiary rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-tertiary">Quiz compilation</span>
             </div>
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-gray-300 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-tertiary rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-tertiary">Final validation</span>
             </div>
           </div>

@@ -104,7 +104,7 @@ export const TagCloud: React.FC<TagCloudProps> = ({
   };
 
   const getTagColor = (usageCount: number, maxUsage: number) => {
-    if (usageCount === 0) return 'text-gray-400';
+    if (usageCount === 0) return 'text-theme-text-tertiary';
     
     const ratio = usageCount / maxUsage;
     
@@ -112,11 +112,11 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     if (ratio > 0.6) return 'text-orange-600';
     if (ratio > 0.4) return 'text-yellow-600';
     if (ratio > 0.2) return 'text-green-600';
-    return 'text-blue-600';
+    return 'text-theme-interactive-primary';
   };
 
   const getTagBackground = (usageCount: number, maxUsage: number) => {
-    if (usageCount === 0) return 'bg-gray-100';
+    if (usageCount === 0) return 'bg-theme-bg-tertiary';
     
     const ratio = usageCount / maxUsage;
     
@@ -150,12 +150,12 @@ export const TagCloud: React.FC<TagCloudProps> = ({
 
   if (tags.length === 0) {
     return (
-      <div className={`bg-gray-50 rounded-lg p-8 text-center ${className}`}>
-        <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className={`bg-theme-bg-secondary rounded-lg p-8 text-center ${className}`}>
+        <svg className="mx-auto h-12 w-12 text-theme-text-tertiary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
         </svg>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No tags found</h3>
-        <p className="text-gray-500">Tags will appear here once they are used in quizzes.</p>
+        <h3 className="text-lg font-medium text-theme-text-primary mb-2">No tags found</h3>
+        <p className="text-theme-text-tertiary">Tags will appear here once they are used in quizzes.</p>
       </div>
     );
   }
@@ -163,10 +163,10 @@ export const TagCloud: React.FC<TagCloudProps> = ({
   const maxUsage = Math.max(...tags.map(t => t.usageCount));
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary rounded-lg shadow-sm border p-6 ${className}`}>
       <div className="mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Tag Cloud</h3>
-        <p className="text-sm text-gray-500">
+        <h3 className="text-lg font-medium text-theme-text-primary">Tag Cloud</h3>
+        <p className="text-sm text-theme-text-tertiary">
           {tags.length} tags • Size indicates usage frequency
         </p>
       </div>
@@ -208,8 +208,8 @@ export const TagCloud: React.FC<TagCloudProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+      <div className="mt-6 pt-4 border-t border-theme-border-primary">
+        <div className="flex items-center justify-center space-x-4 text-xs text-theme-text-tertiary">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-red-100 rounded-full mr-1"></div>
             <span>High usage</span>
@@ -228,18 +228,18 @@ export const TagCloud: React.FC<TagCloudProps> = ({
       {/* Usage Statistics */}
       <div className="mt-4 grid grid-cols-3 gap-4 text-center text-sm">
         <div>
-          <div className="font-semibold text-gray-900">{tags.length}</div>
-          <div className="text-gray-500">Total Tags</div>
+          <div className="font-semibold text-theme-text-primary">{tags.length}</div>
+          <div className="text-theme-text-tertiary">Total Tags</div>
         </div>
         <div>
-          <div className="font-semibold text-gray-900">
+          <div className="font-semibold text-theme-text-primary">
             {Math.round(tags.reduce((sum, tag) => sum + tag.usageCount, 0) / tags.length)}
           </div>
-          <div className="text-gray-500">Avg Usage</div>
+          <div className="text-theme-text-tertiary">Avg Usage</div>
         </div>
         <div>
-          <div className="font-semibold text-gray-900">{maxUsage}</div>
-          <div className="text-gray-500">Max Usage</div>
+          <div className="font-semibold text-theme-text-primary">{maxUsage}</div>
+          <div className="text-theme-text-tertiary">Max Usage</div>
         </div>
       </div>
     </div>

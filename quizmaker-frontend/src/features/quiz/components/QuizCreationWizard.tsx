@@ -381,18 +381,18 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       {/* Progress indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-theme-text-primary">
             {stepTitles[currentStep - 1]}
           </h2>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-theme-text-tertiary">
             Step {currentStep} of {totalSteps}
           </span>
         </div>
         
         {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
@@ -415,7 +415,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       )}
 
       {/* Step content */}
-      <div className="bg-white shadow rounded-lg">
+      <div className="bg-theme-bg-primary shadow rounded-lg">
         <div className="p-6">
           {renderStepContent()}
         </div>
@@ -436,7 +436,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           )}
         </div>
         
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-theme-text-tertiary">
           {currentStep === 1 && creationMethod && (
             <span>Selected: {creationMethod === 'manual' ? 'Manual Creation' : creationMethod === 'text' ? 'Generate from Text' : 'Generate from Document'}</span>
           )}

@@ -65,7 +65,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'INGESTED':
-        return <Badge variant="outline" className="text-blue-700 border-blue-300">Ingested</Badge>;
+        return <Badge variant="outline" className="text-theme-interactive-primary border-theme-interactive-primary">Ingested</Badge>;
       case 'NORMALIZED':
         return <Badge variant="outline" className="text-purple-700 border-purple-300">Normalized</Badge>;
       case 'STRUCTURED':

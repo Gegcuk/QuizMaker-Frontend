@@ -256,7 +256,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
                   ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragIn}
               onDragLeave={handleDragOut}
@@ -277,18 +277,18 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                       <XMarkIcon className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-theme-text-tertiary">
                     Size: {formatFileSize(selectedFile.size)}
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <CloudArrowUpIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
                   <div>
-                    <p className="text-lg font-medium text-gray-900">
+                    <p className="text-lg font-medium text-theme-text-primary">
                       Drop your document here
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-theme-text-tertiary">
                       or click to browse files
                     </p>
                   </div>
@@ -310,7 +310,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
               className="hidden"
             />
 
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-theme-text-tertiary">
               <p>Supported formats: PDF, DOCX, TXT</p>
               <p>Maximum file size: 50 MB</p>
             </div>
@@ -329,14 +329,14 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="language" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="language" className="block text-sm font-medium text-theme-text-secondary">
                 Language
               </label>
               <select
                 id="language"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
               >
                 <option value="en">English</option>
                 <option value="es">Spanish</option>
@@ -352,7 +352,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="textInput" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="textInput" className="block text-sm font-medium text-theme-text-secondary">
                 Document Content
               </label>
               <textarea
@@ -361,11 +361,11 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="Paste or type your document content here..."
                 rows={10}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent resize-vertical"
               />
             </div>
 
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-theme-text-tertiary">
               <p>Character count: {textInput.length.toLocaleString()}</p>
             </div>
           </CardContent>
@@ -381,9 +381,9 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 <span>Uploading...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>

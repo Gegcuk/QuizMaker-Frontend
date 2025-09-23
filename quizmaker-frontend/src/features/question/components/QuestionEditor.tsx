@@ -74,14 +74,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   };
 
   return (
-    <div className={`border border-gray-300 rounded-md ${className}`}>
+    <div className={`border border-theme-border-primary rounded-md ${className}`}>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-theme-border-primary bg-theme-bg-secondary">
         {/* Text Formatting */}
         <button
           type="button"
           onClick={() => execCommand('bold')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Bold"
         >
@@ -93,7 +93,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => execCommand('italic')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Italic"
         >
@@ -105,7 +105,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => execCommand('underline')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Underline"
         >
@@ -114,13 +114,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
           </svg>
         </button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <div className="w-px h-6 bg-theme-bg-tertiary mx-1"></div>
 
         {/* Lists */}
         <button
           type="button"
           onClick={() => execCommand('insertUnorderedList')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Bullet List"
         >
@@ -132,7 +132,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => execCommand('insertOrderedList')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Numbered List"
         >
@@ -141,13 +141,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
           </svg>
         </button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <div className="w-px h-6 bg-theme-bg-tertiary mx-1"></div>
 
         {/* Insert Options */}
         <button
           type="button"
           onClick={insertLink}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Insert Link"
         >
@@ -159,7 +159,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={insertImage}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Insert Image"
         >
@@ -168,13 +168,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
           </svg>
         </button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <div className="w-px h-6 bg-theme-bg-tertiary mx-1"></div>
 
         {/* Special Characters */}
         <button
           type="button"
           onClick={() => insertText('×')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 text-sm font-bold"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50 text-sm font-bold"
           disabled={disabled}
           title="Multiplication"
         >
@@ -184,7 +184,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => insertText('÷')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 text-sm font-bold"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50 text-sm font-bold"
           disabled={disabled}
           title="Division"
         >
@@ -194,7 +194,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => insertText('±')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 text-sm font-bold"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50 text-sm font-bold"
           disabled={disabled}
           title="Plus/Minus"
         >
@@ -204,7 +204,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => insertText('≤')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 text-sm font-bold"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50 text-sm font-bold"
           disabled={disabled}
           title="Less than or equal"
         >
@@ -214,20 +214,20 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <button
           type="button"
           onClick={() => insertText('≥')}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50 text-sm font-bold"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50 text-sm font-bold"
           disabled={disabled}
           title="Greater than or equal"
         >
           ≥
         </button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <div className="w-px h-6 bg-theme-bg-tertiary mx-1"></div>
 
         {/* Clear Formatting */}
         <button
           type="button"
           onClick={clearFormatting}
-          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
+          className="p-1 rounded hover:bg-theme-bg-tertiary disabled:opacity-50"
           disabled={disabled}
           title="Clear Formatting"
         >
@@ -244,9 +244,9 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         onInput={handleInput}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        className={`min-h-[200px] p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-inset ${
-          disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'
-        } ${isFocused ? 'ring-2 ring-indigo-500 ring-inset' : ''}`}
+        className={`min-h-[200px] p-4 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-inset ${
+          disabled ? 'bg-theme-bg-secondary cursor-not-allowed' : 'bg-theme-bg-primary'
+        } ${isFocused ? 'ring-2 ring-theme-interactive-primary ring-inset' : ''}`}
         style={{ 
           minHeight: '200px',
           wordWrap: 'break-word',

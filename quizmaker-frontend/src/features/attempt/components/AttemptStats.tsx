@@ -74,8 +74,8 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="text-2xl font-bold text-blue-600">{formatDuration(stats.totalTime)}</div>
-          <div className="text-sm text-blue-700 font-medium">Total Time</div>
+          <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(stats.totalTime)}</div>
+          <div className="text-sm text-theme-interactive-primary font-medium">Total Time</div>
         </div>
         
         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -95,7 +95,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
       </div>
 
       {/* Performance Overview */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance Overview</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -103,7 +103,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
               <span>Overall Accuracy</span>
               <span>{Math.round(stats.accuracyPercentage)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className={`h-2 rounded-full ${getPerformanceColor(stats.accuracyPercentage).split(' ')[0].replace('text-', 'bg-')}`}
                 style={{ width: `${stats.accuracyPercentage}%` }}
@@ -116,7 +116,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
               <span>Completion</span>
               <span>{Math.round(stats.completionPercentage)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-blue-500"
                 style={{ width: `${stats.completionPercentage}%` }}
@@ -129,7 +129,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
               <span>Questions Answered</span>
               <span>{stats.questionsAnswered}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-green-500"
                 style={{ width: `${(stats.questionsAnswered / totalQuestions) * 100}%` }}
@@ -148,7 +148,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             const avgTime = data.count > 0 ? Math.round(data.totalTime / data.count) : 0;
             
             return (
-              <div key={type} className="p-4 border border-gray-200 rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getQuestionTypeIcon(type)}</span>
@@ -178,7 +178,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             const avgTime = data.count > 0 ? Math.round(data.totalTime / data.count) : 0;
             
             return (
-              <div key={difficulty} className="p-4 border border-gray-200 rounded-lg">
+              <div key={difficulty} className="p-4 border border-theme-border-primary rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(difficulty)}`}>
@@ -205,25 +205,25 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
         <h3 className="text-sm font-medium text-indigo-900 mb-3">Timing Analysis</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-indigo-700">Started:</span>
+            <span className="font-medium text-theme-interactive-primary">Started:</span>
             <div className="text-indigo-900">
               {new Date(stats.startedAt).toLocaleString()}
             </div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Completed:</span>
+            <span className="font-medium text-theme-interactive-primary">Completed:</span>
             <div className="text-indigo-900">
               {stats.completedAt ? new Date(stats.completedAt).toLocaleString() : 'In Progress'}
             </div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Total Duration:</span>
+            <span className="font-medium text-theme-interactive-primary">Total Duration:</span>
             <div className="text-indigo-900 font-bold">
               {formatDuration(stats.totalTime)}
             </div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Average per Question:</span>
+            <span className="font-medium text-theme-interactive-primary">Average per Question:</span>
             <div className="text-indigo-900 font-bold">
               {formatDuration(stats.averageTimePerQuestion)}
             </div>
@@ -236,7 +236,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Question Timing Details</h3>
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {stats.questionTimings.map((timing, index) => (
-            <div key={timing.questionId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={timing.questionId} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
                 <span className="text-lg">{getQuestionTypeIcon(timing.questionType)}</span>

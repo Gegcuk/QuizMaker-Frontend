@@ -66,7 +66,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       return `${baseClass} border-red-300 focus:border-red-500`;
     }
     if (isFocused) {
-      return `${baseClass} border-indigo-300`;
+      return `${baseClass} border-theme-interactive-primary`;
     }
     return `${baseClass} border-theme-border-primary`;
   };
@@ -139,7 +139,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
 
       {/* Length Requirements */}
       <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <div className="text-sm text-blue-700">
+        <div className="text-sm text-theme-interactive-primary">
           <strong>Requirements:</strong> 
           <ul className="mt-1 ml-4 list-disc">
             <li>Minimum {minLength} characters</li>

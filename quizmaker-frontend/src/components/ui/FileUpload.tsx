@@ -179,25 +179,25 @@ const FileUpload: React.FC<FileUploadProps> = ({
             />
           </svg>
           
-          <div className="text-sm text-gray-600">
-            <span className="font-medium text-blue-600 hover:text-blue-500">
+          <div className="text-sm text-theme-text-secondary">
+            <span className="font-medium text-theme-interactive-primary hover:text-blue-500">
               {label}
             </span>
             {dragAndDrop && ' or drag and drop'}
           </div>
           
           {helperText && (
-            <p className="text-xs text-gray-500">{helperText}</p>
+            <p className="text-xs text-theme-text-tertiary">{helperText}</p>
           )}
           
           {accept && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-theme-text-tertiary">
               Accepted formats: {accept}
             </p>
           )}
           
           {maxSize && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-theme-text-tertiary">
               Maximum file size: {formatFileSize(maxSize)}
             </p>
           )}
@@ -224,20 +224,20 @@ const FileUpload: React.FC<FileUploadProps> = ({
       {/* File Preview */}
       {showPreview && selectedFiles.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-900">Selected Files:</h4>
+          <h4 className="text-sm font-medium text-theme-text-primary">Selected Files:</h4>
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
+                className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-md"
               >
                 <div className="flex items-center space-x-3">
                   <svg className="h-5 w-5 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                    <p className="text-sm font-medium text-theme-text-primary">{file.name}</p>
+                    <p className="text-xs text-theme-text-tertiary">{formatFileSize(file.size)}</p>
                   </div>
                 </div>
                 <button

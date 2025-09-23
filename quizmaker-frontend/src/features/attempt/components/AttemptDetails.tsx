@@ -32,7 +32,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       case 'COMPLETED':
         return 'text-green-600 bg-green-100';
       case 'IN_PROGRESS':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-theme-interactive-primary bg-blue-100';
       case 'PAUSED':
         return 'text-yellow-600 bg-yellow-100';
       case 'ABANDONED':
@@ -121,7 +121,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
               {details.status}
             </span>
           </div>
-          <div className="text-sm text-blue-700">
+          <div className="text-sm text-theme-interactive-primary">
             <div><strong>Attempt ID:</strong> {details.attemptId}</div>
             <div><strong>Quiz ID:</strong> {details.quizId}</div>
             <div><strong>User ID:</strong> {details.userId}</div>
@@ -164,8 +164,8 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
             <div className="text-sm text-green-700">Correct Answers</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{Math.round(accuracyPercentage)}%</div>
-            <div className="text-sm text-blue-700">Accuracy</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracyPercentage)}%</div>
+            <div className="text-sm text-theme-interactive-primary">Accuracy</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">{Math.round(averageScore)}</div>
@@ -210,12 +210,12 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
               const avgScore = data.count > 0 ? data.totalScore / data.count : 0;
               
               return (
-                <div key={timeSlot} className="p-4 border border-gray-200 rounded-lg">
+                <div key={timeSlot} className="p-4 border border-theme-border-primary rounded-lg">
                   <div className="text-center">
                     <div className="text-lg font-semibold text-theme-text-primary mb-2">{timeSlot}</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <div className="font-medium text-gray-700">{data.count}</div>
+                        <div className="font-medium text-theme-text-secondary">{data.count}</div>
                         <div className="text-theme-text-tertiary">Questions</div>
                       </div>
                       <div>
@@ -223,7 +223,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                         <div className="text-green-500">Correct</div>
                       </div>
                       <div>
-                        <div className="font-medium text-blue-600">{Math.round(accuracy)}%</div>
+                        <div className="font-medium text-theme-interactive-primary">{Math.round(accuracy)}%</div>
                         <div className="text-blue-500">Accuracy</div>
                       </div>
                       <div>
@@ -244,27 +244,27 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
         <h3 className="text-sm font-medium text-indigo-900 mb-3">Attempt Metadata</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-indigo-700">Attempt ID:</span>
+            <span className="font-medium text-theme-interactive-primary">Attempt ID:</span>
             <div className="text-indigo-900 font-mono text-xs break-all">{details.attemptId}</div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Quiz ID:</span>
+            <span className="font-medium text-theme-interactive-primary">Quiz ID:</span>
             <div className="text-indigo-900 font-mono text-xs break-all">{details.quizId}</div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">User ID:</span>
+            <span className="font-medium text-theme-interactive-primary">User ID:</span>
             <div className="text-indigo-900 font-mono text-xs break-all">{details.userId}</div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Mode:</span>
+            <span className="font-medium text-theme-interactive-primary">Mode:</span>
             <div className="text-indigo-900">{details.mode}</div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Status:</span>
+            <span className="font-medium text-theme-interactive-primary">Status:</span>
             <div className="text-indigo-900">{details.status}</div>
           </div>
           <div>
-            <span className="font-medium text-indigo-700">Duration:</span>
+            <span className="font-medium text-theme-interactive-primary">Duration:</span>
             <div className="text-indigo-900">{formatDuration(details.startedAt, details.completedAt ?? undefined)}</div>
           </div>
         </div>

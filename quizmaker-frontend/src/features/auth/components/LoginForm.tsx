@@ -119,7 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <div className="text-sm">
             <Link
               to="/forgot-password"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-theme-interactive-primary hover:text-indigo-500"
             >
               Forgot your password?
             </Link>
@@ -130,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         <div>
           <button
             type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Sign in
           </button>
@@ -138,11 +138,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Registration link */}
         <div className="text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-theme-text-secondary">
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-theme-interactive-primary hover:text-indigo-500"
             >
               Sign up here
             </Link>

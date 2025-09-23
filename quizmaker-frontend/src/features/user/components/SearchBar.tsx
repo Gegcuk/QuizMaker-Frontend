@@ -337,12 +337,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
               setTimeout(() => setShowResults(false), 200);
             }}
             placeholder={placeholder}
-            className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className="w-full pl-10 pr-12 py-2 border border-theme-border-primary rounded-lg focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary transition-colors"
             aria-label="Search"
           />
           
           {/* Search Icon */}
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-theme-text-tertiary">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -353,7 +353,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-theme-text-tertiary hover:text-theme-text-secondary transition-colors"
               aria-label="Clear search"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,7 +367,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`absolute right-10 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors ${
-              showFilters ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'
+              showFilters ? 'bg-blue-100 text-theme-interactive-primary' : 'text-theme-text-tertiary hover:text-theme-text-secondary'
             }`}
             aria-label="Toggle filters"
           >
@@ -380,7 +380,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         {/* Loading Indicator */}
         {isSearching && (
           <div className="absolute right-16 top-1/2 transform -translate-y-1/2">
-            <svg className="w-4 h-4 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 animate-spin text-theme-interactive-primary" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -390,11 +390,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Advanced Filters */}
       {showFilters && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Categories */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">Categories</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {categories.map(category => (
                   <label key={category.id} className="flex items-center">
@@ -402,9 +402,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       type="checkbox"
                       checked={selectedCategories.includes(category.id)}
                       onChange={() => handleCategoryChange(category.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                   </label>
                 ))}
               </div>
@@ -412,7 +412,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">Tags</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {tags.map(tag => (
                   <label key={tag.id} className="flex items-center">
@@ -420,9 +420,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       type="checkbox"
                       checked={selectedTags.includes(tag.id)}
                       onChange={() => handleTagChange(tag.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{tag.name}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
                   </label>
                 ))}
               </div>
@@ -430,11 +430,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">Difficulty</label>
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty | '')}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="">All Difficulties</option>
                 <option value="EASY">Easy</option>
@@ -445,24 +445,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Author */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">Author</label>
               <input
                 type="text"
                 value={selectedAuthor}
                 onChange={(e) => setSelectedAuthor(e.target.value)}
                 placeholder="Search by author..."
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               />
             </div>
           </div>
 
           {/* Sort Options */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+          <div className="mt-4 pt-4 border-t border-theme-border-primary">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
               <option value="relevance">Relevance</option>
               <option value="title,asc">Title A-Z</option>
@@ -476,14 +476,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Search Suggestions */}
       {showResults && suggestions.length > 0 && !searchQuery && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50">
           <div className="p-2">
-            <div className="text-xs font-medium text-gray-500 mb-2">Recent Searches</div>
+            <div className="text-xs font-medium text-theme-text-tertiary mb-2">Recent Searches</div>
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                className="w-full text-left px-3 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-tertiary rounded transition-colors"
               >
                 {suggestion}
               </button>
@@ -494,15 +494,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Search Results */}
       {showResults && searchResults.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-4">
             <div className="flex justify-between items-center mb-3">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-theme-text-secondary">
                 {totalResults} result{totalResults !== 1 ? 's' : ''} found
               </div>
               <button
                 onClick={() => setShowResults(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-theme-text-tertiary hover:text-theme-text-secondary"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -517,13 +517,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <div
                     key={quiz.id}
                     onClick={() => handleResultClick(quiz)}
-                    className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="p-3 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary cursor-pointer transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 mb-1">{quiz.title}</h3>
+                        <h3 className="font-medium text-theme-text-primary mb-1">{quiz.title}</h3>
                         {quiz.description && (
-                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">{quiz.description}</p>
+                          <p className="text-sm text-theme-text-secondary mb-2 line-clamp-2">{quiz.description}</p>
                         )}
                         <div className="flex flex-wrap gap-2 text-xs">
                           {formattedQuiz.categoryName && (
@@ -532,7 +532,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                             </span>
                           )}
                           {formattedQuiz.tagNames.map((tagName, index) => (
-                            <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                            <span key={index} className="px-2 py-1 bg-theme-bg-tertiary text-theme-text-secondary rounded">
                               {tagName}
                             </span>
                           ))}
@@ -545,7 +545,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                           </span>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 ml-4">
+                      <div className="text-xs text-theme-text-tertiary ml-4">
                         {quiz.estimatedTime} min
                       </div>
                     </div>
@@ -556,22 +556,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-theme-border-primary">
                 <div className="flex justify-between items-center">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 0}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary"
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-theme-text-secondary">
                     Page {currentPage + 1} of {totalPages}
                   </span>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages - 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary"
                   >
                     Next
                   </button>
@@ -591,9 +591,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* No Results */}
       {showResults && searchResults.length === 0 && !isSearching && searchQuery && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
-          <div className="text-center text-gray-500">
-            <svg className="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4">
+          <div className="text-center text-theme-text-tertiary">
+            <svg className="w-12 h-12 mx-auto mb-2 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <p>No results found for "{searchQuery}"</p>

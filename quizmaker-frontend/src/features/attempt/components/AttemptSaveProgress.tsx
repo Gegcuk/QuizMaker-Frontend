@@ -116,7 +116,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
   const getSaveStatusColor = (): string => {
     switch (saveStatus) {
       case 'saving':
-        return 'text-blue-600';
+        return 'text-theme-interactive-primary';
       case 'saved':
         return 'text-green-600';
       case 'error':
@@ -191,7 +191,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       {/* Auto-save info */}
       {autoSaveInterval > 0 && (
         <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="text-xs text-blue-700">
+          <div className="text-xs text-theme-interactive-primary">
             <strong>Auto-save enabled:</strong> Your progress is automatically saved every {autoSaveInterval} seconds.
           </div>
         </div>
@@ -200,7 +200,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       {/* Progress indicator */}
       {isSaving && (
         <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-1">
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-1">
             <div className="bg-blue-500 h-1 rounded-full animate-pulse" style={{ width: '100%' }} />
           </div>
         </div>

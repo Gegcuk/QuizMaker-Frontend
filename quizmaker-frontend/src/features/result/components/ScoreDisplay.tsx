@@ -152,7 +152,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
                 <span>Overall Score</span>
                 <span>{Math.round(score)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-theme-bg-tertiary rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all duration-500 ${getScoreColor(score).split(' ')[0].replace('text-', 'bg-')}`}
                   style={{ width: `${score}%` }}
@@ -166,7 +166,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
                 <span>Accuracy</span>
                 <span>{Math.round(accuracy)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-theme-bg-tertiary rounded-full h-3">
                 <div
                   className="h-3 rounded-full bg-green-500 transition-all duration-500"
                   style={{ width: `${accuracy}%` }}
@@ -232,7 +232,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       {/* Performance Insights */}
       <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Performance Insights</h3>
-        <div className="text-sm text-indigo-700 space-y-1">
+        <div className="text-sm text-theme-interactive-primary space-y-1">
           {score >= 90 && (
             <>
               <div>🎯 You've demonstrated exceptional mastery of this material</div>

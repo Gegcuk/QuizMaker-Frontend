@@ -152,7 +152,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
   const getStatusColor = (status: DocumentStatus): string => {
     switch (status) {
       case 'UPLOADED':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-theme-interactive-primary bg-blue-100';
       case 'PROCESSING':
         return 'text-yellow-600 bg-yellow-100';
       case 'PROCESSED':
@@ -180,7 +180,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
           <p className="text-theme-text-secondary">Loading document information...</p>
         </div>
       </div>
@@ -245,7 +245,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           <span className="text-sm text-theme-text-secondary">{progress}%</span>
         </div>
         
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+        <div className="w-full bg-theme-bg-tertiary rounded-full h-3 mb-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
               document.status === 'FAILED' ? 'bg-red-500' : 'bg-blue-500'
@@ -281,7 +281,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
               ? 'bg-blue-50 border border-blue-200' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
-            <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-blue-600' : 'text-theme-text-tertiary'}>
+            <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}>
               {document.status === 'PROCESSING' ? '⚙️' : '✅'}
             </span>
             <div>
@@ -330,7 +330,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       {(document.title || document.author) && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h3 className="text-sm font-medium text-blue-900 mb-2">Document Information</h3>
-          <div className="space-y-1 text-sm text-blue-700">
+          <div className="space-y-1 text-sm text-theme-interactive-primary">
             {document.title && <div><strong>Title:</strong> {document.title}</div>}
             {document.author && <div><strong>Author:</strong> {document.author}</div>}
           </div>

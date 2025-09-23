@@ -131,16 +131,16 @@ const UserStats: React.FC<UserStatsProps> = ({
     return (
       <div className={`animate-pulse ${className}`}>
         <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
-          <div className="h-6 bg-gray-300 rounded w-1/3 mb-6"></div>
+          <div className="h-6 bg-theme-bg-tertiary rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-20 bg-gray-300 rounded"></div>
+              <div key={i} className="h-20 bg-theme-bg-tertiary rounded"></div>
             ))}
           </div>
           <div className="space-y-4">
-            <div className="h-4 bg-gray-300 rounded"></div>
-            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-5/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-4/6"></div>
           </div>
         </div>
       </div>
@@ -208,12 +208,12 @@ const UserStats: React.FC<UserStatsProps> = ({
           <div className="bg-blue-50 p-4 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-blue-600">Completed</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Completed</p>
                 <p className="text-2xl font-bold text-blue-900">{stats.completedQuizzes}</p>
               </div>
             </div>
@@ -264,7 +264,7 @@ const UserStats: React.FC<UserStatsProps> = ({
 
         {/* Detailed Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-secondary p-4 rounded-lg">
             <h3 className="text-lg font-medium text-theme-text-primary mb-4">Performance</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
@@ -286,7 +286,7 @@ const UserStats: React.FC<UserStatsProps> = ({
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-secondary p-4 rounded-lg">
             <h3 className="text-lg font-medium text-theme-text-primary mb-4">Activity</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
@@ -331,7 +331,7 @@ const UserStats: React.FC<UserStatsProps> = ({
                           <span>Progress</span>
                           <span>{achievement.progress}/{achievement.maxProgress}</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                           <div
                             className="bg-yellow-500 h-2 rounded-full"
                             style={{

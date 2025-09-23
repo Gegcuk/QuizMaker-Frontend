@@ -205,7 +205,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       )}
 
       {/* Questions List */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-theme-border-primary">
         {paginatedQuestions.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

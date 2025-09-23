@@ -142,11 +142,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({
     return (
       <div className={`animate-pulse ${className}`}>
         <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
-          <div className="h-6 bg-gray-300 rounded w-1/4 mb-6"></div>
+          <div className="h-6 bg-theme-bg-tertiary rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
-            <div className="h-4 bg-gray-300 rounded"></div>
-            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-5/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-4/6"></div>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+      <form onSubmit={handleSubmit} className="divide-y divide-theme-border-primary">
         {errors.general && (
           <div className="px-6 py-4 bg-red-50 border-b border-red-200">
             <div className="flex">
@@ -243,7 +243,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.privacy.profileVisibility}
                 onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
               >
                 <option value="public">Public</option>
                 <option value="private">Private</option>
@@ -280,7 +280,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.theme}
                 onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -295,7 +295,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.language}
                 onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
               >
                 <option value="en">English</option>
                 <option value="es">Spanish</option>
@@ -345,12 +345,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         </div>
 
         {/* Save Button */}
-        <div className="px-6 py-4 bg-gray-50">
+        <div className="px-6 py-4 bg-theme-bg-secondary">
           <div className="flex justify-end">
             <button
               type="submit"
               disabled={isSaving}
-              className="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="bg-theme-interactive-primary text-white py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
             >
               {isSaving ? 'Saving...' : 'Save Settings'}
             </button>

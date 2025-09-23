@@ -260,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
               <UserCircleIcon className="h-8 w-8 text-theme-text-tertiary" />
               <div className="ml-3">
                 <p className="text-sm font-medium text-theme-text-secondary">{user.username}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+                <p className="text-xs text-theme-text-tertiary">{user.email}</p>
               </div>
             </div>
           )}
@@ -310,20 +310,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden" />
+        <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-75 z-40 lg:hidden" />
       )}
 
       {/* Sidebar */}
       <div
         id="sidebar"
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-theme-bg-primary shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isCollapsed ? 'w-16' : 'w-64'}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-theme-border-primary">
           {!isCollapsed && (
-            <Link to="/quizzes" className="text-xl font-semibold text-gray-900">
+            <Link to="/quizzes" className="text-xl font-semibold text-theme-text-primary">
               QuizMaker
             </Link>
           )}
@@ -338,7 +338,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
                 />
               </div>
             )}

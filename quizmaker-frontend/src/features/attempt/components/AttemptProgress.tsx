@@ -51,14 +51,14 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
         </div>
         
         {attemptMode === 'ONE_BY_ONE' && (
-          <div className="text-sm font-medium text-indigo-600">
+          <div className="text-sm font-medium text-theme-interactive-primary">
             {answeredQuestions} answered
           </div>
         )}
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+      <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-3">
         <div
           className={`h-2 rounded-full transition-all duration-300 ease-in-out ${getProgressColor(progressPercentage)}`}
           style={{ width: `${progressPercentage}%` }}

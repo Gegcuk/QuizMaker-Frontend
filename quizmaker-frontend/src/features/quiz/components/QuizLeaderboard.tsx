@@ -67,24 +67,24 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Leaderboard</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Leaderboard</h3>
           </div>
         </div>
         <div className="px-6 py-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, index) => (
               <div key={index} className="animate-pulse flex items-center space-x-4">
-                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                <div className="w-8 h-8 bg-theme-bg-tertiary rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+                  <div className="h-4 bg-theme-bg-tertiary rounded w-1/3"></div>
                 </div>
-                <div className="h-4 bg-gray-300 rounded w-16"></div>
+                <div className="h-4 bg-theme-bg-tertiary rounded w-16"></div>
               </div>
             ))}
           </div>
@@ -95,21 +95,21 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
 
   if (entries.length === 0) {
     return (
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Leaderboard</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Leaderboard</h3>
           </div>
         </div>
         <div className="px-6 py-12 text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No attempts yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No attempts yet</h3>
+          <p className="mt-1 text-sm text-theme-text-tertiary">
             Be the first to attempt this quiz and claim the top spot!
           </p>
         </div>
@@ -120,26 +120,26 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   const displayedEntries = showTop10 ? entries.slice(0, 10) : entries;
 
   return (
-    <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+    <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Leaderboard</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Leaderboard</h3>
           </div>
           {entries.length > 10 && (
             <button
               onClick={() => setShowTop10(!showTop10)}
-              className="text-sm text-indigo-600 hover:text-indigo-500"
+              className="text-sm text-theme-interactive-primary hover:text-indigo-500"
             >
               {showTop10 ? 'Show All' : 'Show Top 10'}
             </button>
           )}
         </div>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           {entries.length} participant{entries.length !== 1 ? 's' : ''} • Best scores
         </p>
       </div>
@@ -155,7 +155,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
               <div
                 key={entry.userId}
                 className={`flex items-center space-x-4 p-3 rounded-lg transition-colors ${
-                  isTop3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200' : 'hover:bg-gray-50'
+                  isTop3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200' : 'hover:bg-theme-bg-secondary'
                 }`}
               >
                 {/* Position/Medal */}
@@ -166,7 +166,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
                 {/* User Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-theme-text-primary truncate">
                       {entry.username}
                     </p>
                     {isTop3 && (
@@ -175,7 +175,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-theme-text-tertiary">
                     User ID: {entry.userId}
                   </p>
                 </div>
@@ -185,7 +185,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
                   <p className={`text-lg font-bold ${getScoreColor(entry.bestScore)}`}>
                     {formatPercentage(entry.bestScore)}
                   </p>
-                  <p className="text-xs text-gray-500">Best Score</p>
+                  <p className="text-xs text-theme-text-tertiary">Best Score</p>
                 </div>
               </div>
             );
@@ -197,7 +197,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           <div className="mt-4 text-center">
             <button
               onClick={() => setShowTop10(false)}
-              className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+              className="text-sm text-theme-interactive-primary hover:text-indigo-500 font-medium"
             >
               Show all {entries.length} participants
             </button>
@@ -206,9 +206,9 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
 
         {/* Your Position (if applicable) */}
         {entries.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="mt-6 pt-4 border-t border-theme-border-primary">
             <div className="text-center">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-theme-text-tertiary">
                 Want to improve your ranking? Try the quiz again!
               </p>
             </div>

@@ -107,10 +107,10 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading document configuration...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
+          <p className="text-theme-text-secondary">Loading document configuration...</p>
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="text-red-600 text-2xl mb-2">❌</div>
           <p className="text-red-800">{error}</p>
@@ -129,26 +129,26 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
   if (!config) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <p className="text-gray-600">No configuration available</p>
+          <p className="text-theme-text-secondary">No configuration available</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Document Configuration</h2>
-          <p className="text-gray-600">Configure document processing settings</p>
+          <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Document Configuration</h2>
+          <p className="text-theme-text-secondary">Configure document processing settings</p>
         </div>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
           >
             Edit Configuration
           </button>
@@ -157,57 +157,57 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
       {/* Current Configuration */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Current Settings</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Current Settings</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Default Chunking Strategy */}
-          <div className="p-4 border border-gray-200 rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg">{getChunkingStrategyIcon(config.defaultStrategy as ChunkingStrategy)}</span>
-              <h4 className="font-medium text-gray-900">Default Chunking Strategy</h4>
+              <h4 className="font-medium text-theme-text-primary">Default Chunking Strategy</h4>
             </div>
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-theme-text-secondary mb-2">
               {config.defaultStrategy.replace('_', ' ')}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-theme-text-tertiary">
               {getChunkingStrategyDescription(config.defaultStrategy as ChunkingStrategy)}
             </div>
           </div>
 
           {/* Default Max Chunk Size */}
-          <div className="p-4 border border-gray-200 rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg">📏</span>
-              <h4 className="font-medium text-gray-900">Default Max Chunk Size</h4>
+              <h4 className="font-medium text-theme-text-primary">Default Max Chunk Size</h4>
             </div>
-            <div className="text-2xl font-bold text-blue-600 mb-1">
+            <div className="text-2xl font-bold text-theme-interactive-primary mb-1">
               {config.defaultMaxChunkSize.toLocaleString()}
             </div>
-            <div className="text-sm text-gray-600">characters</div>
+            <div className="text-sm text-theme-text-secondary">characters</div>
           </div>
         </div>
       </div>
 
       {/* File Type Support */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Supported File Types</h3>
-        <div className="p-4 bg-gray-50 rounded-lg">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Supported File Types</h3>
+        <div className="p-4 bg-theme-bg-secondary rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center space-x-2">
               <span className="text-lg">📄</span>
-              <span className="text-sm font-medium text-gray-700">PDF</span>
+              <span className="text-sm font-medium text-theme-text-secondary">PDF</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-lg">📄</span>
-              <span className="text-sm font-medium text-gray-700">DOCX</span>
+              <span className="text-sm font-medium text-theme-text-secondary">DOCX</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-lg">📄</span>
-              <span className="text-sm font-medium text-gray-700">TXT</span>
+              <span className="text-sm font-medium text-theme-text-secondary">TXT</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-lg">📄</span>
-              <span className="text-sm font-medium text-gray-700">RTF</span>
+              <span className="text-sm font-medium text-theme-text-secondary">RTF</span>
             </div>
           </div>
         </div>
@@ -215,7 +215,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
       {/* File Size Limits */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">File Size Limits</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">File Size Limits</h3>
         <div className="p-4 bg-blue-50 rounded-lg">
           <div className="flex items-center space-x-3">
             <span className="text-2xl">💾</span>
@@ -223,7 +223,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
               <div className="text-lg font-bold text-blue-900">
                 Maximum File Size: 130 MB
               </div>
-              <div className="text-sm text-blue-700">
+              <div className="text-sm text-theme-interactive-primary">
                 This limit applies to all uploaded documents
               </div>
             </div>
@@ -248,7 +248,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                   ...prev,
                   defaultStrategy: e.target.value as ChunkingStrategy
                 }))}
-                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-theme-bg-primary"
               >
                 <option value="AUTO">Auto - Best Strategy</option>
                 <option value="CHAPTER_BASED">Chapter Based</option>
@@ -275,7 +275,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-theme-bg-primary"
               />
               <p className="mt-1 text-xs text-yellow-700">
                 Recommended: 500-2000 characters for optimal quiz generation
@@ -293,7 +293,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
             >
               Cancel
             </button>
@@ -304,7 +304,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       {/* Configuration Tips */}
       <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Configuration Tips:</h3>
-        <ul className="text-sm text-indigo-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• <strong>Auto Strategy:</strong> Best for most documents, automatically chooses optimal chunking</li>
           <li>• <strong>Chapter Based:</strong> Ideal for textbooks and structured documents</li>
           <li>• <strong>Section Based:</strong> Good for detailed technical documents</li>
@@ -316,9 +316,9 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       </div>
 
       {/* Processing Information */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-900 mb-2">Processing Information:</h3>
-        <div className="space-y-1 text-sm text-gray-700">
+      <div className="mt-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Processing Information:</h3>
+        <div className="space-y-1 text-sm text-theme-text-secondary">
           <div>• Configuration changes apply to new document uploads</div>
           <div>• Existing documents retain their original processing settings</div>
           <div>• You can reprocess existing documents with new settings</div>

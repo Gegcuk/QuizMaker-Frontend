@@ -150,8 +150,8 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
             <div className="text-sm text-yellow-700">Unanswered</div>
           </div>
           <div className="p-3 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{totalQuestions}</div>
-            <div className="text-sm text-blue-700">Total</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{totalQuestions}</div>
+            <div className="text-sm text-theme-interactive-primary">Total</div>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
           <span>Completion</span>
           <span>{Math.round(completionPercentage)}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
           <div
             className="bg-green-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${completionPercentage}%` }}
@@ -194,7 +194,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
             <span>Submitting answers...</span>
             <span>{submissionProgress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
             <div
               className="bg-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${submissionProgress}%` }}

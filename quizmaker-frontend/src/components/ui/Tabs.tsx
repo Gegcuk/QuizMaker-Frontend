@@ -67,7 +67,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, class
       className={`
         px-4 py-2 text-sm font-medium border-b-2 transition-colors
         ${isActive 
-          ? 'border-blue-500 text-blue-600 bg-blue-50' 
+          ? 'border-blue-500 text-theme-interactive-primary bg-blue-50' 
           : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
         }
         ${className}

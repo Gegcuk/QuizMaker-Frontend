@@ -54,9 +54,9 @@ const AiAnalysisPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">AI Analysis Results</h1>
       
-      <div className="bg-gray-100 p-6 rounded-lg">
+      <div className="bg-theme-bg-tertiary p-6 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Response Data:</h2>
-        <pre className="bg-white p-4 rounded border overflow-auto text-sm">
+        <pre className="bg-theme-bg-primary p-4 rounded border overflow-auto text-sm">
           {JSON.stringify(data, null, 2)}
         </pre>
       </div>

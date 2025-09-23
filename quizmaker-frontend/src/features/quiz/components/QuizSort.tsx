@@ -108,7 +108,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
                 value={option.value}
                 checked={sortBy === option.value}
                 onChange={(e) => onSortChange(e.target.value as SortOption)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-0.5"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-theme-text-primary">
@@ -125,7 +125,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
 
       {/* Quick Sort Buttons */}
       <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Quick Sort</h4>
+        <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Quick Sort</h4>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => onSortChange('createdAt_desc')}

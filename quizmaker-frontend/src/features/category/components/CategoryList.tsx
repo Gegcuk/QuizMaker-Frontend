@@ -149,8 +149,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
       {/* Categories Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-theme-border-primary">
+          <thead className="bg-theme-bg-secondary">
             <tr>
               <th
                 onClick={() => handleSort('name')}
@@ -179,7 +179,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             {filteredCategories.map((category) => (
               <tr
                 key={category.id}
-                className={`hover:bg-gray-50 ${onCategorySelect ? 'cursor-pointer' : ''}`}
+                className={`hover:bg-theme-bg-secondary ${onCategorySelect ? 'cursor-pointer' : ''}`}
                 onClick={() => onCategorySelect && onCategorySelect(category)}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -198,7 +198,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                           e.stopPropagation();
                           onEditCategory(category);
                         }}
-                        className="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50"
+                        className="text-theme-interactive-primary hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50"
                       >
                         Edit
                       </button>
@@ -223,7 +223,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
       {/* Empty State */}
       {filteredCategories.length === 0 && !loading && (
         <div className="text-center py-8">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No categories found</h3>
@@ -235,26 +235,26 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0}
-              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages - 1}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-theme-text-secondary">
                 Showing{' '}
                 <span className="font-medium">{currentPage * pageSize + 1}</span>
                 {' '}to{' '}
@@ -271,7 +271,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -287,8 +287,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                       onClick={() => handlePageChange(page)}
                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                         page === currentPage
-                          ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                          : 'bg-white border-theme-border-primary text-theme-text-tertiary hover:bg-gray-50'
+                          ? 'z-10 bg-blue-50 border-blue-500 text-theme-interactive-primary'
+                          : 'bg-theme-bg-primary border-theme-border-primary text-theme-text-tertiary hover:bg-theme-bg-secondary'
                       }`}
                     >
                       {page + 1}
@@ -299,7 +299,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

@@ -182,7 +182,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
   const modeInfo = getModeDescription(selectedMode);
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary rounded-lg shadow-md p-6 ${className}`}>
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-theme-text-primary mb-2">
           Start {quizTitle}
@@ -292,10 +292,10 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
         <h4 className="text-sm font-medium text-indigo-900 mb-2">
           {modeInfo.icon} {modeInfo.title} Mode
         </h4>
-        <p className="text-sm text-indigo-700 mb-3">
+        <p className="text-sm text-theme-interactive-primary mb-3">
           {modeInfo.description}
         </p>
-        <div className="text-xs text-indigo-600">
+        <div className="text-xs text-theme-interactive-primary">
           <strong>What to expect:</strong>
           <ul className="mt-1 ml-4 list-disc">
             {modeInfo.features.map((feature, index) => (

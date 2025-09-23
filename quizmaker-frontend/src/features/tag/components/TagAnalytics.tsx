@@ -505,7 +505,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
           {analyticsData.usagePatterns.popularCombinations.map((combination, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                <div className="w-6 h-6 bg-blue-100 text-theme-interactive-primary rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -534,7 +534,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {Object.entries(analyticsData.usagePatterns.seasonalUsage).map(([month, usage]) => (
             <div key={month} className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{usage}</div>
+              <div className="text-2xl font-bold text-theme-interactive-primary">{usage}</div>
               <div className="text-sm text-theme-text-secondary">{month}</div>
             </div>
           ))}

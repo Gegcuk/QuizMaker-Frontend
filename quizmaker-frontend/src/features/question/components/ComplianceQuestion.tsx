@@ -75,7 +75,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   : status === 'incorrect'
                   ? 'border-red-300 bg-red-50'
                   : isSelected
-                  ? 'border-indigo-300 bg-indigo-50'
+                  ? 'border-theme-interactive-primary bg-indigo-50'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleStatementToggle(statement.id)}
@@ -158,9 +158,9 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               {currentAnswer.length} of {statements.length} statements selected
             </span>
           </div>
-          <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+          <div className="mt-2 w-full bg-theme-bg-tertiary rounded-full h-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${(currentAnswer.length / statements.length) * 100}%` }}
             />
           </div>
@@ -186,7 +186,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   <span className="font-medium text-red-800">{getIncorrectAnswersCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-blue-700">Total compliant statements:</span>
+                  <span className="text-theme-interactive-primary">Total compliant statements:</span>
                   <span className="font-medium text-blue-800">{getTotalCompliant()}</span>
                 </div>
               </div>
@@ -199,7 +199,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
       {showCorrectAnswer && (
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
@@ -207,7 +207,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               <div className="mt-2 space-y-1">
                 {statements.filter(s => s.compliant).map((statement) => (
                   <div key={statement.id} className="flex items-center space-x-2 text-sm">
-                    <span className="font-medium text-blue-700">{statement.id}.</span>
+                    <span className="font-medium text-theme-interactive-primary">{statement.id}.</span>
                     <span className="text-blue-800">{statement.text}</span>
                     {currentAnswer.includes(statement.id) && (
                       <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

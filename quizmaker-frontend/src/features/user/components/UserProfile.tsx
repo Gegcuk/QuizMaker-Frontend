@@ -192,19 +192,19 @@ const UserProfile: React.FC<UserProfileProps> = ({
         <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Available Tokens</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Available Tokens</p>
               <p className="mt-1 text-2xl font-semibold text-indigo-900">
                 {balance.availableTokens.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Reserved Tokens</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Reserved Tokens</p>
               <p className="mt-1 text-lg font-semibold text-indigo-900">
                 {balance.reservedTokens.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Last Updated</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Last Updated</p>
               <p className="mt-1 text-sm text-indigo-900">
                 {balance.updatedAt ? new Date(balance.updatedAt).toLocaleString() : '—'}
               </p>
@@ -304,16 +304,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
       <div className={`animate-pulse ${className}`}>
         <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+            <div className="w-16 h-16 bg-theme-bg-tertiary rounded-full"></div>
             <div className="flex-1">
-              <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+              <div className="h-4 bg-theme-bg-tertiary rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-theme-bg-tertiary rounded w-1/2"></div>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="h-4 bg-gray-300 rounded"></div>
-            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-5/6"></div>
+            <div className="h-4 bg-theme-bg-tertiary rounded w-4/6"></div>
           </div>
         </div>
       </div>
@@ -344,7 +344,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold text-indigo-600">
+              <span className="text-2xl font-bold text-theme-interactive-primary">
                 {displayUser.username.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -373,7 +373,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               )}
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-3 py-1 text-sm font-medium text-indigo-600 bg-indigo-100 rounded-md hover:bg-indigo-200"
+                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-indigo-100 rounded-md hover:bg-indigo-200"
               >
                 Edit
               </button>
@@ -408,7 +408,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                   type="button"
                   onClick={handleRefreshBalance}
                   disabled={isBalanceLoading}
-                  className="text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-xs font-medium text-theme-interactive-primary hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isBalanceLoading ? 'Refreshing…' : 'Refresh balance'}
                 </button>
@@ -434,8 +434,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 name="username"
                 value={formData.username || ''}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                  errors.username ? 'border-red-300' : 'border-gray-300'
+                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                  errors.username ? 'border-red-300' : 'border-theme-border-primary'
                 }`}
                 disabled={isSaving}
               />
@@ -454,8 +454,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 name="email"
                 value={formData.email || ''}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
+                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                  errors.email ? 'border-red-300' : 'border-theme-border-primary'
                 }`}
                 disabled={isSaving}
               />
@@ -468,7 +468,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="flex-1 bg-theme-interactive-primary text-white py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </button>
@@ -482,7 +482,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                     email: displayUser.email
                   });
                 }}
-                className="flex-1 bg-gray-300 text-theme-text-secondary py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Cancel
               </button>

@@ -121,7 +121,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           <button
             type="button"
             onClick={handlePreviewToggle}
-            className="text-sm text-blue-600 hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50"
+            className="text-sm text-theme-interactive-primary hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50"
           >
             {previewMode ? 'Edit Mode' : 'Preview Mode'}
           </button>
@@ -130,7 +130,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
       {previewMode ? (
         <div className="p-6">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-theme-bg-secondary rounded-lg p-4">
             <h4 className="text-lg font-medium text-theme-text-primary mb-2">
               {formData.name || 'Category Name'}
             </h4>
@@ -155,7 +155,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
                 errors.name ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter category name (3-100 characters)"
@@ -179,7 +179,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
                 errors.description ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter category description (optional, max 1000 characters)"
@@ -206,11 +206,11 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-white border border-theme-border-primary rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
               disabled={loading}
             >
               Cancel
@@ -218,7 +218,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             <button
               type="submit"
               disabled={loading || !formData.name.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center">

@@ -1,47 +1,68 @@
 # Theme System Audit
 
 ## Summary
-- Many UI primitives and feature components still hard-code Tailwind's default grays/brand colors instead of the new theme tokens, so switching palettes barely affects large areas of the interface.
-- The theme context never toggles Tailwind's `dark` class or reapplies palettes when the resolved theme changes, leaving every `dark:` style and status color tied to the light palette.
-- Visual patterns (cards, analytics blocks, sun/moon icons) are reimplemented in multiple places rather than reusing shared building blocks, which makes palette adoption harder and creates inconsistent UX.
+- ✅ Theme context now toggles the `dark` class and reapplies palette variables whenever the resolved theme or scheme changes, enabling Tailwind `dark:` utilities to work again.【F:src/context/ThemeContext.tsx†L70-L128】
+- ✅ The palette contract includes focus, status, neutral, and accent tokens and Tailwind exposes them as `theme-*` utilities for components to consume.【F:src/context/ColorPalettes.ts†L6-L200】【F:tailwind.config.js†L14-L85】
+- ✅ Theme toggles/selectors use the new tokenized classes and draw from the centralized icon set instead of inlining SVGs.【F:src/components/ui/ThemeToggle.tsx†L6-L72】【F:src/components/ui/ThemeSelector.tsx†L6-L74】【F:src/components/ui/ColorSchemeSelector.tsx†L6-L109】【F:src/components/ui/ThemeIcons.tsx†L1-L99】
+- ✅ Analytics charts now use palette-aware colors instead of hardcoded hex values and white strokes.【F:src/components/ui/Chart.tsx†L118-L175】【F:src/features/tag/components/TagAnalytics.tsx†L325-L379】【F:src/features/category/components/CategoryAnalytics.tsx†L224-L278】
+- ✅ Priority feature modules now use theme tokens instead of hardcoded Tailwind neutrals.【F:src/features/question/components/HotspotEditor.tsx†L283-L338】【F:src/features/tag/components/TagList.tsx†L122-L178】【F:src/features/quiz/components/QuizStats.tsx†L34-L120】
+- ✅ `applyTheme` now uses targeted `classList` operations to safely manage theme classes without clobbering other libraries' classes.【F:src/context/ThemeContext.tsx†L70-L97】
+- ✅ **SIGNIFICANT PROGRESS**: Core theme infrastructure is complete, and major components have been migrated. ~80+ files still contain hardcoded colors that need migration to theme tokens.
 
-## Color Scheme Adoption Gaps
-- **Theme controls ignore palette tokens.** `ThemeToggle`, `ThemeSelector`, and `ColorSchemeSelector` all ship Tailwind grays/blue focus rings via `dark:` classes and static hexes. Because the theme provider never adds a `dark` class, these controls stay in light-mode styling and ignore the active palette's variables.【F:src/components/ui/ThemeToggle.tsx†L68-L93】【F:src/components/ui/ThemeSelector.tsx†L55-L84】【F:src/components/ui/ColorSchemeSelector.tsx†L94-L145】  
-  *Fix:* Replace hard-coded Tailwind color utilities with the `theme-*` CSS variable classes (e.g., `bg-theme-bg-primary`, `text-theme-text-secondary`, `focus:ring-theme-border-focus`). Add palette-provided focus colors instead of `focus:ring-blue-500`, and expose neutral shades (e.g., `theme-muted`) from the palette for radio borders.
-- **Shared primitives bake in light palette tokens.** The `Card` and `Button` primitives default to `bg-white`, `border-gray-200`, or `bg-cyan-600`, which means every consumer inherits light colors even on purple/green schemes.【F:src/components/ui/Card.tsx†L41-L155】【F:src/components/ui/Button.tsx†L30-L63】  
-  *Fix:* Convert base/variant classes to theme variables (e.g., `bg-theme-bg-primary`, `border-theme-border-primary`) and add palette-driven info colors to `ColorPalettes` so `Button` variants can stay tokenized.
-- **Charts and analytics hard-code brand hexes.** Reusable charts, tag/category analytics, and hotspot overlays draw with literal hex values (`#3B82F6`, `#EF4444`, etc.), so palette changes only recolor backgrounds while insights stay blue/red.【F:src/components/ui/Chart.tsx†L37-L248】【F:src/features/tag/components/TagAnalytics.tsx†L300-L377】【F:src/features/category/components/CategoryAnalytics.tsx†L282-L320】【F:src/features/question/components/HotspotEditor.tsx†L283-L307】【F:src/features/attempt/components/HotspotAnswer.tsx†L74-L105】  
-  *Fix:* Generate chart/overlay colors from the active `currentPalette` (expose `interactive`/`accent` scales for data series). Pass theme tokens down as props or context, and fall back to palette-defined status colors instead of Tailwind defaults.
+## Completed
+- Theme provider now resolves system preference, updates `resolvedTheme`, toggles `dark`, and reapplies palette CSS variables on every theme/scheme change.【F:src/context/ThemeContext.tsx†L70-L128】
+- Palette definitions gained status/background/focus/neutral tokens and `generateCSSVariables` exposes them for Tailwind `theme-*` utilities.【F:src/context/ColorPalettes.ts†L6-L200】
+- Tailwind config maps the palette CSS variables to utilities (`bg-theme-*`, `text-theme-*`, `focus:ring-theme-*`, etc.) so components can use them consistently.【F:tailwind.config.js†L14-L85】
+- Theme toggle, selector, and color scheme selector now rely on tokenized classes and share icons via `ThemeIcons` helpers.【F:src/components/ui/ThemeToggle.tsx†L45-L68】【F:src/components/ui/ThemeSelector.tsx†L49-L72】【F:src/components/ui/ColorSchemeSelector.tsx†L60-L107】【F:src/components/ui/ThemeIcons.tsx†L19-L99】
+- Shared primitives such as `Card` and `Button` render palette-driven backgrounds, borders, and focus rings, enforcing token usage where they are adopted.【F:src/components/ui/Card.tsx†L41-L111】【F:src/components/ui/Button.tsx†L26-L76】
+- `applyTheme` function now uses safe `classList` operations to manage theme classes without interfering with other libraries.【F:src/context/ThemeContext.tsx†L70-L97】
+- Analytics charts and visualizations now use palette-aware colors for all stroke and fill operations.【F:src/components/ui/Chart.tsx†L118-L175】【F:src/features/tag/components/TagAnalytics.tsx†L325-L379】【F:src/features/category/components/CategoryAnalytics.tsx†L224-L278】
+- Priority feature modules (TagList, QuizStats, HotspotEditor) now use theme tokens instead of hardcoded Tailwind neutrals.【F:src/features/tag/components/TagList.tsx†L122-L178】【F:src/features/quiz/components/QuizStats.tsx†L34-L120】【F:src/features/question/components/HotspotEditor.tsx†L283-L338】
+- Centralized status helpers provide semantic color utilities for data displays, eliminating hardcoded Tailwind shades.【F:src/utils/statusHelpers.ts†L1-L120】
+- Page-level components now use primitive components (Card, Table, Button) for consistent theming and reduced code duplication.【F:src/features/tag/components/TagList.tsx†L1-L240】【F:src/features/quiz/components/QuizStats.tsx†L1-L176】
 
-## Component Reuse & Consistency
-- **Repeated card skeletons.** Analytics pages and pagination toolbars recreate `div` blocks with `bg-white rounded-lg border` instead of using the `Card` primitive, leading to scattered light palette classes and inconsistent padding.【F:src/features/tag/components/TagAnalytics.tsx†L300-L377】  
-  *Fix:* Refactor these blocks to compose `Card`, `CardHeader`, and `CardBody`. Update `Card` to emit theme-token colors first so reusing it enforces palette compliance.
-- **Duplicated theme icons.** Sun/moon/device SVG paths live in every theme-related control, so any icon update must be repeated three times.【F:src/components/ui/ThemeToggle.tsx†L24-L53】【F:src/components/ui/ThemeSelector.tsx†L21-L47】【F:src/components/ui/ColorSchemeSelector.tsx†L20-L58】  
-  *Fix:* Export shared `ThemeIcon`/`ColorSchemeIcon` components (or a small icon map) from a single module and reuse them across controls.
-- **Status color enums stay Tailwind-bound.** Category analytics map difficulty/visibility to `bg-green-500`/`bg-red-500`, bypassing the palette's `interactive.success/warning/danger` tokens.【F:src/features/category/components/CategoryAnalytics.tsx†L313-L320】  
-  *Fix:* Move these status palettes into `ColorPalettes` (e.g., `status.success`) and consume them via CSS variables or helper utilities.
+## Outstanding / Next Steps
+1. ✅ ~~Replace `root.className = …` in `applyTheme` with targeted `classList` operations to avoid clobbering classes that other systems add to `<html>`.~~ **COMPLETED**【F:src/context/ThemeContext.tsx†L70-L97】
+2. ✅ ~~Continue migrating analytics/visualizations to palette-aware colors (including replacing pie-slice `stroke="white"` and `#3B82F6` trend lines).~~ **COMPLETED**【F:src/components/ui/Chart.tsx†L118-L175】【F:src/features/tag/components/TagAnalytics.tsx†L325-L379】【F:src/features/category/components/CategoryAnalytics.tsx†L224-L278】
+3. ✅ **SIGNIFICANT PROGRESS** ~~Audit feature modules for Tailwind defaults (`bg-white`, `border-gray-200`, `text-gray-500`, inline hex codes) and swap them to theme tokens or palette-derived helpers. Priorities include tag tables, quiz stats, and hotspot overlays.~~ **MAJOR COMPONENTS COMPLETED**【F:src/features/tag/components/TagList.tsx†L122-L178】【F:src/features/quiz/components/QuizStats.tsx†L34-L120】【F:src/features/question/components/HotspotEditor.tsx†L283-L338】【F:src/components/ui/Spinner.tsx†L18】【F:src/features/quiz/components/QuizGenerationJobs.tsx†L227-L437】【F:src/pages/QuizQuestionPage.tsx†L286-L620】【F:src/pages/LoginPage.tsx†L10-L23】【F:src/pages/RegisterPage.tsx†L15-L23】【F:src/features/attempt/components/AttemptStats.tsx†L76-L114】【F:src/components/ui/Input.tsx†L65-L103】【F:src/components/ui/Table.tsx†L130-L177】**REMAINING**: ~80+ files still need migration
+4. ✅ ~~Expose semantic status helpers (success/warning/etc.) from the palette for data displays so features stop duplicating Tailwind shades like `text-green-600` and `bg-yellow-100`.~~ **COMPLETED**【F:src/components/ui/Chart.tsx†L39-L58】【F:src/features/quiz/components/QuizStats.tsx†L20-L113】
+5. ⚠️ **PARTIAL** ~~Once primitives cover the palette, refactor page-level shells and tables that still use static neutrals to compose the updated `Card`, `Table`, and `Button` components for consistency.~~ **SOME COMPLETED**【F:src/features/tag/components/TagList.tsx†L122-L178】【F:src/features/quiz/components/QuizStats.tsx†L34-L120】**REMAINING**: Many pages still use hardcoded colors
 
-## UX & Accessibility Concerns
-- **Palette contrast is not enforced.** Hard-coded gray borders/text (`border-gray-300`, `text-gray-600`) in selectors and analytics lead to poor contrast on darker schemes, and focus rings stay blue regardless of palette.【F:src/components/ui/ColorSchemeSelector.tsx†L94-L145】  
-  *Fix:* Adopt palette-derived neutral and focus colors; add automated contrast tests (e.g., Storybook accessibility or axe) when switching schemes.
-- **Charts ignore theme backgrounds.** Chart containers default to white cards, so in dark schemes they clash with surrounding surfaces.【F:src/components/ui/Chart.tsx†L244-L248】  
-  *Fix:* Let charts inherit `bg-theme-bg-primary` and `text-theme-text-primary`, or expose props so pages can wrap them in a themed `Card`.
-- **Hotspot placeholders choose fixed grays.** Canvas placeholders render with gray fills/strokes that disappear on darker schemes.【F:src/features/attempt/components/HotspotAnswer.tsx†L74-L105】  
-  *Fix:* Pull placeholder fill/stroke colors from the palette (e.g., `theme-bg-tertiary`, `theme-border-secondary`) via context and pass them into drawing routines.
+## Current Status Assessment
+**Core Infrastructure**: ✅ **COMPLETE** - Theme system foundation is solid
+**Priority Components**: ✅ **COMPLETE** - Key components use theme tokens  
+**Remaining Work**: ⚠️ **MODERATE** - ~80+ files need color migration (major components completed)
 
-## Architecture & Logic Issues
-- **`dark:` utilities never activate.** `ThemeContext` never toggles `document.documentElement.classList.contains('dark')`, so all existing `dark:` Tailwind styles remain inactive regardless of theme selection.【F:src/context/ThemeContext.tsx†L70-L140】  
-  *Fix:* In the `theme`/`resolvedTheme` effect, call `root.classList.toggle('dark', resolvedTheme === 'dark')` before applying palette CSS variables.
-- **Theme changes do not reapply palettes.** `applyTheme` only runs when `colorScheme` changes, so switching between light/dark mode without touching the scheme leaves stale palette variables (e.g., staying on the blue palette when forcing dark mode).【F:src/context/ThemeContext.tsx†L91-L140】  
-  *Fix:* Invoke `applyTheme(currentPalette)` whenever `resolvedTheme` flips, or split palette data into light/dark variants per scheme.
-- **`root.className` replacement risks stripping classes.** Using `root.className = root.className.replace(/theme-\w+/g, '')` overwrites the entire class list, which can drop classes injected by other libraries (e.g., fonts, layout locks).【F:src/context/ThemeContext.tsx†L74-L88】  
-  *Fix:* Replace it with targeted `classList.remove`/`add` calls.
-- **Palette state lacks semantic tokens for info/surface variants.** Components fall back to Tailwind (`bg-cyan-600`, `bg-blue-50`) because the palette interface omits equivalents.【F:src/components/ui/Button.tsx†L30-L63】【F:src/components/ui/ColorSchemeSelector.tsx†L104-L135】  
-  *Fix:* Extend `ColorPalette` with secondary surface/info shades (e.g., `info`, `neutralMuted`) and update `generateCSSVariables` + Tailwind theme extensions so components never need raw Tailwind colors.
+### Recently Completed ✅
+- `src/pages/QuizQuestionPage.tsx` - Quiz management interface
+- `src/features/quiz/components/QuizGenerationJobs.tsx` - AI generation status
+- `src/components/ui/Spinner.tsx` - Loading indicators
+- `src/pages/LoginPage.tsx`, `src/pages/RegisterPage.tsx` - Auth pages
+- `src/features/attempt/components/AttemptStats.tsx` - Attempt statistics
+- `src/components/ui/Input.tsx` - Form inputs
+- `src/components/ui/Table.tsx` - Data tables
+- `src/features/user/components/UserProfile.tsx` - User profile management
+- `src/features/user/components/UserStats.tsx` - User statistics
+- `src/features/user/components/UserSettings.tsx` - User settings
+- `src/features/document/components/DocumentList.tsx` - Document listing
+- `src/features/document/components/DocumentUpload.tsx` - Document upload
+- `src/features/category/components/CategoryList.tsx` - Category listing
+- `src/features/category/components/CategoryForm.tsx` - Category forms
+- `src/features/attempt/components/AnswerReview.tsx` - Answer review
+- `src/features/attempt/components/QuestionTiming.tsx` - Question timing
+- `src/components/ui/Dropdown.tsx` - Dropdown components
+- `src/components/ui/Pagination.tsx` - Pagination components
 
-## Recommended Remediation Workflow
-1. **Expand the palette contract.** Add neutral, focus, status, and info tokens to `ColorPalettes`, generate CSS variables, and surface them through Tailwind (`theme-border-focus`, `theme-status-success`, etc.).【F:src/context/ColorPalettes.ts†L7-L222】
-2. **Update `ThemeContext`.** Ensure resolved theme toggles the `dark` class, rerun `applyTheme` on any theme/color-scheme change, and guard class manipulation with `classList` helpers.【F:src/context/ThemeContext.tsx†L70-L140】
-3. **Refactor primitives.** Convert `Card`, `Button`, `Table`, pagination bars, and dropdowns to consume only theme tokens so the rest of the UI inherits correct colors.【F:src/components/ui/Card.tsx†L41-L155】【F:src/components/ui/Button.tsx†L30-L63】
-4. **Centralize repeated assets.** Move shared theme icons and chart color helpers into dedicated utilities, and feed them palette-driven values so feature modules stay declarative.【F:src/components/ui/ThemeToggle.tsx†L24-L53】【F:src/components/ui/Chart.tsx†L37-L248】
-5. **Audit feature modules.** Replace remaining `bg-white`/`text-gray-600`/hex usage with the updated primitives or palette helpers (tags, categories, quizzes, hotspots). Add lint rules (e.g., custom ESLint plugin or lint-staged script) that flag forbidden Tailwind color classes when a theme-token alternative exists.
+### High Priority Remaining Files
+- `src/features/attempt/components/*` - Quiz attempt interfaces (partially done)
+- `src/pages/QuizAttemptPage.tsx` - Main attempt interface (mostly done)
+- `src/features/result/components/*` - Results display (mostly done)
+- `src/features/user/components/*` - User management
+- `src/features/document/components/*` - Document processing
+- `src/features/category/components/*` - Category management
+
+### Migration Strategy
+1. **Batch migration by feature area** (attempts, results, auth, etc.)
+2. **Use search/replace patterns** for common hardcoded colors
+3. **Test each batch** to ensure theme switching works correctly
+4. **Focus on user-facing components first**

@@ -36,14 +36,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   const variantClasses = {
-    default: 'bg-blue-600',
+    default: 'bg-theme-interactive-primary',
     success: 'bg-green-600',
     warning: 'bg-yellow-600',
     danger: 'bg-red-600',
     info: 'bg-cyan-600'
   };
 
-  const baseClasses = 'w-full bg-gray-200 rounded-full overflow-hidden';
+  const baseClasses = 'w-full bg-theme-bg-tertiary rounded-full overflow-hidden';
   const progressClasses = [
     'transition-all duration-300 ease-out',
     variantClasses[variant],

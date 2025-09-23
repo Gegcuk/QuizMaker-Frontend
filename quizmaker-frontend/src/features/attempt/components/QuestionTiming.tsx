@@ -67,7 +67,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
 
   const getTimeColor = (seconds: number): string => {
     if (seconds <= 30) return 'text-green-600 bg-green-100';
-    if (seconds <= 60) return 'text-blue-600 bg-blue-100';
+    if (seconds <= 60) return 'text-theme-interactive-primary bg-blue-100';
     if (seconds <= 120) return 'text-yellow-600 bg-yellow-100';
     if (seconds <= 300) return 'text-orange-600 bg-orange-100';
     return 'text-red-600 bg-red-100';
@@ -156,8 +156,8 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       {/* Summary Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="text-2xl font-bold text-blue-600">{formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
-          <div className="text-sm text-blue-700 font-medium">Average Time</div>
+          <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
+          <div className="text-sm text-theme-interactive-primary font-medium">Average Time</div>
         </div>
         
         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -220,8 +220,8 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
             onClick={() => handleSort(option)}
             className={`px-3 py-1 text-sm rounded-md transition-colors ${
               sortBy === option
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-theme-text-secondary hover:bg-gray-200'
+                ? 'bg-theme-interactive-primary text-white'
+                : 'bg-theme-bg-tertiary text-theme-text-secondary hover:bg-theme-bg-tertiary'
             }`}
           >
             {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -239,7 +239,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
           const timeColor = getTimeColor(timeSeconds);
           
           return (
-            <div key={timing.questionId} className="p-4 border border-theme-border-primary rounded-lg hover:bg-gray-50 transition-colors">
+            <div key={timing.questionId} className="p-4 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
                   <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
@@ -282,7 +282,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       {/* Timing Insights */}
       <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Timing Insights</h3>
-        <div className="space-y-1 text-sm text-indigo-700">
+        <div className="space-y-1 text-sm text-theme-interactive-primary">
           <div>• Average time per question: {formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
           <div>• Fastest question: {formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
           <div>• Slowest question: {formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>

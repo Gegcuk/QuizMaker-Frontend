@@ -136,14 +136,14 @@ const TagManagementPage: React.FC = () => {
         </div>
       ) : tags.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">No tags found.</p>
+          <p className="text-theme-text-tertiary">No tags found.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {/* Header with count */}
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900">Tags</h3>
-            <span className="text-sm text-gray-500">
+            <h3 className="text-lg font-medium text-theme-text-primary">Tags</h3>
+            <span className="text-sm text-theme-text-tertiary">
               {tags.length > displayedCount 
                 ? `Showing ${displayedCount} of ${tags.length} tags`
                 : `${tags.length} tag${tags.length !== 1 ? 's' : ''} available`
@@ -152,24 +152,24 @@ const TagManagementPage: React.FC = () => {
           </div>
 
           {/* Tags list */}
-          <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="bg-theme-bg-primary shadow rounded-lg overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-theme-bg-secondary">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-theme-text-tertiary uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-theme-text-tertiary uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-theme-text-tertiary uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-theme-bg-primary divide-y divide-theme-border-primary">
                 {tags.slice(0, displayedCount).map((tag) => (
-                  <tr key={tag.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tag.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{tag.description}</td>
+                  <tr key={tag.id} className="hover:bg-theme-bg-secondary">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text-primary">{tag.name}</td>
+                    <td className="px-6 py-4 text-sm text-theme-text-tertiary">{tag.description}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <button
                         onClick={() => openEditForm(tag)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="text-theme-interactive-primary hover:text-indigo-900"
                       >
                         Edit
                       </button>
@@ -191,7 +191,7 @@ const TagManagementPage: React.FC = () => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(prev => Math.min(prev + 5, tags.length))}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -206,14 +206,14 @@ const TagManagementPage: React.FC = () => {
       {/* Modal Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-4 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+          <div className="bg-theme-bg-primary p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-xl font-semibold mb-4">
               {editingTag ? 'Edit Tag' : 'New Tag'}
             </h3>
             {formError && <div className="text-red-500 mb-2">{formError}</div>}
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
-                <label htmlFor="tagName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="tagName" className="block text-sm font-medium text-theme-text-secondary mb-1">
                   Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -222,18 +222,18 @@ const TagManagementPage: React.FC = () => {
                   required
                   minLength={3}
                   maxLength={50}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                   value={tagName}
                   onChange={(e) => setTagName(e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="tagDesc" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="tagDesc" className="block text-sm font-medium text-theme-text-secondary mb-1">
                   Description
                 </label>
                 <textarea
                   id="tagDesc"
-                  className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                   rows={3}
                   maxLength={1000}
                   value={tagDesc}
@@ -244,13 +244,13 @@ const TagManagementPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary disabled:opacity-50"
                   disabled={formSubmitting}
                 >
                   {formSubmitting ? 'Saving...' : editingTag ? 'Save' : 'Create'}

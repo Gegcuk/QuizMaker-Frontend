@@ -77,7 +77,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
             id="page-size"
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -120,13 +120,13 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           {pageRange.map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? (
-                <span className="px-3 py-2 text-sm text-gray-500">...</span>
+                <span className="px-3 py-2 text-sm text-theme-text-tertiary">...</span>
               ) : (
                 <button
                   onClick={() => onPageChange(page as number)}
                   className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                     page === pageNumber
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-theme-interactive-primary text-white'
                       : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
                   }`}
                 >
@@ -178,7 +178,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
               onPageChange(page);
             }
           }}
-          className="w-16 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
         />
         <span className="text-sm text-theme-text-secondary">of {totalPages}</span>
       </div>

@@ -98,14 +98,14 @@ const QuizCreationForm: React.FC = () => {
         <div className="flex space-x-4">
           <button
             type="submit"
-            className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 bg-theme-interactive-primary text-white py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
           >
             Create Quiz
           </button>
           
           <button
             type="button"
-            className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             Cancel
           </button>

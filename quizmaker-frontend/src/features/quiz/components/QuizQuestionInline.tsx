@@ -270,7 +270,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
             <p className="mt-1 text-sm text-theme-text-tertiary">Click "Add Question" to create one.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-theme-border-primary">
             {questions.map((q) => {
               const text = q.questionText || '';
               const truncated = text.length > 160 ? text.slice(0, 160) + '…' : text;

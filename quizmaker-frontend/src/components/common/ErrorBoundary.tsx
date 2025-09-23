@@ -60,20 +60,20 @@ class ErrorBoundary extends Component<Props, State> {
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-theme-text-primary">
                   Something went wrong
                 </h3>
               </div>
             </div>
             <div className="mt-2">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-theme-text-tertiary">
                 We're sorry, but something unexpected happened. Please try refreshing the page.
               </p>
             </div>
             <div className="mt-4">
               <button
                 onClick={() => window.location.reload()}
-                className="bg-theme-interactive-primary text-theme-text-inverse px-4 py-2 rounded-md text-sm font-medium hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-theme-interactive-primary text-theme-text-inverse px-4 py-2 rounded-md text-sm font-medium hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
               >
                 Refresh Page
               </button>

@@ -110,18 +110,18 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
   }, [loadConfig]);
 
   return (
-    <div className={`bg-white border border-indigo-100 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-indigo-100 rounded-lg p-4 ${className}`}>
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <h3 className="text-sm font-semibold text-indigo-900">Top up tokens</h3>
-          <p className="text-xs text-indigo-600 mt-1">
+          <p className="text-xs text-theme-interactive-primary mt-1">
             Purchase additional billing tokens securely via Stripe checkout.
           </p>
         </div>
         <button
           type="button"
           onClick={handleRetry}
-          className="text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs font-medium text-theme-interactive-primary hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLoading}
         >
           {isLoading ? 'Refreshing…' : 'Reload packs'}
@@ -162,12 +162,12 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
                   className={`w-full rounded-md border p-4 text-left transition-all ${
                     isSelected
                       ? 'border-indigo-500 bg-indigo-50 shadow-sm'
-                      : 'border-indigo-100 bg-white hover:border-indigo-300 hover:shadow-sm'
+                      : 'border-indigo-100 bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
                   }`}
                   aria-pressed={isSelected}
                 >
                   <p className="text-sm font-semibold text-indigo-900">{pack.name}</p>
-                  <p className="mt-1 text-2xl font-semibold text-indigo-700">{formatPrice(pack)}</p>
+                  <p className="mt-1 text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
                   <p className="mt-2 text-xs uppercase tracking-wide text-indigo-500">
                     {pack.tokens.toLocaleString()} tokens
                   </p>
@@ -177,7 +177,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
           </div>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-theme-text-tertiary">
               You will be redirected to Stripe Checkout to complete your purchase. Tokens become available immediately after
               payment confirmation.
             </p>
@@ -185,7 +185,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               type="button"
               onClick={handleCheckout}
               disabled={!selectedPack || isProcessingCheckout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
             </button>

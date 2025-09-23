@@ -104,7 +104,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
             key={option.id}
             className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-sm ${
               selectedMethod === option.id
-                ? 'ring-2 ring-blue-500 border-blue-200 shadow-lg bg-blue-50'
+                ? 'ring-2 ring-theme-interactive-primary border-blue-200 shadow-lg bg-blue-50'
                 : 'hover:border-theme-border-secondary hover:shadow-lg hover:bg-theme-bg-secondary'
             }`}
             onClick={() => onMethodSelect(option.id)}
@@ -174,7 +174,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
             <h3 className="text-sm font-medium text-blue-800">
               Need help choosing?
             </h3>
-            <div className="mt-2 text-sm text-blue-700">
+            <div className="mt-2 text-sm text-theme-interactive-primary">
               <ul className="list-disc list-inside space-y-1">
                 <li><strong>Manual:</strong> Best for custom quizzes with specific requirements</li>
                 <li><strong>From Text:</strong> Perfect for educational content or articles</li>

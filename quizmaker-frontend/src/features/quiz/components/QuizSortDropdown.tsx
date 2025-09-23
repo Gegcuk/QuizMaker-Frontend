@@ -69,7 +69,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
       {/* Sort Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
       >
         <span className="mr-2">Sort by: {getCurrentSortLabel()}</span>
         <svg 
@@ -91,13 +91,13 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
                 className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors ${
-                  sortBy === option.value ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
+                  sortBy === option.value ? 'bg-indigo-50 text-theme-interactive-primary' : 'text-theme-text-secondary'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium">{option.label}</div>
                   {sortBy === option.value && (
-                    <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-theme-interactive-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}

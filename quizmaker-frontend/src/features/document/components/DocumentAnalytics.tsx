@@ -80,7 +80,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
   const getChunkTypeColor = (chunkType: ChunkType): string => {
     switch (chunkType) {
       case 'CHAPTER':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-theme-interactive-primary bg-blue-100';
       case 'SECTION':
         return 'text-green-600 bg-green-100';
       case 'PAGE_BASED':
@@ -88,7 +88,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       case 'SIZE_BASED':
         return 'text-orange-600 bg-orange-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -142,10 +142,10 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading document analytics...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
+          <p className="text-theme-text-secondary">Loading document analytics...</p>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="text-red-600 text-2xl mb-2">❌</div>
           <p className="text-red-800">{error}</p>
@@ -164,9 +164,9 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
   if (!document || chunks.length === 0) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <p className="text-gray-600">No document data available for analytics</p>
+          <p className="text-theme-text-secondary">No document data available for analytics</p>
         </div>
       </div>
     );
@@ -176,20 +176,20 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
   if (!analytics) return null;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Document Analytics</h2>
-        <p className="text-gray-600">Comprehensive analysis of document content and structure</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Document Analytics</h2>
+        <p className="text-theme-text-secondary">Comprehensive analysis of document content and structure</p>
       </div>
 
       {/* Document Overview */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Document Overview</h3>
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Document Overview</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{chunks.length}</div>
-            <div className="text-sm text-blue-700">Total Chunks</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{chunks.length}</div>
+            <div className="text-sm text-theme-interactive-primary">Total Chunks</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">{analytics.totalWords.toLocaleString()}</div>
@@ -208,39 +208,39 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
       {/* Content Statistics */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Content Statistics</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Content Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-3">Average Metrics</h4>
+          <div className="p-4 border border-theme-border-primary rounded-lg">
+            <h4 className="font-medium text-theme-text-primary mb-3">Average Metrics</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Words per chunk:</span>
+                <span className="text-theme-text-secondary">Words per chunk:</span>
                 <span className="font-medium">{analytics.averageWordsPerChunk}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Characters per chunk:</span>
+                <span className="text-theme-text-secondary">Characters per chunk:</span>
                 <span className="font-medium">{analytics.averageCharactersPerChunk}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Pages per chunk:</span>
+                <span className="text-theme-text-secondary">Pages per chunk:</span>
                 <span className="font-medium">{analytics.averagePagesPerChunk}</span>
               </div>
             </div>
           </div>
           
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-3">Word Count Distribution</h4>
+          <div className="p-4 border border-theme-border-primary rounded-lg">
+            <h4 className="font-medium text-theme-text-primary mb-3">Word Count Distribution</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Small chunks (&lt;100 words):</span>
-                <span className="font-medium text-blue-600">{analytics.wordCountRanges.small}</span>
+                <span className="text-theme-text-secondary">Small chunks (&lt;100 words):</span>
+                <span className="font-medium text-theme-interactive-primary">{analytics.wordCountRanges.small}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Medium chunks (100-500 words):</span>
+                <span className="text-theme-text-secondary">Medium chunks (100-500 words):</span>
                 <span className="font-medium text-green-600">{analytics.wordCountRanges.medium}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Large chunks (&gt;500 words):</span>
+                <span className="text-theme-text-secondary">Large chunks (&gt;500 words):</span>
                 <span className="font-medium text-purple-600">{analytics.wordCountRanges.large}</span>
               </div>
             </div>
@@ -250,25 +250,25 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
       {/* Chunk Type Distribution */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Chunk Type Distribution</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Chunk Type Distribution</h3>
         <div className="space-y-3">
           {Object.entries(analytics.chunkTypeStats).map(([type, count]) => {
             const percentage = Math.round((count / chunks.length) * 100);
             const color = getChunkTypeColor(type as ChunkType);
             
             return (
-              <div key={type} className="p-4 border border-gray-200 rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getChunkTypeIcon(type as ChunkType)}</span>
-                    <span className="font-medium text-gray-900">{type.replace('_', ' ')}</span>
+                    <span className="font-medium text-theme-text-primary">{type.replace('_', ' ')}</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
                       {count} chunks
                     </span>
                   </div>
-                  <span className="text-lg font-bold text-gray-900">{percentage}%</span>
+                  <span className="text-lg font-bold text-theme-text-primary">{percentage}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
                     className="h-2 rounded-full bg-blue-500"
                     style={{ width: `${percentage}%` }}
@@ -285,22 +285,22 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
         <h3 className="text-sm font-medium text-blue-900 mb-3">Processing Information</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="font-medium text-blue-700">Uploaded:</span>
+            <span className="font-medium text-theme-interactive-primary">Uploaded:</span>
             <div className="text-blue-900">{formatDate(document.uploadedAt)}</div>
           </div>
           {document.processedAt && (
             <div>
-              <span className="font-medium text-blue-700">Processed:</span>
+              <span className="font-medium text-theme-interactive-primary">Processed:</span>
               <div className="text-blue-900">{formatDate(document.processedAt)}</div>
             </div>
           )}
           <div>
-            <span className="font-medium text-blue-700">File Size:</span>
+            <span className="font-medium text-theme-interactive-primary">File Size:</span>
             <div className="text-blue-900">{formatFileSize(document.fileSize ?? 0)}</div>
           </div>
           {analytics.processingTime > 0 && (
             <div>
-              <span className="font-medium text-blue-700">Processing Time:</span>
+              <span className="font-medium text-theme-interactive-primary">Processing Time:</span>
               <div className="text-blue-900">{Math.round(analytics.processingTime / 1000)}s</div>
             </div>
           )}

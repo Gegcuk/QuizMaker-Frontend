@@ -370,7 +370,7 @@ const QuizQuestionsPage: React.FC = () => {
                           question={question as QuestionDto & { createdAt: string; updatedAt: string }}
                           showCorrectAnswer={false}
                           disabled={true}
-                          className="border-0 shadow-none group-hover:text-indigo-700"
+                          className="border-0 shadow-none group-hover:text-theme-interactive-primary"
                         />
                         <div className="mt-2 flex items-center space-x-2 text-sm text-theme-text-tertiary">
                           <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
@@ -419,7 +419,7 @@ const QuizQuestionsPage: React.FC = () => {
                             question={q as QuestionDto & { createdAt: string; updatedAt: string }}
                             showCorrectAnswer={false}
                             disabled={true}
-                            className="border-0 shadow-none group-hover:text-indigo-700"
+                            className="border-0 shadow-none group-hover:text-theme-interactive-primary"
                           />
                           <div className="mt-2 flex items-center space-x-2 text-sm text-theme-text-tertiary">
                             <Badge variant="info" size="sm">{q.type.replace('_', ' ')}</Badge>

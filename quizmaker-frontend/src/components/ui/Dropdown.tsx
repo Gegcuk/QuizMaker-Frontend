@@ -185,7 +185,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                         <span className="truncate">{option.label}</span>
                         {isSelected && (
                           <svg
-                            className="ml-auto h-4 w-4 text-blue-600"
+                            className="ml-auto h-4 w-4 text-theme-interactive-primary"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

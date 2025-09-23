@@ -142,12 +142,12 @@ export const TextGenerationTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Text Input */}
         <div className="space-y-6">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Text Content</h3>
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Text Content</h3>
             
             {/* Text Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Enter your text content <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -155,9 +155,9 @@ export const TextGenerationTab: React.FC = () => {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type your text content here... (1-300,000 characters)"
                 rows={12}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical"
               />
-              <div className="mt-2 flex justify-between text-xs text-gray-500">
+              <div className="mt-2 flex justify-between text-xs text-theme-text-tertiary">
                 <span>Minimum: 10 characters</span>
                 <span>{text.length}/300,000 characters</span>
               </div>
@@ -165,11 +165,11 @@ export const TextGenerationTab: React.FC = () => {
 
             {/* Text Processing Configuration */}
             <div className="mt-6 space-y-4">
-              <h4 className="font-medium text-gray-900">Text Processing</h4>
+              <h4 className="font-medium text-theme-text-primary">Text Processing</h4>
               
               {/* Language */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Language
                 </label>
                 <select
@@ -178,7 +178,7 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     language: e.target.value
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="en">English</option>
                   <option value="es">Spanish</option>
@@ -191,7 +191,7 @@ export const TextGenerationTab: React.FC = () => {
 
               {/* Chunking Strategy */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Chunking Strategy
                 </label>
                 <select
@@ -200,21 +200,21 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     chunkingStrategy: e.target.value as any
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="CHAPTER_BASED">Chapter Based</option>
                   <option value="SECTION_BASED">Section Based</option>
                   <option value="SIZE_BASED">Size Based</option>
                   <option value="PAGE_BASED">Page Based</option>
                 </select>
-                <p className="mt-1 text-xs text-gray-600">
+                <p className="mt-1 text-xs text-theme-text-secondary">
                   {getChunkingStrategyDescription(quizConfig.chunkingStrategy)}
                 </p>
               </div>
 
               {/* Max Chunk Size */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Maximum Chunk Size (characters)
                 </label>
                 <input
@@ -226,9 +226,9 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1000"
                   max="300000"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
-                <p className="mt-1 text-xs text-gray-600">
+                <p className="mt-1 text-xs text-theme-text-secondary">
                   Recommended: 30,000-50,000 characters for optimal quiz generation
                 </p>
               </div>
@@ -238,13 +238,13 @@ export const TextGenerationTab: React.FC = () => {
 
         {/* Right Column - Quiz Configuration */}
         <div className="space-y-6">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Configuration</h3>
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
               {/* Quiz Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Title
                 </label>
                 <input
@@ -256,13 +256,13 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz title (optional - AI will generate if empty)"
                   maxLength={100}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
 
               {/* Quiz Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Description
                 </label>
                 <textarea
@@ -274,13 +274,13 @@ export const TextGenerationTab: React.FC = () => {
                   placeholder="Enter quiz description (optional - AI will generate if empty)"
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
 
               {/* Difficulty */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Difficulty Level
                 </label>
                 <select
@@ -289,7 +289,7 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     difficulty: e.target.value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="EASY">Easy</option>
                   <option value="MEDIUM">Medium</option>
@@ -299,12 +299,12 @@ export const TextGenerationTab: React.FC = () => {
 
               {/* Questions Per Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Questions Per Type <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Multiple Choice (Single)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Single)</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_SINGLE}
@@ -317,11 +317,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Multiple Choice (Multi)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Multi)</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_MULTI}
@@ -334,11 +334,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">True/False</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.TRUE_FALSE}
@@ -351,11 +351,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Open Questions</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.OPEN}
@@ -368,11 +368,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Fill in the Gap</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Fill in the Gap</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.FILL_GAP}
@@ -385,11 +385,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Ordering</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Ordering</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.ORDERING}
@@ -402,18 +402,18 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-gray-600">
+                <p className="mt-2 text-xs text-theme-text-secondary">
                   Select at least one question type with at least 1 question per type
                 </p>
               </div>
 
               {/* Estimated Time Per Question */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Estimated Time Per Question (minutes)
                 </label>
                 <input
@@ -425,7 +425,7 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
             </div>
@@ -480,7 +480,7 @@ export const TextGenerationTab: React.FC = () => {
       {/* Tips */}
       <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Tips for Best Results:</h3>
-        <ul className="text-sm text-blue-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Provide at least 500 characters of meaningful content for better results</li>
           <li>• Use well-structured text with clear topics and concepts</li>
           <li>• Select question types that match your learning objectives</li>

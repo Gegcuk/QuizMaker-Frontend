@@ -159,7 +159,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
         aria-label="User menu"
       >
         {/* Avatar */}
-        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+        <div className="w-8 h-8 bg-theme-interactive-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
           {getUserInitials(user.username)}
         </div>
         
@@ -191,7 +191,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-10 h-10 bg-theme-interactive-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
                   {getUserInitials(user.username)}
                 </div>
                 <div className="flex-1 min-w-0">

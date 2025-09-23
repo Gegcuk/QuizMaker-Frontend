@@ -42,7 +42,7 @@ const Avatar: React.FC<AvatarProps> = ({
 
   const statusClasses = {
     online: 'bg-green-400',
-    offline: 'bg-gray-400',
+    offline: 'bg-theme-bg-tertiary',
     away: 'bg-yellow-400',
     busy: 'bg-red-400'
   };
@@ -89,7 +89,7 @@ const Avatar: React.FC<AvatarProps> = ({
     'relative inline-block',
     sizeClasses[size],
     shapeClasses[shape],
-    'bg-gray-300',
+    'bg-theme-bg-tertiary',
     'flex items-center justify-center',
     'font-medium text-theme-text-secondary',
     'overflow-hidden',

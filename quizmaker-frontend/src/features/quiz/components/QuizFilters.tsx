@@ -67,20 +67,20 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Filters</h3>
           </div>
           <div className="flex items-center space-x-2">
             {hasActiveFilters && (
               <button
                 onClick={onClearFilters}
-                className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+                className="text-sm text-theme-interactive-primary hover:text-indigo-500 font-medium"
               >
                 Clear All
               </button>
             )}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-gray-600 hover:text-theme-text-tertiary flex items-center"
+              className="text-sm text-theme-text-secondary hover:text-theme-text-tertiary flex items-center"
             >
               <svg className={`w-4 h-4 mr-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -95,7 +95,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
       <div className="px-6 py-4 space-y-4">
         {/* Search */}
         <div>
-          <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="search" className="block text-sm font-medium text-theme-text-secondary mb-1">
             Search
           </label>
           <input
@@ -104,20 +104,20 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             value={filters.search || ''}
             onChange={(e) => handleInputChange('search', e.target.value)}
             placeholder="Search by title or description..."
-            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
           />
         </div>
 
         {/* Difficulty */}
         <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary mb-1">
             Difficulty
           </label>
           <select
             id="difficulty"
             value={filters.difficulty || ''}
             onChange={(e) => handleInputChange('difficulty', e.target.value || undefined)}
-            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
           >
             <option value="">All Difficulties</option>
             <option value="EASY">Easy</option>
@@ -128,7 +128,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
         {/* Author Name */}
         <div>
-          <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="authorName" className="block text-sm font-medium text-theme-text-secondary mb-1">
             Author
           </label>
           <input
@@ -137,7 +137,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             value={filters.authorName || ''}
             onChange={(e) => handleInputChange('authorName', e.target.value)}
             placeholder="Filter by author username..."
-            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
           />
         </div>
       </div>
@@ -147,15 +147,15 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
         <div className="px-6 py-4 border-t border-theme-border-primary space-y-4">
           {/* Categories */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Categories
             </label>
             {metadataLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div key={index} className="flex items-center">
-                    <div className="h-4 w-4 bg-gray-300 rounded mr-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-24"></div>
+                    <div className="h-4 w-4 bg-theme-bg-tertiary rounded mr-2"></div>
+                    <div className="h-4 bg-theme-bg-tertiary rounded w-24"></div>
                   </div>
                 ))}
               </div>
@@ -167,9 +167,9 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                       type="checkbox"
                       checked={(filters.category || []).includes(category.name)}
                       onChange={(e) => handleArrayChange('category', category.name, e.target.checked)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                   </label>
                 ))}
                 {categories.length === 0 && (
@@ -181,15 +181,15 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Tags
             </label>
             {metadataLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <div key={index} className="flex items-center">
-                    <div className="h-4 w-4 bg-gray-300 rounded mr-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-20"></div>
+                    <div className="h-4 w-4 bg-theme-bg-tertiary rounded mr-2"></div>
+                    <div className="h-4 bg-theme-bg-tertiary rounded w-20"></div>
                   </div>
                 ))}
               </div>
@@ -201,9 +201,9 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                       type="checkbox"
                       checked={(filters.tag || []).includes(tag.name)}
                       onChange={(e) => handleArrayChange('tag', tag.name, e.target.checked)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">#{tag.name}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">#{tag.name}</span>
                   </label>
                 ))}
                 {tags.length === 0 && (
@@ -219,10 +219,10 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
       {hasActiveFilters && (
         <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+            <span className="text-sm font-medium text-theme-text-secondary">Active Filters:</span>
             <button
               onClick={onClearFilters}
-              className="text-sm text-indigo-600 hover:text-indigo-500"
+              className="text-sm text-theme-interactive-primary hover:text-indigo-500"
             >
               Clear All
             </button>

@@ -71,10 +71,10 @@ const QuizAttemptFlowPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg-secondary flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading quiz details...</p>
+          <p className="mt-4 text-theme-text-secondary">Loading quiz details...</p>
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ const QuizAttemptFlowPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg-secondary flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <svg className="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,19 +106,19 @@ const QuizAttemptFlowPage: React.FC = () => {
 
   if (!quiz) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg-secondary flex items-center justify-center">
         <div className="text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Quiz not found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-theme-text-primary">Quiz not found</h3>
+          <p className="mt-1 text-sm text-theme-text-tertiary">
             The quiz you're looking for doesn't exist or you don't have access to it.
           </p>
           <div className="mt-6">
             <button
               onClick={() => navigate('/quizzes')}
-              className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-4 py-2 bg-theme-interactive-primary text-white font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
             >
               Browse Quizzes
             </button>
@@ -129,24 +129,24 @@ const QuizAttemptFlowPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-theme-bg-secondary py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Quiz Header */}
         <div className="mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-theme-bg-primary rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{quiz.title}</h1>
+                <h1 className="text-2xl font-bold text-theme-text-primary">{quiz.title}</h1>
                 {quiz.description && (
-                  <p className="mt-2 text-gray-600">{quiz.description}</p>
+                  <p className="mt-2 text-theme-text-secondary">{quiz.description}</p>
                 )}
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500">
-                  <div>Difficulty: <span className="font-medium text-gray-900">{quiz.difficulty}</span></div>
-                  <div>Estimated Time: <span className="font-medium text-gray-900">{quiz.estimatedTime} min</span></div>
+                <div className="text-sm text-theme-text-tertiary">
+                  <div>Difficulty: <span className="font-medium text-theme-text-primary">{quiz.difficulty}</span></div>
+                  <div>Estimated Time: <span className="font-medium text-theme-text-primary">{quiz.estimatedTime} min</span></div>
                   {quiz.timerEnabled && quiz.timerDuration && (
-                    <div>Timer: <span className="font-medium text-gray-900">{quiz.timerDuration} min</span></div>
+                    <div>Timer: <span className="font-medium text-theme-text-primary">{quiz.timerDuration} min</span></div>
                   )}
                 </div>
               </div>
@@ -180,7 +180,7 @@ const QuizAttemptFlowPage: React.FC = () => {
         <div className="mt-8 text-center">
           <button
             onClick={() => navigate(`/quizzes/${quizId}`)}
-            className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
           >
             ← Back to Quiz Details
           </button>

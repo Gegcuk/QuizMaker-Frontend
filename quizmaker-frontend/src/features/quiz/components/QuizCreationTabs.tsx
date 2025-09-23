@@ -48,7 +48,7 @@ export const QuizCreationTabs: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-theme-border-primary">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
@@ -57,8 +57,8 @@ export const QuizCreationTabs: React.FC = () => {
                 className={`
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                   ${activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-theme-interactive-primary'
+                    : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
                   }
                 `}
               >
@@ -71,14 +71,14 @@ export const QuizCreationTabs: React.FC = () => {
         
         {/* Tab Description */}
         <div className="mt-4">
-          <p className="text-gray-600 text-sm">
+          <p className="text-theme-text-secondary text-sm">
             {tabs.find(tab => tab.id === activeTab)?.description}
           </p>
         </div>
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white border border-gray-200 rounded-lg">
+      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg">
         {activeTab === 'manual' && (
           <div className="p-6">
             <QuizForm />

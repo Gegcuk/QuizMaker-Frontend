@@ -76,7 +76,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                   : status === 'incorrect'
                   ? 'border-red-300 bg-red-50'
                   : isSelected
-                  ? 'border-indigo-300 bg-indigo-50'
+                  ? 'border-theme-interactive-primary bg-indigo-50'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleOptionChange(option.id, !isSelected)}
@@ -111,7 +111,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                       ? 'text-green-600 focus:ring-green-500 border-green-300'
                       : status === 'incorrect'
                       ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
-                      : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+                      : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
                   }`}
                 />
               </div>
@@ -122,7 +122,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                   className={`text-sm ${
                     status === 'correct' ? 'text-green-800' :
                     status === 'incorrect' ? 'text-red-800' :
-                    'text-gray-900'
+                    'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: option.text }}
                 />
@@ -149,7 +149,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-theme-text-secondary">
         {isMultiSelect ? (
           <p>Select all correct answers.</p>
         ) : (

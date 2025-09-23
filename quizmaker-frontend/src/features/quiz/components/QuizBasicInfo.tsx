@@ -77,10 +77,10 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
   const combinedErrors = { ...localErrors, ...errors };
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
-        <p className="mt-1 text-sm text-gray-500">
+    <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h3 className="text-lg font-medium text-theme-text-primary">Basic Information</h3>
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Set the title and description for your quiz
         </p>
       </div>
@@ -88,7 +88,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
       <div className="px-6 py-4 space-y-6">
         {/* Quiz Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="title" className="block text-sm font-medium text-theme-text-secondary">
             Quiz Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -98,22 +98,22 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             value={quizData.title || ''}
             onChange={handleInputChange}
             placeholder="Enter quiz title..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-              combinedErrors.title ? 'border-red-300' : 'border-gray-300'
+            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+              combinedErrors.title ? 'border-red-300' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />
           {combinedErrors.title && (
             <p className="mt-1 text-sm text-red-600">{combinedErrors.title}</p>
           )}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.title?.length || 0}/100 characters
           </p>
         </div>
 
         {/* Quiz Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary">
             Description
           </label>
           <textarea
@@ -123,29 +123,29 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             value={quizData.description || ''}
             onChange={handleInputChange}
             placeholder="Enter quiz description (optional)..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-              combinedErrors.description ? 'border-red-300' : 'border-gray-300'
+            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+              combinedErrors.description ? 'border-red-300' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />
           {combinedErrors.description && (
             <p className="mt-1 text-sm text-red-600">{combinedErrors.description}</p>
           )}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.description?.length || 0}/1000 characters
           </p>
         </div>
 
         {/* Preview */}
         {quizData.title && (
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Preview</h4>
+          <div className="bg-theme-bg-secondary p-4 rounded-md">
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h4>
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-theme-text-primary">
                 {quizData.title}
               </h2>
               {quizData.description && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-theme-text-secondary">
                   {quizData.description}
                 </p>
               )}

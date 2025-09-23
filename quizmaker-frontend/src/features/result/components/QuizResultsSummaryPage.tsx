@@ -121,7 +121,7 @@ const QuizResultsSummaryPage: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full border">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-theme-bg-tertiary">
                 <th className="p-2">Question ID</th>
                 <th className="p-2">Times Asked</th>
                 <th className="p-2">Times Correct</th>

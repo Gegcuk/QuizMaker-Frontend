@@ -164,7 +164,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
           <div className="text-3xl font-bold text-blue-900 mb-2">
             {Math.round(score)}% - {getPerformanceLevel(score).toUpperCase()}
           </div>
-          <div className="text-lg text-blue-700">
+          <div className="text-lg text-theme-interactive-primary">
             {getFeedbackMessage(score)}
           </div>
         </div>
@@ -218,7 +218,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
         <div className="space-y-2">
           {getImprovementSuggestions(score).map((suggestion, index) => (
             <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-              <span className="text-blue-600 mt-0.5">💡</span>
+              <span className="text-theme-interactive-primary mt-0.5">💡</span>
               <span className="text-sm text-blue-800">{suggestion}</span>
             </div>
           ))}
@@ -257,7 +257,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       {/* Next Steps */}
       <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Next Steps</h3>
-        <div className="space-y-2 text-sm text-indigo-700">
+        <div className="space-y-2 text-sm text-theme-interactive-primary">
           {score >= 80 ? (
             <>
               <div>🎯 Consider taking advanced or related quizzes</div>

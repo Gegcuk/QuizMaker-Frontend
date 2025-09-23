@@ -116,23 +116,23 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Configure Your Text-Based Quiz
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Provide your text content and configure how the AI should generate questions from it.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Quiz Settings */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Quiz Settings</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Quiz Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Title *
               </label>
               <Input
@@ -147,7 +147,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Description
               </label>
               <Input
@@ -162,13 +162,13 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Overall Difficulty
               </label>
               <select
                 value={localData.difficulty || 'MEDIUM'}
                 onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
@@ -179,34 +179,34 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         </div>
 
         {/* Text Content */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Text Content</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Text Content</h4>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Text Content *
             </label>
             <textarea
               value={generationConfig.text}
               onChange={(e) => handleGenerationConfigChange('text', e.target.value)}
               rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               placeholder="Paste your text content here. The AI will analyze it and generate relevant questions..."
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-theme-text-tertiary mt-1">
               {generationConfig.text.length} characters (max 300,000)
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Language
               </label>
               <select
                 value={generationConfig.language}
                 onChange={(e) => handleGenerationConfigChange('language', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="en">English</option>
                 <option value="es">Spanish</option>
@@ -216,13 +216,13 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Chunking Strategy
               </label>
               <select
                 value={generationConfig.chunkingStrategy}
                 onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="CHAPTER_BASED">Chapter Based</option>
                 <option value="FIXED_SIZE">Fixed Size</option>
@@ -232,13 +232,13 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         </div>
 
         {/* Generation Settings */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Question Generation Settings</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Question Generation Settings</h4>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (
               <div key={type}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-1">
                   {type.replace('_', ' ')}
                 </label>
                 <Input
@@ -255,7 +255,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Estimated Time per Question (minutes)
               </label>
               <Input
@@ -269,7 +269,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Max Chunk Size
               </label>
               <Input

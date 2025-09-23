@@ -213,8 +213,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type="text"
               autoComplete="username"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                errors.username ? 'border-red-300' : 'border-gray-300'
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                errors.username ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               value={formData.username}
               onChange={handleInputChange}
@@ -239,8 +239,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type="email"
               autoComplete="email"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                errors.email ? 'border-red-300' : 'border-gray-300'
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                errors.email ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               value={formData.email}
               onChange={handleInputChange}
@@ -265,8 +265,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10 ${
-                errors.password ? 'border-red-300' : 'border-gray-300'
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
+                errors.password ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               value={formData.password}
               onChange={handleInputChange}
@@ -280,11 +280,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               disabled={isSubmitting}
             >
               {showPassword ? (
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                 </svg>
               ) : (
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -308,8 +308,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10 ${
-                errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
+                errors.confirmPassword ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
@@ -323,11 +323,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               disabled={isSubmitting}
             >
               {showConfirmPassword ? (
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                 </svg>
               ) : (
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -346,7 +346,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               id="terms"
               name="terms"
               type="checkbox"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
               checked={acceptTerms}
               onChange={(e) => setAcceptTerms(e.target.checked)}
               disabled={isSubmitting}
@@ -357,7 +357,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               I agree to the{' '}
               <Link
                 to="/terms"
-                className="text-indigo-600 hover:text-indigo-500"
+                className="text-theme-interactive-primary hover:text-indigo-500"
                 target="_blank"
               >
                 Terms and Conditions
@@ -365,7 +365,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               and{' '}
               <Link
                 to="/privacy"
-                className="text-indigo-600 hover:text-indigo-500"
+                className="text-theme-interactive-primary hover:text-indigo-500"
                 target="_blank"
               >
                 Privacy Policy
@@ -379,7 +379,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -397,11 +397,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Login link */}
         <div className="text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-theme-text-secondary">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-theme-interactive-primary hover:text-indigo-500"
             >
               Sign in here
             </Link>

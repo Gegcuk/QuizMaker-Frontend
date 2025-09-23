@@ -216,7 +216,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
       case 'quiz_created':
         return (
           <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
@@ -248,7 +248,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
       case 'profile_updated':
         return (
           <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -284,14 +284,14 @@ const UserActivity: React.FC<UserActivityProps> = ({
     return (
       <div className={`animate-pulse ${className}`}>
         <div className="bg-theme-bg-primary shadow rounded-lg p-6">
-          <div className="h-6 bg-gray-300 rounded w-1/4 mb-6"></div>
+          <div className="h-6 bg-theme-bg-tertiary rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center space-x-4">
-                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                <div className="w-8 h-8 bg-theme-bg-tertiary rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-theme-bg-tertiary rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-theme-bg-tertiary rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -325,13 +325,13 @@ const UserActivity: React.FC<UserActivityProps> = ({
         <h2 className="text-xl font-semibold text-theme-text-primary">
           {isAdminView ? `${displayUser?.username}'s Activity` : 'My Activity'}
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Recent activity and actions
         </p>
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
@@ -339,14 +339,14 @@ const UserActivity: React.FC<UserActivityProps> = ({
               placeholder="Search activities..."
               value={filter.search || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             />
           </div>
           <div className="flex gap-2">
             <select
               value={filter.type || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value as ActivityItem['type'] || undefined }))}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
               <option value="">All Types</option>
               <option value="quiz_completed">Quiz Completed</option>
@@ -359,7 +359,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
             <select
               value={filter.dateRange || 'week'}
               onChange={(e) => setFilter(prev => ({ ...prev, dateRange: e.target.value as ActivityFilter['dateRange'] }))}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
               <option value="today">Today</option>
               <option value="week">This Week</option>
@@ -375,11 +375,11 @@ const UserActivity: React.FC<UserActivityProps> = ({
       <div className="px-6 py-4">
         {filteredActivities.length === 0 ? (
           <div className="text-center py-8">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No activities found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-theme-text-tertiary">
               {filter.search || filter.type || filter.dateRange !== 'all' 
                 ? 'Try adjusting your filters' 
                 : 'Get started by completing your first quiz!'}
@@ -393,7 +393,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
                   <div className="relative pb-8">
                     {activityIdx !== filteredActivities.length - 1 ? (
                       <span
-                        className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+                        className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-theme-bg-tertiary"
                         aria-hidden="true"
                       />
                     ) : null}
@@ -404,19 +404,19 @@ const UserActivity: React.FC<UserActivityProps> = ({
                           <p className="text-sm text-theme-text-primary">
                             {activity.title}
                             {activity.metadata?.score && (
-                              <span className="ml-2 text-sm text-gray-500">
+                              <span className="ml-2 text-sm text-theme-text-tertiary">
                                 (Score: {activity.metadata.score}%)
                               </span>
                             )}
                           </p>
-                          <p className="text-sm text-gray-500">{activity.description}</p>
+                          <p className="text-sm text-theme-text-tertiary">{activity.description}</p>
                           {activity.metadata?.ipAddress && (
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-theme-text-tertiary mt-1">
                               IP: {activity.metadata.ipAddress}
                             </p>
                           )}
                         </div>
-                        <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                        <div className="text-right text-sm whitespace-nowrap text-theme-text-tertiary">
                           <time dateTime={activity.timestamp}>
                             {formatTimestamp(activity.timestamp)}
                           </time>

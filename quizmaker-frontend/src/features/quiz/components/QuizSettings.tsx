@@ -96,10 +96,10 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
   const combinedErrors = { ...localErrors, ...errors };
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Quiz Settings</h3>
-        <p className="mt-1 text-sm text-gray-500">
+    <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h3 className="text-lg font-medium text-theme-text-primary">Quiz Settings</h3>
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Configure visibility, difficulty, and timing settings
         </p>
       </div>
@@ -107,7 +107,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
       <div className="px-6 py-4 space-y-6">
         {/* Visibility */}
         <div>
-          <label htmlFor="visibility" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="visibility" className="block text-sm font-medium text-theme-text-secondary">
             Visibility
           </label>
           <select
@@ -115,13 +115,13 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="visibility"
             value={quizData.visibility || 'PRIVATE'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             disabled={!isEditing}
           >
             <option value="PRIVATE">Private - Only you can see and take this quiz</option>
             <option value="PUBLIC">Public - Anyone can see and take this quiz</option>
           </select>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.visibility === 'PUBLIC' 
               ? 'This quiz will be visible to all users' 
               : 'This quiz will only be visible to you'}
@@ -130,7 +130,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
 
         {/* Difficulty */}
         <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary">
             Difficulty Level
           </label>
           <select
@@ -138,14 +138,14 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="difficulty"
             value={quizData.difficulty || 'MEDIUM'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             disabled={!isEditing}
           >
             <option value="EASY">Easy - Suitable for beginners</option>
             <option value="MEDIUM">Medium - Balanced difficulty</option>
             <option value="HARD">Hard - Challenging questions</option>
           </select>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             This helps users understand the expected difficulty level
           </p>
         </div>
@@ -159,21 +159,21 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 name="timerEnabled"
                 checked={quizData.timerEnabled || false}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                 disabled={!isEditing}
               />
-              <span className="ml-2 text-sm font-medium text-gray-700">
+              <span className="ml-2 text-sm font-medium text-theme-text-secondary">
                 Enable Timer
               </span>
             </label>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-theme-text-tertiary">
               When enabled, users will have a time limit to complete the quiz
             </p>
           </div>
 
           {quizData.timerEnabled && (
             <div>
-              <label htmlFor="timerDuration" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="timerDuration" className="block text-sm font-medium text-theme-text-secondary">
                 Timer Duration (minutes)
               </label>
               <input
@@ -185,15 +185,15 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 value={quizData.timerDuration || ''}
                 onChange={handleInputChange}
                 placeholder="Enter timer duration..."
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                  combinedErrors.timerDuration ? 'border-red-300' : 'border-gray-300'
+                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                  combinedErrors.timerDuration ? 'border-red-300' : 'border-theme-border-primary'
                 }`}
                 disabled={!isEditing}
               />
               {combinedErrors.timerDuration && (
                 <p className="mt-1 text-sm text-red-600">{combinedErrors.timerDuration}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-theme-text-tertiary">
                 Time limit for completing the quiz (1-180 minutes)
               </p>
             </div>
@@ -202,7 +202,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
 
         {/* Estimated Time */}
         <div>
-          <label htmlFor="estimatedTime" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="estimatedTime" className="block text-sm font-medium text-theme-text-secondary">
             Estimated Time (minutes) <span className="text-red-500">*</span>
           </label>
           <input
@@ -214,15 +214,15 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             value={quizData.estimatedTime || ''}
             onChange={handleInputChange}
             placeholder="Enter estimated time..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-              combinedErrors.estimatedTime ? 'border-red-300' : 'border-gray-300'
+            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+              combinedErrors.estimatedTime ? 'border-red-300' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />
           {combinedErrors.estimatedTime && (
             <p className="mt-1 text-sm text-red-600">{combinedErrors.estimatedTime}</p>
           )}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             Estimated time to complete the quiz (1-180 minutes)
           </p>
         </div>
@@ -235,22 +235,22 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
               name="isRepetitionEnabled"
               checked={quizData.isRepetitionEnabled || false}
               onChange={handleInputChange}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
               disabled={!isEditing}
             />
-            <span className="ml-2 text-sm font-medium text-gray-700">
+            <span className="ml-2 text-sm font-medium text-theme-text-secondary">
               Allow Multiple Attempts
             </span>
           </label>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-theme-text-tertiary">
             When enabled, users can take this quiz multiple times
           </p>
         </div>
 
         {/* Settings Summary */}
-        <div className="bg-gray-50 p-4 rounded-md">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Settings Summary</h4>
-          <div className="space-y-1 text-sm text-gray-600">
+        <div className="bg-theme-bg-secondary p-4 rounded-md">
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Settings Summary</h4>
+          <div className="space-y-1 text-sm text-theme-text-secondary">
             <p>• Visibility: <span className="font-medium">{quizData.visibility || 'PRIVATE'}</span></p>
             <p>• Difficulty: <span className="font-medium">{quizData.difficulty || 'MEDIUM'}</span></p>
             <p>• Timer: <span className="font-medium">{quizData.timerEnabled ? 'Enabled' : 'Disabled'}</span></p>

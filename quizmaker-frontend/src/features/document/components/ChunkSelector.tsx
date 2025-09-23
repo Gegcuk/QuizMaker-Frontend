@@ -110,7 +110,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   const getChunkTypeColor = (chunkType: ChunkType): string => {
     switch (chunkType) {
       case 'CHAPTER':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-theme-interactive-primary bg-blue-100';
       case 'SECTION':
         return 'text-green-600 bg-green-100';
       case 'PAGE_BASED':
@@ -118,7 +118,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       case 'SIZE_BASED':
         return 'text-orange-600 bg-orange-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -141,10 +141,10 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading document chunks...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
+          <p className="text-theme-text-secondary">Loading document chunks...</p>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="text-red-600 text-2xl mb-2">❌</div>
           <p className="text-red-800">{error}</p>
@@ -165,18 +165,18 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   const filteredChunks = getFilteredChunks();
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Select Document Chunks</h2>
-        <p className="text-gray-600">Choose which parts of the document to use for quiz generation</p>
+      <div className="p-6 border-b border-theme-border-primary">
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Select Document Chunks</h2>
+        <p className="text-theme-text-secondary">Choose which parts of the document to use for quiz generation</p>
         
         {/* Selection Stats */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <div className="font-medium text-blue-900">{stats.total}</div>
-              <div className="text-blue-700">Total Chunks</div>
+              <div className="text-theme-interactive-primary">Total Chunks</div>
             </div>
             <div>
               <div className="font-medium text-green-600">{stats.selected}</div>
@@ -195,7 +195,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       </div>
 
       {/* Controls */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-theme-border-primary">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
           {/* Search */}
           <div className="flex-1">
@@ -204,17 +204,17 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search chunks by title or content..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             />
           </div>
 
           {/* Filter */}
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Filter by type:</label>
+            <label className="text-sm font-medium text-theme-text-secondary">Filter by type:</label>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as ChunkType | 'ALL')}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
               <option value="ALL">All Types</option>
               <option value="CHAPTER">Chapters</option>
@@ -241,7 +241,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
           </button>
           <button
             onClick={() => selectChunksByType('CHAPTER')}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-1 text-sm bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
           >
             Select Chapters
           </button>
@@ -258,8 +258,8 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       <div className="p-6">
         {filteredChunks.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-gray-400 text-4xl mb-4">📝</div>
-            <p className="text-gray-600">No chunks match your current filter</p>
+            <div className="text-theme-text-tertiary text-4xl mb-4">📝</div>
+            <p className="text-theme-text-secondary">No chunks match your current filter</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -268,8 +268,8 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                 key={chunk.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                   selectedChunks.has(chunk.id)
-                    ? 'border-blue-300 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-theme-interactive-primary bg-blue-50'
+                    : 'border-theme-border-primary hover:border-theme-border-primary hover:bg-theme-bg-secondary'
                 }`}
                 onClick={() => toggleChunkSelection(chunk.id)}
               >
@@ -279,7 +279,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                     type="checkbox"
                     checked={selectedChunks.has(chunk.id)}
                     onChange={() => toggleChunkSelection(chunk.id)}
-                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="mt-1 h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                   />
                   
                   {/* Chunk Info */}
@@ -287,20 +287,20 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg">{getChunkTypeIcon(chunk.chunkType)}</span>
-                        <h3 className="text-lg font-medium text-gray-900 truncate">
+                        <h3 className="text-lg font-medium text-theme-text-primary truncate">
                           {chunk.title}
                         </h3>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getChunkTypeColor(chunk.chunkType)}`}>
                           {chunk.chunkType.replace('_', ' ')}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-theme-text-secondary">
                         {formatWordCount(chunk.wordCount ?? 0)}
                       </div>
                     </div>
                     
                     {/* Chunk Details */}
-                    <div className="text-sm text-gray-600 mb-2">
+                    <div className="text-sm text-theme-text-secondary mb-2">
                       Pages {chunk.startPage}-{chunk.endPage} • {chunk.characterCount} characters
                       {chunk.chapterTitle && (
                         <span className="ml-2">• Chapter: {chunk.chapterTitle}</span>
@@ -311,7 +311,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                     </div>
                     
                     {/* Content Preview */}
-                    <div className="text-sm text-gray-700 line-clamp-2">
+                    <div className="text-sm text-theme-text-secondary line-clamp-2">
                       {chunk.content.substring(0, 200)}...
                     </div>
                   </div>
@@ -322,7 +322,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                       e.stopPropagation();
                       setPreviewChunk(chunk);
                     }}
-                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
                     Preview
                   </button>
@@ -336,13 +336,13 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       {/* Chunk Preview Modal */}
       {previewChunk && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-theme-bg-primary rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-theme-border-primary">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">{previewChunk.title}</h3>
+                <h3 className="text-lg font-semibold text-theme-text-primary">{previewChunk.title}</h3>
                 <button
                   onClick={() => setPreviewChunk(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-theme-text-tertiary hover:text-theme-text-secondary"
                 >
                   ✕
                 </button>
@@ -350,13 +350,13 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
             </div>
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               <div className="prose max-w-none">
-                <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                <div className="text-theme-text-primary leading-relaxed whitespace-pre-wrap">
                   {previewChunk.content}
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="p-6 border-t border-theme-border-primary bg-theme-bg-secondary">
+              <div className="flex items-center justify-between text-sm text-theme-text-secondary">
                 <div>
                   {formatWordCount(previewChunk.wordCount ?? 0)} • Pages {previewChunk.startPage}-{previewChunk.endPage}
                 </div>

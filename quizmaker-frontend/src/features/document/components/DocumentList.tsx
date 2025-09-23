@@ -218,7 +218,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         <div className="flex items-center space-x-2">
           <Link
             to={`/documents/${document?.id}`}
-            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            className="p-2 text-theme-interactive-primary hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
             title="View document"
           >
             <EyeIcon className="h-4 w-4" />

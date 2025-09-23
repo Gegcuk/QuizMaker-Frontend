@@ -113,16 +113,16 @@ export const TagForm: React.FC<TagFormProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className={`bg-theme-bg-primary rounded-lg shadow-sm border ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-theme-text-primary">
             {isEditing ? 'Edit Tag' : 'Create New Tag'}
           </h3>
           <button
             type="button"
             onClick={handlePreviewToggle}
-            className="text-sm text-blue-600 hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50"
+            className="text-sm text-theme-interactive-primary hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50"
           >
             {previewMode ? 'Edit Mode' : 'Preview Mode'}
           </button>
@@ -131,19 +131,19 @@ export const TagForm: React.FC<TagFormProps> = ({
 
       {previewMode ? (
         <div className="p-6">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-theme-bg-secondary rounded-lg p-4">
             <div className="flex items-center mb-3">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mr-3">
                 {formData.name || 'Tag Name'}
               </span>
-              <h4 className="text-lg font-medium text-gray-900">
+              <h4 className="text-lg font-medium text-theme-text-primary">
                 {formData.name || 'Tag Name'}
               </h4>
             </div>
-            <p className="text-gray-600 mb-4">
+            <p className="text-theme-text-secondary mb-4">
               {formData.description || 'No description provided'}
             </p>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-theme-text-tertiary">
               <p>Name length: {characterCount.name}/50 characters</p>
               <p>Description length: {characterCount.description}/1000 characters</p>
             </div>
@@ -153,7 +153,7 @@ export const TagForm: React.FC<TagFormProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name Field */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-theme-text-secondary mb-2">
               Tag Name *
             </label>
             <input
@@ -161,15 +161,15 @@ export const TagForm: React.FC<TagFormProps> = ({
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.name ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
+                errors.name ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter tag name (3-50 characters)"
               maxLength={50}
             />
             <div className="flex justify-between items-center mt-1">
               <span className="text-sm text-red-600">{errors.name}</span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-theme-text-tertiary">
                 {characterCount.name}/50
               </span>
             </div>
@@ -177,7 +177,7 @@ export const TagForm: React.FC<TagFormProps> = ({
 
           {/* Description Field */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary mb-2">
               Description
             </label>
             <textarea
@@ -185,15 +185,15 @@ export const TagForm: React.FC<TagFormProps> = ({
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.description ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
+                errors.description ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter tag description (optional, max 1000 characters)"
               maxLength={1000}
             />
             <div className="flex justify-between items-center mt-1">
               <span className="text-sm text-red-600">{errors.description}</span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-theme-text-tertiary">
                 {characterCount.description}/1000
               </span>
             </div>
@@ -212,11 +212,11 @@ export const TagForm: React.FC<TagFormProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
               disabled={loading}
             >
               Cancel
@@ -224,7 +224,7 @@ export const TagForm: React.FC<TagFormProps> = ({
             <button
               type="submit"
               disabled={loading || !formData.name.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center">

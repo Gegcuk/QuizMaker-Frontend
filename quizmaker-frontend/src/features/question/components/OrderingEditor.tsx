@@ -97,7 +97,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     value={item.text}
                     onChange={(e) => updateItemText(item.id, e.target.value)}
                     placeholder={`Item ${index + 1}...`}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-indigo-500 sm:text-sm resize-none"
+                    className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
                     rows={2}
                   />
                 </div>

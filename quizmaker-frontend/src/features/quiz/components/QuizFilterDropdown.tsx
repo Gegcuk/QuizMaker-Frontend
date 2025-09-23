@@ -102,14 +102,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
       {/* Filter Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
       >
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
         </svg>
         <span className="mr-2">Filters</span>
         {activeFiltersCount > 0 && (
-          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-indigo-600 rounded-full">
+          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-theme-interactive-primary rounded-full">
             {activeFiltersCount}
           </span>
         )}
@@ -133,7 +133,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
               {activeFiltersCount > 0 && (
                 <button
                   onClick={onClearFilters}
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                  className="text-sm text-theme-interactive-primary hover:text-indigo-500"
                 >
                   Clear all
                 </button>
@@ -150,9 +150,9 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.difficulty?.includes(option.value) || false}
                       onChange={() => handleFilterChange('difficulty', option.value)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{option.label}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -169,9 +169,9 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.category?.includes(category.id) || false}
                         onChange={() => handleFilterChange('category', category.id)}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                      <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                     </label>
                   ))}
                 </div>
@@ -189,9 +189,9 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.tags?.includes(tag.id) || false}
                         onChange={() => handleFilterChange('tags', tag.id)}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{tag.name}</span>
+                      <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
                     </label>
                   ))}
                 </div>
@@ -208,9 +208,9 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.status?.includes(option.value) || false}
                       onChange={() => handleFilterChange('status', option.value)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{option.label}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -230,9 +230,9 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         filters.estimatedTime?.max === range.max
                       }
                       onChange={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
                     />
-                    <span className="ml-2 text-sm text-gray-700">{range.label}</span>
+                    <span className="ml-2 text-sm text-theme-text-secondary">{range.label}</span>
                   </label>
                 ))}
               </div>

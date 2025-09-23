@@ -31,7 +31,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
   
   const getScoreColor = (percentage: number): string => {
     if (percentage >= 90) return 'text-green-600 bg-green-100';
-    if (percentage >= 80) return 'text-blue-600 bg-blue-100';
+    if (percentage >= 80) return 'text-theme-interactive-primary bg-blue-100';
     if (percentage >= 70) return 'text-yellow-600 bg-yellow-100';
     if (percentage >= 60) return 'text-orange-600 bg-orange-100';
     return 'text-red-600 bg-red-100';
@@ -101,8 +101,8 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
           <div className="text-sm text-red-700">Incorrect</div>
         </div>
         <div className="text-center p-4 bg-blue-50 rounded-lg">
-          <div className="text-2xl font-bold text-blue-600">{Math.round(accuracy)}%</div>
-          <div className="text-sm text-blue-700">Accuracy</div>
+          <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracy)}%</div>
+          <div className="text-sm text-theme-interactive-primary">Accuracy</div>
         </div>
         <div className="text-center p-4 bg-purple-50 rounded-lg">
           <div className="text-2xl font-bold text-purple-600">
@@ -119,7 +119,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-sm text-theme-text-secondary">Overall Score</span>
             <div className="flex items-center space-x-2">
-              <div className="w-32 bg-gray-200 rounded-full h-2">
+              <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${getScoreColor(score).split(' ')[0].replace('text-', 'bg-')}`}
                   style={{ width: `${score}%` }}
@@ -131,7 +131,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-sm text-theme-text-secondary">Accuracy</span>
             <div className="flex items-center space-x-2">
-              <div className="w-32 bg-gray-200 rounded-full h-2">
+              <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                 <div
                   className="h-2 rounded-full bg-green-500"
                   style={{ width: `${accuracy}%` }}
@@ -182,23 +182,23 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
       </div>
 
       {/* Navigation Links */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
+      <div className="mt-6 pt-6 border-t border-theme-border-primary">
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
           <Link
             to="/quizzes"
-            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+            className="text-theme-interactive-primary hover:text-theme-interactive-primary text-sm font-medium"
           >
             ← Back to Quizzes
           </Link>
           <Link
             to="/dashboard"
-            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+            className="text-theme-interactive-primary hover:text-theme-interactive-primary text-sm font-medium"
           >
             📊 View Dashboard
           </Link>
           <Link
             to="/my-quizzes"
-            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+            className="text-theme-interactive-primary hover:text-theme-interactive-primary text-sm font-medium"
           >
             📚 My Quizzes
           </Link>

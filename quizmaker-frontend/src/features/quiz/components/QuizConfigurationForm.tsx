@@ -71,10 +71,10 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           {getMethodSpecificTitle()}
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           {getMethodSpecificDescription()}
         </p>
       </div>
@@ -82,11 +82,11 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left column - Basic info */}
         <div className="space-y-6">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+          <div className="bg-theme-bg-secondary rounded-lg p-6">
+            <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Information</h4>
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Title *
               </label>
               <Input
@@ -100,13 +100,13 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-theme-text-tertiary">
                 A clear, descriptive title for your quiz (3-100 characters)
               </p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Description
               </label>
               <textarea
@@ -115,51 +115,51 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 placeholder="Enter quiz description..."
                 rows={4}
                 maxLength={1000}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.description ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary ${
+                  errors.description ? 'border-red-300' : 'border-theme-border-primary'
                 }`}
               />
               {errors.description && (
                 <p className="mt-1 text-sm text-red-600">{errors.description}</p>
               )}
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-theme-text-tertiary mt-1">
                 {(localData.description || '').length}/1000 characters
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-theme-text-tertiary">
                 Optional description to help users understand the quiz
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Visibility
                 </label>
                 <select
                   value={localData.visibility || 'PRIVATE'}
                   onChange={(e) => handleInputChange('visibility', e.target.value as Visibility)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="PRIVATE">Private</option>
                   <option value="PUBLIC">Public</option>
                 </select>
-                <p className="mt-1 text-xs text-gray-500">Who can see this quiz</p>
+                <p className="mt-1 text-xs text-theme-text-tertiary">Who can see this quiz</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Difficulty
                 </label>
                 <select
                   value={localData.difficulty || 'MEDIUM'}
                   onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="EASY">Easy</option>
                   <option value="MEDIUM">Medium</option>
                   <option value="HARD">Hard</option>
                 </select>
-                <p className="mt-1 text-xs text-gray-500">Overall quiz difficulty</p>
+                <p className="mt-1 text-xs text-theme-text-tertiary">Overall quiz difficulty</p>
               </div>
             </div>
           </div>
@@ -167,11 +167,11 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
 
         {/* Right column - Settings */}
         <div className="space-y-6">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Quiz Settings</h4>
+          <div className="bg-theme-bg-secondary rounded-lg p-6">
+            <h4 className="text-lg font-medium text-theme-text-primary mb-4">Quiz Settings</h4>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Estimated Time (minutes) *
               </label>
               <Input
@@ -186,7 +186,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
               {errors.estimatedTime && (
                 <p className="mt-1 text-sm text-red-600">{errors.estimatedTime}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-theme-text-tertiary">
                 How long the quiz should take to complete (1-180 minutes)
               </p>
             </div>
@@ -194,8 +194,8 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Enable Timer</label>
-                  <p className="text-xs text-gray-500">Add a time limit for the quiz</p>
+                  <label className="text-sm font-medium text-theme-text-secondary">Enable Timer</label>
+                  <p className="text-xs text-theme-text-tertiary">Add a time limit for the quiz</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -204,13 +204,13 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                     onChange={(e) => handleInputChange('timerEnabled', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
                 </label>
               </div>
 
               {localData.timerEnabled && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                     Timer Duration (minutes) *
                   </label>
                   <Input
@@ -225,7 +225,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                   {errors.timerDuration && (
                     <p className="mt-1 text-sm text-red-600">{errors.timerDuration}</p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-theme-text-tertiary">
                     Time limit for the quiz (1-180 minutes)
                   </p>
                 </div>
@@ -237,26 +237,26 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
           {/* Method-specific settings */}
           {creationMethod && (
             <div className="bg-blue-50 rounded-lg p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">
                 {creationMethod === 'manual' && 'Manual Creation Settings'}
                 {creationMethod === 'text' && 'Text Generation Settings'}
                 {creationMethod === 'document' && 'Document Generation Settings'}
               </h4>
               
               {creationMethod === 'manual' && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-theme-text-secondary">
                   You'll be able to add questions manually in the next step. Choose from various question types and create custom content.
                 </p>
               )}
               
               {creationMethod === 'text' && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-theme-text-secondary">
                   After creating the quiz, you'll be prompted to paste your text content. AI will analyze it and generate relevant questions.
                 </p>
               )}
               
               {creationMethod === 'document' && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-theme-text-secondary">
                   After creating the quiz, you'll be able to upload a document. The system will process it and generate questions automatically.
                 </p>
               )}
@@ -266,14 +266,14 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
       </div>
 
       {/* Create Quiz Button */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+      <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h4 className="text-lg font-medium text-gray-900">Ready to Create Quiz?</h4>
-            <p className="text-sm text-gray-600 mt-1">
+            <h4 className="text-lg font-medium text-theme-text-primary">Ready to Create Quiz?</h4>
+            <p className="text-sm text-theme-text-secondary mt-1">
               Review your settings above. You can always modify them later.
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-theme-text-tertiary mt-2">
               The quiz will be created as a draft. You'll add questions in the next step.
             </p>
           </div>

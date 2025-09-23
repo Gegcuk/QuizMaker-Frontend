@@ -298,7 +298,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       {/* Selection Details */}
       {selectedRegion && (
         <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-md">
-          <div className="text-sm text-indigo-700">
+          <div className="text-sm text-theme-interactive-primary">
             <strong>Selected Region:</strong>
             <div className="mt-1 text-xs">
               X: {selectedRegion.x.toFixed(1)}%, Y: {selectedRegion.y.toFixed(1)}%

@@ -98,7 +98,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
               />
-              <div className="hidden absolute inset-0 bg-gray-100 flex items-center justify-center">
+              <div className="hidden absolute inset-0 bg-theme-bg-tertiary flex items-center justify-center">
                 <div className="text-center text-theme-text-tertiary">
                   <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -122,7 +122,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                         ? 'border-red-500 bg-red-500 bg-opacity-20'
                         : isClicked
                         ? 'border-indigo-500 bg-indigo-500 bg-opacity-20'
-                        : 'border-transparent hover:border-gray-400 hover:bg-gray-400 hover:bg-opacity-10'
+                        : 'border-transparent hover:border-theme-border-secondary hover:bg-theme-bg-tertiary hover:bg-opacity-10'
                     }`}
                     style={{
                       left: `${region.x}%`,
@@ -168,9 +168,9 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
               {clickedRegions.length} region{clickedRegions.length !== 1 ? 's' : ''} clicked
             </span>
           </div>
-          <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+          <div className="mt-2 w-full bg-theme-bg-tertiary rounded-full h-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${(clickedRegions.length / regions.length) * 100}%` }}
             />
           </div>
@@ -196,7 +196,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                   <span className="font-medium text-red-800">{getIncorrectClicksCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-blue-700">Total correct regions:</span>
+                  <span className="text-theme-interactive-primary">Total correct regions:</span>
                   <span className="font-medium text-blue-800">{getTotalCorrectRegions()}</span>
                 </div>
               </div>
@@ -209,7 +209,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
       {showCorrectAnswer && regions && (
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
@@ -217,7 +217,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
               <div className="mt-2 space-y-1">
                 {regions.filter(r => r.correct).map((region) => (
                   <div key={region.id} className="flex items-center space-x-2 text-sm">
-                    <span className="font-medium text-blue-700">Region {region.id}:</span>
+                    <span className="font-medium text-theme-interactive-primary">Region {region.id}:</span>
                     <span className="text-blue-800">
                       ({region.x}%, {region.y}%) {region.width}×{region.height}
                     </span>

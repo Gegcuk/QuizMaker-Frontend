@@ -156,7 +156,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
@@ -165,11 +165,11 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Time Range:</label>
+            <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y')}
-              className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -187,12 +187,12 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-blue-600">Total Attempts</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Total Attempts</p>
                 <p className="text-2xl font-bold text-blue-900">{analytics.timesAsked}</p>
               </div>
             </div>
@@ -222,7 +222,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
+                <p className="text-sm font-medium text-theme-text-secondary">Success Rate</p>
                 <p className={`text-2xl font-bold ${getPerformanceColor(analytics.correctRate)}`}>
                   {formatPercentage(analytics.correctRate)}
                 </p>
@@ -251,16 +251,16 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Difficulty Breakdown */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Difficulty Breakdown</h4>
+          <div className="bg-theme-bg-secondary rounded-lg p-6">
+            <h4 className="text-lg font-medium text-theme-text-primary mb-4">Difficulty Breakdown</h4>
             <div className="space-y-4">
               {Object.entries(analytics.difficultyBreakdown).map(([difficulty, count]) => (
                 <div key={difficulty} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 capitalize">{difficulty}</span>
+                  <span className="text-sm font-medium text-theme-text-secondary capitalize">{difficulty}</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                    <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full"
+                        className="bg-theme-interactive-primary h-2 rounded-full"
                         style={{ width: `${(count / analytics.timesAsked) * 100}%` }}
                       />
                     </div>
@@ -272,8 +272,8 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           </div>
 
           {/* Question Type Breakdown */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Question Type Distribution</h4>
+          <div className="bg-theme-bg-secondary rounded-lg p-6">
+            <h4 className="text-lg font-medium text-theme-text-primary mb-4">Question Type Distribution</h4>
             <div className="space-y-4">
               {Object.entries(analytics.typeBreakdown)
                 .filter(([_, count]) => count > 0)
@@ -281,11 +281,11 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                 .slice(0, 5)
                 .map(([type, count]) => (
                   <div key={type} className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-theme-text-secondary">
                       {type.replace('_', ' ')}
                     </span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                         <div
                           className="bg-green-600 h-2 rounded-full"
                           style={{ width: `${(count / analytics.timesAsked) * 100}%` }}
@@ -301,19 +301,19 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
 
         {/* Recent Performance Chart */}
         <div className="mt-8">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Recent Performance Trend</h4>
-          <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Recent Performance Trend</h4>
+          <div className="bg-theme-bg-secondary rounded-lg p-6">
             <div className="flex items-end justify-between h-32">
               {analytics.recentPerformance.map((data, index) => (
                 <div key={data.date} className="flex flex-col items-center space-y-2">
                   <div
-                    className="bg-blue-600 rounded-t w-8"
+                    className="bg-theme-interactive-primary rounded-t w-8"
                     style={{ height: `${(data.correctRate / 100) * 80}px` }}
                   />
                   <span className="text-xs text-theme-text-tertiary">
                     {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
-                  <span className="text-xs font-medium text-gray-700">
+                  <span className="text-xs font-medium text-theme-text-secondary">
                     {formatPercentage(data.correctRate)}
                   </span>
                 </div>
@@ -324,7 +324,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
 
         {/* Insights */}
         <div className="mt-8">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Insights</h4>
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Insights</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h5 className="text-sm font-medium text-blue-900 mb-2">Performance Summary</h5>

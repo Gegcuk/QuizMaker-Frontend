@@ -82,7 +82,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
             type="button"
             onClick={handleSelectAll}
             disabled={disabled}
-            className="text-xs text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+            className="text-xs text-theme-interactive-primary hover:text-theme-interactive-primary disabled:opacity-50"
           >
             Select All
           </button>
@@ -122,7 +122,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
               
               <div className="ml-3 flex-1">
                 <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-gray-100 rounded-full mr-3 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full mr-3 flex-shrink-0">
                     {statementNumber}
                   </span>
                   <div className="text-theme-text-primary">
@@ -145,7 +145,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
         <div
           className="bg-green-500 h-2 rounded-full transition-all duration-300"
           style={{ width: `${(selectedStatements.length / statements.length) * 100}%` }}
@@ -175,7 +175,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
       {/* Instructions */}
       <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <div className="text-sm text-blue-700">
+        <div className="text-sm text-theme-interactive-primary">
           <strong>Instructions:</strong> Review each statement carefully and select all that comply with the requirements or criteria mentioned in the question.
         </div>
       </div>

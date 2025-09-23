@@ -163,23 +163,23 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Configure Your Document-Based Quiz
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Upload a document and configure how the AI should generate questions from it.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Quiz Settings */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Quiz Settings</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Quiz Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Title *
               </label>
               <Input
@@ -194,7 +194,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Description
               </label>
               <Input
@@ -209,13 +209,13 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Overall Difficulty
               </label>
               <select
                 value={localData.difficulty || 'MEDIUM'}
                 onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
@@ -226,14 +226,14 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </div>
 
         {/* Document Upload */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Document Upload</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Document Upload</h4>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Upload Document *
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-theme-border-primary rounded-lg p-6 text-center">
               <input
                 type="file"
                 onChange={handleFileUpload}
@@ -242,16 +242,16 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 id="document-upload"
               />
               <label htmlFor="document-upload" className="cursor-pointer">
-                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                   <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-indigo-600 hover:text-indigo-500">
+                  <p className="text-sm text-theme-text-secondary">
+                    <span className="font-medium text-theme-interactive-primary hover:text-indigo-500">
                       Click to upload
                     </span> or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500">PDF, DOC, DOCX, TXT up to 10MB</p>
+                  <p className="text-xs text-theme-text-tertiary">PDF, DOC, DOCX, TXT up to 10MB</p>
                 </div>
               </label>
             </div>
@@ -272,13 +272,13 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
           {/* Chunking Strategy */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Chunking Strategy
             </label>
             <select
               value={generationConfig.chunkingStrategy}
               onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
               <option value="CHAPTER_BASED">Chapter Based</option>
               <option value="FIXED_SIZE">Fixed Size</option>
@@ -288,7 +288,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           {/* Max Chunk Size */}
           {generationConfig.chunkingStrategy === 'FIXED_SIZE' && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Max Chunk Size (characters)
               </label>
               <Input
@@ -305,13 +305,13 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
           {/* Quiz Scope */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Quiz Scope
             </label>
             <select
               value={generationConfig.quizScope}
               onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
               <option value="ENTIRE_DOCUMENT">Entire Document</option>
               <option value="SPECIFIC_CHAPTER">Specific Chapter</option>
@@ -323,7 +323,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           {generationConfig.quizScope === 'SPECIFIC_CHAPTER' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Chapter Title
                 </label>
                 <Input
@@ -335,7 +335,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Chapter Number
                 </label>
                 <Input
@@ -352,13 +352,13 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </div>
 
         {/* Generation Settings */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Question Generation Settings</h4>
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Question Generation Settings</h4>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (
               <div key={type}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-1">
                   {type.replace('_', ' ')}
                 </label>
                 <Input
@@ -375,7 +375,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Estimated Time per Question (minutes)
               </label>
               <Input

@@ -146,9 +146,9 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
       case 'verifying':
         return (
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Verifying your email</h2>
-            <p className="text-gray-600">{verificationStatus.message}</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-theme-text-primary mb-2">Verifying your email</h2>
+            <p className="text-theme-text-secondary">{verificationStatus.message}</p>
           </div>
         );
 
@@ -160,11 +160,11 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Email verified successfully!</h2>
-            <p className="text-gray-600 mb-6">{verificationStatus.message}</p>
+            <h2 className="text-xl font-semibold text-theme-text-primary mb-2">Email verified successfully!</h2>
+            <p className="text-theme-text-secondary mb-6">{verificationStatus.message}</p>
             <Link
               to="/login"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
             >
               Continue to login
             </Link>
@@ -180,16 +180,16 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-theme-text-primary mb-2">
               {verificationStatus.status === 'expired' ? 'Verification link expired' : 'Verification failed'}
             </h2>
-            <p className="text-gray-600 mb-6">{verificationStatus.message}</p>
+            <p className="text-theme-text-secondary mb-6">{verificationStatus.message}</p>
             <div className="space-y-3">
               {email && (
                 <button
                   onClick={handleResendVerification}
                   disabled={isResending || resendCountdown > 0}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isResending ? (
                     <>
@@ -208,7 +208,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
               )}
               <Link
                 to="/login"
-                className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full inline-flex items-center justify-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
               >
                 Back to login
               </Link>
@@ -220,14 +220,14 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
         return (
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Check your email</h2>
-            <p className="text-gray-600 mb-4">{verificationStatus.message}</p>
+            <h2 className="text-xl font-semibold text-theme-text-primary mb-2">Check your email</h2>
+            <p className="text-theme-text-secondary mb-4">{verificationStatus.message}</p>
             {email && (
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-theme-text-tertiary mb-6">
                 We sent a verification link to <strong>{email}</strong>
               </p>
             )}
@@ -236,7 +236,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
                 <button
                   onClick={handleResendVerification}
                   disabled={isResending || resendCountdown > 0}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isResending ? (
                     <>
@@ -255,7 +255,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
               )}
               <Link
                 to="/login"
-                className="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full inline-flex items-center justify-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
               >
                 Back to login
               </Link>
@@ -267,7 +267,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
 
   return (
     <div className={`max-w-md mx-auto ${className}`}>
-      <div className="bg-white py-8 px-6 shadow rounded-lg">
+      <div className="bg-theme-bg-primary py-8 px-6 shadow rounded-lg">
         {renderContent()}
       </div>
     </div>

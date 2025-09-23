@@ -141,7 +141,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       case 'PAUSED':
         return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-theme-bg-tertiary text-theme-text-primary';
     }
   };
 
@@ -267,9 +267,9 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
                   <span>Progress</span>
                   <span>{getProgressPercentage(attempt)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${getProgressPercentage(attempt)}%` }}
                   />
                 </div>
@@ -332,7 +332,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       {/* Important Notes */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h4 className="text-sm font-medium text-blue-900 mb-2">Important Notes</h4>
-        <ul className="text-sm text-blue-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Resuming will continue from where you left off</li>
           <li>• Your previous answers are saved</li>
           <li>• Starting fresh will create a new attempt</li>

@@ -108,8 +108,8 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading questions...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4" />
+          <p className="text-theme-text-secondary">Loading questions...</p>
         </div>
       </div>
     );
@@ -123,7 +123,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={loadShuffledQuestions}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary transition-colors"
           >
             Try Again
           </button>
@@ -136,7 +136,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <p className="text-gray-600">No questions available for this quiz.</p>
+          <p className="text-theme-text-secondary">No questions available for this quiz.</p>
         </div>
       </div>
     );
@@ -150,12 +150,12 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Questions</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold text-theme-text-primary">Questions</h3>
+          <p className="text-sm text-theme-text-secondary">
             {answeredCount} of {totalQuestions} answered
           </p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-theme-text-tertiary">
           Questions are shuffled
         </div>
       </div>
@@ -187,7 +187,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
               <span className="text-lg">
                 {getQuestionTypeIcon(questions[currentQuestionIndex].type)}
               </span>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-theme-text-primary">
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </span>
             </div>
@@ -196,7 +196,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
             </span>
           </div>
 
-          <div className="text-sm text-gray-700 mb-2">
+          <div className="text-sm text-theme-text-secondary mb-2">
             {questions[currentQuestionIndex].questionText}
           </div>
 
@@ -208,11 +208,11 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
 
       {/* Progress Summary */}
       <div className="border-t pt-4 mt-4">
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-xs text-theme-text-tertiary">
           <span>Progress: {Math.round((answeredCount / totalQuestions) * 100)}%</span>
           <span>Remaining: {totalQuestions - answeredCount}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+        <div className="w-full bg-theme-bg-tertiary rounded-full h-1 mt-2">
           <div
             className="bg-green-500 h-1 rounded-full transition-all duration-300"
             style={{ width: `${(answeredCount / totalQuestions) * 100}%` }}
@@ -222,9 +222,9 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
 
       {/* Legend */}
       <div className="mt-4 pt-4 border-t">
-        <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+        <div className="flex items-center justify-center space-x-4 text-xs text-theme-text-tertiary">
           <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-gray-200 rounded-full" />
+            <div className="w-3 h-3 bg-theme-bg-tertiary rounded-full" />
             <span>Unanswered</span>
           </div>
           <div className="flex items-center space-x-1">

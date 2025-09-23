@@ -71,7 +71,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
       </div>
 
       {/* Summary */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-theme-text-primary">{totalAnswers}</div>
@@ -82,8 +82,8 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
             <div className="text-sm text-green-700">Correct</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-blue-600">{Math.round(accuracy)}%</div>
-            <div className="text-sm text-blue-700">Accuracy</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracy)}%</div>
+            <div className="text-sm text-theme-interactive-primary">Accuracy</div>
           </div>
         </div>
       </div>
@@ -124,7 +124,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                   </span>
                   <button
                     onClick={() => toggleAnswerExpansion(answer.answerId)}
-                    className="text-gray-400 hover:text-theme-text-secondary transition-colors"
+                    className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors"
                   >
                     {isExpanded ? '▼' : '▶'}
                   </button>
@@ -138,11 +138,11 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
               {/* Answer Details (Expanded) */}
               {isExpanded && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-theme-border-primary">
                   <div className="space-y-3">
                                          {/* Your Answer */}
                      <div>
-                       <div className="text-sm font-medium text-gray-700 mb-1">Answer Details:</div>
+                       <div className="text-sm font-medium text-theme-text-secondary mb-1">Answer Details:</div>
                        <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
                          <div className="text-sm text-theme-text-secondary">
                            <strong>Status:</strong> {answer.isCorrect ? 'Correct' : 'Incorrect'}
@@ -182,7 +182,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
       {/* Review Tips */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Review Tips:</h3>
-        <ul className="text-sm text-blue-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Click the arrow to expand each answer for detailed review</li>
           <li>• Pay attention to questions you got wrong - they're learning opportunities</li>
           <li>• Note the question types you struggle with for focused practice</li>

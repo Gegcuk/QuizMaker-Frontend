@@ -190,7 +190,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-sm border p-6 ${className}`}>
         <div className="flex items-center justify-center">
-          <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-6 w-6 text-theme-interactive-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -220,9 +220,9 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
   return (
     <div className={`bg-theme-bg-primary rounded-lg shadow-sm border ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Category Statistics</h3>
-        <p className="text-sm text-gray-500 mt-1">{category.name}</p>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h3 className="text-lg font-medium text-theme-text-primary">Category Statistics</h3>
+        <p className="text-sm text-theme-text-tertiary mt-1">{category.name}</p>
       </div>
 
       {/* Main Stats Grid */}
@@ -232,12 +232,12 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-blue-600">Total Quizzes</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Total Quizzes</p>
                 <p className="text-2xl font-bold text-blue-900">{stats.totalQuizzes}</p>
               </div>
             </div>
@@ -293,18 +293,18 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
           <>
             {/* Difficulty Distribution */}
             <div className="mt-8">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Difficulty Distribution</h4>
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Difficulty Distribution</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(stats.difficultyDistribution).map(([difficulty, count]) => (
-                  <div key={difficulty} className="bg-gray-50 rounded-lg p-4">
+                  <div key={difficulty} className="bg-theme-bg-secondary rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(difficulty as Difficulty)}`}>
                         {difficulty}
                       </span>
-                      <span className="text-lg font-bold text-gray-900">{count}</span>
+                      <span className="text-lg font-bold text-theme-text-primary">{count}</span>
                     </div>
                     <div className="mt-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
                             difficulty === 'EASY' ? 'bg-green-500' :
@@ -321,32 +321,32 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
 
             {/* Additional Metrics */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <p className="text-sm font-medium text-theme-text-secondary">Avg. Time (min)</p>
-                <p className="text-xl font-bold text-gray-900">{stats.averageEstimatedTime}</p>
+                <p className="text-xl font-bold text-theme-text-primary">{stats.averageEstimatedTime}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <p className="text-sm font-medium text-theme-text-secondary">Timer Enabled</p>
-                <p className="text-xl font-bold text-gray-900">{stats.timerEnabledCount}</p>
+                <p className="text-xl font-bold text-theme-text-primary">{stats.timerEnabledCount}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <p className="text-sm font-medium text-theme-text-secondary">Repetition Enabled</p>
-                <p className="text-xl font-bold text-gray-900">{stats.repetitionEnabledCount}</p>
+                <p className="text-xl font-bold text-theme-text-primary">{stats.repetitionEnabledCount}</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <p className="text-sm font-medium text-theme-text-secondary">Draft Quizzes</p>
-                <p className="text-xl font-bold text-gray-900">{stats.draftQuizzes}</p>
+                <p className="text-xl font-bold text-theme-text-primary">{stats.draftQuizzes}</p>
               </div>
             </div>
 
             {/* Recent Activity */}
             <div className="mt-8">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h4>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Recent Activity</h4>
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-theme-text-secondary">Last Created:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-theme-text-primary">
                       {stats.recentActivity.lastCreated 
                         ? new Date(stats.recentActivity.lastCreated).toLocaleDateString()
                         : 'Never'
@@ -355,7 +355,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-theme-text-secondary">Last Updated:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-theme-text-primary">
                       {stats.recentActivity.lastUpdated 
                         ? new Date(stats.recentActivity.lastUpdated).toLocaleDateString()
                         : 'Never'

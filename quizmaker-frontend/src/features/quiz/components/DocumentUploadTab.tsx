@@ -218,15 +218,15 @@ export const DocumentUploadTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - File Upload */}
         <div className="space-y-6">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Document Upload</h3>
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Document Upload</h3>
             
             {/* File Upload Area */}
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
                   ? 'border-blue-400 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
@@ -234,12 +234,12 @@ export const DocumentUploadTab: React.FC = () => {
               onDrop={handleDrop}
             >
               <div className="space-y-4">
-                <div className="text-6xl text-gray-400">📄</div>
+                <div className="text-6xl text-theme-text-tertiary">📄</div>
                 
                 {selectedFile ? (
                   <div className="space-y-2">
-                    <div className="text-lg font-medium text-gray-900">{selectedFile.name}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-lg font-medium text-theme-text-primary">{selectedFile.name}</div>
+                    <div className="text-sm text-theme-text-secondary">
                       {formatFileSize(selectedFile.size)} • {selectedFile.type}
                     </div>
                     <button
@@ -251,13 +251,13 @@ export const DocumentUploadTab: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="text-lg font-medium text-gray-900">
+                    <div className="text-lg font-medium text-theme-text-primary">
                       Drag and drop your document here
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-theme-text-secondary">
                       or click to browse files
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-theme-text-tertiary">
                       Supported: PDF, DOCX, TXT • Max size: 150 MB
                     </div>
                   </div>
@@ -274,7 +274,7 @@ export const DocumentUploadTab: React.FC = () => {
                 {!selectedFile && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
                   >
                     Choose File
                   </button>
@@ -285,11 +285,11 @@ export const DocumentUploadTab: React.FC = () => {
             {/* Document Processing Configuration */}
             {selectedFile && (
               <div className="mt-6 space-y-4">
-                <h4 className="font-medium text-gray-900">Document Processing</h4>
+                <h4 className="font-medium text-theme-text-primary">Document Processing</h4>
                 
                 {/* Chunking Strategy */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                     Chunking Strategy
                   </label>
                   <select
@@ -298,7 +298,7 @@ export const DocumentUploadTab: React.FC = () => {
                       ...prev,
                       chunkingStrategy: e.target.value
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                   >
                     <option value="AUTO">Auto - Best Strategy</option>
                     <option value="CHAPTER_BASED">Chapter Based</option>
@@ -306,14 +306,14 @@ export const DocumentUploadTab: React.FC = () => {
                     <option value="SIZE_BASED">Size Based</option>
                     <option value="PAGE_BASED">Page Based</option>
                   </select>
-                  <p className="mt-1 text-xs text-gray-600">
+                  <p className="mt-1 text-xs text-theme-text-secondary">
                     {getChunkingStrategyDescription(quizConfig.chunkingStrategy)}
                   </p>
                 </div>
 
                 {/* Max Chunk Size */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                     Maximum Chunk Size (characters)
                   </label>
                   <input
@@ -325,9 +325,9 @@ export const DocumentUploadTab: React.FC = () => {
                     }))}
                     min="1000"
                     max="100000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                   />
-                  <p className="mt-1 text-xs text-gray-600">
+                  <p className="mt-1 text-xs text-theme-text-secondary">
                     Recommended: 30,000-50,000 characters for optimal quiz generation
                   </p>
                 </div>
@@ -338,13 +338,13 @@ export const DocumentUploadTab: React.FC = () => {
 
         {/* Right Column - Quiz Configuration */}
         <div className="space-y-6">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Configuration</h3>
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
               {/* Quiz Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -355,13 +355,13 @@ export const DocumentUploadTab: React.FC = () => {
                     quizTitle: e.target.value
                   }))}
                   placeholder="Enter quiz title..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
 
               {/* Quiz Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Description
                 </label>
                 <textarea
@@ -372,13 +372,13 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz description..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
 
               {/* Quiz Scope */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Scope
                 </label>
                 <select
@@ -387,7 +387,7 @@ export const DocumentUploadTab: React.FC = () => {
                     ...prev,
                     quizScope: e.target.value as QuizScope
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="ENTIRE_DOCUMENT">Entire Document</option>
                   <option value="SPECIFIC_CHUNKS">Specific Chunks</option>
@@ -398,7 +398,7 @@ export const DocumentUploadTab: React.FC = () => {
 
               {/* Difficulty */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Difficulty Level
                 </label>
                 <select
@@ -407,7 +407,7 @@ export const DocumentUploadTab: React.FC = () => {
                     ...prev,
                     difficulty: e.target.value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 >
                   <option value="EASY">Easy</option>
                   <option value="MEDIUM">Medium</option>
@@ -417,12 +417,12 @@ export const DocumentUploadTab: React.FC = () => {
 
               {/* Questions Per Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Questions Per Type (per chunk) <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Multiple Choice (Single)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Single)</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_SINGLE}
@@ -435,11 +435,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Multiple Choice (Multi)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Multi)</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_MULTI}
@@ -452,11 +452,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">True/False</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.TRUE_FALSE}
@@ -469,11 +469,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Open Questions</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.OPEN}
@@ -486,11 +486,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Fill in the Gap</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Fill in the Gap</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.FILL_GAP}
@@ -503,11 +503,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Ordering</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Ordering</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.ORDERING}
@@ -520,18 +520,18 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-gray-600">
+                <p className="mt-2 text-xs text-theme-text-secondary">
                   Select at least one question type with at least 1 question per type
                 </p>
               </div>
 
               {/* Estimated Time Per Question */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Estimated Time Per Question (minutes)
                 </label>
                 <input
@@ -543,7 +543,7 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                 />
               </div>
             </div>
@@ -598,7 +598,7 @@ export const DocumentUploadTab: React.FC = () => {
       {/* Tips */}
       <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Tips for Best Results:</h3>
-        <ul className="text-sm text-blue-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Use well-structured documents with clear headings for better chunking</li>
           <li>• Select question types that match your learning objectives</li>
           <li>• Consider document size - larger documents may take longer to process</li>

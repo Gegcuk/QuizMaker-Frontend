@@ -71,10 +71,10 @@ const Footer: React.FC = () => {
             <div className="flex items-center mb-4">
               <div className="text-2xl font-bold text-theme-text-primary">QuizMaker</div>
             </div>
-            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+            <p className="text-theme-text-secondary text-sm leading-relaxed mb-4">
               Empowering educators and learners with intelligent quiz creation and assessment tools.
             </p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-theme-text-tertiary text-xs">
               Version {version}
             </p>
           </div>
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
+                    className="text-theme-text-secondary hover:text-theme-text-primary text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -107,7 +107,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/quizzes"
-                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
+                  className="text-theme-text-secondary hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Browse Quizzes
                 </Link>
@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/quizzes/create"
-                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
+                  className="text-theme-text-secondary hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Create Quiz
                 </Link>
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/analytics"
-                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
+                  className="text-theme-text-secondary hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Analytics
                 </Link>
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/api-docs"
-                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
+                  className="text-theme-text-secondary hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   API Documentation
                 </Link>
@@ -153,7 +153,7 @@ const Footer: React.FC = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
                     aria-label={social.name}
                   >
                     <Icon />
@@ -164,12 +164,12 @@ const Footer: React.FC = () => {
             
             {/* Contact Info */}
             <div className="mt-6">
-              <p className="text-gray-600 text-sm mb-2">
+              <p className="text-theme-text-secondary text-sm mb-2">
                 Need help? Contact us:
               </p>
               <a
                 href="mailto:support@quizmaker.com"
-                className="text-blue-600 hover:text-blue-800 text-sm transition-colors duration-200"
+                className="text-theme-interactive-primary hover:text-blue-800 text-sm transition-colors duration-200"
               >
                 support@quizmaker.com
               </a>
@@ -181,7 +181,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t border-theme-border-primary">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="text-gray-500 text-sm">
+            <div className="text-theme-text-tertiary text-sm">
               © {currentYear} QuizMaker. All rights reserved.
             </div>
 
@@ -189,25 +189,25 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm">
               <Link
                 to="/privacy"
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
               >
                 Privacy Policy
               </Link>
               <Link
                 to="/terms"
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
               >
                 Terms of Service
               </Link>
               <Link
                 to="/cookies"
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
               >
                 Cookie Policy
               </Link>
               <Link
                 to="/accessibility"
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
               >
                 Accessibility
               </Link>
@@ -216,7 +216,7 @@ const Footer: React.FC = () => {
 
           {/* Additional Legal Info */}
           <div className="mt-4 text-center md:text-left">
-            <p className="text-gray-400 text-xs">
+            <p className="text-theme-text-tertiary text-xs">
               QuizMaker is committed to providing accessible and secure educational technology solutions.
             </p>
           </div>

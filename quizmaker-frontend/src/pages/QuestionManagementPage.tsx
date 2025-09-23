@@ -253,8 +253,8 @@ const QuestionManagementPage: React.FC = () => {
         );
       default:
         return (
-          <div className="p-4 border border-gray-200 rounded-md bg-gray-50">
-            <p className="text-sm text-gray-600">Select a question type to continue.</p>
+          <div className="p-4 border border-theme-border-primary rounded-md bg-theme-bg-secondary">
+            <p className="text-sm text-theme-text-secondary">Select a question type to continue.</p>
           </div>
         );
     }
@@ -304,11 +304,11 @@ const QuestionManagementPage: React.FC = () => {
           </div>
         ) : (questions || []).length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No questions</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating a new question.</p>
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No questions</h3>
+            <p className="mt-1 text-sm text-theme-text-tertiary">Get started by creating a new question.</p>
             <div className="mt-6">
               <Button onClick={openCreate} variant="primary" size="sm">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,8 +319,8 @@ const QuestionManagementPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
+          <div className="bg-theme-bg-primary shadow overflow-hidden sm:rounded-md">
+            <ul className="divide-y divide-theme-border-primary">
               {(questions || []).map((question) => (
                 <li key={question.id}>
                   <div className="px-4 py-4 sm:px-6">
@@ -337,7 +337,7 @@ const QuestionManagementPage: React.FC = () => {
                         </div>
                         
                         {/* Question Metadata (no duplicate chips; renderer already shows type/difficulty) */}
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-4 text-sm text-theme-text-tertiary">
                           <div className="flex items-center">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -402,7 +402,7 @@ const QuestionManagementPage: React.FC = () => {
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-theme-text-secondary">
                   Showing page <span className="font-medium">{page + 1}</span> of{' '}
                   <span className="font-medium">{totalPages}</span>
                 </p>
@@ -412,7 +412,7 @@ const QuestionManagementPage: React.FC = () => {
                   <button
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
                     disabled={page === 0}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50"
                   >
                     <span className="sr-only">Previous</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -422,7 +422,7 @@ const QuestionManagementPage: React.FC = () => {
                   <button
                     onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
                     disabled={page + 1 === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50"
                   >
                     <span className="sr-only">Next</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

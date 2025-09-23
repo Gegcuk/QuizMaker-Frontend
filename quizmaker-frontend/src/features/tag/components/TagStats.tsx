@@ -185,7 +185,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
       );
     }
     return (
-      <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+      <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
         <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
       </svg>
     );
@@ -193,10 +193,10 @@ export const TagStats: React.FC<TagStatsProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-sm border p-6 ${className}`}>
         <div className="flex items-center justify-center">
           <Spinner />
-          <span className="ml-2 text-gray-600">Loading statistics...</span>
+          <span className="ml-2 text-theme-text-secondary">Loading statistics...</span>
         </div>
       </div>
     );
@@ -220,11 +220,11 @@ export const TagStats: React.FC<TagStatsProps> = ({
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
+    <div className={`bg-theme-bg-primary rounded-lg shadow-sm border ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Tag Statistics</h3>
-        <p className="text-sm text-gray-500 mt-1">Overview of tag usage and performance</p>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h3 className="text-lg font-medium text-theme-text-primary">Tag Statistics</h3>
+        <p className="text-sm text-theme-text-tertiary mt-1">Overview of tag usage and performance</p>
       </div>
 
       {/* Main Stats Grid */}
@@ -234,12 +234,12 @@ export const TagStats: React.FC<TagStatsProps> = ({
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-blue-600">Total Tags</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Total Tags</p>
                 <p className="text-2xl font-bold text-blue-900">{stats.totalTags}</p>
               </div>
             </div>
@@ -295,7 +295,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
           <>
             {/* Usage Distribution */}
             <div className="mt-8">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Usage Distribution</h4>
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Usage Distribution</h4>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-red-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -342,15 +342,15 @@ export const TagStats: React.FC<TagStatsProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-theme-bg-secondary rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600">Unused</span>
-                    <span className="text-lg font-bold text-gray-900">{stats.usageDistribution.unused}</span>
+                    <span className="text-sm font-medium text-theme-text-secondary">Unused</span>
+                    <span className="text-lg font-bold text-theme-text-primary">{stats.usageDistribution.unused}</span>
                   </div>
                   <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 bg-gray-500 rounded-full"
+                        className="h-2 bg-theme-bg-secondary0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.unused / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
@@ -361,24 +361,24 @@ export const TagStats: React.FC<TagStatsProps> = ({
 
             {/* Most Used Tags */}
             <div className="mt-8">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Most Used Tags</h4>
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Most Used Tags</h4>
               <div className="space-y-3">
                 {stats.mostUsedTags.map((item, index) => (
-                  <div key={item.tag.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={item.tag.id} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                      <div className="w-8 h-8 bg-blue-100 text-theme-interactive-primary rounded-full flex items-center justify-center text-sm font-medium mr-3">
                         {index + 1}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{item.tag.name}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="font-medium text-theme-text-primary">{item.tag.name}</div>
+                        <div className="text-sm text-theme-text-tertiary">
                           {item.tag.description || 'No description'}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">{item.usageCount} quizzes</div>
-                      <div className="text-xs text-gray-500">Usage count</div>
+                      <div className="text-sm font-medium text-theme-text-primary">{item.usageCount} quizzes</div>
+                      <div className="text-xs text-theme-text-tertiary">Usage count</div>
                     </div>
                   </div>
                 ))}
@@ -387,12 +387,12 @@ export const TagStats: React.FC<TagStatsProps> = ({
 
             {/* Recent Activity */}
             <div className="mt-8">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h4>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Recent Activity</h4>
+              <div className="bg-theme-bg-secondary rounded-lg p-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Last Created:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm text-theme-text-secondary">Last Created:</span>
+                    <span className="text-sm font-medium text-theme-text-primary">
                       {stats.recentActivity.lastCreated 
                         ? new Date(stats.recentActivity.lastCreated).toLocaleDateString()
                         : 'Never'
@@ -400,8 +400,8 @@ export const TagStats: React.FC<TagStatsProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Last Updated:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm text-theme-text-secondary">Last Updated:</span>
+                    <span className="text-sm font-medium text-theme-text-primary">
                       {stats.recentActivity.lastUpdated 
                         ? new Date(stats.recentActivity.lastUpdated).toLocaleDateString()
                         : 'Never'

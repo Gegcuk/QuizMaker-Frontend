@@ -82,14 +82,14 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-6">
-        <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+        <div className="h-8 bg-theme-bg-tertiary rounded w-1/4"></div>
+        <div className="h-4 bg-theme-bg-tertiary rounded w-1/2"></div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
-            <div className="h-64 bg-gray-300 rounded"></div>
-            <div className="h-64 bg-gray-300 rounded"></div>
+            <div className="h-64 bg-theme-bg-tertiary rounded"></div>
+            <div className="h-64 bg-theme-bg-tertiary rounded"></div>
           </div>
-          <div className="h-96 bg-gray-300 rounded"></div>
+          <div className="h-96 bg-theme-bg-tertiary rounded"></div>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
 
       {/* View Toggle */}
       <div className="flex justify-center">
-        <div className="bg-gray-100 rounded-lg p-1">
+        <div className="bg-theme-bg-tertiary rounded-lg p-1">
           <button
             type="button"
             onClick={() => setActiveView('questions')}
@@ -146,7 +146,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           />
           
           {/* Action buttons */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="text-lg font-medium text-theme-text-primary">
@@ -158,7 +158,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                     : 'Add at least one question to complete your quiz.'
                   }
                 </p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-theme-text-tertiary mt-2">
                   <strong>Complete:</strong> Finish quiz creation and go to quiz list • <strong>Save Draft:</strong> Save for later editing
                 </p>
               </div>
@@ -207,7 +207,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           />
           
           {/* Action buttons */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="text-lg font-medium text-theme-text-primary">

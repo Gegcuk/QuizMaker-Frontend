@@ -152,8 +152,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
         type="button"
         onClick={handleToggleDropdown}
         disabled={disabled}
-        className={`w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed ${
-          isOpen ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-gray-400'
+        className={`w-full px-3 py-2 text-left bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+          isOpen ? 'ring-2 ring-theme-interactive-primary border-blue-500' : 'hover:border-theme-border-secondary'
         }`}
       >
         <div className="flex items-center justify-between">
@@ -181,13 +181,13 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                   </span>
                 ))}
                 {selectedTags.length > 3 && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-tertiary text-theme-text-secondary">
                     +{selectedTags.length - 3} more
                   </span>
                 )}
               </div>
             ) : (
-              <span className={`block truncate ${selectedTags.length === 0 ? 'text-gray-500' : 'text-gray-900'}`}>
+              <span className={`block truncate ${selectedTags.length === 0 ? 'text-theme-text-tertiary' : 'text-theme-text-primary'}`}>
                 {getDisplayText()}
               </span>
             )}
@@ -200,7 +200,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                   e.stopPropagation();
                   handleClearAll();
                 }}
-                className="mr-1 p-1 text-gray-400 hover:text-gray-600"
+                className="mr-1 p-1 text-theme-text-tertiary hover:text-theme-text-secondary"
                 title="Clear all"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -209,7 +209,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
               </button>
             )}
             <svg
-              className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-theme-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -221,17 +221,17 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-lg max-h-60 overflow-auto">
           {/* Search Input */}
           {showSearch && (
-            <div className="p-2 border-b border-gray-200">
+            <div className="p-2 border-b border-theme-border-primary">
               <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
               />
             </div>
           )}
@@ -250,9 +250,9 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
           {/* Loading State */}
           {loading && (
-            <div className="p-3 text-sm text-gray-500 text-center">
+            <div className="p-3 text-sm text-theme-text-tertiary text-center">
               <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-theme-text-tertiary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -265,7 +265,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           {!loading && !error && (
             <div className="py-1">
               {filteredTags.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500 text-center">
+                <div className="px-3 py-2 text-sm text-theme-text-tertiary text-center">
                   {searchTerm ? 'No tags found matching your search.' : 'No tags available.'}
                 </div>
               ) : (
@@ -274,8 +274,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                     key={tag.id}
                     type="button"
                     onClick={() => handleTagSelect(tag)}
-                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none ${
-                      isTagSelected(tag) ? 'bg-blue-50 text-blue-900' : 'text-gray-900'
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-theme-bg-tertiary focus:bg-theme-bg-tertiary focus:outline-none ${
+                      isTagSelected(tag) ? 'bg-blue-50 text-blue-900' : 'text-theme-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -287,11 +287,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                           <div className="font-medium truncate">{tag.name}</div>
                         </div>
                         {tag.description && (
-                          <div className="text-xs text-gray-500 truncate mt-1">{tag.description}</div>
+                          <div className="text-xs text-theme-text-tertiary truncate mt-1">{tag.description}</div>
                         )}
                       </div>
                       {isTagSelected(tag) && (
-                        <svg className="w-4 h-4 text-blue-600 ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-4 h-4 text-theme-interactive-primary ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       )}

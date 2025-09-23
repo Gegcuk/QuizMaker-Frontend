@@ -301,7 +301,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 or click to browse files
               </div>
               {config && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-theme-text-tertiary">
                   Supported: PDF, DOCX, TXT, RTF • 
                   Max size: 130 MB
                 </div>
@@ -320,7 +320,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           {!selectedFile && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
             >
               Choose File
             </button>
@@ -330,13 +330,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Upload Configuration */}
       {selectedFile && config && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-secondary rounded-lg">
           <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Upload Configuration</h3>
           
           <div className="space-y-4">
             {/* Chunking Strategy */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Chunking Strategy
               </label>
               <select
@@ -345,7 +345,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   chunkingStrategy: e.target.value as ChunkingStrategy
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="AUTO">Auto - Best Strategy</option>
                 <option value="CHAPTER_BASED">Chapter Based</option>
@@ -360,7 +360,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             {/* Max Chunk Size */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Maximum Chunk Size (characters)
               </label>
               <input
@@ -372,7 +372,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               />
               <p className="mt-1 text-xs text-theme-text-secondary">
                 Recommended: 500-2000 characters for optimal quiz generation
@@ -389,9 +389,9 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             <span>Uploading...</span>
             <span>{uploadProgress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
@@ -423,7 +423,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       {/* Upload Tips */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Upload Tips:</h3>
-        <ul className="text-sm text-blue-700 space-y-1">
+        <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Supported formats: PDF, DOCX, TXT, RTF</li>
           <li>• Maximum file size: 130 MB</li>
           <li>• Documents are processed automatically after upload</li>
@@ -501,7 +501,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           <div className="space-y-4">
             {/* Quiz Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -512,13 +512,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   quizTitle: e.target.value
                 }))}
                 placeholder="Enter quiz title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               />
             </div>
 
             {/* Quiz Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Description
               </label>
               <textarea
@@ -529,13 +529,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 placeholder="Enter quiz description..."
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               />
             </div>
 
             {/* Quiz Scope */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Scope
               </label>
               <select
@@ -544,7 +544,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   quizScope: e.target.value as QuizScope
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="ENTIRE_DOCUMENT">Entire Document</option>
                 <option value="SPECIFIC_CHUNKS">Specific Chunks</option>
@@ -555,7 +555,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Difficulty Level
               </label>
               <select
@@ -564,7 +564,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   difficulty: e.target.value as any
                 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               >
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
@@ -574,7 +574,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             {/* Questions Per Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Questions Per Type (per chunk)
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -598,7 +598,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                   />
                 </div>
                 <div>
@@ -621,7 +621,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                   />
                 </div>
                 <div>
@@ -644,7 +644,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="5"
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
                   />
                 </div>
               </div>
@@ -652,7 +652,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             {/* Estimated Time Per Question */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Estimated Time Per Question (minutes)
               </label>
               <input
@@ -664,7 +664,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="1"
                 max="10"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
               />
             </div>
           </div>

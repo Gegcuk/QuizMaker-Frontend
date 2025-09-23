@@ -145,7 +145,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-indigo-500"
           >
             Back to login
           </Link>
@@ -157,8 +157,8 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   return (
     <div className={`max-w-md mx-auto ${className}`}>
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Forgot your password?</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-bold text-theme-text-primary">Forgot your password?</h2>
+        <p className="mt-2 text-sm text-theme-text-secondary">
           Enter your email address and we'll send you a link to reset your password.
         </p>
       </div>
@@ -182,7 +182,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
         {/* Email field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-theme-text-secondary">
             Email Address
           </label>
           <div className="mt-1">
@@ -192,8 +192,8 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               type="email"
               autoComplete="email"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                errors.email ? 'border-red-300' : 'border-gray-300'
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                errors.email ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               value={email}
               onChange={handleInputChange}
@@ -211,7 +211,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -231,7 +231,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-indigo-500"
           >
             Back to login
           </Link>

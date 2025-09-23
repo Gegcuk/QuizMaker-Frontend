@@ -50,10 +50,10 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Configure Your Manual Quiz
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Set up the basic information for your quiz. You'll add questions manually in the next step.
         </p>
       </div>
@@ -61,7 +61,7 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Quiz Title */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Quiz Title *
           </label>
           <Input
@@ -76,14 +76,14 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Description
           </label>
           <textarea
             value={localData.description || ''}
             onChange={(e) => handleInputChange('description', e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             placeholder="Describe your quiz..."
           />
         </div>
@@ -91,13 +91,13 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
 
         {/* Difficulty */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Overall Difficulty
           </label>
           <select
             value={localData.difficulty || 'MEDIUM'}
             onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
           >
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
@@ -108,7 +108,7 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
 
         {/* Estimated Time */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Estimated Time (minutes)
           </label>
           <Input

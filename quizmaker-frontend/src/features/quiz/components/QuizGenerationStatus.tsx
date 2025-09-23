@@ -103,7 +103,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING': return 'text-yellow-600 bg-yellow-100';
-      case 'PROCESSING': return 'text-blue-600 bg-blue-100';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-100';
       case 'COMPLETED': return 'text-green-600 bg-green-100';
       case 'FAILED': return 'text-red-600 bg-red-100';
       case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-tertiary';
@@ -152,9 +152,9 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
               <span>Progress</span>
               <span>{status.progressPercentage || 0}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-theme-bg-tertiary rounded-full h-2 overflow-hidden">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(Math.max(status.progressPercentage || 0, 0), 100)}%` }}
               />
             </div>

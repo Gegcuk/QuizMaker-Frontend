@@ -117,17 +117,17 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   const renderTextGenerationForm = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-2">
           Generate Questions from Text
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Paste your text content below and AI will generate relevant questions.
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Text Content *
           </label>
           <textarea
@@ -135,22 +135,22 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
             onChange={(e) => setTextContent(e.target.value)}
             placeholder="Paste your text content here... (minimum 50 characters)"
             rows={10}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
           />
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-theme-text-tertiary mt-1">
             {textContent.length} characters (minimum 50)
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Difficulty
             </label>
             <select
               value={config.difficulty}
               onChange={(e) => setConfig(prev => ({ ...prev, difficulty: e.target.value as Difficulty }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
             >
               <option value="EASY">Easy</option>
               <option value="MEDIUM">Medium</option>
@@ -159,7 +159,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Time per Question (minutes)
             </label>
             <Input
@@ -173,13 +173,13 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
             Question Types & Counts
           </label>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(config.questionsPerType).map(([type, count]) => (
               <div key={type} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">{type.replace('_', ' ')}</span>
+                <span className="text-sm text-theme-text-secondary">{type.replace('_', ' ')}</span>
                 <Input
                   type="number"
                   value={count}
@@ -217,27 +217,27 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   const renderDocumentGenerationForm = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-2">
           Generate Questions from Document
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Upload a document and AI will analyze it to generate relevant questions.
         </p>
       </div>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+      <div className="border-2 border-dashed border-theme-border-primary rounded-lg p-8 text-center">
         <div className="space-y-4">
-          <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" stroke="currentColor" fill="none" viewBox="0 0 48 48">
             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer">
+            <p className="text-sm text-theme-text-secondary">
+              <span className="font-medium text-theme-interactive-primary hover:text-blue-500 cursor-pointer">
                 Click to upload
               </span>
               {' '}or drag and drop
             </p>
-            <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+            <p className="text-xs text-theme-text-tertiary">PDF, DOC, DOCX up to 10MB</p>
           </div>
         </div>
       </div>
