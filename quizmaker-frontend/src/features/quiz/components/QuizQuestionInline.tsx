@@ -310,7 +310,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
                         size="sm"
                         onClick={() => handleRemove(q.id)}
                         title="Delete question"
-                        className="p-2 text-red-600 hover:text-red-700"
+                        className="p-2 text-theme-interactive-danger hover:text-red-700"
                       >
                         <TrashIcon className="w-4 h-4" />
                       </Button>

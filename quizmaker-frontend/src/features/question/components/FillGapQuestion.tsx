@@ -55,8 +55,8 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
               className={`inline-block min-w-[120px] border rounded-md px-2 py-1 text-sm ${
                 showCorrectAnswer
                   ? userAnswer === correctAnswer
-                    ? 'border-green-300 bg-green-50 text-green-800'
-                    : 'border-red-300 bg-red-50 text-red-800'
+                    ? 'border-green-300 bg-theme-bg-success text-theme-interactive-success'
+                    : 'border-red-300 bg-theme-bg-danger text-theme-interactive-danger'
                   : 'border-theme-border-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary'
               }`}
               placeholder={`Gap ${gapId}`}
@@ -116,20 +116,20 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && gaps && gaps.length > 0 && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-md">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-theme-interactive-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-green-800">Correct Answers</p>
+              <p className="text-sm font-medium text-theme-interactive-success">Correct Answers</p>
               <div className="mt-2 space-y-1">
                 {gaps.map((gap) => (
                   <div key={gap.id} className="flex items-center space-x-2 text-sm">
                     <span className="font-medium text-green-700">Gap {gap.id}:</span>
-                    <span className="text-green-800">{gap.answer}</span>
+                    <span className="text-theme-interactive-success">{gap.answer}</span>
                     {answers[gap.id] === gap.answer && (
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -148,13 +148,13 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
 
       {/* Answer Review */}
       {showCorrectAnswer && Object.keys(answers).length > 0 && (
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="mt-4 p-4 bg-theme-bg-info border border-theme-border-info rounded-md">
           <div className="flex items-start space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-blue-800">Your Answers</p>
+              <p className="text-sm font-medium text-theme-interactive-info">Your Answers</p>
               <div className="mt-2 space-y-1">
                 {Object.entries(answers).map(([gapId, answer]) => {
                   const gap = gaps?.find(g => g.id === parseInt(gapId));
@@ -162,15 +162,15 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
                   return (
                     <div key={gapId} className="flex items-center space-x-2 text-sm">
                       <span className="font-medium text-theme-interactive-primary">Gap {gapId}:</span>
-                      <span className={isCorrect ? 'text-green-800' : 'text-red-800'}>
+                      <span className={isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                         {answer || '(empty)'}
                       </span>
                       {isCorrect ? (
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       )}

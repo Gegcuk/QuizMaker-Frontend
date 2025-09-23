@@ -77,11 +77,11 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'Medium':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'Advanced':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-danger';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -104,7 +104,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
             key={option.id}
             className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-sm ${
               selectedMethod === option.id
-                ? 'ring-2 ring-theme-interactive-primary border-blue-200 shadow-lg bg-blue-50'
+                ? 'ring-2 ring-theme-interactive-primary border-theme-border-info shadow-lg bg-theme-bg-info'
                 : 'hover:border-theme-border-secondary hover:shadow-lg hover:bg-theme-bg-secondary'
             }`}
             onClick={() => onMethodSelect(option.id)}
@@ -113,7 +113,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
               {/* Selection indicator */}
               {selectedMethod === option.id && (
                 <div className="absolute top-4 right-4">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-theme-bg-info0 rounded-full flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -163,7 +163,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
       </div>
 
       {/* Additional info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-theme-bg-info border border-theme-border-info rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
@@ -171,7 +171,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">
+            <h3 className="text-sm font-medium text-theme-interactive-info">
               Need help choosing?
             </h3>
             <div className="mt-2 text-sm text-theme-interactive-primary">

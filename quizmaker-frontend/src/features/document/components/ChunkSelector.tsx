@@ -110,13 +110,13 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   const getChunkTypeColor = (chunkType: ChunkType): string => {
     switch (chunkType) {
       case 'CHAPTER':
-        return 'text-theme-interactive-primary bg-blue-100';
+        return 'text-theme-interactive-primary bg-theme-bg-info';
       case 'SECTION':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'PAGE_BASED':
-        return 'text-purple-600 bg-purple-100';
+        return 'text-theme-interactive-primary bg-theme-bg-primary';
       case 'SIZE_BASED':
-        return 'text-orange-600 bg-orange-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -154,8 +154,8 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="text-red-600 text-2xl mb-2">❌</div>
-          <p className="text-red-800">{error}</p>
+          <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
       </div>
     );
@@ -172,22 +172,22 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         <p className="text-theme-text-secondary">Choose which parts of the document to use for quiz generation</p>
         
         {/* Selection Stats */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+        <div className="mt-4 p-3 bg-theme-bg-info rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <div className="font-medium text-blue-900">{stats.total}</div>
               <div className="text-theme-interactive-primary">Total Chunks</div>
             </div>
             <div>
-              <div className="font-medium text-green-600">{stats.selected}</div>
+              <div className="font-medium text-theme-interactive-success">{stats.selected}</div>
               <div className="text-green-700">Selected</div>
             </div>
             <div>
-              <div className="font-medium text-purple-600">{stats.filtered}</div>
+              <div className="font-medium text-theme-interactive-primary">{stats.filtered}</div>
               <div className="text-purple-700">Filtered</div>
             </div>
             <div>
-              <div className="font-medium text-orange-600">{stats.selectedInFilter}</div>
+              <div className="font-medium text-theme-interactive-warning">{stats.selectedInFilter}</div>
               <div className="text-orange-700">Selected in Filter</div>
             </div>
           </div>
@@ -268,7 +268,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                 key={chunk.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                   selectedChunks.has(chunk.id)
-                    ? 'border-theme-interactive-primary bg-blue-50'
+                    ? 'border-theme-interactive-primary bg-theme-bg-info'
                     : 'border-theme-border-primary hover:border-theme-border-primary hover:bg-theme-bg-secondary'
                 }`}
                 onClick={() => toggleChunkSelection(chunk.id)}

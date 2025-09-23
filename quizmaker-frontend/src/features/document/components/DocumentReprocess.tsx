@@ -92,9 +92,9 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PROCESSED': return 'text-green-600 bg-green-50';
-      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-50';
-      case 'FAILED': return 'text-red-600 bg-red-50';
+      case 'PROCESSED': return 'text-theme-interactive-success bg-theme-bg-success';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-theme-bg-info';
+      case 'FAILED': return 'text-theme-interactive-danger bg-theme-bg-danger';
       default: return 'text-theme-text-secondary bg-theme-bg-secondary';
     }
   };
@@ -180,7 +180,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-sm text-theme-interactive-primary hover:text-blue-800"
+            className="text-sm text-theme-interactive-primary hover:text-theme-interactive-info"
           >
             {showAdvanced ? 'Hide' : 'Show'} Advanced Options
           </button>
@@ -258,7 +258,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -266,7 +266,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-theme-interactive-danger">{error}</p>
             </div>
           </div>
         </div>
@@ -276,7 +276,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       <div className="flex items-center justify-between">
         <div className="text-sm text-theme-text-secondary">
           {document.processingError && (
-            <p className="text-red-600">
+            <p className="text-theme-interactive-danger">
               Previous error: {document.processingError}
             </p>
           )}
@@ -312,7 +312,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       </div>
 
       {/* Warning */}
-      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="mt-4 p-3 bg-theme-bg-warning border border-yellow-200 rounded-lg">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -320,7 +320,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-yellow-800">
+            <p className="text-sm text-theme-interactive-warning">
               <strong>Warning:</strong> Reprocessing will replace all existing chunks and may take several minutes depending on document size.
             </p>
           </div>

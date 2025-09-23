@@ -162,7 +162,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                 {selectedCategories.slice(0, 3).map(category => (
                   <span
                     key={category.id}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
                     {category.name}
                     <button
@@ -237,7 +237,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 
           {/* Error State */}
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border-b border-red-200">
+            <div className="p-3 text-sm text-theme-interactive-danger bg-theme-bg-danger border-b border-red-200">
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -274,7 +274,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     type="button"
                     onClick={() => handleCategorySelect(category)}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-theme-bg-tertiary focus:bg-theme-bg-tertiary focus:outline-none ${
-                      isCategorySelected(category) ? 'bg-blue-50 text-blue-900' : 'text-theme-text-primary'
+                      isCategorySelected(category) ? 'bg-theme-bg-info text-blue-900' : 'text-theme-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -298,7 +298,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 
           {/* Max Selections Warning */}
           {multiple && maxSelections && selectedCategories.length >= maxSelections && (
-            <div className="p-2 text-xs text-amber-600 bg-amber-50 border-t border-amber-200">
+            <div className="p-2 text-xs text-theme-interactive-warning bg-theme-bg-warning border-t border-amber-200">
               Maximum {maxSelections} categories selected. Remove some to add more.
             </div>
           )}

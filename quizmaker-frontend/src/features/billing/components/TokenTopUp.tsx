@@ -129,7 +129,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-md border border-red-200 bg-theme-bg-danger px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -139,11 +139,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse rounded-md border border-indigo-100 bg-indigo-50/60 p-4"
+              className="animate-pulse rounded-md border border-indigo-100 bg-theme-bg-primary/60 p-4"
             >
-              <div className="mb-2 h-4 w-24 rounded bg-indigo-100" />
-              <div className="mb-1 h-6 w-32 rounded bg-indigo-100" />
-              <div className="h-3 w-20 rounded bg-indigo-100" />
+              <div className="mb-2 h-4 w-24 rounded bg-theme-bg-primary" />
+              <div className="mb-1 h-6 w-32 rounded bg-theme-bg-primary" />
+              <div className="h-3 w-20 rounded bg-theme-bg-primary" />
             </div>
           ))}
         </div>
@@ -161,7 +161,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
                   onClick={() => setSelectedPackId(pack.id)}
                   className={`w-full rounded-md border p-4 text-left transition-all ${
                     isSelected
-                      ? 'border-indigo-500 bg-indigo-50 shadow-sm'
+                      ? 'border-indigo-500 bg-theme-bg-primary shadow-sm'
                       : 'border-indigo-100 bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
                   }`}
                   aria-pressed={isSelected}
@@ -185,7 +185,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               type="button"
               onClick={handleCheckout}
               disabled={!selectedPack || isProcessingCheckout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-theme-bg-primary0 disabled:cursor-not-allowed disabled:bg-indigo-300"
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
             </button>
@@ -194,7 +194,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       ) : null}
 
       {!isLoading && config && config.prices.length === 0 && !error ? (
-        <div className="rounded-md border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+        <div className="rounded-md border border-indigo-100 bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary">
           Token packs are not configured yet. Please check back later.
         </div>
       ) : null}

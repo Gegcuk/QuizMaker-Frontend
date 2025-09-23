@@ -207,15 +207,15 @@ const UserActivity: React.FC<UserActivityProps> = ({
     switch (type) {
       case 'quiz_completed':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex-shrink-0 w-8 h-8 bg-theme-bg-success rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-theme-interactive-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         );
       case 'quiz_created':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <div className="flex-shrink-0 w-8 h-8 bg-theme-bg-info rounded-full flex items-center justify-center">
             <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
@@ -223,16 +223,16 @@ const UserActivity: React.FC<UserActivityProps> = ({
         );
       case 'quiz_shared':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex-shrink-0 w-8 h-8 bg-theme-bg-primary rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
             </svg>
           </div>
         );
       case 'achievement_unlocked':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex-shrink-0 w-8 h-8 bg-theme-bg-warning rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-theme-interactive-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
           </div>
@@ -247,7 +247,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
         );
       case 'profile_updated':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+          <div className="flex-shrink-0 w-8 h-8 bg-theme-bg-primary rounded-full flex items-center justify-center">
             <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -303,7 +303,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
 
   if (errors) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -311,7 +311,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-red-800">{errors}</p>
+            <p className="text-sm text-theme-interactive-danger">{errors}</p>
           </div>
         </div>
       </div>

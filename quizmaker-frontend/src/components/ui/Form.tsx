@@ -211,7 +211,7 @@ const Form = <T extends FieldValues = FieldValues>({
         {children}
         
         {showValidationErrors && Object.keys(errors).length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -227,7 +227,7 @@ const Form = <T extends FieldValues = FieldValues>({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
+                <h3 className="text-sm font-medium text-theme-interactive-danger">
                   Please fix the following errors:
                 </h3>
                 <div className="mt-2 text-sm text-red-700">

@@ -120,8 +120,8 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
                                      <div className="flex justify-between">
                      <span className="text-theme-text-secondary">Status:</span>
                      <span className={`font-medium ${
-                       'status' in quizData && quizData.status === 'PUBLISHED' ? 'text-green-600' :
-                       'status' in quizData && quizData.status === 'DRAFT' ? 'text-yellow-600' :
+                       'status' in quizData && quizData.status === 'PUBLISHED' ? 'text-theme-interactive-success' :
+                       'status' in quizData && quizData.status === 'DRAFT' ? 'text-theme-interactive-warning' :
                        'text-theme-text-secondary'
                      }`}>
                        {'status' in quizData ? quizData.status : 'DRAFT'}
@@ -145,7 +145,7 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
 
             {/* Timer Warning */}
             {quizData.timerEnabled && !quizData.timerDuration && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+              <div className="bg-theme-bg-warning border border-yellow-200 rounded-md p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -153,7 +153,7 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-800">
+                    <p className="text-sm text-theme-interactive-warning">
                       Timer is enabled but no duration is set. Please set a timer duration.
                     </p>
                   </div>
@@ -175,9 +175,9 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
             </div>
 
             {/* Quiz Instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="bg-theme-bg-info border border-theme-border-info rounded-md p-4">
               <h4 className="text-sm font-medium text-blue-900 mb-2">Quiz Instructions</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <ul className="text-sm text-theme-interactive-info space-y-1">
                 <li>• Read each question carefully before answering</li>
                 {quizData.timerEnabled && (
                   <li>• You have {quizData.timerDuration ? formatTime(quizData.timerDuration) : 'a time limit'} to complete this quiz</li>

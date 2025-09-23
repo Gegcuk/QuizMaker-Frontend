@@ -257,8 +257,8 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   if (error) {
     return (
       <div className="text-center space-y-4">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
         <Button
           type="button"

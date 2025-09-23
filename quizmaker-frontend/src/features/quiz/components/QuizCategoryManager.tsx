@@ -130,7 +130,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
 
       <div className="px-6 py-4">
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="mb-4 bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -138,7 +138,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+                <p className="text-sm text-theme-interactive-danger">{error}</p>
               </div>
             </div>
           </div>
@@ -200,11 +200,11 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
 
         {/* Current category display */}
         {currentCategory && (
-          <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <div className="mb-4 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
             <h4 className="text-sm font-medium text-indigo-900 mb-2">Current Category</h4>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-indigo-800">{currentCategory.name}</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">{currentCategory.name}</p>
                 {currentCategory.description && (
                   <p className="text-sm text-theme-interactive-primary mt-1">{currentCategory.description}</p>
                 )}
@@ -249,7 +249,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   key={category.id}
                   className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                     category.id === currentCategoryId
-                      ? 'border-indigo-500 bg-indigo-50'
+                      ? 'border-indigo-500 bg-theme-bg-primary'
                       : 'border-theme-border-primary hover:border-theme-border-primary'
                   }`}
                   onClick={() => handleCategoryChange(category.id)}
@@ -268,7 +268,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                           {category.name}
                         </span>
                         {category.id === currentCategoryId && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
                             Selected
                           </span>
                         )}
@@ -288,7 +288,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                 <div className="flex justify-center pt-2">
                   <button
                     onClick={() => setDisplayedCount(prev => Math.min(prev + 5, categories.length))}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -306,7 +306,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
           <div
             className={`border rounded-lg p-3 cursor-pointer transition-colors ${
               !currentCategoryId
-                ? 'border-indigo-500 bg-indigo-50'
+                ? 'border-indigo-500 bg-theme-bg-primary'
                 : 'border-theme-border-primary hover:border-theme-border-primary'
             }`}
             onClick={() => onCategoryChange(undefined)}
@@ -323,7 +323,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium text-theme-text-primary">No Category</span>
                   {!currentCategoryId && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
                       Selected
                     </span>
                   )}

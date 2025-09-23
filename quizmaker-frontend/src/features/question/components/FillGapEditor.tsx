@@ -217,7 +217,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
               {gaps.map((gap) => (
                 <div key={gap.id} className="flex items-center space-x-2">
                   <span className="font-medium">Gap {gap.id}:</span>
-                  <span className={gap.answer ? 'text-green-800' : 'text-theme-text-danger'}>
+                  <span className={gap.answer ? 'text-theme-interactive-success' : 'text-theme-text-danger'}>
                     {gap.answer || 'No answer provided'}
                   </span>
                 </div>

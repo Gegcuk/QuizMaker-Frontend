@@ -288,7 +288,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
               disabled={!isEditing}
             />
             {combinedErrors.description && (
-              <p className="mt-1 text-sm text-red-600">{combinedErrors.description}</p>
+              <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.description}</p>
             )}
             <p className="mt-1 text-xs text-theme-text-tertiary">
               {quizData.description?.length || 0}/1000 characters

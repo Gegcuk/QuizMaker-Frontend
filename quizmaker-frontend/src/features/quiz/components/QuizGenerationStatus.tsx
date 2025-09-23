@@ -102,10 +102,10 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PENDING': return 'text-yellow-600 bg-yellow-100';
-      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-100';
-      case 'COMPLETED': return 'text-green-600 bg-green-100';
-      case 'FAILED': return 'text-red-600 bg-red-100';
+      case 'PENDING': return 'text-theme-interactive-warning bg-theme-bg-warning';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-theme-bg-info';
+      case 'COMPLETED': return 'text-theme-interactive-success bg-theme-bg-success';
+      case 'FAILED': return 'text-theme-interactive-danger bg-theme-bg-danger';
       case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-tertiary';
       default: return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }

@@ -100,15 +100,15 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
   };
 
   const getPerformanceColor = (rate: number) => {
-    if (rate >= 80) return 'text-green-600';
-    if (rate >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (rate >= 80) return 'text-theme-interactive-success';
+    if (rate >= 60) return 'text-theme-interactive-warning';
+    return 'text-theme-interactive-danger';
   };
 
   const getPerformanceBgColor = (rate: number) => {
-    if (rate >= 80) return 'bg-green-100';
-    if (rate >= 60) return 'bg-yellow-100';
-    return 'bg-red-100';
+    if (rate >= 80) return 'bg-theme-bg-success';
+    if (rate >= 60) return 'bg-theme-bg-warning';
+    return 'bg-theme-bg-danger';
   };
 
   const formatPercentage = (value: number) => {
@@ -136,7 +136,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
         </div>
         <div className="px-6 py-12 text-center">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -144,7 +144,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{error || 'No analytics data available'}</p>
+                <p className="text-sm text-theme-interactive-danger">{error || 'No analytics data available'}</p>
               </div>
             </div>
           </div>
@@ -184,7 +184,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
       <div className="px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Attempts */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="bg-theme-bg-info rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,15 +199,15 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           </div>
 
           {/* Correct Answers */}
-          <div className="bg-green-50 rounded-lg p-4">
+          <div className="bg-theme-bg-success rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-green-600">Correct Answers</p>
+                <p className="text-sm font-medium text-theme-interactive-success">Correct Answers</p>
                 <p className="text-2xl font-bold text-green-900">{analytics.timesCorrect}</p>
               </div>
             </div>
@@ -231,15 +231,15 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           </div>
 
           {/* Average Time */}
-          <div className="bg-purple-50 rounded-lg p-4">
+          <div className="bg-theme-bg-primary rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-purple-600">Avg. Time</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Avg. Time</p>
                 <p className="text-2xl font-bold text-purple-900">
                   {formatTime(analytics.averageTimeSpent)}
                 </p>
@@ -326,16 +326,16 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
         <div className="mt-8">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Insights</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-theme-bg-info border border-theme-border-info rounded-lg p-4">
               <h5 className="text-sm font-medium text-blue-900 mb-2">Performance Summary</h5>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-theme-interactive-info">
                 This question has a {formatPercentage(analytics.correctRate)} success rate, 
                 which is {analytics.correctRate >= 80 ? 'excellent' : analytics.correctRate >= 60 ? 'good' : 'needs improvement'}.
               </p>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="bg-theme-bg-success border border-green-200 rounded-lg p-4">
               <h5 className="text-sm font-medium text-green-900 mb-2">Time Analysis</h5>
-              <p className="text-sm text-green-800">
+              <p className="text-sm text-theme-interactive-success">
                 Students spend an average of {formatTime(analytics.averageTimeSpent)} on this question,
                 indicating {analytics.averageTimeSpent <= 30 ? 'quick comprehension' : analytics.averageTimeSpent <= 60 ? 'moderate difficulty' : 'high complexity'}.
               </p>

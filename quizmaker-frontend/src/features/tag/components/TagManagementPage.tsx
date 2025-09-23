@@ -131,8 +131,8 @@ const TagManagementPage: React.FC = () => {
           <Spinner size="lg" />
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
       ) : tags.length === 0 ? (
         <div className="text-center py-8">
@@ -175,7 +175,7 @@ const TagManagementPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleDelete(tag.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-theme-interactive-danger hover:text-red-900"
                       >
                         Delete
                       </button>
@@ -191,7 +191,7 @@ const TagManagementPage: React.FC = () => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(prev => Math.min(prev + 5, tags.length))}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -214,7 +214,7 @@ const TagManagementPage: React.FC = () => {
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
                 <label htmlFor="tagName" className="block text-sm font-medium text-theme-text-secondary mb-1">
-                  Name <span className="text-red-600">*</span>
+                  Name <span className="text-theme-interactive-danger">*</span>
                 </label>
                 <input
                   id="tagName"

@@ -188,11 +188,11 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
   const getDifficultyColor = (): string => {
     switch (question.difficulty) {
       case 'EASY':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'MEDIUM':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'HARD':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-danger';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -246,8 +246,8 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
 
       {/* Validation Error */}
       {validationError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <div className="text-sm text-red-600">{validationError}</div>
+        <div className="mb-4 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+          <div className="text-sm text-theme-interactive-danger">{validationError}</div>
         </div>
       )}
 

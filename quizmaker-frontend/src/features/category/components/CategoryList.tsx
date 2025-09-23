@@ -101,16 +101,16 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-interactive-danger">{error}</span>
         </div>
         <button
           onClick={loadCategories}
-          className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          className="mt-2 text-sm text-theme-interactive-danger hover:text-theme-interactive-danger underline"
         >
           Try again
         </button>
@@ -198,7 +198,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                           e.stopPropagation();
                           onEditCategory(category);
                         }}
-                        className="text-theme-interactive-primary hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50"
+                        className="text-theme-interactive-primary hover:text-blue-900 px-2 py-1 rounded hover:bg-theme-bg-info"
                       >
                         Edit
                       </button>
@@ -207,7 +207,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                           e.stopPropagation();
                           handleDelete(category.id);
                         }}
-                        className="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50"
+                        className="text-theme-interactive-danger hover:text-red-900 px-2 py-1 rounded hover:bg-theme-bg-danger"
                       >
                         Delete
                       </button>
@@ -287,7 +287,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                       onClick={() => handlePageChange(page)}
                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                         page === currentPage
-                          ? 'z-10 bg-blue-50 border-blue-500 text-theme-interactive-primary'
+                          ? 'z-10 bg-theme-bg-info border-blue-500 text-theme-interactive-primary'
                           : 'bg-theme-bg-primary border-theme-border-primary text-theme-text-tertiary hover:bg-theme-bg-secondary'
                       }`}
                     >

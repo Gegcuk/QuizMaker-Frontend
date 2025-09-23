@@ -120,8 +120,8 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="text-red-600 text-2xl mb-2">❌</div>
-          <p className="text-red-800">{error}</p>
+          <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
       </div>
     );
@@ -216,7 +216,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       {/* File Size Limits */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">File Size Limits</h3>
-        <div className="p-4 bg-blue-50 rounded-lg">
+        <div className="p-4 bg-theme-bg-info rounded-lg">
           <div className="flex items-center space-x-3">
             <span className="text-2xl">💾</span>
             <div>
@@ -233,13 +233,13 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
       {/* Edit Configuration Form */}
       {isEditing && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
           <h3 className="text-lg font-semibold text-yellow-900 mb-3">Edit Configuration</h3>
           
           <div className="space-y-4">
             {/* Chunking Strategy */}
             <div>
-              <label className="block text-sm font-medium text-yellow-800 mb-2">
+              <label className="block text-sm font-medium text-theme-interactive-warning mb-2">
                 Default Chunking Strategy
               </label>
               <select
@@ -263,7 +263,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
             {/* Max Chunk Size */}
             <div>
-              <label className="block text-sm font-medium text-yellow-800 mb-2">
+              <label className="block text-sm font-medium text-theme-interactive-warning mb-2">
                 Default Max Chunk Size (characters)
               </label>
               <input
@@ -302,7 +302,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       )}
 
       {/* Configuration Tips */}
-      <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Configuration Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• <strong>Auto Strategy:</strong> Best for most documents, automatically chooses optimal chunking</li>

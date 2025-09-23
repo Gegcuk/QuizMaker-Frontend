@@ -173,7 +173,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       onClick={() => setSelectedFormat(format.id)}
                       className={`p-4 border rounded-lg text-left transition-colors ${
                         selectedFormat === format.id
-                          ? 'border-indigo-500 bg-indigo-50'
+                          ? 'border-indigo-500 bg-theme-bg-primary'
                           : 'border-theme-border-primary hover:border-theme-border-secondary'
                       }`}
                     >

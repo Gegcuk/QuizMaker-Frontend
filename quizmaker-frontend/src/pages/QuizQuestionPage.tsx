@@ -535,7 +535,7 @@ const QuizQuestionsPage: React.FC = () => {
                 {/* Question Text */}
                 <div>
                   <label htmlFor="questionText" className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Question Text <span className="text-red-600">*</span>
+                    Question Text <span className="text-theme-interactive-danger">*</span>
                   </label>
                   <textarea
                     id="questionText"

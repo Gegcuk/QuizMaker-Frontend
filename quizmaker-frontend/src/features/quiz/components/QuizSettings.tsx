@@ -191,7 +191,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 disabled={!isEditing}
               />
               {combinedErrors.timerDuration && (
-                <p className="mt-1 text-sm text-red-600">{combinedErrors.timerDuration}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.timerDuration}</p>
               )}
               <p className="mt-1 text-xs text-theme-text-tertiary">
                 Time limit for completing the quiz (1-180 minutes)
@@ -220,7 +220,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             disabled={!isEditing}
           />
           {combinedErrors.estimatedTime && (
-            <p className="mt-1 text-sm text-red-600">{combinedErrors.estimatedTime}</p>
+            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.estimatedTime}</p>
           )}
           <p className="mt-1 text-xs text-theme-text-tertiary">
             Estimated time to complete the quiz (1-180 minutes)

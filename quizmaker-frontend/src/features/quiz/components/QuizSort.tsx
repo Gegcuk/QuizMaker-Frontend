@@ -131,7 +131,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             onClick={() => onSortChange('createdAt_desc')}
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'createdAt_desc'
-                ? 'bg-indigo-100 text-indigo-800'
+                ? 'bg-theme-bg-primary text-theme-interactive-primary'
                 : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
@@ -141,7 +141,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             onClick={() => onSortChange('title_asc')}
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'title_asc'
-                ? 'bg-indigo-100 text-indigo-800'
+                ? 'bg-theme-bg-primary text-theme-interactive-primary'
                 : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
@@ -151,7 +151,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             onClick={() => onSortChange('difficulty_asc')}
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'difficulty_asc'
-                ? 'bg-indigo-100 text-indigo-800'
+                ? 'bg-theme-bg-primary text-theme-interactive-primary'
                 : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
@@ -161,7 +161,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             onClick={() => onSortChange('estimatedTime_asc')}
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'estimatedTime_asc'
-                ? 'bg-indigo-100 text-indigo-800'
+                ? 'bg-theme-bg-primary text-theme-interactive-primary'
                 : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >

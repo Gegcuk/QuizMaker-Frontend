@@ -302,7 +302,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-interactive-danger">{error}</span>
         </div>
       </div>
     );
@@ -394,11 +394,11 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
             <div className="text-sm text-theme-text-secondary">Timer Enabled</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600">{analyticsData.featureUsage.repetitionEnabled}</div>
+            <div className="text-3xl font-bold text-theme-interactive-success">{analyticsData.featureUsage.repetitionEnabled}</div>
             <div className="text-sm text-theme-text-secondary">Repetition Enabled</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600">{analyticsData.featureUsage.publicQuizzes}</div>
+            <div className="text-3xl font-bold text-theme-interactive-primary">{analyticsData.featureUsage.publicQuizzes}</div>
             <div className="text-sm text-theme-text-secondary">Public Quizzes</div>
           </div>
         </div>

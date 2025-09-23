@@ -132,10 +132,10 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           </div>
         </div>
         
-        <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="text-3xl font-bold text-purple-600">{result.totalScore}</div>
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+          <div className="text-3xl font-bold text-theme-interactive-primary">{result.totalScore}</div>
           <div className="text-sm text-purple-700 font-medium">Total Score</div>
-          <div className="text-xs text-purple-600 mt-1">
+          <div className="text-xs text-theme-interactive-primary mt-1">
             {Math.round(result.totalScore / result.totalQuestions * 100)}% avg
           </div>
         </div>
@@ -168,7 +168,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
               </div>
               <div className="w-full bg-theme-bg-tertiary rounded-full h-3">
                 <div
-                  className="h-3 rounded-full bg-green-500 transition-all duration-500"
+                  className="h-3 rounded-full bg-theme-bg-success0 transition-all duration-500"
                   style={{ width: `${accuracy}%` }}
                 />
               </div>
@@ -181,11 +181,11 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
               </div>
               <div className="flex h-3 rounded-full overflow-hidden">
                 <div
-                  className="bg-green-500"
+                  className="bg-theme-bg-success0"
                   style={{ width: `${(result.correctCount / result.totalQuestions) * 100}%` }}
                 />
                 <div
-                  className="bg-red-500"
+                  className="bg-theme-bg-danger0"
                   style={{ width: `${(incorrectCount / result.totalQuestions) * 100}%` }}
                 />
               </div>
@@ -230,7 +230,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       </div>
 
       {/* Performance Insights */}
-      <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Performance Insights</h3>
         <div className="text-sm text-theme-interactive-primary space-y-1">
           {score >= 90 && (

@@ -289,7 +289,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
             {/* Error Display */}
             {error && (
-              <div className="px-4 py-2 text-sm text-red-600 bg-red-50 border-t border-gray-100">
+              <div className="px-4 py-2 text-sm text-theme-interactive-danger bg-theme-bg-danger border-t border-gray-100">
                 {error}
               </div>
             )}
@@ -299,7 +299,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
               <button
                 onClick={handleLogout}
                 disabled={isLoading}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:bg-red-50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-theme-interactive-danger hover:bg-theme-bg-danger focus:bg-theme-bg-danger focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 role="menuitem"
               >
                 <div className="flex items-center space-x-2">

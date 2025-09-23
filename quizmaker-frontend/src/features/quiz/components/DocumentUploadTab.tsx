@@ -225,7 +225,7 @@ export const DocumentUploadTab: React.FC = () => {
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
-                  ? 'border-blue-400 bg-blue-50'
+                  ? 'border-blue-400 bg-theme-bg-info'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragEnter}
@@ -244,7 +244,7 @@ export const DocumentUploadTab: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setSelectedFile(null)}
-                      className="text-red-600 hover:text-red-700 text-sm"
+                      className="text-theme-interactive-danger hover:text-red-700 text-sm"
                     >
                       Remove file
                     </button>
@@ -596,7 +596,7 @@ export const DocumentUploadTab: React.FC = () => {
       )}
 
       {/* Tips */}
-      <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-8 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Tips for Best Results:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Use well-structured documents with clear headings for better chunking</li>

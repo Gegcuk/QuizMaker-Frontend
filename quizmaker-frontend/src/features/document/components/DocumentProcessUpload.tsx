@@ -255,7 +255,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-theme-bg-info'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragIn}
@@ -394,10 +394,10 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
 
              {/* Success Message */}
        {uploadedDocument && (
-         <Alert className="border-green-200 bg-green-50">
-           <CheckCircleIcon className="h-5 w-5 text-green-600" />
+         <Alert className="border-green-200 bg-theme-bg-success">
+           <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success" />
            <div>
-             <h3 className="text-sm font-medium text-green-800">
+             <h3 className="text-sm font-medium text-theme-interactive-success">
                Document uploaded successfully!
              </h3>
              <div className="mt-2 text-sm text-green-700">

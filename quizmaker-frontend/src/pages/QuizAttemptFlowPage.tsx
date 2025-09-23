@@ -84,16 +84,16 @@ const QuizAttemptFlowPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-theme-bg-secondary flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-lg p-6">
             <svg className="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-red-800">Error</h3>
+            <h3 className="mt-2 text-sm font-medium text-theme-interactive-danger">Error</h3>
             <p className="mt-1 text-sm text-red-700">{error}</p>
             <div className="mt-4">
               <button
                 onClick={() => window.history.back()}
-                className="px-4 py-2 bg-red-100 text-red-700 font-medium rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-theme-bg-danger text-red-700 font-medium rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
                 Go Back
               </button>

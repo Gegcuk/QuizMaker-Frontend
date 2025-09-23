@@ -187,7 +187,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* General error display */}
         {errors.general && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -195,7 +195,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.general}</p>
+                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
               </div>
             </div>
           </div>
@@ -223,7 +223,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             />
           </div>
           {errors.username && (
-            <p className="mt-2 text-sm text-red-600">{errors.username}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.username}</p>
           )}
         </div>
 
@@ -249,7 +249,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             />
           </div>
           {errors.email && (
-            <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.email}</p>
           )}
         </div>
 
@@ -292,7 +292,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             </button>
           </div>
           {errors.password && (
-            <p className="mt-2 text-sm text-red-600">{errors.password}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.password}</p>
           )}
         </div>
 
@@ -335,7 +335,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.confirmPassword}</p>
           )}
         </div>
 

@@ -164,7 +164,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
       <form onSubmit={handleSubmit} className="divide-y divide-theme-border-primary">
         {errors.general && (
-          <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+          <div className="px-6 py-4 bg-theme-bg-danger border-b border-red-200">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -172,7 +172,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.general}</p>
+                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
               </div>
             </div>
           </div>

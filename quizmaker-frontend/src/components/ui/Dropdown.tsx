@@ -209,7 +209,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       </div>
 
       {error && (
-        <p className="mt-1 text-sm text-red-600">
+        <p className="mt-1 text-sm text-theme-interactive-danger">
           {error}
         </p>
       )}

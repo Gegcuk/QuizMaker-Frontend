@@ -80,13 +80,13 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
   const getChunkTypeColor = (chunkType: ChunkType): string => {
     switch (chunkType) {
       case 'CHAPTER':
-        return 'text-theme-interactive-primary bg-blue-100';
+        return 'text-theme-interactive-primary bg-theme-bg-info';
       case 'SECTION':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'PAGE_BASED':
-        return 'text-purple-600 bg-purple-100';
+        return 'text-theme-interactive-primary bg-theme-bg-primary';
       case 'SIZE_BASED':
-        return 'text-orange-600 bg-orange-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -155,8 +155,8 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="text-red-600 text-2xl mb-2">❌</div>
-          <p className="text-red-800">{error}</p>
+          <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
       </div>
     );
@@ -192,15 +192,15 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
             <div className="text-sm text-theme-interactive-primary">Total Chunks</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{analytics.totalWords.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-theme-interactive-success">{analytics.totalWords.toLocaleString()}</div>
             <div className="text-sm text-green-700">Total Words</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{analytics.totalCharacters.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{analytics.totalCharacters.toLocaleString()}</div>
             <div className="text-sm text-purple-700">Total Characters</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">{analytics.totalPagesCovered}</div>
+            <div className="text-2xl font-bold text-theme-interactive-warning">{analytics.totalPagesCovered}</div>
             <div className="text-sm text-orange-700">Pages Covered</div>
           </div>
         </div>
@@ -237,11 +237,11 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-theme-text-secondary">Medium chunks (100-500 words):</span>
-                <span className="font-medium text-green-600">{analytics.wordCountRanges.medium}</span>
+                <span className="font-medium text-theme-interactive-success">{analytics.wordCountRanges.medium}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-theme-text-secondary">Large chunks (&gt;500 words):</span>
-                <span className="font-medium text-purple-600">{analytics.wordCountRanges.large}</span>
+                <span className="font-medium text-theme-interactive-primary">{analytics.wordCountRanges.large}</span>
               </div>
             </div>
           </div>
@@ -270,7 +270,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
                 </div>
                 <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
-                    className="h-2 rounded-full bg-blue-500"
+                    className="h-2 rounded-full bg-theme-bg-info0"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -281,7 +281,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       </div>
 
       {/* Processing Information */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-info rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-3">Processing Information</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
@@ -309,7 +309,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
       {/* Document Metadata */}
       {(document.title || document.author) && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-success rounded-lg">
           <h3 className="text-sm font-medium text-green-900 mb-2">Document Metadata</h3>
           <div className="space-y-1 text-sm text-green-700">
             {document.title && <div><strong>Title:</strong> {document.title}</div>}
@@ -320,7 +320,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       )}
 
       {/* Content Quality Insights */}
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
         <h3 className="text-sm font-medium text-yellow-900 mb-2">Content Quality Insights</h3>
         <div className="space-y-1 text-sm text-yellow-700">
           {analytics.averageWordsPerChunk < 50 && (

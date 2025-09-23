@@ -200,7 +200,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
               {items.map((item, index) => (
                 <div key={item.id} className="flex items-center space-x-2">
                   <span className="font-medium">{index + 1}.</span>
-                  <span className={item.text ? 'text-theme-text-primary' : 'text-red-600'}>
+                  <span className={item.text ? 'text-theme-text-primary' : 'text-theme-interactive-danger'}>
                     {item.text || 'No text provided'}
                   </span>
                 </div>

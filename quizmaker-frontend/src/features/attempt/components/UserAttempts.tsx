@@ -212,7 +212,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -220,7 +220,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-red-800">{error}</p>
+            <p className="text-sm text-theme-interactive-danger">{error}</p>
           </div>
         </div>
       </div>

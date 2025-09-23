@@ -173,7 +173,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   if (isSubmitted) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-green-50 border border-green-200 rounded-md p-6">
+        <div className="bg-theme-bg-success border border-green-200 rounded-md p-6">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -181,7 +181,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
+              <h3 className="text-sm font-medium text-theme-interactive-success">
                 Password reset successful
               </h3>
               <div className="mt-2 text-sm text-green-700">
@@ -209,7 +209,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   if (!token) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-red-50 border border-red-200 rounded-md p-6">
+        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-6">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -217,7 +217,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
+              <h3 className="text-sm font-medium text-theme-interactive-danger">
                 Invalid reset link
               </h3>
               <div className="mt-2 text-sm text-red-700">
@@ -253,7 +253,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* General error display */}
         {errors.general && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -261,7 +261,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.general}</p>
+                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
               </div>
             </div>
           </div>
@@ -306,7 +306,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </button>
           </div>
           {errors.password && (
-            <p className="mt-2 text-sm text-red-600">{errors.password}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.password}</p>
           )}
         </div>
 
@@ -349,7 +349,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.confirmPassword}</p>
           )}
         </div>
 

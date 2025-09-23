@@ -16,8 +16,8 @@ const ValidationMessage: React.FC<ValidationMessageProps> = ({
   if (!message) return null;
 
   const typeClasses = {
-    error: 'text-red-600',
-    warning: 'text-yellow-600',
+    error: 'text-theme-interactive-danger',
+    warning: 'text-theme-interactive-warning',
     info: 'text-theme-interactive-primary'
   };
 

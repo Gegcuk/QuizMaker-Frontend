@@ -134,10 +134,10 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
   const getStatusColor = (status: GenerationStatus) => {
     switch (status) {
-      case 'COMPLETED': return 'text-green-600 bg-green-50';
-      case 'PROCESSING': return 'text-theme-interactive-primary bg-blue-50';
-      case 'PENDING': return 'text-yellow-600 bg-yellow-50';
-      case 'FAILED': return 'text-red-600 bg-red-50';
+      case 'COMPLETED': return 'text-theme-interactive-success bg-theme-bg-success';
+      case 'PROCESSING': return 'text-theme-interactive-primary bg-theme-bg-info';
+      case 'PENDING': return 'text-theme-interactive-warning bg-theme-bg-warning';
+      case 'FAILED': return 'text-theme-interactive-danger bg-theme-bg-danger';
       case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-secondary';
       default: return 'text-theme-text-secondary bg-theme-bg-secondary';
     }
@@ -208,8 +208,8 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
       {/* Status Message */}
       <div className="mb-6">
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
+        <div className="p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
+          <p className="text-sm text-theme-interactive-info">
             {generationStatus.status === 'PROCESSING' && `Processing chunk ${generationStatus.processedChunks} of ${generationStatus.totalChunks}`}
             {generationStatus.status === 'PENDING' && 'Generation job is queued and will start shortly'}
             {generationStatus.status === 'COMPLETED' && 'Quiz generation completed successfully!'}
@@ -263,11 +263,11 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           <h4 className="font-medium text-theme-text-primary mb-3">Processing Stages</h4>
           <div className="space-y-2">
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-success0 rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-secondary">Document analysis completed</span>
             </div>
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-info0 rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-secondary">AI question generation in progress</span>
             </div>
             <div className="flex items-center">
@@ -284,7 +284,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -292,7 +292,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-theme-interactive-danger">{error}</p>
             </div>
           </div>
         </div>
@@ -313,7 +313,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
             type="button"
             onClick={handleCancelGeneration}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-red-300 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-red-300 rounded-md hover:bg-theme-bg-danger focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Cancelling...' : 'Cancel Generation'}
           </button>

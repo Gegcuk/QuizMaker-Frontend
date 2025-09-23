@@ -209,7 +209,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="mb-6 bg-theme-bg-danger border border-red-200 rounded-md p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -217,7 +217,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-800">{error}</p>
+                  <p className="text-sm text-theme-interactive-danger">{error}</p>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
               {/* Bulk Actions */}
               {selectedQuizzes.length > 0 && (
-                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div className="mb-4 bg-theme-bg-info border border-theme-border-info rounded-md p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <span className="text-sm font-medium text-blue-900">

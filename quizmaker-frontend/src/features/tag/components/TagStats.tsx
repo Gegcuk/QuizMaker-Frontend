@@ -204,12 +204,12 @@ export const TagStats: React.FC<TagStatsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-interactive-danger">{error}</span>
         </div>
       </div>
     );
@@ -231,7 +231,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Tags */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="bg-theme-bg-info rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,43 +246,43 @@ export const TagStats: React.FC<TagStatsProps> = ({
           </div>
 
           {/* Used Tags */}
-          <div className="bg-green-50 rounded-lg p-4">
+          <div className="bg-theme-bg-success rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-green-600">Used Tags</p>
+                <p className="text-sm font-medium text-theme-interactive-success">Used Tags</p>
                 <p className="text-2xl font-bold text-green-900">{stats.usedTags}</p>
               </div>
             </div>
           </div>
 
           {/* Average Usage */}
-          <div className="bg-purple-50 rounded-lg p-4">
+          <div className="bg-theme-bg-primary rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-purple-600">Avg Usage</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Avg Usage</p>
                 <p className="text-2xl font-bold text-purple-900">{stats.averageUsagePerTag}</p>
               </div>
             </div>
           </div>
 
           {/* Growth Rate */}
-          <div className="bg-orange-50 rounded-lg p-4">
+          <div className="bg-theme-bg-warning rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 {getGrowthIcon(stats.growthMetrics.growthRate)}
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-orange-600">Growth Rate</p>
+                <p className="text-sm font-medium text-theme-interactive-warning">Growth Rate</p>
                 <p className="text-2xl font-bold text-orange-900">
                   {stats.growthMetrics.growthRate > 0 ? '+' : ''}{stats.growthMetrics.growthRate.toFixed(1)}%
                 </p>
@@ -297,45 +297,45 @@ export const TagStats: React.FC<TagStatsProps> = ({
             <div className="mt-8">
               <h4 className="text-lg font-medium text-theme-text-primary mb-4">Usage Distribution</h4>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-red-50 rounded-lg p-4">
+                <div className="bg-theme-bg-danger rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-red-600">High Usage</span>
+                    <span className="text-sm font-medium text-theme-interactive-danger">High Usage</span>
                     <span className="text-lg font-bold text-red-900">{stats.usageDistribution.highUsage}</span>
                   </div>
                   <div className="mt-2">
                     <div className="w-full bg-red-200 rounded-full h-2">
                       <div
-                        className="h-2 bg-red-500 rounded-full"
+                        className="h-2 bg-theme-bg-danger0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.highUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-yellow-50 rounded-lg p-4">
+                <div className="bg-theme-bg-warning rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-yellow-600">Medium Usage</span>
+                    <span className="text-sm font-medium text-theme-interactive-warning">Medium Usage</span>
                     <span className="text-lg font-bold text-yellow-900">{stats.usageDistribution.mediumUsage}</span>
                   </div>
                   <div className="mt-2">
                     <div className="w-full bg-yellow-200 rounded-full h-2">
                       <div
-                        className="h-2 bg-yellow-500 rounded-full"
+                        className="h-2 bg-theme-bg-warning0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.mediumUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-green-50 rounded-lg p-4">
+                <div className="bg-theme-bg-success rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-green-600">Low Usage</span>
+                    <span className="text-sm font-medium text-theme-interactive-success">Low Usage</span>
                     <span className="text-lg font-bold text-green-900">{stats.usageDistribution.lowUsage}</span>
                   </div>
                   <div className="mt-2">
                     <div className="w-full bg-green-200 rounded-full h-2">
                       <div
-                        className="h-2 bg-green-500 rounded-full"
+                        className="h-2 bg-theme-bg-success0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.lowUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
@@ -366,7 +366,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
                 {stats.mostUsedTags.map((item, index) => (
                   <div key={item.tag.id} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-blue-100 text-theme-interactive-primary rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                      <div className="w-8 h-8 bg-theme-bg-info text-theme-interactive-primary rounded-full flex items-center justify-center text-sm font-medium mr-3">
                         {index + 1}
                       </div>
                       <div>

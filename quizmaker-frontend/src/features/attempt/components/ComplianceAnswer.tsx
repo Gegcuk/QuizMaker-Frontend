@@ -108,7 +108,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
               key={statement.id}
               className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
                 isSelected
-                  ? 'border-green-500 bg-green-50'
+                  ? 'border-green-500 bg-theme-bg-success'
                   : 'border-theme-border-primary hover:border-theme-border-primary hover:bg-theme-bg-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -117,7 +117,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
-                className="mt-1 rounded border-theme-border-primary text-green-600 focus:ring-green-500 focus:ring-2"
+                className="mt-1 rounded border-theme-border-primary text-theme-interactive-success focus:ring-green-500 focus:ring-2"
               />
               
               <div className="ml-3 flex-1">
@@ -133,7 +133,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
               {/* Selection Indicator */}
               {isSelected && (
-                <div className="ml-2 text-green-600">
+                <div className="ml-2 text-theme-interactive-success">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
@@ -147,18 +147,18 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       {/* Progress Bar */}
       <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
         <div
-          className="bg-green-500 h-2 rounded-full transition-all duration-300"
+          className="bg-theme-bg-success0 h-2 rounded-full transition-all duration-300"
           style={{ width: `${(selectedStatements.length / statements.length) * 100}%` }}
         />
       </div>
 
       {/* Selection Summary */}
       {selectedStatements.length > 0 && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+        <div className="p-3 bg-theme-bg-success border border-green-200 rounded-md">
           <div className="text-sm text-green-700">
             <strong>Selected Statements:</strong> {selectedStatements.length} of {statements.length}
           </div>
-          <div className="text-xs text-green-600 mt-1">
+          <div className="text-xs text-theme-interactive-success mt-1">
             Statements: {selectedStatements.map(id => id).join(', ')}
           </div>
         </div>
@@ -174,7 +174,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       )}
 
       {/* Instructions */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+      <div className="p-3 bg-theme-bg-info border border-theme-border-info rounded-md">
         <div className="text-sm text-theme-interactive-primary">
           <strong>Instructions:</strong> Review each statement carefully and select all that comply with the requirements or criteria mentioned in the question.
         </div>

@@ -45,11 +45,11 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
         <div
           className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
             getOptionStatus(true) === 'correct'
-              ? 'border-green-300 bg-green-50'
+              ? 'border-green-300 bg-theme-bg-success'
               : getOptionStatus(true) === 'incorrect'
-              ? 'border-red-300 bg-red-50'
+              ? 'border-red-300 bg-theme-bg-danger'
               : currentAnswer === true
-              ? 'border-theme-interactive-primary bg-indigo-50'
+              ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => handleAnswerChange(true)}
@@ -62,15 +62,15 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             disabled={disabled}
             className={`h-4 w-4 ${
               getOptionStatus(true) === 'correct'
-                ? 'text-green-600 focus:ring-green-500 border-green-300'
+                ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
                 : getOptionStatus(true) === 'incorrect'
                 ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                 : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
             }`}
           />
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-success rounded-full">
+              <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
@@ -83,7 +83,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             </span>
           </div>
           {showCorrectAnswer && getOptionStatus(true) === 'correct' && (
-            <svg className="w-5 h-5 text-green-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-interactive-success ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           )}
@@ -93,11 +93,11 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
         <div
           className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
             getOptionStatus(false) === 'correct'
-              ? 'border-green-300 bg-green-50'
+              ? 'border-green-300 bg-theme-bg-success'
               : getOptionStatus(false) === 'incorrect'
-              ? 'border-red-300 bg-red-50'
+              ? 'border-red-300 bg-theme-bg-danger'
               : currentAnswer === false
-              ? 'border-theme-interactive-primary bg-indigo-50'
+              ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => handleAnswerChange(false)}
@@ -110,15 +110,15 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             disabled={disabled}
             className={`h-4 w-4 ${
               getOptionStatus(false) === 'correct'
-                ? 'text-green-600 focus:ring-green-500 border-green-300'
+                ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
                 : getOptionStatus(false) === 'incorrect'
                 ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                 : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
             }`}
           />
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
-              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-danger rounded-full">
+              <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
@@ -131,7 +131,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             </span>
           </div>
           {showCorrectAnswer && getOptionStatus(false) === 'correct' && (
-            <svg className="w-5 h-5 text-green-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-interactive-success ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           )}
@@ -145,12 +145,12 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-info border border-theme-border-info rounded-md">
           <div className="flex items-center space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm font-medium text-blue-800">Correct Answer:</span>
+            <span className="text-sm font-medium text-theme-interactive-info">Correct Answer:</span>
             <span className="text-sm text-theme-interactive-primary font-medium">
               {correctAnswer ? 'True' : 'False'}
             </span>

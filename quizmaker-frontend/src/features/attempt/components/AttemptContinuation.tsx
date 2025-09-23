@@ -137,9 +137,9 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-theme-bg-info text-theme-interactive-info';
       case 'PAUSED':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-theme-bg-warning text-theme-interactive-warning';
       default:
         return 'bg-theme-bg-tertiary text-theme-text-primary';
     }
@@ -196,7 +196,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-theme-interactive-danger">{error}</p>
             </div>
           </div>
         </div>
@@ -330,7 +330,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       </div>
 
       {/* Important Notes */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
         <h4 className="text-sm font-medium text-blue-900 mb-2">Important Notes</h4>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Resuming will continue from where you left off</li>

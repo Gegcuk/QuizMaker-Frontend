@@ -165,7 +165,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
       <div className="px-6 py-4">
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="mb-4 bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -173,7 +173,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+                <p className="text-sm text-theme-interactive-danger">{error}</p>
               </div>
             </div>
           </div>
@@ -303,7 +303,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   key={tag.id}
                   className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                     tag.isSelected
-                      ? 'border-indigo-500 bg-indigo-50'
+                      ? 'border-indigo-500 bg-theme-bg-primary'
                       : 'border-theme-border-primary hover:border-theme-border-primary'
                   }`}
                   onClick={() => handleTagToggle(tag.id)}
@@ -339,7 +339,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                 <div className="flex justify-center pt-2">
                   <button
                     onClick={() => setDisplayedCount(prev => Math.min(prev + 5, filteredTags.length))}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -362,7 +362,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                 .map(tag => (
                   <span
                     key={tag.id}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary"
                   >
                     #{tag.name}
                   </span>

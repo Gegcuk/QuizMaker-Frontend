@@ -104,7 +104,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             disabled={!isEditing}
           />
           {combinedErrors.title && (
-            <p className="mt-1 text-sm text-red-600">{combinedErrors.title}</p>
+            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.title}</p>
           )}
           <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.title?.length || 0}/100 characters
@@ -129,7 +129,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             disabled={!isEditing}
           />
           {combinedErrors.description && (
-            <p className="mt-1 text-sm text-red-600">{combinedErrors.description}</p>
+            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.description}</p>
           )}
           <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.description?.length || 0}/1000 characters

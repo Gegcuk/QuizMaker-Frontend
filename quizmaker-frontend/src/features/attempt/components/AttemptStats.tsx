@@ -73,23 +73,23 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="text-center p-4 bg-theme-bg-info rounded-lg border border-theme-border-info">
           <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(stats.totalTime)}</div>
           <div className="text-sm text-theme-interactive-primary font-medium">Total Time</div>
         </div>
         
-        <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-          <div className="text-2xl font-bold text-green-600">{stats.correctAnswers}</div>
+        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-green-200">
+          <div className="text-2xl font-bold text-theme-interactive-success">{stats.correctAnswers}</div>
           <div className="text-sm text-green-700 font-medium">Correct</div>
         </div>
         
-        <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="text-2xl font-bold text-purple-600">{Math.round(stats.accuracyPercentage)}%</div>
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+          <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(stats.accuracyPercentage)}%</div>
           <div className="text-sm text-purple-700 font-medium">Accuracy</div>
         </div>
         
-        <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-          <div className="text-2xl font-bold text-orange-600">{formatDuration(stats.averageTimePerQuestion)}</div>
+        <div className="text-center p-4 bg-theme-bg-warning rounded-lg border border-orange-200">
+          <div className="text-2xl font-bold text-theme-interactive-warning">{formatDuration(stats.averageTimePerQuestion)}</div>
           <div className="text-sm text-orange-700 font-medium">Avg/Question</div>
         </div>
       </div>
@@ -118,7 +118,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
-                className="h-2 rounded-full bg-blue-500"
+                className="h-2 rounded-full bg-theme-bg-info0"
                 style={{ width: `${stats.completionPercentage}%` }}
               />
             </div>
@@ -131,7 +131,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
-                className="h-2 rounded-full bg-green-500"
+                className="h-2 rounded-full bg-theme-bg-success0"
                 style={{ width: `${(stats.questionsAnswered / totalQuestions) * 100}%` }}
               />
             </div>
@@ -201,7 +201,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
       </div>
 
       {/* Timing Analysis */}
-      <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-3">Timing Analysis</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -243,7 +243,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(timing.difficulty)}`}>
                   {timing.difficulty}
                 </span>
-                <span className={timing.isCorrect ? 'text-green-600' : 'text-red-600'}>
+                <span className={timing.isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                   {timing.isCorrect ? '✅' : '❌'}
                 </span>
               </div>
@@ -256,7 +256,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
       </div>
 
       {/* Performance Insights */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-success border border-green-200 rounded-lg">
         <h3 className="text-sm font-medium text-green-900 mb-2">Performance Insights</h3>
         <div className="space-y-1 text-sm text-green-700">
           <div>• You completed {stats.questionsAnswered} out of {totalQuestions} questions</div>

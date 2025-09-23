@@ -114,13 +114,13 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
 
       {/* Warning messages */}
       {isCritical && (
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+        <div className="mt-2 p-2 bg-theme-bg-danger border border-red-200 rounded text-sm text-red-700">
           ⚠️ Less than 1 minute remaining! Please submit your answers soon.
         </div>
       )}
       
       {isWarning && !isCritical && (
-        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
+        <div className="mt-2 p-2 bg-theme-bg-warning border border-yellow-200 rounded text-sm text-yellow-700">
           ⚠️ Less than 5 minutes remaining. Please review your answers.
         </div>
       )}

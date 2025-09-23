@@ -268,7 +268,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       <div
         className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragActive
-            ? 'border-blue-400 bg-blue-50'
+            ? 'border-blue-400 bg-theme-bg-info'
             : 'border-theme-border-primary hover:border-theme-border-secondary'
         }`}
         onDragEnter={handleDragEnter}
@@ -287,7 +287,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               </div>
               <button
                 onClick={() => setSelectedFile(null)}
-                className="text-red-600 hover:text-red-700 text-sm"
+                className="text-theme-interactive-danger hover:text-red-700 text-sm"
               >
                 Remove file
               </button>
@@ -400,10 +400,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mt-4 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
           <div className="flex items-center space-x-2">
-            <span className="text-red-600">❌</span>
-            <span className="text-red-800">{error}</span>
+            <span className="text-theme-interactive-danger">❌</span>
+            <span className="text-theme-interactive-danger">{error}</span>
           </div>
         </div>
       )}
@@ -421,7 +421,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       )}
 
       {/* Upload Tips */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
         <h3 className="text-sm font-medium text-blue-900 mb-2">Upload Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Supported formats: PDF, DOCX, TXT, RTF</li>
@@ -434,7 +434,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Quiz Generation Section */}
       {uploadedDocument && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-green-900">Document Uploaded Successfully!</h3>

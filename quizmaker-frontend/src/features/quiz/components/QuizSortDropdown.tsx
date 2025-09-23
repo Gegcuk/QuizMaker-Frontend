@@ -91,7 +91,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
                 className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors ${
-                  sortBy === option.value ? 'bg-indigo-50 text-theme-interactive-primary' : 'text-theme-text-secondary'
+                  sortBy === option.value ? 'bg-theme-bg-primary text-theme-interactive-primary' : 'text-theme-text-secondary'
                 }`}
               >
                 <div className="flex items-center justify-between">

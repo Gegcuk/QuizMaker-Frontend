@@ -71,11 +71,11 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               key={statement.id}
               className={`flex items-start space-x-3 p-4 border rounded-lg transition-colors ${
                 status === 'correct'
-                  ? 'border-green-300 bg-green-50'
+                  ? 'border-green-300 bg-theme-bg-success'
                   : status === 'incorrect'
-                  ? 'border-red-300 bg-red-50'
+                  ? 'border-red-300 bg-theme-bg-danger'
                   : isSelected
-                  ? 'border-theme-interactive-primary bg-indigo-50'
+                  ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleStatementToggle(statement.id)}
@@ -84,11 +84,11 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               <div className="flex-shrink-0 mt-1">
                 <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full ${
                   status === 'correct'
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-theme-bg-success0 text-white'
                     : status === 'incorrect'
-                    ? 'bg-red-500 text-white'
+                    ? 'bg-theme-bg-danger0 text-white'
                     : isSelected
-                    ? 'bg-indigo-500 text-white'
+                    ? 'bg-theme-bg-primary0 text-white'
                     : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {statement.id}
@@ -104,7 +104,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   disabled={disabled}
                   className={`h-4 w-4 rounded ${
                     status === 'correct'
-                      ? 'text-green-600 focus:ring-green-500 border-green-300'
+                      ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
                       : status === 'incorrect'
                       ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                       : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
@@ -116,8 +116,8 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               <div className="flex-1">
                 <div 
                   className={`text-sm ${
-                    status === 'correct' ? 'text-green-800' :
-                    status === 'incorrect' ? 'text-red-800' :
+                    status === 'correct' ? 'text-theme-interactive-success' :
+                    status === 'incorrect' ? 'text-theme-interactive-danger' :
                     'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: statement.text }}
@@ -128,12 +128,12 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               {showCorrectAnswer && (
                 <div className="flex-shrink-0 mt-1">
                   {status === 'correct' && (
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                   {status === 'incorrect' && (
-                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
@@ -169,25 +169,25 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && statements.length > 0 && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-md">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-theme-interactive-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-green-800">Compliance Analysis</p>
+              <p className="text-sm font-medium text-theme-interactive-success">Compliance Analysis</p>
               <div className="mt-2 space-y-1">
                 <div className="flex items-center space-x-2 text-sm">
                   <span className="text-green-700">Correctly identified compliant statements:</span>
-                  <span className="font-medium text-green-800">{getCorrectAnswersCount()}</span>
+                  <span className="font-medium text-theme-interactive-success">{getCorrectAnswersCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <span className="text-red-700">Incorrectly selected non-compliant statements:</span>
-                  <span className="font-medium text-red-800">{getIncorrectAnswersCount()}</span>
+                  <span className="font-medium text-theme-interactive-danger">{getIncorrectAnswersCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <span className="text-theme-interactive-primary">Total compliant statements:</span>
-                  <span className="font-medium text-blue-800">{getTotalCompliant()}</span>
+                  <span className="font-medium text-theme-interactive-info">{getTotalCompliant()}</span>
                 </div>
               </div>
             </div>
@@ -197,20 +197,20 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
 
       {/* Correct Answers */}
       {showCorrectAnswer && (
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="mt-4 p-4 bg-theme-bg-info border border-theme-border-info rounded-md">
           <div className="flex items-start space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-blue-800">Compliant Statements</p>
+              <p className="text-sm font-medium text-theme-interactive-info">Compliant Statements</p>
               <div className="mt-2 space-y-1">
                 {statements.filter(s => s.compliant).map((statement) => (
                   <div key={statement.id} className="flex items-center space-x-2 text-sm">
                     <span className="font-medium text-theme-interactive-primary">{statement.id}.</span>
-                    <span className="text-blue-800">{statement.text}</span>
+                    <span className="text-theme-interactive-info">{statement.text}</span>
                     {currentAnswer.includes(statement.id) && (
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     )}

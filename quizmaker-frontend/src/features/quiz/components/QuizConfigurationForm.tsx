@@ -98,7 +98,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 className={errors.title ? 'border-red-300' : ''}
               />
               {errors.title && (
-                <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.title}</p>
               )}
               <p className="mt-1 text-xs text-theme-text-tertiary">
                 A clear, descriptive title for your quiz (3-100 characters)
@@ -120,7 +120,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 }`}
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.description}</p>
               )}
               <div className="text-xs text-theme-text-tertiary mt-1">
                 {(localData.description || '').length}/1000 characters
@@ -184,7 +184,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 className={errors.estimatedTime ? 'border-red-300' : ''}
               />
               {errors.estimatedTime && (
-                <p className="mt-1 text-sm text-red-600">{errors.estimatedTime}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.estimatedTime}</p>
               )}
               <p className="mt-1 text-xs text-theme-text-tertiary">
                 How long the quiz should take to complete (1-180 minutes)
@@ -223,7 +223,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                     className={errors.timerDuration ? 'border-red-300' : ''}
                   />
                   {errors.timerDuration && (
-                    <p className="mt-1 text-sm text-red-600">{errors.timerDuration}</p>
+                    <p className="mt-1 text-sm text-theme-interactive-danger">{errors.timerDuration}</p>
                   )}
                   <p className="mt-1 text-xs text-theme-text-tertiary">
                     Time limit for the quiz (1-180 minutes)
@@ -236,7 +236,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
 
           {/* Method-specific settings */}
           {creationMethod && (
-            <div className="bg-blue-50 rounded-lg p-6">
+            <div className="bg-theme-bg-info rounded-lg p-6">
               <h4 className="text-lg font-medium text-theme-text-primary mb-4">
                 {creationMethod === 'manual' && 'Manual Creation Settings'}
                 {creationMethod === 'text' && 'Text Generation Settings'}

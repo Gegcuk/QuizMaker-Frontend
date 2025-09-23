@@ -169,7 +169,7 @@ const Footer: React.FC = () => {
               </p>
               <a
                 href="mailto:support@quizmaker.com"
-                className="text-theme-interactive-primary hover:text-blue-800 text-sm transition-colors duration-200"
+                className="text-theme-interactive-primary hover:text-theme-interactive-info text-sm transition-colors duration-200"
               >
                 support@quizmaker.com
               </a>

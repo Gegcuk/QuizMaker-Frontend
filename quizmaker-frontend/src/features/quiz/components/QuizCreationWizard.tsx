@@ -341,7 +341,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       case 4:
         return createdQuiz ? (
           <div className="text-center space-y-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+            <div className="bg-theme-bg-success border border-green-200 rounded-lg p-6">
               <div className="flex items-center justify-center mb-4">
                 <svg className="h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -400,7 +400,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
       {/* Error message */}
       {errors.general && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="mb-6 bg-theme-bg-danger border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -408,7 +408,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{errors.general}</p>
+              <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
             </div>
           </div>
         </div>

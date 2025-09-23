@@ -122,7 +122,7 @@ export const TagForm: React.FC<TagFormProps> = ({
           <button
             type="button"
             onClick={handlePreviewToggle}
-            className="text-sm text-theme-interactive-primary hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50"
+            className="text-sm text-theme-interactive-primary hover:text-theme-interactive-info px-3 py-1 rounded-md hover:bg-theme-bg-info"
           >
             {previewMode ? 'Edit Mode' : 'Preview Mode'}
           </button>
@@ -133,7 +133,7 @@ export const TagForm: React.FC<TagFormProps> = ({
         <div className="p-6">
           <div className="bg-theme-bg-secondary rounded-lg p-4">
             <div className="flex items-center mb-3">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mr-3">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-theme-bg-info text-theme-interactive-info mr-3">
                 {formData.name || 'Tag Name'}
               </span>
               <h4 className="text-lg font-medium text-theme-text-primary">
@@ -168,7 +168,7 @@ export const TagForm: React.FC<TagFormProps> = ({
               maxLength={50}
             />
             <div className="flex justify-between items-center mt-1">
-              <span className="text-sm text-red-600">{errors.name}</span>
+              <span className="text-sm text-theme-interactive-danger">{errors.name}</span>
               <span className="text-sm text-theme-text-tertiary">
                 {characterCount.name}/50
               </span>
@@ -192,7 +192,7 @@ export const TagForm: React.FC<TagFormProps> = ({
               maxLength={1000}
             />
             <div className="flex justify-between items-center mt-1">
-              <span className="text-sm text-red-600">{errors.description}</span>
+              <span className="text-sm text-theme-interactive-danger">{errors.description}</span>
               <span className="text-sm text-theme-text-tertiary">
                 {characterCount.description}/1000
               </span>
@@ -201,12 +201,12 @@ export const TagForm: React.FC<TagFormProps> = ({
 
           {/* Submit Error */}
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+            <div className="bg-theme-bg-danger border border-red-200 rounded-md p-3">
               <div className="flex items-center">
                 <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <span className="text-red-800 text-sm">{errors.submit}</span>
+                <span className="text-theme-interactive-danger text-sm">{errors.submit}</span>
               </div>
             </div>
           )}

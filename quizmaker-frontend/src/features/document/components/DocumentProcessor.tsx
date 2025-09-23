@@ -152,13 +152,13 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
   const getStatusColor = (status: DocumentStatus): string => {
     switch (status) {
       case 'UPLOADED':
-        return 'text-theme-interactive-primary bg-blue-100';
+        return 'text-theme-interactive-primary bg-theme-bg-info';
       case 'PROCESSING':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'PROCESSED':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'FAILED':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-danger';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -248,7 +248,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
         <div className="w-full bg-theme-bg-tertiary rounded-full h-3 mb-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
-              document.status === 'FAILED' ? 'bg-red-500' : 'bg-blue-500'
+              document.status === 'FAILED' ? 'bg-theme-bg-danger0' : 'bg-theme-bg-info0'
             }`}
             style={{ width: `${progress}%` }}
           />
@@ -267,9 +267,9 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Processing Stages</h3>
         <div className="space-y-3">
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
-            document.status !== 'FAILED' ? 'bg-green-50 border border-green-200' : 'bg-theme-bg-secondary border border-theme-border-primary'
+            document.status !== 'FAILED' ? 'bg-theme-bg-success border border-green-200' : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
-            <span className="text-green-600">✅</span>
+            <span className="text-theme-interactive-success">✅</span>
             <div>
               <div className="font-medium text-theme-text-primary">Document Upload</div>
               <div className="text-sm text-theme-text-secondary">File uploaded and validated</div>
@@ -278,7 +278,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
             ['PROCESSING', 'PROCESSED'].includes(document.status) 
-              ? 'bg-blue-50 border border-blue-200' 
+              ? 'bg-theme-bg-info border border-theme-border-info' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}>
@@ -294,10 +294,10 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
             document.status === 'PROCESSED' 
-              ? 'bg-green-50 border border-green-200' 
+              ? 'bg-theme-bg-success border border-green-200' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
-            <span className={document.status === 'PROCESSED' ? 'text-green-600' : 'text-theme-text-tertiary'}>
+            <span className={document.status === 'PROCESSED' ? 'text-theme-interactive-success' : 'text-theme-text-tertiary'}>
               {document.status === 'PROCESSED' ? '✅' : '⏳'}
             </span>
             <div>
@@ -315,11 +315,11 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
           <div className="flex items-center space-x-2">
-            <span className="text-red-600">❌</span>
+            <span className="text-theme-interactive-danger">❌</span>
             <div>
-              <div className="font-medium text-red-800">Processing Error</div>
+              <div className="font-medium text-theme-interactive-danger">Processing Error</div>
               <div className="text-sm text-red-700">{error}</div>
             </div>
           </div>
@@ -328,7 +328,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
       {/* Document Metadata */}
       {(document.title || document.author) && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
           <h3 className="text-sm font-medium text-blue-900 mb-2">Document Information</h3>
           <div className="space-y-1 text-sm text-theme-interactive-primary">
             {document.title && <div><strong>Title:</strong> {document.title}</div>}
@@ -338,7 +338,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       )}
 
       {/* Processing Tips */}
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
         <h3 className="text-sm font-medium text-yellow-900 mb-2">Processing Information:</h3>
         <ul className="text-sm text-yellow-700 space-y-1">
           <li>• Processing time depends on document size and complexity</li>

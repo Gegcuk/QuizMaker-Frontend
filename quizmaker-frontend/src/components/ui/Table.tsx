@@ -202,7 +202,7 @@ const Table = <T extends Record<string, any>>({
                   key={rowKey(row)}
                   className={`${
                     onRowClick ? 'cursor-pointer hover:bg-theme-bg-secondary' : ''
-                  } ${selectedRows.includes(rowKey(row)) ? 'bg-blue-50' : ''}`}
+                  } ${selectedRows.includes(rowKey(row)) ? 'bg-theme-bg-info' : ''}`}
                   onClick={() => onRowClick?.(row, index)}
                 >
                   {selectable && (
@@ -298,7 +298,7 @@ const Table = <T extends Record<string, any>>({
                         onClick={() => pagination.onPageChange(page)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           page === pagination.currentPage
-                            ? 'z-10 bg-blue-50 border-blue-500 text-theme-interactive-primary'
+                            ? 'z-10 bg-theme-bg-info border-blue-500 text-theme-interactive-primary'
                             : 'bg-theme-bg-primary border-theme-border-primary text-theme-text-tertiary hover:bg-theme-bg-secondary'
                         }`}
                       >

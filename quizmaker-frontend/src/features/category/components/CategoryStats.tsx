@@ -158,9 +158,9 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
-      case 'EASY': return 'text-green-600 bg-green-100';
-      case 'MEDIUM': return 'text-yellow-600 bg-yellow-100';
-      case 'HARD': return 'text-red-600 bg-red-100';
+      case 'EASY': return 'text-theme-interactive-success bg-theme-bg-success';
+      case 'MEDIUM': return 'text-theme-interactive-warning bg-theme-bg-warning';
+      case 'HARD': return 'text-theme-interactive-danger bg-theme-bg-danger';
       default: return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
@@ -202,12 +202,12 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-interactive-danger">{error}</span>
         </div>
       </div>
     );
@@ -229,7 +229,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Quizzes */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="bg-theme-bg-info rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,43 +244,43 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
           </div>
 
           {/* Published Quizzes */}
-          <div className="bg-green-50 rounded-lg p-4">
+          <div className="bg-theme-bg-success rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-green-600">Published</p>
+                <p className="text-sm font-medium text-theme-interactive-success">Published</p>
                 <p className="text-2xl font-bold text-green-900">{stats.publishedQuizzes}</p>
               </div>
             </div>
           </div>
 
           {/* Public Quizzes */}
-          <div className="bg-purple-50 rounded-lg p-4">
+          <div className="bg-theme-bg-primary rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-purple-600">Public</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Public</p>
                 <p className="text-2xl font-bold text-purple-900">{stats.publicQuizzes}</p>
               </div>
             </div>
           </div>
 
           {/* Growth Rate */}
-          <div className="bg-orange-50 rounded-lg p-4">
+          <div className="bg-theme-bg-warning rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 {getGrowthIcon(stats.growthMetrics.growthRate)}
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-orange-600">Growth Rate</p>
+                <p className="text-sm font-medium text-theme-interactive-warning">Growth Rate</p>
                 <p className="text-2xl font-bold text-orange-900">
                   {stats.growthMetrics.growthRate > 0 ? '+' : ''}{stats.growthMetrics.growthRate.toFixed(1)}%
                 </p>
@@ -307,8 +307,8 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
                       <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            difficulty === 'EASY' ? 'bg-green-500' :
-                            difficulty === 'MEDIUM' ? 'bg-yellow-500' : 'bg-red-500'
+                            difficulty === 'EASY' ? 'bg-theme-bg-success0' :
+                            difficulty === 'MEDIUM' ? 'bg-theme-bg-warning0' : 'bg-theme-bg-danger0'
                           }`}
                           style={{ width: `${stats.totalQuizzes > 0 ? (count / stats.totalQuizzes) * 100 : 0}%` }}
                         ></div>

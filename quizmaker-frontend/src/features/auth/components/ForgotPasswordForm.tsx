@@ -110,7 +110,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   if (isSubmitted) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-green-50 border border-green-200 rounded-md p-6">
+        <div className="bg-theme-bg-success border border-green-200 rounded-md p-6">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -118,7 +118,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
+              <h3 className="text-sm font-medium text-theme-interactive-success">
                 Password reset email sent
               </h3>
               <div className="mt-2 text-sm text-green-700">
@@ -132,7 +132,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsSubmitted(false)}
-                    className="bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
+                    className="bg-theme-bg-success px-2 py-1.5 rounded-md text-sm font-medium text-theme-interactive-success hover:bg-theme-bg-success focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
                   >
                     Send another email
                   </button>
@@ -166,7 +166,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* General error display */}
         {errors.general && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -174,7 +174,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.general}</p>
+                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             />
           </div>
           {errors.email && (
-            <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.email}</p>
           )}
         </div>
 

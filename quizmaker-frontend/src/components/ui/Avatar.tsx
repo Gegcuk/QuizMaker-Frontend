@@ -67,14 +67,14 @@ const Avatar: React.FC<AvatarProps> = ({
 
   const getRandomColor = (name: string) => {
     const colors = [
-      'bg-red-500',
-      'bg-blue-500',
-      'bg-green-500',
-      'bg-yellow-500',
-      'bg-purple-500',
-      'bg-pink-500',
-      'bg-indigo-500',
-      'bg-teal-500'
+      'bg-theme-bg-danger0',
+      'bg-theme-bg-info0',
+      'bg-theme-bg-success0',
+      'bg-theme-bg-warning0',
+      'bg-theme-bg-primary0',
+      'bg-theme-bg-secondary0',
+      'bg-theme-bg-primary0',
+      'bg-theme-bg-info0'
     ];
     
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

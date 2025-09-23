@@ -159,7 +159,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Performance Overview */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-theme-border-info">
         <div className="text-center">
           <div className="text-3xl font-bold text-blue-900 mb-2">
             {Math.round(score)}% - {getPerformanceLevel(score).toUpperCase()}
@@ -171,9 +171,9 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Motivational Message */}
-      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
         <div className="text-center">
-          <div className="text-lg font-medium text-yellow-800">
+          <div className="text-lg font-medium text-theme-interactive-warning">
             {getMotivationalMessage(score)}
           </div>
         </div>
@@ -181,31 +181,31 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
 
       {/* Performance Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="p-4 bg-theme-bg-success rounded-lg border border-green-200">
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{correctAnswers.length}</div>
+            <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers.length}</div>
             <div className="text-sm text-green-700 font-medium">Correct Answers</div>
-            <div className="text-xs text-green-600 mt-1">
+            <div className="text-xs text-theme-interactive-success mt-1">
               {Math.round((correctAnswers.length / answers.length) * 100)}% success rate
             </div>
           </div>
         </div>
         
-        <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+        <div className="p-4 bg-theme-bg-danger rounded-lg border border-red-200">
           <div className="text-center">
-            <div className="text-2xl font-bold text-red-600">{incorrectAnswers.length}</div>
+            <div className="text-2xl font-bold text-theme-interactive-danger">{incorrectAnswers.length}</div>
             <div className="text-sm text-red-700 font-medium">Areas for Improvement</div>
-            <div className="text-xs text-red-600 mt-1">
+            <div className="text-xs text-theme-interactive-danger mt-1">
               Focus on these topics
             </div>
           </div>
         </div>
         
-        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{formatDuration(result.startedAt, result.completedAt)}</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(result.startedAt, result.completedAt)}</div>
             <div className="text-sm text-purple-700 font-medium">Time Spent</div>
-            <div className="text-xs text-purple-600 mt-1">
+            <div className="text-xs text-theme-interactive-primary mt-1">
               {averageTimePerQuestion}s per question
             </div>
           </div>
@@ -217,9 +217,9 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Improvement Suggestions</h3>
         <div className="space-y-2">
           {getImprovementSuggestions(score).map((suggestion, index) => (
-            <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+            <div key={index} className="flex items-start space-x-3 p-3 bg-theme-bg-info rounded-lg">
               <span className="text-theme-interactive-primary mt-0.5">💡</span>
-              <span className="text-sm text-blue-800">{suggestion}</span>
+              <span className="text-sm text-theme-interactive-info">{suggestion}</span>
             </div>
           ))}
         </div>
@@ -230,9 +230,9 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Study Recommendations</h3>
         <div className="space-y-2">
           {getStudyRecommendations(score).map((recommendation, index) => (
-            <div key={index} className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-              <span className="text-green-600 mt-0.5">📚</span>
-              <span className="text-sm text-green-800">{recommendation}</span>
+            <div key={index} className="flex items-start space-x-3 p-3 bg-theme-bg-success rounded-lg">
+              <span className="text-theme-interactive-success mt-0.5">📚</span>
+              <span className="text-sm text-theme-interactive-success">{recommendation}</span>
             </div>
           ))}
         </div>
@@ -255,7 +255,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Next Steps */}
-      <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Next Steps</h3>
         <div className="space-y-2 text-sm text-theme-interactive-primary">
           {score >= 80 ? (
@@ -283,7 +283,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       {/* Encouragement */}
       <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
         <div className="text-center">
-          <div className="text-lg font-medium text-green-800 mb-2">
+          <div className="text-lg font-medium text-theme-interactive-success mb-2">
             Remember: Every attempt is progress! 🚀
           </div>
           <div className="text-sm text-green-700">

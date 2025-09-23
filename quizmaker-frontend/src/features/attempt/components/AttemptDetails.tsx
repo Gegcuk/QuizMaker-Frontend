@@ -30,13 +30,13 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'COMPLETED':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'IN_PROGRESS':
-        return 'text-theme-interactive-primary bg-blue-100';
+        return 'text-theme-interactive-primary bg-theme-bg-info';
       case 'PAUSED':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'ABANDONED':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-danger';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
@@ -114,7 +114,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
 
       {/* Attempt Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="p-4 bg-theme-bg-info rounded-lg border border-theme-border-info">
           <div className="flex items-center space-x-2 mb-2">
             <span className="text-lg">{getStatusIcon(details.status)}</span>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(details.status)}`}>
@@ -128,7 +128,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="p-4 bg-theme-bg-success rounded-lg border border-green-200">
           <div className="flex items-center space-x-2 mb-2">
             <span className="text-lg">{getModeIcon(details.mode)}</span>
             <span className="font-medium text-green-700">{details.mode.replace('_', ' ')}</span>
@@ -138,8 +138,8 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="text-2xl font-bold text-purple-600 mb-2">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+          <div className="text-2xl font-bold text-theme-interactive-primary mb-2">
             {formatDuration(details.startedAt, details.completedAt ?? undefined)}
           </div>
           <div className="text-sm text-purple-700">
@@ -160,7 +160,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
             <div className="text-sm text-theme-text-secondary">Questions Answered</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
+            <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers}</div>
             <div className="text-sm text-green-700">Correct Answers</div>
           </div>
           <div className="text-center">
@@ -168,7 +168,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
             <div className="text-sm text-theme-interactive-primary">Accuracy</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{Math.round(averageScore)}</div>
+            <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(averageScore)}</div>
             <div className="text-sm text-purple-700">Average Score</div>
           </div>
         </div>
@@ -182,7 +182,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
             <div key={answer.answerId} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
-                <span className={answer.isCorrect ? 'text-green-600' : 'text-red-600'}>
+                <span className={answer.isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                   {answer.isCorrect ? '✅' : '❌'}
                 </span>
                 <span className="text-sm text-theme-text-secondary">
@@ -219,7 +219,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                         <div className="text-theme-text-tertiary">Questions</div>
                       </div>
                       <div>
-                        <div className="font-medium text-green-600">{data.correct}</div>
+                        <div className="font-medium text-theme-interactive-success">{data.correct}</div>
                         <div className="text-green-500">Correct</div>
                       </div>
                       <div>
@@ -227,7 +227,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                         <div className="text-blue-500">Accuracy</div>
                       </div>
                       <div>
-                        <div className="font-medium text-purple-600">{Math.round(avgScore)}</div>
+                        <div className="font-medium text-theme-interactive-primary">{Math.round(avgScore)}</div>
                         <div className="text-purple-500">Avg Score</div>
                       </div>
                     </div>
@@ -240,7 +240,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       )}
 
       {/* Attempt Metadata */}
-      <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-3">Attempt Metadata</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
@@ -271,7 +271,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       </div>
 
       {/* Progress Analysis */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-success border border-green-200 rounded-lg">
         <h3 className="text-sm font-medium text-green-900 mb-2">Progress Analysis</h3>
         <div className="space-y-1 text-sm text-green-700">
           <div>• Total questions answered: {totalAnswers}</div>

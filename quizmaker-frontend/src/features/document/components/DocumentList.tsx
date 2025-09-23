@@ -218,7 +218,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         <div className="flex items-center space-x-2">
           <Link
             to={`/documents/${document?.id}`}
-            className="p-2 text-theme-interactive-primary hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            className="p-2 text-theme-interactive-primary hover:text-theme-interactive-info hover:bg-theme-bg-info rounded-md transition-colors"
             title="View document"
           >
             <EyeIcon className="h-4 w-4" />
@@ -227,7 +227,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
           {document?.status === 'FAILED' && (
             <button
               onClick={() => handleReprocess(document.id)}
-              className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-md transition-colors"
+              className="p-2 text-theme-interactive-warning hover:text-theme-interactive-warning hover:bg-theme-bg-warning rounded-md transition-colors"
               title="Reprocess document"
             >
               <ArrowPathIcon className="h-4 w-4" />
@@ -239,7 +239,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
               setSelectedDocument(document);
               setShowDeleteModal(true);
             }}
-            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+            className="p-2 text-theme-interactive-danger hover:text-theme-interactive-danger hover:bg-theme-bg-danger rounded-md transition-colors"
             title="Delete document"
           >
             <TrashIcon className="h-4 w-4" />

@@ -147,8 +147,8 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="text-red-600 text-2xl mb-2">❌</div>
-          <p className="text-red-800">{error}</p>
+          <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
+          <p className="text-theme-interactive-danger">{error}</p>
         </div>
       </div>
     );
@@ -324,7 +324,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               onClick={() => navigateToChunk(index)}
               className={`p-2 text-left rounded-md text-sm transition-colors ${
                 index === currentChunkIndex
-                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                  ? 'bg-theme-bg-info text-theme-interactive-info border border-theme-border-info'
                   : 'hover:bg-theme-bg-tertiary text-theme-text-secondary'
               }`}
             >

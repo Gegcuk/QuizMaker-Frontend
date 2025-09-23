@@ -247,7 +247,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
           <>Click and drag on the image to select the correct region:</>
         ) : (
           <>
-            <div className="text-amber-600 font-medium mb-2">⚠️ No image provided</div>
+            <div className="text-theme-interactive-warning font-medium mb-2">⚠️ No image provided</div>
             <div>This is a placeholder. You can still practice selecting regions by clicking and dragging:</div>
           </>
         )}
@@ -297,7 +297,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
       {/* Selection Details */}
       {selectedRegion && (
-        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-md">
+        <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
           <div className="text-sm text-theme-interactive-primary">
             <strong>Selected Region:</strong>
             <div className="mt-1 text-xs">

@@ -145,22 +145,22 @@ const UserProfile: React.FC<UserProfileProps> = ({
           <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
             <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <div className="h-3 bg-indigo-100 rounded w-24 mb-2" />
-                <div className="h-6 bg-indigo-100 rounded" />
+                <div className="h-3 bg-theme-bg-primary rounded w-24 mb-2" />
+                <div className="h-6 bg-theme-bg-primary rounded" />
               </div>
               <div>
-                <div className="h-3 bg-indigo-100 rounded w-20 mb-2" />
-                <div className="h-6 bg-indigo-100 rounded" />
+                <div className="h-3 bg-theme-bg-primary rounded w-20 mb-2" />
+                <div className="h-6 bg-theme-bg-primary rounded" />
               </div>
               <div>
-                <div className="h-3 bg-indigo-100 rounded w-28 mb-2" />
-                <div className="h-6 bg-indigo-100 rounded" />
+                <div className="h-3 bg-theme-bg-primary rounded w-28 mb-2" />
+                <div className="h-6 bg-theme-bg-primary rounded" />
               </div>
             </div>
           </div>
           <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
-            <div className="h-4 bg-indigo-100 rounded w-40 mb-2 animate-pulse" />
-            <div className="h-16 bg-indigo-100 rounded animate-pulse" />
+            <div className="h-4 bg-theme-bg-primary rounded w-40 mb-2 animate-pulse" />
+            <div className="h-16 bg-theme-bg-primary rounded animate-pulse" />
           </div>
         </div>
       );
@@ -177,7 +177,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     if (balanceError) {
       return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">
+        <div className="bg-theme-bg-danger border border-red-200 rounded-lg p-4 text-sm text-theme-interactive-danger">
           {balanceError}
         </div>
       );
@@ -189,7 +189,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     return (
       <div className="space-y-4">
-        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+        <div className="bg-theme-bg-primary border border-indigo-100 rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Available Tokens</p>
@@ -322,7 +322,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   if (!displayUser) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -330,7 +330,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-red-800">User profile not found</p>
+            <p className="text-sm text-theme-interactive-danger">User profile not found</p>
           </div>
         </div>
       </div>
@@ -343,7 +343,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       <div className="px-6 py-4 border-b border-theme-border-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-theme-bg-primary rounded-full flex items-center justify-center">
               <span className="text-2xl font-bold text-theme-interactive-primary">
                 {displayUser.username.charAt(0).toUpperCase()}
               </span>
@@ -364,8 +364,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
                   onClick={handleToggleActivation}
                   className={`px-3 py-1 text-sm font-medium rounded-md ${
                     displayUser.isActive
-                      ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                      : 'bg-green-100 text-green-800 hover:bg-green-200'
+                      ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-red-200'
+                      : 'bg-theme-bg-success text-theme-interactive-success hover:bg-green-200'
                   }`}
                 >
                   {displayUser.isActive ? 'Deactivate' : 'Activate'}
@@ -373,7 +373,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               )}
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-indigo-100 rounded-md hover:bg-indigo-200"
+                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary rounded-md hover:bg-indigo-200"
               >
                 Edit
               </button>
@@ -385,7 +385,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       {/* Content */}
       <div className="px-6 py-4">
         {errors.general && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="mb-4 bg-theme-bg-danger border border-red-200 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -393,7 +393,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.general}</p>
+                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
               </div>
             </div>
           </div>
@@ -440,7 +440,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 disabled={isSaving}
               />
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.username}</p>
               )}
             </div>
 
@@ -460,7 +460,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 disabled={isSaving}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.email}</p>
               )}
             </div>
 
@@ -505,8 +505,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <p className="mt-1 text-sm text-theme-text-primary">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   displayUser.isActive 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-theme-bg-success text-theme-interactive-success' 
+                    : 'bg-theme-bg-danger text-theme-interactive-danger'
                 }`}>
                   {displayUser.isActive ? 'Active' : 'Inactive'}
                 </span>
@@ -519,7 +519,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 {displayUser.roles.map((role) => (
                   <span
                     key={role}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
                     {role}
                   </span>

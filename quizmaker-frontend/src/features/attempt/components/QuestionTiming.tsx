@@ -55,22 +55,22 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
   const getDifficultyColor = (difficulty: string): string => {
     switch (difficulty) {
       case 'EASY':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'MEDIUM':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'HARD':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-danger';
       default:
         return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
   const getTimeColor = (seconds: number): string => {
-    if (seconds <= 30) return 'text-green-600 bg-green-100';
-    if (seconds <= 60) return 'text-theme-interactive-primary bg-blue-100';
-    if (seconds <= 120) return 'text-yellow-600 bg-yellow-100';
-    if (seconds <= 300) return 'text-orange-600 bg-orange-100';
-    return 'text-red-600 bg-red-100';
+    if (seconds <= 30) return 'text-theme-interactive-success bg-theme-bg-success';
+    if (seconds <= 60) return 'text-theme-interactive-primary bg-theme-bg-info';
+    if (seconds <= 120) return 'text-theme-interactive-warning bg-theme-bg-warning';
+    if (seconds <= 300) return 'text-theme-interactive-warning bg-theme-bg-warning';
+    return 'text-theme-interactive-danger bg-theme-bg-danger';
   };
 
   // Sort timings
@@ -155,23 +155,23 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="text-center p-4 bg-theme-bg-info rounded-lg border border-theme-border-info">
           <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
           <div className="text-sm text-theme-interactive-primary font-medium">Average Time</div>
         </div>
         
-        <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-          <div className="text-2xl font-bold text-green-600">{formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
+        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-green-200">
+          <div className="text-2xl font-bold text-theme-interactive-success">{formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
           <div className="text-sm text-green-700 font-medium">Fastest</div>
         </div>
         
-        <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-          <div className="text-2xl font-bold text-red-600">{formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
+        <div className="text-center p-4 bg-theme-bg-danger rounded-lg border border-red-200">
+          <div className="text-2xl font-bold text-theme-interactive-danger">{formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
           <div className="text-sm text-red-700 font-medium">Slowest</div>
         </div>
         
-        <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="text-2xl font-bold text-purple-600">{Math.round(accuracyPercentage)}%</div>
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+          <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracyPercentage)}%</div>
           <div className="text-sm text-purple-700 font-medium">Accuracy</div>
         </div>
       </div>
@@ -195,7 +195,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeColor(avgTime)}`}>
                       {formatDuration(`PT${Math.floor(avgTime / 60)}M${Math.floor(avgTime % 60)}S`)}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${accuracy >= 80 ? 'text-green-600 bg-green-100' : accuracy >= 60 ? 'text-yellow-600 bg-yellow-100' : 'text-red-600 bg-red-100'}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${accuracy >= 80 ? 'text-theme-interactive-success bg-theme-bg-success' : accuracy >= 60 ? 'text-theme-interactive-warning bg-theme-bg-warning' : 'text-theme-interactive-danger bg-theme-bg-danger'}`}>
                       {Math.round(accuracy)}%
                     </span>
                   </div>
@@ -247,7 +247,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(timing.difficulty)}`}>
                     {timing.difficulty}
                   </span>
-                  <span className={timing.isCorrect ? 'text-green-600' : 'text-red-600'}>
+                  <span className={timing.isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                     {timing.isCorrect ? '✅' : '❌'}
                   </span>
                 </div>
@@ -280,7 +280,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       </div>
 
       {/* Timing Insights */}
-      <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+      <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
         <h3 className="text-sm font-medium text-indigo-900 mb-2">Timing Insights</h3>
         <div className="space-y-1 text-sm text-theme-interactive-primary">
           <div>• Average time per question: {formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>

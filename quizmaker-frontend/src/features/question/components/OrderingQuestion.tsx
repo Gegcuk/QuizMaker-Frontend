@@ -101,11 +101,11 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               onDragEnd={handleDragEnd}
               className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
                 status === 'correct'
-                  ? 'border-green-300 bg-green-50'
+                  ? 'border-green-300 bg-theme-bg-success'
                   : status === 'incorrect'
-                  ? 'border-red-300 bg-red-50'
+                  ? 'border-red-300 bg-theme-bg-danger'
                   : draggedItem === itemId
-                  ? 'border-theme-interactive-primary bg-indigo-50 opacity-50'
+                  ? 'border-theme-interactive-primary bg-theme-bg-primary opacity-50'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-move'}`}
             >
@@ -113,9 +113,9 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               <div className="flex-shrink-0">
                 <span className={`inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-full ${
                   status === 'correct'
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-theme-bg-success0 text-white'
                     : status === 'incorrect'
-                    ? 'bg-red-500 text-white'
+                    ? 'bg-theme-bg-danger0 text-white'
                     : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {index + 1}
@@ -133,8 +133,8 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               <div className="flex-1">
                 <div 
                   className={`text-sm ${
-                    status === 'correct' ? 'text-green-800' :
-                    status === 'incorrect' ? 'text-red-800' :
+                    status === 'correct' ? 'text-theme-interactive-success' :
+                    status === 'incorrect' ? 'text-theme-interactive-danger' :
                     'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: item.text }}
@@ -145,12 +145,12 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               {showCorrectAnswer && (
                 <div className="flex-shrink-0">
                   {status === 'correct' && (
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                   {status === 'incorrect' && (
-                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
@@ -181,20 +181,20 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && items.length > 0 && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-md">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-theme-interactive-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-green-800">Correct Order</p>
+              <p className="text-sm font-medium text-theme-interactive-success">Correct Order</p>
               <div className="mt-2 space-y-1">
                 {items.map((item, index) => (
                   <div key={item.id} className="flex items-center space-x-2 text-sm">
                     <span className="font-medium text-green-700">{index + 1}.</span>
-                    <span className="text-green-800">{item.text}</span>
+                    <span className="text-theme-interactive-success">{item.text}</span>
                     {orderedItems[index] === item.id && (
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -213,13 +213,13 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
 
       {/* Your Order */}
       {showCorrectAnswer && (
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="mt-4 p-4 bg-theme-bg-info border border-theme-border-info rounded-md">
           <div className="flex items-start space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-medium text-blue-800">Your Order</p>
+              <p className="text-sm font-medium text-theme-interactive-info">Your Order</p>
               <div className="mt-2 space-y-1">
                 {orderedItems.map((itemId, index) => {
                   const item = items.find(i => i.id === itemId);
@@ -229,15 +229,15 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
                   return (
                     <div key={itemId} className="flex items-center space-x-2 text-sm">
                       <span className="font-medium text-theme-interactive-primary">{index + 1}.</span>
-                      <span className={isCorrect ? 'text-green-800' : 'text-red-800'}>
+                      <span className={isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                         {item?.text}
                       </span>
                       {isCorrect ? (
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       )}

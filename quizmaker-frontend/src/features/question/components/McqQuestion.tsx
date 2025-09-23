@@ -72,11 +72,11 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               key={option.id}
               className={`flex items-start space-x-3 p-4 border rounded-lg transition-colors ${
                 status === 'correct' 
-                  ? 'border-green-300 bg-green-50' 
+                  ? 'border-green-300 bg-theme-bg-success' 
                   : status === 'incorrect'
-                  ? 'border-red-300 bg-red-50'
+                  ? 'border-red-300 bg-theme-bg-danger'
                   : isSelected
-                  ? 'border-theme-interactive-primary bg-indigo-50'
+                  ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleOptionChange(option.id, !isSelected)}
@@ -85,11 +85,11 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               <div className="flex-shrink-0 mt-1">
                 <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full ${
                   status === 'correct'
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-theme-bg-success0 text-white'
                     : status === 'incorrect'
-                    ? 'bg-red-500 text-white'
+                    ? 'bg-theme-bg-danger0 text-white'
                     : isSelected
-                    ? 'bg-indigo-500 text-white'
+                    ? 'bg-theme-bg-primary0 text-white'
                     : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {option.id.toUpperCase()}
@@ -108,7 +108,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                     isMultiSelect ? 'rounded' : ''
                   } ${
                     status === 'correct'
-                      ? 'text-green-600 focus:ring-green-500 border-green-300'
+                      ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
                       : status === 'incorrect'
                       ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                       : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
@@ -120,8 +120,8 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               <div className="flex-1">
                 <div 
                   className={`text-sm ${
-                    status === 'correct' ? 'text-green-800' :
-                    status === 'incorrect' ? 'text-red-800' :
+                    status === 'correct' ? 'text-theme-interactive-success' :
+                    status === 'incorrect' ? 'text-theme-interactive-danger' :
                     'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: option.text }}
@@ -132,12 +132,12 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               {showCorrectAnswer && (
                 <div className="flex-shrink-0 mt-1">
                   {status === 'correct' && (
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                   {status === 'incorrect' && (
-                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}

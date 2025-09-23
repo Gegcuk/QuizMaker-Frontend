@@ -54,9 +54,9 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   const isValidLength = characterCount >= minLength && characterCount <= maxLength;
 
   const getCharacterCountColor = (): string => {
-    if (isOverLimit) return 'text-red-600';
-    if (isUnderLimit) return 'text-yellow-600';
-    return 'text-green-600';
+    if (isOverLimit) return 'text-theme-interactive-danger';
+    if (isUnderLimit) return 'text-theme-interactive-warning';
+    return 'text-theme-interactive-success';
   };
 
   const getTextareaClass = (): string => {
@@ -106,19 +106,19 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
           </div>
           
           {isOverLimit && (
-            <div className="text-sm text-red-600">
+            <div className="text-sm text-theme-interactive-danger">
               ⚠️ Exceeds maximum length
             </div>
           )}
           
           {isUnderLimit && characterCount > 0 && (
-            <div className="text-sm text-yellow-600">
+            <div className="text-sm text-theme-interactive-warning">
               ⚠️ Minimum {minLength} characters required
             </div>
           )}
           
           {isValidLength && (
-            <div className="text-sm text-green-600">
+            <div className="text-sm text-theme-interactive-success">
               ✅ Valid length
             </div>
           )}
@@ -138,7 +138,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       </div>
 
       {/* Length Requirements */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+      <div className="p-3 bg-theme-bg-info border border-theme-border-info rounded-md">
         <div className="text-sm text-theme-interactive-primary">
           <strong>Requirements:</strong> 
           <ul className="mt-1 ml-4 list-disc">

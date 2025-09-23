@@ -77,7 +77,7 @@ const QuizDetailPage: React.FC = () => {
   if (quizError || !quiz) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -85,7 +85,7 @@ const QuizDetailPage: React.FC = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{quizError?.message || 'Quiz not found'}</p>
+              <p className="text-sm text-theme-interactive-danger">{quizError?.message || 'Quiz not found'}</p>
             </div>
           </div>
         </div>

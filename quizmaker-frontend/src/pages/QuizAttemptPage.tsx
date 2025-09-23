@@ -631,7 +631,7 @@ const QuizAttemptPage: React.FC = () => {
                   Question {index + 1}
                 </h3>
                 {answers[question.id] && (
-                  <span className="text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                  <span className="text-sm text-theme-interactive-success bg-theme-bg-success px-2 py-1 rounded">
                     ✓ Answered
                   </span>
                 )}
@@ -771,8 +771,8 @@ const QuizAttemptPage: React.FC = () => {
       {/* Error Display */}
       {error && (
         <div className="max-w-4xl mx-auto px-4 mb-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-600">{error}</p>
+          <div className="bg-theme-bg-danger border border-red-200 rounded-lg p-4">
+            <p className="text-theme-interactive-danger">{error}</p>
           </div>
         </div>
       )}

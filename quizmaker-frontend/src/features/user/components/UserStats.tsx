@@ -149,7 +149,7 @@ const UserStats: React.FC<UserStatsProps> = ({
 
   if (errors) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -157,7 +157,7 @@ const UserStats: React.FC<UserStatsProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-red-800">{errors}</p>
+            <p className="text-sm text-theme-interactive-danger">{errors}</p>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@ const UserStats: React.FC<UserStatsProps> = ({
 
   if (!stats) {
     return (
-      <div className={`bg-yellow-50 border border-yellow-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-warning border border-yellow-200 rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -174,7 +174,7 @@ const UserStats: React.FC<UserStatsProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-yellow-800">No statistics available</p>
+            <p className="text-sm text-theme-interactive-warning">No statistics available</p>
           </div>
         </div>
       </div>
@@ -205,7 +205,7 @@ const UserStats: React.FC<UserStatsProps> = ({
       {/* Stats Grid */}
       <div className="px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-info p-4 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,43 +219,43 @@ const UserStats: React.FC<UserStatsProps> = ({
             </div>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-success p-4 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-8 w-8 text-theme-interactive-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-green-600">Avg Score</p>
+                <p className="text-sm font-medium text-theme-interactive-success">Avg Score</p>
                 <p className="text-2xl font-bold text-green-900">{stats.averageScore}%</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-purple-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-primary p-4 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-8 w-8 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-purple-600">Time Spent</p>
+                <p className="text-sm font-medium text-theme-interactive-primary">Time Spent</p>
                 <p className="text-2xl font-bold text-purple-900">{formatTime(stats.totalTimeSpent)}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-yellow-50 p-4 rounded-lg">
+          <div className="bg-theme-bg-warning p-4 rounded-lg">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-8 w-8 text-theme-interactive-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-yellow-600">Rank</p>
+                <p className="text-sm font-medium text-theme-interactive-warning">Rank</p>
                 <p className="text-2xl font-bold text-yellow-900">#{stats.rank}</p>
               </div>
             </div>
@@ -333,7 +333,7 @@ const UserStats: React.FC<UserStatsProps> = ({
                         </div>
                         <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                           <div
-                            className="bg-yellow-500 h-2 rounded-full"
+                            className="bg-theme-bg-warning0 h-2 rounded-full"
                             style={{
                               width: `${Math.min((achievement.progress / achievement.maxProgress) * 100, 100)}%`
                             }}

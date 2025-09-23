@@ -367,7 +367,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`absolute right-10 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors ${
-              showFilters ? 'bg-blue-100 text-theme-interactive-primary' : 'text-theme-text-tertiary hover:text-theme-text-secondary'
+              showFilters ? 'bg-theme-bg-info text-theme-interactive-primary' : 'text-theme-text-tertiary hover:text-theme-text-secondary'
             }`}
             aria-label="Toggle filters"
           >
@@ -527,7 +527,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         )}
                         <div className="flex flex-wrap gap-2 text-xs">
                           {formattedQuiz.categoryName && (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            <span className="px-2 py-1 bg-theme-bg-info text-theme-interactive-info rounded">
                               {formattedQuiz.categoryName}
                             </span>
                           )}
@@ -537,9 +537,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
                             </span>
                           ))}
                           <span className={`px-2 py-1 rounded ${
-                            quiz.difficulty === 'EASY' ? 'bg-green-100 text-green-800' :
-                            quiz.difficulty === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                            quiz.difficulty === 'EASY' ? 'bg-theme-bg-success text-theme-interactive-success' :
+                            quiz.difficulty === 'MEDIUM' ? 'bg-theme-bg-warning text-theme-interactive-warning' :
+                            'bg-theme-bg-danger text-theme-interactive-danger'
                           }`}>
                             {quiz.difficulty}
                           </span>
@@ -584,7 +584,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-danger border border-red-200 rounded-lg p-3 text-sm text-theme-interactive-danger">
           {error}
         </div>
       )}

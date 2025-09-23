@@ -85,7 +85,7 @@ export const UserActivation: React.FC<UserActivationProps> = ({
 
   if (!hasPermission) {
     return (
-      <div className={`bg-yellow-50 border border-yellow-200 rounded-md p-3 ${className}`}>
+      <div className={`bg-theme-bg-warning border border-yellow-200 rounded-md p-3 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -93,7 +93,7 @@ export const UserActivation: React.FC<UserActivationProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-yellow-800">Insufficient permissions</p>
+            <p className="text-sm text-theme-interactive-warning">Insufficient permissions</p>
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@ export const UserActivation: React.FC<UserActivationProps> = ({
   return (
     <div className={className}>
       {errors && (
-        <div className="mb-3 bg-red-50 border border-red-200 rounded-md p-3">
+        <div className="mb-3 bg-theme-bg-danger border border-red-200 rounded-md p-3">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -111,7 +111,7 @@ export const UserActivation: React.FC<UserActivationProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{errors}</p>
+              <p className="text-sm text-theme-interactive-danger">{errors}</p>
             </div>
           </div>
         </div>
@@ -121,8 +121,8 @@ export const UserActivation: React.FC<UserActivationProps> = ({
         <div className="flex items-center space-x-3">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             isActive 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
+              ? 'bg-theme-bg-success text-theme-interactive-success' 
+              : 'bg-theme-bg-danger text-theme-interactive-danger'
           }`}>
             {isActive ? 'Active' : 'Inactive'}
           </span>
@@ -136,8 +136,8 @@ export const UserActivation: React.FC<UserActivationProps> = ({
           disabled={isLoading}
           className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
             isActive
-              ? 'bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500'
-              : 'bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500'
+              ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-red-200 focus:ring-red-500'
+              : 'bg-theme-bg-success text-theme-interactive-success hover:bg-green-200 focus:ring-green-500'
           } focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50`}
         >
           {isLoading ? (
@@ -217,7 +217,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
 
   if (!hasPermission) {
     return (
-      <div className={`bg-yellow-50 border border-yellow-200 rounded-md p-3 ${className}`}>
+      <div className={`bg-theme-bg-warning border border-yellow-200 rounded-md p-3 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -225,7 +225,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-yellow-800">Insufficient permissions for bulk operations</p>
+            <p className="text-sm text-theme-interactive-warning">Insufficient permissions for bulk operations</p>
           </div>
         </div>
       </div>
@@ -244,7 +244,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
       </div>
 
       {errors && (
-        <div className="mb-3 bg-red-50 border border-red-200 rounded-md p-3">
+        <div className="mb-3 bg-theme-bg-danger border border-red-200 rounded-md p-3">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -252,7 +252,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{errors}</p>
+              <p className="text-sm text-theme-interactive-danger">{errors}</p>
             </div>
           </div>
         </div>
@@ -262,7 +262,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
         <button
           onClick={() => handleBulkActivation(true)}
           disabled={isLoading || userIds.length === 0}
-          className="flex-1 bg-green-100 text-green-800 py-2 px-3 text-sm font-medium rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+          className="flex-1 bg-theme-bg-success text-theme-interactive-success py-2 px-3 text-sm font-medium rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
         >
           {isLoading && action === 'activate' ? (
             <div className="flex items-center justify-center space-x-1">
@@ -280,7 +280,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
         <button
           onClick={() => handleBulkActivation(false)}
           disabled={isLoading || userIds.length === 0}
-          className="flex-1 bg-red-100 text-red-800 py-2 px-3 text-sm font-medium rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
+          className="flex-1 bg-theme-bg-danger text-theme-interactive-danger py-2 px-3 text-sm font-medium rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
         >
           {isLoading && action === 'deactivate' ? (
             <div className="flex items-center justify-center space-x-1">

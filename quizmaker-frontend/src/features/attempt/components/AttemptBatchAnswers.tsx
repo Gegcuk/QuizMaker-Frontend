@@ -141,15 +141,15 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
       {/* Answer Summary */}
       <div className="mb-6">
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="p-3 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{answeredCount}</div>
+          <div className="p-3 bg-theme-bg-success rounded-lg">
+            <div className="text-2xl font-bold text-theme-interactive-success">{answeredCount}</div>
             <div className="text-sm text-green-700">Answered</div>
           </div>
-          <div className="p-3 bg-yellow-50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600">{unansweredCount}</div>
+          <div className="p-3 bg-theme-bg-warning rounded-lg">
+            <div className="text-2xl font-bold text-theme-interactive-warning">{unansweredCount}</div>
             <div className="text-sm text-yellow-700">Unanswered</div>
           </div>
-          <div className="p-3 bg-blue-50 rounded-lg">
+          <div className="p-3 bg-theme-bg-info rounded-lg">
             <div className="text-2xl font-bold text-theme-interactive-primary">{totalQuestions}</div>
             <div className="text-sm text-theme-interactive-primary">Total</div>
           </div>
@@ -164,7 +164,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
         </div>
         <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
           <div
-            className="bg-green-500 h-2 rounded-full transition-all duration-300"
+            className="bg-theme-bg-success0 h-2 rounded-full transition-all duration-300"
             style={{ width: `${completionPercentage}%` }}
           />
         </div>
@@ -172,8 +172,8 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="text-sm font-medium text-red-800 mb-2">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+          <div className="text-sm font-medium text-theme-interactive-danger mb-2">
             Please fix the following issues:
           </div>
           <ul className="text-sm text-red-700 space-y-1">
@@ -196,7 +196,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
           </div>
           <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
             <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-bg-info0 h-2 rounded-full transition-all duration-300"
               style={{ width: `${submissionProgress}%` }}
             />
           </div>
@@ -205,7 +205,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
           <div className="text-sm text-red-700">
             <strong>Submission Error:</strong> {error}
           </div>
@@ -232,8 +232,8 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Warning for incomplete answers */}
       {unansweredCount > 0 && (
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="text-sm text-yellow-800">
+        <div className="mt-4 p-3 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+          <div className="text-sm text-theme-interactive-warning">
             <strong>Note:</strong> You have {unansweredCount} unanswered question{unansweredCount > 1 ? 's' : ''}. 
             You can still submit, but unanswered questions will be marked as incorrect.
           </div>
@@ -242,8 +242,8 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Final confirmation */}
       {answeredCount === totalQuestions && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-sm text-green-800">
+        <div className="mt-4 p-3 bg-theme-bg-success border border-green-200 rounded-lg">
+          <div className="text-sm text-theme-interactive-success">
             <strong>Ready to submit!</strong> All questions have been answered.
           </div>
         </div>

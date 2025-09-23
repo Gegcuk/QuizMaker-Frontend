@@ -449,7 +449,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             value: item.usageCount
           })),
           'Top Tags by Usage',
-          'bg-blue-500'
+          'bg-theme-bg-info0'
         )}
         
         {/* Tag Efficiency */}
@@ -457,7 +457,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Tag Efficiency</h4>
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-3xl font-bold text-theme-interactive-success">
                 {analyticsData.tagEfficiency.averageQuizzesPerTag.toFixed(1)}
               </div>
               <div className="text-sm text-theme-text-secondary">Average Quizzes per Tag</div>
@@ -483,11 +483,11 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             <div key={index} className="bg-theme-bg-secondary rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info">
                     {correlation.tag1}
                   </span>
                   <span className="text-theme-text-tertiary">×</span>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-success text-theme-interactive-success">
                     {correlation.tag2}
                   </span>
                 </div>
@@ -505,14 +505,14 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
           {analyticsData.usagePatterns.popularCombinations.map((combination, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-blue-100 text-theme-interactive-primary rounded-full flex items-center justify-center text-xs font-medium">
+                <div className="w-6 h-6 bg-theme-bg-info text-theme-interactive-primary rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {combination.tags.map((tag, tagIndex) => (
                     <span
                       key={tagIndex}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                     >
                       {tag}
                     </span>

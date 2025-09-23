@@ -360,7 +360,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     <div className={className}>
       {/* Error message */}
       {errors.general && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="mb-6 bg-theme-bg-danger border border-red-200 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -368,7 +368,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{errors.general}</p>
+              <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
             </div>
           </div>
         </div>
@@ -436,8 +436,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                   {/* Validation Messages */}
                   {(!isQuizMetaValid() || !isReadyToPublish()) && (
                     <div className="mt-3">
-                      <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
-                      <ul className="text-sm text-red-600 space-y-1">
+                      <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
+                      <ul className="text-sm text-theme-interactive-danger space-y-1">
                         {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
                           <li key={index} className="flex items-center">
                             <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -501,8 +501,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                   {/* Validation Messages */}
                   {(!isQuizMetaValid() || !isReadyToPublish()) && (
                     <div className="mt-3">
-                      <p className="text-sm font-medium text-red-600 mb-2">Please complete the following:</p>
-                      <ul className="text-sm text-red-600 space-y-1">
+                      <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
+                      <ul className="text-sm text-theme-interactive-danger space-y-1">
                         {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
                           <li key={index} className="flex items-center">
                             <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

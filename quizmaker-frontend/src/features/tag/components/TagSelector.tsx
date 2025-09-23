@@ -163,7 +163,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                 {selectedTags.slice(0, 3).map(tag => (
                   <span
                     key={tag.id}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
                     {tag.name}
                     <button
@@ -238,7 +238,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
           {/* Error State */}
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border-b border-red-200">
+            <div className="p-3 text-sm text-theme-interactive-danger bg-theme-bg-danger border-b border-red-200">
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -275,13 +275,13 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                     type="button"
                     onClick={() => handleTagSelect(tag)}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-theme-bg-tertiary focus:bg-theme-bg-tertiary focus:outline-none ${
-                      isTagSelected(tag) ? 'bg-blue-50 text-blue-900' : 'text-theme-text-primary'
+                      isTagSelected(tag) ? 'bg-theme-bg-info text-blue-900' : 'text-theme-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info mr-2">
                             {tag.name}
                           </span>
                           <div className="font-medium truncate">{tag.name}</div>
@@ -304,7 +304,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
           {/* Max Selections Warning */}
           {multiple && maxSelections && selectedTags.length >= maxSelections && (
-            <div className="p-2 text-xs text-amber-600 bg-amber-50 border-t border-amber-200">
+            <div className="p-2 text-xs text-theme-interactive-warning bg-theme-bg-warning border-t border-amber-200">
               Maximum {maxSelections} tags selected. Remove some to add more.
             </div>
           )}

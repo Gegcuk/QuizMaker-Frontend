@@ -108,10 +108,10 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     
     const ratio = usageCount / maxUsage;
     
-    if (ratio > 0.8) return 'text-red-600';
-    if (ratio > 0.6) return 'text-orange-600';
-    if (ratio > 0.4) return 'text-yellow-600';
-    if (ratio > 0.2) return 'text-green-600';
+    if (ratio > 0.8) return 'text-theme-interactive-danger';
+    if (ratio > 0.6) return 'text-theme-interactive-warning';
+    if (ratio > 0.4) return 'text-theme-interactive-warning';
+    if (ratio > 0.2) return 'text-theme-interactive-success';
     return 'text-theme-interactive-primary';
   };
 
@@ -120,11 +120,11 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     
     const ratio = usageCount / maxUsage;
     
-    if (ratio > 0.8) return 'bg-red-100 hover:bg-red-200';
-    if (ratio > 0.6) return 'bg-orange-100 hover:bg-orange-200';
-    if (ratio > 0.4) return 'bg-yellow-100 hover:bg-yellow-200';
-    if (ratio > 0.2) return 'bg-green-100 hover:bg-green-200';
-    return 'bg-blue-100 hover:bg-blue-200';
+    if (ratio > 0.8) return 'bg-theme-bg-danger hover:bg-red-200';
+    if (ratio > 0.6) return 'bg-theme-bg-warning hover:bg-orange-200';
+    if (ratio > 0.4) return 'bg-theme-bg-warning hover:bg-yellow-200';
+    if (ratio > 0.2) return 'bg-theme-bg-success hover:bg-green-200';
+    return 'bg-theme-bg-info hover:bg-blue-200';
   };
 
   if (loading) {
@@ -137,12 +137,12 @@ export const TagCloud: React.FC<TagCloudProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-red-200 rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-interactive-danger">{error}</span>
         </div>
       </div>
     );
@@ -211,15 +211,15 @@ export const TagCloud: React.FC<TagCloudProps> = ({
       <div className="mt-6 pt-4 border-t border-theme-border-primary">
         <div className="flex items-center justify-center space-x-4 text-xs text-theme-text-tertiary">
           <div className="flex items-center">
-            <div className="w-3 h-3 bg-red-100 rounded-full mr-1"></div>
+            <div className="w-3 h-3 bg-theme-bg-danger rounded-full mr-1"></div>
             <span>High usage</span>
           </div>
           <div className="flex items-center">
-            <div className="w-3 h-3 bg-yellow-100 rounded-full mr-1"></div>
+            <div className="w-3 h-3 bg-theme-bg-warning rounded-full mr-1"></div>
             <span>Medium usage</span>
           </div>
           <div className="flex items-center">
-            <div className="w-3 h-3 bg-blue-100 rounded-full mr-1"></div>
+            <div className="w-3 h-3 bg-theme-bg-info rounded-full mr-1"></div>
             <span>Low usage</span>
           </div>
         </div>

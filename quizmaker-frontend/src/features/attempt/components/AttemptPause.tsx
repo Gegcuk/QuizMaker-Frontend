@@ -111,7 +111,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               <button
                 onClick={() => openConfirmDialog('pause')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-theme-bg-warning text-yellow-700 rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ⏸️ Pause
               </button>
@@ -121,7 +121,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               <button
                 onClick={() => openConfirmDialog('resume')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-theme-bg-success text-green-700 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ▶️ Resume
               </button>
@@ -131,8 +131,8 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
 
         {/* Status-specific information */}
         {isPaused && (
-          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <div className="text-sm text-yellow-800">
+          <div className="mt-3 p-3 bg-theme-bg-warning border border-yellow-200 rounded-md">
+            <div className="text-sm text-theme-interactive-warning">
               <strong>Paused:</strong> Your answers are saved. You can resume this attempt later.
             </div>
           </div>
@@ -156,8 +156,8 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               </div>
 
               {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="mb-4 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+                  <p className="text-sm text-theme-interactive-danger">{error}</p>
                 </div>
               )}
 

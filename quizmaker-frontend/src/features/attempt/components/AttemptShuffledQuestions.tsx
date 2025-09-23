@@ -78,7 +78,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     
     switch (status) {
       case 'answered':
-        return `${baseClass} bg-green-500 text-white hover:bg-green-600 focus:ring-green-500`;
+        return `${baseClass} bg-theme-bg-success0 text-white hover:bg-green-600 focus:ring-green-500`;
       case 'current':
         return `${baseClass} bg-theme-interactive-primary text-theme-bg-primary hover:bg-theme-interactive-primary focus:ring-theme-interactive-primary`;
       case 'unanswered':
@@ -94,9 +94,9 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
   const getDifficultyColor = (difficulty: string): string => {
     switch (difficulty) {
       case 'EASY':
-        return 'text-green-600 bg-green-100';
+        return 'text-theme-interactive-success bg-theme-bg-success';
       case 'MEDIUM':
-        return 'text-yellow-600 bg-yellow-100';
+        return 'text-theme-interactive-warning bg-theme-bg-warning';
       case 'HARD':
         return 'text-theme-interactive-danger bg-theme-bg-tertiary';
       default:
@@ -119,8 +119,8 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
-          <div className="text-red-600 mb-4">❌</div>
-          <p className="text-red-600 mb-4">{error}</p>
+          <div className="text-theme-interactive-danger mb-4">❌</div>
+          <p className="text-theme-interactive-danger mb-4">{error}</p>
           <button
             onClick={loadShuffledQuestions}
             className="px-4 py-2 bg-theme-interactive-primary text-white rounded-md hover:bg-theme-interactive-primary transition-colors"
@@ -214,7 +214,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
         </div>
         <div className="w-full bg-theme-bg-tertiary rounded-full h-1 mt-2">
           <div
-            className="bg-green-500 h-1 rounded-full transition-all duration-300"
+            className="bg-theme-bg-success0 h-1 rounded-full transition-all duration-300"
             style={{ width: `${(answeredCount / totalQuestions) * 100}%` }}
           />
         </div>
@@ -228,11 +228,11 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
             <span>Unanswered</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-indigo-500 rounded-full" />
+            <div className="w-3 h-3 bg-theme-bg-primary0 rounded-full" />
             <span>Current</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-green-500 rounded-full" />
+            <div className="w-3 h-3 bg-theme-bg-success0 rounded-full" />
             <span>Answered</span>
           </div>
         </div>

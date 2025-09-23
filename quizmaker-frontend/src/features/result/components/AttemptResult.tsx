@@ -30,11 +30,11 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
   const score = result.totalQuestions > 0 ? (result.totalScore / result.totalQuestions) * 100 : 0;
   
   const getScoreColor = (percentage: number): string => {
-    if (percentage >= 90) return 'text-green-600 bg-green-100';
-    if (percentage >= 80) return 'text-theme-interactive-primary bg-blue-100';
-    if (percentage >= 70) return 'text-yellow-600 bg-yellow-100';
-    if (percentage >= 60) return 'text-orange-600 bg-orange-100';
-    return 'text-red-600 bg-red-100';
+    if (percentage >= 90) return 'text-theme-interactive-success bg-theme-bg-success';
+    if (percentage >= 80) return 'text-theme-interactive-primary bg-theme-bg-info';
+    if (percentage >= 70) return 'text-theme-interactive-warning bg-theme-bg-warning';
+    if (percentage >= 60) return 'text-theme-interactive-warning bg-theme-bg-warning';
+    return 'text-theme-interactive-danger bg-theme-bg-danger';
   };
 
   const getScoreMessage = (percentage: number): string => {
@@ -92,20 +92,20 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
 
       {/* Results Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-4 bg-green-50 rounded-lg">
-          <div className="text-2xl font-bold text-green-600">{result.correctCount}</div>
+        <div className="text-center p-4 bg-theme-bg-success rounded-lg">
+          <div className="text-2xl font-bold text-theme-interactive-success">{result.correctCount}</div>
           <div className="text-sm text-green-700">Correct</div>
         </div>
-        <div className="text-center p-4 bg-red-50 rounded-lg">
-          <div className="text-2xl font-bold text-red-600">{result.totalQuestions - result.correctCount}</div>
+        <div className="text-center p-4 bg-theme-bg-danger rounded-lg">
+          <div className="text-2xl font-bold text-theme-interactive-danger">{result.totalQuestions - result.correctCount}</div>
           <div className="text-sm text-red-700">Incorrect</div>
         </div>
-        <div className="text-center p-4 bg-blue-50 rounded-lg">
+        <div className="text-center p-4 bg-theme-bg-info rounded-lg">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracy)}%</div>
           <div className="text-sm text-theme-interactive-primary">Accuracy</div>
         </div>
-        <div className="text-center p-4 bg-purple-50 rounded-lg">
-          <div className="text-2xl font-bold text-purple-600">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg">
+          <div className="text-2xl font-bold text-theme-interactive-primary">
             {formatDuration(result.startedAt, result.completedAt)}
           </div>
           <div className="text-sm text-purple-700">Time Taken</div>
@@ -133,7 +133,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
             <div className="flex items-center space-x-2">
               <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-green-500"
+                  className="h-2 rounded-full bg-theme-bg-success0"
                   style={{ width: `${accuracy}%` }}
                 />
               </div>
@@ -207,12 +207,12 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
 
       {/* Achievement Badge */}
       {score >= 90 && (
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
           <div className="flex items-center justify-center space-x-2">
             <span className="text-2xl">🏆</span>
             <div className="text-center">
-              <div className="text-sm font-medium text-yellow-800">Perfect Score Achievement!</div>
-              <div className="text-xs text-yellow-600">You've earned a perfect score badge</div>
+              <div className="text-sm font-medium text-theme-interactive-warning">Perfect Score Achievement!</div>
+              <div className="text-xs text-theme-interactive-warning">You've earned a perfect score badge</div>
             </div>
           </div>
         </div>

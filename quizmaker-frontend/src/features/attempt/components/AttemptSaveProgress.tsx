@@ -118,9 +118,9 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       case 'saving':
         return 'text-theme-interactive-primary';
       case 'saved':
-        return 'text-green-600';
+        return 'text-theme-interactive-success';
       case 'error':
-        return 'text-red-600';
+        return 'text-theme-interactive-danger';
       default:
         return unsavedChanges ? 'text-theme-interactive-warning' : 'text-theme-text-secondary';
     }
@@ -175,8 +175,8 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-          <div className="text-sm text-red-600">
+        <div className="mt-3 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+          <div className="text-sm text-theme-interactive-danger">
             <strong>Save Error:</strong> {error}
           </div>
           <button
@@ -190,7 +190,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
 
       {/* Auto-save info */}
       {autoSaveInterval > 0 && (
-        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="mt-3 p-2 bg-theme-bg-info border border-theme-border-info rounded-md">
           <div className="text-xs text-theme-interactive-primary">
             <strong>Auto-save enabled:</strong> Your progress is automatically saved every {autoSaveInterval} seconds.
           </div>
@@ -201,7 +201,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       {isSaving && (
         <div className="mt-3">
           <div className="w-full bg-theme-bg-tertiary rounded-full h-1">
-            <div className="bg-blue-500 h-1 rounded-full animate-pulse" style={{ width: '100%' }} />
+            <div className="bg-theme-bg-info0 h-1 rounded-full animate-pulse" style={{ width: '100%' }} />
           </div>
         </div>
       )}
