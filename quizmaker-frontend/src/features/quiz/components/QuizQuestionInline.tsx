@@ -275,11 +275,6 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
               const text = q.questionText || '';
               const truncated = text.length > 160 ? text.slice(0, 160) + '…' : text;
               const typeLabel = (q.type || '').replace(/_/g, ' ');
-              const diffClass = q.difficulty === 'EASY'
-                ? 'bg-green-100 text-green-800'
-                : q.difficulty === 'MEDIUM'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-red-100 text-red-800';
               return (
                 <div key={q.id} className="p-3 group hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">

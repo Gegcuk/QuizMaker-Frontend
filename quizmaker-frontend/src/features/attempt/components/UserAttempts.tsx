@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 import { AttemptService } from '@/services';
+import { Badge } from '@/components';
 import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, CurrentQuestionDto, QuizDto } from '@/types';
 import { Spinner, ConfirmationModal } from '@/components';
@@ -161,15 +162,15 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800';
+        return 'primary';
       case 'PAUSED':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'ABANDONED':
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
     }
   };
 
@@ -236,8 +237,8 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
       {attempts.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900">Active Attempts</h3>
-            <span className="text-sm text-gray-500">
+            <h3 className="text-lg font-medium text-theme-text-primary">Active Attempts</h3>
+            <span className="text-sm text-theme-text-secondary">
               {hasMoreAttempts 
                 ? `Showing ${displayedAttempts.length} of ${attempts.length} attempts`
                 : `${attempts.length} attempt${attempts.length !== 1 ? 's' : ''} available`
@@ -249,43 +250,43 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             {displayedAttempts.map((attempt) => (
               <div
                 key={attempt.attemptId}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(attempt.status)}`}>
+                      <Badge variant={getStatusColor(attempt.status)} size="sm">
                         {getStatusText(attempt.status)}
-                      </span>
-                      <span className="text-sm text-gray-500">
+                      </Badge>
+                      <span className="text-sm text-theme-text-tertiary">
                         {getModeText(attempt.mode)}
                       </span>
                     </div>
 
                     <div className="space-y-1">
                       {attempt.quiz && (
-                        <h4 className="font-medium text-gray-900">
+                        <h4 className="font-medium text-theme-text-primary">
                           {attempt.quiz.title}
                         </h4>
                       )}
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-theme-text-secondary">
                         Started: {formatDate(attempt.startedAt)}
                       </p>
                       
 
 
                                              {attempt.currentQuestion && (
-                         <div className="flex items-center space-x-4 text-sm text-gray-600">
-                           <span className="font-medium text-indigo-600">
+                         <div className="flex items-center space-x-4 text-sm text-theme-text-secondary">
+                           <span className="font-medium text-theme-interactive-primary">
                              Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
                            </span>
                          </div>
                        )}
 
                       {attempt.stats && attempt.stats.completionPercentage > 0 && (
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mt-2">
                           <div
-                            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
                             style={{ width: `${attempt.stats.completionPercentage}%` }}
                           />
                         </div>
@@ -298,7 +299,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
                       <button
                         onClick={() => handleResumeAttempt(attempt)}
                         disabled={resumingAttempt === attempt.attemptId}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {resumingAttempt === attempt.attemptId ? (
                           <>
@@ -317,7 +318,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
                       <button
                         onClick={() => handleDeleteAttempt(attempt)}
                         disabled={deletingAttempt === attempt.attemptId}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-600 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-interactive-danger bg-theme-bg-tertiary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {deletingAttempt === attempt.attemptId ? (
                           <Spinner size="sm" />
@@ -340,7 +341,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(prev => prev + 3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -354,7 +355,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-border-primary transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -369,11 +370,11 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
       {/* Empty State */}
       {attempts.length === 0 && (
         <div className="text-center py-8">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No active attempts</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No active attempts</h3>
+          <p className="mt-1 text-sm text-theme-text-secondary">
             You don't have any paused or in-progress quiz attempts.
           </p>
         </div>

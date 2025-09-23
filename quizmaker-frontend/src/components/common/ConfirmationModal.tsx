@@ -35,7 +35,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </svg>
           ),
           confirmButton: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-          iconBg: 'bg-red-100'
+          iconBg: 'bg-theme-bg-tertiary'
         };
       case 'warning':
         return {
@@ -45,7 +45,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </svg>
           ),
           confirmButton: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
-          iconBg: 'bg-yellow-100'
+          iconBg: 'bg-theme-bg-tertiary'
         };
       case 'info':
         return {
@@ -55,7 +55,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </svg>
           ),
           confirmButton: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-          iconBg: 'bg-blue-100'
+          iconBg: 'bg-theme-bg-tertiary'
         };
       default:
         return {
@@ -65,7 +65,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </svg>
           ),
           confirmButton: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-          iconBg: 'bg-red-100'
+          iconBg: 'bg-theme-bg-tertiary'
         };
     }
   };

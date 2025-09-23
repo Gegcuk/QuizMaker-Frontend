@@ -31,8 +31,34 @@ const QuizCard: React.FC<QuizCardProps> = ({
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
-  const difficultyToBadge = (d: string) => (d === 'EASY' ? 'success' : d === 'MEDIUM' ? 'warning' : 'danger');
-  const statusToBadge = (s: string) => (s === 'PUBLISHED' ? 'success' : s === 'DRAFT' ? 'warning' : 'secondary');
+  
+  // Helper function to get difficulty badge variant
+  const getDifficultyVariant = (difficulty: string): 'success' | 'warning' | 'danger' | 'neutral' => {
+    switch (difficulty) {
+      case 'EASY':
+        return 'success';
+      case 'MEDIUM':
+        return 'warning';
+      case 'HARD':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  };
+
+  // Helper function to get status badge variant
+  const getStatusVariant = (status: string): 'success' | 'warning' | 'neutral' => {
+    switch (status) {
+      case 'PUBLISHED':
+        return 'success';
+      case 'DRAFT':
+        return 'warning';
+      case 'ARCHIVED':
+        return 'neutral';
+      default:
+        return 'neutral';
+    }
+  };
 
   // Helper function to format time
   const formatTime = (minutes: number) => {
@@ -51,9 +77,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${isSelected ? 'ring-2 ring-indigo-500' : ''} ${className}`}>
+    <div className={`bg-theme-bg-primary rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${isSelected ? 'ring-2 ring-theme-interactive-primary' : ''} ${className}`}>
       {/* Card Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-theme-border-primary">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start space-x-3 flex-1 min-w-0">
             {onSelect && (
@@ -61,35 +87,35 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 type="checkbox"
                 checked={isSelected}
                 onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
               />
             )}
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <h3 className="text-lg font-semibold text-theme-text-primary mb-1">
                 {quiz.title}
               </h3>
               {quiz.description && (
-                <p className="text-sm text-gray-600 line-clamp-2">
+                <p className="text-sm text-theme-text-secondary line-clamp-2">
                   {truncateText(quiz.description, 120)}
                 </p>
               )}
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            <Badge variant={difficultyToBadge(quiz.difficulty)} size="sm">{quiz.difficulty}</Badge>
-            <Badge variant={statusToBadge(quiz.status)} size="sm">{quiz.status}</Badge>
+            <Badge variant={getDifficultyVariant(quiz.difficulty)} size="sm">{quiz.difficulty}</Badge>
+            <Badge variant={getStatusVariant(quiz.status)} size="sm">{quiz.status}</Badge>
           </div>
         </div>
 
         {/* Quiz Stats */}
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center text-theme-text-secondary">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{formatTime(quiz.estimatedTime)}</span>
           </div>
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center text-theme-text-secondary">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -102,21 +128,21 @@ const QuizCard: React.FC<QuizCardProps> = ({
       <div className="p-6">
         {/* Quiz Features */}
         <div className="flex items-center space-x-4 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-theme-text-secondary">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
             <span>{quiz.visibility}</span>
           </div>
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-theme-text-secondary">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
             <span>{getCategoryName(quiz.categoryId)}</span>
           </div>
           {quiz.isRepetitionEnabled && (
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-theme-text-secondary">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -132,13 +158,13 @@ const QuizCard: React.FC<QuizCardProps> = ({
               {quiz.tagIds.slice(0, 3).map((tagId) => (
                 <span
                   key={tagId}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-tertiary text-theme-text-primary"
                 >
                   #{getTagName(tagId)}
                 </span>
               ))}
               {quiz.tagIds.length > 3 && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-tertiary text-theme-text-secondary">
                   +{quiz.tagIds.length - 3} more
                 </span>
               )}
@@ -147,14 +173,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
         )}
 
         {/* Created/Updated Info */}
-        <div className="text-xs text-gray-500 mb-4">
+        <div className="text-xs text-theme-text-tertiary mb-4">
           <div>Created: {new Date(quiz.createdAt).toLocaleDateString()}</div>
           <div>Updated: {new Date(quiz.updatedAt).toLocaleDateString()}</div>
         </div>
 
         {/* Action Buttons */}
         {showActions && (
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between pt-4 border-t border-theme-border-primary">
             <div className="flex space-x-2">
               {onStart && (
                 <Button

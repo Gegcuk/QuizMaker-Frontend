@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'outline';
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'outline' | 'neutral';
   size?: 'sm' | 'md' | 'lg';
   rounded?: boolean;
   dot?: boolean;
@@ -24,13 +24,14 @@ const Badge: React.FC<BadgeProps> = ({
   const baseClasses = 'inline-flex items-center font-medium';
   
   const variantClasses = {
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
-    success: 'bg-green-100 text-green-800',
-    danger: 'bg-red-100 text-red-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    info: 'bg-cyan-100 text-cyan-800',
-    outline: 'bg-transparent border border-gray-300 text-gray-700'
+    primary: 'bg-theme-bg-tertiary text-theme-text-primary',
+    secondary: 'bg-theme-bg-tertiary text-theme-text-secondary',
+    success: 'bg-theme-bg-tertiary text-theme-text-primary border border-theme-border-secondary',
+    danger: 'bg-theme-bg-tertiary text-theme-text-primary border border-theme-border-secondary',
+    warning: 'bg-theme-bg-tertiary text-theme-text-primary border border-theme-border-secondary',
+    info: 'bg-theme-bg-tertiary text-theme-text-secondary border border-theme-border-secondary',
+    outline: 'bg-transparent border border-theme-border-primary text-theme-text-secondary',
+    neutral: 'bg-theme-bg-tertiary text-theme-text-secondary'
   };
 
   const sizeClasses = {
@@ -54,13 +55,14 @@ const Badge: React.FC<BadgeProps> = ({
   ].filter(Boolean).join(' ');
 
   const dotColors = {
-    primary: 'bg-blue-400',
-    secondary: 'bg-gray-400',
-    success: 'bg-green-400',
-    danger: 'bg-red-400',
-    warning: 'bg-yellow-400',
-    info: 'bg-cyan-400',
-    outline: 'bg-gray-400'
+    primary: 'bg-theme-text-primary',
+    secondary: 'bg-theme-text-tertiary',
+    success: 'bg-theme-text-primary',
+    danger: 'bg-theme-text-primary',
+    warning: 'bg-theme-text-primary',
+    info: 'bg-theme-text-secondary',
+    outline: 'bg-theme-text-tertiary',
+    neutral: 'bg-theme-text-tertiary'
   };
 
   const handleRemove = (event: React.MouseEvent) => {

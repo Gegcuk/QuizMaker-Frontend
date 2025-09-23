@@ -224,7 +224,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                     setNewTagName('');
                     setNewTagDescription('');
                   }}
-                  className="px-3 py-1 text-sm bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-secondary"
                 >
                   Cancel
                 </button>

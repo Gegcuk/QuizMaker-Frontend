@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto } from '@/types';
+import { Badge } from '@/components';
 
 interface QuizPreviewProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest> | QuizDto;
@@ -16,16 +17,16 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
   className = ''
 }) => {
   // Helper function to get difficulty color
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyVariant = (difficulty: string): 'success' | 'warning' | 'danger' | 'neutral' => {
     switch (difficulty) {
       case 'EASY':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'HARD':
-        return 'bg-red-100 text-red-800';
+        return 'danger';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
     }
   };
 
@@ -75,14 +76,12 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quizData.difficulty || 'MEDIUM')}`}>
+                  <Badge variant={getDifficultyVariant(quizData.difficulty || 'MEDIUM')} size="sm">
                     {quizData.difficulty || 'MEDIUM'}
-                  </span>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    quizData.visibility === 'PUBLIC' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  </Badge>
+                  <Badge variant={quizData.visibility === 'PUBLIC' ? 'primary' : 'neutral'} size="sm">
                     {quizData.visibility || 'PRIVATE'}
-                  </span>
+                  </Badge>
                 </div>
               </div>
             </div>

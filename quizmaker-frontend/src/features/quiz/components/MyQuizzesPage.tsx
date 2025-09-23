@@ -196,13 +196,13 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
           </div>
 
           {/* Section Divider */}
-          <div className="border-t border-gray-200 my-8">
+          <div className="border-t border-theme-border-primary my-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-theme-border-secondary" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Your Created Quizzes</span>
+                <span className="px-2 bg-theme-bg-secondary text-theme-text-secondary">Your Created Quizzes</span>
               </div>
             </div>
           </div>
@@ -226,17 +226,17 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
           {/* Empty State */}
           {!isLoading && !error && quizzes.length === 0 && (
             <div className="text-center py-12">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No quizzes yet</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No quizzes yet</h3>
+              <p className="mt-1 text-sm text-theme-text-secondary">
                 Get started by creating your first quiz.
               </p>
               <div className="mt-6">
                 <button
                   onClick={() => navigate('/quizzes/create')}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
                 >
                   <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -253,20 +253,20 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
               {/* Controls Bar */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-theme-text-secondary">
                     {filteredAndSortedQuizzes.length} quizzes found
                   </span>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   {/* View Mode Toggle */}
-                  <div className="flex items-center bg-white border border-gray-300 rounded-md shadow-sm">
+                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm">
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`px-3 py-2 text-sm font-medium rounded-l-md ${
+                      className={`px-3 py-2 text-sm font-medium rounded-l-md transition-colors ${
                         viewMode === 'grid'
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'bg-theme-interactive-primary text-theme-text-inverse'
+                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -275,10 +275,10 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     </button>
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`px-3 py-2 text-sm font-medium rounded-r-md ${
+                      className={`px-3 py-2 text-sm font-medium rounded-r-md transition-colors ${
                         viewMode === 'list'
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'bg-theme-interactive-primary text-theme-text-inverse'
+                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -320,7 +320,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     <button
                       onClick={handleBulkDelete}
                       disabled={isBulkDeleting}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-danger hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                     >
                       {isBulkDeleting ? (
                         <>

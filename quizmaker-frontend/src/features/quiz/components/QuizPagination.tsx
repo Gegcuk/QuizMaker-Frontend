@@ -105,7 +105,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           disabled={pageNumber === 1}
           className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
             pageNumber === 1
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
               : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-300'
           }`}
         >
@@ -150,7 +150,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           disabled={pageNumber === totalPages}
           className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
             pageNumber === totalPages
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
               : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-300'
           }`}
         >

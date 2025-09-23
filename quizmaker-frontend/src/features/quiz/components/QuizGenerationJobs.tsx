@@ -109,20 +109,20 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
   }, [quizId]);
 
   // Helper function to get status color
-  const getStatusColor = (status: GenerationStatus) => {
+  const getStatusVariant = (status: GenerationStatus): 'success' | 'primary' | 'warning' | 'danger' | 'neutral' => {
     switch (status) {
       case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'PROCESSING':
-        return 'bg-blue-100 text-blue-800';
+        return 'primary';
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'FAILED':
-        return 'bg-red-100 text-red-800';
+        return 'danger';
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
     }
   };
 
@@ -298,9 +298,9 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {job.documentTitle || `Job ${job.id}`}
                           </p>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}>
+                          <Badge variant={getStatusVariant(job.status)} size="sm">
                             {job.status}
-                          </span>
+                          </Badge>
                         </div>
                         <p className="text-sm text-gray-500 mt-1">{job.message}</p>
                         <div className="flex items-center space-x-4 mt-2 text-xs text-gray-400">
@@ -394,9 +394,9 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                     </div>
                     <div>
                       <p className="text-gray-500">Status</p>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedJob.status)}`}>
+                      <Badge variant={getStatusVariant(selectedJob.status)} size="sm">
                         {selectedJob.status}
-                      </span>
+                      </Badge>
                     </div>
                     <div>
                       <p className="text-gray-500">Document</p>

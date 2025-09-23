@@ -203,8 +203,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             onClick={() => toggleSection(item.id)}
             className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               active
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-theme-bg-tertiary text-theme-text-primary'
+                : 'text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary'
             } ${isChild ? 'pl-6' : ''}`}
           >
             <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
@@ -234,8 +234,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         to={item.path}
         className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
           active
-            ? 'bg-blue-100 text-blue-700'
-            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+            ? 'bg-theme-bg-tertiary text-theme-text-primary'
+            : 'text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary'
         } ${isChild ? 'pl-6' : ''}`}
         onClick={() => {
           if (window.innerWidth < 768) {
@@ -277,8 +277,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
                   to={item.path}
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     active
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-theme-bg-tertiary text-theme-text-primary'
+                      : 'text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary'
                   }`}
                   onClick={() => {
                     if (window.innerWidth < 768) {
@@ -295,7 +295,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary rounded-md transition-colors"
             >
               <ArrowRightStartOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
               {!isCollapsed && <span>Logout</span>}
@@ -346,7 +346,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             {/* Toggle Collapse Button */}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors"
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsed ? (
@@ -359,7 +359,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             {/* Close Button (mobile only) */}
             <button
               onClick={onClose}
-              className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              className="lg:hidden p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors"
             >
               <XMarkIcon className="h-5 w-5" />
             </button>

@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizStatus, QuizDto } from '@/types';
+import { Badge } from '@/components';
 
 interface QuizPublishModalProps {
   isOpen: boolean;
@@ -118,13 +119,13 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
             <div className="mt-4 bg-gray-50 p-4 rounded-md">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Current Status</h4>
               <div className="flex items-center space-x-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  quiz.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' :
-                  quiz.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                <Badge variant={
+                  quiz.status === 'PUBLISHED' ? 'success' :
+                  quiz.status === 'DRAFT' ? 'warning' :
+                  'neutral'
+                } size="sm">
                   {quiz.status}
-                </span>
+                </Badge>
                 <span className="text-sm text-gray-600">
                   {quiz.status === 'PUBLISHED' && 'This quiz is live and visible to users'}
                   {quiz.status === 'DRAFT' && 'This quiz is saved but not published'}
@@ -139,7 +140,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleConfirm}
                   disabled={isLoading}
-                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-success text-theme-text-inverse py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Publishing...' : 'Publish Quiz'}
                 </button>
@@ -149,7 +150,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleDraft}
                   disabled={isLoading}
-                  className="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-warning text-theme-text-inverse py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Saving...' : 'Save as Draft'}
                 </button>
@@ -159,7 +160,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleArchive}
                   disabled={isLoading}
-                  className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-bg-tertiary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Archiving...' : 'Archive Quiz'}
                 </button>

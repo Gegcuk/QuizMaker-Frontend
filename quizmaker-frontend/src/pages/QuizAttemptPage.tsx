@@ -543,26 +543,26 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Progress Indicator */}
-        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-theme-text-primary">
               Question {currentQuestionNumber} of {totalQuestions || '?'}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-theme-text-secondary">
               {questionsAnswered} answered
             </div>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div className="w-full bg-theme-bg-secondary rounded-full h-2 mb-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
                 width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
               }}
             />
           </div>
           
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
             <span>
               {questionsAnswered} of {totalQuestions || '?'} questions completed
             </span>
@@ -572,7 +572,7 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
           {currentQuestion.questionText}
         </h2>
 
@@ -590,7 +590,7 @@ const QuizAttemptPage: React.FC = () => {
         <button
           onClick={handleSubmitAnswer}
           disabled={submitting || !isAnswerProvided()}
-          className="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded disabled:opacity-50"
+          className="mt-4 px-6 py-2 bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover text-theme-text-inverse rounded disabled:opacity-50"
         >
           {submitting ? "Submitting..." : "Submit Answer"}
         </button>
@@ -602,19 +602,19 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4">
         {/* Progress and Timer */}
-        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-theme-text-primary">
               All Questions Mode
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-theme-text-secondary">
               {Object.keys(answers).length} of {totalQuestions} answered
             </div>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div className="w-full bg-theme-bg-secondary rounded-full h-2 mb-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
                 width: `${totalQuestions > 0 ? (Object.keys(answers).length / totalQuestions) * 100 : 0}%` 
               }}
@@ -625,9 +625,9 @@ const QuizAttemptPage: React.FC = () => {
         {/* Questions */}
         <div className="space-y-8">
           {allQuestions.map((question, index) => (
-            <div key={question.id} className="bg-white border border-gray-200 rounded-lg p-6">
+            <div key={question.id} className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-theme-text-primary">
                   Question {index + 1}
                 </h3>
                 {answers[question.id] && (
@@ -637,7 +637,7 @@ const QuizAttemptPage: React.FC = () => {
                 )}
               </div>
               
-              <p className="text-gray-700 mb-4">{question.questionText}</p>
+              <p className="text-theme-text-secondary mb-4">{question.questionText}</p>
               
               {question.hint && (
                 <HintDisplay hint={question.hint} />
@@ -669,12 +669,12 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Timer and Progress */}
-        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-theme-text-primary">
               Question {currentQuestionNumber} of {totalQuestions || '?'} (Timed Mode)
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-theme-text-secondary">
               {questionsAnswered} answered
             </div>
           </div>
@@ -694,9 +694,9 @@ const QuizAttemptPage: React.FC = () => {
             />
           )}
           
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+          <div className="w-full bg-theme-bg-secondary rounded-full h-2 mb-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
                 width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
               }}
@@ -713,7 +713,7 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
           {currentQuestion.questionText}
         </h2>
 
@@ -753,7 +753,7 @@ const QuizAttemptPage: React.FC = () => {
   if (!attemptId) return <p className="text-center py-10">Failed to initialize attempt.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-theme-bg-secondary">
       {/* Pause/Resume Controls */}
       {attemptId && (quiz?.timerEnabled || attemptMode === 'TIMED') && (
         <div className="max-w-4xl mx-auto pt-4 px-4">

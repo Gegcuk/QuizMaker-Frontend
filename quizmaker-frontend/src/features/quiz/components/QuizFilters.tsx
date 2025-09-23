@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { QuizSearchCriteria, Difficulty } from '@/types';
 import { useQuizMetadata } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { Badge } from '@/components';
 
 interface QuizFiltersProps {
   filters: QuizSearchCriteria;
@@ -228,29 +229,29 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {filters.search && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <Badge variant="primary" size="sm">
                 Search: "{filters.search}"
-              </span>
+              </Badge>
             )}
             {filters.difficulty && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <Badge variant="success" size="sm">
                 Difficulty: {filters.difficulty}
-              </span>
+              </Badge>
             )}
             {filters.authorName && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <Badge variant="info" size="sm">
                 Author: {filters.authorName}
-              </span>
+              </Badge>
             )}
             {filters.category && filters.category.length > 0 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+              <Badge variant="warning" size="sm">
                 Categories: {filters.category.length}
-              </span>
+              </Badge>
             )}
             {filters.tag && filters.tag.length > 0 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+              <Badge variant="info" size="sm">
                 Tags: {filters.tag.length}
-              </span>
+              </Badge>
             )}
           </div>
         </div>
