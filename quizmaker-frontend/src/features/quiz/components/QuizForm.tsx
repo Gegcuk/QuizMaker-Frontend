@@ -378,7 +378,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tabs */}
         <div className="bg-theme-bg-primary shadow-theme rounded-lg">
-          <div className="border-b border-theme-border-primary">
+          <div className="border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <nav className="flex space-x-8 px-6">
               {tabs.map((tab) => (
                 <button
@@ -420,7 +420,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             />
             
             {/* Create Quiz Buttons for Questions Tab */}
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
@@ -487,7 +487,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             />
             
             {/* Create Quiz Buttons for Preview Tab */}
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
@@ -547,7 +547,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
 
         {/* Action Buttons for Editing Existing Quizzes */}
         {isEditing && currentQuiz && (
-          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
+          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <Button type="button" variant="primary" size="sm" onClick={() => handleSubmit()} disabled={isSaving} loading={isSaving}>
               Save Changes
             </Button>

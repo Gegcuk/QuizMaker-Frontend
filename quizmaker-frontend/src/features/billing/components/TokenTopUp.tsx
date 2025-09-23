@@ -139,7 +139,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse rounded-md border border-theme-border-primary bg-theme-bg-primary/60 p-4"
+              className="animate-pulse rounded-md border border-theme-border-primary bg-theme-bg-primary/60 p-4 bg-theme-bg-primary text-theme-text-primary"
             >
               <div className="mb-2 h-4 w-24 rounded bg-theme-bg-primary" />
               <div className="mb-1 h-6 w-32 rounded bg-theme-bg-primary" />
@@ -194,7 +194,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       ) : null}
 
       {!isLoading && config && config.prices.length === 0 && !error ? (
-        <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary">
+        <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary">
           Token packs are not configured yet. Please check back later.
         </div>
       ) : null}

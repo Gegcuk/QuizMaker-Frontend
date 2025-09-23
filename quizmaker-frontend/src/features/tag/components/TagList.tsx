@@ -200,14 +200,14 @@ export const TagList: React.FC<TagListProps> = ({
               placeholder="Search tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent bg-theme-bg-primary text-theme-text-primary"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
           <div className="flex items-center gap-2">
             <select
               value={pageSize}
               onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>

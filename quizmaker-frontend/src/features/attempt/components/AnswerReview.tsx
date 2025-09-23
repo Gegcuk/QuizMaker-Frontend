@@ -138,12 +138,12 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
               {/* Answer Details (Expanded) */}
               {isExpanded && (
-                <div className="mt-4 pt-4 border-t border-theme-border-primary">
+                <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                   <div className="space-y-3">
                                          {/* Your Answer */}
                      <div>
                        <div className="text-sm font-medium text-theme-text-secondary mb-1">Answer Details:</div>
-                       <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
+                       <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
                          <div className="text-sm text-theme-text-secondary">
                            <strong>Status:</strong> {answer.isCorrect ? 'Correct' : 'Incorrect'}
                          </div>
@@ -192,7 +192,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
       {/* Performance Insights */}
       {totalAnswers > 0 && (
-        <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
           <h3 className="text-sm font-medium text-theme-text-primary mb-2">Performance Insights:</h3>
           <div className="text-sm text-theme-text-primary">
             {accuracy >= 90 && "🎯 Excellent performance! You've mastered this material."}

@@ -195,7 +195,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
                   type="text"
                   value={getShareUrl()}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md text-sm bg-theme-bg-secondary"
+                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md text-sm bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <button
                   onClick={copyToClipboard}
@@ -213,7 +213,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
               <div className="mt-4 text-center">
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Close
                 </button>

@@ -105,7 +105,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
       {/* Options */}
       <div className="space-y-3">
         {options.map((option, index) => (
-          <div key={option.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded-lg">
+          <div key={option.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             {/* Drag Handle */}
             <div className="flex-shrink-0 mt-2 cursor-move">
               <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
@@ -139,7 +139,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
                 value={option.text}
                 onChange={(e) => handleOptionTextChange(option.id, e.target.value)}
                 placeholder={`Option ${option.id.toUpperCase()}...`}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
                 rows={2}
               />
             </div>

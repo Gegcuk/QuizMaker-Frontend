@@ -132,7 +132,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
   if (error || !analytics) {
     return (
       <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
         </div>
         <div className="px-6 py-12 text-center">
@@ -156,7 +156,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
@@ -169,7 +169,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y')}
-              className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="7d" className="bg-theme-bg-primary text-theme-text-primary">Last 7 days</option>
               <option value="30d" className="bg-theme-bg-primary text-theme-text-primary">Last 30 days</option>

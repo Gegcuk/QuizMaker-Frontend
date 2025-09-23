@@ -202,7 +202,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 <div className="w-full border-t border-theme-border-secondary" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-theme-bg-secondary text-theme-text-secondary">Your Created Quizzes</span>
+                <span className="px-2 text-theme-text-secondary">Your Created Quizzes</span>
               </div>
             </div>
           </div>
@@ -260,7 +260,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
                 <div className="flex items-center space-x-3">
                   {/* View Mode Toggle */}
-                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm">
+                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`px-3 py-2 text-sm font-medium rounded-l-md transition-colors ${

@@ -77,7 +77,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
             id="page-size"
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -178,7 +178,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
               onPageChange(page);
             }
           }}
-          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
         />
         <span className="text-sm text-theme-text-secondary">of {totalPages}</span>
       </div>

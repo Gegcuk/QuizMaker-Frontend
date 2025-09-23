@@ -161,7 +161,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Default Chunking Strategy */}
-          <div className="p-4 border border-theme-border-primary rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg">{getChunkingStrategyIcon(config.defaultStrategy as ChunkingStrategy)}</span>
               <h4 className="font-medium text-theme-text-primary">Default Chunking Strategy</h4>
@@ -175,7 +175,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           </div>
 
           {/* Default Max Chunk Size */}
-          <div className="p-4 border border-theme-border-primary rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg">📏</span>
               <h4 className="font-medium text-theme-text-primary">Default Max Chunk Size</h4>
@@ -302,7 +302,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       )}
 
       {/* Configuration Tips */}
-      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-sm font-medium text-theme-text-primary mb-2">Configuration Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• <strong>Auto Strategy:</strong> Best for most documents, automatically chooses optimal chunking</li>

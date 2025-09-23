@@ -84,7 +84,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
     <div className="fill-gap-question">
       {/* Question Text with Gaps */}
       <div className="space-y-4">
-        <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+        <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-base text-theme-text-primary leading-relaxed">
             {renderTextWithGaps()}
           </div>
@@ -98,7 +98,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
 
       {/* Progress Indicator */}
       {getTotalGaps() > 0 && (
-        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-theme-text-secondary">Progress</span>
             <span className="text-sm text-theme-text-secondary">

@@ -26,22 +26,22 @@ const ColorSchemeSelector: React.FC<ColorSchemeSelectorProps> = ({
     return (
       <div className="flex space-x-1">
         <div 
-          className="w-3 h-3 rounded-full border border-theme-border-primary"
+          className="w-3 h-3 rounded-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           style={{ backgroundColor: palette.colors.bg.primary }}
           title="Primary background"
         />
         <div 
-          className="w-3 h-3 rounded-full border border-theme-border-primary"
+          className="w-3 h-3 rounded-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           style={{ backgroundColor: palette.colors.bg.secondary }}
           title="Secondary background"
         />
         <div 
-          className="w-3 h-3 rounded-full border border-theme-border-primary"
+          className="w-3 h-3 rounded-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           style={{ backgroundColor: palette.colors.interactive.primary }}
           title="Primary interactive"
         />
         <div 
-          className="w-3 h-3 rounded-full border border-theme-border-primary"
+          className="w-3 h-3 rounded-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           style={{ backgroundColor: palette.colors.accent }}
           title="Accent color"
         />
@@ -93,7 +93,7 @@ const ColorSchemeSelector: React.FC<ColorSchemeSelectorProps> = ({
                   value={palette.id}
                   checked={colorScheme === palette.id}
                   onChange={() => setColorScheme(palette.id)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary focus:ring-theme-focus-ring"
+                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
             </div>

@@ -76,7 +76,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   return (
     <div className={`border border-theme-border-primary rounded-md ${className}`}>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         {/* Text Formatting */}
         <button
           type="button"

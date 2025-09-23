@@ -336,7 +336,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 id="language"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
                 <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
@@ -361,7 +361,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="Paste or type your document content here..."
                 rows={10}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent resize-vertical"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent resize-vertical bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
 

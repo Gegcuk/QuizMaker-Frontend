@@ -210,7 +210,7 @@ const CategoryManagementPage: React.FC = () => {
                   required
                   minLength={3}
                   maxLength={100}
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -221,7 +221,7 @@ const CategoryManagementPage: React.FC = () => {
                 </label>
                 <textarea
                   id="catDesc"
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   rows={3}
                   maxLength={1000}
                   value={desc}
@@ -232,7 +232,7 @@ const CategoryManagementPage: React.FC = () => {
                 <button 
                   type="button" 
                   onClick={() => setShowForm(false)} 
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Cancel
                 </button>

@@ -193,7 +193,7 @@ const UserStats: React.FC<UserStatsProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h2 className="text-xl font-semibold text-theme-text-primary">
           {isAdminView ? `${displayUser?.username}'s Statistics` : 'My Statistics'}
         </h2>

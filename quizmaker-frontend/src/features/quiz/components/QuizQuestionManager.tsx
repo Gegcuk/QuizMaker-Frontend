@@ -146,7 +146,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           />
           
           {/* Action buttons */}
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="text-lg font-medium text-theme-text-primary">
@@ -207,7 +207,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           />
           
           {/* Action buttons */}
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="text-lg font-medium text-theme-text-primary">

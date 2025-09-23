@@ -127,7 +127,7 @@ const Table = <T extends Record<string, any>>({
                       if (input) input.indeterminate = isIndeterminate;
                     }}
                     onChange={handleSelectAll}
-                    className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                    className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                 </th>
               )}
@@ -212,7 +212,7 @@ const Table = <T extends Record<string, any>>({
                         checked={selectedRows.includes(rowKey(row))}
                         onChange={() => handleRowSelect(row)}
                         onClick={(e) => e.stopPropagation()}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       />
                     </td>
                   )}
@@ -237,19 +237,19 @@ const Table = <T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && (
-        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6">
+        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6 bg-theme-bg-primary text-theme-text-primary">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Previous
             </button>
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Next
             </button>
@@ -275,7 +275,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -290,7 +290,7 @@ const Table = <T extends Record<string, any>>({
                   .map((page, index, array) => (
                     <React.Fragment key={page}>
                       {index > 0 && array[index - 1] !== page - 1 && (
-                        <span className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-secondary">
+                        <span className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-secondary bg-theme-bg-primary text-theme-text-primary">
                           ...
                         </span>
                       )}
@@ -309,7 +309,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

@@ -142,7 +142,7 @@ export const TextGenerationTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Text Input */}
         <div className="space-y-6">
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Text Content</h3>
             
             {/* Text Input */}
@@ -155,7 +155,7 @@ export const TextGenerationTab: React.FC = () => {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type your text content here... (1-300,000 characters)"
                 rows={12}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <div className="mt-2 flex justify-between text-xs text-theme-text-tertiary">
                 <span>Minimum: 10 characters</span>
@@ -178,7 +178,7 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     language: e.target.value
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
                   <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
@@ -200,7 +200,7 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     chunkingStrategy: e.target.value as any
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
                   <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section Based</option>
@@ -226,7 +226,7 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1000"
                   max="300000"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <p className="mt-1 text-xs text-theme-text-secondary">
                   Recommended: 30,000-50,000 characters for optimal quiz generation
@@ -238,7 +238,7 @@ export const TextGenerationTab: React.FC = () => {
 
         {/* Right Column - Quiz Configuration */}
         <div className="space-y-6">
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
@@ -256,7 +256,7 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz title (optional - AI will generate if empty)"
                   maxLength={100}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -274,7 +274,7 @@ export const TextGenerationTab: React.FC = () => {
                   placeholder="Enter quiz description (optional - AI will generate if empty)"
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -289,7 +289,7 @@ export const TextGenerationTab: React.FC = () => {
                     ...prev,
                     difficulty: e.target.value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                   <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -317,7 +317,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -334,7 +334,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -351,7 +351,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -368,7 +368,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -385,7 +385,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -402,7 +402,7 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                 </div>
@@ -425,7 +425,7 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
             </div>

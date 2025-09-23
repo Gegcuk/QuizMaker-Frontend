@@ -42,7 +42,7 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-lg font-medium text-theme-text-primary">Quiz Preview</h3>
         <p className="mt-1 text-sm text-theme-text-tertiary">
           How your quiz will appear to users
@@ -63,7 +63,7 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
         ) : (
           <div className="space-y-6">
             {/* Quiz Header */}
-            <div className="border-b border-theme-border-primary pb-4">
+            <div className="border-b border-theme-border-primary pb-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold text-theme-text-primary mb-2">
@@ -162,7 +162,7 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
             )}
 
             {/* Start Quiz Button */}
-            <div className="border-t border-theme-border-primary pt-4">
+            <div className="border-t border-theme-border-primary pt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <button
                 type="button"
                 className="w-full bg-theme-interactive-primary text-theme-text-inverse py-3 px-4 rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"

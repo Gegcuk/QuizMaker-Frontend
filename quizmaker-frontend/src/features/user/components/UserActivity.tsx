@@ -321,7 +321,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h2 className="text-xl font-semibold text-theme-text-primary">
           {isAdminView ? `${displayUser?.username}'s Activity` : 'My Activity'}
         </h2>
@@ -331,7 +331,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
@@ -339,14 +339,14 @@ const UserActivity: React.FC<UserActivityProps> = ({
               placeholder="Search activities..."
               value={filter.search || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
           <div className="flex gap-2">
             <select
               value={filter.type || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value as ActivityItem['type'] || undefined }))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
               <option value="quiz_completed" className="bg-theme-bg-primary text-theme-text-primary">Quiz Completed</option>
@@ -359,7 +359,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
             <select
               value={filter.dateRange || 'week'}
               onChange={(e) => setFilter(prev => ({ ...prev, dateRange: e.target.value as ActivityFilter['dateRange'] }))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="today" className="bg-theme-bg-primary text-theme-text-primary">Today</option>
               <option value="week" className="bg-theme-bg-primary text-theme-text-primary">This Week</option>

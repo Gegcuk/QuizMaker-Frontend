@@ -76,7 +76,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
       >
         <div className="space-y-3">
             {items.map((item, index) => (
-              <div key={item.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+              <div key={item.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
                 {/* Drag Handle */}
                 <div className="flex-shrink-0 mt-2 cursor-move">
                   <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
@@ -97,7 +97,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     value={item.text}
                     onChange={(e) => updateItemText(item.id, e.target.value)}
                     placeholder={`Item ${index + 1}...`}
-                    className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
+                    className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     rows={2}
                   />
                 </div>
@@ -167,7 +167,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
         <p>Students will see:</p>
         <div className="mt-2 space-y-2">
           {items.map((item, index) => (
-            <div key={item.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary">
+            <div key={item.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex-shrink-0">
                 <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
                   {index + 1}
@@ -193,7 +193,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
 
       {/* Order Summary */}
       {items.length > 0 && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-primary mb-2">Correct Order</h5>
           <div className="text-sm text-theme-text-secondary">
             <div className="space-y-1">

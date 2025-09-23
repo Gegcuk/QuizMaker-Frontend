@@ -44,21 +44,21 @@ const ThemeDemoPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.bg.primary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Primary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.bg.secondary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Secondary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.bg.tertiary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Tertiary</span>
@@ -71,21 +71,21 @@ const ThemeDemoPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.text.primary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Primary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.text.secondary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Secondary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.text.tertiary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Tertiary</span>
@@ -98,21 +98,21 @@ const ThemeDemoPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.interactive.primary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Primary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.interactive.secondary }}
                     />
                     <span className="text-sm text-theme-text-secondary">Secondary</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.accent }}
                     />
                     <span className="text-sm text-theme-text-secondary">Accent</span>
@@ -125,21 +125,21 @@ const ThemeDemoPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.interactive.success }}
                     />
                     <span className="text-sm text-theme-text-secondary">Success</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.interactive.warning }}
                     />
                     <span className="text-sm text-theme-text-secondary">Warning</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-6 h-6 rounded border border-theme-border-primary"
+                      className="w-6 h-6 rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       style={{ backgroundColor: currentPalette.colors.interactive.danger }}
                     />
                     <span className="text-sm text-theme-text-secondary">Danger</span>
@@ -207,7 +207,7 @@ const ThemeDemoPage: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-border-focus"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-border-focus bg-theme-bg-primary text-theme-text-primary"
                   placeholder="Type something here..."
                 />
               </div>
@@ -217,7 +217,7 @@ const ThemeDemoPage: React.FC = () => {
                   Sample Textarea
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-border-focus"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-border-focus bg-theme-bg-primary text-theme-text-primary"
                   rows={3}
                   placeholder="Enter your message..."
                 />

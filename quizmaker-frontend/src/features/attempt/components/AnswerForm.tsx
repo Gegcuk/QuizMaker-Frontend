@@ -230,7 +230,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
             <img
               src={question.attachmentUrl}
               alt="Question attachment"
-              className="max-w-full h-auto rounded-md border border-theme-border-primary"
+              className="max-w-full h-auto rounded-md border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
         )}

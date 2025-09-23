@@ -170,7 +170,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
           <div className="text-sm text-theme-interactive-danger font-medium">Slowest</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracyPercentage)}%</div>
           <div className="text-sm text-theme-text-primary font-medium">Accuracy</div>
         </div>
@@ -185,7 +185,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
             const accuracy = stats.count > 0 ? (stats.correct / stats.count) * 100 : 0;
             
             return (
-              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getQuestionTypeIcon(type)}</span>
@@ -239,7 +239,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
           const timeColor = getTimeColor(timeSeconds);
           
           return (
-            <div key={timing.questionId} className="p-4 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary transition-colors">
+            <div key={timing.questionId} className="p-4 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary transition-colors bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
                   <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
@@ -280,7 +280,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       </div>
 
       {/* Timing Insights */}
-      <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-sm font-medium text-theme-text-primary mb-2">Timing Insights</h3>
         <div className="space-y-1 text-sm text-theme-interactive-primary">
           <div>• Average time per question: {formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>

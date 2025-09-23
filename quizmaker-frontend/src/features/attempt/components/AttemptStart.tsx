@@ -288,7 +288,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
       </div>
 
       {/* Selected Mode Details */}
-      <div className="mb-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-sm font-medium text-theme-text-primary mb-2">
           {modeInfo.icon} {modeInfo.title} Mode
         </h4>

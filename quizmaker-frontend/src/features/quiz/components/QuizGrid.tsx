@@ -37,7 +37,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${className}`}>
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="bg-theme-bg-primary rounded-lg shadow-md animate-pulse">
-            <div className="p-6 border-b border-theme-border-primary">
+            <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="h-6 bg-theme-bg-tertiary rounded mb-2"></div>
               <div className="h-4 bg-theme-bg-tertiary rounded w-3/4 mb-4"></div>
               <div className="grid grid-cols-2 gap-4">
@@ -79,7 +79,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
             type="checkbox"
             checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
             onChange={(e) => onSelectAll(e.target.checked)}
-            className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+            className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           />
           <label className="text-sm font-medium text-theme-text-secondary">
             Select All ({selectedQuizzes.length}/{quizzes.length})

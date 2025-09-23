@@ -543,7 +543,7 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Progress Indicator */}
-        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm font-medium text-theme-text-primary">
               Question {currentQuestionNumber} of {totalQuestions || '?'}
@@ -602,7 +602,7 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4">
         {/* Progress and Timer */}
-        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm font-medium text-theme-text-primary">
               All Questions Mode
@@ -625,7 +625,7 @@ const QuizAttemptPage: React.FC = () => {
         {/* Questions */}
         <div className="space-y-8">
           {allQuestions.map((question, index) => (
-            <div key={question.id} className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+            <div key={question.id} className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-lg font-medium text-theme-text-primary">
                   Question {index + 1}
@@ -669,7 +669,7 @@ const QuizAttemptPage: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Timer and Progress */}
-        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm font-medium text-theme-text-primary">
               Question {currentQuestionNumber} of {totalQuestions || '?'} (Timed Mode)
@@ -733,7 +733,7 @@ const QuizAttemptPage: React.FC = () => {
           >
             {submitting ? (
               <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2" />
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
                 Submitting...
               </div>
             ) : (

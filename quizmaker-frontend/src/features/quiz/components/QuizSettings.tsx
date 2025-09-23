@@ -97,7 +97,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-lg font-medium text-theme-text-primary">Quiz Settings</h3>
         <p className="mt-1 text-sm text-theme-text-tertiary">
           Configure visibility, difficulty, and timing settings
@@ -115,7 +115,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="visibility"
             value={quizData.visibility || 'PRIVATE'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             disabled={!isEditing}
           >
             <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private - Only you can see and take this quiz</option>
@@ -138,7 +138,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             name="difficulty"
             value={quizData.difficulty || 'MEDIUM'}
             onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
+            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             disabled={!isEditing}
           >
             <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy - Suitable for beginners</option>
@@ -159,7 +159,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 name="timerEnabled"
                 checked={quizData.timerEnabled || false}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 disabled={!isEditing}
               />
               <span className="ml-2 text-sm font-medium text-theme-text-secondary">
@@ -235,7 +235,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
               name="isRepetitionEnabled"
               checked={quizData.isRepetitionEnabled || false}
               onChange={handleInputChange}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               disabled={!isEditing}
             />
             <span className="ml-2 text-sm font-medium text-theme-text-secondary">

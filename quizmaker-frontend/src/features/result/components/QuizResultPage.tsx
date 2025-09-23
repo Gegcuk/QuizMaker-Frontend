@@ -253,7 +253,7 @@ const QuizResultPage: React.FC = () => {
       </div>
 
       {/* Summary Card */}
-      <div className="bg-theme-bg-primary rounded-lg shadow-theme p-6 mb-8 border border-theme-border-primary">
+      <div className="bg-theme-bg-primary rounded-lg shadow-theme p-6 mb-8 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-text-primary">{results.totalScore}</div>
@@ -352,7 +352,7 @@ const QuizResultPage: React.FC = () => {
                {/* Correct Answer */}
                <div>
                  <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
-                 <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary">
+                 <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
                    {item.question.type === 'FILL_GAP' ? (
                      <div className="text-sm">
                        <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
@@ -377,7 +377,7 @@ const QuizResultPage: React.FC = () => {
             {item.question.explanation && (
               <div className="mt-4">
                 <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
-                <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary">
+                <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
                   <p className="text-sm text-theme-text-secondary">
                     {item.question.explanation}
                   </p>
@@ -397,7 +397,7 @@ const QuizResultPage: React.FC = () => {
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
         <Link
           to={backUrl}
-          className="inline-flex items-center justify-center px-6 py-3 border border-theme-border-primary shadow-sm text-base font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+          className="inline-flex items-center justify-center px-6 py-3 border border-theme-border-primary shadow-sm text-base font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
         >
           ← Back to Quizzes
         </Link>

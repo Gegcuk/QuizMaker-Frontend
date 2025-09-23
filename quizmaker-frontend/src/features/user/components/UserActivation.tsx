@@ -369,7 +369,7 @@ const UserActivationManager: React.FC<{
                 type="checkbox"
                 checked={selectedUserIds.length === users.length && users.length > 0}
                 onChange={handleSelectAll}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <span className="text-sm font-medium text-theme-text-primary">
                 Select All ({users.length} users)
@@ -378,12 +378,12 @@ const UserActivationManager: React.FC<{
 
             {/* Individual Users */}
             {users.map((user) => (
-              <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
+              <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
                 <input
                   type="checkbox"
                   checked={selectedUserIds.includes(user.id)}
                   onChange={(e) => handleUserSelection(user.id, e.target.checked)}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <div className="flex-1">
                   <UserActivation

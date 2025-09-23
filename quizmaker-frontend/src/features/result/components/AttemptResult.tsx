@@ -182,7 +182,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
       </div>
 
       {/* Navigation Links */}
-      <div className="mt-6 pt-6 border-t border-theme-border-primary">
+      <div className="mt-6 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
           <Link
             to="/quizzes"

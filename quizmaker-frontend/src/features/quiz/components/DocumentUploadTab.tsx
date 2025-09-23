@@ -218,7 +218,7 @@ export const DocumentUploadTab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - File Upload */}
         <div className="space-y-6">
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Document Upload</h3>
             
             {/* File Upload Area */}
@@ -298,7 +298,7 @@ export const DocumentUploadTab: React.FC = () => {
                       ...prev,
                       chunkingStrategy: e.target.value
                     }))}
-                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   >
                     <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto - Best Strategy</option>
                     <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
@@ -325,7 +325,7 @@ export const DocumentUploadTab: React.FC = () => {
                     }))}
                     min="1000"
                     max="100000"
-                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                   <p className="mt-1 text-xs text-theme-text-secondary">
                     Recommended: 30,000-50,000 characters for optimal quiz generation
@@ -338,7 +338,7 @@ export const DocumentUploadTab: React.FC = () => {
 
         {/* Right Column - Quiz Configuration */}
         <div className="space-y-6">
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
@@ -355,7 +355,7 @@ export const DocumentUploadTab: React.FC = () => {
                     quizTitle: e.target.value
                   }))}
                   placeholder="Enter quiz title..."
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -372,7 +372,7 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz description..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export const DocumentUploadTab: React.FC = () => {
                     ...prev,
                     quizScope: e.target.value as QuizScope
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>
                   <option value="SPECIFIC_CHUNKS" className="bg-theme-bg-primary text-theme-text-primary">Specific Chunks</option>
@@ -407,7 +407,7 @@ export const DocumentUploadTab: React.FC = () => {
                     ...prev,
                     difficulty: e.target.value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                   <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -435,7 +435,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -452,7 +452,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -469,7 +469,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -486,7 +486,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -503,7 +503,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                   <div>
@@ -520,7 +520,7 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                 </div>
@@ -543,7 +543,7 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
             </div>

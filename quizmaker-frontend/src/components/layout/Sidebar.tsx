@@ -253,7 +253,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
     if (!isLoggedIn || !user) return null;
 
     return (
-      <div className="border-t border-theme-border-primary pt-4 mt-4">
+      <div className="border-t border-theme-border-primary pt-4 mt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="px-3 py-2">
           {!isCollapsed && (
             <div className="flex items-center mb-3">
@@ -321,7 +321,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         } ${isCollapsed ? 'w-16' : 'w-64'}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-theme-border-primary">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           {!isCollapsed && (
             <Link to="/quizzes" className="text-xl font-semibold text-theme-text-primary">
               QuizMaker
@@ -338,7 +338,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
             )}

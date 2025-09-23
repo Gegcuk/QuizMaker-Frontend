@@ -138,7 +138,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary mb-2">
             {formatDuration(details.startedAt, details.completedAt ?? undefined)}
           </div>
@@ -210,7 +210,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
               const avgScore = data.count > 0 ? data.totalScore / data.count : 0;
               
               return (
-                <div key={timeSlot} className="p-4 border border-theme-border-primary rounded-lg">
+                <div key={timeSlot} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                   <div className="text-center">
                     <div className="text-lg font-semibold text-theme-text-primary mb-2">{timeSlot}</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">

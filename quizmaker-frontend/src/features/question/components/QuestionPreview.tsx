@@ -68,7 +68,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   name="preview-answer"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
@@ -90,7 +90,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
@@ -112,7 +112,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="true-option"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <label htmlFor="true-option" className="text-sm text-theme-text-secondary">True</label>
             </div>
@@ -122,7 +122,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="false-option"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <label htmlFor="false-option" className="text-sm text-theme-text-secondary">False</label>
             </div>
@@ -143,7 +143,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
               placeholder="Enter your answer here..."
               disabled
               rows={4}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
             {question.content && 'answer' in question.content && (
               <div className="mt-2">
@@ -169,7 +169,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="text"
                   placeholder="Fill in the blank"
                   disabled
-                  className="block w-32 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-secondary text-theme-text-tertiary text-sm"
+                  className="block w-32 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-secondary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <span className="text-xs text-theme-text-tertiary">Answer: {gap.answer}</span>
               </div>
@@ -186,7 +186,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`statement-${statement.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor={`statement-${statement.id}`} className="text-sm text-theme-text-secondary">
                   {statement.text}
@@ -216,7 +216,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'imageUrl' in question.content && (
-              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                 <div className="text-center text-theme-text-tertiary">
                   <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -245,7 +245,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <span className="text-lg">{getQuestionTypeIcon(question.type)}</span>
@@ -292,7 +292,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         {question.explanation && (
           <div className="mb-6">
             <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Explanation:</h4>
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
               <p className="text-sm text-theme-text-primary">{question.explanation}</p>
             </div>
           </div>
@@ -302,14 +302,14 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         {question.hint && (
           <div className="mb-6">
             <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
               <p className="text-sm text-theme-text-primary">{question.hint}</p>
             </div>
           </div>
         )}
 
         {/* Metadata */}
-        <div className="border-t border-theme-border-primary pt-4">
+        <div className="border-t border-theme-border-primary pt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="grid grid-cols-2 gap-4 text-sm text-theme-text-tertiary">
             <div>
               <span className="font-medium">Type:</span> {getQuestionTypeLabel(question.type)}

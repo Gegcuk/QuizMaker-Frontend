@@ -250,7 +250,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
     <div className={`space-y-6 ${className}`}>
         {/* Basic Information Section */}
         <div className="space-y-6">
-          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2">
+          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             Basic Information
           </h4>
           
@@ -298,7 +298,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
         {/* Settings Section */}
         <div className="space-y-6">
-          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2">
+          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             Quiz Settings
           </h4>
           
@@ -313,7 +313,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 name="visibility"
                 value={quizData.visibility || 'PRIVATE'}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                 disabled={!isEditing}
               >
                 <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
@@ -331,7 +331,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 name="difficulty"
                 value={quizData.difficulty || 'MEDIUM'}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                 disabled={!isEditing}
               >
                 <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
@@ -366,7 +366,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                   name="timerEnabled"
                   checked={quizData.timerEnabled || false}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   disabled={!isEditing}
                 />
                 <span className="ml-2 text-sm font-medium text-theme-text-secondary">
@@ -399,7 +399,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                 name="isRepetitionEnabled"
                 checked={quizData.isRepetitionEnabled || false}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 disabled={!isEditing}
               />
               <span className="ml-2 text-sm font-medium text-theme-text-secondary">
@@ -411,7 +411,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
         {/* Tags and Category Section */}
         <div className="space-y-6">
-          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2">
+          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             Organization
           </h4>
           
@@ -472,7 +472,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
               </label>
               <div className="space-y-3 pb-3">
                 {selectedCategory ? (
-                  <div className="flex items-center justify-between p-3 border border-theme-border-primary rounded-md bg-theme-bg-secondary">
+                  <div className="flex items-center justify-between p-3 border border-theme-border-primary rounded-md bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                     <div>
                       <p className="text-sm font-medium text-theme-text-primary">{selectedCategory.name}</p>
                       {selectedCategory.description && (
@@ -494,7 +494,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                     )}
                   </div>
                 ) : (
-                  <div className="text-sm text-theme-text-tertiary p-3 border border-theme-border-primary rounded-md bg-theme-bg-secondary">
+                  <div className="text-sm text-theme-text-tertiary p-3 border border-theme-border-primary rounded-md bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                     No category selected
                   </div>
                 )}
@@ -527,7 +527,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-theme-bg-tertiary opacity-75" onClick={() => setShowTagModal(false)}></div>
             </div>
-            <div className="inline-block align-middle bg-theme-bg-primary border border-theme-border-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-middle bg-theme-bg-primary border border-theme-border-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full bg-theme-bg-primary text-theme-text-primary">
                              <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                  <div className="flex items-center justify-between mb-4">
                    <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
@@ -544,7 +544,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
                  {/* Create Tag Form */}
                  {showCreateTagForm && (
-                   <div className="mb-4 p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-lg">
+                   <div className="mb-4 p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
                      <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Create New Tag</h4>
                      <div className="space-y-3">
                        <div>
@@ -567,7 +567,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                            onChange={(e) => setNewTagDescription(e.target.value)}
                            placeholder="Enter tag description..."
                            rows={2}
-                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                          />
                        </div>
                        <div className="flex space-x-2">
@@ -605,7 +605,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                         type="checkbox"
                         checked={(quizData.tagIds || []).includes(tag.id)}
                         onChange={() => handleTagToggle(tag.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       />
                       <div className="ml-3">
                         <p className="text-sm font-medium text-theme-text-primary">#{tag.name}</p>
@@ -640,7 +640,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-theme-bg-tertiary opacity-75" onClick={() => setShowCategoryModal(false)}></div>
             </div>
-            <div className="inline-block align-middle bg-theme-bg-primary border border-theme-border-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-middle bg-theme-bg-primary border border-theme-border-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full bg-theme-bg-primary text-theme-text-primary">
                              <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                  <div className="flex items-center justify-between mb-4">
                    <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
@@ -657,7 +657,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
                  {/* Create Category Form */}
                  {showCreateCategoryForm && (
-                   <div className="mb-4 p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-lg">
+                   <div className="mb-4 p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
                      <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Create New Category</h4>
                      <div className="space-y-3">
                        <div>
@@ -680,7 +680,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                            onChange={(e) => setNewCategoryDescription(e.target.value)}
                            placeholder="Enter category description..."
                            rows={2}
-                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                          />
                        </div>
                        <div className="flex space-x-2">
@@ -718,7 +718,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                       name="categorySelection"
                       checked={!quizData.categoryId}
                       onChange={() => handleCategorySelect(undefined)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <div className="ml-3">
                       <p className="text-sm font-medium text-theme-text-primary">No Category</p>
@@ -732,7 +732,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                         name="categorySelection"
                         checked={quizData.categoryId === category.id}
                         onChange={() => handleCategorySelect(category.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       />
                       <div className="ml-3">
                         <p className="text-sm font-medium text-theme-text-primary">{category.name}</p>

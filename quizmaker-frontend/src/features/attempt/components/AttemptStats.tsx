@@ -83,7 +83,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
           <div className="text-sm text-theme-interactive-success font-medium">Correct</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(stats.accuracyPercentage)}%</div>
           <div className="text-sm text-theme-text-primary font-medium">Accuracy</div>
         </div>
@@ -148,7 +148,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             const avgTime = data.count > 0 ? Math.round(data.totalTime / data.count) : 0;
             
             return (
-              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getQuestionTypeIcon(type)}</span>
@@ -178,7 +178,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             const avgTime = data.count > 0 ? Math.round(data.totalTime / data.count) : 0;
             
             return (
-              <div key={difficulty} className="p-4 border border-theme-border-primary rounded-lg">
+              <div key={difficulty} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(difficulty)}`}>

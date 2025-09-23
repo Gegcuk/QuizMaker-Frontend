@@ -220,7 +220,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
   return (
     <div className={`bg-theme-bg-primary rounded-lg shadow-sm border ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-lg font-medium text-theme-text-primary">Category Statistics</h3>
         <p className="text-sm text-theme-text-tertiary mt-1">{category.name}</p>
       </div>

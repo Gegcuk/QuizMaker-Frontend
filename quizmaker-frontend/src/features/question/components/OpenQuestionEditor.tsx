@@ -58,7 +58,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
               value={modelAnswer}
               onChange={(e) => setModelAnswer(e.target.value)}
               placeholder="Enter the model answer that students should provide..."
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
               rows={6}
               required
             />
@@ -68,7 +68,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
           </div>
 
           {/* Answer Guidelines */}
-          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4">
+          <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
             <h5 className="text-sm font-medium text-theme-text-primary mb-2">Answer Guidelines</h5>
             <div className="text-sm text-theme-text-secondary space-y-1">
               <p>Consider including:</p>
@@ -94,7 +94,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
       </InstructionsModal>
 
       {showPreview && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
             <p>Students will see:</p>
@@ -102,7 +102,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
               <textarea
                 placeholder="Enter your answer here..."
                 disabled
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary sm:text-sm resize-none"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 rows={4}
               />
             </div>
@@ -114,7 +114,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
       )}
 
       {/* Grading Information */}
-      <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4">
+      <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-theme-text-tertiary" viewBox="0 0 20 20" fill="currentColor">

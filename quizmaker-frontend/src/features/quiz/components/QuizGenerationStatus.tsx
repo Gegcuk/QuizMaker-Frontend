@@ -130,7 +130,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-8">
+      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-8 bg-theme-bg-primary text-theme-text-primary">
         <div className="text-center mb-6">
           <div className="text-4xl mb-4">{getStatusIcon(status.status)}</div>
           <h3 className="text-xl font-semibold text-theme-text-primary mb-2">

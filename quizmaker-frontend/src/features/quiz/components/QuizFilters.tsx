@@ -61,7 +61,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +104,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             value={filters.search || ''}
             onChange={(e) => handleInputChange('search', e.target.value)}
             placeholder="Search by title or description..."
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           />
         </div>
 
@@ -117,7 +117,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             id="difficulty"
             value={filters.difficulty || ''}
             onChange={(e) => handleInputChange('difficulty', e.target.value || undefined)}
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           >
             <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
             <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
@@ -137,14 +137,14 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             value={filters.authorName || ''}
             onChange={(e) => handleInputChange('authorName', e.target.value)}
             placeholder="Filter by author username..."
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           />
         </div>
       </div>
 
       {/* Advanced Filters */}
       {isExpanded && (
-        <div className="px-6 py-4 border-t border-theme-border-primary space-y-4">
+        <div className="px-6 py-4 border-t border-theme-border-primary space-y-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           {/* Categories */}
           <div>
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">
@@ -167,7 +167,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                       type="checkbox"
                       checked={(filters.category || []).includes(category.name)}
                       onChange={(e) => handleArrayChange('category', category.name, e.target.checked)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                   </label>
@@ -201,7 +201,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                       type="checkbox"
                       checked={(filters.tag || []).includes(tag.name)}
                       onChange={(e) => handleArrayChange('tag', tag.name, e.target.checked)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">#{tag.name}</span>
                   </label>
@@ -217,7 +217,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
+        <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-theme-text-secondary">Active Filters:</span>
             <button

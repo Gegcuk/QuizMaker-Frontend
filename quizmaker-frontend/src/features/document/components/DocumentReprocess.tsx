@@ -198,7 +198,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                 ...prev,
                 chunkingStrategy: e.target.value as ChunkingStrategy
               }))}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto (Recommended)</option>
               <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter-based</option>
@@ -228,7 +228,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                     ...prev,
                     maxChunkSize: parseInt(e.target.value) || 1000
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <p className="text-xs text-theme-text-tertiary mt-1">
                   Maximum number of characters per chunk (100-10,000)
@@ -245,7 +245,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                     ...prev,
                     storeChunks: e.target.checked
                   }))}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor="storeChunks" className="ml-2 block text-sm text-theme-text-secondary">
                   Store chunks in database
@@ -286,7 +286,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
             type="button"
             onClick={loadDocument}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
           >
             {isLoading ? 'Loading...' : 'Refresh'}
           </button>

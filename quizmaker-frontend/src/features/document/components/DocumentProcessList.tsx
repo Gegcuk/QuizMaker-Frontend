@@ -67,7 +67,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       case 'INGESTED':
         return <Badge variant="outline" className="text-theme-interactive-primary border-theme-interactive-primary">Ingested</Badge>;
       case 'NORMALIZED':
-        return <Badge variant="outline" className="text-theme-text-primary border-theme-border-primary">Normalized</Badge>;
+        return <Badge variant="outline" className="text-theme-text-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">Normalized</Badge>;
       case 'STRUCTURED':
         return <Badge variant="outline" className="text-theme-interactive-success border-theme-border-success">Structured</Badge>;
       case 'FAILED':
@@ -355,7 +355,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                             
                             {/* Extracted Content */}
                             {extractedContent[`${document.id}-${node.id}`] && (
-                              <div className="mt-3 p-3 bg-theme-bg-secondary rounded border border-theme-border-primary">
+                              <div className="mt-3 p-3 bg-theme-bg-secondary rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
                                 <h6 className="text-sm font-medium mb-2">Content Preview</h6>
                                 <p className="text-sm text-theme-text-secondary line-clamp-3">
                                   {extractedContent[`${document.id}-${node.id}`]?.content}

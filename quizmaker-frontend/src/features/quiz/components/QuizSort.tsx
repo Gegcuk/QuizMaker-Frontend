@@ -83,7 +83,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center">
           <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
@@ -108,7 +108,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
                 value={option.value}
                 checked={sortBy === option.value}
                 onChange={(e) => onSortChange(e.target.value as SortOption)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-0.5"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-0.5 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-theme-text-primary">
@@ -124,7 +124,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
       </div>
 
       {/* Quick Sort Buttons */}
-      <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
+      <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Quick Sort</h4>
         <div className="flex flex-wrap gap-2">
           <button

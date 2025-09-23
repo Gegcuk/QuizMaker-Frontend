@@ -78,7 +78,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-lg font-medium text-theme-text-primary">Basic Information</h3>
         <p className="mt-1 text-sm text-theme-text-tertiary">
           Set the title and description for your quiz

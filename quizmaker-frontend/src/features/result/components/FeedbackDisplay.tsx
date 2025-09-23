@@ -201,7 +201,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
           </div>
         </div>
         
-        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(result.startedAt, result.completedAt)}</div>
             <div className="text-sm text-theme-text-primary font-medium">Time Spent</div>
@@ -255,7 +255,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Next Steps */}
-      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-sm font-medium text-theme-text-primary mb-2">Next Steps</h3>
         <div className="space-y-2 text-sm text-theme-interactive-primary">
           {score >= 80 ? (

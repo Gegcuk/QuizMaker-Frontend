@@ -128,7 +128,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,7 +276,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
         )}
 
         {/* Summary Stats */}
-        <div className="mt-8 pt-6 border-t border-theme-border-primary">
+        <div className="mt-8 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-sm font-medium text-theme-text-primary mb-4">Key Insights</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-theme-bg-secondary rounded-lg p-4">

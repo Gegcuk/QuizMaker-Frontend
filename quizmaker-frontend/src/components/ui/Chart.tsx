@@ -66,10 +66,10 @@ const Chart: React.FC<ChartProps> = ({
         {showGrid && (
           <div className="absolute inset-0 grid grid-cols-5 grid-rows-5 pointer-events-none">
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="border-t border-theme-border-primary" />
+              <div key={i} className="border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
             ))}
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="border-l border-theme-border-primary" />
+              <div key={i} className="border-l border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
             ))}
           </div>
         )}

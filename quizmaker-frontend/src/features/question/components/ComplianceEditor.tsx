@@ -75,7 +75,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         helperText={`${getCompliantCount()} Compliant • ${getNonCompliantCount()} Non-compliant`}
       >
         {statements.map((statement) => (
-          <div key={statement.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+          <div key={statement.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
             {/* Statement Number */}
             <div className="flex-shrink-0 mt-2">
               <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
@@ -92,7 +92,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                   id={`compliant-${statement.id}`}
                   checked={statement.compliant}
                   onChange={() => updateStatementCompliance(statement.id, true)}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor={`compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium">
                   Compliant
@@ -105,7 +105,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                   id={`non-compliant-${statement.id}`}
                   checked={!statement.compliant}
                   onChange={() => updateStatementCompliance(statement.id, false)}
-                  className="h-4 w-4 text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary"
+                  className="h-4 w-4 text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 <label htmlFor={`non-compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium">
                   Non-compliant
@@ -119,7 +119,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                 value={statement.text}
                 onChange={(e) => updateStatementText(statement.id, e.target.value)}
                 placeholder={`Statement ${statement.id}...`}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 rows={3}
               />
             </div>
@@ -158,11 +158,11 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         <p>Students will see:</p>
         <div className="mt-2 space-y-2">
           {statements.map((statement) => (
-            <div key={statement.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary">
+            <div key={statement.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
               <input
                 type="checkbox"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <span className="text-sm">
                 {statement.text || `Statement ${statement.id}`}
@@ -177,7 +177,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
 
       {/* Compliance Summary */}
       {statements.length > 0 && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-primary mb-2">Compliance Summary</h5>
           <div className="text-sm text-theme-text-secondary">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -106,7 +106,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Question Bank</h3>
@@ -121,7 +121,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div>
@@ -131,7 +131,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search questions..."
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
 
@@ -141,7 +141,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as QuestionType | 'ALL')}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
               <option value="MCQ_SINGLE" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice (Single)</option>
@@ -162,7 +162,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value as QuestionDifficulty | 'ALL')}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
               <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
@@ -180,7 +180,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                 setSelectedType('ALL');
                 setSelectedDifficulty('ALL');
               }}
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+              className="w-full px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
             >
               Clear Filters
             </button>
@@ -234,7 +234,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleQuestionSelect(question)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
@@ -312,7 +312,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-t border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <div className="text-sm text-theme-text-secondary">
               Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredQuestions.length)} of {filteredQuestions.length} results
@@ -322,7 +322,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                 type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
               >
                 Previous
               </button>
@@ -333,7 +333,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                 type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
               >
                 Next
               </button>

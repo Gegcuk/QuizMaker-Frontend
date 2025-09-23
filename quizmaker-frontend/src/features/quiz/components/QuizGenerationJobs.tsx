@@ -210,7 +210,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
   if (isLoading) {
     return (
       <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -240,7 +240,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
     <>
       <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +273,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
           ) : (
             <div className="space-y-4">
               {jobs.map((job) => (
-                <div key={job.id} className="border border-theme-border-primary rounded-lg p-4 hover:bg-theme-bg-secondary">
+                <div key={job.id} className="border border-theme-border-primary rounded-lg p-4 hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
@@ -436,7 +436,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setShowDetails(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Close
                 </button>

@@ -98,7 +98,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           {getAchievementBadges(score).map((badge, index) => (
             <span
               key={index}
-              className="px-3 py-1 bg-theme-bg-tertiary text-theme-interactive-warning text-sm font-medium rounded-full border border-theme-border-primary"
+              className="px-3 py-1 bg-theme-bg-tertiary text-theme-interactive-warning text-sm font-medium rounded-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary"
             >
               {badge}
             </span>
@@ -108,7 +108,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
       {/* Score Breakdown */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-3xl font-bold text-theme-interactive-success">{result.correctCount}</div>
           <div className="text-sm text-theme-interactive-success font-medium">Correct</div>
           <div className="text-xs text-theme-interactive-success mt-1">
@@ -116,7 +116,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           </div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-3xl font-bold text-theme-interactive-danger">{incorrectCount}</div>
           <div className="text-sm text-theme-interactive-danger font-medium">Incorrect</div>
           <div className="text-xs text-theme-interactive-danger mt-1">
@@ -124,7 +124,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           </div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-3xl font-bold text-theme-interactive-info">{Math.round(accuracy)}%</div>
           <div className="text-sm text-theme-interactive-info font-medium">Accuracy</div>
           <div className="text-xs text-theme-interactive-info mt-1">
@@ -132,7 +132,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           </div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-3xl font-bold text-theme-interactive-primary">{result.totalScore}</div>
           <div className="text-sm text-theme-text-primary font-medium">Total Score</div>
           <div className="text-xs text-theme-interactive-primary mt-1">
@@ -230,7 +230,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       </div>
 
       {/* Performance Insights */}
-      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <h3 className="text-sm font-medium text-theme-text-primary mb-2">Performance Insights</h3>
         <div className="text-sm text-theme-interactive-primary space-y-1">
           {score >= 90 && (

@@ -83,7 +83,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
       {/* Image with Hotspots */}
       <div className="space-y-4">
         {imageUrl ? (
-          <div className="relative inline-block border border-theme-border-primary rounded-lg overflow-hidden">
+          <div className="relative inline-block border border-theme-border-primary rounded-lg overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <div
               className="relative cursor-pointer"
               onClick={handleImageClick}
@@ -150,7 +150,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
             </div>
           </div>
         ) : (
-          <div className="border border-theme-border-primary rounded-lg p-8 text-center text-theme-text-tertiary">
+          <div className="border border-theme-border-primary rounded-lg p-8 text-center text-theme-text-tertiary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -161,7 +161,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
 
       {/* Click Summary */}
       {regions && regions.length > 0 && (
-        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-theme-text-secondary">Clicks Summary</span>
             <span className="text-sm text-theme-text-secondary">

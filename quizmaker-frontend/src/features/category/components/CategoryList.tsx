@@ -121,7 +121,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   return (
     <div className={`bg-theme-bg-primary rounded-lg shadow-theme ${className}`}>
       {/* Search and Controls */}
-      <div className="p-4 border-b border-theme-border-primary">
+      <div className="p-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex-1 max-w-md">
             <input
@@ -129,14 +129,14 @@ export const CategoryList: React.FC<CategoryListProps> = ({
               placeholder="Search categories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
           <div className="flex items-center gap-2">
             <select
               value={pageSize}
               onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>
@@ -235,19 +235,19 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6">
+        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6 bg-theme-bg-primary text-theme-text-primary">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0}
-              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Previous
             </button>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages - 1}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Next
             </button>
@@ -271,7 +271,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -299,7 +299,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

@@ -169,7 +169,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-theme-border-primary">
+      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-theme-text-primary">{document.originalFilename}</h2>
@@ -197,7 +197,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search document content..."
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
             {searchTerm && (
               <div className="absolute right-2 top-2 text-sm text-theme-text-tertiary">
@@ -241,7 +241,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             <select
               value={currentChunkIndex}
               onChange={(e) => navigateToChunk(parseInt(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               {chunks.map((chunk, index) => (
                 <option key={chunk.id} value={index}>
@@ -302,7 +302,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
 
         {/* Chunk Footer */}
-        <div className="mt-6 pt-4 border-t border-theme-border-primary">
+        <div className="mt-6 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between text-sm text-theme-text-secondary">
             <div>
               Chunk {currentChunkIndex + 1} of {chunks.length}
@@ -315,7 +315,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       </div>
 
       {/* Chunk Navigation Sidebar */}
-      <div className="border-t border-theme-border-primary p-4 bg-theme-bg-secondary">
+      <div className="border-t border-theme-border-primary p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-sm font-medium text-theme-text-primary mb-3">All Chunks</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
           {chunks.map((chunk, index) => (

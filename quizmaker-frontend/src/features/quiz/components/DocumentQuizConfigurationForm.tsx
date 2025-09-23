@@ -173,7 +173,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Quiz Settings */}
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -215,7 +215,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
               <select
                 value={localData.difficulty || 'MEDIUM'}
                 onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                 <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -226,14 +226,14 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </div>
 
         {/* Document Upload */}
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Document Upload</h4>
           
           <div className="mb-4">
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">
               Upload Document *
             </label>
-            <div className="border-2 border-dashed border-theme-border-primary rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-theme-border-primary rounded-lg p-6 text-center bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <input
                 type="file"
                 onChange={handleFileUpload}
@@ -278,7 +278,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             <select
               value={generationConfig.chunkingStrategy}
               onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
               <option value="FIXED_SIZE" className="bg-theme-bg-primary text-theme-text-primary">Fixed Size</option>
@@ -311,7 +311,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             <select
               value={generationConfig.quizScope}
               onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>
               <option value="SPECIFIC_CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Specific Chapter</option>
@@ -352,7 +352,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </div>
 
         {/* Generation Settings */}
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Question Generation Settings</h4>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

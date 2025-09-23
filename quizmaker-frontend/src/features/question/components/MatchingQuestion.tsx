@@ -174,7 +174,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
       {/* Answer Summary */}
       {Object.keys(matches).length > 0 && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3 bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             <strong>Current Matches:</strong>
             <div className="mt-1 space-y-1">
@@ -194,7 +194,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
       {/* Correct Answer Display */}
       {showCorrectAnswer && (
-        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-lg p-3">
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-lg p-3 bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             <strong>Correct Answer:</strong>
             <div className="mt-1 space-y-1">

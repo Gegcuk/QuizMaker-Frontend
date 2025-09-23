@@ -95,7 +95,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   if (isLoading) {
     return (
       <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <h3 className="text-lg font-medium text-theme-text-primary">Category Manager</h3>
         </div>
         <div className="px-6 py-4">
@@ -111,7 +111,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Category Manager</h3>
@@ -159,7 +159,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="Enter category name..."
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
               <div>
@@ -172,7 +172,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   onChange={(e) => setNewCategoryDescription(e.target.value)}
                   placeholder="Enter category description..."
                   rows={2}
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
               <div className="flex space-x-2">
@@ -200,7 +200,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
 
         {/* Current category display */}
         {currentCategory && (
-          <div className="mb-4 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+          <div className="mb-4 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
             <h4 className="text-sm font-medium text-theme-text-primary mb-2">Current Category</h4>
             <div className="flex items-center justify-between">
               <div>
@@ -260,7 +260,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                       name="category"
                       checked={category.id === currentCategoryId}
                       onChange={() => handleCategoryChange(category.id)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-1"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
@@ -302,7 +302,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
         </div>
 
         {/* No category option */}
-        <div className="mt-4 pt-4 border-t border-theme-border-primary">
+        <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <div
             className={`border rounded-lg p-3 cursor-pointer transition-colors ${
               !currentCategoryId
@@ -317,7 +317,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                 name="category"
                 checked={!currentCategoryId}
                 onChange={() => onCategoryChange(undefined)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-1"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <div className="flex-1">
                 <div className="flex items-center space-x-2">

@@ -254,7 +254,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       </div>
 
       {/* Image Container */}
-      <div className="relative border border-theme-border-primary rounded-lg overflow-hidden">
+      <div className="relative border border-theme-border-primary rounded-lg overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <canvas
           ref={canvasRef}
           width={600}
@@ -297,7 +297,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
       {/* Selection Details */}
       {selectedRegion && (
-        <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-interactive-primary">
             <strong>Selected Region:</strong>
             <div className="mt-1 text-xs">
@@ -310,7 +310,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       )}
 
       {/* Instructions */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
           <strong>Instructions:</strong> {imageUrl ? (
             <>Click and drag on the image to create a selection box around the correct area. The blue dashed lines show predefined regions for reference.</>
@@ -321,7 +321,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       </div>
 
       {/* Tips */}
-      <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+      <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
           <strong>Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">
@@ -335,7 +335,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
       {/* No Selection Warning */}
       {!selectedRegion && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             Please select a region on the image to continue.
           </div>

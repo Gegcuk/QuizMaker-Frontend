@@ -114,7 +114,7 @@ export const TagForm: React.FC<TagFormProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary rounded-lg shadow-sm border ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-theme-text-primary">
             {isEditing ? 'Edit Tag' : 'Create New Tag'}
@@ -212,11 +212,11 @@ export const TagForm: React.FC<TagFormProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
+              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 bg-theme-bg-primary text-theme-text-primary"
               disabled={loading}
             >
               Cancel

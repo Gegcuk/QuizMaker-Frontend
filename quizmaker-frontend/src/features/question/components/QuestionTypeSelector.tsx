@@ -97,7 +97,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
               value={questionType.type}
               checked={selectedType === questionType.type}
               onChange={() => onTypeChange(questionType.type)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
 

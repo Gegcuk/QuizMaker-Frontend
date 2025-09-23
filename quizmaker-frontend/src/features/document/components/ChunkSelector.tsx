@@ -167,7 +167,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-theme-border-primary">
+      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Select Document Chunks</h2>
         <p className="text-theme-text-secondary">Choose which parts of the document to use for quiz generation</p>
         
@@ -195,7 +195,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       </div>
 
       {/* Controls */}
-      <div className="p-6 border-b border-theme-border-primary">
+      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
           {/* Search */}
           <div className="flex-1">
@@ -204,7 +204,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search chunks by title or content..."
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
 
@@ -214,7 +214,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as ChunkType | 'ALL')}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
               <option value="CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Chapters</option>
@@ -279,7 +279,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                     type="checkbox"
                     checked={selectedChunks.has(chunk.id)}
                     onChange={() => toggleChunkSelection(chunk.id)}
-                    className="mt-1 h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                    className="mt-1 h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                   
                   {/* Chunk Info */}
@@ -337,7 +337,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       {previewChunk && (
         <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-theme-bg-primary rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-theme-border-primary">
+            <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-theme-text-primary">{previewChunk.title}</h3>
                 <button
@@ -355,7 +355,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-theme-border-primary bg-theme-bg-secondary">
+            <div className="p-6 border-t border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between text-sm text-theme-text-secondary">
                 <div>
                   {formatWordCount(previewChunk.wordCount ?? 0)} • Pages {previewChunk.startPage}-{previewChunk.endPage}

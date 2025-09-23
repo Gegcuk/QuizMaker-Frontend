@@ -166,7 +166,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
 
       {/* Selection Summary */}
       {isMultiChoice && selectedOptions.length > 0 && (
-        <div className="mt-4 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             <strong>Selected:</strong> {selectedOptions.length} option{selectedOptions.length !== 1 ? 's' : ''}
           </div>
@@ -175,7 +175,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
 
       {/* No Selection Warning */}
       {selectedOptions.length === 0 && (
-        <div className="mt-4 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             Please select {isMultiChoice ? 'at least one option' : 'an option'} to continue.
           </div>

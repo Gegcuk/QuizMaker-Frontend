@@ -98,7 +98,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <header className="bg-theme-bg-primary border-b border-theme-border-primary shadow-theme sticky top-0 z-50">
+    <header className="bg-theme-bg-primary border-b border-theme-border-primary shadow-theme sticky top-0 z-50 bg-theme-bg-primary text-theme-text-primary">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* ----- Logo / site title ------------------------------------ */}
@@ -174,7 +174,7 @@ const Navbar: React.FC = () => {
 
         {/* ----- Modern mobile dropdown (only when isOpen && below md) ---------- */}
         {isOpen && (
-          <div className="md:hidden border-t border-theme-border-primary bg-theme-bg-primary">
+          <div className="md:hidden border-t border-theme-border-primary bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {isLoggedIn ? authMobileLinks : guestMobileLinks}
             </div>

@@ -250,7 +250,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             {displayedAttempts.map((attempt) => (
               <div
                 key={attempt.attemptId}
-                className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 hover:shadow-md transition-shadow bg-theme-bg-primary text-theme-text-primary"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -339,7 +339,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(prev => prev + 3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -353,7 +353,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => setDisplayedCount(3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-border-primary transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-border-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />

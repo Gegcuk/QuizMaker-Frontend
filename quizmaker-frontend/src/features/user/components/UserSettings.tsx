@@ -155,7 +155,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <h2 className="text-xl font-semibold text-theme-text-primary">Settings</h2>
         <p className="mt-1 text-sm text-theme-text-tertiary">
           Manage your account preferences and privacy settings
@@ -194,7 +194,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'quizResults', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
 
@@ -210,7 +210,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'newQuizzes', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
 
@@ -226,7 +226,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'systemUpdates', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
           </div>
@@ -243,7 +243,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.privacy.profileVisibility}
                 onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="public" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
                 <option value="private" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
@@ -263,7 +263,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('privacy', 'showEmail', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
           </div>
@@ -280,7 +280,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.theme}
                 onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="light" className="bg-theme-bg-primary text-theme-text-primary">Light</option>
                 <option value="dark" className="bg-theme-bg-primary text-theme-text-primary">Dark</option>
@@ -295,7 +295,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <select
                 value={settings.preferences.language}
                 onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm"
+                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
                 <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
@@ -322,7 +322,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('security', 'twoFactorEnabled', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
 
@@ -338,7 +338,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('security', 'loginNotifications', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
               </label>
             </div>
           </div>

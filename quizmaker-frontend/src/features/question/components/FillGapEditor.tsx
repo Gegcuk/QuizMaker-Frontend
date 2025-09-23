@@ -93,14 +93,14 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with ___..."
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
+                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
                 rows={6}
                 required
               />
               <button
                 type="button"
                 onClick={insertGapMarker}
-                className="absolute top-2 right-2 inline-flex items-center px-2 py-1 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+                className="absolute top-2 right-2 inline-flex items-center px-2 py-1 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
                 title="Insert gap marker"
               >
                 Add Gap
@@ -130,7 +130,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
           <h5 className="text-sm font-medium text-theme-text-secondary mb-4">Gap Answers</h5>
           <div className="space-y-3">
             {gaps.map((gap) => (
-              <div key={gap.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+              <div key={gap.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex-shrink-0">
                   <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
                     {gap.id}
@@ -142,7 +142,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                     value={gap.answer}
                     onChange={(e) => updateGapAnswer(gap.id, e.target.value)}
                     placeholder={`Answer for gap ${gap.id}...`}
-                    className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                    className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                   />
                 </div>
                 <div className="flex-shrink-0">
@@ -175,7 +175,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       </InstructionsModal>
 
       {showPreview && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
             <p>Students will see:</p>
@@ -192,7 +192,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                           type="text"
                           placeholder={`Gap ${gapId}`}
                           disabled
-                          className="inline-block w-24 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary text-sm"
+                          className="inline-block w-24 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                         />
                       );
                     }
@@ -209,7 +209,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 
       {/* Answer Summary */}
       {gaps.length > 0 && (
-        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4">
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-primary mb-2">Answer Summary</h5>
           <div className="text-sm text-theme-text-secondary">
             <p>Correct answers:</p>

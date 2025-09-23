@@ -208,7 +208,7 @@ export const TagCloud: React.FC<TagCloudProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-4 border-t border-theme-border-primary">
+      <div className="mt-6 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-center space-x-4 text-xs text-theme-text-tertiary">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-theme-bg-danger rounded-full mr-1"></div>

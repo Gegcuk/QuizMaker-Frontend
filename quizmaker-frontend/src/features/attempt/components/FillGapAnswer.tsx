@@ -65,7 +65,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   const renderTextWithGaps = () => {
     if (!text || gaps.length === 0) {
       return (
-        <div className="p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-theme-text-tertiary text-center">No text with gaps available</div>
         </div>
       );
@@ -110,7 +110,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
           onChange={(e) => handleGapChange(gap.id, e.target.value)}
           disabled={disabled}
           placeholder={`Gap ${gapIndex + 1}`}
-          className="mx-1 px-2 py-1 my-1 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 min-w-[120px] text-center bg-theme-bg-primary text-theme-text-primary"
+          className="mx-1 px-2 py-1 my-1 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 min-w-[120px] text-center bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
         />
       );
 
@@ -142,7 +142,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
       </div>
 
       {/* Text with Gaps */}
-      <div className="p-6 bg-theme-bg-secondary border border-theme-border-primary rounded-lg">
+      <div className="p-6 bg-theme-bg-secondary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         <div className="text-lg leading-relaxed">
           {renderTextWithGaps()}
         </div>
@@ -161,7 +161,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
             type="button"
             onClick={handleClearAll}
             disabled={disabled}
-            className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary"
+            className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
           >
             Clear All
           </button>
@@ -178,7 +178,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
       {/* Gap List (Alternative View) */}
       {gaps.length > 0 && (
-        <div className="border-t border-theme-border-primary pt-4">
+        <div className="border-t border-theme-border-primary pt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm font-medium text-theme-text-secondary mb-3">
             Gap Summary:
           </div>
@@ -194,7 +194,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
                   onChange={(e) => handleGapChange(gap.id, e.target.value)}
                   disabled={disabled}
                   placeholder={`Answer for gap ${index + 1}`}
-                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
+                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
                 {gapAnswers?.[gap.id] && (
                   <span className="text-theme-interactive-primary text-sm">✓</span>
@@ -207,7 +207,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
 
       {completionPercentage > 0 && completionPercentage < 100 && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             ⚠️ {totalGaps - filledGaps} gap{totalGaps - filledGaps !== 1 ? 's' : ''} remaining
           </div>
@@ -215,7 +215,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
       )}
 
       {completionPercentage === 0 && (
-        <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             <strong>Instructions:</strong> Read the text carefully and fill in each blank with the appropriate word or phrase.
           </div>

@@ -188,7 +188,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
   if (error) {
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
-        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4">
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
@@ -244,7 +244,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
         {existingAttempts.map((attempt) => (
           <div
             key={attempt.attemptId}
-            className="border border-theme-border-primary rounded-lg p-4 hover:border-theme-border-secondary transition-colors"
+            className="border border-theme-border-primary rounded-lg p-4 hover:border-theme-border-secondary transition-colors bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
@@ -309,7 +309,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       {/* Divider */}
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-theme-border-primary" />
+          <div className="w-full border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-theme-bg-primary text-theme-text-tertiary">Or</span>

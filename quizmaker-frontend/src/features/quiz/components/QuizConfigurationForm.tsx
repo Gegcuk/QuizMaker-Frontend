@@ -138,7 +138,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 <select
                   value={localData.visibility || 'PRIVATE'}
                   onChange={(e) => handleInputChange('visibility', e.target.value as Visibility)}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
                   <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
@@ -153,7 +153,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 <select
                   value={localData.difficulty || 'MEDIUM'}
                   onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 >
                   <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                   <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -204,7 +204,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                     onChange={(e) => handleInputChange('timerEnabled', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
+                  <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
                 </label>
               </div>
 
@@ -266,7 +266,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
       </div>
 
       {/* Create Quiz Button */}
-      <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
+      <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <h4 className="text-lg font-medium text-theme-text-primary">Ready to Create Quiz?</h4>

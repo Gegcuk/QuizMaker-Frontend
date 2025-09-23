@@ -148,7 +148,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
       {/* Instructions */}
       {selectedLeft !== null && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3 bg-theme-bg-primary text-theme-text-primary">
           <p className="text-sm text-theme-text-primary">
             Now click the matching item in the right column to connect them.
           </p>

@@ -253,7 +253,7 @@ const QuestionManagementPage: React.FC = () => {
         );
       default:
         return (
-          <div className="p-4 border border-theme-border-primary rounded-md bg-theme-bg-secondary">
+          <div className="p-4 border border-theme-border-primary rounded-md bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
             <p className="text-sm text-theme-text-secondary">Select a question type to continue.</p>
           </div>
         );
@@ -412,7 +412,7 @@ const QuestionManagementPage: React.FC = () => {
                   <button
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
                     disabled={page === 0}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
                   >
                     <span className="sr-only">Previous</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -422,7 +422,7 @@ const QuestionManagementPage: React.FC = () => {
                   <button
                     onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
                     disabled={page + 1 === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
                   >
                     <span className="sr-only">Next</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

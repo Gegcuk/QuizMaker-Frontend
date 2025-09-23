@@ -83,7 +83,7 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
             value={localData.description || ''}
             onChange={(e) => handleInputChange('description', e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             placeholder="Describe your quiz..."
           />
         </div>
@@ -97,7 +97,7 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
           <select
             value={localData.difficulty || 'MEDIUM'}
             onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
           >
             <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
             <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>

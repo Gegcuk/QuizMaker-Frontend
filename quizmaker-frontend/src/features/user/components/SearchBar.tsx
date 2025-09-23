@@ -337,7 +337,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               setTimeout(() => setShowResults(false), 200);
             }}
             placeholder={placeholder}
-            className="w-full pl-10 pr-12 py-2 border border-theme-border-primary rounded-lg focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary transition-colors"
+            className="w-full pl-10 pr-12 py-2 border border-theme-border-primary rounded-lg focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             aria-label="Search"
           />
           
@@ -390,7 +390,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Advanced Filters */}
       {showFilters && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4 bg-theme-bg-primary text-theme-text-primary">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Categories */}
             <div>
@@ -402,7 +402,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       type="checkbox"
                       checked={selectedCategories.includes(category.id)}
                       onChange={() => handleCategoryChange(category.id)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                   </label>
@@ -420,7 +420,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       type="checkbox"
                       checked={selectedTags.includes(tag.id)}
                       onChange={() => handleTagChange(tag.id)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
                   </label>
@@ -434,7 +434,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty | '')}
-                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
                 <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
@@ -451,18 +451,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 value={selectedAuthor}
                 onChange={(e) => setSelectedAuthor(e.target.value)}
                 placeholder="Search by author..."
-                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
           </div>
 
           {/* Sort Options */}
-          <div className="mt-4 pt-4 border-t border-theme-border-primary">
+          <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+              className="border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="relevance" className="bg-theme-bg-primary text-theme-text-primary">Relevance</option>
               <option value="title,asc" className="bg-theme-bg-primary text-theme-text-primary">Title A-Z</option>
@@ -476,7 +476,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Search Suggestions */}
       {showResults && suggestions.length > 0 && !searchQuery && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 bg-theme-bg-primary text-theme-text-primary">
           <div className="p-2">
             <div className="text-xs font-medium text-theme-text-tertiary mb-2">Recent Searches</div>
             {suggestions.map((suggestion, index) => (
@@ -494,7 +494,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Search Results */}
       {showResults && searchResults.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto bg-theme-bg-primary text-theme-text-primary">
           <div className="p-4">
             <div className="flex justify-between items-center mb-3">
               <div className="text-sm text-theme-text-secondary">
@@ -517,7 +517,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <div
                     key={quiz.id}
                     onClick={() => handleResultClick(quiz)}
-                    className="p-3 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary cursor-pointer transition-colors"
+                    className="p-3 border border-theme-border-primary rounded-lg hover:bg-theme-bg-secondary cursor-pointer transition-colors bg-theme-bg-primary text-theme-text-primary"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -556,12 +556,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-4 pt-4 border-t border-theme-border-primary">
+              <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex justify-between items-center">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 0}
-                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary"
+                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                   >
                     Previous
                   </button>
@@ -571,7 +571,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages - 1}
-                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary"
+                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                   >
                     Next
                   </button>
@@ -591,7 +591,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* No Results */}
       {showResults && searchResults.length === 0 && !isSearching && searchQuery && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg z-50 p-4 bg-theme-bg-primary text-theme-text-primary">
           <div className="text-center text-theme-text-tertiary">
             <svg className="w-12 h-12 mx-auto mb-2 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

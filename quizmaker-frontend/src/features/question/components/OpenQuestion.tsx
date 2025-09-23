@@ -43,7 +43,7 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
             onChange={(e) => handleAnswerChange(e.target.value)}
             placeholder="Enter your answer here..."
             disabled={disabled}
-            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
+            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             rows={6}
           />
           <p className="mt-1 text-sm text-theme-text-tertiary">

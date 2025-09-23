@@ -142,7 +142,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     if (isBalanceLoading) {
       return (
         <div className="space-y-4">
-          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
             <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <div className="h-3 bg-theme-bg-primary rounded w-24 mb-2" />
@@ -158,7 +158,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               </div>
             </div>
           </div>
-          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
             <div className="h-4 bg-theme-bg-primary rounded w-40 mb-2 animate-pulse" />
             <div className="h-16 bg-theme-bg-primary rounded animate-pulse" />
           </div>
@@ -169,7 +169,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     if (billingDisabled) {
       return (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 text-sm text-theme-text-secondary">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 text-sm text-theme-text-secondary bg-theme-bg-primary text-theme-text-primary">
           Billing features are not enabled for this environment yet. Token balance will appear here once available.
         </div>
       );
@@ -189,7 +189,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     return (
       <div className="space-y-4">
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Available Tokens</p>
@@ -340,7 +340,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-theme-bg-primary rounded-full flex items-center justify-center">

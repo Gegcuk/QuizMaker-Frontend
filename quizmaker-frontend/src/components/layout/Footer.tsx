@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-theme-bg-primary border-t border-theme-border-primary">
+    <footer className="bg-theme-bg-primary border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -178,7 +178,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section - Legal */}
-        <div className="mt-12 pt-8 border-t border-theme-border-primary">
+        <div className="mt-12 pt-8 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <div className="text-theme-text-tertiary text-sm">

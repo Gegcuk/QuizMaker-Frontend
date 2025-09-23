@@ -46,14 +46,14 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
       {/* Answer Selection */}
       <div className="bg-theme-bg-secondary rounded-lg p-6">
         <div className="space-y-4">
-          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
             <input
               type="radio"
               name="true-false-answer"
               id="true-option"
               checked={answer === true}
               onChange={() => setAnswer(true)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
             <label htmlFor="true-option" className="flex items-center space-x-3 cursor-pointer">
               <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
@@ -65,14 +65,14 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
             </label>
           </div>
 
-          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
             <input
               type="radio"
               name="true-false-answer"
               id="false-option"
               checked={answer === false}
               onChange={() => setAnswer(false)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
             <label htmlFor="false-option" className="flex items-center space-x-3 cursor-pointer">
               <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
@@ -96,7 +96,7 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
       </InstructionsModal>
 
       {showPreview && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
             <p>Students will see:</p>

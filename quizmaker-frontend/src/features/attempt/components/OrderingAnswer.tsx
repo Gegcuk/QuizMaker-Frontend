@@ -144,7 +144,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
           type="button"
           onClick={handleReset}
           disabled={disabled}
-          className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary"
+          className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
         >
           Reset Order
         </button>
@@ -213,7 +213,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
       </div>
 
       {/* Progress Indicator */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
           <strong>Current Order:</strong> {orderedItems.map((item, index) => 
             `${index + 1}. ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`

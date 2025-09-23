@@ -68,7 +68,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   if (isLoading) {
     return (
       <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -96,7 +96,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   if (entries.length === 0) {
     return (
       <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -122,7 +122,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +206,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
 
         {/* Your Position (if applicable) */}
         {entries.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-theme-border-primary">
+          <div className="mt-6 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="text-center">
               <p className="text-sm text-theme-text-tertiary">
                 Want to improve your ranking? Try the quiz again!

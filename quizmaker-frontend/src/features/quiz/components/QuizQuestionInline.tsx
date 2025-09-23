@@ -256,7 +256,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       )}
 
       {/* Content */}
-      <div className="bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary">
+      <div className="bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         {loading ? (
           <div className="flex justify-center py-10">
             <Spinner />

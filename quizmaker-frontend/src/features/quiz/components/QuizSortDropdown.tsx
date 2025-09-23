@@ -69,7 +69,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
       {/* Sort Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
       >
         <span className="mr-2">Sort by: {getCurrentSortLabel()}</span>
         <svg 
@@ -84,7 +84,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 bg-theme-bg-primary text-theme-text-primary">
           <div className="py-1">
             {sortOptions.map((option) => (
               <button

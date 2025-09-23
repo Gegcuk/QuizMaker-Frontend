@@ -336,8 +336,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
       {/* Edit Mode with Live Preview */}
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary">
-          <div className="px-6 py-4 border-b border-theme-border-primary">
+        <div className="bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
+          <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-medium text-theme-text-primary">Question Details</h3>
           </div>
           <div className="px-6 py-6">
@@ -362,7 +362,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                    value={formData.questionText}
                    onChange={(e) => handleInputChange('questionText', e.target.value)}
                    rows={4}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                    placeholder="Enter your question here..."
                  />
                </div>
@@ -375,7 +375,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                  <select
                    value={formData.difficulty}
                    onChange={(e) => handleInputChange('difficulty', e.target.value as QuestionDifficulty)}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                  >
                    <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                    <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -392,7 +392,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                    value={formData.hint || ''}
                    onChange={(e) => handleInputChange('hint', e.target.value)}
                    rows={2}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                    placeholder="Provide a hint for students..."
                  />
                </div>
@@ -406,7 +406,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                    value={formData.explanation || ''}
                    onChange={(e) => handleInputChange('explanation', e.target.value)}
                    rows={3}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                    placeholder="Provide an explanation for the correct answer..."
                  />
                </div>
@@ -496,7 +496,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   })()}
                 </div>
               {/* Live Preview at bottom */}
-              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                 <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Live Preview (Attempt-like)</h4>
                 {(() => {
                   const q = toAttemptQuestion();
@@ -589,7 +589,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+            className="px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
           >
             Cancel
           </button>
@@ -598,7 +598,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               type="button"
               onClick={handleSaveAndAddAnother}
               disabled={saving || !formData.questionText.trim()}
-              className="inline-flex justify-center py-2 px-4 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex justify-center py-2 px-4 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               {saving ? (
                 <>

@@ -56,7 +56,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           bg-theme-bg-primary
           text-theme-text-primary
           focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-theme-focus-ring
-        "
+         bg-theme-bg-primary text-theme-text-primary"
       >
         {themeOptions.map((option) => (
           <option key={option.value} value={option.value}>

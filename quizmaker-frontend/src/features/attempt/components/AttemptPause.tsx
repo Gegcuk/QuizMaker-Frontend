@@ -181,7 +181,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
                 >
                   {isLoading ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
                       {action === 'pause' ? 'Pausing...' : 'Resuming...'}
                     </div>
                   ) : (

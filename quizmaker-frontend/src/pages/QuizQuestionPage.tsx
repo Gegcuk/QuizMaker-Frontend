@@ -283,7 +283,7 @@ const QuizQuestionsPage: React.FC = () => {
         );
       default:
         return (
-          <div className="p-4 border border-theme-border-primary rounded-md bg-theme-bg-secondary">
+          <div className="p-4 border border-theme-border-primary rounded-md bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
             <p className="text-sm text-theme-text-secondary">Select a question type to continue.</p>
           </div>
         );
@@ -348,7 +348,7 @@ const QuizQuestionsPage: React.FC = () => {
 
         {/* Current Questions */}
         <div className="bg-theme-bg-primary shadow-theme rounded-lg mb-8">
-          <div className="px-6 py-4 border-b border-theme-border-primary">
+          <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-medium text-theme-text-primary">Current Questions ({questions.length})</h3>
           </div>
           <div className="p-6">
@@ -363,7 +363,7 @@ const QuizQuestionsPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {questions.map((question) => (
-                  <div key={question.id} className="border border-theme-border-primary rounded-lg p-3 group hover:bg-theme-bg-secondary transition-colors">
+                  <div key={question.id} className="border border-theme-border-primary rounded-lg p-3 group hover:bg-theme-bg-secondary transition-colors bg-theme-bg-primary text-theme-text-primary">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <QuestionRenderer
@@ -399,7 +399,7 @@ const QuizQuestionsPage: React.FC = () => {
 
         {/* Add Existing Questions */}
         <div className="bg-theme-bg-primary shadow-theme rounded-lg">
-          <div className="px-6 py-4 border-b border-theme-border-primary">
+          <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h3 className="text-lg font-medium text-theme-text-primary">Add Existing Questions</h3>
           </div>
           <div className="p-6">
@@ -412,7 +412,7 @@ const QuizQuestionsPage: React.FC = () => {
                 {allQuestions
                   .filter((q) => !questions.find((qq) => qq.id === q.id))
                   .map((q) => (
-                    <div key={q.id} className="border border-theme-border-primary rounded-lg p-3 group hover:bg-theme-bg-secondary transition-colors">
+                    <div key={q.id} className="border border-theme-border-primary rounded-lg p-3 group hover:bg-theme-bg-secondary transition-colors bg-theme-bg-primary text-theme-text-primary">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <QuestionRenderer
@@ -492,7 +492,7 @@ const QuizQuestionsPage: React.FC = () => {
                 </div>
                 
                 {/* Preview the question */}
-                <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+                <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                   <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h4>
                   <QuestionRenderer
                     question={{
@@ -542,7 +542,7 @@ const QuizQuestionsPage: React.FC = () => {
                     required
                     minLength={3}
                     maxLength={1000}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     rows={4}
                     value={questionText}
                     onChange={(e) => setQuestionText(e.target.value)}
@@ -559,7 +559,7 @@ const QuizQuestionsPage: React.FC = () => {
                     id="difficulty"
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value as QuestionDto['difficulty'])}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   >
                     <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                     <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -575,7 +575,7 @@ const QuizQuestionsPage: React.FC = () => {
                   <textarea
                     id="hint"
                     maxLength={500}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     rows={2}
                     value={hint}
                     onChange={(e) => setHint(e.target.value)}
@@ -591,7 +591,7 @@ const QuizQuestionsPage: React.FC = () => {
                   <textarea
                     id="explanation"
                     maxLength={2000}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     rows={3}
                     value={explanation}
                     onChange={(e) => setExplanation(e.target.value)}
@@ -617,7 +617,7 @@ const QuizQuestionsPage: React.FC = () => {
             )}
 
             {/* Modal Actions */}
-            <div className="flex justify-between items-center pt-4 border-t border-theme-border-primary">
+            <div className="flex justify-between items-center pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <Button
                 variant="secondary"
                 onClick={() => setPreviewMode(!previewMode)}

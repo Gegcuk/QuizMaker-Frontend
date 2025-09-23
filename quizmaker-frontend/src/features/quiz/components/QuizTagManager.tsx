@@ -130,7 +130,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   if (isLoading) {
     return (
       <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-        <div className="px-6 py-4 border-b border-theme-border-primary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <h3 className="text-lg font-medium text-theme-text-primary">Tag Manager</h3>
         </div>
         <div className="px-6 py-4">
@@ -146,7 +146,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-theme-border-primary">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Tag Manager</h3>
@@ -194,7 +194,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
                   placeholder="Enter tag name..."
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
               <div>
@@ -207,7 +207,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   onChange={(e) => setNewTagDescription(e.target.value)}
                   placeholder="Enter tag description..."
                   rows={2}
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
               <div className="flex space-x-2">
@@ -246,7 +246,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by tag name or description..."
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
           </div>
@@ -313,7 +313,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                       type="checkbox"
                       checked={tag.isSelected}
                       onChange={() => handleTagToggle(tag.id)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
@@ -354,7 +354,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
         {/* Selected tags summary */}
         {currentTagIds.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-theme-border-primary">
+          <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Selected Tags</h4>
             <div className="flex flex-wrap gap-2">
               {tags

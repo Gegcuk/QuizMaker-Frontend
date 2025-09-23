@@ -150,7 +150,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
       </div>
 
       {/* Writing Tips */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
           <strong>Writing Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">
@@ -164,7 +164,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
 
       {/* No Answer Warning */}
       {safeAnswer.length === 0 && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             Please provide an answer to continue.
           </div>

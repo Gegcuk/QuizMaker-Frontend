@@ -302,7 +302,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     const maxValue = Math.max(...data.map(d => d.value));
     
     return (
-      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
         <div className="space-y-3">
           {data.map((item, index) => (
@@ -329,7 +329,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     const height = 200;
     
     return (
-      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
         <div className="relative" style={{ height: `${height}px` }}>
           <svg className="w-full h-full" viewBox={`0 0 ${data.length * 40} ${height}`}>
@@ -413,7 +413,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary p-6">
+      <div className="bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary p-6 bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl font-bold text-theme-text-primary">Tag Analytics</h3>
@@ -424,7 +424,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
-              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
+              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="week" className="bg-theme-bg-primary text-theme-text-primary">Week</option>
               <option value="month" className="bg-theme-bg-primary text-theme-text-primary">Month</option>
@@ -453,7 +453,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
         )}
         
         {/* Tag Efficiency */}
-        <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+        <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Tag Efficiency</h4>
           <div className="space-y-4">
             <div className="text-center">

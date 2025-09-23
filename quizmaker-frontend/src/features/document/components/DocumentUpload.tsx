@@ -345,7 +345,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   chunkingStrategy: e.target.value as ChunkingStrategy
                 }))}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto - Best Strategy</option>
                 <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
@@ -372,7 +372,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               <p className="mt-1 text-xs text-theme-text-secondary">
                 Recommended: 500-2000 characters for optimal quiz generation
@@ -512,7 +512,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   quizTitle: e.target.value
                 }))}
                 placeholder="Enter quiz title..."
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
 
@@ -529,7 +529,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 placeholder="Enter quiz description..."
                 rows={3}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
 
@@ -544,7 +544,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   quizScope: e.target.value as QuizScope
                 }))}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>
                 <option value="SPECIFIC_CHUNKS" className="bg-theme-bg-primary text-theme-text-primary">Specific Chunks</option>
@@ -564,7 +564,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   ...prev,
                   difficulty: e.target.value as any
                 }))}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
                 <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
@@ -598,7 +598,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                 </div>
                 <div>
@@ -621,7 +621,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                 </div>
                 <div>
@@ -644,7 +644,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="5"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                 </div>
               </div>
@@ -664,7 +664,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="1"
                 max="10"
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
           </div>

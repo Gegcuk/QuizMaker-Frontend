@@ -210,7 +210,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Content Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 border border-theme-border-primary rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h4 className="font-medium text-theme-text-primary mb-3">Average Metrics</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -228,7 +228,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
             </div>
           </div>
           
-          <div className="p-4 border border-theme-border-primary rounded-lg">
+          <div className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <h4 className="font-medium text-theme-text-primary mb-3">Word Count Distribution</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -257,7 +257,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
             const color = getChunkTypeColor(type as ChunkType);
             
             return (
-              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getChunkTypeIcon(type as ChunkType)}</span>

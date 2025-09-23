@@ -101,7 +101,7 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
         {leftItems.map((leftItem, index) => {
           const rightItem = rightItems.find(item => item.id === leftItem.matchId);
           return (
-            <div key={leftItem.id} className="border border-theme-border-primary rounded-lg p-4">
+            <div key={leftItem.id} className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-theme-text-secondary">Pair {index + 1}</span>
                 {leftItems.length > 2 && (
@@ -150,7 +150,7 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
       </div>
 
       {showPreview && (
-        <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+        <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Preview</h4>
           <div className="grid grid-cols-2 gap-4">
             <div>

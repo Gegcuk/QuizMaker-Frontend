@@ -96,7 +96,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
-              className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               required
             />
             <p className="mt-1 text-sm text-theme-text-tertiary">
@@ -106,19 +106,19 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
 
           {/* Image Preview */}
           {showPreview && imageUrl && (
-            <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary">
+            <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
               <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Image Preview</h5>
               <div className="relative inline-block">
                 <img
                   src={imageUrl}
                   alt="Hotspot question image"
-                  className="max-w-full h-auto border border-theme-border-primary rounded"
+                  className="max-w-full h-auto border border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
-                <div className="hidden bg-theme-bg-tertiary border border-theme-border-primary rounded p-8 text-center text-theme-text-tertiary">
+                <div className="hidden bg-theme-bg-tertiary border border-theme-border-primary rounded p-8 text-center text-theme-text-tertiary bg-theme-bg-primary text-theme-text-primary">
                   <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -138,7 +138,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
             <button
               type="button"
               onClick={addRegion}
-              className="inline-flex items-center px-3 py-1 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+              className="inline-flex items-center px-3 py-1 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -213,7 +213,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
 
                   {/* Region Properties */}
                   {selectedRegion === region.id && (
-                    <div className="mt-3 pt-3 border-t border-theme-border-primary">
+                    <div className="mt-3 pt-3 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <label className="block text-xs font-medium text-theme-text-secondary mb-1">X Position (%)</label>
@@ -223,7 +223,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.x}
                             onChange={(e) => updateRegion(region.id, { x: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                           />
                         </div>
                         <div>
@@ -234,7 +234,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.y}
                             onChange={(e) => updateRegion(region.id, { y: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                           />
                         </div>
                         <div>
@@ -245,7 +245,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.width}
                             onChange={(e) => updateRegion(region.id, { width: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                           />
                         </div>
                         <div>
@@ -256,7 +256,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.height}
                             onChange={(e) => updateRegion(region.id, { height: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                           />
                         </div>
                       </div>
@@ -282,7 +282,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
 
       {/* Preview */}
       {showPreview && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
             <p>Students will see:</p>
@@ -292,7 +292,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                   <img
                     src={imageUrl}
                     alt="Hotspot question preview"
-                    className="max-w-full h-auto border border-theme-border-primary rounded"
+                    className="max-w-full h-auto border border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                   />
                   {regions.map((region) => (
                     <div
@@ -310,7 +310,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded p-8 text-center text-theme-text-tertiary">
+                <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded p-8 text-center text-theme-text-tertiary bg-theme-bg-primary text-theme-text-primary">
                   <p>No image provided</p>
                 </div>
               )}
@@ -324,7 +324,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
 
       {/* Region Summary */}
       {regions.length > 0 && (
-        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4">
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-primary mb-2">Region Summary</h5>
           <div className="text-sm text-theme-text-secondary">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

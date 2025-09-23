@@ -200,7 +200,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       type="checkbox"
                       checked={exportOptions.includeAnswers}
                       onChange={(e) => handleOptionChange('includeAnswers', e.target.checked)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Include correct answers</span>
                   </label>
@@ -210,7 +210,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       type="checkbox"
                       checked={exportOptions.includeStatistics}
                       onChange={(e) => handleOptionChange('includeStatistics', e.target.checked)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Include statistics and charts</span>
                   </label>
@@ -220,7 +220,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       type="checkbox"
                       checked={exportOptions.includeLeaderboard}
                       onChange={(e) => handleOptionChange('includeLeaderboard', e.target.checked)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Include leaderboard</span>
                   </label>
@@ -230,7 +230,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       type="checkbox"
                       checked={exportOptions.includeUserDetails}
                       onChange={(e) => handleOptionChange('includeUserDetails', e.target.checked)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Include user details (names, emails)</span>
                   </label>
@@ -247,7 +247,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       value="all"
                       checked={exportOptions.dateRange === 'all'}
                       onChange={(e) => handleOptionChange('dateRange', e.target.value)}
-                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">All time</span>
                   </label>
@@ -258,7 +258,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       value="last7days"
                       checked={exportOptions.dateRange === 'last7days'}
                       onChange={(e) => handleOptionChange('dateRange', e.target.value)}
-                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Last 7 days</span>
                   </label>
@@ -269,7 +269,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       value="last30days"
                       checked={exportOptions.dateRange === 'last30days'}
                       onChange={(e) => handleOptionChange('dateRange', e.target.value)}
-                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Last 30 days</span>
                   </label>
@@ -280,7 +280,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       value="custom"
                       checked={exportOptions.dateRange === 'custom'}
                       onChange={(e) => handleOptionChange('dateRange', e.target.value)}
-                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary"
+                      className="border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">Custom range</span>
                   </label>
@@ -292,13 +292,13 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       type="date"
                       value={exportOptions.customStartDate}
                       onChange={(e) => handleOptionChange('customStartDate', e.target.value)}
-                      className="px-3 py-2 border border-theme-border-primary rounded-md text-sm"
+                      className="px-3 py-2 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                     <input
                       type="date"
                       value={exportOptions.customEndDate}
                       onChange={(e) => handleOptionChange('customEndDate', e.target.value)}
-                      className="px-3 py-2 border border-theme-border-primary rounded-md text-sm"
+                      className="px-3 py-2 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     />
                   </div>
                 )}
@@ -308,7 +308,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowExportModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                   disabled={isExporting}
                 >
                   Cancel

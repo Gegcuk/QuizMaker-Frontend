@@ -48,7 +48,7 @@ export const QuizCreationTabs: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="border-b border-theme-border-primary">
+        <div className="border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
@@ -78,7 +78,7 @@ export const QuizCreationTabs: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg">
+      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
         {activeTab === 'manual' && (
           <div className="p-6">
             <QuizForm />

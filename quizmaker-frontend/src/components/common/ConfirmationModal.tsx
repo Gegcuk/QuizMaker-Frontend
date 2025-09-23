@@ -121,7 +121,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </button>
             <button
               type="button"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-theme-border-primary shadow-sm px-4 py-2 bg-theme-bg-primary text-base font-medium text-theme-text-secondary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              className="mt-3 w-full inline-flex justify-center rounded-md border border-theme-border-primary shadow-sm px-4 py-2 bg-theme-bg-primary text-base font-medium text-theme-text-secondary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm bg-theme-bg-primary text-theme-text-primary"
               onClick={onClose}
               disabled={isLoading}
             >

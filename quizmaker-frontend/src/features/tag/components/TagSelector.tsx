@@ -221,17 +221,17 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-lg max-h-60 overflow-auto bg-theme-bg-primary text-theme-text-primary">
           {/* Search Input */}
           {showSearch && (
-            <div className="p-2 border-b border-theme-border-primary">
+            <div className="p-2 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
           )}

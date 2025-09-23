@@ -91,7 +91,7 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
 
       {/* Expanded state - shows all themes */}
       {isExpanded && (
-        <div className="absolute right-0 top-full mt-1 flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-lg p-1 shadow-lg z-50">
+        <div className="absolute right-0 top-full mt-1 flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-lg p-1 shadow-lg z-50 bg-theme-bg-primary text-theme-text-primary">
           {availablePalettes.map((palette) => (
             <button
               key={palette.id}

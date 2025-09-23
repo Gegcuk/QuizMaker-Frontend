@@ -79,7 +79,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
   return (
     <div className={`bg-theme-bg-primary rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${isSelected ? 'ring-2 ring-theme-interactive-primary' : ''} ${className}`}>
       {/* Card Header */}
-      <div className="p-6 border-b border-theme-border-primary">
+      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start space-x-3 flex-1 min-w-0">
             {onSelect && (
@@ -87,7 +87,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 type="checkbox"
                 checked={isSelected}
                 onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             )}
             <div className="flex-1 min-w-0">
@@ -180,7 +180,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
         {/* Action Buttons */}
         {showActions && (
-          <div className="flex items-center justify-between pt-4 border-t border-theme-border-primary">
+          <div className="flex items-center justify-between pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="flex space-x-2">
               {onStart && (
                 <Button

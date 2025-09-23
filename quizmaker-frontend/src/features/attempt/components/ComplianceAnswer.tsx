@@ -117,7 +117,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
-                className="mt-1 rounded border-theme-border-primary text-theme-interactive-success focus:ring-theme-interactive-success focus:ring-2"
+                className="mt-1 rounded border-theme-border-primary text-theme-interactive-success focus:ring-theme-interactive-success focus:ring-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
               
               <div className="ml-3 flex-1">
@@ -166,7 +166,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
       {/* No Selection Warning */}
       {selectedStatements.length === 0 && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-text-secondary">
             Please select at least one compliant statement to continue.
           </div>
@@ -181,7 +181,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       </div>
 
       {/* Tips */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
           <strong>Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">

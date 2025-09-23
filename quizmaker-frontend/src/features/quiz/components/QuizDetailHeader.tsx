@@ -139,7 +139,7 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
       />
 
       {/* Quiz Stats Overview */}
-      <div className="bg-theme-bg-primary border-b border-theme-border-primary">
+      <div className="bg-theme-bg-primary border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Quiz Status */}

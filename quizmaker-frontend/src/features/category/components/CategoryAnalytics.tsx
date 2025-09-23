@@ -343,7 +343,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
-              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
+              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="week" className="bg-theme-bg-primary text-theme-text-primary">Week</option>
               <option value="month" className="bg-theme-bg-primary text-theme-text-primary">Month</option>
