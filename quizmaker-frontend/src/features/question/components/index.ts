@@ -18,6 +18,7 @@ export { default as FillGapEditor } from './FillGapEditor';
 export { default as ComplianceEditor } from './ComplianceEditor';
 export { default as OrderingEditor } from './OrderingEditor';
 export { default as HotspotEditor } from './HotspotEditor';
+export { MatchingQuestionForm } from './MatchingQuestionForm';
 
 // Question Display Components
 export { default as QuestionRenderer } from './QuestionRenderer';

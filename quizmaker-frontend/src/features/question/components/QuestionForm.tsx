@@ -10,7 +10,7 @@ import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import { QuestionRenderer } from './';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, QuestionForAttemptDto } from '@/features/attempt';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto } from '@/features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -18,6 +18,7 @@ import FillGapEditor from './FillGapEditor';
 import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
+import { MatchingQuestionForm } from './MatchingQuestionForm';
 import { Spinner } from '@/components';
 
 interface QuestionFormProps {
@@ -123,7 +124,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         }
       } else {
         // Create new question
-        const res = await questionService.createQuestion(formData);
+        const questionData = {
+          ...formData,
+          quizIds: actualQuizId ? [actualQuizId] : []
+        };
+        const res = await questionService.createQuestion(questionData);
         if (onSuccess) {
           onSuccess({ questionId: res.questionId });
         } else if (actualQuizId) {
@@ -163,6 +168,17 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         return { items: [] } as CreateQuestionRequest['content'];
       case 'HOTSPOT':
         return { imageUrl: '', regions: [] } as CreateQuestionRequest['content'];
+      case 'MATCHING':
+        return { 
+          left: [
+            { id: 1, text: '', matchId: 10 },
+            { id: 2, text: '', matchId: 11 }
+          ],
+          right: [
+            { id: 10, text: '' },
+            { id: 11, text: '' }
+          ]
+        } as CreateQuestionRequest['content'];
       default:
         return { options: [] } as any;
     }
@@ -214,6 +230,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           regions: content?.regions || []
         };
         break;
+      case 'MATCHING':
+        safeContent = {
+          left: content?.left || [],
+          right: content?.right || []
+        };
+        break;
       case 'TRUE_FALSE':
       case 'OPEN':
       default:
@@ -237,7 +259,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setSaving(true);
     setError(null);
     try {
-      const res = await questionService.createQuestion(formData);
+      const questionData = {
+        ...formData,
+        quizIds: actualQuizId ? [actualQuizId] : []
+      };
+      const res = await questionService.createQuestion(questionData);
       // Inform parent but keep the modal open
       if (onSuccess) {
         onSuccess({ questionId: res.questionId, keepOpen: true });
@@ -456,6 +482,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                           showPreview={false}
                         />
                       );
+                    case 'MATCHING':
+                      return (
+                        <MatchingQuestionForm
+                          content={formData.content as any}
+                          onChange={handleContentChange}
+                          showPreview={false}
+                        />
+                      );
                       default:
                         return null;
                     }
@@ -529,6 +563,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                         <HotspotAnswer
                           question={q}
                           currentAnswer={previewAnswer as any}
+                          onAnswerChange={setPreviewAnswer}
+                        />
+                      );
+                    case 'MATCHING':
+                      return (
+                        <MatchingAnswer
+                          question={q}
+                          currentAnswer={previewAnswer as Record<number, number>}
                           onAnswerChange={setPreviewAnswer}
                         />
                       );

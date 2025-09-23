@@ -6,12 +6,20 @@ export { default as QuizForm } from './QuizForm';
 export { default as QuizManagementTab } from './QuizManagementTab';
 export { default as QuizBasicInfo } from './QuizBasicInfo';
 export { default as QuizCategoryManager } from './QuizCategoryManager';
-export { default as QuizQuestionManager } from './QuizQuestionManager';
+export { QuizQuestionManager } from './QuizQuestionManager';
 export { default as QuizQuestionInline } from './QuizQuestionInline';
 export { default as QuizTagManager } from './QuizTagManager';
 export { default as QuizSettings } from './QuizSettings';
 export { default as QuizPreview } from './QuizPreview';
 export { default as QuizPublishModal } from './QuizPublishModal';
+
+// New Wizard-based Creation Components
+export { default as QuizCreationWizard } from './QuizCreationWizard';
+export { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
+export { QuizConfigurationForm } from './QuizConfigurationForm';
+export { QuizAIGenerationStep } from './QuizAIGenerationStep';
+
+// Legacy Creation Components (kept for compatibility)
 export { QuizCreationTabs } from './QuizCreationTabs';
 export { TextGenerationTab } from './TextGenerationTab';
 export { DocumentUploadTab } from './DocumentUploadTab';

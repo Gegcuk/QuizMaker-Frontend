@@ -40,3 +40,4 @@ export { default as FillGapAnswer } from './components/FillGapAnswer';
 export { default as ComplianceAnswer } from './components/ComplianceAnswer';
 export { default as OrderingAnswer } from './components/OrderingAnswer';
 export { default as HotspotAnswer } from './components/HotspotAnswer';
+export { MatchingAnswer } from './components/MatchingAnswer';

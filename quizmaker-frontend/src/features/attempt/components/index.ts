@@ -22,6 +22,7 @@ export { default as FillGapAnswer } from './FillGapAnswer';
 export { default as ComplianceAnswer } from './ComplianceAnswer';
 export { default as OrderingAnswer } from './OrderingAnswer';
 export { default as HotspotAnswer } from './HotspotAnswer';
+export { MatchingAnswer } from './MatchingAnswer';
 
 // Results & Feedback Components (moved to result feature)
 // export { default as AttemptResult } from './AttemptResult';

@@ -40,13 +40,6 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       color: 'bg-purple-50 border-purple-200 text-purple-700'
     },
     {
-      type: 'OPEN' as QuestionType,
-      label: 'Open Ended',
-      description: 'Free text answer with model answer',
-      icon: '📝',
-      color: 'bg-yellow-50 border-yellow-200 text-yellow-700'
-    },
-    {
       type: 'FILL_GAP' as QuestionType,
       label: 'Fill in the Blank',
       description: 'Complete missing words in text',
@@ -73,6 +66,13 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       description: 'Click on correct areas in an image',
       icon: '🎯',
       color: 'bg-pink-50 border-pink-200 text-pink-700'
+    },
+    {
+      type: 'MATCHING' as QuestionType,
+      label: 'Matching',
+      description: 'Match items from two columns together',
+      icon: '🔗',
+      color: 'bg-teal-50 border-teal-200 text-teal-700'
     }
   ];
 
