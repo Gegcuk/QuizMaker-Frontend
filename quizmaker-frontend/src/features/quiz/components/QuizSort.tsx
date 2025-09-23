@@ -132,7 +132,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'createdAt_desc'
                 ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
             Newest
@@ -142,7 +142,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'title_asc'
                 ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
             A-Z
@@ -152,7 +152,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'difficulty_asc'
                 ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
             Easy First
@@ -162,7 +162,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               sortBy === 'estimatedTime_asc'
                 ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
             }`}
           >
             Quick

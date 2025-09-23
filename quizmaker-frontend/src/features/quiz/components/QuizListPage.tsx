@@ -180,7 +180,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                       className={`px-3 py-2 text-sm font-medium rounded-l-md ${
                         viewMode === 'grid'
                           ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -192,7 +192,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                       className={`px-3 py-2 text-sm font-medium rounded-r-md ${
                         viewMode === 'list'
                           ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

@@ -141,7 +141,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
       {/* Export Modal */}
       {showExportModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-theme-bg-primary">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Export Quiz Results</h3>
@@ -308,7 +308,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowExportModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary"
                   disabled={isExporting}
                 >
                   Cancel

@@ -115,7 +115,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
             onClick={() => setActiveView('questions')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'questions'
-                ? 'bg-white text-gray-900 shadow-sm'
+                ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -126,7 +126,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
             onClick={() => setActiveView('preview')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'preview'
-                ? 'bg-white text-gray-900 shadow-sm'
+                ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >

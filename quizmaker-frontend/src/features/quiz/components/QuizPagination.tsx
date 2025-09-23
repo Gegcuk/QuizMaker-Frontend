@@ -106,7 +106,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
             pageNumber === 1
               ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
-              : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-300'
+              : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
           }`}
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -127,7 +127,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
                   className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                     page === pageNumber
                       ? 'bg-indigo-600 text-white'
-                      : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-300'
+                      : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
                   }`}
                 >
                   {page}
@@ -151,7 +151,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
             pageNumber === totalPages
               ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
-              : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-300'
+              : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
           }`}
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

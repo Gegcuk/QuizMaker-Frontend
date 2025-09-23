@@ -116,7 +116,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
   // Show feature flag notice if advanced analytics is disabled
   if (!isAdvancedAnalyticsEnabled) {
     return (
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+      <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               onClick={() => setSelectedChart('score-distribution')}
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'score-distribution'
-                  ? 'bg-white text-gray-900 shadow-sm'
+                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -163,7 +163,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               onClick={() => setSelectedChart('question-performance')}
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'question-performance'
-                  ? 'bg-white text-gray-900 shadow-sm'
+                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -173,7 +173,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               onClick={() => setSelectedChart('attempt-trends')}
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'attempt-trends'
-                  ? 'bg-white text-gray-900 shadow-sm'
+                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
