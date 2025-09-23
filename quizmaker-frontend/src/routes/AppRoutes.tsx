@@ -17,6 +17,7 @@ import { useAuth } from '../features/auth';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import ThemeDemoPage from '../pages/ThemeDemoPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
 import { QuizListPage } from '../components';
@@ -77,6 +78,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={authRedirect('login')} />
         <Route path="/register" element={authRedirect('register')} />
+        <Route path="/theme-demo" element={<ThemeDemoPage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route

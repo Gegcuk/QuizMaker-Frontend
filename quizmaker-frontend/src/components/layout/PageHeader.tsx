@@ -121,10 +121,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     const baseClasses = "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
     
     const variantClasses = {
-      primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
-      secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
-      danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-      success: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
+      primary: "bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:ring-theme-interactive-primary",
+      secondary: "bg-theme-bg-tertiary text-theme-text-primary hover:bg-theme-bg-secondary focus:ring-theme-border-primary",
+      danger: "bg-theme-interactive-danger text-theme-text-inverse hover:bg-red-700 focus:ring-theme-interactive-danger",
+      success: "bg-theme-interactive-success text-theme-text-inverse hover:bg-green-700 focus:ring-theme-interactive-success",
     };
 
     const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
@@ -164,7 +164,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   };
 
   return (
-    <div className={`bg-white border-b border-gray-200 ${className}`}>
+    <div className={`bg-theme-bg-primary border-b border-theme-border-primary ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumb */}
         {showBreadcrumb && (
@@ -181,7 +181,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             {showBackButton && (
               <button
                 onClick={handleBack}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                className="mr-4 p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors duration-200"
                 aria-label="Go back"
               >
                 <ArrowLeftIcon />
@@ -190,18 +190,18 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
             {/* Icon */}
             {Icon && (
-              <div className="mr-3 p-2 bg-blue-100 text-blue-600 rounded-lg">
+              <div className="mr-3 p-2 bg-theme-bg-tertiary text-theme-interactive-primary rounded-lg">
                 <Icon className="w-6 h-6" />
               </div>
             )}
 
             {/* Title and Subtitle */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              <h1 className="text-2xl font-bold text-theme-text-primary sm:text-3xl">
                 {title}
               </h1>
               {subtitle && (
-                <p className="mt-1 text-sm text-gray-500 sm:text-base">
+                <p className="mt-1 text-sm text-theme-text-secondary sm:text-base">
                   {subtitle}
                 </p>
               )}

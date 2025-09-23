@@ -34,6 +34,8 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return '📊';
       case 'HOTSPOT':
         return '🎯';
+      case 'MATCHING':
+        return '🔗';
       default:
         return '❓';
     }
@@ -57,6 +59,8 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return 'Ordering';
       case 'HOTSPOT':
         return 'Hotspot';
+      case 'MATCHING':
+        return 'Matching';
       default:
         return 'Unknown Type';
     }

@@ -3,14 +3,14 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 
 // Simple chevron icon for breadcrumb separators
 const ChevronRightIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+  <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
   </svg>
 );
 
 // Ellipsis icon for mobile collapse
 const EllipsisIcon = () => (
-  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+  <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
     <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
   </svg>
 );
@@ -151,7 +151,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   }
 
   return (
-    <nav className={`flex items-center space-x-1 text-sm ${className}`} aria-label="Breadcrumb">
+    <nav className={`flex items-center space-x-1 text-sm text-theme-text-primary ${className}`} aria-label="Breadcrumb">
       <ol className="flex items-center space-x-1">
                  {visibleItems.map((item, index) => {
            const isLast = index === visibleItems.length - 1;
@@ -169,19 +169,19 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
               <div className="flex items-center">
                 {isCollapsed ? (
                   // Collapsed items (ellipsis)
-                  <span className="px-2 py-1 text-gray-400">
+                  <span className="px-2 py-1 text-theme-text-tertiary">
                     <EllipsisIcon />
                   </span>
                                  ) : isCurrent ? (
                    // Current page (non-clickable, highlighted)
-                   <span className="px-2 py-1 text-gray-900 font-medium truncate max-w-xs sm:max-w-md">
+                   <span className="px-2 py-1 text-theme-text-primary font-medium truncate max-w-xs sm:max-w-md">
                      {item.label}
                    </span>
                 ) : (
                   // Clickable breadcrumb item
                   <Link
                     to={item.path}
-                    className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors duration-200 truncate max-w-xs sm:max-w-md"
+                    className="px-2 py-1 text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded transition-colors duration-200 truncate max-w-xs sm:max-w-md"
                     title={item.label}
                   >
                     {item.label}

@@ -96,6 +96,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       case 'COMPLIANCE': return '📋';
       case 'ORDERING': return '📊';
       case 'HOTSPOT': return '🎯';
+      case 'MATCHING': return '🔗';
       default: return '❓';
     }
   };
@@ -171,6 +172,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               <option value="COMPLIANCE">Compliance</option>
               <option value="ORDERING">Ordering</option>
               <option value="HOTSPOT">Hotspot</option>
+              <option value="MATCHING">Matching</option>
             </select>
           </div>
 

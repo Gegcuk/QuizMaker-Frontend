@@ -29,6 +29,12 @@ export { default as FormField } from './FormField';
 export { default as ValidationMessage } from './ValidationMessage';
 export { default as FileUpload } from './FileUpload';
 
+// Theme Components
+export { default as ThemeToggle } from './ThemeToggle';
+export { default as ThemeSelector } from './ThemeSelector';
+export { default as ColorSchemeSelector } from './ColorSchemeSelector';
+export { default as ColorSchemeDropdown } from './ColorSchemeDropdown';
+
 // Export types for external use
 export type { ButtonProps } from './Button';
 export type { InputProps } from './Input';

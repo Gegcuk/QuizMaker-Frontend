@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Theme CSS Custom Properties Fallbacks */
+:root {
+  /* Light theme defaults */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+  --color-text-inverse: #ffffff;
+  --color-border-primary: #e2e8f0;
+  --color-border-secondary: #f1f5f9;
+  --color-border-focus: #3b82f6;
+  --color-interactive-primary: #3b82f6;
+  --color-interactive-primary-hover: #2563eb;
+  --color-interactive-secondary: #64748b;
+  --color-interactive-secondary-hover: #475569;
+  --color-interactive-danger: #ef4444;
+  --color-interactive-success: #22c55e;
+  --color-interactive-warning: #f59e0b;
+  --color-accent: #3b82f6;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}

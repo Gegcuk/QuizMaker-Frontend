@@ -8,18 +8,21 @@ import { ToastProvider } from './components/ui';
 import { AuthProvider } from './features/auth';
 import { QueryProvider } from './providers/QueryProvider';
 import { FeatureFlagProvider } from './utils';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <FeatureFlagProvider>
-      <QueryProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <AppRoutes />
-          </ToastProvider>
-        </AuthProvider>
-      </QueryProvider>
-    </FeatureFlagProvider>
+    <ThemeProvider>
+      <FeatureFlagProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
+          </AuthProvider>
+        </QueryProvider>
+      </FeatureFlagProvider>
+    </ThemeProvider>
   </BrowserRouter>
 );

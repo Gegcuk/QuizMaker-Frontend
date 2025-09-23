@@ -15,17 +15,18 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 text-center bg-gradient-to-br from-indigo-50 to-white">
+    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 text-center bg-theme-bg-secondary">
       {/* Site title ---------------------------------------------------- */}
-      <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-700 mb-4">
+      <h1 className="text-4xl md:text-5xl font-extrabold text-theme-interactive-primary mb-4">
         Welcome to QuizMaker
       </h1>
 
       {/* Tagline ------------------------------------------------------- */}
-      <p className="max-w-xl text-lg md:text-xl text-gray-700 mb-8">
+      <p className="max-w-xl text-lg md:text-xl text-theme-text-secondary mb-8">
         Create, share and master knowledge with engaging quizzes. Challenge
         yourself or compete with friends — it’s fast, fun and free.
       </p>
+
 
       {/* Call-to-action section --------------------------------------- */}
       {isLoggedIn ? (

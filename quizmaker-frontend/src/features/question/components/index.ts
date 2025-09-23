@@ -28,4 +28,5 @@ export { default as OpenQuestion } from './OpenQuestion';
 export { default as FillGapQuestion } from './FillGapQuestion';
 export { default as ComplianceQuestion } from './ComplianceQuestion';
 export { default as OrderingQuestion } from './OrderingQuestion';
-export { default as HotspotQuestion } from './HotspotQuestion'; 
+export { default as HotspotQuestion } from './HotspotQuestion';
+export { default as MatchingQuestion } from './MatchingQuestion'; 

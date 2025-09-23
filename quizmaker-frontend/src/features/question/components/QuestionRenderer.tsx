@@ -13,6 +13,7 @@ import FillGapQuestion from './FillGapQuestion';
 import ComplianceQuestion from './ComplianceQuestion';
 import OrderingQuestion from './OrderingQuestion';
 import HotspotQuestion from './HotspotQuestion';
+import MatchingQuestion from './MatchingQuestion';
 
 interface QuestionRendererProps {
   question: QuestionDto;
@@ -115,6 +116,17 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       case 'HOTSPOT':
         return (
           <HotspotQuestion
+            question={question}
+            onAnswerChange={onAnswerChange}
+            currentAnswer={currentAnswer}
+            showCorrectAnswer={showCorrectAnswer}
+            disabled={disabled}
+          />
+        );
+
+      case 'MATCHING':
+        return (
+          <MatchingQuestion
             question={question}
             onAnswerChange={onAnswerChange}
             currentAnswer={currentAnswer}

@@ -24,7 +24,7 @@ const PageContainer: React.FC<PageContainerProps> = ({
   ...pageHeaderProps
 }) => {
   return (
-    <div className={`min-h-screen bg-gray-50 ${className}`}>
+    <div className={`min-h-screen bg-theme-bg-secondary ${className}`}>
       {/* Page Header */}
       {showHeader && <PageHeader {...pageHeaderProps} />}
       

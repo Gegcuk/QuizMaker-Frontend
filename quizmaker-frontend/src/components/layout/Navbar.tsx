@@ -9,6 +9,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth';
+import { ThemeToggle } from '../ui';
+import ColorSchemeDropdown from '../ui/ColorSchemeDropdown';
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu
@@ -31,10 +33,10 @@ const Navbar: React.FC = () => {
   /* -------------------------------------------------------------------- */
   const guestLinks = (
     <>
-      <Link to="/login" className="block px-4 py-2 hover:underline">
+      <Link to="/login" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         Login
       </Link>
-      <Link to="/register" className="block px-4 py-2 hover:underline">
+      <Link to="/register" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         Register
       </Link>
     </>
@@ -42,32 +44,32 @@ const Navbar: React.FC = () => {
 
   const authLinks = (
     <>
-      <Link to="/quizzes" className="block px-4 py-2 hover:underline">
+      <Link to="/quizzes" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         All Quizzes
       </Link>
-      <Link to="/my-quizzes" className="block px-4 py-2 hover:underline">
+      <Link to="/my-quizzes" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         My Quizzes
       </Link>
-      <Link to="/questions" className="block px-4 py-2 hover:underline">
+      <Link to="/questions" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         Questions
       </Link>
       {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <>
-          <Link to="/documents" className="block px-4 py-2 hover:underline">
+          <Link to="/documents" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
             Documents
           </Link>
         </>
       )}
-      <Link to="/profile" className="block px-4 py-2 hover:underline">
+      <Link to="/profile" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         Profile
       </Link>
-      <Link to="/settings" className="block px-4 py-2 hover:underline">
+      <Link to="/settings" className="block px-4 py-2 hover:underline text-theme-text-secondary hover:text-theme-text-primary">
         Settings
       </Link>
       {/* Logout is a <button> so it can call logout() */}
       <button
         onClick={handleLogout}
-        className="block px-4 py-2 text-left hover:underline"
+        className="block px-4 py-2 text-left hover:underline text-theme-text-secondary hover:text-theme-text-primary"
       >
         Logout
       </button>
@@ -75,32 +77,41 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <header className="bg-white border-b shadow-sm">
+    <header className="bg-theme-bg-primary border-b border-theme-border-primary shadow-theme">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* ----- Logo / site title ------------------------------------ */}
-          <Link to="/quizzes" className="text-xl font-semibold">
+          <Link to="/quizzes" className="text-xl font-semibold text-theme-text-primary">
             QuizMaker
           </Link>
 
           {/* ----- Desktop links (hidden on mobile via md:flex) ---------- */}
-          <div className="hidden md:flex space-x-6">
+          <div className="hidden md:flex items-center space-x-6">
             {isLoggedIn ? authLinks : guestLinks}
           </div>
 
-          {/* ----- Hamburger button (only visible on mobile) ------------- */}
-          <button
-            aria-label="Toggle navigation menu"
-            className="md:hidden text-2xl focus:outline-none"
-            onClick={() => setIsOpen((prev) => !prev)}
-          >
-            ☰
-          </button>
+          {/* ----- Right side controls ------------------------------------ */}
+          <div className="flex items-center space-x-4">
+            {/* Color Scheme Dropdown */}
+            <ColorSchemeDropdown />
+            
+            {/* Theme Toggle */}
+            <ThemeToggle size="sm" />
+            
+            {/* ----- Hamburger button (only visible on mobile) ------------- */}
+            <button
+              aria-label="Toggle navigation menu"
+              className="md:hidden text-2xl focus:outline-none text-theme-text-secondary hover:text-theme-text-primary"
+              onClick={() => setIsOpen((prev) => !prev)}
+            >
+              ☰
+            </button>
+          </div>
         </div>
 
         {/* ----- Mobile dropdown (only when isOpen && below md) ---------- */}
         {isOpen && (
-          <div className="md:hidden border-t py-2">
+          <div className="md:hidden border-t border-theme-border-primary py-2">
             {/* Tailwind's block/py-2 classes stack links vertically */}
             {isLoggedIn ? authLinks : guestLinks}
           </div>
