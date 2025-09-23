@@ -159,7 +159,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 name="timerEnabled"
                 checked={quizData.timerEnabled || false}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
                 disabled={!isEditing}
               />
               <span className="ml-2 text-sm font-medium text-theme-text-secondary">
@@ -235,7 +235,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
               name="isRepetitionEnabled"
               checked={quizData.isRepetitionEnabled || false}
               onChange={handleInputChange}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
               disabled={!isEditing}
             />
             <span className="ml-2 text-sm font-medium text-theme-text-secondary">

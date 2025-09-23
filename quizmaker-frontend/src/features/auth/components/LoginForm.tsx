@@ -107,7 +107,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
             />

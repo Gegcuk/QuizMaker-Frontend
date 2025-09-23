@@ -71,7 +71,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
       </div>
 
       {/* Summary */}
-      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-primary rounded-lg">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-theme-text-primary">{totalAnswers}</div>

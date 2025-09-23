@@ -162,7 +162,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
               <input
                 type="checkbox"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
               />
               <span className="text-sm">
                 {statement.text || `Statement ${statement.id}`}

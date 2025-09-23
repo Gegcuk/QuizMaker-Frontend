@@ -213,7 +213,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
 
                   {/* Region Properties */}
                   {selectedRegion === region.id && (
-                    <div className="mt-3 pt-3 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+                    <div className="mt-3 pt-3 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <label className="block text-xs font-medium text-theme-text-secondary mb-1">X Position (%)</label>

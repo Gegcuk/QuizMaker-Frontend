@@ -68,7 +68,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   name="preview-answer"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
                 />
                 <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
@@ -90,7 +90,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
                 />
                 <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
@@ -112,7 +112,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="true-option"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
               />
               <label htmlFor="true-option" className="text-sm text-theme-text-secondary">True</label>
             </div>
@@ -122,7 +122,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="false-option"
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
               />
               <label htmlFor="false-option" className="text-sm text-theme-text-secondary">False</label>
             </div>
@@ -186,7 +186,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`statement-${statement.id}`}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
                 />
                 <label htmlFor={`statement-${statement.id}`} className="text-sm text-theme-text-secondary">
                   {statement.text}

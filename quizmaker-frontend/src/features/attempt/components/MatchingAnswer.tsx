@@ -71,7 +71,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         <div>
           <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Left Column</h4>
           <div className="space-y-2">
-            {leftItems.map((item) => {
+            {leftItems.map((item: any) => {
               const matchedRightId = getMatchedRightId(item.id);
               const isSelected = selectedLeft === item.id;
               const isMatched = matchedRightId !== null;
@@ -113,7 +113,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         <div>
           <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Right Column</h4>
           <div className="space-y-2">
-            {rightItems.map((item) => {
+            {rightItems.map((item: any) => {
               const matchedLeftId = getMatchedLeftId(item.id);
               const isMatched = matchedLeftId !== null;
               
@@ -148,7 +148,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
       {/* Instructions */}
       {selectedLeft !== null && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3 bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
           <p className="text-sm text-theme-text-primary">
             Now click the matching item in the right column to connect them.
           </p>

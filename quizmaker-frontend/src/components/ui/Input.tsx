@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   
   const isNumberInput = props.type === 'number';
 
-  const baseClasses = 'block w-full border-theme-border-primary shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]';
+  const baseClasses = 'block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]';
   
   const variantClasses = {
     default: 'border-theme-border-primary bg-theme-bg-primary',
@@ -98,7 +98,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         
         {/* Custom number input controls */}
         {isNumberInput && (
-          <div className="absolute inset-y-0 right-0 flex flex-col border-l border-theme-border-primary">
+          <div className="absolute inset-y-0 right-0 flex flex-col border-l border-theme-border-primary rounded-md">
             <button
               type="button"
               className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"

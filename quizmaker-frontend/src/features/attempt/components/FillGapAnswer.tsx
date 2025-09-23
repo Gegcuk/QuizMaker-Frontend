@@ -178,7 +178,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
       {/* Gap List (Alternative View) */}
       {gaps.length > 0 && (
-        <div className="border-t border-theme-border-primary pt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="border-t border-theme-border-primary pt-4">
           <div className="text-sm font-medium text-theme-text-secondary mb-3">
             Gap Summary:
           </div>
