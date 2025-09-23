@@ -1,0 +1,407 @@
+// ---------------------------------------------------------------------------
+// DocumentQuizConfigurationForm.tsx - Configuration form for document-based quiz generation
+// Includes document upload and AI generation parameters
+// ---------------------------------------------------------------------------
+
+import React, { useState, useEffect } from 'react';
+import { CreateQuizRequest, Visibility, Difficulty } from '@/types';
+import { Button, Input, useToast } from '@/components';
+
+interface DocumentQuizConfigurationFormProps {
+  quizData: Partial<CreateQuizRequest>;
+  onDataChange: (data: Partial<CreateQuizRequest>) => void;
+  errors: Record<string, string | undefined>;
+  onCreateQuiz: () => void;
+  isCreating: boolean;
+}
+
+interface DocumentGenerationConfig {
+  file: File | null;
+  chunkingStrategy: 'CHAPTER_BASED' | 'FIXED_SIZE';
+  maxChunkSize?: number;
+  quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS';
+  chapterTitle?: string;
+  chapterNumber?: number;
+  chunkIndices?: number[];
+  questionsPerType: Record<string, number>;
+  difficulty: Difficulty;
+  estimatedTimePerQuestion: number;
+}
+
+export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFormProps> = ({
+  quizData,
+  onDataChange,
+  errors,
+  onCreateQuiz,
+  isCreating
+}) => {
+  const { addToast } = useToast();
+  const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>(quizData);
+  const [generationConfig, setGenerationConfig] = useState<DocumentGenerationConfig>({
+    file: null,
+    chunkingStrategy: 'CHAPTER_BASED',
+    maxChunkSize: 10000,
+    quizScope: 'ENTIRE_DOCUMENT',
+    questionsPerType: {
+      MCQ_SINGLE: 3,
+      MCQ_MULTI: 1,
+      TRUE_FALSE: 2,
+      FILL_GAP: 1,
+      COMPLIANCE: 0,
+      ORDERING: 0,
+      HOTSPOT: 0,
+      MATCHING: 0
+    },
+    difficulty: 'MEDIUM',
+    estimatedTimePerQuestion: 2
+  });
+
+  useEffect(() => {
+    setLocalData(quizData);
+  }, [quizData]);
+
+  const handleInputChange = (field: keyof CreateQuizRequest, value: any) => {
+    const newData = { ...localData, [field]: value };
+    setLocalData(newData);
+    onDataChange(newData);
+  };
+
+  const handleGenerationConfigChange = (field: keyof DocumentGenerationConfig, value: any) => {
+    setGenerationConfig(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleQuestionTypeChange = (type: string, count: number) => {
+    setGenerationConfig(prev => ({
+      ...prev,
+      questionsPerType: { ...prev.questionsPerType, [type]: count }
+    }));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        addToast({ message: 'Please upload a PDF, Word document, or text file' });
+        return;
+      }
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        addToast({ message: 'File size must be less than 10MB' });
+        return;
+      }
+
+      setGenerationConfig(prev => ({ ...prev, file }));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!localData.title?.trim()) {
+      addToast({ message: 'Please enter a quiz title' });
+      return;
+    }
+    
+    if (!generationConfig.file) {
+      addToast({ message: 'Please upload a document' });
+      return;
+    }
+
+    // Prepare the generation request as FormData
+    const formData = new FormData();
+    formData.append('file', generationConfig.file!);
+    formData.append('chunkingStrategy', generationConfig.chunkingStrategy || 'CHAPTER_BASED');
+    if (generationConfig.maxChunkSize) {
+      formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
+    }
+    formData.append('quizScope', generationConfig.quizScope);
+    if (generationConfig.chapterTitle) {
+      formData.append('chapterTitle', generationConfig.chapterTitle);
+    }
+    if (generationConfig.chapterNumber) {
+      formData.append('chapterNumber', generationConfig.chapterNumber.toString());
+    }
+    if (generationConfig.chunkIndices) {
+      formData.append('chunkIndices', JSON.stringify(generationConfig.chunkIndices));
+    }
+    formData.append('quizTitle', localData.title!);
+    if (localData.description) {
+      formData.append('quizDescription', localData.description);
+    }
+    formData.append('questionsPerType', JSON.stringify(generationConfig.questionsPerType));
+    formData.append('difficulty', generationConfig.difficulty);
+    formData.append('estimatedTimePerQuestion', generationConfig.estimatedTimePerQuestion.toString());
+    if (localData.categoryId) {
+      formData.append('categoryId', localData.categoryId);
+    }
+    if (localData.tagIds && localData.tagIds.length > 0) {
+      formData.append('tagIds', JSON.stringify(localData.tagIds));
+    }
+
+    const generationRequest = formData;
+
+    // Store generation config in quizData for later use
+    const dataWithConfig = {
+      ...localData,
+      generationConfig,
+      generationRequest
+    };
+    onDataChange(dataWithConfig);
+    
+    onCreateQuiz();
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          Configure Your Document-Based Quiz
+        </h3>
+        <p className="text-gray-600">
+          Upload a document and configure how the AI should generate questions from it.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Quiz Settings */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Quiz Settings</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Quiz Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quiz Title *
+              </label>
+              <Input
+                type="text"
+                value={localData.title || ''}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Enter quiz title..."
+                className="w-full"
+                error={errors.title}
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <Input
+                type="text"
+                value={localData.description || ''}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Brief description..."
+                className="w-full"
+              />
+            </div>
+
+
+            {/* Difficulty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Overall Difficulty
+              </label>
+              <select
+                value={localData.difficulty || 'MEDIUM'}
+                onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="EASY">Easy</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HARD">Hard</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Document Upload */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h4 className="text-lg font-medium text-gray-900 mb-4">Document Upload</h4>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Document *
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                accept=".pdf,.doc,.docx,.txt"
+                className="hidden"
+                id="document-upload"
+              />
+              <label htmlFor="document-upload" className="cursor-pointer">
+                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-indigo-600 hover:text-indigo-500">
+                      Click to upload
+                    </span> or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">PDF, DOC, DOCX, TXT up to 10MB</p>
+                </div>
+              </label>
+            </div>
+            
+            {generationConfig.file && (
+              <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm text-green-800">
+                    {generationConfig.file.name} ({(generationConfig.file.size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chunking Strategy */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Chunking Strategy
+            </label>
+            <select
+              value={generationConfig.chunkingStrategy}
+              onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="CHAPTER_BASED">Chapter Based</option>
+              <option value="FIXED_SIZE">Fixed Size</option>
+            </select>
+          </div>
+
+          {/* Max Chunk Size */}
+          {generationConfig.chunkingStrategy === 'FIXED_SIZE' && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Max Chunk Size (characters)
+              </label>
+              <Input
+                type="number"
+                value={generationConfig.maxChunkSize || ''}
+                onChange={(e) => handleGenerationConfigChange('maxChunkSize', parseInt(e.target.value) || undefined)}
+                placeholder="10000"
+                min="1000"
+                max="100000"
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Quiz Scope */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Quiz Scope
+            </label>
+            <select
+              value={generationConfig.quizScope}
+              onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="ENTIRE_DOCUMENT">Entire Document</option>
+              <option value="SPECIFIC_CHAPTER">Specific Chapter</option>
+              <option value="SPECIFIC_CHUNKS">Specific Chunks</option>
+            </select>
+          </div>
+
+          {/* Chapter-specific settings */}
+          {generationConfig.quizScope === 'SPECIFIC_CHAPTER' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chapter Title
+                </label>
+                <Input
+                  type="text"
+                  value={generationConfig.chapterTitle || ''}
+                  onChange={(e) => handleGenerationConfigChange('chapterTitle', e.target.value)}
+                  placeholder="Enter chapter title..."
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chapter Number
+                </label>
+                <Input
+                  type="number"
+                  value={generationConfig.chapterNumber || ''}
+                  onChange={(e) => handleGenerationConfigChange('chapterNumber', parseInt(e.target.value) || undefined)}
+                  placeholder="Chapter number..."
+                  min="1"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Generation Settings */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h4 className="text-lg font-medium text-gray-900 mb-4">Question Generation Settings</h4>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (
+              <div key={type}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {type.replace('_', ' ')}
+                </label>
+                <Input
+                  type="number"
+                  value={count}
+                  onChange={(e) => handleQuestionTypeChange(type, parseInt(e.target.value) || 0)}
+                  min="0"
+                  max="10"
+                  className="w-full"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estimated Time per Question (minutes)
+              </label>
+              <Input
+                type="number"
+                value={generationConfig.estimatedTimePerQuestion}
+                onChange={(e) => handleGenerationConfigChange('estimatedTimePerQuestion', parseInt(e.target.value) || 2)}
+                min="1"
+                max="10"
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isCreating || !localData.title?.trim() || !generationConfig.file}
+            className="px-8"
+          >
+            {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};

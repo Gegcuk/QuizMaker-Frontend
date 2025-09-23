@@ -10,11 +10,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateQuizRequest, QuizDto, QuestionDifficulty } from '@/types';
 import { createQuiz } from '@/services';
+import { QuizService } from '../services/quiz.service';
+import { api } from '@/services';
 import { Button, useToast } from '@/components';
 import { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
-import { QuizConfigurationForm } from './QuizConfigurationForm';
+import { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
+import { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
+import { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
 import { QuizQuestionManager } from './QuizQuestionManager';
 import { QuizAIGenerationStep } from './QuizAIGenerationStep';
+import { QuizGenerationStatus } from './QuizGenerationStatus';
 import type { AxiosError } from 'axios';
 
 export type CreationMethod = 'manual' | 'text' | 'document';
@@ -30,6 +35,7 @@ interface FormErrors {
 const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const quizService = new QuizService(api);
   
   // Wizard state
   const [currentStep, setCurrentStep] = useState(1);
@@ -122,23 +128,82 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
     setIsCreatingQuiz(true);
     try {
-      const result = await createQuiz(quizData as CreateQuizRequest);
-      setCreatedQuiz({ 
-        id: result.quizId,
-        ...quizData,
-        status: 'DRAFT',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        creatorId: '', // Will be set by backend
-        tagIds: quizData.tagIds || []
-      } as QuizDto);
-      
-      addToast({ 
-        type: 'success', 
-        message: 'Quiz created successfully! Now you can add questions.' 
-      });
-      
-      setCurrentStep(3);
+      if (creationMethod === 'manual') {
+        // Manual creation - create quiz directly
+        const result = await createQuiz(quizData as CreateQuizRequest);
+        setCreatedQuiz({ 
+          id: result.quizId,
+          ...quizData,
+          status: 'DRAFT',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          creatorId: '', // Will be set by backend
+          tagIds: quizData.tagIds || []
+        } as QuizDto);
+        
+        addToast({ 
+          type: 'success', 
+          message: 'Quiz created successfully! Now you can add questions.' 
+        });
+        
+        setCurrentStep(3);
+      } else if (creationMethod === 'text') {
+        // AI generation from text - start generation job
+        const generationRequest = (quizData as any).generationRequest;
+        if (!generationRequest) {
+          addToast({ message: 'Generation request data is missing. Please try again.' });
+          return;
+        }
+        const response = await quizService.generateQuizFromText(generationRequest);
+        
+        setCreatedQuiz({ 
+          id: response.jobId!,
+          title: quizData.title || 'Generating Quiz...',
+          description: 'AI is generating your quiz...',
+          difficulty: quizData.difficulty || 'MEDIUM',
+          visibility: quizData.visibility || 'PRIVATE',
+          status: 'DRAFT',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          creatorId: '',
+          tagIds: quizData.tagIds || []
+        } as QuizDto);
+        
+        addToast({ 
+          type: 'info', 
+          message: response.message || 'Quiz generation started! Please wait while AI creates your quiz.' 
+        });
+        
+        setCurrentStep(3);
+      } else if (creationMethod === 'document') {
+        // AI generation from document - start generation job
+        const generationRequest = (quizData as any).generationRequest;
+        if (!generationRequest) {
+          addToast({ message: 'Generation request data is missing. Please try again.' });
+          return;
+        }
+        const response = await quizService.generateQuizFromUpload(generationRequest);
+        
+        setCreatedQuiz({ 
+          id: response.jobId!,
+          title: quizData.title || 'Generating Quiz...',
+          description: 'AI is generating your quiz...',
+          difficulty: quizData.difficulty || 'MEDIUM',
+          visibility: quizData.visibility || 'PRIVATE',
+          status: 'DRAFT',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          creatorId: '',
+          tagIds: quizData.tagIds || []
+        } as QuizDto);
+        
+        addToast({ 
+          type: 'info', 
+          message: response.message || 'Quiz generation started! Please wait while AI creates your quiz.' 
+        });
+        
+        setCurrentStep(3);
+      }
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       const errorMessage = axiosError.response?.data?.message || 'Failed to create quiz';
@@ -192,17 +257,41 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           />
         );
       
-      case 2:
-        return (
-          <QuizConfigurationForm
-            quizData={quizData}
-            onDataChange={handleQuizConfigChange}
-            errors={errors}
-            creationMethod={creationMethod}
-            onCreateQuiz={handleCreateQuiz}
-            isCreating={isCreatingQuiz}
-          />
-        );
+            case 2:
+              switch (creationMethod) {
+                case 'manual':
+                  return (
+                    <ManualQuizConfigurationForm
+                      quizData={quizData}
+                      onDataChange={handleQuizConfigChange}
+                      errors={errors}
+                      onCreateQuiz={handleCreateQuiz}
+                      isCreating={isCreatingQuiz}
+                    />
+                  );
+                case 'text':
+                  return (
+                    <TextQuizConfigurationForm
+                      quizData={quizData}
+                      onDataChange={handleQuizConfigChange}
+                      errors={errors}
+                      onCreateQuiz={handleCreateQuiz}
+                      isCreating={isCreatingQuiz}
+                    />
+                  );
+                case 'document':
+                  return (
+                    <DocumentQuizConfigurationForm
+                      quizData={quizData}
+                      onDataChange={handleQuizConfigChange}
+                      errors={errors}
+                      onCreateQuiz={handleCreateQuiz}
+                      isCreating={isCreatingQuiz}
+                    />
+                  );
+                default:
+                  return null;
+              }
       
       case 3:
         if (!createdQuiz) return null;
@@ -214,6 +303,28 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
               quizTitle={createdQuiz.title}
               defaultDifficulty={quizData.difficulty as QuestionDifficulty || 'MEDIUM'}
               onComplete={() => setCurrentStep(4)}
+            />
+          );
+        } else if (creationMethod === 'text' || creationMethod === 'document') {
+          // Show generation status for AI methods
+          return (
+            <QuizGenerationStatus
+              jobId={createdQuiz.id}
+              initialStatus="PENDING"
+              estimatedTimeSeconds={60}
+              onComplete={(quizId: string) => {
+                // Update the created quiz with the real quiz ID
+                setCreatedQuiz(prev => prev ? { ...prev, id: quizId } : null);
+                setCurrentStep(4);
+              }}
+              onError={(error: string) => {
+                addToast({ type: 'error', message: error });
+              }}
+              onCancel={() => {
+                setCurrentStep(1);
+                setCreationMethod(null);
+                setCreatedQuiz(null);
+              }}
             />
           );
         } else {

@@ -100,12 +100,12 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {methodOptions.map((option) => (
-          <Card
+          <div
             key={option.id}
-            className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg ${
+            className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-white border rounded-lg shadow-sm ${
               selectedMethod === option.id
-                ? 'ring-2 ring-blue-500 border-blue-200'
-                : 'hover:border-gray-300'
+                ? 'ring-2 ring-blue-500 border-blue-200 shadow-lg bg-blue-50'
+                : 'hover:border-blue-300 hover:shadow-lg hover:bg-gray-50'
             }`}
             onClick={() => onMethodSelect(option.id)}
           >
@@ -126,9 +126,6 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 <span className="text-3xl mr-3">{option.icon}</span>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">{option.title}</h4>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(option.difficulty)}`}>
-                    {option.difficulty}
-                  </span>
                 </div>
               </div>
 
@@ -160,21 +157,8 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 Estimated time: {option.estimatedTime}
               </div>
 
-              {/* Action button */}
-              <Button
-                type="button"
-                variant={selectedMethod === option.id ? 'primary' : 'secondary'}
-                size="sm"
-                className="w-full"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMethodSelect(option.id);
-                }}
-              >
-                {selectedMethod === option.id ? 'Selected' : 'Choose This Method'}
-              </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 

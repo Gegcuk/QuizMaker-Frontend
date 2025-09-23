@@ -16,8 +16,11 @@ export { default as QuizPublishModal } from './QuizPublishModal';
 // New Wizard-based Creation Components
 export { default as QuizCreationWizard } from './QuizCreationWizard';
 export { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
-export { QuizConfigurationForm } from './QuizConfigurationForm';
+export { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
+export { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
+export { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
 export { QuizAIGenerationStep } from './QuizAIGenerationStep';
+export { QuizGenerationStatus } from './QuizGenerationStatus';
 
 // Legacy Creation Components (kept for compatibility)
 export { QuizCreationTabs } from './QuizCreationTabs';
