@@ -123,7 +123,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
   if (!document) {
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
-        <div className="text-center text-gray-500">
+        <div className="text-center text-theme-text-tertiary">
           <p>Document not found or failed to load</p>
         </div>
       </div>
@@ -131,7 +131,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
   }
 
   return (
-    <div className={`bg-white border rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

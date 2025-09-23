@@ -168,14 +168,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
           <div className="text-sm font-medium text-theme-text-primary truncate max-w-32">
             {user.username}
           </div>
-          <div className="text-xs text-gray-500 truncate max-w-32">
+          <div className="text-xs text-theme-text-tertiary truncate max-w-32">
             {user.email}
           </div>
         </div>
 
         {/* Dropdown Arrow */}
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-theme-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -186,7 +186,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1" role="menu" aria-orientation="vertical">
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
@@ -195,13 +195,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
                   {getUserInitials(user.username)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-theme-text-primary truncate">
                     {user.username}
                   </p>
-                  <p className="text-sm text-gray-500 truncate">
+                  <p className="text-sm text-theme-text-tertiary truncate">
                     {user.email}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-theme-text-tertiary mt-1">
                     {getPrimaryRole()}
                   </p>
                 </div>
@@ -212,7 +212,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
             <div className="py-1">
               <button
                 onClick={handleProfileClick}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
                 role="menuitem"
               >
                 <div className="flex items-center space-x-2">
@@ -225,7 +225,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
               <button
                 onClick={handleSettingsClick}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
                 role="menuitem"
               >
                 <div className="flex items-center space-x-2">
@@ -243,7 +243,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
               <div className="py-1 border-t border-gray-100">
                 <button
                   onClick={handleMyQuizzesClick}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
                   role="menuitem"
                 >
                   <div className="flex items-center space-x-2">
@@ -256,7 +256,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
                 <button
                   onClick={handleCreateQuizClick}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
                   role="menuitem"
                 >
                   <div className="flex items-center space-x-2">
@@ -274,7 +274,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
               <div className="py-1 border-t border-gray-100">
                 <button
                   onClick={handleAdminClick}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
                   role="menuitem"
                 >
                   <div className="flex items-center space-x-2">

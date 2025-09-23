@@ -235,10 +235,10 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
   return (
     <div className={`bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-gray-900">
+        <h3 className="text-sm font-medium text-theme-text-primary">
           Bulk User Operations
         </h3>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-theme-text-tertiary">
           {userIds.length} user{userIds.length !== 1 ? 's' : ''} selected
         </span>
       </div>
@@ -297,7 +297,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
       </div>
 
       {userIds.length === 0 && (
-        <p className="mt-2 text-xs text-gray-500 text-center">
+        <p className="mt-2 text-xs text-theme-text-tertiary text-center">
           Select users to perform bulk operations
         </p>
       )}
@@ -355,35 +355,35 @@ const UserActivationManager: React.FC<{
       <div className="space-y-3">
         {users.length === 0 ? (
           <div className="text-center py-8">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
-            <p className="mt-1 text-sm text-gray-500">There are no users to manage.</p>
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No users found</h3>
+            <p className="mt-1 text-sm text-theme-text-tertiary">There are no users to manage.</p>
           </div>
         ) : (
           <>
             {/* Select All */}
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-md">
+            <div className="flex items-center space-x-3 p-3 bg-theme-bg-secondary rounded-md">
               <input
                 type="checkbox"
                 checked={selectedUserIds.length === users.length && users.length > 0}
                 onChange={handleSelectAll}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
               />
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-theme-text-primary">
                 Select All ({users.length} users)
               </span>
             </div>
 
             {/* Individual Users */}
             {users.map((user) => (
-              <div key={user.id} className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md">
+              <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
                 <input
                   type="checkbox"
                   checked={selectedUserIds.includes(user.id)}
                   onChange={(e) => handleUserSelection(user.id, e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                 />
                 <div className="flex-1">
                   <UserActivation

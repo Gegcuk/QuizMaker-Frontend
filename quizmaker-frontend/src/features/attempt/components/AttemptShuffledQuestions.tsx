@@ -80,9 +80,9 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
       case 'answered':
         return `${baseClass} bg-green-500 text-white hover:bg-green-600 focus:ring-green-500`;
       case 'current':
-        return `${baseClass} bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-500`;
+        return `${baseClass} bg-theme-interactive-primary text-theme-bg-primary hover:bg-theme-interactive-primary focus:ring-theme-interactive-primary`;
       case 'unanswered':
-        return `${baseClass} bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500`;
+        return `${baseClass} bg-theme-bg-tertiary text-theme-text-secondary hover:bg-theme-bg-secondary focus:ring-theme-border-primary`;
     }
   };
 
@@ -98,7 +98,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
       case 'MEDIUM':
         return 'text-yellow-600 bg-yellow-100';
       case 'HARD':
-        return 'text-red-600 bg-red-100';
+        return 'text-theme-interactive-danger bg-theme-bg-tertiary';
       default:
         return 'text-gray-600 bg-gray-100';
     }

@@ -138,8 +138,8 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
       case 'PROCESSING': return 'text-blue-600 bg-blue-50';
       case 'PENDING': return 'text-yellow-600 bg-yellow-50';
       case 'FAILED': return 'text-red-600 bg-red-50';
-      case 'CANCELLED': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-secondary';
+      default: return 'text-theme-text-secondary bg-theme-bg-secondary';
     }
   };
 

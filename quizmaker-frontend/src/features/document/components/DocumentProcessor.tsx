@@ -181,28 +181,28 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading document information...</p>
+          <p className="text-theme-text-secondary">Loading document information...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Document Processing</h2>
-        <p className="text-gray-600">Processing your document for quiz generation</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Document Processing</h2>
+        <p className="text-theme-text-secondary">Processing your document for quiz generation</p>
       </div>
 
       {/* Document Info */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <span className="text-2xl">📄</span>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{document.originalFilename}</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-theme-text-primary">{document.originalFilename}</h3>
+              <p className="text-sm text-theme-text-secondary">
                 {formatFileSize(document.fileSize ?? 0)} • {document.contentType}
               </p>
             </div>
@@ -214,25 +214,25 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="font-medium text-gray-700">Uploaded:</span>
-            <div className="text-gray-900">{formatDate(document.uploadedAt)}</div>
+            <span className="font-medium text-theme-text-secondary">Uploaded:</span>
+            <div className="text-theme-text-primary">{formatDate(document.uploadedAt)}</div>
           </div>
           {document.processedAt && (
             <div>
-              <span className="font-medium text-gray-700">Processed:</span>
-              <div className="text-gray-900">{formatDate(document.processedAt)}</div>
+              <span className="font-medium text-theme-text-secondary">Processed:</span>
+              <div className="text-theme-text-primary">{formatDate(document.processedAt)}</div>
             </div>
           )}
           {document.totalPages && (
             <div>
-              <span className="font-medium text-gray-700">Pages:</span>
-              <div className="text-gray-900">{document.totalPages}</div>
+              <span className="font-medium text-theme-text-secondary">Pages:</span>
+              <div className="text-theme-text-primary">{document.totalPages}</div>
             </div>
           )}
           {document.totalChunks && (
             <div>
-              <span className="font-medium text-gray-700">Chunks:</span>
-              <div className="text-gray-900">{document.totalChunks}</div>
+              <span className="font-medium text-theme-text-secondary">Chunks:</span>
+              <div className="text-theme-text-primary">{document.totalChunks}</div>
             </div>
           )}
         </div>
@@ -241,8 +241,8 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       {/* Processing Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Processing Progress</span>
-          <span className="text-sm text-gray-600">{progress}%</span>
+          <span className="text-sm font-medium text-theme-text-secondary">Processing Progress</span>
+          <span className="text-sm text-theme-text-secondary">{progress}%</span>
         </div>
         
         <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
@@ -254,7 +254,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           />
         </div>
         
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           {processingStage}
           {isPolling && (
             <span className="ml-2 inline-block animate-pulse">🔄</span>
@@ -264,29 +264,29 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
       {/* Processing Stages */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Processing Stages</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Processing Stages</h3>
         <div className="space-y-3">
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
-            document.status !== 'FAILED' ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'
+            document.status !== 'FAILED' ? 'bg-green-50 border border-green-200' : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className="text-green-600">✅</span>
             <div>
-              <div className="font-medium text-gray-900">Document Upload</div>
-              <div className="text-sm text-gray-600">File uploaded and validated</div>
+              <div className="font-medium text-theme-text-primary">Document Upload</div>
+              <div className="text-sm text-theme-text-secondary">File uploaded and validated</div>
             </div>
           </div>
           
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
             ['PROCESSING', 'PROCESSED'].includes(document.status) 
               ? 'bg-blue-50 border border-blue-200' 
-              : 'bg-gray-50 border border-gray-200'
+              : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-blue-600' : 'text-gray-400'}>
               {document.status === 'PROCESSING' ? '⚙️' : '✅'}
             </span>
             <div>
-              <div className="font-medium text-gray-900">Content Processing</div>
-              <div className="text-sm text-gray-600">
+              <div className="font-medium text-theme-text-primary">Content Processing</div>
+              <div className="text-sm text-theme-text-secondary">
                 {document.status === 'PROCESSING' ? 'Extracting and analyzing content...' : 'Content processed successfully'}
               </div>
             </div>
@@ -295,14 +295,14 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
             document.status === 'PROCESSED' 
               ? 'bg-green-50 border border-green-200' 
-              : 'bg-gray-50 border border-gray-200'
+              : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className={document.status === 'PROCESSED' ? 'text-green-600' : 'text-gray-400'}>
               {document.status === 'PROCESSED' ? '✅' : '⏳'}
             </span>
             <div>
-              <div className="font-medium text-gray-900">Chunk Generation</div>
-              <div className="text-sm text-gray-600">
+              <div className="font-medium text-theme-text-primary">Chunk Generation</div>
+              <div className="text-sm text-theme-text-secondary">
                 {document.status === 'PROCESSED' 
                   ? `Generated ${document.totalChunks} chunks` 
                   : 'Preparing content chunks...'

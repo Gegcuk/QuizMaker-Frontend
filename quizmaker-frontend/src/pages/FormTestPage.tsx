@@ -4,11 +4,11 @@ import { LoginForm } from '@/features/auth';
 
 const FormTestPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-theme-bg-secondary py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Form Components Test</h1>
-          <p className="mt-2 text-gray-600">Testing the improved form components</p>
+          <h1 className="text-3xl font-bold text-theme-text-primary">Form Components Test</h1>
+          <p className="mt-2 text-theme-text-secondary">Testing the improved form components</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

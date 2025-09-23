@@ -59,8 +59,8 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
   if (statements.length === 0) {
     return (
-      <div className={`p-4 bg-gray-50 border border-gray-200 rounded-md ${className}`}>
-        <div className="text-gray-500 text-center">No statements available</div>
+      <div className={`p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-md ${className}`}>
+        <div className="text-theme-text-tertiary text-center">No statements available</div>
       </div>
     );
   }

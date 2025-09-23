@@ -99,8 +99,8 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                 }}
               />
               <div className="hidden absolute inset-0 bg-gray-100 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center text-theme-text-tertiary">
+                  <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <p className="mt-2 text-sm">Image not available</p>
@@ -140,7 +140,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                         ? 'bg-red-500 text-white'
                         : isClicked
                         ? 'bg-indigo-500 text-white'
-                        : 'bg-gray-500 text-white'
+                        : 'bg-theme-bg-secondary0 text-white'
                     }`}>
                       {region.id}
                     </div>
@@ -150,8 +150,8 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
             </div>
           </div>
         ) : (
-          <div className="border border-gray-300 rounded-lg p-8 text-center text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="border border-gray-300 rounded-lg p-8 text-center text-theme-text-tertiary">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <p className="mt-2 text-sm">No image provided</p>
@@ -161,10 +161,10 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
 
       {/* Click Summary */}
       {regions && regions.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Clicks Summary</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-medium text-theme-text-secondary">Clicks Summary</span>
+            <span className="text-sm text-theme-text-secondary">
               {clickedRegions.length} region{clickedRegions.length !== 1 ? 's' : ''} clicked
             </span>
           </div>

@@ -116,7 +116,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
                     ? 'bg-green-500 text-white'
                     : status === 'incorrect'
                     ? 'bg-red-500 text-white'
-                    : 'bg-gray-100 text-gray-700'
+                    : 'bg-gray-100 text-theme-text-secondary'
                 }`}>
                   {index + 1}
                 </span>
@@ -124,7 +124,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
 
               {/* Drag Handle */}
               <div className="flex-shrink-0">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
                 </svg>
               </div>
@@ -135,7 +135,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
                   className={`text-sm ${
                     status === 'correct' ? 'text-green-800' :
                     status === 'incorrect' ? 'text-red-800' :
-                    'text-gray-900'
+                    'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: item.text }}
                 />
@@ -163,10 +163,10 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
 
       {/* Progress Summary */}
       {items.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Order Progress</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-medium text-theme-text-secondary">Order Progress</span>
+            <span className="text-sm text-theme-text-secondary">
               {getCorrectOrderCount()} of {items.length} items in correct position
             </span>
           </div>

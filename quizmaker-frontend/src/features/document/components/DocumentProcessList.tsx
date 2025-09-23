@@ -220,12 +220,12 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
         <CardContent className="pt-6">
           <div className="text-center py-8">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No documents yet</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No documents yet</h3>
+            <p className="mt-1 text-sm text-theme-text-tertiary">
               Upload your first document using the "Upload & Process" tab to get started with document processing.
             </p>
             <div className="mt-4">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-theme-text-tertiary">
                 Documents you upload will appear here for management and structure building.
               </p>
             </div>
@@ -242,13 +242,13 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <DocumentTextIcon className="h-6 w-6 text-gray-500" />
+                <DocumentTextIcon className="h-6 w-6 text-theme-text-tertiary" />
                 <div>
                                      <CardTitle className="text-lg">{document.name || `Document ${document.id.slice(0, 8)}`}</CardTitle>
                   <div className="flex items-center space-x-2 mt-1">
                     {getStatusIcon(document.status)}
                     {getStatusBadge(document.status)}
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-theme-text-tertiary">
                       {formatFileSize(document.charCount)}
                     </span>
                   </div>
@@ -317,7 +317,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                 {/* Document Structure */}
                 {document.status === 'STRUCTURED' && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-3">Document Structure</h4>
+                    <h4 className="text-sm font-medium text-theme-text-primary mb-3">Document Structure</h4>
                     {documentStructures[document.id] ? (
                       <div className="space-y-2">
                         {documentStructures[document.id].map((node) => (
@@ -329,10 +329,10 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                                   <Badge variant="outline" className="text-xs">
                                     {node.type}
                                   </Badge>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-theme-text-tertiary">
                                     Confidence: {(node.aiConfidence * 100).toFixed(1)}%
                                   </span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-theme-text-tertiary">
                                     {node.endOffset - node.startOffset} chars
                                   </span>
                                 </div>
@@ -355,12 +355,12 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                             
                             {/* Extracted Content */}
                             {extractedContent[`${document.id}-${node.id}`] && (
-                              <div className="mt-3 p-3 bg-gray-50 rounded border">
+                              <div className="mt-3 p-3 bg-theme-bg-secondary rounded border border-theme-border-primary">
                                 <h6 className="text-sm font-medium mb-2">Content Preview</h6>
-                                <p className="text-sm text-gray-700 line-clamp-3">
+                                <p className="text-sm text-theme-text-secondary line-clamp-3">
                                   {extractedContent[`${document.id}-${node.id}`]?.content}
                                 </p>
-                                <div className="mt-2 text-xs text-gray-500">
+                                <div className="mt-2 text-xs text-theme-text-tertiary">
                                   Length: {extractedContent[`${document.id}-${node.id}`]?.contentLength} characters
                                 </div>
                               </div>

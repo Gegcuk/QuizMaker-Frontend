@@ -160,7 +160,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-theme-text-tertiary">
               Performance metrics and insights
             </p>
           </div>
@@ -264,7 +264,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                         style={{ width: `${(count / analytics.timesAsked) * 100}%` }}
                       />
                     </div>
-                    <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
+                    <span className="text-sm text-theme-text-tertiary w-12 text-right">{count}</span>
                   </div>
                 </div>
               ))}
@@ -291,7 +291,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                           style={{ width: `${(count / analytics.timesAsked) * 100}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
+                      <span className="text-sm text-theme-text-tertiary w-12 text-right">{count}</span>
                     </div>
                   </div>
                 ))}
@@ -310,7 +310,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                     className="bg-blue-600 rounded-t w-8"
                     style={{ height: `${(data.correctRate / 100) * 80}px` }}
                   />
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-theme-text-tertiary">
                     {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                   <span className="text-xs font-medium text-gray-700">

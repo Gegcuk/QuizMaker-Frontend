@@ -130,13 +130,13 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white border border-gray-200 rounded-lg p-8">
+      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-8">
         <div className="text-center mb-6">
           <div className="text-4xl mb-4">{getStatusIcon(status.status)}</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
             Generating Your Quiz
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-theme-text-secondary mb-4">
             Generating quiz content...
           </p>
           
@@ -148,7 +148,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
         {/* Progress Bar */}
         {status.status === 'PROCESSING' && (
           <div className="mb-6">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
               <span>Progress</span>
               <span>{status.progressPercentage || 0}%</span>
             </div>
@@ -163,14 +163,14 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
         {/* Time Information */}
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="font-medium text-gray-900">Elapsed Time</div>
-            <div className="text-gray-600">{formatTime(status.elapsedTimeSeconds || 0)}</div>
+          <div className="text-center p-3 bg-theme-bg-secondary rounded-lg">
+            <div className="font-medium text-theme-text-primary">Elapsed Time</div>
+            <div className="text-theme-text-secondary">{formatTime(status.elapsedTimeSeconds || 0)}</div>
           </div>
           {status.estimatedTimeRemainingSeconds && (
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="font-medium text-gray-900">Estimated Remaining</div>
-              <div className="text-gray-600">{formatTime(status.estimatedTimeRemainingSeconds)}</div>
+            <div className="text-center p-3 bg-theme-bg-secondary rounded-lg">
+              <div className="font-medium text-theme-text-primary">Estimated Remaining</div>
+              <div className="text-theme-text-secondary">{formatTime(status.estimatedTimeRemainingSeconds)}</div>
             </div>
           )}
         </div>
@@ -207,7 +207,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
         {/* Job ID for debugging */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-theme-text-tertiary">
             Job ID: {jobId}
           </p>
         </div>

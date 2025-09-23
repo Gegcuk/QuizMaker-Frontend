@@ -124,7 +124,7 @@ const QuizDetailPage: React.FC = () => {
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -139,7 +139,7 @@ const QuizDetailPage: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Quiz Statistics */}
-            <QuizStats stats={stats} />
+            {stats && <QuizStats stats={stats} />}
             
             {/* Social Sharing */}
             <QuizShare quiz={quiz} />
@@ -169,11 +169,11 @@ const QuizDetailPage: React.FC = () => {
           />
         )}
 
-        {activeTab === 'analytics' && (
+        {activeTab === 'analytics' && stats && (
           <QuizAnalytics stats={stats} />
         )}
 
-        {activeTab === 'leaderboard' && (
+        {activeTab === 'leaderboard' && leaderboardEntries && (
           <QuizLeaderboard entries={leaderboardEntries} />
         )}
 

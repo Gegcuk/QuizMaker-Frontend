@@ -283,7 +283,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
   if (isLoading) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-theme-bg-primary shadow rounded-lg p-6">
           <div className="h-6 bg-gray-300 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -319,7 +319,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
+    <div className={`bg-theme-bg-primary shadow rounded-lg ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900">

@@ -161,7 +161,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
       case 'EASY': return 'text-green-600 bg-green-100';
       case 'MEDIUM': return 'text-yellow-600 bg-yellow-100';
       case 'HARD': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -180,7 +180,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
       );
     }
     return (
-      <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+      <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
         <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
       </svg>
     );

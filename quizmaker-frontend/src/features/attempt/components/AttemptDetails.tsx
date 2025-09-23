@@ -152,12 +152,12 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       </div>
 
       {/* Performance Summary */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance Summary</h3>
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{totalAnswers}</div>
-            <div className="text-sm text-gray-600">Questions Answered</div>
+            <div className="text-2xl font-bold text-theme-text-primary">{totalAnswers}</div>
+            <div className="text-sm text-theme-text-secondary">Questions Answered</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
@@ -176,21 +176,21 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
 
       {/* Answer Timeline */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Answer Timeline</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Answer Timeline</h3>
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {details.answers.map((answer, index) => (
-            <div key={answer.answerId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={answer.answerId} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-gray-600">Q{index + 1}</span>
+                <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
                 <span className={answer.isCorrect ? 'text-green-600' : 'text-red-600'}>
                   {answer.isCorrect ? '✅' : '❌'}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-theme-text-secondary">
                   {new Date(answer.answeredAt).toLocaleTimeString()}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Score: {answer.score}</span>
+                <span className="text-sm text-theme-text-secondary">Score: {answer.score}</span>
                 <span className="text-xs text-gray-500">
                   {new Date(answer.answeredAt).toLocaleDateString()}
                 </span>
@@ -203,7 +203,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       {/* Performance by Time of Day */}
       {Object.keys(timeGroups).length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance by Time of Day</h3>
+          <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance by Time of Day</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {Object.entries(timeGroups).map(([timeSlot, data]) => {
               const accuracy = data.count > 0 ? (data.correct / data.count) * 100 : 0;
@@ -212,7 +212,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
               return (
                 <div key={timeSlot} className="p-4 border border-gray-200 rounded-lg">
                   <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900 mb-2">{timeSlot}</div>
+                    <div className="text-lg font-semibold text-theme-text-primary mb-2">{timeSlot}</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <div className="font-medium text-gray-700">{data.count}</div>

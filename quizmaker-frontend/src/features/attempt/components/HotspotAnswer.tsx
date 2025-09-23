@@ -242,7 +242,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         {imageUrl ? (
           <>Click and drag on the image to select the correct region:</>
         ) : (
@@ -280,7 +280,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
       {/* Controls */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           {selectedRegion ? 'Region selected' : 'No region selected'}
         </div>
         {selectedRegion && (

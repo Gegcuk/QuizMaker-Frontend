@@ -93,7 +93,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
         <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Choose Your Quiz Creation Method
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Select how you'd like to create your quiz. You can always modify questions later.
         </p>
       </div>
@@ -102,10 +102,10 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
         {methodOptions.map((option) => (
           <div
             key={option.id}
-            className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-white border rounded-lg shadow-sm ${
+            className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-sm ${
               selectedMethod === option.id
                 ? 'ring-2 ring-blue-500 border-blue-200 shadow-lg bg-blue-50'
-                : 'hover:border-blue-300 hover:shadow-lg hover:bg-gray-50'
+                : 'hover:border-theme-border-secondary hover:shadow-lg hover:bg-theme-bg-secondary'
             }`}
             onClick={() => onMethodSelect(option.id)}
           >
@@ -125,19 +125,19 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
               <div className="flex items-center mb-4">
                 <span className="text-3xl mr-3">{option.icon}</span>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{option.title}</h4>
+                  <h4 className="text-lg font-semibold text-theme-text-primary">{option.title}</h4>
                 </div>
               </div>
 
               {/* Description */}
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-theme-text-secondary text-sm mb-4">
                 {option.description}
               </p>
 
               {/* Features */}
               <div className="mb-4">
-                <h5 className="text-sm font-medium text-gray-900 mb-2">Key Features:</h5>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <h5 className="text-sm font-medium text-theme-text-primary mb-2">Key Features:</h5>
+                <ul className="text-sm text-theme-text-secondary space-y-1">
                   {option.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
               </div>
 
               {/* Estimated time */}
-              <div className="flex items-center text-sm text-gray-500 mb-4">
+              <div className="flex items-center text-sm text-theme-text-tertiary mb-4">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

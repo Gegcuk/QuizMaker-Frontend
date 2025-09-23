@@ -158,7 +158,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Progress Bar */}
       <div className="mb-6">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
+        <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
           <span>Completion</span>
           <span>{Math.round(completionPercentage)}%</span>
         </div>
@@ -190,7 +190,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
       {/* Submission Progress */}
       {isSubmitting && (
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
             <span>Submitting answers...</span>
             <span>{submissionProgress}%</span>
           </div>
@@ -217,7 +217,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
         <button
           onClick={handleBatchSubmission}
           disabled={isSubmitting || answeredCount === 0}
-          className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-3 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? (
             <div className="flex items-center">

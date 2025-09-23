@@ -60,7 +60,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   };
 
   const getTextareaClass = (): string => {
-    const baseClass = 'w-full p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors';
+    const baseClass = 'w-full p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary transition-colors';
     
     if (isOverLimit) {
       return `${baseClass} border-red-300 focus:border-red-500`;
@@ -68,7 +68,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
     if (isFocused) {
       return `${baseClass} border-indigo-300`;
     }
-    return `${baseClass} border-gray-300`;
+    return `${baseClass} border-theme-border-primary`;
   };
 
   return (
