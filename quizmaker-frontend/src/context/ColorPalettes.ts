@@ -36,6 +36,28 @@ export interface ColorPalette {
       danger: string;     // Danger/error states
       success: string;    // Success states
       warning: string;    // Warning states
+      info: string;       // Info states
+    };
+    // Status colors (for backgrounds and text)
+    status: {
+      success: string;    // Success text color
+      warning: string;    // Warning text color
+      danger: string;     // Danger text color
+      info: string;       // Info text color
+      successBg: string;  // Success background
+      warningBg: string;  // Warning background
+      dangerBg: string;   // Danger background
+      infoBg: string;     // Info background
+    };
+    // Focus colors
+    focus: {
+      ring: string;       // Focus ring color
+      ringOffset: string; // Focus ring offset color
+    };
+    // Neutral/muted colors
+    neutral: {
+      muted: string;      // Muted background/text
+      subtle: string;     // Subtle borders/separators
     };
     // Special colors
     accent: string;       // Accent color for highlights
@@ -73,6 +95,25 @@ export const lightPalette: ColorPalette = {
       danger: '#ef4444',
       success: '#22c55e',
       warning: '#f59e0b',
+      info: '#06b6d4',
+    },
+    status: {
+      success: '#166534',
+      warning: '#92400e',
+      danger: '#dc2626',
+      info: '#0369a1',
+      successBg: '#f0fdf4',
+      warningBg: '#fffbeb',
+      dangerBg: '#fef2f2',
+      infoBg: '#f0f9ff',
+    },
+    focus: {
+      ring: '#3b82f6',
+      ringOffset: '#ffffff',
+    },
+    neutral: {
+      muted: '#f8fafc',
+      subtle: '#f1f5f9',
     },
     accent: '#3b82f6',
     shadow: 'rgba(0, 0, 0, 0.1)',
@@ -109,6 +150,25 @@ export const darkPalette: ColorPalette = {
       danger: '#f87171',
       success: '#4ade80',
       warning: '#fbbf24',
+      info: '#67e8f9',
+    },
+    status: {
+      success: '#4ade80',
+      warning: '#fbbf24',
+      danger: '#f87171',
+      info: '#67e8f9',
+      successBg: '#064e3b',
+      warningBg: '#451a03',
+      dangerBg: '#450a0a',
+      infoBg: '#0c4a6e',
+    },
+    focus: {
+      ring: '#60a5fa',
+      ringOffset: '#0f172a',
+    },
+    neutral: {
+      muted: '#1e293b',
+      subtle: '#334155',
     },
     accent: '#60a5fa',
     shadow: 'rgba(0, 0, 0, 0.3)',
@@ -145,6 +205,25 @@ export const bluePalette: ColorPalette = {
       danger: '#ef4444',
       success: '#22c55e',
       warning: '#f59e0b',
+      info: '#06b6d4',
+    },
+    status: {
+      success: '#166534',
+      warning: '#92400e',
+      danger: '#dc2626',
+      info: '#0369a1',
+      successBg: '#f0fdf4',
+      warningBg: '#fffbeb',
+      dangerBg: '#fef2f2',
+      infoBg: '#f0f9ff',
+    },
+    focus: {
+      ring: '#3b82f6',
+      ringOffset: '#d2e0fb',
+    },
+    neutral: {
+      muted: '#fef9d9',
+      subtle: '#dee5d4',
     },
     accent: '#8eaccd',
     shadow: 'rgba(142, 172, 205, 0.2)',
@@ -181,6 +260,25 @@ export const purplePalette: ColorPalette = {
       danger: '#f87171',
       success: '#4ade80',
       warning: '#fbbf24',
+      info: '#67e8f9',
+    },
+    status: {
+      success: '#4ade80',
+      warning: '#fbbf24',
+      danger: '#f87171',
+      info: '#67e8f9',
+      successBg: '#064e3b',
+      warningBg: '#451a03',
+      dangerBg: '#450a0a',
+      infoBg: '#0c4a6e',
+    },
+    focus: {
+      ring: '#a78bfa',
+      ringOffset: '#17133b',
+    },
+    neutral: {
+      muted: '#2e236c',
+      subtle: '#433d8b',
     },
     accent: '#c8acd6',
     shadow: 'rgba(23, 21, 59, 0.4)',
@@ -217,6 +315,25 @@ export const greenPalette: ColorPalette = {
       danger: '#ef4444',
       success: '#22c55e',
       warning: '#f59e0b',
+      info: '#06b6d4',
+    },
+    status: {
+      success: '#166534',
+      warning: '#92400e',
+      danger: '#dc2626',
+      info: '#0369a1',
+      successBg: '#f0fdf4',
+      warningBg: '#fffbeb',
+      dangerBg: '#fef2f2',
+      infoBg: '#f0f9ff',
+    },
+    focus: {
+      ring: '#22c55e',
+      ringOffset: '#f0fdf4',
+    },
+    neutral: {
+      muted: '#dcfce7',
+      subtle: '#bbf7d0',
     },
     accent: '#22c55e',
     shadow: 'rgba(34, 197, 94, 0.2)',
@@ -257,6 +374,19 @@ export const generateCSSVariables = (palette: ColorPalette): Record<string, stri
     '--color-interactive-danger': palette.colors.interactive.danger,
     '--color-interactive-success': palette.colors.interactive.success,
     '--color-interactive-warning': palette.colors.interactive.warning,
+    '--color-interactive-info': palette.colors.interactive.info,
+    '--color-status-success': palette.colors.status.success,
+    '--color-status-warning': palette.colors.status.warning,
+    '--color-status-danger': palette.colors.status.danger,
+    '--color-status-info': palette.colors.status.info,
+    '--color-status-success-bg': palette.colors.status.successBg,
+    '--color-status-warning-bg': palette.colors.status.warningBg,
+    '--color-status-danger-bg': palette.colors.status.dangerBg,
+    '--color-status-info-bg': palette.colors.status.infoBg,
+    '--color-focus-ring': palette.colors.focus.ring,
+    '--color-focus-ring-offset': palette.colors.focus.ringOffset,
+    '--color-neutral-muted': palette.colors.neutral.muted,
+    '--color-neutral-subtle': palette.colors.neutral.subtle,
     '--color-accent': palette.colors.accent,
     '--color-shadow': palette.colors.shadow,
   };

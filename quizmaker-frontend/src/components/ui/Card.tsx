@@ -49,13 +49,13 @@ const Card: React.FC<CardProps> = ({
   onClick,
   className = ''
 }) => {
-  const baseClasses = 'bg-white rounded-lg';
+  const baseClasses = 'bg-theme-bg-primary rounded-lg';
   
   const variantClasses = {
-    default: 'border border-gray-200 shadow-sm',
-    elevated: 'shadow-md',
-    outlined: 'border-2 border-gray-200',
-    flat: 'border border-gray-100'
+    default: 'border border-theme-border-primary shadow-theme',
+    elevated: 'shadow-theme-lg',
+    outlined: 'border-2 border-theme-border-primary',
+    flat: 'border border-theme-border-secondary'
   };
 
   const sizeClasses = {
@@ -96,7 +96,7 @@ const Card: React.FC<CardProps> = ({
       } : undefined}
     >
       {header && (
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-theme-border-primary">
           {header}
         </div>
       )}
@@ -104,7 +104,7 @@ const Card: React.FC<CardProps> = ({
         {children}
       </div>
       {footer && (
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t border-theme-border-primary bg-theme-bg-secondary">
           {footer}
         </div>
       )}
@@ -113,7 +113,7 @@ const Card: React.FC<CardProps> = ({
 };
 
 const CardHeader: React.FC<CardHeaderProps> = ({ children, className = '' }) => (
-  <div className={`font-semibold text-gray-900 ${className}`}>
+  <div className={`font-semibold text-theme-text-primary ${className}`}>
     {children}
   </div>
 );
@@ -150,7 +150,7 @@ const CardContent: React.FC<CardContentProps> = ({ children, className = '' }) =
 );
 
 const CardTitle: React.FC<CardTitleProps> = ({ children, className = '' }) => (
-  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>
+  <h3 className={`text-lg font-semibold text-theme-text-primary ${className}`}>
     {children}
   </h3>
 );

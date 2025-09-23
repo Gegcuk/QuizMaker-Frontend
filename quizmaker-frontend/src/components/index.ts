@@ -23,6 +23,7 @@ export { default as QuestionEditorHeader } from './ui/QuestionEditorHeader';
 export { default as AddItemButton } from './ui/AddItemButton';
 export { default as QuestionPreviewSection } from './ui/QuestionPreviewSection';
 export { default as ItemManagementContainer } from './ui/ItemManagementContainer';
+export * from './ui/ThemeIcons';
 
 // Example Components
 export { default as QuizCreationForm } from './examples/QuizCreationForm';

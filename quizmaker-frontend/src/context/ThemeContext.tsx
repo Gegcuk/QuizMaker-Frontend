@@ -75,6 +75,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     root.className = root.className.replace(/theme-\w+/g, '');
     root.classList.add(`theme-${palette.id}`);
     
+    // Apply dark mode class for Tailwind CSS
+    // This is critical for dark: classes to work
+    if (resolvedTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    
     // Apply CSS custom properties
     const cssVariables = generateCSSVariables(palette);
     Object.entries(cssVariables).forEach(([property, value]) => {
@@ -88,17 +96,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     }
   };
 
-  // Apply initial theme on mount
-  useEffect(() => {
-    const palette = getPaletteById(colorScheme);
-    applyTheme(palette);
-  }, []);
-
   // Update current palette when color scheme changes
   useEffect(() => {
     const palette = getPaletteById(colorScheme);
     setCurrentPalette(palette);
-    applyTheme(palette);
   }, [colorScheme]);
 
   // Update resolved theme when theme or system preference changes
@@ -118,6 +119,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [theme]);
+
+  // Apply theme whenever resolvedTheme or colorScheme changes
+  useEffect(() => {
+    const palette = getPaletteById(colorScheme);
+    applyTheme(palette);
+  }, [resolvedTheme, colorScheme]);
 
   const handleSetTheme = (newTheme: Theme) => {
     setTheme(newTheme);

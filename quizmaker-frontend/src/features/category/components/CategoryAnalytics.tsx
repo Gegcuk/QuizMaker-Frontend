@@ -199,21 +199,21 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
     const maxValue = Math.max(...Object.values(data));
     
     return (
-      <div className="bg-white rounded-lg p-4 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">{title}</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-4 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
         <div className="space-y-3">
           {Object.entries(data).map(([key, value]) => (
             <div key={key} className="flex items-center">
-              <div className="w-20 text-sm font-medium text-gray-600">{key}</div>
+              <div className="w-20 text-sm font-medium text-theme-text-secondary">{key}</div>
               <div className="flex-1 mx-4">
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full ${colors[key] || 'bg-blue-500'}`}
+                    className={`h-2 rounded-full ${colors[key] || 'bg-theme-interactive-primary'}`}
                     style={{ width: `${maxValue > 0 ? (value / maxValue) * 100 : 0}%` }}
                   ></div>
                 </div>
               </div>
-              <div className="w-12 text-sm font-medium text-gray-900 text-right">{value}</div>
+              <div className="w-12 text-sm font-medium text-theme-text-primary text-right">{value}</div>
             </div>
           ))}
         </div>
@@ -226,8 +226,8 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
     const height = 200;
     
     return (
-      <div className="bg-white rounded-lg p-4 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Quiz Creation Trend</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-4 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Quiz Creation Trend</h4>
         <div className="relative" style={{ height: `${height}px` }}>
           <svg className="w-full h-full" viewBox={`0 0 ${data.length * 40} ${height}`}>
             {data.map((point, index) => {
@@ -271,7 +271,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
             })}
           </svg>
         </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <div className="flex justify-between text-xs text-theme-text-tertiary mt-2">
           <span>{data[0]?.date}</span>
           <span>{data[data.length - 1]?.date}</span>
         </div>
@@ -281,13 +281,13 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme border p-6 ${className}`}>
         <div className="flex items-center justify-center">
-          <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-6 w-6 text-theme-interactive-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span className="ml-2 text-gray-600">Loading analytics...</span>
+          <span className="ml-2 text-theme-text-secondary">Loading analytics...</span>
         </div>
       </div>
     );
@@ -295,7 +295,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-status-danger-bg border border-theme-border-danger rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -311,37 +311,37 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   }
 
   const difficultyColors = {
-    EASY: 'bg-green-500',
-    MEDIUM: 'bg-yellow-500',
-    HARD: 'bg-red-500'
+    EASY: 'bg-theme-status-success-bg',
+    MEDIUM: 'bg-theme-status-warning-bg',
+    HARD: 'bg-theme-status-danger-bg'
   };
 
   const visibilityColors = {
-    PUBLIC: 'bg-blue-500',
-    PRIVATE: 'bg-gray-500'
+    PUBLIC: 'bg-theme-interactive-info',
+    PRIVATE: 'bg-theme-bg-tertiary'
   };
 
   const statusColors = {
-    DRAFT: 'bg-yellow-500',
-    PUBLISHED: 'bg-green-500',
-    ARCHIVED: 'bg-red-500'
+    DRAFT: 'bg-theme-status-warning-bg',
+    PUBLISHED: 'bg-theme-status-success-bg',
+    ARCHIVED: 'bg-theme-status-danger-bg'
   };
 
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-theme-bg-primary rounded-lg shadow-theme border p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Category Analytics</h3>
-            <p className="text-sm text-gray-500 mt-1">{category.name}</p>
+            <h3 className="text-xl font-bold text-theme-text-primary">Category Analytics</h3>
+            <p className="text-sm text-theme-text-tertiary mt-1">{category.name}</p>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Time Range:</label>
+            <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
             >
               <option value="week">Week</option>
               <option value="month">Month</option>
@@ -357,20 +357,20 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
         {renderTrendChart(analyticsData.quizCreationTrend)}
         
         {/* Average Metrics */}
-        <div className="bg-white rounded-lg p-4 border">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Average Metrics</h4>
+        <div className="bg-theme-bg-primary rounded-lg p-4 border">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Average Metrics</h4>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Estimated Time:</span>
-              <span className="text-lg font-bold text-gray-900">{analyticsData.averageMetrics.estimatedTime} min</span>
+              <span className="text-sm text-theme-text-secondary">Estimated Time:</span>
+              <span className="text-lg font-bold text-theme-text-primary">{analyticsData.averageMetrics.estimatedTime} min</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Timer Duration:</span>
-              <span className="text-lg font-bold text-gray-900">{analyticsData.averageMetrics.timerDuration} min</span>
+              <span className="text-sm text-theme-text-secondary">Timer Duration:</span>
+              <span className="text-lg font-bold text-theme-text-primary">{analyticsData.averageMetrics.timerDuration} min</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Questions per Quiz:</span>
-              <span className="text-lg font-bold text-gray-900">{analyticsData.averageMetrics.questionsPerQuiz}</span>
+              <span className="text-sm text-theme-text-secondary">Questions per Quiz:</span>
+              <span className="text-lg font-bold text-theme-text-primary">{analyticsData.averageMetrics.questionsPerQuiz}</span>
             </div>
           </div>
         </div>
@@ -384,44 +384,44 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
       </div>
 
       {/* Feature Usage */}
-      <div className="bg-white rounded-lg p-6 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Feature Usage</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-6 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Feature Usage</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600">{analyticsData.featureUsage.timerEnabled}</div>
-            <div className="text-sm text-gray-600">Timer Enabled</div>
+            <div className="text-3xl font-bold text-theme-interactive-primary">{analyticsData.featureUsage.timerEnabled}</div>
+            <div className="text-sm text-theme-text-secondary">Timer Enabled</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">{analyticsData.featureUsage.repetitionEnabled}</div>
-            <div className="text-sm text-gray-600">Repetition Enabled</div>
+            <div className="text-sm text-theme-text-secondary">Repetition Enabled</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-600">{analyticsData.featureUsage.publicQuizzes}</div>
-            <div className="text-sm text-gray-600">Public Quizzes</div>
+            <div className="text-sm text-theme-text-secondary">Public Quizzes</div>
           </div>
         </div>
       </div>
 
       {/* Top Quizzes */}
-      <div className="bg-white rounded-lg p-6 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Top Quizzes</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-6 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Top Quizzes</h4>
         <div className="space-y-3">
           {analyticsData.topQuizzes.map((item, index) => (
-            <div key={item.quiz.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={item.quiz.id} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                <div className="w-8 h-8 bg-theme-bg-tertiary text-theme-interactive-primary rounded-full flex items-center justify-center text-sm font-medium mr-3">
                   {index + 1}
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">{item.quiz.title}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-theme-text-primary">{item.quiz.title}</div>
+                  <div className="text-sm text-theme-text-tertiary">
                     {item.quiz.difficulty} • {item.quiz.visibility} • {item.quiz.status}
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">{item.popularity}%</div>
-                <div className="text-xs text-gray-500">Popularity</div>
+                <div className="text-sm font-medium text-theme-text-primary">{item.popularity}%</div>
+                <div className="text-xs text-theme-text-tertiary">Popularity</div>
               </div>
             </div>
           ))}

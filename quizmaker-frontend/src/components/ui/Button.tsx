@@ -32,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
     success: 'bg-theme-interactive-success text-theme-text-inverse hover:bg-theme-interactive-success/90 focus:ring-theme-interactive-success',
     danger: 'bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
     warning: 'bg-theme-interactive-warning text-theme-text-inverse hover:bg-theme-interactive-warning/90 focus:ring-theme-interactive-warning',
-    info: 'bg-cyan-600 text-white hover:bg-cyan-700 focus:ring-cyan-500',
+    info: 'bg-theme-interactive-info text-theme-text-inverse hover:bg-theme-interactive-info/90 focus:ring-theme-interactive-info',
     outline: 'border-2 border-theme-interactive-primary text-theme-interactive-primary hover:bg-theme-bg-tertiary focus:ring-theme-interactive-primary',
     ghost: 'text-theme-interactive-primary hover:bg-theme-bg-tertiary focus:ring-theme-interactive-primary'
   };

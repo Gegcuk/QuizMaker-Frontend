@@ -300,21 +300,21 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     const maxValue = Math.max(...data.map(d => d.value));
     
     return (
-      <div className="bg-white rounded-lg p-4 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">{title}</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
         <div className="space-y-3">
           {data.map((item, index) => (
             <div key={index} className="flex items-center">
-              <div className="w-24 text-sm font-medium text-gray-600 truncate">{item.label}</div>
+              <div className="w-24 text-sm font-medium text-theme-text-secondary truncate">{item.label}</div>
               <div className="flex-1 mx-4">
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${color}`}
                     style={{ width: `${maxValue > 0 ? (item.value / maxValue) * 100 : 0}%` }}
                   ></div>
                 </div>
               </div>
-              <div className="w-12 text-sm font-medium text-gray-900 text-right">{item.value}</div>
+              <div className="w-12 text-sm font-medium text-theme-text-primary text-right">{item.value}</div>
             </div>
           ))}
         </div>
@@ -327,8 +327,8 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     const height = 200;
     
     return (
-      <div className="bg-white rounded-lg p-4 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">{title}</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
         <div className="relative" style={{ height: `${height}px` }}>
           <svg className="w-full h-full" viewBox={`0 0 ${data.length * 40} ${height}`}>
             {data.map((point, index) => {
@@ -372,7 +372,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             })}
           </svg>
         </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <div className="flex justify-between text-xs text-theme-text-tertiary mt-2">
           <span>{data[0]?.date}</span>
           <span>{data[data.length - 1]?.date}</span>
         </div>
@@ -382,10 +382,10 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary p-6 ${className}`}>
         <div className="flex items-center justify-center">
           <Spinner />
-          <span className="ml-2 text-gray-600">Loading analytics...</span>
+          <span className="ml-2 text-theme-text-secondary">Loading analytics...</span>
         </div>
       </div>
     );
@@ -393,12 +393,12 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-status-danger-bg border border-theme-border-danger rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
-          <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-theme-status-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-red-800">{error}</span>
+          <span className="text-theme-status-danger">{error}</span>
         </div>
       </div>
     );
@@ -411,18 +411,18 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Tag Analytics</h3>
-            <p className="text-sm text-gray-500 mt-1">Comprehensive tag usage and performance analysis</p>
+            <h3 className="text-xl font-bold text-theme-text-primary">Tag Analytics</h3>
+            <p className="text-sm text-theme-text-tertiary mt-1">Comprehensive tag usage and performance analysis</p>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Time Range:</label>
+            <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
             >
               <option value="week">Week</option>
               <option value="month">Month</option>
@@ -451,21 +451,21 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
         )}
         
         {/* Tag Efficiency */}
-        <div className="bg-white rounded-lg p-4 border">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Tag Efficiency</h4>
+        <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary">
+          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Tag Efficiency</h4>
           <div className="space-y-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">
                 {analyticsData.tagEfficiency.averageQuizzesPerTag.toFixed(1)}
               </div>
-              <div className="text-sm text-gray-600">Average Quizzes per Tag</div>
+              <div className="text-sm text-theme-text-secondary">Average Quizzes per Tag</div>
             </div>
             <div className="space-y-2">
-              <h5 className="text-sm font-medium text-gray-700">Most Efficient Tags:</h5>
+              <h5 className="text-sm font-medium text-theme-text-secondary">Most Efficient Tags:</h5>
               {analyticsData.tagEfficiency.mostEfficientTags.map((item, index) => (
                 <div key={item.tag.id} className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">{item.tag.name}</span>
-                  <span className="font-medium text-gray-900">{item.efficiency} quizzes</span>
+                  <span className="text-theme-text-secondary">{item.tag.name}</span>
+                  <span className="font-medium text-theme-text-primary">{item.efficiency} quizzes</span>
                 </div>
               ))}
             </div>
@@ -474,22 +474,22 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       </div>
 
       {/* Tag Correlation */}
-      <div className="bg-white rounded-lg p-6 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Tag Correlations</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-6 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Tag Correlations</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {analyticsData.tagCorrelation.map((correlation, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-3">
+            <div key={index} className="bg-theme-bg-secondary rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {correlation.tag1}
                   </span>
-                  <span className="text-gray-400">×</span>
+                  <span className="text-theme-text-tertiary">×</span>
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     {correlation.tag2}
                   </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">{correlation.correlation}</span>
+                <span className="text-sm font-medium text-theme-text-primary">{correlation.correlation}</span>
               </div>
             </div>
           ))}
@@ -497,11 +497,11 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       </div>
 
       {/* Popular Combinations */}
-      <div className="bg-white rounded-lg p-6 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Popular Tag Combinations</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-6 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Popular Tag Combinations</h4>
         <div className="space-y-3">
           {analyticsData.usagePatterns.popularCombinations.map((combination, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={index} className="flex items-center justify-between p-3 bg-theme-bg-secondary rounded-lg">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
@@ -518,8 +518,8 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">{combination.frequency}</div>
-                <div className="text-xs text-gray-500">occurrences</div>
+                <div className="text-sm font-medium text-theme-text-primary">{combination.frequency}</div>
+                <div className="text-xs text-theme-text-tertiary">occurrences</div>
               </div>
             </div>
           ))}
@@ -527,13 +527,13 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       </div>
 
       {/* Seasonal Usage */}
-      <div className="bg-white rounded-lg p-6 border">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Seasonal Usage Patterns</h4>
+      <div className="bg-theme-bg-primary rounded-lg p-6 border">
+        <h4 className="text-lg font-medium text-theme-text-primary mb-4">Seasonal Usage Patterns</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {Object.entries(analyticsData.usagePatterns.seasonalUsage).map(([month, usage]) => (
             <div key={month} className="text-center">
               <div className="text-2xl font-bold text-blue-600">{usage}</div>
-              <div className="text-sm text-gray-600">{month}</div>
+              <div className="text-sm text-theme-text-secondary">{month}</div>
             </div>
           ))}
         </div>

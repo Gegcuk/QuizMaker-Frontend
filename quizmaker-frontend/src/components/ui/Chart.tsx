@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 export interface ChartDataPoint {
   label: string;
@@ -31,15 +32,28 @@ const Chart: React.FC<ChartProps> = ({
   className = '',
   onDataPointClick
 }) => {
+  const { currentPalette } = useTheme();
   const maxValue = Math.max(...data.map(d => d.value));
   const minValue = Math.min(...data.map(d => d.value));
 
-  const defaultColors = [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
-  ];
+  // Generate palette-driven colors
+  const getDefaultColors = () => {
+    return [
+      currentPalette.colors.interactive.primary,
+      currentPalette.colors.interactive.danger,
+      currentPalette.colors.interactive.success,
+      currentPalette.colors.interactive.warning,
+      currentPalette.colors.interactive.info,
+      currentPalette.colors.accent,
+      currentPalette.colors.status.success,
+      currentPalette.colors.status.warning,
+      currentPalette.colors.status.danger,
+      currentPalette.colors.status.info
+    ];
+  };
 
   const getColor = (index: number, customColor?: string) => {
+    const defaultColors = getDefaultColors();
     return customColor || defaultColors[index % defaultColors.length];
   };
 
@@ -52,10 +66,10 @@ const Chart: React.FC<ChartProps> = ({
         {showGrid && (
           <div className="absolute inset-0 grid grid-cols-5 grid-rows-5 pointer-events-none">
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="border-t border-gray-200" />
+              <div key={i} className="border-t border-theme-border-primary" />
             ))}
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="border-l border-gray-200" />
+              <div key={i} className="border-l border-theme-border-primary" />
             ))}
           </div>
         )}
@@ -72,7 +86,7 @@ const Chart: React.FC<ChartProps> = ({
                 style={{ width: `${barWidth}%` }}
               >
                 <div
-                  className="w-full bg-blue-500 hover:bg-blue-600 transition-all duration-200 cursor-pointer rounded-t"
+                  className="w-full transition-all duration-200 cursor-pointer rounded-t hover:opacity-80"
                   style={{
                     height: `${percentage}%`,
                     backgroundColor: color,
@@ -82,7 +96,7 @@ const Chart: React.FC<ChartProps> = ({
                   title={`${point.label}: ${point.value}`}
                 />
                 {showAxis && (
-                  <div className="text-xs text-gray-600 mt-2 text-center transform -rotate-45 origin-left">
+                  <div className="text-xs text-theme-text-secondary mt-2 text-center transform -rotate-45 origin-left">
                     {point.label}
                   </div>
                 )}
@@ -92,7 +106,7 @@ const Chart: React.FC<ChartProps> = ({
         </div>
         
         {showAxis && (
-          <div className="absolute bottom-0 left-0 right-0 h-8 flex items-center justify-between px-4 text-xs text-gray-500">
+          <div className="absolute bottom-0 left-0 right-0 h-8 flex items-center justify-between px-4 text-xs text-theme-text-tertiary">
             <span>{minValue}</span>
             <span>{maxValue}</span>
           </div>
@@ -108,7 +122,7 @@ const Chart: React.FC<ChartProps> = ({
     return (
       <div className="relative" style={{ height, width }}>
         <svg className="w-full h-full" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="2" />
+          <circle cx="50" cy="50" r="40" fill="none" stroke={currentPalette.colors.border.primary} strokeWidth="2" />
           {data.map((point, index) => {
             const percentage = total > 0 ? (point.value / total) : 0;
             const angle = percentage * 360;
@@ -152,7 +166,7 @@ const Chart: React.FC<ChartProps> = ({
                   className="w-3 h-3 rounded mr-1"
                   style={{ backgroundColor: getColor(index, point.color) }}
                 />
-                <span className="text-gray-600">{point.label}</span>
+                <span className="text-theme-text-secondary">{point.label}</span>
               </div>
             ))}
           </div>
@@ -183,7 +197,7 @@ const Chart: React.FC<ChartProps> = ({
                   y1={i * 20}
                   x2="100"
                   y2={i * 20}
-                  stroke="#e5e7eb"
+                  stroke={currentPalette.colors.border.primary}
                   strokeWidth="0.5"
                 />
               ))}
@@ -194,7 +208,7 @@ const Chart: React.FC<ChartProps> = ({
                   y1="0"
                   x2={i * 20}
                   y2="100"
-                  stroke="#e5e7eb"
+                  stroke={currentPalette.colors.border.primary}
                   strokeWidth="0.5"
                 />
               ))}
@@ -204,7 +218,7 @@ const Chart: React.FC<ChartProps> = ({
           <path
             d={pathData}
             fill="none"
-            stroke="#3B82F6"
+            stroke={currentPalette.colors.interactive.primary}
             strokeWidth="2"
             className="cursor-pointer"
           />
@@ -215,7 +229,7 @@ const Chart: React.FC<ChartProps> = ({
               cx={point.x}
               cy={point.y}
               r="2"
-              fill="#3B82F6"
+              fill={currentPalette.colors.interactive.primary}
               className="cursor-pointer hover:r-3 transition-all"
               onClick={() => onDataPointClick?.(data[index], index)}
             />
@@ -241,9 +255,9 @@ const Chart: React.FC<ChartProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary rounded-lg border border-theme-border-primary p-4 ${className}`}>
       {title && (
-        <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
+        <h3 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h3>
       )}
       {renderChart()}
     </div>

@@ -33,6 +33,7 @@ export { default as QuestionEditorHeader } from './QuestionEditorHeader';
 export { default as AddItemButton } from './AddItemButton';
 export { default as QuestionPreviewSection } from './QuestionPreviewSection';
 export { default as ItemManagementContainer } from './ItemManagementContainer';
+export * from './ThemeIcons';
 
 // Theme Components
 export { default as ThemeToggle } from './ThemeToggle';
