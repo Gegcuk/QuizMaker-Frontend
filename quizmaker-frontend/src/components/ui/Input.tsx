@@ -27,12 +27,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   const generatedId = useId();
   const inputId = id ?? generatedId;
 
-  const baseClasses = 'block w-full border-gray-300 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';
+  const baseClasses = 'block w-full border-theme-border-primary shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed';
   
   const variantClasses = {
-    default: 'border-gray-300 bg-white',
-    filled: 'border-transparent bg-gray-50 focus:bg-white',
-    outlined: 'border-2 border-gray-300 bg-white'
+    default: 'border-theme-border-primary bg-theme-bg-primary',
+    filled: 'border-transparent bg-theme-bg-secondary focus:bg-theme-bg-primary',
+    outlined: 'border-2 border-theme-border-primary bg-theme-bg-primary'
   };
 
   const sizeClasses = {

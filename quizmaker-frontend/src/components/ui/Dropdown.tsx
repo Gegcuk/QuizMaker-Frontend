@@ -46,7 +46,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     lg: 'px-6 py-3 text-base'
   };
 
-  const baseClasses = 'relative border border-gray-300 bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';
+  const baseClasses = 'relative border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed';
   const errorClasses = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : '';
   const widthClass = fullWidth ? 'w-full' : '';
 
@@ -143,9 +143,9 @@ const Dropdown: React.FC<DropdownProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-theme-lg max-h-60 overflow-auto">
             {searchable && (
-              <div className="p-2 border-b border-gray-200">
+              <div className="p-2 border-b border-theme-border-primary">
                 <input
                   type="text"
                   placeholder="Search..."
@@ -172,8 +172,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                     <button
                       key={option.value}
                       type="button"
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none ${
-                        isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                      className={`w-full px-4 py-2 text-left text-sm text-theme-text-primary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none ${
+                        isSelected ? 'bg-theme-bg-tertiary text-theme-interactive-primary' : 'text-theme-text-primary'
                       } ${option.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => !option.disabled && handleOptionClick(option.value)}
                       disabled={option.disabled}

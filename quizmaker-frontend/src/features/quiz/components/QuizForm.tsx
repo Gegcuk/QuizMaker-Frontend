@@ -336,14 +336,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     return (
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+          <div className="h-8 bg-theme-bg-tertiary rounded w-1/4"></div>
+          <div className="h-4 bg-theme-bg-tertiary rounded w-1/2"></div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              <div className="h-64 bg-gray-300 rounded"></div>
-              <div className="h-64 bg-gray-300 rounded"></div>
+              <div className="h-64 bg-theme-bg-tertiary rounded"></div>
+              <div className="h-64 bg-theme-bg-tertiary rounded"></div>
             </div>
-            <div className="h-96 bg-gray-300 rounded"></div>
+            <div className="h-96 bg-theme-bg-tertiary rounded"></div>
           </div>
         </div>
       </div>
@@ -377,8 +377,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       {/* Form content */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tabs */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="border-b border-gray-200">
+        <div className="bg-theme-bg-primary shadow-theme rounded-lg">
+          <div className="border-b border-theme-border-primary">
             <nav className="flex space-x-8 px-6">
               {tabs.map((tab) => (
                 <button
@@ -387,8 +387,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-theme-interactive-primary text-theme-interactive-primary'
+                      : 'border-transparent text-theme-text-tertiary hover:text-theme-text-primary hover:border-theme-border-primary'
                   }`}
                   title={tab.description}
                 >
@@ -420,16 +420,16 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             />
             
             {/* Create Quiz Buttons for Questions Tab */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="text-lg font-medium text-gray-900">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
+                  <p className="text-sm text-theme-text-secondary mt-1">
                     {selectedQuestionIds.length > 0 
                       ? `${selectedQuestionIds.length} questions selected` 
                       : 'No questions selected yet'}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-theme-text-tertiary mt-2">
                     <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
                   </p>
                   
@@ -487,14 +487,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             />
             
             {/* Create Quiz Buttons for Preview Tab */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="text-lg font-medium text-gray-900">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
+                  <p className="text-sm text-theme-text-secondary mt-1">
                     Review your quiz details above and create when ready
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-theme-text-tertiary mt-2">
                     <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
                   </p>
                   
@@ -547,11 +547,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
 
         {/* Action Buttons for Editing Existing Quizzes */}
         {isEditing && currentQuiz && (
-          <div className="flex justify-center space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
             <Button type="button" variant="primary" size="sm" onClick={() => handleSubmit()} disabled={isSaving} loading={isSaving}>
               Save Changes
             </Button>
-            <Button type="button" variant="success" size="sm" onClick={() => setShowPublishModal(true)}>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setShowPublishModal(true)}>
               Manage Status
             </Button>
             <Button type="button" variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>

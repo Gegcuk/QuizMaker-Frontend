@@ -74,25 +74,25 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div 
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          className="fixed inset-0 bg-theme-bg-tertiary bg-opacity-75 transition-opacity"
           onClick={onClose}
         ></div>
 
         {/* Modal panel */}
-        <div className={`inline-block align-bottom bg-theme-bg-primary rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ${className}`}>
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div className={`inline-block align-bottom bg-theme-bg-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ${className}`}>
+          <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
-              <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
-                <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-theme-bg-tertiary sm:mx-0 sm:h-10 sm:w-10">
+                <svg className="h-6 w-6 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
                   Quiz Status Management
                 </h3>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-theme-text-tertiary">
                     Choose what you want to do with <strong>"{quiz.title}"</strong>
                   </p>
                 </div>
@@ -116,8 +116,8 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
             )}
 
             {/* Current status */}
-            <div className="mt-4 bg-gray-50 p-4 rounded-md">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Current Status</h4>
+            <div className="mt-4 bg-theme-bg-secondary p-4 rounded-md">
+              <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Current Status</h4>
               <div className="flex items-center space-x-2">
                 <Badge variant={
                   quiz.status === 'PUBLISHED' ? 'success' :
@@ -126,7 +126,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 } size="sm">
                   {quiz.status}
                 </Badge>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-theme-text-secondary">
                   {quiz.status === 'PUBLISHED' && 'This quiz is live and visible to users'}
                   {quiz.status === 'DRAFT' && 'This quiz is saved but not published'}
                   {quiz.status === 'ARCHIVED' && 'This quiz is archived and not visible'}
@@ -140,7 +140,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleConfirm}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-success text-theme-text-inverse py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-success text-theme-text-inverse py-2 px-4 rounded-md hover:bg-theme-interactive-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-success disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Publishing...' : 'Publish Quiz'}
                 </button>
@@ -150,7 +150,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleDraft}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-warning text-theme-text-inverse py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-warning text-theme-text-inverse py-2 px-4 rounded-md hover:bg-theme-interactive-warning-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-warning disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Saving...' : 'Save as Draft'}
                 </button>
@@ -168,14 +168,14 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
             </div>
 
             {/* Status descriptions */}
-            <div className="mt-4 text-xs text-gray-500 space-y-1">
+            <div className="mt-4 text-xs text-theme-text-tertiary space-y-1">
               <p><strong>Published:</strong> Quiz is live and visible to users</p>
               <p><strong>Draft:</strong> Quiz is saved but not visible to users</p>
               <p><strong>Archived:</strong> Quiz is hidden and not accessible</p>
             </div>
           </div>
 
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className="bg-theme-bg-secondary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="button"
               onClick={onClose}

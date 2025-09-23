@@ -235,7 +235,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     <div className={className}>
       {/* Header and actions */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-gray-900">
+        <h3 className="text-lg font-medium text-theme-text-primary">
           Current Questions ({questions.length})
         </h3>
         <div className="flex items-center space-x-2">
@@ -256,18 +256,18 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       )}
 
       {/* Content */}
-      <div className="bg-white shadow rounded-lg border border-gray-200">
+      <div className="bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary">
         {loading ? (
           <div className="flex justify-center py-10">
             <Spinner />
           </div>
         ) : questions.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No questions yet</h3>
-            <p className="mt-1 text-sm text-gray-500">Click "Add Question" to create one.</p>
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No questions yet</h3>
+            <p className="mt-1 text-sm text-theme-text-tertiary">Click "Add Question" to create one.</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
@@ -276,10 +276,10 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
               const truncated = text.length > 160 ? text.slice(0, 160) + '…' : text;
               const typeLabel = (q.type || '').replace(/_/g, ' ');
               return (
-                <div key={q.id} className="p-3 group hover:bg-gray-50 transition-colors">
+                <div key={q.id} className="p-3 group hover:bg-theme-bg-secondary transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0 pr-3">
-                      <p className="text-sm text-gray-900 group-hover:text-indigo-700" title={text}>{truncated}</p>
+                      <p className="text-sm text-theme-text-primary group-hover:text-theme-interactive-primary-hover" title={text}>{truncated}</p>
                     </div>
                     <div className="flex items-center space-x-2 ml-2">
                       {/* Type and difficulty badges before actions (using shared Badge) */}
