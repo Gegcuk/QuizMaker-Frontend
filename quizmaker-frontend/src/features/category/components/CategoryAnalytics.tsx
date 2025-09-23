@@ -4,6 +4,7 @@ import { QuizDto, Difficulty, Visibility, QuizStatus } from '@/types';
 import { categoryService } from '@/services';
 import { QuizService } from '@/services';
 import { api } from '@/services';
+import { useTheme } from '@/context/ThemeContext';
 
 interface CategoryAnalyticsProps {
   category: CategoryDto;
@@ -41,6 +42,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState(timeRange);
+  const { currentPalette } = useTheme();
 
   const quizService = new QuizService(api);
 
@@ -246,14 +248,14 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
                       y1={y}
                       x2={nextX}
                       y2={nextY}
-                      stroke="#3B82F6"
+                      stroke={currentPalette.colors.interactive.primary}
                       strokeWidth="2"
                     />
                     <circle
                       cx={x}
                       cy={y}
                       r="4"
-                      fill="#3B82F6"
+                      fill={currentPalette.colors.interactive.primary}
                     />
                   </g>
                 );
@@ -265,7 +267,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
                   cx={x}
                   cy={y}
                   r="4"
-                  fill="#3B82F6"
+                  fill={currentPalette.colors.interactive.primary}
                 />
               );
             })}

@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { QuizResultSummaryDto, QuestionStatDto } from '@/types';
 import { useFeatureFlag } from '@/utils';
+import { getProgressColor } from '@/utils/statusHelpers';
 
 interface QuizAnalyticsProps {
   stats: QuizResultSummaryDto;
@@ -21,20 +22,9 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
     return `${Math.round(value)}%`;
   };
 
-  // Helper function to get color based on score
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-
-  // Helper function to get question performance color
-  const getQuestionColor = (correctRate: number) => {
-    if (correctRate >= 80) return 'bg-green-500';
-    if (correctRate >= 60) return 'bg-yellow-500';
-    if (correctRate >= 40) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
+  // Use centralized status helpers
+  const getScoreColor = getProgressColor;
+  const getQuestionColor = getProgressColor;
 
   // Real data for score distribution based on actual stats
   const getScoreDistribution = () => {
@@ -274,7 +264,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
                     </div>
                     <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 rounded-full bg-green-500"
+                        className={`h-2 rounded-full ${getProgressColor(stats.passRate)}`}
                         style={{ width: `${(day.attempts / 10) * 100}%` }}
                       ></div>
                     </div>
@@ -303,14 +293,14 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               </div>
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4">
+            <div className="bg-theme-bg-tertiary rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-theme-interactive-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-medium text-green-900">Pass Rate</p>
-                  <p className="text-xs text-green-700">
+                  <p className="text-sm font-medium text-theme-text-primary">Pass Rate</p>
+                  <p className="text-xs text-theme-text-secondary">
                     {formatPercentage(stats.passRate)} of attempts passed
                   </p>
                 </div>

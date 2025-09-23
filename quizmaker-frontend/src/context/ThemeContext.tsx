@@ -71,8 +71,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   const applyTheme = (palette: ColorPalette) => {
     const root = document.documentElement;
     
-    // Apply color scheme class
-    root.className = root.className.replace(/theme-\w+/g, '');
+    // Apply color scheme class - remove any existing theme classes first
+    const existingThemeClasses = Array.from(root.classList).filter(cls => cls.startsWith('theme-'));
+    existingThemeClasses.forEach(cls => root.classList.remove(cls));
     root.classList.add(`theme-${palette.id}`);
     
     // Apply dark mode class for Tailwind CSS

@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { HotspotContent, HotspotRegion } from '@/types';
 import { InstructionsModal } from '@/components';
+import { useTheme } from '@/context/ThemeContext';
 
 interface HotspotEditorProps {
   content: HotspotContent;
@@ -23,6 +24,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
   const [imageUrl, setImageUrl] = useState<string>(content.imageUrl || '');
   const [regions, setRegions] = useState<HotspotRegion[]>(content.regions || []);
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
+  const { currentPalette } = useTheme();
 
   // Update parent when content changes
   useEffect(() => {
@@ -301,7 +303,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                         top: `${region.y}%`,
                         width: `${region.width}%`,
                         height: `${region.height}%`,
-                        borderColor: region.correct ? '#10B981' : '#EF4444'
+                        borderColor: region.correct ? currentPalette.colors.interactive.success : currentPalette.colors.interactive.danger
                       }}
                       title={`Region ${region.id} (${region.correct ? 'Correct' : 'Incorrect'})`}
                     />

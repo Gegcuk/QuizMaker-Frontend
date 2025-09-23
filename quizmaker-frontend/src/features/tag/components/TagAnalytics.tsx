@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TagDto, QuizDto } from '@/types';
 import { TagService, QuizService, api } from '@/services';
 import { Spinner } from '@/components';
+import { useTheme } from '@/context/ThemeContext';
 
 interface TagAnalyticsProps {
   className?: string;
@@ -48,6 +49,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
 
   const tagService = new TagService(api);
   const quizService = new QuizService(api);
+  const { currentPalette } = useTheme();
 
   useEffect(() => {
     loadAnalyticsData();
@@ -347,14 +349,14 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
                       y1={y}
                       x2={nextX}
                       y2={nextY}
-                      stroke="#3B82F6"
+                      stroke={currentPalette.colors.interactive.primary}
                       strokeWidth="2"
                     />
                     <circle
                       cx={x}
                       cy={y}
                       r="4"
-                      fill="#3B82F6"
+                      fill={currentPalette.colors.interactive.primary}
                     />
                   </g>
                 );
@@ -366,7 +368,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
                   cx={x}
                   cy={y}
                   r="4"
-                  fill="#3B82F6"
+                  fill={currentPalette.colors.interactive.primary}
                 />
               );
             })}

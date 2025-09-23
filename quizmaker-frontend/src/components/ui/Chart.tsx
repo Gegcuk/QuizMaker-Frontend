@@ -149,7 +149,7 @@ const Chart: React.FC<ChartProps> = ({
                 key={index}
                 d={pathData}
                 fill={color}
-                stroke="white"
+                stroke={currentPalette.colors.bg.primary}
                 strokeWidth="1"
                 className="cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => onDataPointClick?.(point, index)}
