@@ -18,6 +18,7 @@ export { useToast } from './ui/Toast';
 // Form Components
 export { default as Form, useFormContext } from './ui/Form';
 export { default as FormField } from './ui/FormField';
+export { default as InstructionsModal } from './ui/InstructionsModal';
 
 // Example Components
 export { default as QuizCreationForm } from './examples/QuizCreationForm';

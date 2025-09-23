@@ -220,8 +220,8 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
       )}
 
       {completionPercentage > 0 && completionPercentage < 100 && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <div className="text-sm text-yellow-700">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+          <div className="text-sm text-theme-text-secondary">
             ⚠️ {totalGaps - filledGaps} gap{totalGaps - filledGaps !== 1 ? 's' : ''} remaining
           </div>
         </div>

@@ -166,8 +166,8 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
       {/* No Selection Warning */}
       {selectedStatements.length === 0 && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <div className="text-sm text-yellow-700">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+          <div className="text-sm text-theme-text-secondary">
             Please select at least one compliant statement to continue.
           </div>
         </div>

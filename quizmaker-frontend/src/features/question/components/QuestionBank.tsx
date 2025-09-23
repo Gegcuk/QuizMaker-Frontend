@@ -124,44 +124,44 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+    <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Question Bank</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-lg font-medium text-theme-text-primary">Question Bank</h3>
+            <p className="text-sm text-theme-text-tertiary">
               Browse and select questions from your question library
             </p>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-theme-text-tertiary">
             {filteredQuestions.length} question{filteredQuestions.length !== 1 ? 's' : ''} found
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Search</label>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search questions..."
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             />
           </div>
 
           {/* Type Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Type</label>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as QuestionType | 'ALL')}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
               <option value="ALL">All Types</option>
               <option value="MCQ_SINGLE">Multiple Choice (Single)</option>
@@ -178,11 +178,11 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
           {/* Difficulty Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Difficulty</label>
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value as QuestionDifficulty | 'ALL')}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
             >
               <option value="ALL">All Difficulties</option>
               <option value="EASY">Easy</option>
@@ -200,7 +200,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                 setSelectedType('ALL');
                 setSelectedDifficulty('ALL');
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
             >
               Clear Filters
             </button>
@@ -210,15 +210,15 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+        <div className="px-6 py-4 bg-theme-bg-danger border-b border-theme-border-danger">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-theme-text-danger" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-theme-text-danger">{error}</p>
             </div>
           </div>
         </div>
@@ -228,11 +228,11 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       <div className="divide-y divide-gray-200">
         {paginatedQuestions.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No questions found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No questions found</h3>
+            <p className="mt-1 text-sm text-theme-text-tertiary">
               Try adjusting your search criteria or filters.
             </p>
           </div>
@@ -242,8 +242,8 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
             return (
               <div
                 key={question.id}
-                className={`p-3 group hover:bg-gray-50 cursor-pointer transition-colors ${
-                  isSelected ? 'bg-indigo-50 border-l-4 border-indigo-400' : ''
+                className={`p-3 group hover:bg-theme-bg-secondary cursor-pointer transition-colors ${
+                  isSelected ? 'bg-theme-bg-tertiary border-l-4 border-theme-interactive-primary' : ''
                 }`}
                 onClick={() => handleQuestionSelect(question)}
               >
@@ -254,7 +254,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleQuestionSelect(question)}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
@@ -278,17 +278,17 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                       <Badge variant="info" size="sm">{question.type.replace('_', ' ')}</Badge>
                     </div>
                     
-                    <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-indigo-700">
+                    <h4 className="text-sm font-medium text-theme-text-primary mb-1 group-hover:text-theme-interactive-primary">
                       {truncateText(question.questionText, 100)}
                     </h4>
                     
                     {question.hint && (
-                      <p className="text-xs text-gray-500 mb-1">
+                      <p className="text-xs text-theme-text-tertiary mb-1">
                         Hint: {truncateText(question.hint, 80)}
                       </p>
                     )}
 
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 text-xs text-theme-text-tertiary">
                       <span>ID: {question.id}</span>
                       {question.quizIds.length > 0 && (
                         <span>Used in {question.quizIds.length} quiz{question.quizIds.length !== 1 ? 'zes' : ''}</span>
@@ -332,9 +332,9 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t border-theme-border-primary bg-theme-bg-secondary">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-theme-text-secondary">
               Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredQuestions.length)} of {filteredQuestions.length} results
             </div>
             <div className="flex space-x-2">
@@ -342,18 +342,18 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
                 type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
-              <span className="px-3 py-1 text-sm text-gray-700">
+              <span className="px-3 py-1 text-sm text-theme-text-secondary">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

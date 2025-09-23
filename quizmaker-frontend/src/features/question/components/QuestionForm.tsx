@@ -309,10 +309,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       {/* Header */}
       {!compact && (
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-theme-text-primary">
             {questionId ? 'Edit Question' : 'Create New Question'}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-theme-text-secondary">
             {questionId ? 'Update the question details below.' : 'Fill in the details to create a new question.'}
           </p>
         </div>
@@ -320,15 +320,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="mb-6 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-theme-text-danger" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-theme-text-danger">{error}</p>
             </div>
           </div>
         </div>
@@ -336,15 +336,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
       {/* Edit Mode with Live Preview */}
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white shadow rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Question Details</h3>
+        <div className="bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary">
+          <div className="px-6 py-4 border-b border-theme-border-primary">
+            <h3 className="text-lg font-medium text-theme-text-primary">Question Details</h3>
           </div>
           <div className="px-6 py-6">
             <div className="space-y-6">
                 {/* Question Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                     Question Type
                   </label>
                   <QuestionTypeSelector
@@ -355,27 +355,27 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
                              {/* Question Text */}
                <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                    Question Text
                  </label>
                  <textarea
                    value={formData.questionText}
                    onChange={(e) => handleInputChange('questionText', e.target.value)}
                    rows={4}
-                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                    placeholder="Enter your question here..."
                  />
                </div>
 
                {/* Difficulty */}
                <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                    Difficulty Level
                  </label>
                  <select
                    value={formData.difficulty}
                    onChange={(e) => handleInputChange('difficulty', e.target.value as QuestionDifficulty)}
-                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                  >
                    <option value="EASY">Easy</option>
                    <option value="MEDIUM">Medium</option>
@@ -385,35 +385,35 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
                {/* Hint */}
                <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                    Hint (Optional)
                  </label>
                  <textarea
                    value={formData.hint || ''}
                    onChange={(e) => handleInputChange('hint', e.target.value)}
                    rows={2}
-                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                    placeholder="Provide a hint for students..."
                  />
                </div>
 
                {/* Explanation */}
                <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                    Explanation (Optional)
                  </label>
                  <textarea
                    value={formData.explanation || ''}
                    onChange={(e) => handleInputChange('explanation', e.target.value)}
                    rows={3}
-                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                    placeholder="Provide an explanation for the correct answer..."
                  />
                </div>
 
                 {/* Type-specific Content */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                     {formData.type.replace('_', ' ')} Content
                   </label>
                   {(() => {
@@ -496,8 +496,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   })()}
                 </div>
               {/* Live Preview at bottom */}
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Live Preview (Attempt-like)</h4>
+              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+                <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Live Preview (Attempt-like)</h4>
                 {(() => {
                   const q = toAttemptQuestion();
                   switch (q.type) {
@@ -589,7 +589,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
           >
             Cancel
           </button>
@@ -598,7 +598,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               type="button"
               onClick={handleSaveAndAddAnother}
               disabled={saving || !formData.questionText.trim()}
-              className="inline-flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex justify-center py-2 px-4 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>
@@ -613,7 +613,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           <button
             type="submit"
             disabled={saving || !formData.questionText.trim()}
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
               <>

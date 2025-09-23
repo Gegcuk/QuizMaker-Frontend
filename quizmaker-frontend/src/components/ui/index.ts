@@ -28,6 +28,7 @@ export { default as Form, useFormContext } from './Form';
 export { default as FormField } from './FormField';
 export { default as ValidationMessage } from './ValidationMessage';
 export { default as FileUpload } from './FileUpload';
+export { default as InstructionsModal } from './InstructionsModal';
 
 // Theme Components
 export { default as ThemeToggle } from './ThemeToggle';

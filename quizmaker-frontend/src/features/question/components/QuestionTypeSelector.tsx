@@ -23,56 +23,56 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       label: 'Multiple Choice (Single Answer)',
       description: 'Choose one correct answer from multiple options',
       icon: '🔘',
-      color: 'bg-blue-50 border-blue-200 text-blue-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'MCQ_MULTI' as QuestionType,
       label: 'Multiple Choice (Multiple Answers)',
       description: 'Choose multiple correct answers from options',
       icon: '☑️',
-      color: 'bg-green-50 border-green-200 text-green-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'TRUE_FALSE' as QuestionType,
       label: 'True/False',
       description: 'Simple true or false question',
       icon: '✅',
-      color: 'bg-purple-50 border-purple-200 text-purple-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'FILL_GAP' as QuestionType,
       label: 'Fill in the Blank',
       description: 'Complete missing words in text',
       icon: '⬜',
-      color: 'bg-orange-50 border-orange-200 text-orange-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'COMPLIANCE' as QuestionType,
       label: 'Compliance',
       description: 'Identify compliant/non-compliant statements',
       icon: '📋',
-      color: 'bg-red-50 border-red-200 text-red-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'ORDERING' as QuestionType,
       label: 'Ordering',
       description: 'Arrange items in correct order',
       icon: '📊',
-      color: 'bg-indigo-50 border-indigo-200 text-indigo-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'HOTSPOT' as QuestionType,
       label: 'Hotspot',
       description: 'Click on correct areas in an image',
       icon: '🎯',
-      color: 'bg-pink-50 border-pink-200 text-pink-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'MATCHING' as QuestionType,
       label: 'Matching',
       description: 'Match items from two columns together',
       icon: '🔗',
-      color: 'bg-teal-50 border-teal-200 text-teal-700'
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     }
   ];
 
@@ -85,7 +85,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
           className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-colors ${
             selectedType === questionType.type
               ? `${questionType.color} border-current`
-              : 'bg-white border-gray-200 hover:border-gray-300'
+              : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary'
           }`}
           onClick={() => onTypeChange(questionType.type)}
         >
@@ -97,7 +97,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
               value={questionType.type}
               checked={selectedType === questionType.type}
               onChange={() => onTypeChange(questionType.type)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
             />
           </div>
 
@@ -105,11 +105,11 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
           <div className="ml-3 flex-1">
             <div className="flex items-center">
               <span className="text-lg mr-2">{questionType.icon}</span>
-              <label className="text-sm font-medium text-gray-900 cursor-pointer">
+              <label className="text-sm font-medium text-theme-text-primary cursor-pointer">
                 {questionType.label}
               </label>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-theme-text-tertiary">
               {questionType.description}
             </p>
           </div>

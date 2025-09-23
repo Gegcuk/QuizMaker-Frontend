@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionDto } from '@/types';
+import { InstructionsModal } from '@/components';
 
 interface MatchingQuestionProps {
   question: QuestionDto;
@@ -87,22 +88,22 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
   return (
     <div className={`matching-question space-y-6 ${className}`}>
       {/* Question Text */}
-      <div className="text-lg font-medium text-gray-900">
-        {question.text}
+      <div className="text-lg font-medium text-theme-text-primary">
+        {question.questionText}
       </div>
 
       {/* Matching Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column */}
         <div className="space-y-3">
-          <h4 className="font-medium text-gray-700 mb-3">Column A</h4>
+          <h4 className="font-medium text-theme-text-secondary mb-3">Column A</h4>
           {leftItems.map((leftItem) => (
             <div
               key={leftItem.id}
               className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                 matches[leftItem.id]
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-theme-interactive-primary bg-theme-bg-tertiary'
+                  : 'border-theme-border-primary hover:border-theme-border-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => {
                 if (!disabled) {
@@ -117,9 +118,9 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-gray-900">{leftItem.text}</span>
+                <span className="text-theme-text-primary">{leftItem.text}</span>
                 {matches[leftItem.id] && (
-                  <span className="text-blue-600 font-medium">Selected</span>
+                  <span className="text-theme-interactive-primary font-medium">Selected</span>
                 )}
               </div>
             </div>
@@ -128,14 +129,14 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
         {/* Right Column */}
         <div className="space-y-3">
-          <h4 className="font-medium text-gray-700 mb-3">Column B</h4>
+          <h4 className="font-medium text-theme-text-secondary mb-3">Column B</h4>
           {rightItems.map((rightItem) => (
             <div
               key={rightItem.id}
               className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                 Object.values(matches).includes(rightItem.id)
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-theme-interactive-success bg-theme-bg-tertiary'
+                  : 'border-theme-border-primary hover:border-theme-border-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => {
                 if (!disabled) {
@@ -155,9 +156,9 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-gray-900">{rightItem.text}</span>
+                <span className="text-theme-text-primary">{rightItem.text}</span>
                 {Object.values(matches).includes(rightItem.id) && (
-                  <span className="text-green-600 font-medium">Matched</span>
+                  <span className="text-theme-interactive-success font-medium">Matched</span>
                 )}
               </div>
             </div>
@@ -166,15 +167,15 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-        <strong>Instructions:</strong> Click on items from Column A and Column B to create matches. 
+      <InstructionsModal title="Instructions">
+        Click on items from Column A and Column B to create matches. 
         Click again to remove a match.
-      </div>
+      </InstructionsModal>
 
       {/* Answer Summary */}
       {Object.keys(matches).length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div className="text-sm text-blue-700">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3">
+          <div className="text-sm text-theme-text-secondary">
             <strong>Current Matches:</strong>
             <div className="mt-1 space-y-1">
               {Object.entries(matches).map(([leftId, rightId]) => {
@@ -193,8 +194,8 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
       {/* Correct Answer Display */}
       {showCorrectAnswer && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <div className="text-sm text-green-700">
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-lg p-3">
+          <div className="text-sm text-theme-text-secondary">
             <strong>Correct Answer:</strong>
             <div className="mt-1 space-y-1">
               {leftItems.map((leftItem) => {

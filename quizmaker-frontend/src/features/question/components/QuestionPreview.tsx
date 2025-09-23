@@ -69,13 +69,13 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'EASY':
-        return 'bg-green-100 text-green-800';
+        return 'bg-theme-bg-tertiary text-theme-text-secondary';
       case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-theme-bg-tertiary text-theme-text-secondary';
       case 'HARD':
-        return 'bg-red-100 text-red-800';
+        return 'bg-theme-bg-tertiary text-theme-text-secondary';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-theme-bg-tertiary text-theme-text-primary';
     }
   };
 
@@ -91,9 +91,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   name="preview-answer"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
                 />
-                <label htmlFor={`option-${option.id}`} className="text-sm text-gray-700">
+                <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
                 </label>
                 {option.correct && (
@@ -113,9 +113,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`option-${option.id}`}
                   disabled
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                 />
-                <label htmlFor={`option-${option.id}`} className="text-sm text-gray-700">
+                <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
                   {option.text || `Option ${option.id.toUpperCase()}`}
                 </label>
                 {option.correct && (
@@ -135,9 +135,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="true-option"
                 disabled
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
               />
-              <label htmlFor="true-option" className="text-sm text-gray-700">True</label>
+              <label htmlFor="true-option" className="text-sm text-theme-text-secondary">True</label>
             </div>
             <div className="flex items-center space-x-3">
               <input
@@ -145,13 +145,13 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 name="preview-tf"
                 id="false-option"
                 disabled
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
               />
-              <label htmlFor="false-option" className="text-sm text-gray-700">False</label>
+              <label htmlFor="false-option" className="text-sm text-theme-text-secondary">False</label>
             </div>
             {question.content && 'answer' in question.content && (
               <div className="mt-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-bg-tertiary text-theme-text-secondary">
                   Correct Answer: {question.content.answer ? 'True' : 'False'}
                 </span>
               </div>
@@ -166,12 +166,12 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
               placeholder="Enter your answer here..."
               disabled
               rows={4}
-              className="block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary"
             />
             {question.content && 'answer' in question.content && (
               <div className="mt-2">
-                <span className="text-sm font-medium text-gray-700">Model Answer:</span>
-                <p className="text-sm text-gray-600 mt-1">{question.content.answer}</p>
+                <span className="text-sm font-medium text-theme-text-secondary">Model Answer:</span>
+                <p className="text-sm text-theme-text-secondary mt-1">{question.content.answer}</p>
               </div>
             )}
           </div>
@@ -181,20 +181,20 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'text' in question.content && (
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-theme-text-secondary">
                 <p>{question.content.text}</p>
               </div>
             )}
             {question.content && 'gaps' in question.content && (question.content.gaps as GapAnswer[]).map((gap) => (
               <div key={gap.id} className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">Gap {gap.id}:</span>
+                <span className="text-sm text-theme-text-secondary">Gap {gap.id}:</span>
                 <input
                   type="text"
                   placeholder="Fill in the blank"
                   disabled
-                  className="block w-32 border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 text-sm"
+                  className="block w-32 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-secondary text-theme-text-tertiary text-sm"
                 />
-                <span className="text-xs text-gray-500">Answer: {gap.answer}</span>
+                <span className="text-xs text-theme-text-tertiary">Answer: {gap.answer}</span>
               </div>
             ))}
           </div>
@@ -209,9 +209,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   type="checkbox"
                   id={`statement-${statement.id}`}
                   disabled
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                 />
-                <label htmlFor={`statement-${statement.id}`} className="text-sm text-gray-700">
+                <label htmlFor={`statement-${statement.id}`} className="text-sm text-theme-text-secondary">
                   {statement.text}
                 </label>
                 <Badge variant={statement.compliant ? 'success' : 'danger'} size="sm">
@@ -227,11 +227,11 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           <div className="space-y-3">
             {question.content && 'items' in question.content && (question.content.items as OrderingItem[]).map((item, index) => (
               <div key={item.id} className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-gray-500 w-8">{index + 1}.</span>
-                <div className="flex-1 text-sm text-gray-700">{item.text}</div>
+                <span className="text-sm font-medium text-theme-text-tertiary w-8">{index + 1}.</span>
+                <div className="flex-1 text-sm text-theme-text-secondary">{item.text}</div>
               </div>
             ))}
-            <p className="text-xs text-gray-500 mt-2">Drag to reorder items</p>
+            <p className="text-xs text-theme-text-tertiary mt-2">Drag to reorder items</p>
           </div>
         );
 
@@ -239,9 +239,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'imageUrl' in question.content && (
-              <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                <div className="text-center text-gray-500">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+                <div className="text-center text-theme-text-tertiary">
+                  <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <p className="mt-2 text-sm">Image: {question.content.imageUrl}</p>
@@ -249,7 +249,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
               </div>
             )}
             {question.content && 'regions' in question.content && question.content.regions.length > 0 && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-theme-text-tertiary">
                 {question.content.regions.length} hotspot region(s) defined
               </div>
             )}
@@ -258,7 +258,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
       default:
         return (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-theme-text-tertiary">
             Preview not available for this question type
           </div>
         );
@@ -266,15 +266,15 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <span className="text-lg">{getQuestionTypeIcon(question.type)}</span>
             <div>
-              <h3 className="text-lg font-medium text-gray-900">Question Preview</h3>
-              <p className="text-sm text-gray-500">{getQuestionTypeLabel(question.type)}</p>
+              <h3 className="text-lg font-medium text-theme-text-primary">Question Preview</h3>
+              <p className="text-sm text-theme-text-tertiary">{getQuestionTypeLabel(question.type)}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -298,25 +298,25 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       <div className="px-6 py-6">
         {/* Question Text */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Question:</h4>
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Question:</h4>
           <div 
-            className="prose max-w-none text-gray-900"
+            className="prose max-w-none text-theme-text-primary"
             dangerouslySetInnerHTML={{ __html: question.questionText || 'No question text provided' }}
           />
         </div>
 
         {/* Question Type Specific Content */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Answer Options:</h4>
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Answer Options:</h4>
           {renderQuestionContent()}
         </div>
 
         {/* Explanation */}
         {question.explanation && (
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Explanation:</h4>
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-              <p className="text-sm text-blue-800">{question.explanation}</p>
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Explanation:</h4>
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3">
+              <p className="text-sm text-theme-text-primary">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -324,16 +324,16 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         {/* Hint */}
         {question.hint && (
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Hint:</h4>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-              <p className="text-sm text-yellow-800">{question.hint}</p>
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3">
+              <p className="text-sm text-theme-text-primary">{question.hint}</p>
             </div>
           </div>
         )}
 
         {/* Metadata */}
-        <div className="border-t border-gray-200 pt-4">
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+        <div className="border-t border-theme-border-primary pt-4">
+          <div className="grid grid-cols-2 gap-4 text-sm text-theme-text-tertiary">
             <div>
               <span className="font-medium">Type:</span> {getQuestionTypeLabel(question.type)}
             </div>

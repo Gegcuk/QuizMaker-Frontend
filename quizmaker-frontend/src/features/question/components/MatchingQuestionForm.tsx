@@ -86,7 +86,7 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-700">Matching Pairs</h4>
+        <h4 className="text-sm font-medium text-theme-text-secondary">Matching Pairs</h4>
         <Button
           type="button"
           variant="secondary"
@@ -101,9 +101,9 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
         {leftItems.map((leftItem, index) => {
           const rightItem = rightItems.find(item => item.id === leftItem.matchId);
           return (
-            <div key={leftItem.id} className="border border-gray-200 rounded-lg p-4">
+            <div key={leftItem.id} className="border border-theme-border-primary rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-600">Pair {index + 1}</span>
+                <span className="text-sm font-medium text-theme-text-secondary">Pair {index + 1}</span>
                 {leftItems.length > 2 && (
                   <Button
                     type="button"
@@ -118,7 +118,7 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-1">
                     Left Item
                   </label>
                   <Input
@@ -131,7 +131,7 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-1">
                     Right Item (Match)
                   </label>
                   <Input
@@ -150,24 +150,24 @@ export const MatchingQuestionForm: React.FC<MatchingQuestionFormProps> = ({
       </div>
 
       {showPreview && (
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Preview</h4>
+        <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary">
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Preview</h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h5 className="text-xs font-medium text-gray-600 mb-2">Left Column</h5>
+              <h5 className="text-xs font-medium text-theme-text-secondary mb-2">Left Column</h5>
               <div className="space-y-1">
                 {leftItems.map(item => (
-                  <div key={item.id} className="text-sm bg-white p-2 rounded border">
+                  <div key={item.id} className="text-sm bg-theme-bg-primary p-2 rounded border">
                     {item.text || `Item ${item.id}`}
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <h5 className="text-xs font-medium text-gray-600 mb-2">Right Column</h5>
+              <h5 className="text-xs font-medium text-theme-text-secondary mb-2">Right Column</h5>
               <div className="space-y-1">
                 {rightItems.map(item => (
-                  <div key={item.id} className="text-sm bg-white p-2 rounded border">
+                  <div key={item.id} className="text-sm bg-theme-bg-primary p-2 rounded border">
                     {item.text || `Match ${item.id}`}
                   </div>
                 ))}

@@ -252,7 +252,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       </div>
 
       {/* Image Container */}
-      <div className="relative border border-gray-200 rounded-lg overflow-hidden">
+      <div className="relative border border-theme-border-primary rounded-lg overflow-hidden">
         <canvas
           ref={canvasRef}
           width={600}
@@ -286,7 +286,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
             type="button"
             onClick={handleClearSelection}
             disabled={disabled}
-            className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            className="text-sm text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50"
           >
             Clear Selection
           </button>
@@ -308,8 +308,8 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       )}
 
       {/* Instructions */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <div className="text-sm text-blue-700">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="text-sm text-theme-text-secondary">
           <strong>Instructions:</strong> {imageUrl ? (
             <>Click and drag on the image to create a selection box around the correct area. The blue dashed lines show predefined regions for reference.</>
           ) : (
@@ -319,8 +319,8 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       </div>
 
       {/* Tips */}
-      <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="text-sm text-gray-700">
+      <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+        <div className="text-sm text-theme-text-secondary">
           <strong>Tips:</strong>
           <ul className="mt-1 ml-4 list-disc">
             <li>Make sure your selection covers the entire target area</li>
@@ -333,8 +333,8 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
       {/* No Selection Warning */}
       {!selectedRegion && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <div className="text-sm text-yellow-700">
+        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
+          <div className="text-sm text-theme-text-secondary">
             Please select a region on the image to continue.
           </div>
         </div>
