@@ -6,6 +6,7 @@
 import React from 'react';
 import { Badge } from '@/components';
 import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer } from '@/types';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
 interface QuestionPreviewProps {
   question: CreateQuestionRequest;
@@ -16,30 +17,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   question,
   className = ''
 }) => {
-  const getQuestionTypeIcon = (type: QuestionType) => {
-    switch (type) {
-      case 'MCQ_SINGLE':
-        return '🔘';
-      case 'MCQ_MULTI':
-        return '☑️';
-      case 'TRUE_FALSE':
-        return '✅';
-      case 'OPEN':
-        return '📝';
-      case 'FILL_GAP':
-        return '⬜';
-      case 'COMPLIANCE':
-        return '📋';
-      case 'ORDERING':
-        return '📊';
-      case 'HOTSPOT':
-        return '🎯';
-      case 'MATCHING':
-        return '🔗';
-      default:
-        return '❓';
-    }
-  };
 
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {

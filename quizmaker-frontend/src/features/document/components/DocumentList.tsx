@@ -140,7 +140,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       case 'FAILED':
         return <XCircleIcon className="h-5 w-5 text-red-500" />;
       default:
-        return <DocumentTextIcon className="h-5 w-5 text-gray-500" />;
+        return <DocumentTextIcon className="h-5 w-5 text-theme-text-tertiary" />;
     }
   };
 
@@ -173,10 +173,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       header: 'Document',
       render: (document: DocumentDto) => (
         <div className="flex items-center space-x-3">
-          <DocumentTextIcon className="h-8 w-8 text-gray-400" />
+          <DocumentTextIcon className="h-8 w-8 text-theme-text-tertiary" />
           <div>
-            <div className="font-medium text-gray-900">{document?.title || document?.originalFilename || 'Untitled Document'}</div>
-            <div className="text-sm text-gray-500">{document?.originalFilename || 'Unknown file'}</div>
+            <div className="font-medium text-theme-text-primary">{document?.title || document?.originalFilename || 'Untitled Document'}</div>
+            <div className="text-sm text-theme-text-tertiary">{document?.originalFilename || 'Unknown file'}</div>
           </div>
         </div>
       )
@@ -195,7 +195,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       key: 'details',
       header: 'Details',
       render: (document: DocumentDto) => (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           <div>{formatFileSize(document?.fileSize || 0)}</div>
           <div>{document?.totalPages || 0} pages</div>
           <div>{document?.totalChunks || 0} chunks</div>
@@ -206,7 +206,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       key: 'uploadedAt',
       header: 'Uploaded',
       render: (document: DocumentDto) => (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-theme-text-secondary">
           {document?.uploadedAt ? new Date(document.uploadedAt).toLocaleDateString() : 'Unknown'}
         </div>
       )
@@ -272,7 +272,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-theme-text-tertiary" />
               <Input
                 type="text"
                 placeholder="Search documents..."
@@ -284,11 +284,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <FunnelIcon className="h-5 w-5 text-gray-400" />
+            <FunnelIcon className="h-5 w-5 text-theme-text-tertiary" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-theme-border-primary rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
             >
               <option value="ALL">All Status</option>
               <option value="UPLOADED">Uploaded</option>

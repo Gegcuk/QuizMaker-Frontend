@@ -126,7 +126,7 @@ export const UserActivation: React.FC<UserActivationProps> = ({
           }`}>
             {isActive ? 'Active' : 'Inactive'}
           </span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-theme-text-tertiary">
             {user?.username || `User ${userId}`}
           </span>
         </div>
@@ -233,7 +233,7 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
   }
 
   return (
-    <div className={`bg-gray-50 border border-gray-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium text-gray-900">
           Bulk User Operations

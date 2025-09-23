@@ -153,7 +153,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
             handleToggle();
           }
         }}
-        className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        className="flex items-center space-x-2 p-2 rounded-full hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="User menu"
@@ -165,7 +165,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
         
         {/* User Info - Hidden on mobile */}
         <div className="hidden sm:block text-left">
-          <div className="text-sm font-medium text-gray-900 truncate max-w-32">
+          <div className="text-sm font-medium text-theme-text-primary truncate max-w-32">
             {user.username}
           </div>
           <div className="text-xs text-gray-500 truncate max-w-32">

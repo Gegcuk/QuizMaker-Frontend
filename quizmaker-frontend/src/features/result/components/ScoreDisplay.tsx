@@ -38,11 +38,11 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
   };
 
   const getScoreColor = (percentage: number): string => {
-    if (percentage >= 90) return 'text-green-600 bg-green-100 border-green-200';
-    if (percentage >= 80) return 'text-blue-600 bg-blue-100 border-blue-200';
-    if (percentage >= 70) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
-    if (percentage >= 60) return 'text-orange-600 bg-orange-100 border-orange-200';
-    return 'text-red-600 bg-red-100 border-red-200';
+    if (percentage >= 90) return 'text-theme-interactive-success bg-theme-bg-tertiary border-theme-border-primary';
+    if (percentage >= 80) return 'text-theme-interactive-info bg-theme-bg-tertiary border-theme-border-primary';
+    if (percentage >= 70) return 'text-theme-interactive-warning bg-theme-bg-tertiary border-theme-border-primary';
+    if (percentage >= 60) return 'text-theme-interactive-warning bg-theme-bg-tertiary border-theme-border-primary';
+    return 'text-theme-interactive-danger bg-theme-bg-tertiary border-theme-border-primary';
   };
 
   const getScoreMessage = (percentage: number): string => {
@@ -80,16 +80,16 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
     : '0m';
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Main Score Display */}
       <div className="text-center mb-8">
         <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full text-6xl font-bold mb-4 border-4 ${getScoreColor(score)}`}>
           {Math.round(score)}%
         </div>
-        <div className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="text-2xl font-bold text-theme-text-primary mb-2">
           Grade: {getScoreGrade(score)}
         </div>
-        <div className="text-lg text-gray-600 mb-4">
+        <div className="text-lg text-theme-text-secondary mb-4">
           {getScoreMessage(score)}
         </div>
         
@@ -98,7 +98,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           {getAchievementBadges(score).map((badge, index) => (
             <span
               key={index}
-              className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full border border-yellow-200"
+              className="px-3 py-1 bg-theme-bg-tertiary text-theme-interactive-warning text-sm font-medium rounded-full border border-theme-border-primary"
             >
               {badge}
             </span>
@@ -108,26 +108,26 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
       {/* Score Breakdown */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-          <div className="text-3xl font-bold text-green-600">{result.correctCount}</div>
-          <div className="text-sm text-green-700 font-medium">Correct</div>
-          <div className="text-xs text-green-600 mt-1">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+          <div className="text-3xl font-bold text-theme-interactive-success">{result.correctCount}</div>
+          <div className="text-sm text-theme-interactive-success font-medium">Correct</div>
+          <div className="text-xs text-theme-interactive-success mt-1">
             {Math.round((result.correctCount / result.totalQuestions) * 100)}%
           </div>
         </div>
         
-        <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-          <div className="text-3xl font-bold text-red-600">{incorrectCount}</div>
-          <div className="text-sm text-red-700 font-medium">Incorrect</div>
-          <div className="text-xs text-red-600 mt-1">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+          <div className="text-3xl font-bold text-theme-interactive-danger">{incorrectCount}</div>
+          <div className="text-sm text-theme-interactive-danger font-medium">Incorrect</div>
+          <div className="text-xs text-theme-interactive-danger mt-1">
             {Math.round((incorrectCount / result.totalQuestions) * 100)}%
           </div>
         </div>
         
-        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="text-3xl font-bold text-blue-600">{Math.round(accuracy)}%</div>
-          <div className="text-sm text-blue-700 font-medium">Accuracy</div>
-          <div className="text-xs text-blue-600 mt-1">
+        <div className="text-center p-4 bg-theme-bg-tertiary rounded-lg border border-theme-border-primary">
+          <div className="text-3xl font-bold text-theme-interactive-info">{Math.round(accuracy)}%</div>
+          <div className="text-sm text-theme-interactive-info font-medium">Accuracy</div>
+          <div className="text-xs text-theme-interactive-info mt-1">
             {result.correctCount}/{result.totalQuestions}
           </div>
         </div>
@@ -144,11 +144,11 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       {/* Performance Metrics */}
       {showDetails && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+          <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Performance Metrics</h3>
           <div className="space-y-4">
             {/* Overall Score Progress */}
             <div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
                 <span>Overall Score</span>
                 <span>{Math.round(score)}%</span>
               </div>
@@ -162,7 +162,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
             {/* Accuracy Progress */}
             <div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
                 <span>Accuracy</span>
                 <span>{Math.round(accuracy)}%</span>
               </div>
@@ -176,7 +176,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
             {/* Score Distribution */}
             <div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
                 <span>Score Distribution</span>
               </div>
               <div className="flex h-3 rounded-full overflow-hidden">
@@ -189,7 +189,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
                   style={{ width: `${(incorrectCount / result.totalQuestions) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-theme-text-tertiary mt-1">
                 <span>Correct ({result.correctCount})</span>
                 <span>Incorrect ({incorrectCount})</span>
               </div>
@@ -199,30 +199,30 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       )}
 
       {/* Timing Information */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-900 mb-3">Timing Information</h3>
+      <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-3">Timing Information</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-gray-700">Total Time:</span>
-            <div className="text-lg font-bold text-gray-900">
+            <span className="font-medium text-theme-text-secondary">Total Time:</span>
+            <div className="text-lg font-bold text-theme-text-primary">
               {formatDuration(result.startedAt, result.completedAt)}
             </div>
           </div>
           <div>
-            <span className="font-medium text-gray-700">Average per Question:</span>
-            <div className="text-lg font-bold text-gray-900">
+            <span className="font-medium text-theme-text-secondary">Average per Question:</span>
+            <div className="text-lg font-bold text-theme-text-primary">
               {averageTimePerQuestion}
             </div>
           </div>
           <div>
-            <span className="font-medium text-gray-700">Started:</span>
-            <div className="text-gray-900">
+            <span className="font-medium text-theme-text-secondary">Started:</span>
+            <div className="text-theme-text-primary">
               {new Date(result.startedAt).toLocaleTimeString()}
             </div>
           </div>
           <div>
-            <span className="font-medium text-gray-700">Completed:</span>
-            <div className="text-gray-900">
+            <span className="font-medium text-theme-text-secondary">Completed:</span>
+            <div className="text-theme-text-primary">
               {new Date(result.completedAt).toLocaleTimeString()}
             </div>
           </div>

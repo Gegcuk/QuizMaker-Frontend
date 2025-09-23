@@ -62,7 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       {label && (
         <label 
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-theme-text-secondary mb-1"
         >
           {label}
         </label>
@@ -71,7 +71,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       <div className="relative">
         {leftIcon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <div className="text-gray-400">
+            <div className="text-theme-text-tertiary">
               {leftIcon}
             </div>
           </div>
@@ -86,7 +86,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         
         {rightIcon && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <div className="text-gray-400">
+            <div className="text-theme-text-tertiary">
               {rightIcon}
             </div>
           </div>
@@ -100,7 +100,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       )}
       
       {helperText && !error && (
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           {helperText}
         </p>
       )}

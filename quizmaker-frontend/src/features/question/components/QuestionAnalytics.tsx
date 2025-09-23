@@ -131,9 +131,9 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
 
   if (error || !analytics) {
     return (
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-lg font-medium text-gray-900">Question Analytics</h3>
+      <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
+          <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
         </div>
         <div className="px-6 py-12 text-center">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -159,7 +159,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Question Analytics</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
             <p className="text-sm text-gray-500">
               Performance metrics and insights
             </p>

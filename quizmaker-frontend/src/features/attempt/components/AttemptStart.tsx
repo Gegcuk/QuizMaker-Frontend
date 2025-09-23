@@ -170,10 +170,10 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
   if (isLoadingQuiz) {
     return (
-      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
         <div className="flex justify-center items-center py-8">
           <Spinner size="lg" />
-          <span className="ml-3 text-gray-600">Loading quiz details...</span>
+          <span className="ml-3 text-theme-text-secondary">Loading quiz details...</span>
         </div>
       </div>
     );
@@ -184,10 +184,10 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">
           Start {quizTitle}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Choose your attempt mode and begin the quiz
         </p>
       </div>
@@ -214,7 +214,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Attempt Mode Selection */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-theme-text-secondary mb-3">
           Attempt Mode
         </label>
         <div className="space-y-3">
@@ -229,8 +229,8 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
                 key={mode}
                 className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
                   isSelected
-                    ? 'border-indigo-500 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-theme-interactive-primary bg-theme-bg-tertiary'
+                    : 'border-theme-border-primary hover:border-theme-border-secondary hover:bg-theme-bg-secondary'
                 } ${!availability.available ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <input
@@ -240,14 +240,14 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
                   checked={isSelected}
                   onChange={() => handleModeChange(mode)}
                   disabled={!availability.available}
-                  className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                  className="mt-1 h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary"
                 />
                 <div className="ml-3 flex-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="text-xl mr-2">{modeData.icon}</span>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-theme-text-primary">
                           {modeData.title}
                           {isRecommended && (
                             <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
@@ -255,7 +255,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-theme-text-tertiary">
                           {modeData.description}
                         </div>
                       </div>
@@ -264,7 +264,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
                   
                   {/* Features */}
                   <div className="mt-3">
-                    <ul className="text-xs text-gray-600 space-y-1">
+                    <ul className="text-xs text-theme-text-secondary space-y-1">
                       {modeData.features.map((feature, index) => (
                         <li key={index} className="flex items-center">
                           <span className="mr-2">•</span>
@@ -276,7 +276,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
                   {/* Availability Info */}
                   {!availability.available && (
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-theme-text-tertiary">
                       {availability.reason}
                     </div>
                   )}

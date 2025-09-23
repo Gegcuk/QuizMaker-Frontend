@@ -79,7 +79,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
   return (
     <div className="ordering-question">
       {/* Instructions */}
-      <div className="mb-4 text-sm text-gray-600">
+      <div className="mb-4 text-sm text-theme-text-secondary">
         <p>Drag and drop the items to arrange them in the correct order.</p>
       </div>
 
@@ -106,7 +106,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
                   ? 'border-red-300 bg-red-50'
                   : draggedItem === itemId
                   ? 'border-indigo-300 bg-indigo-50 opacity-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-move'}`}
             >
               {/* Order Number */}

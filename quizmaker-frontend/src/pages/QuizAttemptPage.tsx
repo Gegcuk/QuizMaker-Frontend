@@ -703,7 +703,7 @@ const QuizAttemptPage: React.FC = () => {
             />
           </div>
           
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
             <span>
               {questionsAnswered} of {totalQuestions || '?'} questions completed
             </span>
@@ -729,7 +729,7 @@ const QuizAttemptPage: React.FC = () => {
           <button
             onClick={handleSubmitAnswer}
             disabled={submitting || !isAnswerProvided()}
-            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {submitting ? (
               <div className="flex items-center">

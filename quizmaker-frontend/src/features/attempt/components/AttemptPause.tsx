@@ -87,17 +87,17 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
 
   return (
     <>
-      <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className={`w-3 h-3 rounded-full ${
               isPaused ? 'bg-yellow-400' : 'bg-green-400'
             }`} />
             <div>
-              <div className="text-sm font-medium text-gray-900">
+              <div className="text-sm font-medium text-theme-text-primary">
                 {isPaused ? 'Attempt Paused' : 'Attempt Active'}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-theme-text-tertiary">
                 {isPaused 
                   ? 'Your progress has been saved. You can resume anytime.'
                   : 'Your attempt is in progress.'
@@ -142,13 +142,13 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-theme-bg-primary rounded-lg p-6 max-w-md w-full mx-4">
             <div className="text-center">
-              <div className="text-lg font-medium text-gray-900 mb-2">
+              <div className="text-lg font-medium text-theme-text-primary mb-2">
                 {action === 'pause' ? 'Pause Attempt?' : 'Resume Attempt?'}
               </div>
               
-              <div className="text-sm text-gray-600 mb-6">
+              <div className="text-sm text-theme-text-secondary mb-6">
                 {action === 'pause' 
                   ? 'Your progress will be saved and you can resume later. Are you sure you want to pause?'
                   : 'Resume your quiz attempt from where you left off?'
@@ -165,7 +165,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
                 <button
                   onClick={closeConfirmDialog}
                   disabled={isLoading}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Cancel
                 </button>

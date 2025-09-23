@@ -142,7 +142,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     if (isBalanceLoading) {
       return (
         <div className="space-y-4">
-          <div className="bg-white border border-indigo-100 rounded-lg p-4">
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
             <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <div className="h-3 bg-indigo-100 rounded w-24 mb-2" />
@@ -158,7 +158,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               </div>
             </div>
           </div>
-          <div className="bg-white border border-indigo-100 rounded-lg p-4">
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
             <div className="h-4 bg-indigo-100 rounded w-40 mb-2 animate-pulse" />
             <div className="h-16 bg-indigo-100 rounded animate-pulse" />
           </div>
@@ -169,7 +169,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     if (billingDisabled) {
       return (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 text-sm text-theme-text-secondary">
           Billing features are not enabled for this environment yet. Token balance will appear here once available.
         </div>
       );
@@ -302,7 +302,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   if (isLoading) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
             <div className="flex-1">
@@ -338,9 +338,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
+    <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-theme-border-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -349,10 +349,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
               </span>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-theme-text-primary">
                 {isAdminView ? `${displayUser.username}'s Profile` : 'My Profile'}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-theme-text-tertiary">
                 {displayUser.roles.join(', ')} • {displayUser.isActive ? 'Active' : 'Inactive'}
               </p>
             </div>
@@ -402,7 +402,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         {!isAdminView && (
           <div className="mb-6 space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-medium text-gray-700">Token Balance</h3>
+              <h3 className="text-sm font-medium text-theme-text-secondary">Token Balance</h3>
               {!billingDisabled && (
                 <button
                   type="button"
@@ -425,7 +425,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         {isEditing ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="block text-sm font-medium text-theme-text-secondary">
                 Username
               </label>
               <input
@@ -445,7 +445,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-theme-text-secondary">
                 Email Address
               </label>
               <input
@@ -482,7 +482,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                     email: displayUser.email
                   });
                 }}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="flex-1 bg-gray-300 text-theme-text-secondary py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
@@ -491,18 +491,18 @@ const UserProfile: React.FC<UserProfileProps> = ({
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Username</label>
-              <p className="mt-1 text-sm text-gray-900">{displayUser.username}</p>
+              <label className="block text-sm font-medium text-theme-text-secondary">Username</label>
+              <p className="mt-1 text-sm text-theme-text-primary">{displayUser.username}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email Address</label>
-              <p className="mt-1 text-sm text-gray-900">{displayUser.email}</p>
+              <label className="block text-sm font-medium text-theme-text-secondary">Email Address</label>
+              <p className="mt-1 text-sm text-theme-text-primary">{displayUser.email}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Account Status</label>
-              <p className="mt-1 text-sm text-gray-900">
+              <label className="block text-sm font-medium text-theme-text-secondary">Account Status</label>
+              <p className="mt-1 text-sm text-theme-text-primary">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   displayUser.isActive 
                     ? 'bg-green-100 text-green-800' 
@@ -514,7 +514,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Roles</label>
+              <label className="block text-sm font-medium text-theme-text-secondary">Roles</label>
               <div className="mt-1 flex flex-wrap gap-2">
                 {displayUser.roles.map((role) => (
                   <span
@@ -528,16 +528,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Member Since</label>
-              <p className="mt-1 text-sm text-gray-900">
+              <label className="block text-sm font-medium text-theme-text-secondary">Member Since</label>
+              <p className="mt-1 text-sm text-theme-text-primary">
                 {new Date(displayUser.createdAt).toLocaleDateString()}
               </p>
             </div>
 
             {displayUser.lastLoginDate && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Last Login</label>
-                <p className="mt-1 text-sm text-gray-900">
+                <label className="block text-sm font-medium text-theme-text-secondary">Last Login</label>
+                <p className="mt-1 text-sm text-theme-text-primary">
                   {new Date(displayUser.lastLoginDate).toLocaleString()}
                 </p>
               </div>

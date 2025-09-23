@@ -106,8 +106,8 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
       case 'PROCESSING': return 'text-blue-600 bg-blue-100';
       case 'COMPLETED': return 'text-green-600 bg-green-100';
       case 'FAILED': return 'text-red-600 bg-red-100';
-      case 'CANCELLED': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'CANCELLED': return 'text-theme-text-secondary bg-theme-bg-tertiary';
+      default: return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 

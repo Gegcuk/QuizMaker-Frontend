@@ -160,7 +160,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       case 'FAILED':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -178,7 +178,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
   if (!document) {
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading document information...</p>

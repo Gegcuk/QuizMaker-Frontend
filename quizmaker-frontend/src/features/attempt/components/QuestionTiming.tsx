@@ -6,6 +6,7 @@
 
 import React, { useState } from 'react';
 import { QuestionTimingStatsDto } from '@/types';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
 interface QuestionTimingProps {
   timings: QuestionTimingStatsDto[];
@@ -50,30 +51,6 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
     return hours * 3600 + minutes * 60 + seconds;
   };
 
-  const getQuestionTypeIcon = (type: string): string => {
-    switch (type) {
-      case 'MCQ_SINGLE':
-        return '🔘';
-      case 'MCQ_MULTI':
-        return '☑️';
-      case 'TRUE_FALSE':
-        return '✅';
-      case 'OPEN':
-        return '📝';
-      case 'FILL_GAP':
-        return '🔤';
-      case 'COMPLIANCE':
-        return '📋';
-      case 'ORDERING':
-        return '📊';
-      case 'HOTSPOT':
-        return '🎯';
-      case 'MATCHING':
-        return '🔗';
-      default:
-        return '❓';
-    }
-  };
 
   const getDifficultyColor = (difficulty: string): string => {
     switch (difficulty) {
@@ -84,7 +61,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       case 'HARD':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -169,11 +146,11 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Question Timing Analysis</h2>
-        <p className="text-gray-600">Detailed timing breakdown and performance patterns</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Question Timing Analysis</h2>
+        <p className="text-theme-text-secondary">Detailed timing breakdown and performance patterns</p>
       </div>
 
       {/* Summary Statistics */}
@@ -201,18 +178,18 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
 
       {/* Question Type Performance */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance by Question Type</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance by Question Type</h3>
         <div className="space-y-3">
           {Object.entries(typeStats).map(([type, stats]) => {
             const avgTime = stats.count > 0 ? stats.totalTime / stats.count : 0;
             const accuracy = stats.count > 0 ? (stats.correct / stats.count) * 100 : 0;
             
             return (
-              <div key={type} className="p-4 border border-gray-200 rounded-lg">
+              <div key={type} className="p-4 border border-theme-border-primary rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getQuestionTypeIcon(type)}</span>
-                    <span className="font-medium text-gray-900">{type.replace('_', ' ')}</span>
+                    <span className="font-medium text-theme-text-primary">{type.replace('_', ' ')}</span>
                   </div>
                   <div className="flex space-x-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeColor(avgTime)}`}>
@@ -223,7 +200,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-3 gap-4 text-sm text-theme-text-secondary">
                   <div>Count: {stats.count}</div>
                   <div>Correct: {stats.correct}</div>
                   <div>Total Time: {formatDuration(`PT${Math.floor(stats.totalTime / 60)}M${Math.floor(stats.totalTime % 60)}S`)}</div>
@@ -236,7 +213,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
 
       {/* Sorting Controls */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="text-sm font-medium text-gray-700">Sort by:</span>
+        <span className="text-sm font-medium text-theme-text-secondary">Sort by:</span>
         {(['time', 'accuracy', 'difficulty', 'type'] as const).map((option) => (
           <button
             key={option}
@@ -244,7 +221,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
             className={`px-3 py-1 text-sm rounded-md transition-colors ${
               sortBy === option
                 ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-theme-text-secondary hover:bg-gray-200'
             }`}
           >
             {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -262,10 +239,10 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
           const timeColor = getTimeColor(timeSeconds);
           
           return (
-            <div key={timing.questionId} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div key={timing.questionId} className="p-4 border border-theme-border-primary rounded-lg hover:bg-gray-50 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-600">Q{index + 1}</span>
+                  <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
                   <span className="text-lg">{getQuestionTypeIcon(timing.questionType)}</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(timing.difficulty)}`}>
                     {timing.difficulty}
@@ -282,7 +259,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
               </div>
               
               {showDetails && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mt-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-theme-text-secondary mt-2">
                   <div>
                     <span className="font-medium">Started:</span> {new Date(timing.questionStartedAt).toLocaleTimeString()}
                   </div>

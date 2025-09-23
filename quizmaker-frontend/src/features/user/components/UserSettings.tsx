@@ -141,7 +141,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
   if (isLoading) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
           <div className="h-6 bg-gray-300 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
             <div className="h-4 bg-gray-300 rounded"></div>
@@ -154,10 +154,10 @@ const UserSettings: React.FC<UserSettingsProps> = ({
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Settings</h2>
-        <p className="mt-1 text-sm text-gray-500">
+    <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h2 className="text-xl font-semibold text-theme-text-primary">Settings</h2>
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Manage your account preferences and privacy settings
         </p>
       </div>
@@ -180,12 +180,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
         {/* Email Notifications */}
         <div className="px-6 py-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary mb-4">Email Notifications</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Quiz Results</p>
-                <p className="text-sm text-gray-500">Receive email notifications when you complete quizzes</p>
+                <p className="text-sm font-medium text-theme-text-secondary">Quiz Results</p>
+                <p className="text-sm text-theme-text-tertiary">Receive email notifications when you complete quizzes</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -194,14 +194,14 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'quizResults', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">New Quizzes</p>
-                <p className="text-sm text-gray-500">Get notified about new quizzes in your categories</p>
+                <p className="text-sm font-medium text-theme-text-secondary">New Quizzes</p>
+                <p className="text-sm text-theme-text-tertiary">Get notified about new quizzes in your categories</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -210,14 +210,14 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'newQuizzes', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">System Updates</p>
-                <p className="text-sm text-gray-500">Receive important system announcements</p>
+                <p className="text-sm font-medium text-theme-text-secondary">System Updates</p>
+                <p className="text-sm text-theme-text-tertiary">Receive important system announcements</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -226,7 +226,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('emailNotifications', 'systemUpdates', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
           </div>
@@ -234,10 +234,10 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
         {/* Privacy Settings */}
         <div className="px-6 py-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary mb-4">Privacy</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Profile Visibility
               </label>
               <select
@@ -253,8 +253,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Show Email Address</p>
-                <p className="text-sm text-gray-500">Allow other users to see your email address</p>
+                <p className="text-sm font-medium text-theme-text-secondary">Show Email Address</p>
+                <p className="text-sm text-theme-text-tertiary">Allow other users to see your email address</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -263,7 +263,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('privacy', 'showEmail', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
           </div>
@@ -271,10 +271,10 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
         {/* Preferences */}
         <div className="px-6 py-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Preferences</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary mb-4">Preferences</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Theme
               </label>
               <select
@@ -289,7 +289,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Language
               </label>
               <select
@@ -308,12 +308,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
         {/* Security */}
         <div className="px-6 py-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Security</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary mb-4">Security</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                <p className="text-sm font-medium text-theme-text-secondary">Two-Factor Authentication</p>
+                <p className="text-sm text-theme-text-tertiary">Add an extra layer of security to your account</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -322,14 +322,14 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('security', 'twoFactorEnabled', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Login Notifications</p>
-                <p className="text-sm text-gray-500">Get notified of new login attempts</p>
+                <p className="text-sm font-medium text-theme-text-secondary">Login Notifications</p>
+                <p className="text-sm text-theme-text-tertiary">Get notified of new login attempts</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -338,7 +338,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
                   onChange={(e) => handleSettingChange('security', 'loginNotifications', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary"></div>
               </label>
             </div>
           </div>

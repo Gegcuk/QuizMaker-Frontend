@@ -28,3 +28,6 @@ export * from './featureFlags';
 
 // Status helpers
 export * from './statusHelpers';
+
+// Question utilities
+export * from './questionUtils';

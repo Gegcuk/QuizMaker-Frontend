@@ -12,15 +12,15 @@ const RegisterPage: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Branding */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">QuizMaker Studio</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold text-theme-text-primary">QuizMaker Studio</h1>
+          <p className="mt-2 text-sm text-theme-text-secondary">
             Create your account to get started
           </p>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <RegisterForm 
             redirectTo="/login"
             onSuccess={() => {

@@ -83,14 +83,14 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
       case 'Advanced':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Choose Your Quiz Creation Method
         </h3>
         <p className="text-gray-600">

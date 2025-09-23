@@ -38,7 +38,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       case 'ABANDONED':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
@@ -105,11 +105,11 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
   }, {} as Record<string, { count: number; correct: number; totalScore: number }>);
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Attempt Details</h2>
-        <p className="text-gray-600">Comprehensive information about this quiz attempt</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Attempt Details</h2>
+        <p className="text-theme-text-secondary">Comprehensive information about this quiz attempt</p>
       </div>
 
       {/* Attempt Overview */}

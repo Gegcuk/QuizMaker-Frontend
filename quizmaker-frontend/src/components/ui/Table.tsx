@@ -127,14 +127,14 @@ const Table = <T extends Record<string, any>>({
                       if (input) input.indeterminate = isIndeterminate;
                     }}
                     onChange={handleSelectAll}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                   />
                 </th>
               )}
               {columns.map(column => (
                 <th
                   key={column.key}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium text-theme-text-tertiary uppercase tracking-wider ${
                     column.sortable && sortable ? 'cursor-pointer hover:bg-gray-100' : ''
                   } ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''}`}
                   style={{ width: column.width }}
@@ -159,7 +159,7 @@ const Table = <T extends Record<string, any>>({
                             />
                           </svg>
                         ) : (
-                          <svg className="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="h-4 w-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
                             <path
                               fillRule="evenodd"
                               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -174,12 +174,12 @@ const Table = <T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-theme-bg-primary divide-y divide-theme-border-primary">
             {loading ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="px-6 py-4 text-center text-gray-500"
+                  className="px-6 py-4 text-center text-theme-text-tertiary"
                 >
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
@@ -191,7 +191,7 @@ const Table = <T extends Record<string, any>>({
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="px-6 py-4 text-center text-gray-500"
+                  className="px-6 py-4 text-center text-theme-text-tertiary"
                 >
                   {emptyMessage}
                 </td>
@@ -212,7 +212,7 @@ const Table = <T extends Record<string, any>>({
                         checked={selectedRows.includes(rowKey(row))}
                         onChange={() => handleRowSelect(row)}
                         onClick={(e) => e.stopPropagation()}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                       />
                     </td>
                   )}
@@ -275,7 +275,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -299,7 +299,7 @@ const Table = <T extends Record<string, any>>({
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           page === pagination.currentPage
                             ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-theme-text-tertiary hover:bg-gray-50'
                         }`}
                       >
                         {page}
@@ -309,7 +309,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

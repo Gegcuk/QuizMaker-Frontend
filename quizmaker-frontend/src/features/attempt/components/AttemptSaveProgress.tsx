@@ -122,7 +122,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       case 'error':
         return 'text-red-600';
       default:
-        return unsavedChanges ? 'text-yellow-600' : 'text-gray-600';
+        return unsavedChanges ? 'text-theme-interactive-warning' : 'text-theme-text-secondary';
     }
   };
 
@@ -140,7 +140,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <span className="text-lg">{getSaveStatusIcon()}</span>
@@ -149,7 +149,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
               {getSaveStatusText()}
             </div>
             {lastSaved && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-theme-text-tertiary">
                 Last saved: {lastSaved.toLocaleTimeString()}
               </div>
             )}
@@ -166,7 +166,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
           <button
             onClick={handleManualSave}
             disabled={isSaving || Object.keys(answers).length === 0}
-            className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            className="px-3 py-1 bg-theme-bg-tertiary text-theme-interactive-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
           >
             {isSaving ? 'Saving...' : 'Save Now'}
           </button>

@@ -76,14 +76,14 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   return (
     <div className="hotspot-question">
       {/* Instructions */}
-      <div className="mb-4 text-sm text-gray-600">
+      <div className="mb-4 text-sm text-theme-text-secondary">
         <p>Click on the areas in the image that you believe are correct.</p>
       </div>
 
       {/* Image with Hotspots */}
       <div className="space-y-4">
         {imageUrl ? (
-          <div className="relative inline-block border border-gray-300 rounded-lg overflow-hidden">
+          <div className="relative inline-block border border-theme-border-primary rounded-lg overflow-hidden">
             <div
               className="relative cursor-pointer"
               onClick={handleImageClick}

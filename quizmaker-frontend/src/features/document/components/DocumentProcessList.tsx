@@ -88,7 +88,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       case 'FAILED':
         return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />;
       default:
-        return <DocumentTextIcon className="h-5 w-5 text-gray-500" />;
+        return <DocumentTextIcon className="h-5 w-5 text-theme-text-tertiary" />;
     }
   };
 
@@ -219,7 +219,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       <Card>
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <DocumentTextIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No documents yet</h3>
             <p className="mt-1 text-sm text-gray-500">
               Upload your first document using the "Upload & Process" tab to get started with document processing.

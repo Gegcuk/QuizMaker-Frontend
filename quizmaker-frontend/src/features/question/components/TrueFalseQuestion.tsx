@@ -50,7 +50,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               ? 'border-red-300 bg-red-50'
               : currentAnswer === true
               ? 'border-indigo-300 bg-indigo-50'
-              : 'border-gray-200 bg-white hover:border-gray-300'
+              : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => handleAnswerChange(true)}
         >
@@ -64,8 +64,8 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               getOptionStatus(true) === 'correct'
                 ? 'text-green-600 focus:ring-green-500 border-green-300'
                 : getOptionStatus(true) === 'incorrect'
-                ? 'text-red-600 focus:ring-red-500 border-red-300'
-                : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+                ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
+                : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
             }`}
           />
           <div className="flex items-center space-x-3">
@@ -75,9 +75,9 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               </svg>
             </div>
             <span className={`text-lg font-medium ${
-              getOptionStatus(true) === 'correct' ? 'text-green-800' :
-              getOptionStatus(true) === 'incorrect' ? 'text-red-800' :
-              'text-gray-900'
+              getOptionStatus(true) === 'correct' ? 'text-theme-interactive-success' :
+              getOptionStatus(true) === 'incorrect' ? 'text-theme-interactive-danger' :
+              'text-theme-text-primary'
             }`}>
               True
             </span>
@@ -98,7 +98,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               ? 'border-red-300 bg-red-50'
               : currentAnswer === false
               ? 'border-indigo-300 bg-indigo-50'
-              : 'border-gray-200 bg-white hover:border-gray-300'
+              : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => handleAnswerChange(false)}
         >
@@ -112,8 +112,8 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               getOptionStatus(false) === 'correct'
                 ? 'text-green-600 focus:ring-green-500 border-green-300'
                 : getOptionStatus(false) === 'incorrect'
-                ? 'text-red-600 focus:ring-red-500 border-red-300'
-                : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+                ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
+                : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
             }`}
           />
           <div className="flex items-center space-x-3">
@@ -123,9 +123,9 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               </svg>
             </div>
             <span className={`text-lg font-medium ${
-              getOptionStatus(false) === 'correct' ? 'text-green-800' :
-              getOptionStatus(false) === 'incorrect' ? 'text-red-800' :
-              'text-gray-900'
+              getOptionStatus(false) === 'correct' ? 'text-theme-interactive-success' :
+              getOptionStatus(false) === 'incorrect' ? 'text-theme-interactive-danger' :
+              'text-theme-text-primary'
             }`}>
               False
             </span>
@@ -139,7 +139,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-theme-text-secondary">
         <p>Select whether the statement is True or False.</p>
       </div>
 

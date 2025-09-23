@@ -130,7 +130,7 @@ const UserStats: React.FC<UserStatsProps> = ({
   if (isLoading) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-theme-bg-primary shadow-theme rounded-lg p-6">
           <div className="h-6 bg-gray-300 rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
@@ -191,13 +191,13 @@ const UserStats: React.FC<UserStatsProps> = ({
   };
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
+    <div className={`bg-theme-bg-primary shadow-theme rounded-lg ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div className="px-6 py-4 border-b border-theme-border-primary">
+        <h2 className="text-xl font-semibold text-theme-text-primary">
           {isAdminView ? `${displayUser?.username}'s Statistics` : 'My Statistics'}
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Track your progress and achievements
         </p>
       </div>
@@ -265,45 +265,45 @@ const UserStats: React.FC<UserStatsProps> = ({
         {/* Detailed Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Performance</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary mb-4">Performance</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Questions</span>
-                <span className="text-sm font-medium text-gray-900">{stats.totalQuestions}</span>
+                <span className="text-sm text-theme-text-secondary">Total Questions</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.totalQuestions}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Correct Answers</span>
-                <span className="text-sm font-medium text-gray-900">{stats.correctAnswers}</span>
+                <span className="text-sm text-theme-text-secondary">Correct Answers</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.correctAnswers}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Accuracy Rate</span>
-                <span className="text-sm font-medium text-gray-900">{stats.accuracyRate}%</span>
+                <span className="text-sm text-theme-text-secondary">Accuracy Rate</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.accuracyRate}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Best Score</span>
-                <span className="text-sm font-medium text-gray-900">{stats.bestScore}%</span>
+                <span className="text-sm text-theme-text-secondary">Best Score</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.bestScore}%</span>
               </div>
             </div>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Activity</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary mb-4">Activity</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Quizzes Created</span>
-                <span className="text-sm font-medium text-gray-900">{stats.quizzesCreated}</span>
+                <span className="text-sm text-theme-text-secondary">Quizzes Created</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.quizzesCreated}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Quizzes Shared</span>
-                <span className="text-sm font-medium text-gray-900">{stats.quizzesShared}</span>
+                <span className="text-sm text-theme-text-secondary">Quizzes Shared</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.quizzesShared}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Current Streak</span>
-                <span className="text-sm font-medium text-gray-900">{stats.streakDays} days</span>
+                <span className="text-sm text-theme-text-secondary">Current Streak</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.streakDays} days</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Quizzes</span>
-                <span className="text-sm font-medium text-gray-900">{stats.totalQuizzes}</span>
+                <span className="text-sm text-theme-text-secondary">Total Quizzes</span>
+                <span className="text-sm font-medium text-theme-text-primary">{stats.totalQuizzes}</span>
               </div>
             </div>
           </div>
@@ -311,7 +311,7 @@ const UserStats: React.FC<UserStatsProps> = ({
 
         {/* Achievements */}
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Achievements</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary mb-4">Achievements</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.achievements.map((achievement) => (
               <div
@@ -323,11 +323,11 @@ const UserStats: React.FC<UserStatsProps> = ({
                     <span className="text-2xl">{achievement.icon}</span>
                   </div>
                   <div className="ml-3 flex-1">
-                    <h4 className="text-sm font-medium text-gray-900">{achievement.name}</h4>
-                    <p className="text-xs text-gray-600 mt-1">{achievement.description}</p>
+                    <h4 className="text-sm font-medium text-theme-text-primary">{achievement.name}</h4>
+                    <p className="text-xs text-theme-text-secondary mt-1">{achievement.description}</p>
                     {achievement.progress !== undefined && achievement.maxProgress && (
                       <div className="mt-2">
-                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <div className="flex justify-between text-xs text-theme-text-tertiary mb-1">
                           <span>Progress</span>
                           <span>{achievement.progress}/{achievement.maxProgress}</span>
                         </div>
@@ -341,7 +341,7 @@ const UserStats: React.FC<UserStatsProps> = ({
                         </div>
                       </div>
                     )}
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-theme-text-tertiary mt-2">
                       Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
                     </p>
                   </div>

@@ -34,7 +34,7 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
       {/* Answer Input */}
       <div className="space-y-4">
         <div>
-          <label htmlFor="open-answer" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="open-answer" className="block text-sm font-medium text-theme-text-secondary mb-2">
             Your Answer
           </label>
           <textarea
@@ -43,17 +43,17 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
             onChange={(e) => handleAnswerChange(e.target.value)}
             placeholder="Enter your answer here..."
             disabled={disabled}
-            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none"
+            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none"
             rows={6}
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-theme-text-tertiary">
             Provide a detailed answer to the question above.
           </p>
         </div>
       </div>
 
       {/* Instructions */}
-      <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-theme-text-secondary">
         <p>Provide a comprehensive answer in your own words.</p>
       </div>
 

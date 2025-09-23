@@ -194,17 +194,17 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
       case 'HARD':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-theme-text-secondary bg-theme-bg-tertiary';
     }
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Question Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-theme-text-tertiary">
               {getQuestionTypeLabel()}
             </span>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor()}`}>
@@ -214,7 +214,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
         </div>
 
         {/* Question Text */}
-        <div className="text-lg text-gray-900 mb-4">
+        <div className="text-lg text-theme-text-primary mb-4">
           {question.questionText}
         </div>
 
@@ -226,11 +226,11 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
         {/* Attachment */}
         {question.attachmentUrl && (
           <div className="mb-4">
-            <div className="text-sm text-gray-600 mb-2">Attachment:</div>
+            <div className="text-sm text-theme-text-secondary mb-2">Attachment:</div>
             <img
               src={question.attachmentUrl}
               alt="Question attachment"
-              className="max-w-full h-auto rounded-md border border-gray-200"
+              className="max-w-full h-auto rounded-md border border-theme-border-primary"
             />
           </div>
         )}
@@ -239,7 +239,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
       {/* Answer Input Area - To be overridden by specific answer components */}
       <div className="mb-6">
         {/* This will be replaced by specific answer components */}
-        <div className="text-gray-500 text-center py-8">
+        <div className="text-theme-text-tertiary text-center py-8">
           Answer input area - use specific answer component
         </div>
       </div>

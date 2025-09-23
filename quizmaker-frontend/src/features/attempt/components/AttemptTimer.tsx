@@ -41,9 +41,9 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
   }, []);
 
   const getTimerColor = (): string => {
-    if (isCritical) return 'text-red-600 bg-red-100 border-red-300';
-    if (isWarning) return 'text-yellow-600 bg-yellow-100 border-yellow-300';
-    return 'text-gray-700 bg-gray-100 border-gray-300';
+    if (isCritical) return 'text-theme-interactive-danger bg-theme-bg-tertiary border-theme-border-primary';
+    if (isWarning) return 'text-theme-interactive-warning bg-theme-bg-tertiary border-theme-border-primary';
+    return 'text-theme-text-secondary bg-theme-bg-tertiary border-theme-border-primary';
   };
 
   const getTimerIcon = (): string => {
@@ -107,7 +107,7 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
             {formatTime(timeRemaining)}
           </div>
           {isPaused && (
-            <div className="text-xs text-gray-500">Timer paused</div>
+            <div className="text-xs text-theme-text-tertiary">Timer paused</div>
           )}
         </div>
       </div>
@@ -129,7 +129,7 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
       <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
         <div
           className={`h-1 rounded-full transition-all duration-1000 ${
-            isCritical ? 'bg-red-500' : isWarning ? 'bg-yellow-500' : 'bg-blue-500'
+            isCritical ? 'bg-theme-interactive-danger' : isWarning ? 'bg-theme-interactive-warning' : 'bg-theme-interactive-info'
           }`}
           style={{ 
             width: `${Math.max(0, (timeRemaining / (durationMinutes * 60)) * 100)}%` 

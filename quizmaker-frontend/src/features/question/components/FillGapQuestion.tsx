@@ -57,12 +57,12 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
                   ? userAnswer === correctAnswer
                     ? 'border-green-300 bg-green-50 text-green-800'
                     : 'border-red-300 bg-red-50 text-red-800'
-                  : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                  : 'border-theme-border-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary'
               }`}
               placeholder={`Gap ${gapId}`}
             />
             {showCorrectAnswer && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-theme-text-tertiary">
                 ({correctAnswer})
               </span>
             )}

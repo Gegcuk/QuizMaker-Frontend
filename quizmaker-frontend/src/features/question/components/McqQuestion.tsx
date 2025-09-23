@@ -77,7 +77,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                   ? 'border-red-300 bg-red-50'
                   : isSelected
                   ? 'border-indigo-300 bg-indigo-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleOptionChange(option.id, !isSelected)}
             >
@@ -90,7 +90,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                     ? 'bg-red-500 text-white'
                     : isSelected
                     ? 'bg-indigo-500 text-white'
-                    : 'bg-gray-100 text-gray-700'
+                    : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {option.id.toUpperCase()}
                 </span>
@@ -110,7 +110,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                     status === 'correct'
                       ? 'text-green-600 focus:ring-green-500 border-green-300'
                       : status === 'incorrect'
-                      ? 'text-red-600 focus:ring-red-500 border-red-300'
+                      ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                       : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
                   }`}
                 />

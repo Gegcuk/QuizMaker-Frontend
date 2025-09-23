@@ -25,10 +25,10 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
   const currentQuestionNumber = currentQuestionIndex + 1;
 
   const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return 'bg-green-500';
-    if (percentage >= 60) return 'bg-blue-500';
-    if (percentage >= 40) return 'bg-yellow-500';
-    return 'bg-gray-300';
+    if (percentage >= 80) return 'bg-theme-interactive-success';
+    if (percentage >= 60) return 'bg-theme-interactive-info';
+    if (percentage >= 40) return 'bg-theme-interactive-warning';
+    return 'bg-theme-bg-tertiary';
   };
 
   const getProgressText = () => {
@@ -39,13 +39,13 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-4">
-          <div className="text-sm font-medium text-gray-700">
+          <div className="text-sm font-medium text-theme-text-secondary">
             {getProgressText()}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-theme-text-tertiary">
             {Math.round(progressPercentage)}% complete
           </div>
         </div>
@@ -73,10 +73,10 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
               key={index}
               className={`w-2 h-2 rounded-full transition-colors duration-200 ${
                 index < answeredQuestions
-                  ? 'bg-green-500' // Answered
+                  ? 'bg-theme-interactive-success' // Answered
                   : index === currentQuestionIndex
-                  ? 'bg-indigo-500' // Current
-                  : 'bg-gray-300' // Not reached
+                  ? 'bg-theme-interactive-primary' // Current
+                  : 'bg-theme-bg-tertiary' // Not reached
               }`}
               title={`Question ${index + 1}${index < answeredQuestions ? ' (Answered)' : index === currentQuestionIndex ? ' (Current)' : ''}`}
             />
@@ -85,7 +85,7 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
       )}
 
       {/* Mode-specific status */}
-      <div className="mt-3 text-xs text-gray-500 text-center">
+      <div className="mt-3 text-xs text-theme-text-tertiary text-center">
         {attemptMode === 'ONE_BY_ONE' && 'One question at a time'}
         {attemptMode === 'ALL_AT_ONCE' && 'All questions visible'}
         {attemptMode === 'TIMED' && 'Timed attempt'}

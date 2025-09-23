@@ -6,6 +6,8 @@
 
 import React from 'react';
 import { AttemptStatsDto, QuestionTimingStatsDto } from '@/types';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
+import { getDifficultyColor, getPerformanceColor } from '@/utils/statusHelpers';
 
 interface AttemptStatsProps {
   stats: AttemptStatsDto;
@@ -31,51 +33,6 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
     return `${minutes}m ${seconds}s`;
   };
 
-  const getPerformanceColor = (percentage: number): string => {
-    if (percentage >= 90) return 'text-green-600 bg-green-100';
-    if (percentage >= 80) return 'text-blue-600 bg-blue-100';
-    if (percentage >= 70) return 'text-yellow-600 bg-yellow-100';
-    if (percentage >= 60) return 'text-orange-600 bg-orange-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const getQuestionTypeIcon = (type: string): string => {
-    switch (type) {
-      case 'MCQ_SINGLE':
-        return '🔘';
-      case 'MCQ_MULTI':
-        return '☑️';
-      case 'TRUE_FALSE':
-        return '✅';
-      case 'OPEN':
-        return '📝';
-      case 'FILL_GAP':
-        return '🔤';
-      case 'COMPLIANCE':
-        return '📋';
-      case 'ORDERING':
-        return '📊';
-      case 'HOTSPOT':
-        return '🎯';
-      case 'MATCHING':
-        return '🔗';
-      default:
-        return '❓';
-    }
-  };
-
-  const getDifficultyColor = (difficulty: string): string => {
-    switch (difficulty) {
-      case 'EASY':
-        return 'text-green-600 bg-green-100';
-      case 'MEDIUM':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'HARD':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
 
   // Calculate additional metrics
   const totalQuestions = stats.questionTimings.length;
@@ -107,11 +64,11 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
   }, {} as Record<string, { count: number; correct: 0; totalTime: number }>);
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Attempt Statistics</h2>
-        <p className="text-gray-600">Detailed analytics and performance metrics</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Attempt Statistics</h2>
+        <p className="text-theme-text-secondary">Detailed analytics and performance metrics</p>
       </div>
 
       {/* Key Metrics */}
@@ -139,10 +96,10 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Performance Overview */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance Overview</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance Overview</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
               <span>Overall Accuracy</span>
               <span>{Math.round(stats.accuracyPercentage)}%</span>
             </div>
@@ -155,7 +112,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
           </div>
           
           <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
               <span>Completion</span>
               <span>{Math.round(stats.completionPercentage)}%</span>
             </div>
@@ -168,7 +125,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
           </div>
           
           <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
               <span>Questions Answered</span>
               <span>{stats.questionsAnswered}</span>
             </div>
@@ -184,7 +141,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Question Type Performance */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance by Question Type</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance by Question Type</h3>
         <div className="space-y-3">
           {Object.entries(questionTypeStats).map(([type, data]) => {
             const accuracy = data.count > 0 ? (data.correct / data.count) * 100 : 0;
@@ -195,13 +152,13 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getQuestionTypeIcon(type)}</span>
-                    <span className="font-medium text-gray-900">{type.replace('_', ' ')}</span>
+                    <span className="font-medium text-theme-text-primary">{type.replace('_', ' ')}</span>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPerformanceColor(accuracy)}`}>
                     {Math.round(accuracy)}%
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-3 gap-4 text-sm text-theme-text-secondary">
                   <div>Count: {data.count}</div>
                   <div>Correct: {data.correct}</div>
                   <div>Avg Time: {avgTime}s</div>
@@ -214,7 +171,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Difficulty Performance */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance by Difficulty</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Performance by Difficulty</h3>
         <div className="space-y-3">
           {Object.entries(difficultyStats).map(([difficulty, data]) => {
             const accuracy = data.count > 0 ? (data.correct / data.count) * 100 : 0;
@@ -232,7 +189,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
                     {Math.round(accuracy)}%
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-3 gap-4 text-sm text-theme-text-secondary">
                   <div>Count: {data.count}</div>
                   <div>Correct: {data.correct}</div>
                   <div>Avg Time: {avgTime}s</div>
@@ -276,12 +233,12 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Question Timing Details */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Question Timing Details</h3>
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Question Timing Details</h3>
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {stats.questionTimings.map((timing, index) => (
             <div key={timing.questionId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-gray-600">Q{index + 1}</span>
+                <span className="text-sm font-medium text-theme-text-secondary">Q{index + 1}</span>
                 <span className="text-lg">{getQuestionTypeIcon(timing.questionType)}</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(timing.difficulty)}`}>
                   {timing.difficulty}
@@ -290,7 +247,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
                   {timing.isCorrect ? '✅' : '❌'}
                 </span>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-theme-text-secondary">
                 {formatDuration(timing.timeSpent)}
               </div>
             </div>

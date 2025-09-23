@@ -63,13 +63,13 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-theme-text-primary mb-2">
           Quiz Complete!
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-theme-text-secondary">
           {quizTitle}
         </p>
       </div>

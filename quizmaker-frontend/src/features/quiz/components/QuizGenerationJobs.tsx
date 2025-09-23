@@ -5,6 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuizGenerationResponse, GenerationStatus } from '@/types';
+import { Badge } from '@/components';
+import { getGenerationStatusVariant } from '@/utils/statusHelpers';
 import type { AxiosError } from 'axios';
 
 interface QuizGenerationJobsProps {
@@ -109,22 +111,6 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
   }, [quizId]);
 
   // Helper function to get status color
-  const getStatusVariant = (status: GenerationStatus): 'success' | 'primary' | 'warning' | 'danger' | 'neutral' => {
-    switch (status) {
-      case 'COMPLETED':
-        return 'success';
-      case 'PROCESSING':
-        return 'primary';
-      case 'PENDING':
-        return 'warning';
-      case 'FAILED':
-        return 'danger';
-      case 'CANCELLED':
-        return 'neutral';
-      default:
-        return 'neutral';
-    }
-  };
 
   // Helper function to get status icon
   const getStatusIcon = (status: GenerationStatus) => {
@@ -223,13 +209,13 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
 
   if (isLoading) {
     return (
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Generation Jobs</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Generation Jobs</h3>
           </div>
         </div>
         <div className="px-6 py-6">
@@ -252,17 +238,17 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
 
   return (
     <>
-      <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+      <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <h3 className="text-lg font-medium text-gray-900">Generation Jobs</h3>
+              <h3 className="text-lg font-medium text-theme-text-primary">Generation Jobs</h3>
             </div>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-theme-text-tertiary">
               {jobs.length} job{jobs.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -276,18 +262,18 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No generation jobs</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No generation jobs</h3>
+              <p className="mt-1 text-sm text-theme-text-tertiary">
                 Start generating quizzes from documents to see jobs here.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {jobs.map((job) => (
-                <div key={job.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <div key={job.id} className="border border-theme-border-primary rounded-lg p-4 hover:bg-theme-bg-secondary">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
@@ -295,15 +281,15 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-theme-text-primary truncate">
                             {job.documentTitle || `Job ${job.id}`}
                           </p>
-                          <Badge variant={getStatusVariant(job.status)} size="sm">
+                          <Badge variant={getGenerationStatusVariant(job.status)} size="sm">
                             {job.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">{job.message}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-400">
+                        <p className="text-sm text-theme-text-tertiary mt-1">{job.message}</p>
+                        <div className="flex items-center space-x-4 mt-2 text-xs text-theme-text-tertiary">
                           <span>Created: {formatDate(job.createdAt)}</span>
                           <span>Est. time: {formatTime(job.estimatedTimeSeconds)}</span>
                         </div>
@@ -325,7 +311,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                       <div className="flex space-x-1">
                         <button
                           onClick={() => handleViewDetails(job)}
-                          className="p-1 text-gray-400 hover:text-gray-600"
+                          className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary"
                           title="View Details"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,7 +323,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                         {job.status === 'PENDING' && (
                           <button
                             onClick={() => handleCancelJob(job.id)}
-                            className="p-1 text-gray-400 hover:text-red-600"
+                            className="p-1 text-theme-text-tertiary hover:text-theme-text-danger"
                             title="Cancel Job"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,7 +335,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                         {job.status === 'FAILED' && (
                           <button
                             onClick={() => handleRetryJob(job.id)}
-                            className="p-1 text-gray-400 hover:text-green-600"
+                            className="p-1 text-theme-text-tertiary hover:text-theme-interactive-success"
                             title="Retry Job"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,10 +359,10 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
           <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Job Details</h3>
+                <h3 className="text-lg font-medium text-theme-text-primary">Job Details</h3>
                 <button
                   onClick={() => setShowDetails(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-theme-text-tertiary hover:text-theme-text-secondary"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -386,53 +372,53 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
 
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900">Job Information</h4>
+                  <h4 className="text-sm font-medium text-theme-text-primary">Job Information</h4>
                   <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500">Job ID</p>
+                      <p className="text-theme-text-tertiary">Job ID</p>
                       <p className="font-medium">{selectedJob.id}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Status</p>
-                      <Badge variant={getStatusVariant(selectedJob.status)} size="sm">
+                      <p className="text-theme-text-tertiary">Status</p>
+                      <Badge variant={getGenerationStatusVariant(selectedJob.status)} size="sm">
                         {selectedJob.status}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-gray-500">Document</p>
+                      <p className="text-theme-text-tertiary">Document</p>
                       <p className="font-medium">{selectedJob.documentTitle || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Estimated Time</p>
+                      <p className="text-theme-text-tertiary">Estimated Time</p>
                       <p className="font-medium">{formatTime(selectedJob.estimatedTimeSeconds)}</p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900">Timeline</h4>
+                  <h4 className="text-sm font-medium text-theme-text-primary">Timeline</h4>
                   <div className="mt-2 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Created</span>
+                      <span className="text-theme-text-tertiary">Created</span>
                       <span>{formatDate(selectedJob.createdAt)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Last Updated</span>
+                      <span className="text-theme-text-tertiary">Last Updated</span>
                       <span>{formatDate(selectedJob.updatedAt)}</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900">Message</h4>
-                  <p className="mt-2 text-sm text-gray-600">{selectedJob.message}</p>
+                  <h4 className="text-sm font-medium text-theme-text-primary">Message</h4>
+                  <p className="mt-2 text-sm text-theme-text-secondary">{selectedJob.message}</p>
                 </div>
 
                 {selectedJob.progress !== undefined && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900">Progress</h4>
+                    <h4 className="text-sm font-medium text-theme-text-primary">Progress</h4>
                     <div className="mt-2">
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <div className="flex justify-between text-sm text-theme-text-secondary mb-1">
                         <span>Completion</span>
                         <span>{selectedJob.progress}%</span>
                       </div>

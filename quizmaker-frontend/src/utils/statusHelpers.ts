@@ -132,3 +132,81 @@ export const getWarningAlertClasses = (): string => {
 export const getInfoAlertClasses = (): string => {
   return 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-info';
 };
+
+/**
+ * Difficulty level helpers
+ */
+export const getDifficultyColor = (difficulty: string): string => {
+  switch (difficulty.toUpperCase()) {
+    case 'EASY':
+      return 'text-theme-interactive-success bg-theme-bg-tertiary';
+    case 'MEDIUM':
+      return 'text-theme-interactive-warning bg-theme-bg-tertiary';
+    case 'HARD':
+      return 'text-theme-interactive-danger bg-theme-bg-tertiary';
+    default:
+      return 'text-theme-text-secondary bg-theme-bg-tertiary';
+  }
+};
+
+/**
+ * Difficulty badge variant for Badge component
+ */
+export const getDifficultyBadgeVariant = (difficulty: string): string => {
+  switch (difficulty.toUpperCase()) {
+    case 'EASY':
+      return 'success';
+    case 'MEDIUM':
+      return 'warning';
+    case 'HARD':
+      return 'danger';
+    default:
+      return 'neutral';
+  }
+};
+
+/**
+ * Answer status helpers
+ */
+export const getAnswerStatusText = (isCorrect: boolean): string => {
+  return isCorrect ? 'Correct' : 'Incorrect';
+};
+
+export const getAnswerStatusColor = (isCorrect: boolean): string => {
+  return isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger';
+};
+
+export const getAnswerStatusIcon = (isCorrect: boolean): string => {
+  return isCorrect ? '✅' : '❌';
+};
+
+/**
+ * Performance color based on percentage
+ */
+export const getPerformanceColor = (percentage: number): string => {
+  if (percentage >= 80) return 'text-theme-interactive-success bg-theme-bg-tertiary';
+  if (percentage >= 60) return 'text-theme-interactive-warning bg-theme-bg-tertiary';
+  return 'text-theme-interactive-danger bg-theme-bg-tertiary';
+};
+
+/**
+ * Generation status helpers
+ */
+export const getGenerationStatusVariant = (status: string): 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'outline' | 'neutral' => {
+  switch (status.toLowerCase()) {
+    case 'completed':
+    case 'success':
+      return 'success';
+    case 'processing':
+    case 'in_progress':
+      return 'info';
+    case 'failed':
+    case 'error':
+      return 'danger';
+    case 'pending':
+    case 'queued':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+};

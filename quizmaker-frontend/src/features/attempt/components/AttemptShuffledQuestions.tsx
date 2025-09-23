@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { AttemptService } from '@/services';
 import { QuestionForAttemptDto } from '@/types';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
 import { api } from '@/services';
 import { HintDisplay } from './';
 
@@ -89,30 +90,6 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     onQuestionChange(questionIndex);
   };
 
-  const getQuestionTypeIcon = (type: string): string => {
-    switch (type) {
-      case 'MCQ_SINGLE':
-        return '🔘';
-      case 'MCQ_MULTI':
-        return '☑️';
-      case 'TRUE_FALSE':
-        return '✅';
-      case 'OPEN':
-        return '📝';
-      case 'FILL_GAP':
-        return '🔤';
-      case 'COMPLIANCE':
-        return '📋';
-      case 'ORDERING':
-        return '📊';
-      case 'HOTSPOT':
-        return '🎯';
-      case 'MATCHING':
-        return '🔗';
-      default:
-        return '❓';
-    }
-  };
 
   const getDifficultyColor = (difficulty: string): string => {
     switch (difficulty) {

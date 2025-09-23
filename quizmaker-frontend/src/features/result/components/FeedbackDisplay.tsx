@@ -151,11 +151,11 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
     : 0;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Performance Feedback</h2>
-        <p className="text-gray-600">Personalized insights and recommendations for improvement</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Performance Feedback</h2>
+        <p className="text-theme-text-secondary">Personalized insights and recommendations for improvement</p>
       </div>
 
       {/* Performance Overview */}

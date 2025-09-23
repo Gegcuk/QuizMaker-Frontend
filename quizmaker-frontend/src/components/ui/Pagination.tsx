@@ -98,7 +98,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className={`flex items-center justify-between ${className}`}>
       {/* Page Info */}
       {showPageInfo && (
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-theme-text-secondary">
           Page {currentPage} of {totalPages}
         </div>
       )}
@@ -111,8 +111,8 @@ const Pagination: React.FC<PaginationProps> = ({
           disabled={disabled || currentPage <= 1}
           className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             disabled || currentPage <= 1
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'text-theme-text-tertiary cursor-not-allowed'
+              : 'text-theme-text-tertiary hover:text-theme-text-secondary hover:bg-theme-bg-secondary'
           }`}
           aria-label="Go to previous page"
         >
@@ -127,7 +127,7 @@ const Pagination: React.FC<PaginationProps> = ({
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-3 py-2 text-sm text-gray-500"
+                  className="px-3 py-2 text-sm text-theme-text-tertiary"
                 >
                   ...
                 </span>
@@ -164,8 +164,8 @@ const Pagination: React.FC<PaginationProps> = ({
           disabled={disabled || currentPage >= totalPages}
           className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             disabled || currentPage >= totalPages
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'text-theme-text-tertiary cursor-not-allowed'
+              : 'text-theme-text-tertiary hover:text-theme-text-secondary hover:bg-theme-bg-secondary'
           }`}
           aria-label="Go to next page"
         >

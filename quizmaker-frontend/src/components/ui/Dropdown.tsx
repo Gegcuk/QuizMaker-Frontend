@@ -112,7 +112,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-theme-text-secondary mb-1">
           {label}
         </label>
       )}
@@ -126,7 +126,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         >
           <span className="truncate">{getDisplayText()}</span>
           <svg
-            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+            className={`h-5 w-5 text-theme-text-tertiary transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
             }`}
             fill="none"
@@ -151,14 +151,14 @@ const Dropdown: React.FC<DropdownProps> = ({
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-1 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary"
                   autoFocus
                 />
               </div>
             )}
 
             {filteredOptions.length === 0 ? (
-              <div className="px-4 py-2 text-sm text-gray-500">
+              <div className="px-4 py-2 text-sm text-theme-text-tertiary">
                 No options found
               </div>
             ) : (

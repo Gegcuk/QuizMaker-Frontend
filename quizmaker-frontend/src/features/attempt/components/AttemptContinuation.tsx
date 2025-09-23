@@ -176,10 +176,10 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
         <div className="flex justify-center items-center py-8">
           <Spinner size="lg" />
-          <span className="ml-3 text-gray-600">Checking for existing attempts...</span>
+          <span className="ml-3 text-theme-text-secondary">Checking for existing attempts...</span>
         </div>
       </div>
     );
@@ -187,8 +187,8 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
+        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -206,19 +206,19 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
   if (existingAttempts.length === 0) {
     return (
-      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
         <div className="text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No existing attempts</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No existing attempts</h3>
+          <p className="mt-1 text-sm text-theme-text-tertiary">
             You don't have any paused or in-progress attempts for this quiz.
           </p>
           <div className="mt-6">
             <button
               onClick={handleStartFresh}
-              className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-4 py-2 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
             >
               Start New Attempt
             </button>
@@ -231,10 +231,10 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
+        <h2 className="text-xl font-bold text-theme-text-primary mb-2">
           Continue {quizTitle}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           You have existing attempts that can be resumed
         </p>
       </div>
@@ -244,18 +244,18 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
         {existingAttempts.map((attempt) => (
           <div
             key={attempt.attemptId}
-            className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
+            className="border border-theme-border-primary rounded-lg p-4 hover:border-theme-border-secondary transition-colors"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(attempt.status)}`}>
                   {getStatusText(attempt.status)}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-theme-text-secondary">
                   {getModeText(attempt.mode)} Mode
                 </span>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-theme-text-tertiary">
                 Started {formatDate(attempt.startedAt)}
               </div>
             </div>
@@ -263,7 +263,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
             {/* Progress Information */}
             {attempt.stats && (
               <div className="mb-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
                   <span>Progress</span>
                   <span>{getProgressPercentage(attempt)}%</span>
                 </div>
@@ -273,7 +273,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
                     style={{ width: `${getProgressPercentage(attempt)}%` }}
                   />
                 </div>
-                <div className="mt-2 text-xs text-gray-500">
+                <div className="mt-2 text-xs text-theme-text-tertiary">
                   {attempt.stats.questionsAnswered} questions answered • {getProgressPercentage(attempt)}% complete
                 </div>
               </div>
@@ -281,7 +281,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
             {/* Resume Button */}
             <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-theme-text-secondary">
                 {attempt.status === 'PAUSED' 
                   ? 'Your progress is saved. You can resume from where you left off.'
                   : 'Your attempt is currently in progress.'
@@ -290,7 +290,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
               <button
                 onClick={() => handleResumeAttempt(attempt)}
                 disabled={resumingAttempt === attempt.attemptId}
-                className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-theme-interactive-primary text-theme-bg-primary text-sm font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {resumingAttempt === attempt.attemptId ? (
                   <div className="flex items-center">
@@ -309,21 +309,21 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       {/* Divider */}
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300" />
+          <div className="w-full border-t border-theme-border-primary" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Or</span>
+          <span className="px-2 bg-theme-bg-primary text-theme-text-tertiary">Or</span>
         </div>
       </div>
 
       {/* Start Fresh Option */}
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-theme-text-secondary mb-4">
           Want to start a completely new attempt?
         </p>
         <button
           onClick={handleStartFresh}
-          className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+          className="px-6 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-border-primary focus:ring-offset-2 transition-colors"
         >
           Start Fresh Attempt
         </button>

@@ -128,12 +128,12 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
   const completionPercentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-theme-text-primary mb-2">
           Submit All Answers
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-theme-text-secondary">
           Review your answers before final submission
         </p>
       </div>

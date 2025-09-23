@@ -95,7 +95,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
       case 'PROCESSED': return 'text-green-600 bg-green-50';
       case 'PROCESSING': return 'text-blue-600 bg-blue-50';
       case 'FAILED': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-theme-text-secondary bg-theme-bg-secondary';
     }
   };
 
@@ -110,7 +110,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-white border rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -122,7 +122,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
 
   if (!document) {
     return (
-      <div className={`bg-white border rounded-lg p-6 ${className}`}>
+      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
         <div className="text-center text-gray-500">
           <p>Document not found or failed to load</p>
         </div>

@@ -257,11 +257,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Document</h2>
-        <p className="text-gray-600">Upload a document to generate quiz questions</p>
+        <h2 className="text-2xl font-bold text-theme-text-primary mb-2">Upload Document</h2>
+        <p className="text-theme-text-secondary">Upload a document to generate quiz questions</p>
       </div>
 
       {/* File Upload Area */}
@@ -269,7 +269,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragActive
             ? 'border-blue-400 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400'
+            : 'border-theme-border-primary hover:border-theme-border-secondary'
         }`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -277,12 +277,12 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         onDrop={handleDrop}
       >
         <div className="space-y-4">
-          <div className="text-6xl text-gray-400">📄</div>
+          <div className="text-6xl text-theme-text-tertiary">📄</div>
           
           {selectedFile ? (
             <div className="space-y-2">
-              <div className="text-lg font-medium text-gray-900">{selectedFile.name}</div>
-              <div className="text-sm text-gray-600">
+              <div className="text-lg font-medium text-theme-text-primary">{selectedFile.name}</div>
+              <div className="text-sm text-theme-text-secondary">
                 {formatFileSize(selectedFile.size)} • {selectedFile.type}
               </div>
               <button
@@ -294,10 +294,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="text-lg font-medium text-gray-900">
+              <div className="text-lg font-medium text-theme-text-primary">
                 Drag and drop your document here
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-theme-text-secondary">
                 or click to browse files
               </div>
               {config && (
@@ -331,7 +331,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       {/* Upload Configuration */}
       {selectedFile && config && (
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Configuration</h3>
+          <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Upload Configuration</h3>
           
           <div className="space-y-4">
             {/* Chunking Strategy */}
@@ -353,7 +353,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 <option value="SIZE_BASED">Size Based</option>
                 <option value="PAGE_BASED">Page Based</option>
               </select>
-              <p className="mt-1 text-xs text-gray-600">
+              <p className="mt-1 text-xs text-theme-text-secondary">
                 {getChunkingStrategyDescription(uploadConfig.chunkingStrategy)}
               </p>
             </div>
@@ -374,7 +374,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 max="10000"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-              <p className="mt-1 text-xs text-gray-600">
+              <p className="mt-1 text-xs text-theme-text-secondary">
                 Recommended: 500-2000 characters for optimal quiz generation
               </p>
             </div>
@@ -385,7 +385,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       {/* Progress Bar */}
       {isUploading && (
         <div className="mt-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
             <span>Uploading...</span>
             <span>{uploadProgress}%</span>
           </div>
@@ -579,7 +579,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Multiple Choice</label>
+                  <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>
                   <input
                     type="number"
                     value={quizConfig.questionTypes?.MCQ_SINGLE || 3}
@@ -602,7 +602,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">True/False</label>
+                  <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
                   <input
                     type="number"
                     value={quizConfig.questionTypes?.TRUE_FALSE || 2}
@@ -625,7 +625,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Open Questions</label>
+                  <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
                   <input
                     type="number"
                     value={quizConfig.questionTypes?.OPEN || 1}

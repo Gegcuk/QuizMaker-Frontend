@@ -6,6 +6,8 @@
 
 import React, { useState } from 'react';
 import { AnswerSubmissionDto, QuestionForAttemptDto } from '@/types';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
+import { getAnswerStatusText, getAnswerStatusColor, getAnswerStatusIcon } from '@/utils/statusHelpers';
 
 interface AnswerReviewProps {
   answers: AnswerSubmissionDto[];
@@ -44,59 +46,24 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
 
 
-  const getAnswerStatusIcon = (isCorrect: boolean): string => {
-    return isCorrect ? '✅' : '❌';
-  };
 
-  const getAnswerStatusColor = (isCorrect: boolean): string => {
-    return isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50';
-  };
-
-  const getAnswerStatusText = (isCorrect: boolean): string => {
-    return isCorrect ? 'Correct' : 'Incorrect';
-  };
-
-  const getQuestionTypeIcon = (type: string): string => {
-    switch (type) {
-      case 'MCQ_SINGLE':
-        return '🔘';
-      case 'MCQ_MULTI':
-        return '☑️';
-      case 'TRUE_FALSE':
-        return '✅';
-      case 'OPEN':
-        return '📝';
-      case 'FILL_GAP':
-        return '🔤';
-      case 'COMPLIANCE':
-        return '📋';
-      case 'ORDERING':
-        return '📊';
-      case 'HOTSPOT':
-        return '🎯';
-      case 'MATCHING':
-        return '🔗';
-      default:
-        return '❓';
-    }
-  };
 
   const correctAnswers = answers.filter(answer => answer.isCorrect).length;
   const totalAnswers = answers.length;
   const accuracy = totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Answer Review</h2>
-          <p className="text-gray-600">Review your answers and see where you went wrong</p>
+          <h2 className="text-2xl font-bold text-theme-text-primary">Answer Review</h2>
+          <p className="text-theme-text-secondary">Review your answers and see where you went wrong</p>
         </div>
         {onBack && (
           <button
             onClick={onBack}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="px-4 py-2 text-theme-text-secondary hover:text-theme-text-primary transition-colors"
           >
             ← Back
           </button>
@@ -107,8 +74,8 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-gray-900">{totalAnswers}</div>
-            <div className="text-sm text-gray-600">Total Questions</div>
+            <div className="text-2xl font-bold text-theme-text-primary">{totalAnswers}</div>
+            <div className="text-sm text-theme-text-secondary">Total Questions</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
@@ -138,10 +105,10 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                 <div className="flex items-center space-x-3">
                   <span className="text-lg">{getAnswerStatusIcon(answer.isCorrect ?? false)}</span>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-theme-text-secondary">
                       Question {index + 1}
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-theme-text-tertiary">
                       {getQuestionTypeIcon(questionType)} {questionType}
                     </span>
                   </div>
@@ -152,12 +119,12 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                   }`}>
                     {getAnswerStatusText(answer.isCorrect ?? false)}
                   </span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-theme-text-secondary">
                     Score: {answer.score}
                   </span>
                   <button
                     onClick={() => toggleAnswerExpansion(answer.answerId)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 hover:text-theme-text-secondary transition-colors"
                   >
                     {isExpanded ? '▼' : '▶'}
                   </button>
@@ -166,7 +133,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
               {/* Question Text */}
               <div className="mb-3">
-                <h4 className="font-medium text-gray-900">{questionText}</h4>
+                <h4 className="font-medium text-theme-text-primary">{questionText}</h4>
               </div>
 
               {/* Answer Details (Expanded) */}
@@ -176,18 +143,18 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                                          {/* Your Answer */}
                      <div>
                        <div className="text-sm font-medium text-gray-700 mb-1">Answer Details:</div>
-                       <div className="p-3 bg-white border border-gray-200 rounded-md">
-                         <div className="text-sm text-gray-600">
+                       <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
+                         <div className="text-sm text-theme-text-secondary">
                            <strong>Status:</strong> {answer.isCorrect ? 'Correct' : 'Incorrect'}
                          </div>
-                         <div className="text-sm text-gray-600 mt-1">
+                         <div className="text-sm text-theme-text-secondary mt-1">
                            <strong>Score:</strong> {answer.score}
                          </div>
                        </div>
                      </div>
 
                     {/* Answer Metadata */}
-                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-2 gap-4 text-sm text-theme-text-secondary">
                       <div>
                         <span className="font-medium">Answered at:</span> {new Date(answer.answeredAt).toLocaleString()}
                       </div>

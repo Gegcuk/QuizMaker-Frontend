@@ -112,10 +112,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className={`bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-theme-text-primary">
             {isEditing ? 'Edit Category' : 'Create New Category'}
           </h3>
           <button
@@ -131,13 +131,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       {previewMode ? (
         <div className="p-6">
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-900 mb-2">
+            <h4 className="text-lg font-medium text-theme-text-primary mb-2">
               {formData.name || 'Category Name'}
             </h4>
-            <p className="text-gray-600">
+            <p className="text-theme-text-secondary">
               {formData.description || 'No description provided'}
             </p>
-            <div className="mt-4 text-sm text-gray-500">
+            <div className="mt-4 text-sm text-theme-text-tertiary">
               <p>Name length: {characterCount.name}/100 characters</p>
               <p>Description length: {characterCount.description}/1000 characters</p>
             </div>
@@ -147,7 +147,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name Field */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-theme-text-secondary mb-2">
               Category Name *
             </label>
             <input
@@ -156,14 +156,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                errors.name ? 'border-red-300' : 'border-gray-300'
+                errors.name ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter category name (3-100 characters)"
               maxLength={100}
             />
             <div className="flex justify-between items-center mt-1">
               <span className="text-sm text-red-600">{errors.name}</span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-theme-text-tertiary">
                 {characterCount.name}/100
               </span>
             </div>
@@ -171,7 +171,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
           {/* Description Field */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary mb-2">
               Description
             </label>
             <textarea
@@ -180,14 +180,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                errors.description ? 'border-red-300' : 'border-gray-300'
+                errors.description ? 'border-red-300' : 'border-theme-border-primary'
               }`}
               placeholder="Enter category description (optional, max 1000 characters)"
               maxLength={1000}
             />
             <div className="flex justify-between items-center mt-1">
               <span className="text-sm text-red-600">{errors.description}</span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-theme-text-tertiary">
                 {characterCount.description}/1000
               </span>
             </div>
@@ -210,7 +210,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-white border border-theme-border-primary rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               disabled={loading}
             >
               Cancel

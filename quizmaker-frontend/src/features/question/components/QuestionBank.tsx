@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '@/services';
+import { getQuestionTypeIcon } from '@/utils/questionUtils';
+import { getDifficultyBadgeVariant } from '@/utils/statusHelpers';
 import { Spinner, Badge, Button } from '@/components';
 import { api } from '@/services';
 
@@ -86,29 +88,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
     }
   };
 
-  const getQuestionTypeIcon = (type: QuestionType) => {
-    switch (type) {
-      case 'MCQ_SINGLE': return '🔘';
-      case 'MCQ_MULTI': return '☑️';
-      case 'TRUE_FALSE': return '✅';
-      case 'OPEN': return '📝';
-      case 'FILL_GAP': return '⬜';
-      case 'COMPLIANCE': return '📋';
-      case 'ORDERING': return '📊';
-      case 'HOTSPOT': return '🎯';
-      case 'MATCHING': return '🔗';
-      default: return '❓';
-    }
-  };
 
-  const getDifficultyColor = (difficulty: QuestionDifficulty) => {
-    switch (difficulty) {
-      case 'EASY': return 'success';
-      case 'MEDIUM': return 'warning';
-      case 'HARD': return 'danger';
-      default: return 'neutral';
-    }
-  };
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;

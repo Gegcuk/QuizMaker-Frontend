@@ -76,7 +76,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   ? 'border-red-300 bg-red-50'
                   : isSelected
                   ? 'border-indigo-300 bg-indigo-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               onClick={() => handleStatementToggle(statement.id)}
             >
@@ -89,7 +89,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                     ? 'bg-red-500 text-white'
                     : isSelected
                     ? 'bg-indigo-500 text-white'
-                    : 'bg-gray-100 text-gray-700'
+                    : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {statement.id}
                 </span>
@@ -106,8 +106,8 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                     status === 'correct'
                       ? 'text-green-600 focus:ring-green-500 border-green-300'
                       : status === 'incorrect'
-                      ? 'text-red-600 focus:ring-red-500 border-red-300'
-                      : 'text-indigo-600 focus:ring-indigo-500 border-gray-300'
+                      ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
+                      : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
                   }`}
                 />
               </div>
@@ -118,7 +118,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   className={`text-sm ${
                     status === 'correct' ? 'text-green-800' :
                     status === 'incorrect' ? 'text-red-800' :
-                    'text-gray-900'
+                    'text-theme-text-primary'
                   }`}
                   dangerouslySetInnerHTML={{ __html: statement.text }}
                 />
@@ -145,16 +145,16 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-theme-text-secondary">
         <p>Check the statements that are compliant with the requirements.</p>
       </div>
 
       {/* Progress Summary */}
       {statements.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+        <div className="mt-4 p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Selection Summary</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-medium text-theme-text-secondary">Selection Summary</span>
+            <span className="text-sm text-theme-text-secondary">
               {currentAnswer.length} of {statements.length} statements selected
             </span>
           </div>
