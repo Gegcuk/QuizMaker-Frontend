@@ -584,7 +584,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-danger border border-red-200 rounded-lg p-3 text-sm text-theme-interactive-danger">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-theme-bg-danger border border-theme-border-danger rounded-lg p-3 text-sm text-theme-interactive-danger">
           {error}
         </div>
       )}

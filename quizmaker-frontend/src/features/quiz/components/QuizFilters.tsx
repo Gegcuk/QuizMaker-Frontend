@@ -73,7 +73,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             {hasActiveFilters && (
               <button
                 onClick={onClearFilters}
-                className="text-sm text-theme-interactive-primary hover:text-indigo-500 font-medium"
+                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary font-medium"
               >
                 Clear All
               </button>
@@ -222,7 +222,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             <span className="text-sm font-medium text-theme-text-secondary">Active Filters:</span>
             <button
               onClick={onClearFilters}
-              className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
             >
               Clear All
             </button>

@@ -74,10 +74,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const value = useMemo(() => ({ addToast, removeToast, clearToasts }), [addToast, removeToast, clearToasts]);
 
   const typeStyles: Record<ToastType, string> = {
-    success: 'bg-theme-bg-success border-green-200 text-green-900',
-    error: 'bg-theme-bg-danger border-red-200 text-red-900',
+    success: 'bg-theme-bg-success border-theme-border-success text-green-900',
+    error: 'bg-theme-bg-danger border-theme-border-danger text-red-900',
     info: 'bg-theme-bg-info border-theme-border-info text-blue-900',
-    warning: 'bg-theme-bg-warning border-yellow-200 text-yellow-900',
+    warning: 'bg-theme-bg-warning border-theme-border-warning text-yellow-900',
   };
 
   return (

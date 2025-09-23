@@ -175,7 +175,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mt-3 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+        <div className="mt-3 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
           <div className="text-sm text-theme-interactive-danger">
             <strong>Save Error:</strong> {error}
           </div>

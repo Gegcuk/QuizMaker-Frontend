@@ -63,7 +63,7 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
     const baseClass = 'w-full p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary transition-colors';
     
     if (isOverLimit) {
-      return `${baseClass} border-red-300 focus:border-red-500`;
+      return `${baseClass} border-theme-border-danger focus:border-theme-border-danger`;
     }
     if (isFocused) {
       return `${baseClass} border-theme-interactive-primary`;

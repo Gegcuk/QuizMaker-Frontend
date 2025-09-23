@@ -132,9 +132,9 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           </div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-3xl font-bold text-theme-interactive-primary">{result.totalScore}</div>
-          <div className="text-sm text-purple-700 font-medium">Total Score</div>
+          <div className="text-sm text-theme-text-primary font-medium">Total Score</div>
           <div className="text-xs text-theme-interactive-primary mt-1">
             {Math.round(result.totalScore / result.totalQuestions * 100)}% avg
           </div>

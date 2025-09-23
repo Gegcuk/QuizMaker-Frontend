@@ -283,7 +283,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
               onChange={handleInputChange}
               placeholder="Enter quiz description (optional)..."
               className={`mt-1 block w-full border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                combinedErrors.description ? 'border-red-300' : 'border-theme-border-primary'
+                combinedErrors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               disabled={!isEditing}
             />

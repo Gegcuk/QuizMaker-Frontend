@@ -233,7 +233,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
       {/* Edit Configuration Form */}
       {isEditing && (
-        <div className="mb-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
           <h3 className="text-lg font-semibold text-yellow-900 mb-3">Edit Configuration</h3>
           
           <div className="space-y-4">
@@ -248,7 +248,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                   ...prev,
                   defaultStrategy: e.target.value as ChunkingStrategy
                 }))}
-                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-theme-bg-primary"
+                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
               >
                 <option value="AUTO">Auto - Best Strategy</option>
                 <option value="CHAPTER_BASED">Chapter Based</option>
@@ -275,7 +275,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-theme-bg-primary"
+                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
               />
               <p className="mt-1 text-xs text-yellow-700">
                 Recommended: 500-2000 characters for optimal quiz generation
@@ -287,7 +287,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           <div className="mt-4 flex space-x-3">
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               Save Changes
             </button>

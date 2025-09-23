@@ -225,7 +225,7 @@ export const DocumentUploadTab: React.FC = () => {
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
-                  ? 'border-blue-400 bg-theme-bg-info'
+                  ? 'border-theme-border-info bg-theme-bg-info'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragEnter}
@@ -345,7 +345,7 @@ export const DocumentUploadTab: React.FC = () => {
               {/* Quiz Title */}
               <div>
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Title <span className="text-red-500">*</span>
+                  Quiz Title <span className="text-theme-interactive-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -418,7 +418,7 @@ export const DocumentUploadTab: React.FC = () => {
               {/* Questions Per Type */}
               <div>
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Questions Per Type (per chunk) <span className="text-red-500">*</span>
+                  Questions Per Type (per chunk) <span className="text-theme-interactive-danger">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

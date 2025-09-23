@@ -232,7 +232,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
           </svg>
           <div>
             <p className="text-sm text-theme-text-secondary">
-              <span className="font-medium text-theme-interactive-primary hover:text-blue-500 cursor-pointer">
+              <span className="font-medium text-theme-interactive-primary hover:text-theme-interactive-info cursor-pointer">
                 Click to upload
               </span>
               {' '}or drag and drop
@@ -257,7 +257,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   if (error) {
     return (
       <div className="text-center space-y-4">
-        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
           <p className="text-theme-interactive-danger">{error}</p>
         </div>
         <Button

@@ -131,7 +131,7 @@ const TagManagementPage: React.FC = () => {
           <Spinner size="lg" />
         </div>
       ) : error ? (
-        <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
           <p className="text-theme-interactive-danger">{error}</p>
         </div>
       ) : tags.length === 0 ? (
@@ -210,7 +210,7 @@ const TagManagementPage: React.FC = () => {
             <h3 className="text-xl font-semibold mb-4">
               {editingTag ? 'Edit Tag' : 'New Tag'}
             </h3>
-            {formError && <div className="text-red-500 mb-2">{formError}</div>}
+            {formError && <div className="text-theme-interactive-danger mb-2">{formError}</div>}
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
                 <label htmlFor="tagName" className="block text-sm font-medium text-theme-text-secondary mb-1">

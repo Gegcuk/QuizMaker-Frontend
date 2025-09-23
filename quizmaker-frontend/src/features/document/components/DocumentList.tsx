@@ -132,13 +132,13 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'UPLOADED':
-        return <DocumentArrowUpIcon className="h-5 w-5 text-blue-500" />;
+        return <DocumentArrowUpIcon className="h-5 w-5 text-theme-interactive-info" />;
       case 'PROCESSING':
-        return <ClockIcon className="h-5 w-5 text-yellow-500" />;
+        return <ClockIcon className="h-5 w-5 text-theme-interactive-warning" />;
       case 'PROCESSED':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+        return <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success" />;
       case 'FAILED':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />;
+        return <XCircleIcon className="h-5 w-5 text-theme-interactive-danger" />;
       default:
         return <DocumentTextIcon className="h-5 w-5 text-theme-text-tertiary" />;
     }

@@ -71,9 +71,9 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               key={statement.id}
               className={`flex items-start space-x-3 p-4 border rounded-lg transition-colors ${
                 status === 'correct'
-                  ? 'border-green-300 bg-theme-bg-success'
+                  ? 'border-theme-border-success bg-theme-bg-success'
                   : status === 'incorrect'
-                  ? 'border-red-300 bg-theme-bg-danger'
+                  ? 'border-theme-border-danger bg-theme-bg-danger'
                   : isSelected
                   ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
@@ -104,7 +104,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   disabled={disabled}
                   className={`h-4 w-4 rounded ${
                     status === 'correct'
-                      ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
+                      ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
                       : status === 'incorrect'
                       ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                       : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
@@ -169,7 +169,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && statements.length > 0 && (
-        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-md">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-theme-border-success rounded-md">
           <div className="flex items-start space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -341,9 +341,9 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       case 4:
         return createdQuiz ? (
           <div className="text-center space-y-6">
-            <div className="bg-theme-bg-success border border-green-200 rounded-lg p-6">
+            <div className="bg-theme-bg-success border border-theme-border-success rounded-lg p-6">
               <div className="flex items-center justify-center mb-4">
-                <svg className="h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-12 w-12 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -400,10 +400,10 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
       {/* Error message */}
       {errors.general && (
-        <div className="mb-6 bg-theme-bg-danger border border-red-200 rounded-md p-4">
+        <div className="mb-6 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>

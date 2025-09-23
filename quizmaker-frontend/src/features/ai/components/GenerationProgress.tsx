@@ -284,10 +284,10 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
@@ -313,7 +313,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
             type="button"
             onClick={handleCancelGeneration}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-red-300 rounded-md hover:bg-theme-bg-danger focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-theme-border-danger rounded-md hover:bg-theme-bg-danger focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Cancelling...' : 'Cancel Generation'}
           </button>

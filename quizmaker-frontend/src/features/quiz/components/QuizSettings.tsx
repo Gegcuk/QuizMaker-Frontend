@@ -186,7 +186,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 onChange={handleInputChange}
                 placeholder="Enter timer duration..."
                 className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                  combinedErrors.timerDuration ? 'border-red-300' : 'border-theme-border-primary'
+                  combinedErrors.timerDuration ? 'border-theme-border-danger' : 'border-theme-border-primary'
                 }`}
                 disabled={!isEditing}
               />
@@ -203,7 +203,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
         {/* Estimated Time */}
         <div>
           <label htmlFor="estimatedTime" className="block text-sm font-medium text-theme-text-secondary">
-            Estimated Time (minutes) <span className="text-red-500">*</span>
+            Estimated Time (minutes) <span className="text-theme-interactive-danger">*</span>
           </label>
           <input
             type="number"
@@ -215,7 +215,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             onChange={handleInputChange}
             placeholder="Enter estimated time..."
             className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-              combinedErrors.estimatedTime ? 'border-red-300' : 'border-theme-border-primary'
+              combinedErrors.estimatedTime ? 'border-theme-border-danger' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />

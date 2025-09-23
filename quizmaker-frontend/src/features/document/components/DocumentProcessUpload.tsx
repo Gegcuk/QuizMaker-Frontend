@@ -255,7 +255,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
-                  ? 'border-blue-500 bg-theme-bg-info'
+                  ? 'border-theme-border-info bg-theme-bg-info'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
               }`}
               onDragEnter={handleDragIn}
@@ -266,13 +266,13 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
               {selectedFile ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center space-x-2">
-                    <DocumentTextIcon className="h-8 w-8 text-green-500" />
+                    <DocumentTextIcon className="h-8 w-8 text-theme-interactive-success" />
                     <span className="font-medium">{selectedFile.name}</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={removeFile}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-theme-interactive-danger hover:text-red-700"
                     >
                       <XMarkIcon className="h-4 w-4" />
                     </Button>
@@ -394,7 +394,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
 
              {/* Success Message */}
        {uploadedDocument && (
-         <Alert className="border-green-200 bg-theme-bg-success">
+         <Alert className="border-theme-border-success bg-theme-bg-success">
            <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success" />
            <div>
              <h3 className="text-sm font-medium text-theme-interactive-success">
@@ -407,7 +407,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                  <p>Character count: {uploadedDocument.charCount.toLocaleString()}</p>
                )}
                <div className="mt-2">
-                 <Badge variant="outline" className="text-green-700 border-green-300">
+                 <Badge variant="outline" className="text-green-700 border-theme-border-success">
                    {uploadedDocument.status}
                  </Badge>
                </div>

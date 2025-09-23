@@ -140,7 +140,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 <ul className="text-sm text-theme-text-secondary space-y-1">
                   {option.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-theme-interactive-success mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       {feature}

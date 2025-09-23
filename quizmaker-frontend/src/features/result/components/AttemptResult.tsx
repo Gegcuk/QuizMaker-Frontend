@@ -108,7 +108,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
           <div className="text-2xl font-bold text-theme-interactive-primary">
             {formatDuration(result.startedAt, result.completedAt)}
           </div>
-          <div className="text-sm text-purple-700">Time Taken</div>
+          <div className="text-sm text-theme-text-primary">Time Taken</div>
         </div>
       </div>
 
@@ -207,7 +207,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
 
       {/* Achievement Badge */}
       {score >= 90 && (
-        <div className="mt-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
           <div className="flex items-center justify-center space-x-2">
             <span className="text-2xl">🏆</span>
             <div className="text-center">

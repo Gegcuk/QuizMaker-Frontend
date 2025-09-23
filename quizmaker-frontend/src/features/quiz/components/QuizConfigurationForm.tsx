@@ -95,7 +95,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="Enter quiz title..."
                 maxLength={100}
-                className={errors.title ? 'border-red-300' : ''}
+                className={errors.title ? 'border-theme-border-danger' : ''}
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-theme-interactive-danger">{errors.title}</p>
@@ -116,7 +116,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 rows={4}
                 maxLength={1000}
                 className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary ${
-                  errors.description ? 'border-red-300' : 'border-theme-border-primary'
+                  errors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
                 }`}
               />
               {errors.description && (
@@ -181,7 +181,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                 placeholder="30"
                 min={1}
                 max={180}
-                className={errors.estimatedTime ? 'border-red-300' : ''}
+                className={errors.estimatedTime ? 'border-theme-border-danger' : ''}
               />
               {errors.estimatedTime && (
                 <p className="mt-1 text-sm text-theme-interactive-danger">{errors.estimatedTime}</p>
@@ -220,7 +220,7 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
                     placeholder="30"
                     min={1}
                     max={180}
-                    className={errors.timerDuration ? 'border-red-300' : ''}
+                    className={errors.timerDuration ? 'border-theme-border-danger' : ''}
                   />
                   {errors.timerDuration && (
                     <p className="mt-1 text-sm text-theme-interactive-danger">{errors.timerDuration}</p>

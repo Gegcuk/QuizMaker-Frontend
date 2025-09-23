@@ -258,7 +258,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
         <div className="px-6 py-4">
           {error ? (
             <div className="text-center py-8">
-              <p className="text-red-500">{error}</p>
+              <p className="text-theme-interactive-danger">{error}</p>
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-8">

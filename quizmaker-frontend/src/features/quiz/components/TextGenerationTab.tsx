@@ -148,7 +148,7 @@ export const TextGenerationTab: React.FC = () => {
             {/* Text Input */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Enter your text content <span className="text-red-500">*</span>
+                Enter your text content <span className="text-theme-interactive-danger">*</span>
               </label>
               <textarea
                 value={text}
@@ -300,7 +300,7 @@ export const TextGenerationTab: React.FC = () => {
               {/* Questions Per Type */}
               <div>
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Questions Per Type <span className="text-red-500">*</span>
+                  Questions Per Type <span className="text-theme-interactive-danger">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

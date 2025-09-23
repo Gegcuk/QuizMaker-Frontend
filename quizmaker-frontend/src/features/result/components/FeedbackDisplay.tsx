@@ -171,7 +171,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Motivational Message */}
-      <div className="mb-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+      <div className="mb-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
         <div className="text-center">
           <div className="text-lg font-medium text-theme-interactive-warning">
             {getMotivationalMessage(score)}
@@ -181,7 +181,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
 
       {/* Performance Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-theme-bg-success rounded-lg border border-green-200">
+        <div className="p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers.length}</div>
             <div className="text-sm text-green-700 font-medium">Correct Answers</div>
@@ -191,7 +191,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
           </div>
         </div>
         
-        <div className="p-4 bg-theme-bg-danger rounded-lg border border-red-200">
+        <div className="p-4 bg-theme-bg-danger rounded-lg border border-theme-border-danger">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-danger">{incorrectAnswers.length}</div>
             <div className="text-sm text-red-700 font-medium">Areas for Improvement</div>
@@ -201,10 +201,10 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
           </div>
         </div>
         
-        <div className="p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{formatDuration(result.startedAt, result.completedAt)}</div>
-            <div className="text-sm text-purple-700 font-medium">Time Spent</div>
+            <div className="text-sm text-theme-text-primary font-medium">Time Spent</div>
             <div className="text-xs text-theme-interactive-primary mt-1">
               {averageTimePerQuestion}s per question
             </div>
@@ -281,7 +281,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       </div>
 
       {/* Encouragement */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-theme-border-success">
         <div className="text-center">
           <div className="text-lg font-medium text-theme-interactive-success mb-2">
             Remember: Every attempt is progress! 🚀

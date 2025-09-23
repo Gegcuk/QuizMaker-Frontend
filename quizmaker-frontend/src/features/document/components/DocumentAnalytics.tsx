@@ -197,7 +197,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{analytics.totalCharacters.toLocaleString()}</div>
-            <div className="text-sm text-purple-700">Total Characters</div>
+            <div className="text-sm text-theme-text-primary">Total Characters</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-warning">{analytics.totalPagesCovered}</div>
@@ -320,7 +320,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       )}
 
       {/* Content Quality Insights */}
-      <div className="p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
         <h3 className="text-sm font-medium text-yellow-900 mb-2">Content Quality Insights</h3>
         <div className="space-y-1 text-sm text-yellow-700">
           {analytics.averageWordsPerChunk < 50 && (

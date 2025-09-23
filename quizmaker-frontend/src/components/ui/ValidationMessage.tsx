@@ -22,9 +22,9 @@ const ValidationMessage: React.FC<ValidationMessageProps> = ({
   };
 
   const iconClasses = {
-    error: 'text-red-500',
-    warning: 'text-yellow-500',
-    info: 'text-blue-500'
+    error: 'text-theme-interactive-danger',
+    warning: 'text-theme-interactive-warning',
+    info: 'text-theme-interactive-info'
   };
 
   const getIcon = () => {

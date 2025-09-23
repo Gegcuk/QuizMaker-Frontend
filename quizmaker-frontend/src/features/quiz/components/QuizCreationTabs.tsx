@@ -57,7 +57,7 @@ export const QuizCreationTabs: React.FC = () => {
                 className={`
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                   ${activeTab === tab.id
-                    ? 'border-blue-500 text-theme-interactive-primary'
+                    ? 'border-theme-border-info text-theme-interactive-primary'
                     : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
                   }
                 `}

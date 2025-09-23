@@ -41,7 +41,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
     lg: 'px-6 py-3 text-base'
   };
 
-  const errorClasses = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : '';
+  const errorClasses = error ? 'border-theme-border-danger focus:ring-theme-interactive-danger focus:border-theme-border-danger' : '';
   const widthClass = fullWidth ? 'w-full' : '';
   const iconPadding = leftIcon ? 'pl-10' : '';
   const rightIconPadding = rightIcon ? 'pr-10' : '';

@@ -585,7 +585,7 @@ const QuizAttemptPage: React.FC = () => {
           {renderQuestion(currentQuestion, true)}
         </div>
 
-        {error && <p className="text-red-500 mt-4">{error}</p>}
+        {error && <p className="text-theme-interactive-danger mt-4">{error}</p>}
 
         <button
           onClick={handleSubmitAnswer}
@@ -749,7 +749,7 @@ const QuizAttemptPage: React.FC = () => {
   /*  Main Render                                                         */
   /* -------------------------------------------------------------------- */
   if (loading) return <Spinner />;
-  if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
+  if (error) return <p className="text-theme-interactive-danger text-center py-10">{error}</p>;
   if (!attemptId) return <p className="text-center py-10">Failed to initialize attempt.</p>;
 
   return (
@@ -771,7 +771,7 @@ const QuizAttemptPage: React.FC = () => {
       {/* Error Display */}
       {error && (
         <div className="max-w-4xl mx-auto px-4 mb-4">
-          <div className="bg-theme-bg-danger border border-red-200 rounded-lg p-4">
+          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4">
             <p className="text-theme-interactive-danger">{error}</p>
           </div>
         </div>

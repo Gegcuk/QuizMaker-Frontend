@@ -72,9 +72,9 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
               key={option.id}
               className={`flex items-start space-x-3 p-4 border rounded-lg transition-colors ${
                 status === 'correct' 
-                  ? 'border-green-300 bg-theme-bg-success' 
+                  ? 'border-theme-border-success bg-theme-bg-success' 
                   : status === 'incorrect'
-                  ? 'border-red-300 bg-theme-bg-danger'
+                  ? 'border-theme-border-danger bg-theme-bg-danger'
                   : isSelected
                   ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
@@ -108,7 +108,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                     isMultiSelect ? 'rounded' : ''
                   } ${
                     status === 'correct'
-                      ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
+                      ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
                       : status === 'incorrect'
                       ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                       : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'

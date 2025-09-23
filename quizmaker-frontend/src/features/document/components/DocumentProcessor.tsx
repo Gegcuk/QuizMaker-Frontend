@@ -267,7 +267,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
         <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Processing Stages</h3>
         <div className="space-y-3">
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
-            document.status !== 'FAILED' ? 'bg-theme-bg-success border border-green-200' : 'bg-theme-bg-secondary border border-theme-border-primary'
+            document.status !== 'FAILED' ? 'bg-theme-bg-success border border-theme-border-success' : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className="text-theme-interactive-success">✅</span>
             <div>
@@ -294,7 +294,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           
           <div className={`flex items-center space-x-3 p-3 rounded-lg ${
             document.status === 'PROCESSED' 
-              ? 'bg-theme-bg-success border border-green-200' 
+              ? 'bg-theme-bg-success border border-theme-border-success' 
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className={document.status === 'PROCESSED' ? 'text-theme-interactive-success' : 'text-theme-text-tertiary'}>
@@ -315,7 +315,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
           <div className="flex items-center space-x-2">
             <span className="text-theme-interactive-danger">❌</span>
             <div>
@@ -338,7 +338,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       )}
 
       {/* Processing Tips */}
-      <div className="p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
         <h3 className="text-sm font-medium text-yellow-900 mb-2">Processing Information:</h3>
         <ul className="text-sm text-yellow-700 space-y-1">
           <li>• Processing time depends on document size and complexity</li>

@@ -128,7 +128,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-theme-bg-success rounded-lg border border-green-200">
+        <div className="p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="flex items-center space-x-2 mb-2">
             <span className="text-lg">{getModeIcon(details.mode)}</span>
             <span className="font-medium text-green-700">{details.mode.replace('_', ' ')}</span>
@@ -138,11 +138,11 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary mb-2">
             {formatDuration(details.startedAt, details.completedAt ?? undefined)}
           </div>
-          <div className="text-sm text-purple-700">
+          <div className="text-sm text-theme-text-primary">
             <div><strong>Started:</strong> {new Date(details.startedAt).toLocaleString()}</div>
             {details.completedAt && (
               <div><strong>Completed:</strong> {new Date(details.completedAt).toLocaleString()}</div>
@@ -169,7 +169,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(averageScore)}</div>
-            <div className="text-sm text-purple-700">Average Score</div>
+            <div className="text-sm text-theme-text-primary">Average Score</div>
           </div>
         </div>
       </div>
@@ -220,11 +220,11 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                       </div>
                       <div>
                         <div className="font-medium text-theme-interactive-success">{data.correct}</div>
-                        <div className="text-green-500">Correct</div>
+                        <div className="text-theme-interactive-success">Correct</div>
                       </div>
                       <div>
                         <div className="font-medium text-theme-interactive-primary">{Math.round(accuracy)}%</div>
-                        <div className="text-blue-500">Accuracy</div>
+                        <div className="text-theme-interactive-info">Accuracy</div>
                       </div>
                       <div>
                         <div className="font-medium text-theme-interactive-primary">{Math.round(avgScore)}</div>
@@ -271,7 +271,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
       </div>
 
       {/* Progress Analysis */}
-      <div className="p-4 bg-theme-bg-success border border-green-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
         <h3 className="text-sm font-medium text-green-900 mb-2">Progress Analysis</h3>
         <div className="space-y-1 text-sm text-green-700">
           <div>• Total questions answered: {totalAnswers}</div>

@@ -133,7 +133,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
               {activeFiltersCount > 0 && (
                 <button
                   onClick={onClearFilters}
-                  className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+                  className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
                 >
                   Clear all
                 </button>

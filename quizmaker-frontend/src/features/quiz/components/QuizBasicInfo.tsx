@@ -89,7 +89,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
         {/* Quiz Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-theme-text-secondary">
-            Quiz Title <span className="text-red-500">*</span>
+            Quiz Title <span className="text-theme-interactive-danger">*</span>
           </label>
           <input
             type="text"
@@ -99,7 +99,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             onChange={handleInputChange}
             placeholder="Enter quiz title..."
             className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-              combinedErrors.title ? 'border-red-300' : 'border-theme-border-primary'
+              combinedErrors.title ? 'border-theme-border-danger' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />
@@ -124,7 +124,7 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
             onChange={handleInputChange}
             placeholder="Enter quiz description (optional)..."
             className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-              combinedErrors.description ? 'border-red-300' : 'border-theme-border-primary'
+              combinedErrors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}
           />

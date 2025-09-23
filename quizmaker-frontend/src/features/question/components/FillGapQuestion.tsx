@@ -55,8 +55,8 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
               className={`inline-block min-w-[120px] border rounded-md px-2 py-1 text-sm ${
                 showCorrectAnswer
                   ? userAnswer === correctAnswer
-                    ? 'border-green-300 bg-theme-bg-success text-theme-interactive-success'
-                    : 'border-red-300 bg-theme-bg-danger text-theme-interactive-danger'
+                    ? 'border-theme-border-success bg-theme-bg-success text-theme-interactive-success'
+                    : 'border-theme-border-danger bg-theme-bg-danger text-theme-interactive-danger'
                   : 'border-theme-border-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary'
               }`}
               placeholder={`Gap ${gapId}`}
@@ -116,7 +116,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
 
       {/* Answer Summary */}
       {showCorrectAnswer && gaps && gaps.length > 0 && (
-        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-md">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-theme-border-success rounded-md">
           <div className="flex items-start space-x-2">
             <svg className="w-4 h-4 text-theme-interactive-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -136,7 +136,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
                   </div>
                 ))}
               </div>
-              <div className="mt-3 pt-3 border-t border-green-200">
+              <div className="mt-3 pt-3 border-t border-theme-border-success">
                 <p className="text-sm text-green-700">
                   You got {getCorrectAnswersCount()} out of {getTotalGaps()} gaps correct.
                 </p>

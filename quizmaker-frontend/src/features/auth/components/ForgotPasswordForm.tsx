@@ -110,7 +110,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   if (isSubmitted) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-theme-bg-success border border-green-200 rounded-md p-6">
+        <div className="bg-theme-bg-success border border-theme-border-success rounded-md p-6">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -145,7 +145,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-theme-interactive-primary hover:text-indigo-500"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
           >
             Back to login
           </Link>
@@ -166,10 +166,10 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* General error display */}
         {errors.general && (
-          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -193,7 +193,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               autoComplete="email"
               required
               className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                errors.email ? 'border-red-300' : 'border-theme-border-primary'
+                errors.email ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               value={email}
               onChange={handleInputChange}
@@ -231,7 +231,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-theme-interactive-primary hover:text-indigo-500"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
           >
             Back to login
           </Link>

@@ -108,7 +108,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
               key={statement.id}
               className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
                 isSelected
-                  ? 'border-green-500 bg-theme-bg-success'
+                  ? 'border-theme-border-success bg-theme-bg-success'
                   : 'border-theme-border-primary hover:border-theme-border-primary hover:bg-theme-bg-secondary'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -117,7 +117,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
-                className="mt-1 rounded border-theme-border-primary text-theme-interactive-success focus:ring-green-500 focus:ring-2"
+                className="mt-1 rounded border-theme-border-primary text-theme-interactive-success focus:ring-theme-interactive-success focus:ring-2"
               />
               
               <div className="ml-3 flex-1">
@@ -154,7 +154,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 
       {/* Selection Summary */}
       {selectedStatements.length > 0 && (
-        <div className="p-3 bg-theme-bg-success border border-green-200 rounded-md">
+        <div className="p-3 bg-theme-bg-success border border-theme-border-success rounded-md">
           <div className="text-sm text-green-700">
             <strong>Selected Statements:</strong> {selectedStatements.length} of {statements.length}
           </div>

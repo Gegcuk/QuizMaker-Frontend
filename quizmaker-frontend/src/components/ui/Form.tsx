@@ -211,11 +211,11 @@ const Form = <T extends FieldValues = FieldValues>({
         {children}
         
         {showValidationErrors && Object.keys(errors).length > 0 && (
-          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-400"
+                  className="h-5 w-5 text-theme-interactive-danger"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >

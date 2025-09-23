@@ -173,13 +173,13 @@ export const TagStats: React.FC<TagStatsProps> = ({
   const getGrowthIcon = (growthRate: number) => {
     if (growthRate > 0) {
       return (
-        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-4 h-4 text-theme-interactive-success" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
         </svg>
       );
     } else if (growthRate < 0) {
       return (
-        <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-4 h-4 text-theme-interactive-danger" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
         </svg>
       );
@@ -204,9 +204,9 @@ export const TagStats: React.FC<TagStatsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-theme-bg-danger border border-red-200 rounded-lg p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
-          <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-theme-interactive-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
           <span className="text-theme-interactive-danger">{error}</span>

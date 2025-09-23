@@ -246,7 +246,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
 
       {/* Validation Error */}
       {validationError && (
-        <div className="mb-4 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+        <div className="mb-4 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
           <div className="text-sm text-theme-interactive-danger">{validationError}</div>
         </div>
       )}

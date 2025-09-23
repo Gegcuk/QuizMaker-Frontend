@@ -307,7 +307,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-theme-bg-danger border border-red-200 rounded-md">
+        <div className="mb-4 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
           <p className="text-sm text-theme-interactive-danger">{error}</p>
         </div>
       )}
@@ -326,7 +326,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
       </div>
 
       {/* Important Notes */}
-      <div className="mt-6 p-4 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+      <div className="mt-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
         <h4 className="text-sm font-medium text-yellow-900 mb-2">Important Notes</h4>
         <ul className="text-sm text-theme-interactive-warning space-y-1">
           <li>• You can pause and resume your attempt at any time</li>

@@ -45,9 +45,9 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
         <div
           className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
             getOptionStatus(true) === 'correct'
-              ? 'border-green-300 bg-theme-bg-success'
+              ? 'border-theme-border-success bg-theme-bg-success'
               : getOptionStatus(true) === 'incorrect'
-              ? 'border-red-300 bg-theme-bg-danger'
+              ? 'border-theme-border-danger bg-theme-bg-danger'
               : currentAnswer === true
               ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
@@ -62,7 +62,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             disabled={disabled}
             className={`h-4 w-4 ${
               getOptionStatus(true) === 'correct'
-                ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
+                ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
                 : getOptionStatus(true) === 'incorrect'
                 ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                 : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
@@ -93,9 +93,9 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
         <div
           className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
             getOptionStatus(false) === 'correct'
-              ? 'border-green-300 bg-theme-bg-success'
+              ? 'border-theme-border-success bg-theme-bg-success'
               : getOptionStatus(false) === 'incorrect'
-              ? 'border-red-300 bg-theme-bg-danger'
+              ? 'border-theme-border-danger bg-theme-bg-danger'
               : currentAnswer === false
               ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
@@ -110,7 +110,7 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             disabled={disabled}
             className={`h-4 w-4 ${
               getOptionStatus(false) === 'correct'
-                ? 'text-theme-interactive-success focus:ring-green-500 border-green-300'
+                ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
                 : getOptionStatus(false) === 'incorrect'
                 ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
                 : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'

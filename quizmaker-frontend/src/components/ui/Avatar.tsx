@@ -44,7 +44,7 @@ const Avatar: React.FC<AvatarProps> = ({
     online: 'bg-green-400',
     offline: 'bg-theme-bg-tertiary',
     away: 'bg-yellow-400',
-    busy: 'bg-red-400'
+    busy: 'bg-theme-interactive-danger'
   };
 
   const statusSizeClasses = {

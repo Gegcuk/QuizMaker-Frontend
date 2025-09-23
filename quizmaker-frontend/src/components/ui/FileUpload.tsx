@@ -139,9 +139,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const baseClasses = [
     'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200',
-    isDragOver ? 'border-blue-400 bg-theme-bg-info' : 'border-theme-border-primary hover:border-theme-border-secondary',
+    isDragOver ? 'border-theme-border-info bg-theme-bg-info' : 'border-theme-border-primary hover:border-theme-border-secondary',
     disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-    error ? 'border-red-300 bg-theme-bg-danger' : '',
+    error ? 'border-theme-border-danger bg-theme-bg-danger' : '',
     className
   ].filter(Boolean).join(' ');
 
@@ -180,7 +180,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </svg>
           
           <div className="text-sm text-theme-text-secondary">
-            <span className="font-medium text-theme-interactive-primary hover:text-blue-500">
+            <span className="font-medium text-theme-interactive-primary hover:text-theme-interactive-info">
               {label}
             </span>
             {dragAndDrop && ' or drag and drop'}
@@ -243,7 +243,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 <button
                   type="button"
                   onClick={() => removeFile(index)}
-                  className="text-red-400 hover:text-theme-interactive-danger"
+                  className="text-theme-interactive-danger hover:text-theme-interactive-danger"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />

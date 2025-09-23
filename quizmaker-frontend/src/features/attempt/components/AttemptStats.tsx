@@ -78,17 +78,17 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
           <div className="text-sm text-theme-interactive-primary font-medium">Total Time</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-green-200">
+        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-2xl font-bold text-theme-interactive-success">{stats.correctAnswers}</div>
           <div className="text-sm text-green-700 font-medium">Correct</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(stats.accuracyPercentage)}%</div>
-          <div className="text-sm text-purple-700 font-medium">Accuracy</div>
+          <div className="text-sm text-theme-text-primary font-medium">Accuracy</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-warning rounded-lg border border-orange-200">
+        <div className="text-center p-4 bg-theme-bg-warning rounded-lg border border-theme-border-warning">
           <div className="text-2xl font-bold text-theme-interactive-warning">{formatDuration(stats.averageTimePerQuestion)}</div>
           <div className="text-sm text-orange-700 font-medium">Avg/Question</div>
         </div>
@@ -256,7 +256,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
       </div>
 
       {/* Performance Insights */}
-      <div className="p-4 bg-theme-bg-success border border-green-200 rounded-lg">
+      <div className="p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
         <h3 className="text-sm font-medium text-green-900 mb-2">Performance Insights</h3>
         <div className="space-y-1 text-sm text-green-700">
           <div>• You completed {stats.questionsAnswered} out of {totalQuestions} questions</div>

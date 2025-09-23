@@ -177,7 +177,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     if (balanceError) {
       return (
-        <div className="bg-theme-bg-danger border border-red-200 rounded-lg p-4 text-sm text-theme-interactive-danger">
+        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 text-sm text-theme-interactive-danger">
           {balanceError}
         </div>
       );
@@ -322,10 +322,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   if (!displayUser) {
     return (
-      <div className={`bg-theme-bg-danger border border-red-200 rounded-md p-4 ${className}`}>
+      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-md p-4 ${className}`}>
         <div className="flex">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
           </div>
@@ -385,10 +385,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
       {/* Content */}
       <div className="px-6 py-4">
         {errors.general && (
-          <div className="mb-4 bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <div className="mb-4 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -408,7 +408,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                   type="button"
                   onClick={handleRefreshBalance}
                   disabled={isBalanceLoading}
-                  className="text-xs font-medium text-theme-interactive-primary hover:text-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-xs font-medium text-theme-interactive-primary hover:text-theme-interactive-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isBalanceLoading ? 'Refreshing…' : 'Refresh balance'}
                 </button>
@@ -435,7 +435,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 value={formData.username || ''}
                 onChange={handleInputChange}
                 className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                  errors.username ? 'border-red-300' : 'border-theme-border-primary'
+                  errors.username ? 'border-theme-border-danger' : 'border-theme-border-primary'
                 }`}
                 disabled={isSaving}
               />
@@ -455,7 +455,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 value={formData.email || ''}
                 onChange={handleInputChange}
                 className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                  errors.email ? 'border-red-300' : 'border-theme-border-primary'
+                  errors.email ? 'border-theme-border-danger' : 'border-theme-border-primary'
                 }`}
                 disabled={isSaving}
               />

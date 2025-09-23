@@ -136,10 +136,10 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
         </div>
         <div className="px-6 py-12 text-center">
-          <div className="bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -333,7 +333,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                 which is {analytics.correctRate >= 80 ? 'excellent' : analytics.correctRate >= 60 ? 'good' : 'needs improvement'}.
               </p>
             </div>
-            <div className="bg-theme-bg-success border border-green-200 rounded-lg p-4">
+            <div className="bg-theme-bg-success border border-theme-border-success rounded-lg p-4">
               <h5 className="text-sm font-medium text-green-900 mb-2">Time Analysis</h5>
               <p className="text-sm text-theme-interactive-success">
                 Students spend an average of {formatTime(analytics.averageTimeSpent)} on this question,

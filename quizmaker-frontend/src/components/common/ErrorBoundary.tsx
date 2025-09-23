@@ -46,7 +46,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="flex items-center mb-4">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-8 w-8 text-red-400"
+                  className="h-8 w-8 text-theme-interactive-danger"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

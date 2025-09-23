@@ -121,7 +121,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
         <button
           type="button"
           onClick={handleRetry}
-          className="text-xs font-medium text-theme-interactive-primary hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs font-medium text-theme-interactive-primary hover:text-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLoading}
         >
           {isLoading ? 'Refreshing…' : 'Reload packs'}
@@ -129,7 +129,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-theme-bg-danger px-3 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-md border border-theme-border-danger bg-theme-bg-danger px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -161,14 +161,14 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
                   onClick={() => setSelectedPackId(pack.id)}
                   className={`w-full rounded-md border p-4 text-left transition-all ${
                     isSelected
-                      ? 'border-indigo-500 bg-theme-bg-primary shadow-sm'
+                      ? 'border-theme-border-primary bg-theme-bg-primary shadow-sm'
                       : 'border-indigo-100 bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
                   }`}
                   aria-pressed={isSelected}
                 >
                   <p className="text-sm font-semibold text-indigo-900">{pack.name}</p>
                   <p className="mt-1 text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
-                  <p className="mt-2 text-xs uppercase tracking-wide text-indigo-500">
+                  <p className="mt-2 text-xs uppercase tracking-wide text-theme-interactive-primary">
                     {pack.tokens.toLocaleString()} tokens
                   </p>
                 </button>

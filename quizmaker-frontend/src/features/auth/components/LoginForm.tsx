@@ -119,7 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <div className="text-sm">
             <Link
               to="/forgot-password"
-              className="font-medium text-theme-interactive-primary hover:text-indigo-500"
+              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
             >
               Forgot your password?
             </Link>
@@ -142,7 +142,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-theme-interactive-primary hover:text-indigo-500"
+              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
             >
               Sign up here
             </Link>

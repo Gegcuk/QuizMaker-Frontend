@@ -47,7 +47,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   const baseClasses = 'relative border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed';
-  const errorClasses = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : '';
+  const errorClasses = error ? 'border-theme-border-danger focus:ring-theme-interactive-danger focus:border-theme-border-danger' : '';
   const widthClass = fullWidth ? 'w-full' : '';
 
   const dropdownClasses = [

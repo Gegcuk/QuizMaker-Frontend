@@ -156,7 +156,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
           </div>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+            className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
           >
             {showCreateForm ? 'Cancel' : '+ Add New Tag'}
           </button>
@@ -165,10 +165,10 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
       <div className="px-6 py-4">
         {error && (
-          <div className="mb-4 bg-theme-bg-danger border border-red-200 rounded-md p-4">
+          <div className="mb-4 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -186,7 +186,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
             <div className="space-y-3">
               <div>
                 <label htmlFor="new-tag-name" className="block text-sm font-medium text-theme-text-secondary">
-                  Tag Name <span className="text-red-500">*</span>
+                  Tag Name <span className="text-theme-interactive-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -256,13 +256,13 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => handleBulkSelect(true)}
-                className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
               >
                 Select All
               </button>
               <button
                 onClick={() => handleBulkSelect(false)}
-                className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
               >
                 Clear All
               </button>
@@ -303,7 +303,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   key={tag.id}
                   className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                     tag.isSelected
-                      ? 'border-indigo-500 bg-theme-bg-primary'
+                      ? 'border-theme-border-primary bg-theme-bg-primary'
                       : 'border-theme-border-primary hover:border-theme-border-primary'
                   }`}
                   onClick={() => handleTagToggle(tag.id)}

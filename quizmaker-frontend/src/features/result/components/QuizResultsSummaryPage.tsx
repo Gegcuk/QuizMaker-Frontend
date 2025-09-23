@@ -49,7 +49,7 @@ const QuizResultsSummaryPage: React.FC = () => {
   if (!quizId) {
     return (
       <div className="max-w-4xl mx-auto py-8 text-center">
-        <p className="text-red-500">Quiz ID is missing from URL.</p>
+        <p className="text-theme-interactive-danger">Quiz ID is missing from URL.</p>
         <button
           onClick={() => navigate('/quizzes')}
           className="mt-4 px-4 py-2 border rounded"
@@ -65,7 +65,7 @@ const QuizResultsSummaryPage: React.FC = () => {
   if (error)
     return (
       <div className="max-w-4xl mx-auto py-8 text-center">
-        <p className="text-red-500">{error}</p>
+        <p className="text-theme-interactive-danger">{error}</p>
         <button
           onClick={() => navigate(0)}
           className="mt-4 px-4 py-2 border rounded"

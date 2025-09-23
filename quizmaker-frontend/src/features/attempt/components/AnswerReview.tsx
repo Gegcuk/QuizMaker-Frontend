@@ -165,7 +165,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
                     {/* Feedback */}
                     {!answer.isCorrect && (
-                      <div className="p-3 bg-theme-bg-warning border border-yellow-200 rounded-md">
+                      <div className="p-3 bg-theme-bg-warning border border-theme-border-warning rounded-md">
                         <div className="text-sm text-theme-interactive-warning">
                           <strong>Note:</strong> This answer was incorrect. Review the question and consider the correct approach for future attempts.
                         </div>
@@ -192,9 +192,9 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
       {/* Performance Insights */}
       {totalAnswers > 0 && (
-        <div className="mt-6 p-4 bg-theme-bg-primary border border-purple-200 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
           <h3 className="text-sm font-medium text-purple-900 mb-2">Performance Insights:</h3>
-          <div className="text-sm text-purple-700">
+          <div className="text-sm text-theme-text-primary">
             {accuracy >= 90 && "🎯 Excellent performance! You've mastered this material."}
             {accuracy >= 80 && accuracy < 90 && "👍 Great work! You have a solid understanding."}
             {accuracy >= 70 && accuracy < 80 && "📚 Good effort! Focus on the areas you missed."}

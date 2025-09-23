@@ -268,7 +268,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       <div
         className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragActive
-            ? 'border-blue-400 bg-theme-bg-info'
+            ? 'border-theme-border-info bg-theme-bg-info'
             : 'border-theme-border-primary hover:border-theme-border-secondary'
         }`}
         onDragEnter={handleDragEnter}
@@ -400,7 +400,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mt-4 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+        <div className="mt-4 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
           <div className="flex items-center space-x-2">
             <span className="text-theme-interactive-danger">❌</span>
             <span className="text-theme-interactive-danger">{error}</span>
@@ -413,7 +413,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="mt-6">
           <button
             onClick={handleUpload}
-            className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
           >
             📤 Upload Document
           </button>
@@ -434,7 +434,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Quiz Generation Section */}
       {uploadedDocument && (
-        <div className="mt-6 p-4 bg-theme-bg-success border border-green-200 rounded-lg">
+        <div className="mt-6 p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-green-900">Document Uploaded Successfully!</h3>
@@ -456,7 +456,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             
             <button
               onClick={() => setShowQuizGenerationModal(true)}
-              className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+              className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               🎯 Generate Quiz from Document
             </button>
@@ -502,7 +502,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             {/* Quiz Title */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Quiz Title <span className="text-red-500">*</span>
+                Quiz Title <span className="text-theme-interactive-danger">*</span>
               </label>
               <input
                 type="text"

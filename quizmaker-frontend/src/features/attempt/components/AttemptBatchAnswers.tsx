@@ -172,7 +172,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
           <div className="text-sm font-medium text-theme-interactive-danger mb-2">
             Please fix the following issues:
           </div>
@@ -205,7 +205,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 bg-theme-bg-danger border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
           <div className="text-sm text-red-700">
             <strong>Submission Error:</strong> {error}
           </div>
@@ -232,7 +232,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Warning for incomplete answers */}
       {unansweredCount > 0 && (
-        <div className="mt-4 p-3 bg-theme-bg-warning border border-yellow-200 rounded-lg">
+        <div className="mt-4 p-3 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
           <div className="text-sm text-theme-interactive-warning">
             <strong>Note:</strong> You have {unansweredCount} unanswered question{unansweredCount > 1 ? 's' : ''}. 
             You can still submit, but unanswered questions will be marked as incorrect.
@@ -242,7 +242,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Final confirmation */}
       {answeredCount === totalQuestions && (
-        <div className="mt-4 p-3 bg-theme-bg-success border border-green-200 rounded-lg">
+        <div className="mt-4 p-3 bg-theme-bg-success border border-theme-border-success rounded-lg">
           <div className="text-sm text-theme-interactive-success">
             <strong>Ready to submit!</strong> All questions have been answered.
           </div>

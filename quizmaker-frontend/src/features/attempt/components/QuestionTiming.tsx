@@ -160,19 +160,19 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
           <div className="text-sm text-theme-interactive-primary font-medium">Average Time</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-green-200">
+        <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-2xl font-bold text-theme-interactive-success">{formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
           <div className="text-sm text-green-700 font-medium">Fastest</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-danger rounded-lg border border-red-200">
+        <div className="text-center p-4 bg-theme-bg-danger rounded-lg border border-theme-border-danger">
           <div className="text-2xl font-bold text-theme-interactive-danger">{formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
           <div className="text-sm text-red-700 font-medium">Slowest</div>
         </div>
         
-        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-purple-200">
+        <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracyPercentage)}%</div>
-          <div className="text-sm text-purple-700 font-medium">Accuracy</div>
+          <div className="text-sm text-theme-text-primary font-medium">Accuracy</div>
         </div>
       </div>
 

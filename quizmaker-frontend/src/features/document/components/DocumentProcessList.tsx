@@ -67,11 +67,11 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       case 'INGESTED':
         return <Badge variant="outline" className="text-theme-interactive-primary border-theme-interactive-primary">Ingested</Badge>;
       case 'NORMALIZED':
-        return <Badge variant="outline" className="text-purple-700 border-purple-300">Normalized</Badge>;
+        return <Badge variant="outline" className="text-theme-text-primary border-theme-border-primary">Normalized</Badge>;
       case 'STRUCTURED':
-        return <Badge variant="outline" className="text-green-700 border-green-300">Structured</Badge>;
+        return <Badge variant="outline" className="text-green-700 border-theme-border-success">Structured</Badge>;
       case 'FAILED':
-        return <Badge variant="outline" className="text-red-700 border-red-300">Failed</Badge>;
+        return <Badge variant="outline" className="text-red-700 border-theme-border-danger">Failed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -80,13 +80,13 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'INGESTED':
-        return <ClockIcon className="h-5 w-5 text-blue-500" />;
+        return <ClockIcon className="h-5 w-5 text-theme-interactive-info" />;
       case 'NORMALIZED':
         return <CheckCircleIcon className="h-5 w-5 text-purple-500" />;
       case 'STRUCTURED':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+        return <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success" />;
       case 'FAILED':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />;
+        return <ExclamationTriangleIcon className="h-5 w-5 text-theme-interactive-danger" />;
       default:
         return <DocumentTextIcon className="h-5 w-5 text-theme-text-tertiary" />;
     }

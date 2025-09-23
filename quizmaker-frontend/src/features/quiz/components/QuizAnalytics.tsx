@@ -314,7 +314,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
                 </svg>
                 <div>
                   <p className="text-sm font-medium text-purple-900">Engagement</p>
-                  <p className="text-xs text-purple-700">
+                  <p className="text-xs text-theme-text-primary">
                     {stats.attemptsCount} total attempts
                   </p>
                 </div>

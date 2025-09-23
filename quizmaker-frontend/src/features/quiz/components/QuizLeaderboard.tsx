@@ -133,7 +133,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           {entries.length > 10 && (
             <button
               onClick={() => setShowTop10(!showTop10)}
-              className="text-sm text-theme-interactive-primary hover:text-indigo-500"
+              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
             >
               {showTop10 ? 'Show All' : 'Show Top 10'}
             </button>
@@ -155,7 +155,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
               <div
                 key={entry.userId}
                 className={`flex items-center space-x-4 p-3 rounded-lg transition-colors ${
-                  isTop3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200' : 'hover:bg-theme-bg-secondary'
+                  isTop3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-theme-border-warning' : 'hover:bg-theme-bg-secondary'
                 }`}
               >
                 {/* Position/Medal */}
@@ -197,7 +197,7 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
           <div className="mt-4 text-center">
             <button
               onClick={() => setShowTop10(false)}
-              className="text-sm text-theme-interactive-primary hover:text-indigo-500 font-medium"
+              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary font-medium"
             >
               Show all {entries.length} participants
             </button>
