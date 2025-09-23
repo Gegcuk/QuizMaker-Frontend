@@ -119,15 +119,15 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
       <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics</h3>
-          <p className="text-sm text-gray-500 mb-4">Advanced analytics features are currently disabled.</p>
-          <div className="bg-blue-50 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
-              Enable <code className="bg-blue-100 px-1 rounded">REACT_APP_FEATURE_ADVANCED_ANALYTICS=true</code> in your environment to access detailed analytics.
+          <h3 className="text-lg font-medium text-theme-text-primary mb-2">Analytics</h3>
+          <p className="text-sm text-theme-text-tertiary mb-4">Advanced analytics features are currently disabled.</p>
+          <div className="bg-theme-bg-secondary rounded-lg p-4">
+            <p className="text-sm text-theme-text-primary">
+              Enable <code className="bg-theme-bg-tertiary px-1 rounded">REACT_APP_FEATURE_ADVANCED_ANALYTICS=true</code> in your environment to access detailed analytics.
             </p>
           </div>
         </div>
@@ -136,25 +136,25 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+    <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900">Analytics</h3>
+            <h3 className="text-lg font-medium text-theme-text-primary">Analytics</h3>
           </div>
           
           {/* Chart Type Selector */}
-          <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex space-x-1 bg-theme-bg-tertiary rounded-lg p-1">
             <button
               onClick={() => setSelectedChart('score-distribution')}
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'score-distribution'
                   ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-theme-text-secondary hover:text-theme-text-primary'
               }`}
             >
               Score Distribution
@@ -164,7 +164,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'question-performance'
                   ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-theme-text-secondary hover:text-theme-text-primary'
               }`}
             >
               Question Performance
@@ -174,7 +174,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                 selectedChart === 'attempt-trends'
                   ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-theme-text-secondary hover:text-theme-text-primary'
               }`}
             >
               Attempt Trends
@@ -187,21 +187,21 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
       <div className="px-6 py-6">
         {selectedChart === 'score-distribution' && (
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-4">Score Distribution</h4>
+            <h4 className="text-sm font-medium text-theme-text-primary mb-4">Score Distribution</h4>
             <div className="space-y-4">
               {scoreDistribution.map((item, index) => (
                 <div key={index} className="flex items-center space-x-4">
-                  <div className="w-20 text-sm font-medium text-gray-700">
+                  <div className="w-20 text-sm font-medium text-theme-text-secondary">
                     {item.range}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-600">{item.count} attempts</span>
-                      <span className="text-sm font-medium text-gray-900">{item.percentage}%</span>
+                      <span className="text-sm text-theme-text-secondary">{item.count} attempts</span>
+                      <span className="text-sm font-medium text-theme-text-primary">{item.percentage}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 rounded-full bg-blue-500"
+                        className="h-2 rounded-full bg-theme-bg-secondary0"
                         style={{ width: `${item.percentage}%` }}
                       ></div>
                     </div>
@@ -214,24 +214,24 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
 
         {selectedChart === 'question-performance' && (
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-4">Question Performance</h4>
+            <h4 className="text-sm font-medium text-theme-text-primary mb-4">Question Performance</h4>
             {stats.questionStats && stats.questionStats.length > 0 ? (
               <div className="space-y-4">
                 {stats.questionStats.slice(0, 10).map((question, index) => (
                   <div key={question.questionId} className="flex items-center space-x-4">
-                    <div className="w-8 text-sm font-medium text-gray-700">
+                    <div className="w-8 text-sm font-medium text-theme-text-secondary">
                       Q{index + 1}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-theme-text-secondary">
                           {question.timesCorrect}/{question.timesAsked} correct
                         </span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-theme-text-primary">
                           {formatPercentage(question.correctRate)}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${getQuestionColor(question.correctRate)}`}
                           style={{ width: `${question.correctRate}%` }}
@@ -242,7 +242,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
                 ))}
                 {stats.questionStats.length > 10 && (
                   <div className="text-center pt-2">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-theme-text-tertiary">
                       Showing top 10 questions • {stats.questionStats.length - 10} more questions
                     </p>
                   </div>
@@ -250,7 +250,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-sm text-gray-500">No question statistics available</p>
+                <p className="text-sm text-theme-text-tertiary">No question statistics available</p>
               </div>
             )}
           </div>
@@ -258,21 +258,21 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
 
         {selectedChart === 'attempt-trends' && (
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-4">Attempt Trends (Last 7 Days)</h4>
+            <h4 className="text-sm font-medium text-theme-text-primary mb-4">Attempt Trends (Last 7 Days)</h4>
             <div className="space-y-4">
               {attemptTrends.map((day, index) => (
                 <div key={index} className="flex items-center space-x-4">
-                  <div className="w-16 text-sm font-medium text-gray-700">
+                  <div className="w-16 text-sm font-medium text-theme-text-secondary">
                     {day.date}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-600">{day.attempts} attempts</span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm text-theme-text-secondary">{day.attempts} attempts</span>
+                      <span className="text-sm font-medium text-theme-text-primary">
                         {formatPercentage(day.averageScore)} avg
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
                         className="h-2 rounded-full bg-green-500"
                         style={{ width: `${(day.attempts / 10) * 100}%` }}
@@ -286,17 +286,17 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
         )}
 
         {/* Summary Stats */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <h4 className="text-sm font-medium text-gray-900 mb-4">Key Insights</h4>
+        <div className="mt-8 pt-6 border-t border-theme-border-primary">
+          <h4 className="text-sm font-medium text-theme-text-primary mb-4">Key Insights</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-theme-bg-secondary rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-theme-interactive-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
                 <div>
-                  <p className="text-sm font-medium text-blue-900">Performance Trend</p>
-                  <p className="text-xs text-blue-700">
+                  <p className="text-sm font-medium text-theme-text-primary">Performance Trend</p>
+                  <p className="text-xs text-theme-text-secondary">
                     {stats.averageScore > 70 ? 'Strong' : stats.averageScore > 50 ? 'Moderate' : 'Needs Improvement'}
                   </p>
                 </div>

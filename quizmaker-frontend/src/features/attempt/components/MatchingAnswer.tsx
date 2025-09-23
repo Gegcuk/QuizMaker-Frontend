@@ -62,14 +62,14 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         Click an item on the left, then click its match on the right to connect them.
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Left Column</h4>
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Left Column</h4>
           <div className="space-y-2">
             {leftItems.map((item) => {
               const matchedRightId = getMatchedRightId(item.id);
@@ -84,21 +84,21 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   disabled={disabled || isMatched}
                   className={`w-full p-3 text-left border rounded-lg transition-colors ${
                     isSelected
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
                       : isMatched
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-300 bg-white hover:bg-gray-50'
+                      ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-interactive-success'
+                      : 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary'
                   } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{item.text}</span>
                     {isMatched && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-success px-2 py-1 rounded">
                         Matched
                       </span>
                     )}
                     {isSelected && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
                         Selected
                       </span>
                     )}
@@ -111,7 +111,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
         {/* Right Column */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Right Column</h4>
+          <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Right Column</h4>
           <div className="space-y-2">
             {rightItems.map((item) => {
               const matchedLeftId = getMatchedLeftId(item.id);
@@ -125,16 +125,16 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   disabled={disabled || isMatched || selectedLeft === null}
                   className={`w-full p-3 text-left border rounded-lg transition-colors ${
                     isMatched
-                      ? 'border-green-500 bg-green-50 text-green-700'
+                      ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-interactive-success'
                       : selectedLeft !== null
-                      ? 'border-gray-300 bg-white hover:bg-gray-50 cursor-pointer'
-                      : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
+                      ? 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary cursor-pointer'
+                      : 'border-theme-border-primary bg-theme-bg-secondary cursor-not-allowed opacity-50'
                   } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{item.text}</span>
                     {isMatched && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-success px-2 py-1 rounded">
                         Matched
                       </span>
                     )}
@@ -148,15 +148,15 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
       {/* Instructions */}
       {selectedLeft !== null && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-sm text-blue-800">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-3">
+          <p className="text-sm text-theme-text-primary">
             Now click the matching item in the right column to connect them.
           </p>
         </div>
       )}
 
       {/* Progress */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-theme-text-secondary">
         {Object.keys(currentAnswer || {}).length} of {leftItems.length} matches completed
       </div>
     </div>

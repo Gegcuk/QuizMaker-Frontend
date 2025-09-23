@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { QuestionForAttemptDto } from '@/types';
+import { useTheme } from '@/context/ThemeContext';
 
 interface HotspotAnswerProps {
   question: QuestionForAttemptDto;
@@ -36,6 +37,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const { currentPalette } = useTheme();
 
   // Extract image and regions from safe content
   const imageUrl = question.safeContent?.imageUrl || '';
@@ -71,16 +73,16 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw placeholder background
-      ctx.fillStyle = '#f3f4f6';
+      ctx.fillStyle = currentPalette.colors.bg.secondary;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Draw border
-      ctx.strokeStyle = '#d1d5db';
+      ctx.strokeStyle = currentPalette.colors.border.primary;
       ctx.lineWidth = 2;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
       
       // Draw text
-      ctx.fillStyle = '#6b7280';
+      ctx.fillStyle = currentPalette.colors.text.tertiary;
       ctx.font = '24px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('Hotspot Question', canvas.width / 2, canvas.height / 2 - 20);
@@ -97,7 +99,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       ];
       
       sampleRegions.forEach(region => {
-        ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
+        ctx.strokeStyle = `${currentPalette.colors.interactive.primary}30`; // 30 = 0.3 opacity
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
         ctx.strokeRect(region.x, region.y, region.width, region.height);
@@ -120,7 +122,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       const width = (region.width / 100) * canvas.width;
       const height = (region.height / 100) * canvas.height;
 
-      ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
+      ctx.strokeStyle = `${currentPalette.colors.interactive.primary}30`; // 30 = 0.3 opacity
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.strokeRect(x, y, width, height);
@@ -134,9 +136,9 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       const width = (selectedRegion.width / 100) * canvas.width;
       const height = (selectedRegion.height / 100) * canvas.height;
 
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+      ctx.fillStyle = `${currentPalette.colors.interactive.primary}20`; // 20 = 0.2 opacity
       ctx.fillRect(x, y, width, height);
-      ctx.strokeStyle = 'rgb(59, 130, 246)';
+      ctx.strokeStyle = currentPalette.colors.interactive.primary;
       ctx.lineWidth = 3;
       ctx.strokeRect(x, y, width, height);
     }
@@ -148,9 +150,9 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       const width = Math.abs(mousePosition.x - startPoint.x);
       const height = Math.abs(mousePosition.y - startPoint.y);
 
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+      ctx.fillStyle = `${currentPalette.colors.interactive.primary}10`; // 10 = 0.1 opacity
       ctx.fillRect(x, y, width, height);
-      ctx.strokeStyle = 'rgb(59, 130, 246)';
+      ctx.strokeStyle = currentPalette.colors.interactive.primary;
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.strokeRect(x, y, width, height);
