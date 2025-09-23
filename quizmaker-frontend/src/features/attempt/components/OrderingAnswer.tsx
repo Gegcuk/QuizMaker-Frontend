@@ -124,8 +124,8 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
 
   if (originalItems.length === 0) {
     return (
-      <div className={`p-4 bg-gray-50 border border-gray-200 rounded-md ${className}`}>
-        <div className="text-gray-500 text-center">No items available for ordering</div>
+      <div className={`p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-md ${className}`}>
+        <div className="text-theme-text-tertiary text-center">No items available for ordering</div>
       </div>
     );
   }
@@ -133,9 +133,9 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-theme-text-secondary mb-4">
         <p className="font-medium mb-2">Arrange the items in the correct order:</p>
-        <p className="text-xs text-gray-500">Drag and drop items to reorder them, or use the arrow buttons to move items up and down.</p>
+        <p className="text-xs text-theme-text-tertiary">Drag and drop items to reorder them, or use the arrow buttons to move items up and down.</p>
       </div>
 
       {/* Reset Button */}
@@ -144,7 +144,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
           type="button"
           onClick={handleReset}
           disabled={disabled}
-          className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 px-3 py-1 rounded border border-gray-300 hover:bg-gray-50"
+          className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary"
         >
           Reset Order
         </button>
@@ -162,24 +162,24 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
             onDragEnd={handleDragEnd}
             className={`flex items-center p-4 border rounded-lg transition-all duration-200 ${
               draggedItem?.id === item.id
-                ? 'border-indigo-500 bg-indigo-50 opacity-50 shadow-lg'
-                : 'border-gray-200 hover:border-gray-300 bg-white'
+                ? 'border-theme-interactive-primary bg-theme-bg-tertiary opacity-50 shadow-lg'
+                : 'border-theme-border-primary hover:border-theme-border-secondary bg-theme-bg-primary'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-move'}`}
           >
             {/* Position Number */}
-            <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium mr-3 flex-shrink-0">
+            <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary text-theme-interactive-primary rounded-full text-sm font-medium mr-3 flex-shrink-0">
               {index + 1}
             </div>
 
             {/* Drag Handle */}
-            <div className="mr-3 text-gray-400 flex-shrink-0">
+            <div className="mr-3 text-theme-text-tertiary flex-shrink-0">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
               </svg>
             </div>
 
             {/* Item Text */}
-            <div className="flex-1 text-gray-900">
+            <div className="flex-1 text-theme-text-primary">
               {item.text}
             </div>
 
@@ -189,7 +189,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
                 type="button"
                 onClick={() => handleMoveUp(index)}
                 disabled={disabled || index === 0}
-                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50 rounded"
+                className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50 rounded"
                 title="Move up"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -200,7 +200,7 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
                 type="button"
                 onClick={() => handleMoveDown(index)}
                 disabled={disabled || index === orderedItems.length - 1}
-                className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50 rounded"
+                className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50 rounded"
                 title="Move down"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -213,8 +213,8 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
       </div>
 
       {/* Progress Indicator */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-        <div className="text-sm text-blue-700">
+      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
+        <div className="text-sm text-theme-text-secondary">
           <strong>Current Order:</strong> {orderedItems.map((item, index) => 
             `${index + 1}. ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`
           ).join(' → ')}

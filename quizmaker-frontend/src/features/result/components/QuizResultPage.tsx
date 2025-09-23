@@ -115,16 +115,16 @@ const QuizResultPage: React.FC = () => {
   /* ------------------------------------------------------------------ */
   const getScoreColor = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
-    if (percentage >= 80) return 'text-green-600';
-    if (percentage >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 80) return 'text-theme-interactive-success';
+    if (percentage >= 60) return 'text-theme-text-warning';
+    return 'text-theme-text-danger';
   };
 
   const getScoreBackground = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
-    if (percentage >= 80) return 'bg-green-100 border-green-300';
-    if (percentage >= 60) return 'bg-yellow-100 border-yellow-300';
-    return 'bg-red-100 border-red-300';
+    if (percentage >= 80) return 'bg-theme-bg-success border-theme-border-success';
+    if (percentage >= 60) return 'bg-theme-bg-warning border-theme-border-warning';
+    return 'bg-theme-bg-danger border-theme-border-danger';
   };
 
   const formatCorrectAnswer = (question: QuestionDto) => {
@@ -149,11 +149,24 @@ const QuizResultPage: React.FC = () => {
       case 'FILL_GAP':
         const fillGapContent = question.content as any;
         if (fillGapContent.text && fillGapContent.gaps) {
-          // Replace ___ with the correct answers
+          // Replace ___ with the correct answers in order
           let resultText = fillGapContent.text;
-          fillGapContent.gaps.forEach((gap: any) => {
-            resultText = resultText.replace(/_{3,}/g, `**${gap.answer}**`);
-          });
+          let gapIndex = 0;
+          
+          // Find all gaps marked with ___ and replace them with the corresponding gap answers
+          const gapRegex = /_{3,}/g;
+          let match;
+          
+          while ((match = gapRegex.exec(resultText)) !== null && gapIndex < fillGapContent.gaps.length) {
+            const gap = fillGapContent.gaps[gapIndex];
+            const beforeGap = resultText.substring(0, match.index);
+            const afterGap = resultText.substring(match.index + match[0].length);
+            resultText = beforeGap + `**${gap.answer}**` + afterGap;
+            gapIndex++;
+            
+            // Reset regex lastIndex since we modified the string
+            gapRegex.lastIndex = match.index + `**${gap.answer}**`.length;
+          }
           return resultText;
         }
         return fillGapContent.gaps?.map((gap: any) => gap.answer)?.join(', ') || 'N/A';
@@ -191,8 +204,8 @@ const QuizResultPage: React.FC = () => {
   if (!attemptId) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p className="text-red-600">No attempt ID provided.</p>
-        <Link to={backUrl} className="text-indigo-600 hover:underline mt-4">
+        <p className="text-theme-text-danger">No attempt ID provided.</p>
+        <Link to={backUrl} className="text-theme-interactive-primary hover:underline mt-4">
           ← Back to Quizzes
         </Link>
       </div>
@@ -204,10 +217,10 @@ const QuizResultPage: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p className="text-red-600">{error}</p>
+        <p className="text-theme-text-danger">{error}</p>
         <button
           onClick={() => navigate(0)}
-          className="mt-4 text-indigo-600 hover:underline"
+          className="mt-4 text-theme-interactive-primary hover:underline"
         >
           Retry
         </button>
@@ -218,8 +231,8 @@ const QuizResultPage: React.FC = () => {
   if (!results) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p>No results found.</p>
-        <Link to={backUrl} className="text-indigo-600 hover:underline mt-4">
+        <p className="text-theme-text-primary">No results found.</p>
+        <Link to={backUrl} className="text-theme-interactive-primary hover:underline mt-4">
           ← Back to Quizzes
         </Link>
       </div>
@@ -233,75 +246,75 @@ const QuizResultPage: React.FC = () => {
     <div className="max-w-4xl mx-auto py-8 px-4">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Results</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-theme-text-primary mb-2">Quiz Results</h1>
+        <p className="text-theme-text-secondary">
           Attempt completed on {new Date(results.completedAt).toLocaleDateString()} at {new Date(results.completedAt).toLocaleTimeString()}
         </p>
       </div>
 
       {/* Summary Card */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-theme-bg-primary rounded-lg shadow-theme p-6 mb-8 border border-theme-border-primary">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{results.totalScore}</div>
-            <div className="text-sm text-gray-600">Total Score</div>
+            <div className="text-2xl font-bold text-theme-text-primary">{results.totalScore}</div>
+            <div className="text-sm text-theme-text-secondary">Total Score</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{results.correctCount}/{results.totalQuestions}</div>
-            <div className="text-sm text-gray-600">Correct Answers</div>
+            <div className="text-2xl font-bold text-theme-text-primary">{results.correctCount}/{results.totalQuestions}</div>
+            <div className="text-sm text-theme-text-secondary">Correct Answers</div>
           </div>
           <div className="text-center">
             <div className={`text-2xl font-bold ${getScoreColor(results.totalScore, results.totalQuestions)}`}>
               {Math.round((results.correctCount / results.totalQuestions) * 100)}%
             </div>
-            <div className="text-sm text-gray-600">Accuracy</div>
+            <div className="text-sm text-theme-text-secondary">Accuracy</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-theme-text-primary">
               {Math.round((results.totalScore / results.totalQuestions) * 100)}%
             </div>
-            <div className="text-sm text-gray-600">Score Percentage</div>
+            <div className="text-sm text-theme-text-secondary">Score Percentage</div>
           </div>
         </div>
       </div>
 
       {/* Question Breakdown */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Question Breakdown</h2>
+        <h2 className="text-2xl font-semibold text-theme-text-primary">Question Breakdown</h2>
         
         {enhancedAnswers.map((item, index) => (
           <div 
             key={item.answer.answerId} 
-            className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-              item.answer.isCorrect ? 'border-l-green-500' : 'border-l-red-500'
+            className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 border-l-4 border border-theme-border-primary ${
+              item.answer.isCorrect ? 'border-l-theme-interactive-success' : 'border-l-theme-interactive-danger'
             }`}
           >
             {/* Question Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-theme-bg-tertiary text-theme-text-secondary px-3 py-1 rounded-full text-sm font-medium">
                     Question {index + 1}
                   </span>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     item.answer.isCorrect 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-theme-bg-success text-theme-text-success' 
+                      : 'bg-theme-bg-danger text-theme-text-danger'
                   }`}>
                     {item.answer.isCorrect ? 'Correct' : 'Incorrect'}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-theme-text-tertiary">
                     {item.question.type.replace('_', ' ')}
                   </span>
                 </div>
-                                 <h3 className="text-lg font-medium text-gray-900">
+                                 <h3 className="text-lg font-medium text-theme-text-primary">
                    {item.question.type === 'FILL_GAP' ? (
                      <div>
-                       <div className="mb-2 text-gray-600">Complete the sentence:</div>
+                       <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
                        <div 
-                         className="text-gray-900"
+                         className="text-theme-text-primary"
                          dangerouslySetInnerHTML={{
-                           __html: (item.question.content as any)?.text?.replace(/_{3,}/g, '<span class="bg-gray-200 px-2 py-1 rounded text-gray-600">___</span>') || item.question.questionText
+                           __html: (item.question.content as any)?.text?.replace(/_{3,}/g, '<span class="bg-theme-bg-tertiary px-2 py-1 rounded text-theme-text-secondary">___</span>') || item.question.questionText
                          }}
                        />
                      </div>
@@ -321,38 +334,38 @@ const QuizResultPage: React.FC = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                {/* Result Status */}
                <div>
-                 <h4 className="font-medium text-gray-900 mb-2">Result:</h4>
-                 <div className={`p-3 rounded-md border ${
-                   item.answer.isCorrect 
-                     ? 'bg-green-50 border-green-200' 
-                     : 'bg-red-50 border-red-200'
-                 }`}>
-                   <p className="text-sm font-medium">
+                 <h4 className="font-medium text-theme-text-primary mb-2">Result:</h4>
+                 <div className="flex items-center space-x-3">
+                   <span className={`px-2 py-1 rounded text-sm font-medium ${
+                     item.answer.isCorrect 
+                       ? 'bg-theme-bg-success text-theme-text-success border border-theme-border-success' 
+                       : 'bg-theme-bg-danger text-theme-text-danger border border-theme-border-danger'
+                   }`}>
                      {item.answer.isCorrect ? 'Correct' : 'Incorrect'}
-                   </p>
-                   <p className="text-xs text-gray-600 mt-1">
-                     Score: {item.answer.score} point{item.answer.score !== 1 ? 's' : ''}
-                   </p>
+                   </span>
+                   <span className="text-xs text-theme-text-tertiary">
+                     {item.answer.score} point{item.answer.score !== 1 ? 's' : ''}
+                   </span>
                  </div>
                </div>
 
                {/* Correct Answer */}
                <div>
-                 <h4 className="font-medium text-gray-900 mb-2">Correct Answer:</h4>
-                 <div className="p-3 rounded-md border bg-green-50 border-green-200">
+                 <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
+                 <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary">
                    {item.question.type === 'FILL_GAP' ? (
                      <div className="text-sm">
-                       <div className="mb-2 text-gray-600">Complete the sentence:</div>
+                       <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
                        <div 
-                         className="text-gray-900"
+                         className="text-theme-text-primary"
                          dangerouslySetInnerHTML={{
                            __html: formatCorrectAnswer(item.question)
-                             .replace(/\*\*(.*?)\*\*/g, '<span class="bg-green-200 px-1 rounded font-medium">$1</span>')
+                             .replace(/\*\*(.*?)\*\*/g, '<span class="bg-theme-bg-success px-1 rounded font-medium">$1</span>')
                          }}
                        />
                      </div>
                    ) : (
-                     <p className="text-sm">
+                     <p className="text-sm text-theme-text-primary">
                        {formatCorrectAnswer(item.question)}
                      </p>
                    )}
@@ -363,9 +376,9 @@ const QuizResultPage: React.FC = () => {
             {/* Explanation */}
             {item.question.explanation && (
               <div className="mt-4">
-                <h4 className="font-medium text-gray-900 mb-2">Explanation:</h4>
-                <div className="p-3 rounded-md border bg-blue-50 border-blue-200">
-                  <p className="text-sm text-gray-700">
+                <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
+                <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary">
+                  <p className="text-sm text-theme-text-secondary">
                     {item.question.explanation}
                   </p>
                 </div>
@@ -373,7 +386,7 @@ const QuizResultPage: React.FC = () => {
             )}
 
             {/* Timing Info */}
-            <div className="mt-4 text-xs text-gray-500">
+            <div className="mt-4 text-xs text-theme-text-tertiary">
               Answered at: {new Date(item.answer.answeredAt).toLocaleTimeString()}
             </div>
           </div>
@@ -384,14 +397,14 @@ const QuizResultPage: React.FC = () => {
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
         <Link
           to={backUrl}
-          className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center justify-center px-6 py-3 border border-theme-border-primary shadow-sm text-base font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
         >
           ← Back to Quizzes
         </Link>
         {quizId && (
           <Link
             to={`/quizzes/${quizId}`}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
           >
             View Quiz Details
           </Link>

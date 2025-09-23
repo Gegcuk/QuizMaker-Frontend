@@ -39,12 +39,12 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
     if (selectedAnswer === isTrue) {
       return `${baseClass} ${
         isTrue 
-          ? 'border-green-500 bg-green-50 text-green-700' 
-          : 'border-red-500 bg-red-50 text-red-700'
+          ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-text-primary' 
+          : 'border-theme-interactive-danger bg-theme-bg-tertiary text-theme-text-primary'
       }`;
     }
     
-    return `${baseClass} border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 ${
+    return `${baseClass} border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:border-theme-border-secondary hover:bg-theme-bg-secondary ${
       disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
     }`;
   };
