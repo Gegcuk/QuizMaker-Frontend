@@ -59,12 +59,12 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
   );
 
   return (
-    <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
+    <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
             </svg>
             <h3 className="text-lg font-medium text-gray-900">Filters</h3>
@@ -80,7 +80,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             )}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-gray-600 hover:text-gray-500 flex items-center"
+              className="text-sm text-gray-600 hover:text-theme-text-tertiary flex items-center"
             >
               <svg className={`w-4 h-4 mr-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -144,7 +144,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
       {/* Advanced Filters */}
       {isExpanded && (
-        <div className="px-6 py-4 border-t border-gray-200 space-y-4">
+        <div className="px-6 py-4 border-t border-theme-border-primary space-y-4">
           {/* Categories */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -173,7 +173,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                   </label>
                 ))}
                 {categories.length === 0 && (
-                  <p className="text-sm text-gray-500">No categories available</p>
+                  <p className="text-sm text-theme-text-tertiary">No categories available</p>
                 )}
               </div>
             )}
@@ -207,7 +207,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                   </label>
                 ))}
                 {tags.length === 0 && (
-                  <p className="text-sm text-gray-500">No tags available</p>
+                  <p className="text-sm text-theme-text-tertiary">No tags available</p>
                 )}
               </div>
             )}
@@ -217,7 +217,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+        <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">Active Filters:</span>
             <button

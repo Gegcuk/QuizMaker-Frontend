@@ -125,11 +125,11 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto">
           <div className="p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+              <h3 className="text-lg font-medium text-theme-text-primary">Filters</h3>
               {activeFiltersCount > 0 && (
                 <button
                   onClick={onClearFilters}
@@ -142,7 +142,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
 
             {/* Difficulty Filter */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Difficulty</h4>
+              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Difficulty</h4>
               <div className="space-y-2">
                 {difficultyOptions.map((option) => (
                   <label key={option.value} className="flex items-center">
@@ -161,7 +161,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
             {/* Category Filter */}
             {availableCategories.length > 0 && (
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Category</h4>
+                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Category</h4>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {availableCategories.map((category) => (
                     <label key={category.id} className="flex items-center">
@@ -181,7 +181,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
             {/* Tags Filter */}
             {availableTags.length > 0 && (
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Tags</h4>
+                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Tags</h4>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {availableTags.map((tag) => (
                     <label key={tag.id} className="flex items-center">
@@ -200,7 +200,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
 
             {/* Status Filter */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Status</h4>
+              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Status</h4>
               <div className="space-y-2">
                 {statusOptions.map((option) => (
                   <label key={option.value} className="flex items-center">
@@ -218,7 +218,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
 
             {/* Duration Filter */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Duration</h4>
+              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Duration</h4>
               <div className="space-y-2">
                 {timeRanges.map((range) => (
                   <label key={range.value} className="flex items-center">

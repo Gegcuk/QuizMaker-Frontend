@@ -132,7 +132,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
-      color: 'bg-gray-500 hover:bg-gray-600',
+      color: 'bg-theme-bg-tertiary hover:bg-theme-bg-secondary',
       onClick: () => shareOnSocial('email')
     }
   ];
@@ -152,8 +152,8 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
 
       {/* Share Modal */}
       {showShareModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-theme-bg-primary">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Share Quiz</h3>
@@ -202,7 +202,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
                   className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                     copied
                       ? 'bg-green-600 text-white'
-                      : 'bg-gray-600 text-white hover:bg-gray-700'
+                      : 'bg-theme-bg-overlay text-white hover:bg-gray-700'
                   }`}
                 >
                   {copied ? 'Copied!' : 'Copy'}

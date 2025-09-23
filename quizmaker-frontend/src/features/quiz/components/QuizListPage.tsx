@@ -167,14 +167,14 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
               {/* Controls Bar */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-theme-text-secondary">
                     {filteredAndSortedQuizzes.length} quizzes found
                   </span>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   {/* View Mode Toggle */}
-                  <div className="flex items-center bg-white border border-gray-300 rounded-md shadow-sm">
+                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`px-3 py-2 text-sm font-medium rounded-l-md ${

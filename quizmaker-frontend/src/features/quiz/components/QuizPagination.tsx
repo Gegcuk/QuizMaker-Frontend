@@ -66,11 +66,11 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
   const endItem = Math.min(pageNumber * pageSize, totalElements);
 
   return (
-    <div className={`bg-white px-4 py-3 flex items-center justify-between border border-gray-200 rounded-b-lg shadow-sm ${className}`}>
+    <div className={`bg-theme-bg-primary px-4 py-3 flex items-center justify-between border border-theme-border-primary rounded-b-lg shadow-sm ${className}`}>
       {/* Page Size Selector */}
       {onPageSizeChange && (
         <div className="flex items-center space-x-2">
-          <label htmlFor="page-size" className="text-sm text-gray-700">
+          <label htmlFor="page-size" className="text-sm text-theme-text-secondary">
             Show:
           </label>
           <select
@@ -84,13 +84,13 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
             <option value={50}>50</option>
             <option value={100}>100</option>
           </select>
-          <span className="text-sm text-gray-700">per page</span>
+          <span className="text-sm text-theme-text-secondary">per page</span>
         </div>
       )}
 
       {/* Results Info */}
       <div className="flex-1 flex justify-center sm:justify-start">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-theme-text-secondary">
           Showing <span className="font-medium">{startItem}</span> to{' '}
           <span className="font-medium">{endItem}</span> of{' '}
           <span className="font-medium">{totalElements}</span> results
@@ -139,7 +139,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
 
         {/* Mobile Page Info */}
         <div className="sm:hidden">
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-theme-text-secondary">
             Page {pageNumber} of {totalPages}
           </span>
         </div>
@@ -163,7 +163,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
 
       {/* Jump to Page */}
       <div className="hidden lg:flex items-center space-x-2">
-        <label htmlFor="jump-page" className="text-sm text-gray-700">
+        <label htmlFor="jump-page" className="text-sm text-theme-text-secondary">
           Jump to:
         </label>
         <input
@@ -180,7 +180,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
           }}
           className="w-16 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
-        <span className="text-sm text-gray-700">of {totalPages}</span>
+        <span className="text-sm text-theme-text-secondary">of {totalPages}</span>
       </div>
     </div>
   );

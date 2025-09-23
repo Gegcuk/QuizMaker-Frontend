@@ -82,15 +82,15 @@ const QuizSort: React.FC<QuizSortProps> = ({
   ];
 
   return (
-    <div className={`bg-white shadow rounded-lg border border-gray-200 ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
+      <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center">
-          <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
           </svg>
-          <h3 className="text-lg font-medium text-gray-900">Sort By</h3>
+          <h3 className="text-lg font-medium text-theme-text-primary">Sort By</h3>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-theme-text-tertiary">
           Choose how to sort the quiz list
         </p>
       </div>
@@ -100,7 +100,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
           {sortOptions.map((option) => (
             <label
               key={option.value}
-              className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+              className="flex items-start space-x-3 cursor-pointer hover:bg-theme-bg-secondary p-2 rounded-md transition-colors"
             >
               <input
                 type="radio"
@@ -111,10 +111,10 @@ const QuizSort: React.FC<QuizSortProps> = ({
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 mt-0.5"
               />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-theme-text-primary">
                   {option.label}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-theme-text-tertiary">
                   {option.description}
                 </div>
               </div>
@@ -124,7 +124,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
       </div>
 
       {/* Quick Sort Buttons */}
-      <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+      <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary">
         <h4 className="text-sm font-medium text-gray-700 mb-2">Quick Sort</h4>
         <div className="flex flex-wrap gap-2">
           <button

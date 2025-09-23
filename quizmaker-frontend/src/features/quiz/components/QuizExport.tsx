@@ -144,10 +144,10 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
           <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-theme-bg-primary">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Export Quiz Results</h3>
+                <h3 className="text-lg font-medium text-theme-text-primary">Export Quiz Results</h3>
                 <button
                   onClick={() => setShowExportModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-theme-text-tertiary hover:text-theme-text-secondary"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -157,15 +157,15 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
 
               {/* Quiz Info */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium text-gray-900">{quiz.title}</h4>
+                <h4 className="font-medium text-theme-text-primary">{quiz.title}</h4>
                 {quiz.description && (
-                  <p className="text-sm text-gray-600 mt-1">{quiz.description}</p>
+                  <p className="text-sm text-theme-text-secondary mt-1">{quiz.description}</p>
                 )}
               </div>
 
               {/* Export Format Selection */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Export Format</h4>
+                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Export Format</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {exportFormats.map((format) => (
                     <button
@@ -178,11 +178,11 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
                       }`}
                     >
                       <div className="flex items-center">
-                        <div className={`mr-3 ${selectedFormat === format.id ? 'text-indigo-600' : 'text-gray-400'}`}>
+                        <div className={`mr-3 ${selectedFormat === format.id ? 'text-indigo-600' : 'text-theme-text-tertiary'}`}>
                           {format.icon}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{format.name}</p>
+                          <p className="font-medium text-theme-text-primary">{format.name}</p>
                           <p className="text-sm text-gray-500">{format.description}</p>
                         </div>
                       </div>
@@ -193,7 +193,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
 
               {/* Export Options */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Export Options</h4>
+                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Export Options</h4>
                 <div className="space-y-3">
                   <label className="flex items-center">
                     <input
@@ -239,7 +239,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
 
               {/* Date Range */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Date Range</h4>
+                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Date Range</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <label className="flex items-center">
                     <input

@@ -99,10 +99,10 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
           Add Questions to "{quizTitle}"
         </h3>
-        <p className="text-gray-600">
+        <p className="text-theme-text-secondary">
           Create or select questions for your quiz. You can preview your quiz anytime.
         </p>
       </div>
@@ -116,7 +116,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'questions'
                 ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-theme-text-secondary hover:text-theme-text-primary'
             }`}
           >
             ❓ Questions ({selectedQuestionIds.length})
@@ -127,7 +127,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'preview'
                 ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-theme-text-secondary hover:text-theme-text-primary'
             }`}
           >
             👁️ Preview
@@ -149,10 +149,10 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="text-lg font-medium text-gray-900">
+                <h4 className="text-lg font-medium text-theme-text-primary">
                   {selectedQuestionIds.length > 0 ? 'Ready to Complete?' : 'Add Questions'}
                 </h4>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-theme-text-secondary mt-1">
                   {selectedQuestionIds.length > 0 
                     ? `${selectedQuestionIds.length} questions selected. Your quiz is ready!`
                     : 'Add at least one question to complete your quiz.'
@@ -210,10 +210,10 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="text-lg font-medium text-gray-900">
+                <h4 className="text-lg font-medium text-theme-text-primary">
                   Preview Complete
                 </h4>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-theme-text-secondary mt-1">
                   Review your quiz above. Switch back to Questions to add more content.
                 </p>
               </div>

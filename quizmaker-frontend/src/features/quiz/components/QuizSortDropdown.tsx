@@ -84,13 +84,13 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
           <div className="py-1">
             {sortOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleSortChange(option.value)}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors ${
                   sortBy === option.value ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
                 }`}
               >
