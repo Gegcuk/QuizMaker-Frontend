@@ -228,7 +228,7 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
                     ...prev,
                     maxChunkSize: parseInt(e.target.value) || 1000
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
                 <p className="text-xs text-theme-text-tertiary mt-1">
                   Maximum number of characters per chunk (100-10,000)

@@ -223,7 +223,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.x}
                             onChange={(e) => updateRegion(region.id, { x: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                           />
                         </div>
                         <div>
@@ -234,7 +234,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.y}
                             onChange={(e) => updateRegion(region.id, { y: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                           />
                         </div>
                         <div>
@@ -245,7 +245,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.width}
                             onChange={(e) => updateRegion(region.id, { width: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                           />
                         </div>
                         <div>
@@ -256,7 +256,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                             max="100"
                             value={region.height}
                             onChange={(e) => updateRegion(region.id, { height: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                           />
                         </div>
                       </div>

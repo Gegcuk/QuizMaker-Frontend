@@ -372,7 +372,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               />
               <p className="mt-1 text-xs text-theme-text-secondary">
                 Recommended: 500-2000 characters for optimal quiz generation
@@ -598,7 +598,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
                 <div>
@@ -621,7 +621,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="10"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
                 <div>
@@ -644,7 +644,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     }))}
                     min="0"
                     max="5"
-                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                    className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
                 </div>
               </div>
@@ -664,7 +664,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 }))}
                 min="1"
                 max="10"
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               />
             </div>
           </div>

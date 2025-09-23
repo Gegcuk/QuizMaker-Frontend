@@ -185,7 +185,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
                 value={quizData.timerDuration || ''}
                 onChange={handleInputChange}
                 placeholder="Enter timer duration..."
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
                   combinedErrors.timerDuration ? 'border-theme-border-danger' : 'border-theme-border-primary'
                 }`}
                 disabled={!isEditing}
@@ -214,7 +214,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
             value={quizData.estimatedTime || ''}
             onChange={handleInputChange}
             placeholder="Enter estimated time..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
               combinedErrors.estimatedTime ? 'border-theme-border-danger' : 'border-theme-border-primary'
             }`}
             disabled={!isEditing}

@@ -26,8 +26,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 }, ref) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
+  
+  const isNumberInput = props.type === 'number';
 
-  const baseClasses = 'block w-full border-theme-border-primary shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed';
+  const baseClasses = 'block w-full border-theme-border-primary shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]';
   
   const variantClasses = {
     default: 'border-theme-border-primary bg-theme-bg-primary',
@@ -45,6 +47,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   const widthClass = fullWidth ? 'w-full' : '';
   const iconPadding = leftIcon ? 'pl-10' : '';
   const rightIconPadding = rightIcon ? 'pr-10' : '';
+  const numberInputPadding = isNumberInput ? 'pr-8' : '';
 
   const inputClasses = [
     baseClasses,
@@ -54,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
     widthClass,
     iconPadding,
     rightIconPadding,
+    numberInputPadding,
     className
   ].filter(Boolean).join(' ');
 
@@ -89,6 +93,60 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
             <div className="text-theme-text-tertiary">
               {rightIcon}
             </div>
+          </div>
+        )}
+        
+        {/* Custom number input controls */}
+        {isNumberInput && (
+          <div className="absolute inset-y-0 right-0 flex flex-col border-l border-theme-border-primary">
+            <button
+              type="button"
+              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
+              onClick={() => {
+                const input = document.getElementById(inputId) as HTMLInputElement;
+                if (input) {
+                  const currentValue = parseInt(input.value) || 0;
+                  const step = parseInt(input.step) || 1;
+                  const min = input.min ? parseInt(input.min) : undefined;
+                  const max = input.max ? parseInt(input.max) : undefined;
+                  let newValue = currentValue + step;
+                  if (max !== undefined && newValue > max) newValue = max;
+                  if (min !== undefined && newValue < min) newValue = min;
+                  input.value = newValue.toString();
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                  input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }}
+              tabIndex={-1}
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
+              onClick={() => {
+                const input = document.getElementById(inputId) as HTMLInputElement;
+                if (input) {
+                  const currentValue = parseInt(input.value) || 0;
+                  const step = parseInt(input.step) || 1;
+                  const min = input.min ? parseInt(input.min) : undefined;
+                  const max = input.max ? parseInt(input.max) : undefined;
+                  let newValue = currentValue - step;
+                  if (min !== undefined && newValue < min) newValue = min;
+                  if (max !== undefined && newValue > max) newValue = max;
+                  input.value = newValue.toString();
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                  input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }}
+              tabIndex={-1}
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         )}
       </div>

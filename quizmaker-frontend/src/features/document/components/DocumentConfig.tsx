@@ -275,7 +275,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 }))}
                 min="100"
                 max="10000"
-                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
+                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               />
               <p className="mt-1 text-xs text-theme-interactive-warning">
                 Recommended: 500-2000 characters for optimal quiz generation

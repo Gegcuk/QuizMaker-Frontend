@@ -178,7 +178,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
               onPageChange(page);
             }
           }}
-          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
         />
         <span className="text-sm text-theme-text-secondary">of {totalPages}</span>
       </div>
