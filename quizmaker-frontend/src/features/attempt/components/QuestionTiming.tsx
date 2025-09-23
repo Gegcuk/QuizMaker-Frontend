@@ -162,12 +162,12 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
         
         <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-2xl font-bold text-theme-interactive-success">{formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
-          <div className="text-sm text-green-700 font-medium">Fastest</div>
+          <div className="text-sm text-theme-interactive-success font-medium">Fastest</div>
         </div>
         
         <div className="text-center p-4 bg-theme-bg-danger rounded-lg border border-theme-border-danger">
           <div className="text-2xl font-bold text-theme-interactive-danger">{formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
-          <div className="text-sm text-red-700 font-medium">Slowest</div>
+          <div className="text-sm text-theme-interactive-danger font-medium">Slowest</div>
         </div>
         
         <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
@@ -281,7 +281,7 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
 
       {/* Timing Insights */}
       <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-2">Timing Insights</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Timing Insights</h3>
         <div className="space-y-1 text-sm text-theme-interactive-primary">
           <div>• Average time per question: {formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
           <div>• Fastest question: {formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>

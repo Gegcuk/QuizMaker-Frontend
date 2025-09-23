@@ -291,7 +291,7 @@ const QuestionManagementPage: React.FC = () => {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-theme-interactive-danger">Error</h3>
-                <div className="mt-2 text-sm text-red-700">{error}</div>
+                <div className="mt-2 text-sm text-theme-interactive-danger">{error}</div>
               </div>
             </div>
           </div>

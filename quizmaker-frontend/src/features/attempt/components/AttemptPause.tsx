@@ -91,7 +91,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className={`w-3 h-3 rounded-full ${
-              isPaused ? 'bg-yellow-400' : 'bg-green-400'
+              isPaused ? 'bg-theme-bg-tertiary' : 'bg-theme-bg-tertiary'
             }`} />
             <div>
               <div className="text-sm font-medium text-theme-text-primary">
@@ -111,7 +111,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               <button
                 onClick={() => openConfirmDialog('pause')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-theme-bg-warning text-yellow-700 rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-theme-bg-warning text-theme-interactive-warning rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ⏸️ Pause
               </button>
@@ -121,7 +121,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               <button
                 onClick={() => openConfirmDialog('resume')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-theme-bg-success text-green-700 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-theme-bg-success text-theme-interactive-success rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-success disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ▶️ Resume
               </button>
@@ -175,8 +175,8 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
                   disabled={isLoading}
                   className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
                     action === 'pause'
-                      ? 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-theme-interactive-warning'
-                      : 'bg-green-600 text-white hover:bg-green-700 focus:ring-theme-interactive-success'
+                      ? 'bg-theme-bg-overlay text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-warning'
+                      : 'bg-theme-bg-overlay text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-success'
                   }`}
                 >
                   {isLoading ? (

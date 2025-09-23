@@ -347,10 +347,10 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-green-900 mb-2">
+              <h3 className="text-lg font-semibold text-theme-text-primary mb-2">
                 Quiz Created Successfully!
               </h3>
-              <p className="text-green-700 mb-4">
+              <p className="text-theme-interactive-success mb-4">
                 Your quiz "{createdQuiz.title}" has been created and is ready to use.
               </p>
               <div className="flex justify-center space-x-4">

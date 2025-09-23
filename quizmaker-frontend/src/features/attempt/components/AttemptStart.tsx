@@ -195,7 +195,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
       {/* Quiz Information */}
       {quiz && (
         <div className="mb-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Quiz Information</h3>
+          <h3 className="text-sm font-medium text-theme-text-primary mb-2">Quiz Information</h3>
           <div className="grid grid-cols-2 gap-4 text-sm text-theme-interactive-info">
             <div>
               <span className="font-medium">Difficulty:</span> {quiz.difficulty}
@@ -289,7 +289,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Selected Mode Details */}
       <div className="mb-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-        <h4 className="text-sm font-medium text-indigo-900 mb-2">
+        <h4 className="text-sm font-medium text-theme-text-primary mb-2">
           {modeInfo.icon} {modeInfo.title} Mode
         </h4>
         <p className="text-sm text-theme-interactive-primary mb-3">
@@ -327,7 +327,7 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Important Notes */}
       <div className="mt-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
-        <h4 className="text-sm font-medium text-yellow-900 mb-2">Important Notes</h4>
+        <h4 className="text-sm font-medium text-theme-text-primary mb-2">Important Notes</h4>
         <ul className="text-sm text-theme-interactive-warning space-y-1">
           <li>• You can pause and resume your attempt at any time</li>
           <li>• Your progress is automatically saved</li>

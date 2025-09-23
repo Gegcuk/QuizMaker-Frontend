@@ -313,7 +313,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-medium text-purple-900">Engagement</p>
+                  <p className="text-sm font-medium text-theme-text-primary">Engagement</p>
                   <p className="text-xs text-theme-text-primary">
                     {stats.attemptsCount} total attempts
                   </p>

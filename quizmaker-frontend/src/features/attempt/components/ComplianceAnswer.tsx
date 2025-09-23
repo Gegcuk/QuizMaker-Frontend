@@ -155,7 +155,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       {/* Selection Summary */}
       {selectedStatements.length > 0 && (
         <div className="p-3 bg-theme-bg-success border border-theme-border-success rounded-md">
-          <div className="text-sm text-green-700">
+          <div className="text-sm text-theme-interactive-success">
             <strong>Selected Statements:</strong> {selectedStatements.length} of {statements.length}
           </div>
           <div className="text-xs text-theme-interactive-success mt-1">

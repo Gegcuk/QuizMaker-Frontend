@@ -78,7 +78,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     
     switch (status) {
       case 'answered':
-        return `${baseClass} bg-theme-bg-success0 text-white hover:bg-green-600 focus:ring-theme-interactive-success`;
+        return `${baseClass} bg-theme-bg-success0 text-white hover:bg-theme-bg-overlay focus:ring-theme-interactive-success`;
       case 'current':
         return `${baseClass} bg-theme-interactive-primary text-theme-bg-primary hover:bg-theme-interactive-primary focus:ring-theme-interactive-primary`;
       case 'unanswered':

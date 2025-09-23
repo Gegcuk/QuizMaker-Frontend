@@ -79,7 +79,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
           </div>
           <div>
             <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers}</div>
-            <div className="text-sm text-green-700">Correct</div>
+            <div className="text-sm text-theme-interactive-success">Correct</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracy)}%</div>
@@ -115,7 +115,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`text-sm font-medium ${
-                    answer.isCorrect ? 'text-green-700' : 'text-red-700'
+                    answer.isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'
                   }`}>
                     {getAnswerStatusText(answer.isCorrect ?? false)}
                   </span>
@@ -181,7 +181,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
       {/* Review Tips */}
       <div className="mt-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Review Tips:</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Review Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Click the arrow to expand each answer for detailed review</li>
           <li>• Pay attention to questions you got wrong - they're learning opportunities</li>
@@ -193,7 +193,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
       {/* Performance Insights */}
       {totalAnswers > 0 && (
         <div className="mt-6 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-          <h3 className="text-sm font-medium text-purple-900 mb-2">Performance Insights:</h3>
+          <h3 className="text-sm font-medium text-theme-text-primary mb-2">Performance Insights:</h3>
           <div className="text-sm text-theme-text-primary">
             {accuracy >= 90 && "🎯 Excellent performance! You've mastered this material."}
             {accuracy >= 80 && accuracy < 90 && "👍 Great work! You have a solid understanding."}

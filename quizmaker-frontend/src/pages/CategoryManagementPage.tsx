@@ -163,10 +163,10 @@ const CategoryManagementPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text-primary">{cat.name}</td>
                     <td className="px-6 py-4 text-sm text-theme-text-tertiary">{cat.description}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button onClick={() => openEdit(cat)} className="text-theme-interactive-primary hover:text-indigo-900">
+                      <button onClick={() => openEdit(cat)} className="text-theme-interactive-primary hover:text-theme-text-primary">
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(cat.id)} className="text-theme-interactive-danger hover:text-red-900">
+                      <button onClick={() => handleDelete(cat.id)} className="text-theme-interactive-danger hover:text-theme-text-primary">
                         Delete
                       </button>
                     </td>

@@ -69,9 +69,9 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       case 'NORMALIZED':
         return <Badge variant="outline" className="text-theme-text-primary border-theme-border-primary">Normalized</Badge>;
       case 'STRUCTURED':
-        return <Badge variant="outline" className="text-green-700 border-theme-border-success">Structured</Badge>;
+        return <Badge variant="outline" className="text-theme-interactive-success border-theme-border-success">Structured</Badge>;
       case 'FAILED':
-        return <Badge variant="outline" className="text-red-700 border-theme-border-danger">Failed</Badge>;
+        return <Badge variant="outline" className="text-theme-interactive-danger border-theme-border-danger">Failed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -82,7 +82,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
       case 'INGESTED':
         return <ClockIcon className="h-5 w-5 text-theme-interactive-info" />;
       case 'NORMALIZED':
-        return <CheckCircleIcon className="h-5 w-5 text-purple-500" />;
+        return <CheckCircleIcon className="h-5 w-5 text-theme-interactive-primary" />;
       case 'STRUCTURED':
         return <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success" />;
       case 'FAILED':

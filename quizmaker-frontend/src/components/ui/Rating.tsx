@@ -48,7 +48,7 @@ const Rating: React.FC<RatingProps> = ({
 
   const getIcon = (filled: boolean, halfFilled: boolean = false) => {
     const baseClasses = `${sizeClasses[size]} ${
-      filled ? 'text-yellow-400' : 'text-theme-text-tertiary'
+      filled ? 'text-theme-text-tertiary' : 'text-theme-text-tertiary'
     } ${!readOnly ? 'cursor-pointer hover:text-theme-interactive-warning' : ''}`;
 
     if (icon === 'star') {

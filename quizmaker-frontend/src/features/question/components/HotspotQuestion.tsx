@@ -188,11 +188,11 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
               <p className="text-sm font-medium text-theme-interactive-success">Hotspot Analysis</p>
               <div className="mt-2 space-y-1">
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-green-700">Correctly clicked regions:</span>
+                  <span className="text-theme-interactive-success">Correctly clicked regions:</span>
                   <span className="font-medium text-theme-interactive-success">{getCorrectClicksCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-red-700">Incorrectly clicked regions:</span>
+                  <span className="text-theme-interactive-danger">Incorrectly clicked regions:</span>
                   <span className="font-medium text-theme-interactive-danger">{getIncorrectClicksCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
@@ -250,7 +250,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                   
                   return (
                     <div key={regionId} className="flex items-center space-x-2 text-sm">
-                      <span className="font-medium text-yellow-700">Region {regionId}:</span>
+                      <span className="font-medium text-theme-interactive-warning">Region {regionId}:</span>
                       <span className={isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger'}>
                         {region ? `(${region.x}%, ${region.y}%) ${region.width}×${region.height}` : 'Unknown region'}
                       </span>

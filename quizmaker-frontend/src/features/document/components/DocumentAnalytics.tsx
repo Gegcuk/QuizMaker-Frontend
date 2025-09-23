@@ -193,7 +193,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-success">{analytics.totalWords.toLocaleString()}</div>
-            <div className="text-sm text-green-700">Total Words</div>
+            <div className="text-sm text-theme-interactive-success">Total Words</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{analytics.totalCharacters.toLocaleString()}</div>
@@ -201,7 +201,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-warning">{analytics.totalPagesCovered}</div>
-            <div className="text-sm text-orange-700">Pages Covered</div>
+            <div className="text-sm text-theme-interactive-warning">Pages Covered</div>
           </div>
         </div>
       </div>
@@ -282,26 +282,26 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
       {/* Processing Information */}
       <div className="mb-6 p-4 bg-theme-bg-info rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-3">Processing Information</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-3">Processing Information</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="font-medium text-theme-interactive-primary">Uploaded:</span>
-            <div className="text-blue-900">{formatDate(document.uploadedAt)}</div>
+            <div className="text-theme-text-primary">{formatDate(document.uploadedAt)}</div>
           </div>
           {document.processedAt && (
             <div>
               <span className="font-medium text-theme-interactive-primary">Processed:</span>
-              <div className="text-blue-900">{formatDate(document.processedAt)}</div>
+              <div className="text-theme-text-primary">{formatDate(document.processedAt)}</div>
             </div>
           )}
           <div>
             <span className="font-medium text-theme-interactive-primary">File Size:</span>
-            <div className="text-blue-900">{formatFileSize(document.fileSize ?? 0)}</div>
+            <div className="text-theme-text-primary">{formatFileSize(document.fileSize ?? 0)}</div>
           </div>
           {analytics.processingTime > 0 && (
             <div>
               <span className="font-medium text-theme-interactive-primary">Processing Time:</span>
-              <div className="text-blue-900">{Math.round(analytics.processingTime / 1000)}s</div>
+              <div className="text-theme-text-primary">{Math.round(analytics.processingTime / 1000)}s</div>
             </div>
           )}
         </div>
@@ -310,8 +310,8 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
       {/* Document Metadata */}
       {(document.title || document.author) && (
         <div className="mb-6 p-4 bg-theme-bg-success rounded-lg">
-          <h3 className="text-sm font-medium text-green-900 mb-2">Document Metadata</h3>
-          <div className="space-y-1 text-sm text-green-700">
+          <h3 className="text-sm font-medium text-theme-text-primary mb-2">Document Metadata</h3>
+          <div className="space-y-1 text-sm text-theme-interactive-success">
             {document.title && <div><strong>Title:</strong> {document.title}</div>}
             {document.author && <div><strong>Author:</strong> {document.author}</div>}
             {document.totalPages && <div><strong>Total Pages:</strong> {document.totalPages}</div>}
@@ -321,8 +321,8 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
 
       {/* Content Quality Insights */}
       <div className="p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
-        <h3 className="text-sm font-medium text-yellow-900 mb-2">Content Quality Insights</h3>
-        <div className="space-y-1 text-sm text-yellow-700">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Content Quality Insights</h3>
+        <div className="space-y-1 text-sm text-theme-interactive-warning">
           {analytics.averageWordsPerChunk < 50 && (
             <div>• Chunks are quite small - consider adjusting chunking strategy for better quiz generation</div>
           )}

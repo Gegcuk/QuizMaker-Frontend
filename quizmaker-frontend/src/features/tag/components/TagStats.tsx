@@ -240,7 +240,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Total Tags</p>
-                <p className="text-2xl font-bold text-blue-900">{stats.totalTags}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.totalTags}</p>
               </div>
             </div>
           </div>
@@ -255,7 +255,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-success">Used Tags</p>
-                <p className="text-2xl font-bold text-green-900">{stats.usedTags}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.usedTags}</p>
               </div>
             </div>
           </div>
@@ -270,7 +270,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Avg Usage</p>
-                <p className="text-2xl font-bold text-purple-900">{stats.averageUsagePerTag}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.averageUsagePerTag}</p>
               </div>
             </div>
           </div>
@@ -283,7 +283,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-warning">Growth Rate</p>
-                <p className="text-2xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-theme-text-primary">
                   {stats.growthMetrics.growthRate > 0 ? '+' : ''}{stats.growthMetrics.growthRate.toFixed(1)}%
                 </p>
               </div>
@@ -300,10 +300,10 @@ export const TagStats: React.FC<TagStatsProps> = ({
                 <div className="bg-theme-bg-danger rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-theme-interactive-danger">High Usage</span>
-                    <span className="text-lg font-bold text-red-900">{stats.usageDistribution.highUsage}</span>
+                    <span className="text-lg font-bold text-theme-text-primary">{stats.usageDistribution.highUsage}</span>
                   </div>
                   <div className="mt-2">
-                    <div className="w-full bg-red-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
                         className="h-2 bg-theme-bg-danger0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.highUsage / stats.totalTags) * 100 : 0}%` }}
@@ -315,10 +315,10 @@ export const TagStats: React.FC<TagStatsProps> = ({
                 <div className="bg-theme-bg-warning rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-theme-interactive-warning">Medium Usage</span>
-                    <span className="text-lg font-bold text-yellow-900">{stats.usageDistribution.mediumUsage}</span>
+                    <span className="text-lg font-bold text-theme-text-primary">{stats.usageDistribution.mediumUsage}</span>
                   </div>
                   <div className="mt-2">
-                    <div className="w-full bg-yellow-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
                         className="h-2 bg-theme-bg-warning0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.mediumUsage / stats.totalTags) * 100 : 0}%` }}
@@ -330,10 +330,10 @@ export const TagStats: React.FC<TagStatsProps> = ({
                 <div className="bg-theme-bg-success rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-theme-interactive-success">Low Usage</span>
-                    <span className="text-lg font-bold text-green-900">{stats.usageDistribution.lowUsage}</span>
+                    <span className="text-lg font-bold text-theme-text-primary">{stats.usageDistribution.lowUsage}</span>
                   </div>
                   <div className="mt-2">
-                    <div className="w-full bg-green-200 rounded-full h-2">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
                         className="h-2 bg-theme-bg-success0 rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.lowUsage / stats.totalTags) * 100 : 0}%` }}

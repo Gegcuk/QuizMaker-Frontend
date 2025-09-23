@@ -67,7 +67,7 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
             <div>
               <p className="text-sm font-medium text-theme-interactive-success">Model Answer</p>
               <div 
-                className="text-sm text-green-700 mt-1 prose prose-sm max-w-none"
+                className="text-sm text-theme-interactive-success mt-1 prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: modelAnswer }}
               />
             </div>
@@ -101,7 +101,7 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
           </svg>
           <div>
             <p className="text-sm font-medium text-theme-interactive-warning">Grading Information</p>
-            <p className="text-sm text-yellow-700 mt-1">
+            <p className="text-sm text-theme-interactive-warning mt-1">
               Open-ended questions are typically graded manually or using AI assessment. 
               Your answer will be evaluated based on completeness, accuracy, and relevance.
             </p>

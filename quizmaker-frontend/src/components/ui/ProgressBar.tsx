@@ -37,10 +37,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const variantClasses = {
     default: 'bg-theme-interactive-primary',
-    success: 'bg-green-600',
-    warning: 'bg-yellow-600',
-    danger: 'bg-red-600',
-    info: 'bg-cyan-600'
+    success: 'bg-theme-bg-overlay',
+    warning: 'bg-theme-bg-overlay',
+    danger: 'bg-theme-bg-overlay',
+    info: 'bg-theme-bg-overlay'
   };
 
   const baseClasses = 'w-full bg-theme-bg-tertiary rounded-full overflow-hidden';

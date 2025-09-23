@@ -198,7 +198,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                           e.stopPropagation();
                           onEditCategory(category);
                         }}
-                        className="text-theme-interactive-primary hover:text-blue-900 px-2 py-1 rounded hover:bg-theme-bg-info"
+                        className="text-theme-interactive-primary hover:text-theme-text-primary px-2 py-1 rounded hover:bg-theme-bg-info"
                       >
                         Edit
                       </button>
@@ -207,7 +207,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                           e.stopPropagation();
                           handleDelete(category.id);
                         }}
-                        className="text-theme-interactive-danger hover:text-red-900 px-2 py-1 rounded hover:bg-theme-bg-danger"
+                        className="text-theme-interactive-danger hover:text-theme-text-primary px-2 py-1 rounded hover:bg-theme-bg-danger"
                       >
                         Delete
                       </button>

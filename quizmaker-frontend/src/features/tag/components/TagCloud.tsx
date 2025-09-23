@@ -120,11 +120,11 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     
     const ratio = usageCount / maxUsage;
     
-    if (ratio > 0.8) return 'bg-theme-bg-danger hover:bg-red-200';
-    if (ratio > 0.6) return 'bg-theme-bg-warning hover:bg-orange-200';
-    if (ratio > 0.4) return 'bg-theme-bg-warning hover:bg-yellow-200';
-    if (ratio > 0.2) return 'bg-theme-bg-success hover:bg-green-200';
-    return 'bg-theme-bg-info hover:bg-blue-200';
+    if (ratio > 0.8) return 'bg-theme-bg-danger hover:bg-theme-bg-tertiary';
+    if (ratio > 0.6) return 'bg-theme-bg-warning hover:bg-theme-bg-tertiary';
+    if (ratio > 0.4) return 'bg-theme-bg-warning hover:bg-theme-bg-tertiary';
+    if (ratio > 0.2) return 'bg-theme-bg-success hover:bg-theme-bg-tertiary';
+    return 'bg-theme-bg-info hover:bg-theme-bg-tertiary';
   };
 
   if (loading) {

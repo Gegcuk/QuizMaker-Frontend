@@ -131,9 +131,9 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
         <div className="p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="flex items-center space-x-2 mb-2">
             <span className="text-lg">{getModeIcon(details.mode)}</span>
-            <span className="font-medium text-green-700">{details.mode.replace('_', ' ')}</span>
+            <span className="font-medium text-theme-interactive-success">{details.mode.replace('_', ' ')}</span>
           </div>
-          <div className="text-sm text-green-700">
+          <div className="text-sm text-theme-interactive-success">
             {getModeDescription(details.mode)}
           </div>
         </div>
@@ -161,7 +161,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers}</div>
-            <div className="text-sm text-green-700">Correct Answers</div>
+            <div className="text-sm text-theme-interactive-success">Correct Answers</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracyPercentage)}%</div>
@@ -228,7 +228,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
                       </div>
                       <div>
                         <div className="font-medium text-theme-interactive-primary">{Math.round(avgScore)}</div>
-                        <div className="text-purple-500">Avg Score</div>
+                        <div className="text-theme-interactive-primary">Avg Score</div>
                       </div>
                     </div>
                   </div>
@@ -241,39 +241,39 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
 
       {/* Attempt Metadata */}
       <div className="mb-6 p-4 bg-theme-bg-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-3">Attempt Metadata</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-3">Attempt Metadata</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-medium text-theme-interactive-primary">Attempt ID:</span>
-            <div className="text-indigo-900 font-mono text-xs break-all">{details.attemptId}</div>
+            <div className="text-theme-text-primary font-mono text-xs break-all">{details.attemptId}</div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Quiz ID:</span>
-            <div className="text-indigo-900 font-mono text-xs break-all">{details.quizId}</div>
+            <div className="text-theme-text-primary font-mono text-xs break-all">{details.quizId}</div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">User ID:</span>
-            <div className="text-indigo-900 font-mono text-xs break-all">{details.userId}</div>
+            <div className="text-theme-text-primary font-mono text-xs break-all">{details.userId}</div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Mode:</span>
-            <div className="text-indigo-900">{details.mode}</div>
+            <div className="text-theme-text-primary">{details.mode}</div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Status:</span>
-            <div className="text-indigo-900">{details.status}</div>
+            <div className="text-theme-text-primary">{details.status}</div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Duration:</span>
-            <div className="text-indigo-900">{formatDuration(details.startedAt, details.completedAt ?? undefined)}</div>
+            <div className="text-theme-text-primary">{formatDuration(details.startedAt, details.completedAt ?? undefined)}</div>
           </div>
         </div>
       </div>
 
       {/* Progress Analysis */}
       <div className="p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
-        <h3 className="text-sm font-medium text-green-900 mb-2">Progress Analysis</h3>
-        <div className="space-y-1 text-sm text-green-700">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Progress Analysis</h3>
+        <div className="space-y-1 text-sm text-theme-interactive-success">
           <div>• Total questions answered: {totalAnswers}</div>
           <div>• Overall accuracy: {Math.round(accuracyPercentage)}%</div>
           <div>• Average score per question: {Math.round(averageScore)}</div>

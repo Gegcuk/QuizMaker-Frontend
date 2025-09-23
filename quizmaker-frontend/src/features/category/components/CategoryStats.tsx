@@ -238,7 +238,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Total Quizzes</p>
-                <p className="text-2xl font-bold text-blue-900">{stats.totalQuizzes}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.totalQuizzes}</p>
               </div>
             </div>
           </div>
@@ -253,7 +253,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-success">Published</p>
-                <p className="text-2xl font-bold text-green-900">{stats.publishedQuizzes}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.publishedQuizzes}</p>
               </div>
             </div>
           </div>
@@ -268,7 +268,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Public</p>
-                <p className="text-2xl font-bold text-purple-900">{stats.publicQuizzes}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.publicQuizzes}</p>
               </div>
             </div>
           </div>
@@ -281,7 +281,7 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-warning">Growth Rate</p>
-                <p className="text-2xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-theme-text-primary">
                   {stats.growthMetrics.growthRate > 0 ? '+' : ''}{stats.growthMetrics.growthRate.toFixed(1)}%
                 </p>
               </div>

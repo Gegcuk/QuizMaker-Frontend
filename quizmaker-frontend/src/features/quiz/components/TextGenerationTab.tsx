@@ -479,7 +479,7 @@ export const TextGenerationTab: React.FC = () => {
 
       {/* Tips */}
       <div className="mt-8 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Tips for Best Results:</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Tips for Best Results:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Provide at least 500 characters of meaningful content for better results</li>
           <li>• Use well-structured text with clear topics and concepts</li>

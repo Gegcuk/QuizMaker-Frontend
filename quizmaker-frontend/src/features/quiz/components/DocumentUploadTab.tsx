@@ -244,7 +244,7 @@ export const DocumentUploadTab: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setSelectedFile(null)}
-                      className="text-theme-interactive-danger hover:text-red-700 text-sm"
+                      className="text-theme-interactive-danger hover:text-theme-interactive-danger text-sm"
                     >
                       Remove file
                     </button>
@@ -597,7 +597,7 @@ export const DocumentUploadTab: React.FC = () => {
 
       {/* Tips */}
       <div className="mt-8 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Tips for Best Results:</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Tips for Best Results:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Use well-structured documents with clear headings for better chunking</li>
           <li>• Select question types that match your learning objectives</li>

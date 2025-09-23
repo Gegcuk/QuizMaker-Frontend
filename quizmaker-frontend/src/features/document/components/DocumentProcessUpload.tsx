@@ -272,7 +272,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={removeFile}
-                      className="text-theme-interactive-danger hover:text-red-700"
+                      className="text-theme-interactive-danger hover:text-theme-interactive-danger"
                     >
                       <XMarkIcon className="h-4 w-4" />
                     </Button>
@@ -400,14 +400,14 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
              <h3 className="text-sm font-medium text-theme-interactive-success">
                Document uploaded successfully!
              </h3>
-             <div className="mt-2 text-sm text-green-700">
+             <div className="mt-2 text-sm text-theme-interactive-success">
                <p>Document ID: {uploadedDocument.id}</p>
                {uploadedDocument.name && <p>Name: {uploadedDocument.name}</p>}
                {uploadedDocument.charCount && (
                  <p>Character count: {uploadedDocument.charCount.toLocaleString()}</p>
                )}
                <div className="mt-2">
-                 <Badge variant="outline" className="text-green-700 border-theme-border-success">
+                 <Badge variant="outline" className="text-theme-interactive-success border-theme-border-success">
                    {uploadedDocument.status}
                  </Badge>
                </div>

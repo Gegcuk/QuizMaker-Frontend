@@ -201,7 +201,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
         {/* Current category display */}
         {currentCategory && (
           <div className="mb-4 p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-            <h4 className="text-sm font-medium text-indigo-900 mb-2">Current Category</h4>
+            <h4 className="text-sm font-medium text-theme-text-primary mb-2">Current Category</h4>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-theme-interactive-primary">{currentCategory.name}</p>

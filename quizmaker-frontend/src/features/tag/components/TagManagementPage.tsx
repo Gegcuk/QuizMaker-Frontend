@@ -169,13 +169,13 @@ const TagManagementPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <button
                         onClick={() => openEditForm(tag)}
-                        className="text-theme-interactive-primary hover:text-indigo-900"
+                        className="text-theme-interactive-primary hover:text-theme-text-primary"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(tag.id)}
-                        className="text-theme-interactive-danger hover:text-red-900"
+                        className="text-theme-interactive-danger hover:text-theme-text-primary"
                       >
                         Delete
                       </button>

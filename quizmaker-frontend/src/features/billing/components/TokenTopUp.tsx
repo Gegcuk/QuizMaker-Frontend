@@ -110,10 +110,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
   }, [loadConfig]);
 
   return (
-    <div className={`bg-theme-bg-primary border border-indigo-100 rounded-lg p-4 ${className}`}>
+    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-indigo-900">Top up tokens</h3>
+          <h3 className="text-sm font-semibold text-theme-text-primary">Top up tokens</h3>
           <p className="text-xs text-theme-interactive-primary mt-1">
             Purchase additional billing tokens securely via Stripe checkout.
           </p>
@@ -129,7 +129,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-theme-border-danger bg-theme-bg-danger px-3 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-md border border-theme-border-danger bg-theme-bg-danger px-3 py-2 text-sm text-theme-interactive-danger">
           {error}
         </div>
       )}
@@ -139,7 +139,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse rounded-md border border-indigo-100 bg-theme-bg-primary/60 p-4"
+              className="animate-pulse rounded-md border border-theme-border-primary bg-theme-bg-primary/60 p-4"
             >
               <div className="mb-2 h-4 w-24 rounded bg-theme-bg-primary" />
               <div className="mb-1 h-6 w-32 rounded bg-theme-bg-primary" />
@@ -162,11 +162,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
                   className={`w-full rounded-md border p-4 text-left transition-all ${
                     isSelected
                       ? 'border-theme-border-primary bg-theme-bg-primary shadow-sm'
-                      : 'border-indigo-100 bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
+                      : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
                   }`}
                   aria-pressed={isSelected}
                 >
-                  <p className="text-sm font-semibold text-indigo-900">{pack.name}</p>
+                  <p className="text-sm font-semibold text-theme-text-primary">{pack.name}</p>
                   <p className="mt-1 text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
                   <p className="mt-2 text-xs uppercase tracking-wide text-theme-interactive-primary">
                     {pack.tokens.toLocaleString()} tokens
@@ -185,7 +185,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               type="button"
               onClick={handleCheckout}
               disabled={!selectedPack || isProcessingCheckout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-theme-bg-primary0 disabled:cursor-not-allowed disabled:bg-indigo-300"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-theme-bg-primary0 disabled:cursor-not-allowed disabled:bg-theme-bg-tertiary"
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
             </button>
@@ -194,7 +194,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       ) : null}
 
       {!isLoading && config && config.prices.length === 0 && !error ? (
-        <div className="rounded-md border border-indigo-100 bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary">
+        <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary">
           Token packs are not configured yet. Please check back later.
         </div>
       ) : null}

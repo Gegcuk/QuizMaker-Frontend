@@ -193,7 +193,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Total Attempts</p>
-                <p className="text-2xl font-bold text-blue-900">{analytics.timesAsked}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{analytics.timesAsked}</p>
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-success">Correct Answers</p>
-                <p className="text-2xl font-bold text-green-900">{analytics.timesCorrect}</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{analytics.timesCorrect}</p>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-theme-interactive-primary">Avg. Time</p>
-                <p className="text-2xl font-bold text-purple-900">
+                <p className="text-2xl font-bold text-theme-text-primary">
                   {formatTime(analytics.averageTimeSpent)}
                 </p>
               </div>
@@ -287,7 +287,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                         <div
-                          className="bg-green-600 h-2 rounded-full"
+                          className="bg-theme-bg-overlay h-2 rounded-full"
                           style={{ width: `${(count / analytics.timesAsked) * 100}%` }}
                         />
                       </div>
@@ -327,14 +327,14 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Insights</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-theme-bg-info border border-theme-border-info rounded-lg p-4">
-              <h5 className="text-sm font-medium text-blue-900 mb-2">Performance Summary</h5>
+              <h5 className="text-sm font-medium text-theme-text-primary mb-2">Performance Summary</h5>
               <p className="text-sm text-theme-interactive-info">
                 This question has a {formatPercentage(analytics.correctRate)} success rate, 
                 which is {analytics.correctRate >= 80 ? 'excellent' : analytics.correctRate >= 60 ? 'good' : 'needs improvement'}.
               </p>
             </div>
             <div className="bg-theme-bg-success border border-theme-border-success rounded-lg p-4">
-              <h5 className="text-sm font-medium text-green-900 mb-2">Time Analysis</h5>
+              <h5 className="text-sm font-medium text-theme-text-primary mb-2">Time Analysis</h5>
               <p className="text-sm text-theme-interactive-success">
                 Students spend an average of {formatTime(analytics.averageTimeSpent)} on this question,
                 indicating {analytics.averageTimeSpent <= 30 ? 'quick comprehension' : analytics.averageTimeSpent <= 60 ? 'moderate difficulty' : 'high complexity'}.

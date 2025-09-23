@@ -191,7 +191,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               <div className="mt-2 space-y-1">
                 {items.map((item, index) => (
                   <div key={item.id} className="flex items-center space-x-2 text-sm">
-                    <span className="font-medium text-green-700">{index + 1}.</span>
+                    <span className="font-medium text-theme-interactive-success">{index + 1}.</span>
                     <span className="text-theme-interactive-success">{item.text}</span>
                     {orderedItems[index] === item.id && (
                       <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +202,7 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
                 ))}
               </div>
               <div className="mt-3 pt-3 border-t border-theme-border-success">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-theme-interactive-success">
                   You have {getCorrectOrderCount()} items in the correct position.
                 </p>
               </div>

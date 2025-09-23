@@ -287,7 +287,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               </div>
               <button
                 onClick={() => setSelectedFile(null)}
-                className="text-theme-interactive-danger hover:text-red-700 text-sm"
+                className="text-theme-interactive-danger hover:text-theme-interactive-danger text-sm"
               >
                 Remove file
               </button>
@@ -413,7 +413,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="mt-6">
           <button
             onClick={handleUpload}
-            className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+            className="w-full px-6 py-3 bg-theme-bg-overlay text-white font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
           >
             📤 Upload Document
           </button>
@@ -422,7 +422,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
       {/* Upload Tips */}
       <div className="mt-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Upload Tips:</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Upload Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Supported formats: PDF, DOCX, TXT, RTF</li>
           <li>• Maximum file size: 130 MB</li>
@@ -437,8 +437,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="mt-6 p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-green-900">Document Uploaded Successfully!</h3>
-              <p className="text-sm text-green-700">
+              <h3 className="text-lg font-semibold text-theme-text-primary">Document Uploaded Successfully!</h3>
+              <p className="text-sm text-theme-interactive-success">
                 "{uploadedDocument.title || uploadedDocument.originalFilename}" is ready for quiz generation
               </p>
             </div>
@@ -446,7 +446,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           </div>
           
           <div className="space-y-3">
-            <div className="text-sm text-green-700">
+            <div className="text-sm text-theme-interactive-success">
               <p><strong>Document Details:</strong></p>
               <p>• Size: {formatFileSize(uploadedDocument.fileSize || 0)}</p>
               <p>• Pages: {uploadedDocument.totalPages}</p>
@@ -456,7 +456,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             
             <button
               onClick={() => setShowQuizGenerationModal(true)}
-              className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+              className="w-full px-6 py-3 bg-theme-bg-overlay text-white font-medium rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               🎯 Generate Quiz from Document
             </button>

@@ -189,23 +189,23 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     return (
       <div className="space-y-4">
-        <div className="bg-theme-bg-primary border border-indigo-100 rounded-lg p-4">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Available Tokens</p>
-              <p className="mt-1 text-2xl font-semibold text-indigo-900">
+              <p className="mt-1 text-2xl font-semibold text-theme-text-primary">
                 {balance.availableTokens.toLocaleString()}
               </p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Reserved Tokens</p>
-              <p className="mt-1 text-lg font-semibold text-indigo-900">
+              <p className="mt-1 text-lg font-semibold text-theme-text-primary">
                 {balance.reservedTokens.toLocaleString()}
               </p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Last Updated</p>
-              <p className="mt-1 text-sm text-indigo-900">
+              <p className="mt-1 text-sm text-theme-text-primary">
                 {balance.updatedAt ? new Date(balance.updatedAt).toLocaleString() : '—'}
               </p>
             </div>
@@ -364,8 +364,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
                   onClick={handleToggleActivation}
                   className={`px-3 py-1 text-sm font-medium rounded-md ${
                     displayUser.isActive
-                      ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-red-200'
-                      : 'bg-theme-bg-success text-theme-interactive-success hover:bg-green-200'
+                      ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-theme-bg-tertiary'
+                      : 'bg-theme-bg-success text-theme-interactive-success hover:bg-theme-bg-tertiary'
                   }`}
                 >
                   {displayUser.isActive ? 'Deactivate' : 'Activate'}
@@ -373,7 +373,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
               )}
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary rounded-md hover:bg-indigo-200"
+                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary rounded-md hover:bg-theme-bg-tertiary"
               >
                 Edit
               </button>

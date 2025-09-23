@@ -175,12 +175,12 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         <div className="mt-4 p-3 bg-theme-bg-info rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <div className="font-medium text-blue-900">{stats.total}</div>
+              <div className="font-medium text-theme-text-primary">{stats.total}</div>
               <div className="text-theme-interactive-primary">Total Chunks</div>
             </div>
             <div>
               <div className="font-medium text-theme-interactive-success">{stats.selected}</div>
-              <div className="text-green-700">Selected</div>
+              <div className="text-theme-interactive-success">Selected</div>
             </div>
             <div>
               <div className="font-medium text-theme-interactive-primary">{stats.filtered}</div>
@@ -188,7 +188,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
             </div>
             <div>
               <div className="font-medium text-theme-interactive-warning">{stats.selectedInFilter}</div>
-              <div className="text-orange-700">Selected in Filter</div>
+              <div className="text-theme-interactive-warning">Selected in Filter</div>
             </div>
           </div>
         </div>
@@ -229,13 +229,13 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             onClick={selectAllChunks}
-            className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select All
           </button>
           <button
             onClick={deselectAllChunks}
-            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger"
           >
             Deselect All
           </button>
@@ -247,7 +247,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
           </button>
           <button
             onClick={() => selectChunksByType('SECTION')}
-            className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
+            className="px-3 py-1 text-sm bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select Sections
           </button>

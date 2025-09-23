@@ -331,7 +331,7 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
       {/* Important Notes */}
       <div className="mt-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">Important Notes</h4>
+        <h4 className="text-sm font-medium text-theme-text-primary mb-2">Important Notes</h4>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• Resuming will continue from where you left off</li>
           <li>• Your previous answers are saved</li>

@@ -126,7 +126,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
               <div className="mt-2 space-y-1">
                 {gaps.map((gap) => (
                   <div key={gap.id} className="flex items-center space-x-2 text-sm">
-                    <span className="font-medium text-green-700">Gap {gap.id}:</span>
+                    <span className="font-medium text-theme-interactive-success">Gap {gap.id}:</span>
                     <span className="text-theme-interactive-success">{gap.answer}</span>
                     {answers[gap.id] === gap.answer && (
                       <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
                 ))}
               </div>
               <div className="mt-3 pt-3 border-t border-theme-border-success">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-theme-interactive-success">
                   You got {getCorrectAnswersCount()} out of {getTotalGaps()} gaps correct.
                 </p>
               </div>

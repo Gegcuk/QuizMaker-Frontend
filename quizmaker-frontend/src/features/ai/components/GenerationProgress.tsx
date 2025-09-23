@@ -313,7 +313,7 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
             type="button"
             onClick={handleCancelGeneration}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-red-700 bg-theme-bg-primary border border-theme-border-danger rounded-md hover:bg-theme-bg-danger focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger focus:ring-offset-2 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-theme-interactive-danger bg-theme-bg-primary border border-theme-border-danger rounded-md hover:bg-theme-bg-danger focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Cancelling...' : 'Cancel Generation'}
           </button>

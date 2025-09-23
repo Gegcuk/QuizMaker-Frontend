@@ -171,7 +171,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                         e.stopPropagation();
                         handleRemoveCategory(category.id);
                       }}
-                      className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:bg-blue-200 hover:text-theme-interactive-info"
+                      className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-theme-text-tertiary hover:bg-theme-bg-tertiary hover:text-theme-interactive-info"
                     >
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -274,7 +274,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     type="button"
                     onClick={() => handleCategorySelect(category)}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-theme-bg-tertiary focus:bg-theme-bg-tertiary focus:outline-none ${
-                      isCategorySelected(category) ? 'bg-theme-bg-info text-blue-900' : 'text-theme-text-primary'
+                      isCategorySelected(category) ? 'bg-theme-bg-info text-theme-text-primary' : 'text-theme-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">

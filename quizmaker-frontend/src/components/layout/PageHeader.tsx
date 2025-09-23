@@ -123,8 +123,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     const variantClasses = {
       primary: "bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:ring-theme-interactive-primary",
       secondary: "bg-theme-bg-tertiary text-theme-text-primary hover:bg-theme-bg-secondary focus:ring-theme-border-primary",
-      danger: "bg-theme-interactive-danger text-theme-text-inverse hover:bg-red-700 focus:ring-theme-interactive-danger",
-      success: "bg-theme-interactive-success text-theme-text-inverse hover:bg-green-700 focus:ring-theme-interactive-success",
+      danger: "bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-bg-overlay focus:ring-theme-interactive-danger",
+      success: "bg-theme-interactive-success text-theme-text-inverse hover:bg-theme-bg-overlay focus:ring-theme-interactive-success",
     };
 
     const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;

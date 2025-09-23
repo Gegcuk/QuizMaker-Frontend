@@ -80,7 +80,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
         
         <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-2xl font-bold text-theme-interactive-success">{stats.correctAnswers}</div>
-          <div className="text-sm text-green-700 font-medium">Correct</div>
+          <div className="text-sm text-theme-interactive-success font-medium">Correct</div>
         </div>
         
         <div className="text-center p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
@@ -90,7 +90,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
         
         <div className="text-center p-4 bg-theme-bg-warning rounded-lg border border-theme-border-warning">
           <div className="text-2xl font-bold text-theme-interactive-warning">{formatDuration(stats.averageTimePerQuestion)}</div>
-          <div className="text-sm text-orange-700 font-medium">Avg/Question</div>
+          <div className="text-sm text-theme-interactive-warning font-medium">Avg/Question</div>
         </div>
       </div>
 
@@ -202,29 +202,29 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Timing Analysis */}
       <div className="mb-6 p-4 bg-theme-bg-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-3">Timing Analysis</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-3">Timing Analysis</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-medium text-theme-interactive-primary">Started:</span>
-            <div className="text-indigo-900">
+            <div className="text-theme-text-primary">
               {new Date(stats.startedAt).toLocaleString()}
             </div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Completed:</span>
-            <div className="text-indigo-900">
+            <div className="text-theme-text-primary">
               {stats.completedAt ? new Date(stats.completedAt).toLocaleString() : 'In Progress'}
             </div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Total Duration:</span>
-            <div className="text-indigo-900 font-bold">
+            <div className="text-theme-text-primary font-bold">
               {formatDuration(stats.totalTime)}
             </div>
           </div>
           <div>
             <span className="font-medium text-theme-interactive-primary">Average per Question:</span>
-            <div className="text-indigo-900 font-bold">
+            <div className="text-theme-text-primary font-bold">
               {formatDuration(stats.averageTimePerQuestion)}
             </div>
           </div>
@@ -257,8 +257,8 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
 
       {/* Performance Insights */}
       <div className="p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
-        <h3 className="text-sm font-medium text-green-900 mb-2">Performance Insights</h3>
-        <div className="space-y-1 text-sm text-green-700">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Performance Insights</h3>
+        <div className="space-y-1 text-sm text-theme-interactive-success">
           <div>• You completed {stats.questionsAnswered} out of {totalQuestions} questions</div>
           <div>• Your overall accuracy was {Math.round(stats.accuracyPercentage)}%</div>
           <div>• You spent an average of {formatDuration(stats.averageTimePerQuestion)} per question</div>

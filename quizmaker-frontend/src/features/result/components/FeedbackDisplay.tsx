@@ -161,7 +161,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       {/* Performance Overview */}
       <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-theme-border-info">
         <div className="text-center">
-          <div className="text-3xl font-bold text-blue-900 mb-2">
+          <div className="text-3xl font-bold text-theme-text-primary mb-2">
             {Math.round(score)}% - {getPerformanceLevel(score).toUpperCase()}
           </div>
           <div className="text-lg text-theme-interactive-primary">
@@ -184,7 +184,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
         <div className="p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers.length}</div>
-            <div className="text-sm text-green-700 font-medium">Correct Answers</div>
+            <div className="text-sm text-theme-interactive-success font-medium">Correct Answers</div>
             <div className="text-xs text-theme-interactive-success mt-1">
               {Math.round((correctAnswers.length / answers.length) * 100)}% success rate
             </div>
@@ -194,7 +194,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
         <div className="p-4 bg-theme-bg-danger rounded-lg border border-theme-border-danger">
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-interactive-danger">{incorrectAnswers.length}</div>
-            <div className="text-sm text-red-700 font-medium">Areas for Improvement</div>
+            <div className="text-sm text-theme-interactive-danger font-medium">Areas for Improvement</div>
             <div className="text-xs text-theme-interactive-danger mt-1">
               Focus on these topics
             </div>
@@ -256,7 +256,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
 
       {/* Next Steps */}
       <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-2">Next Steps</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Next Steps</h3>
         <div className="space-y-2 text-sm text-theme-interactive-primary">
           {score >= 80 ? (
             <>
@@ -286,7 +286,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
           <div className="text-lg font-medium text-theme-interactive-success mb-2">
             Remember: Every attempt is progress! 🚀
           </div>
-          <div className="text-sm text-green-700">
+          <div className="text-sm text-theme-interactive-success">
             Learning is a continuous journey. Each quiz helps you identify areas for growth and improvement.
           </div>
         </div>

@@ -178,11 +178,11 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               <p className="text-sm font-medium text-theme-interactive-success">Compliance Analysis</p>
               <div className="mt-2 space-y-1">
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-green-700">Correctly identified compliant statements:</span>
+                  <span className="text-theme-interactive-success">Correctly identified compliant statements:</span>
                   <span className="font-medium text-theme-interactive-success">{getCorrectAnswersCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-red-700">Incorrectly selected non-compliant statements:</span>
+                  <span className="text-theme-interactive-danger">Incorrectly selected non-compliant statements:</span>
                   <span className="font-medium text-theme-interactive-danger">{getIncorrectAnswersCount()}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">

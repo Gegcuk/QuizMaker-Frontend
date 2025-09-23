@@ -181,7 +181,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
           </div>
           <button
             onClick={handleManualSave}
-            className="mt-2 text-xs text-red-700 underline hover:no-underline"
+            className="mt-2 text-xs text-theme-interactive-danger underline hover:no-underline"
           >
             Try again
           </button>

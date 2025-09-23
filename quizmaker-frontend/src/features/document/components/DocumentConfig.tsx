@@ -220,7 +220,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           <div className="flex items-center space-x-3">
             <span className="text-2xl">💾</span>
             <div>
-              <div className="text-lg font-bold text-blue-900">
+              <div className="text-lg font-bold text-theme-text-primary">
                 Maximum File Size: 130 MB
               </div>
               <div className="text-sm text-theme-interactive-primary">
@@ -234,7 +234,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
       {/* Edit Configuration Form */}
       {isEditing && (
         <div className="mb-6 p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
-          <h3 className="text-lg font-semibold text-yellow-900 mb-3">Edit Configuration</h3>
+          <h3 className="text-lg font-semibold text-theme-text-primary mb-3">Edit Configuration</h3>
           
           <div className="space-y-4">
             {/* Chunking Strategy */}
@@ -256,7 +256,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 <option value="SIZE_BASED">Size Based</option>
                 <option value="PAGE_BASED">Page Based</option>
               </select>
-              <p className="mt-1 text-xs text-yellow-700">
+              <p className="mt-1 text-xs text-theme-interactive-warning">
                 {getChunkingStrategyDescription((editConfig.defaultStrategy || config.defaultStrategy) as ChunkingStrategy)}
               </p>
             </div>
@@ -277,7 +277,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
                 max="10000"
                 className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
               />
-              <p className="mt-1 text-xs text-yellow-700">
+              <p className="mt-1 text-xs text-theme-interactive-warning">
                 Recommended: 500-2000 characters for optimal quiz generation
               </p>
             </div>
@@ -287,7 +287,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           <div className="mt-4 flex space-x-3">
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
+              className="px-4 py-2 bg-theme-bg-overlay text-white rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               Save Changes
             </button>
@@ -303,7 +303,7 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
 
       {/* Configuration Tips */}
       <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-2">Configuration Tips:</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Configuration Tips:</h3>
         <ul className="text-sm text-theme-interactive-primary space-y-1">
           <li>• <strong>Auto Strategy:</strong> Best for most documents, automatically chooses optimal chunking</li>
           <li>• <strong>Chapter Based:</strong> Ideal for textbooks and structured documents</li>

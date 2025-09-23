@@ -230,7 +230,7 @@ const Form = <T extends FieldValues = FieldValues>({
                 <h3 className="text-sm font-medium text-theme-interactive-danger">
                   Please fix the following errors:
                 </h3>
-                <div className="mt-2 text-sm text-red-700">
+                <div className="mt-2 text-sm text-theme-interactive-danger">
                   <ul className="list-disc pl-5 space-y-1">
                     {Object.entries(errors).map(([fieldName, error]) => (
                       <li key={fieldName}>

@@ -41,9 +41,9 @@ const Avatar: React.FC<AvatarProps> = ({
   };
 
   const statusClasses = {
-    online: 'bg-green-400',
+    online: 'bg-theme-bg-tertiary',
     offline: 'bg-theme-bg-tertiary',
-    away: 'bg-yellow-400',
+    away: 'bg-theme-bg-tertiary',
     busy: 'bg-theme-interactive-danger'
   };
 

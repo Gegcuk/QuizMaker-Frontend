@@ -307,7 +307,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 <div className="mb-4 bg-theme-bg-info border border-theme-border-info rounded-md p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <span className="text-sm font-medium text-blue-900">
+                      <span className="text-sm font-medium text-theme-text-primary">
                         {selectedQuizzes.length} quiz(zes) selected
                       </span>
                       <button
@@ -320,7 +320,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     <button
                       onClick={handleBulkDelete}
                       disabled={isBulkDeleting}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-danger hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger disabled:opacity-50"
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-danger hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger disabled:opacity-50"
                     >
                       {isBulkDeleting ? (
                         <>

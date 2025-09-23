@@ -320,7 +320,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
             <span className="text-theme-interactive-danger">❌</span>
             <div>
               <div className="font-medium text-theme-interactive-danger">Processing Error</div>
-              <div className="text-sm text-red-700">{error}</div>
+              <div className="text-sm text-theme-interactive-danger">{error}</div>
             </div>
           </div>
         </div>
@@ -329,7 +329,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       {/* Document Metadata */}
       {(document.title || document.author) && (
         <div className="mb-6 p-4 bg-theme-bg-info border border-theme-border-info rounded-lg">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Document Information</h3>
+          <h3 className="text-sm font-medium text-theme-text-primary mb-2">Document Information</h3>
           <div className="space-y-1 text-sm text-theme-interactive-primary">
             {document.title && <div><strong>Title:</strong> {document.title}</div>}
             {document.author && <div><strong>Author:</strong> {document.author}</div>}
@@ -339,8 +339,8 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
 
       {/* Processing Tips */}
       <div className="p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg">
-        <h3 className="text-sm font-medium text-yellow-900 mb-2">Processing Information:</h3>
-        <ul className="text-sm text-yellow-700 space-y-1">
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Processing Information:</h3>
+        <ul className="text-sm text-theme-interactive-warning space-y-1">
           <li>• Processing time depends on document size and complexity</li>
           <li>• Large documents may take several minutes to process</li>
           <li>• You can leave this page and return later to check status</li>

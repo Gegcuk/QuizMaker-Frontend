@@ -231,7 +231,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
       {/* Performance Insights */}
       <div className="p-4 bg-theme-bg-primary border border-theme-border-primary rounded-lg">
-        <h3 className="text-sm font-medium text-indigo-900 mb-2">Performance Insights</h3>
+        <h3 className="text-sm font-medium text-theme-text-primary mb-2">Performance Insights</h3>
         <div className="text-sm text-theme-interactive-primary space-y-1">
           {score >= 90 && (
             <>

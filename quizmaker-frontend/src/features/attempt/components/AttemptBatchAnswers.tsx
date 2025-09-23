@@ -143,11 +143,11 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-3 bg-theme-bg-success rounded-lg">
             <div className="text-2xl font-bold text-theme-interactive-success">{answeredCount}</div>
-            <div className="text-sm text-green-700">Answered</div>
+            <div className="text-sm text-theme-interactive-success">Answered</div>
           </div>
           <div className="p-3 bg-theme-bg-warning rounded-lg">
             <div className="text-2xl font-bold text-theme-interactive-warning">{unansweredCount}</div>
-            <div className="text-sm text-yellow-700">Unanswered</div>
+            <div className="text-sm text-theme-interactive-warning">Unanswered</div>
           </div>
           <div className="p-3 bg-theme-bg-info rounded-lg">
             <div className="text-2xl font-bold text-theme-interactive-primary">{totalQuestions}</div>
@@ -176,7 +176,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
           <div className="text-sm font-medium text-theme-interactive-danger mb-2">
             Please fix the following issues:
           </div>
-          <ul className="text-sm text-red-700 space-y-1">
+          <ul className="text-sm text-theme-interactive-danger space-y-1">
             {validationErrors.map((error, index) => (
               <li key={index} className="flex items-start">
                 <span className="mr-2">•</span>
@@ -206,7 +206,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
       {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-theme-bg-danger border border-theme-border-danger rounded-lg">
-          <div className="text-sm text-red-700">
+          <div className="text-sm text-theme-interactive-danger">
             <strong>Submission Error:</strong> {error}
           </div>
         </div>

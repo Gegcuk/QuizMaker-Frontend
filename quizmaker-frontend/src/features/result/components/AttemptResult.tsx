@@ -94,11 +94,11 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="text-center p-4 bg-theme-bg-success rounded-lg">
           <div className="text-2xl font-bold text-theme-interactive-success">{result.correctCount}</div>
-          <div className="text-sm text-green-700">Correct</div>
+          <div className="text-sm text-theme-interactive-success">Correct</div>
         </div>
         <div className="text-center p-4 bg-theme-bg-danger rounded-lg">
           <div className="text-2xl font-bold text-theme-interactive-danger">{result.totalQuestions - result.correctCount}</div>
-          <div className="text-sm text-red-700">Incorrect</div>
+          <div className="text-sm text-theme-interactive-danger">Incorrect</div>
         </div>
         <div className="text-center p-4 bg-theme-bg-info rounded-lg">
           <div className="text-2xl font-bold text-theme-interactive-primary">{Math.round(accuracy)}%</div>
