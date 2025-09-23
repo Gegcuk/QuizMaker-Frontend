@@ -169,6 +169,17 @@ const QuizResultPage: React.FC = () => {
       case 'HOTSPOT':
         return 'Click on the correct area of the image';
       
+      case 'MATCHING':
+        const matchingContent = question.content as any;
+        if (matchingContent.left && matchingContent.right) {
+          const matches = matchingContent.left.map((leftItem: any) => {
+            const rightItem = matchingContent.right.find((right: any) => right.id === leftItem.matchId);
+            return `${leftItem.text} → ${rightItem?.text || 'N/A'}`;
+          });
+          return matches.join(', ');
+        }
+        return 'N/A';
+      
       default:
         return 'N/A';
     }

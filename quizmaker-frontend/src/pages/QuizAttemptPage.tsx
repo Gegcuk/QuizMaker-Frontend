@@ -19,6 +19,7 @@ import {
   ComplianceAnswer, 
   OrderingAnswer, 
   HotspotAnswer,
+  MatchingAnswer,
   AttemptPause,
   AttemptBatchAnswers,
   AttemptTimer,
@@ -516,6 +517,15 @@ const QuizAttemptPage: React.FC = () => {
       case "ORDERING":
         return (
           <OrderingAnswer
+            question={question}
+            currentAnswer={currentAnswer}
+            onAnswerChange={onAnswerChange}
+            disabled={isDisabled}
+          />
+        );
+      case "MATCHING":
+        return (
+          <MatchingAnswer
             question={question}
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}

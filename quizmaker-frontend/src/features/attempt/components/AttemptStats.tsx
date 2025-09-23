@@ -57,6 +57,8 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
         return '📊';
       case 'HOTSPOT':
         return '🎯';
+      case 'MATCHING':
+        return '🔗';
       default:
         return '❓';
     }

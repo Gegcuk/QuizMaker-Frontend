@@ -68,6 +68,8 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
         return '📊';
       case 'HOTSPOT':
         return '🎯';
+      case 'MATCHING':
+        return '🔗';
       default:
         return '❓';
     }

@@ -107,6 +107,8 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
         return '📊';
       case 'HOTSPOT':
         return '🎯';
+      case 'MATCHING':
+        return '🔗';
       default:
         return '❓';
     }

@@ -74,6 +74,8 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
         return '📊';
       case 'HOTSPOT':
         return '🎯';
+      case 'MATCHING':
+        return '🔗';
       default:
         return '❓';
     }

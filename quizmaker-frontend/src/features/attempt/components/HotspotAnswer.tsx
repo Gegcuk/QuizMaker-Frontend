@@ -40,6 +40,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
   // Extract image and regions from safe content
   const imageUrl = question.safeContent?.imageUrl || '';
   const regions: HotspotRegion[] = question.safeContent?.regions || [];
+  const effectiveImageUrl = imageUrl;
 
   useEffect(() => {
     setSelectedRegion(currentAnswer || null);
@@ -49,12 +50,62 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
     drawCanvas();
   }, [selectedRegion, mousePosition, isDrawing, startPoint]);
 
+  // Ensure canvas is drawn on mount and when image changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      drawCanvas();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [imageUrl]);
+
   const drawCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     const image = imageRef.current;
 
-    if (!canvas || !ctx || !image) return;
+    if (!canvas || !ctx) return;
+    
+    // If no image is loaded or image is broken, draw a simple placeholder directly on canvas
+    if (!image || !image.complete || image.naturalWidth === 0) {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw placeholder background
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw border
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw text
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Hotspot Question', canvas.width / 2, canvas.height / 2 - 20);
+      
+      ctx.font = '16px Arial';
+      ctx.fillText('No image provided', canvas.width / 2, canvas.height / 2 + 10);
+      ctx.fillText('Click and drag to select regions', canvas.width / 2, canvas.height / 2 + 35);
+      
+      // Draw sample regions
+      const sampleRegions = [
+        { x: 50, y: 80, width: 120, height: 80 },
+        { x: 200, y: 120, width: 150, height: 100 },
+        { x: 400, y: 60, width: 100, height: 120 }
+      ];
+      
+      sampleRegions.forEach(region => {
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(region.x, region.y, region.width, region.height);
+        ctx.setLineDash([]);
+      });
+      
+      return;
+    }
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -175,19 +226,29 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
     drawCanvas();
   };
 
-  if (!imageUrl) {
-    return (
-      <div className={`p-4 bg-gray-50 border border-gray-200 rounded-md ${className}`}>
-        <div className="text-gray-500 text-center">No image available for hotspot selection</div>
-      </div>
-    );
-  }
+  const handleImageError = () => {
+    drawCanvas();
+  };
+
+  const handlePlaceholderLoad = () => {
+    // Force canvas redraw when placeholder is created
+    setTimeout(() => {
+      drawCanvas();
+    }, 100);
+  };
 
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
       <div className="text-sm text-gray-600 mb-4">
-        Click and drag on the image to select the correct region:
+        {imageUrl ? (
+          <>Click and drag on the image to select the correct region:</>
+        ) : (
+          <>
+            <div className="text-amber-600 font-medium mb-2">⚠️ No image provided</div>
+            <div>This is a placeholder. You can still practice selecting regions by clicking and dragging:</div>
+          </>
+        )}
       </div>
 
       {/* Image Container */}
@@ -201,22 +262,18 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
           onMouseUp={handleMouseUp}
           className={`w-full h-auto cursor-crosshair ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
         />
-        <img
-          ref={imageRef}
-          src={imageUrl}
-          alt="Hotspot question"
-          onLoad={handleImageLoad}
-          className="hidden"
-        />
-        
-        {/* Overlay Instructions */}
-        {!selectedRegion && !isDrawing && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
-            <div className="bg-white bg-opacity-90 px-4 py-2 rounded-lg text-sm text-gray-700">
-              Click and drag to select a region
-            </div>
-          </div>
+        {imageUrl && (
+          <img
+            ref={imageRef}
+            src={effectiveImageUrl}
+            alt="Hotspot question"
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            className="hidden"
+          />
         )}
+        
+        {/* Overlay Instructions removed to allow full canvas interaction */}
       </div>
 
       {/* Controls */}
@@ -253,7 +310,11 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       {/* Instructions */}
       <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
         <div className="text-sm text-blue-700">
-          <strong>Instructions:</strong> Click and drag on the image to create a selection box around the correct area. The blue dashed lines show predefined regions for reference.
+          <strong>Instructions:</strong> {imageUrl ? (
+            <>Click and drag on the image to create a selection box around the correct area. The blue dashed lines show predefined regions for reference.</>
+          ) : (
+            <>This is a practice hotspot question. Click and drag to create selection boxes. The blue dashed lines show sample regions for reference.</>
+          )}
         </div>
       </div>
 
