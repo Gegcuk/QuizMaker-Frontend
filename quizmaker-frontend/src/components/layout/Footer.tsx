@@ -62,14 +62,14 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-white border-t border-gray-200">
+    <footer className="bg-theme-bg-primary border-t border-theme-border-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center mb-4">
-              <div className="text-2xl font-bold text-gray-900">QuizMaker</div>
+              <div className="text-2xl font-bold text-theme-text-primary">QuizMaker</div>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed mb-4">
               Empowering educators and learners with intelligent quiz creation and assessment tools.
@@ -81,7 +81,7 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-theme-text-primary tracking-wider uppercase mb-4">
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
+                    className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -100,14 +100,14 @@ const Footer: React.FC = () => {
 
           {/* Product Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-theme-text-primary tracking-wider uppercase mb-4">
               Product
             </h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   to="/quizzes"
-                  className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
+                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Browse Quizzes
                 </Link>
@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/quizzes/create"
-                  className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
+                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Create Quiz
                 </Link>
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/analytics"
-                  className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
+                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   Analytics
                 </Link>
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/api-docs"
-                  className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
+                  className="text-gray-600 hover:text-theme-text-primary text-sm transition-colors duration-200"
                 >
                   API Documentation
                 </Link>
@@ -141,7 +141,7 @@ const Footer: React.FC = () => {
 
           {/* Social Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-theme-text-primary tracking-wider uppercase mb-4">
               Connect With Us
             </h3>
             <div className="flex space-x-4">
@@ -178,7 +178,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section - Legal */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="mt-12 pt-8 border-t border-theme-border-primary">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <div className="text-gray-500 text-sm">

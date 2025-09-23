@@ -17,11 +17,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     <div className={`mb-8 ${className}`}>
       <div className="md:flex md:items-center md:justify-between">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <h1 className="text-2xl font-bold leading-7 text-theme-text-primary sm:text-3xl sm:truncate">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-theme-text-tertiary">
               {subtitle}
             </p>
           )}

@@ -115,8 +115,8 @@ const Table = <T extends Record<string, any>>({
   return (
     <div className={`overflow-hidden ${className}`}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-theme-border-primary">
+          <thead className="bg-theme-bg-secondary">
             <tr>
               {selectable && (
                 <th className="px-6 py-3 text-left">
@@ -201,7 +201,7 @@ const Table = <T extends Record<string, any>>({
                 <tr
                   key={rowKey(row)}
                   className={`${
-                    onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''
+                    onRowClick ? 'cursor-pointer hover:bg-theme-bg-secondary' : ''
                   } ${selectedRows.includes(rowKey(row)) ? 'bg-blue-50' : ''}`}
                   onClick={() => onRowClick?.(row, index)}
                 >
@@ -242,14 +242,14 @@ const Table = <T extends Record<string, any>>({
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
             <button
               onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
@@ -275,7 +275,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Previous</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -299,7 +299,7 @@ const Table = <T extends Record<string, any>>({
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           page === pagination.currentPage
                             ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                            : 'bg-white border-gray-300 text-theme-text-tertiary hover:bg-gray-50'
+                            : 'bg-white border-gray-300 text-theme-text-tertiary hover:bg-theme-bg-secondary'
                         }`}
                       >
                         {page}
@@ -309,7 +309,7 @@ const Table = <T extends Record<string, any>>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Next</span>
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

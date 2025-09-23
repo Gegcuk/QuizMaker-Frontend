@@ -188,12 +188,12 @@ const Rating: React.FC<RatingProps> = ({
       {(showValue || showLabel) && (
         <div className="ml-2">
           {showValue && (
-            <span className={`font-medium text-gray-900 ${textSizeClasses[size]}`}>
+            <span className={`font-medium text-theme-text-primary ${textSizeClasses[size]}`}>
               {displayValue || 0}
             </span>
           )}
           {showLabel && (
-            <span className={`text-gray-500 ${textSizeClasses[size]} ml-1`}>
+            <span className={`text-theme-text-tertiary ${textSizeClasses[size]} ml-1`}>
               {getRatingLabel(displayValue || 0)}
             </span>
           )}

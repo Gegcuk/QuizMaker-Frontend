@@ -139,7 +139,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const baseClasses = [
     'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200',
-    isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400',
+    isDragOver ? 'border-blue-400 bg-blue-50' : 'border-theme-border-primary hover:border-theme-border-secondary',
     disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
     error ? 'border-red-300 bg-red-50' : '',
     className
@@ -166,7 +166,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         
         <div className="space-y-2">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-theme-text-tertiary"
             stroke="currentColor"
             fill="none"
             viewBox="0 0 48 48"
@@ -232,7 +232,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
               >
                 <div className="flex items-center space-x-3">
-                  <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="h-5 w-5 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                   </svg>
                   <div>

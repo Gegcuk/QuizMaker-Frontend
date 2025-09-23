@@ -91,7 +91,7 @@ const Avatar: React.FC<AvatarProps> = ({
     shapeClasses[shape],
     'bg-gray-300',
     'flex items-center justify-center',
-    'font-medium text-gray-700',
+    'font-medium text-theme-text-secondary',
     'overflow-hidden',
     onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : '',
     className
@@ -120,7 +120,7 @@ const Avatar: React.FC<AvatarProps> = ({
         )}
         
         {showFallback && (
-          <div className="text-gray-400">
+          <div className="text-theme-text-tertiary">
             {fallbackIcon || (
               <svg
                 className="w-full h-full"

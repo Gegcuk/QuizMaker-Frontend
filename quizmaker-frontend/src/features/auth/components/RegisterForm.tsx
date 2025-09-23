@@ -203,7 +203,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Username field */}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="username" className="block text-sm font-medium text-theme-text-secondary">
             Username
           </label>
           <div className="mt-1">
@@ -229,7 +229,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Email field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-theme-text-secondary">
             Email Address
           </label>
           <div className="mt-1">
@@ -255,7 +255,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Password field */}
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-sm font-medium text-theme-text-secondary">
             Password
           </label>
           <div className="mt-1 relative">
@@ -298,7 +298,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Confirm Password field */}
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-theme-text-secondary">
             Confirm Password
           </label>
           <div className="mt-1 relative">
@@ -353,7 +353,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             />
           </div>
           <div className="ml-3 text-sm">
-            <label htmlFor="terms" className="text-gray-700">
+            <label htmlFor="terms" className="text-theme-text-secondary">
               I agree to the{' '}
               <Link
                 to="/terms"

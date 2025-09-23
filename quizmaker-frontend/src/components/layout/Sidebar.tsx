@@ -253,13 +253,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
     if (!isLoggedIn || !user) return null;
 
     return (
-      <div className="border-t border-gray-200 pt-4 mt-4">
+      <div className="border-t border-theme-border-primary pt-4 mt-4">
         <div className="px-3 py-2">
           {!isCollapsed && (
             <div className="flex items-center mb-3">
-              <UserCircleIcon className="h-8 w-8 text-gray-400" />
+              <UserCircleIcon className="h-8 w-8 text-theme-text-tertiary" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700">{user.username}</p>
+                <p className="text-sm font-medium text-theme-text-secondary">{user.username}</p>
                 <p className="text-xs text-gray-500">{user.email}</p>
               </div>
             </div>
@@ -321,7 +321,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         } ${isCollapsed ? 'w-16' : 'w-64'}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-theme-border-primary">
           {!isCollapsed && (
             <Link to="/quizzes" className="text-xl font-semibold text-gray-900">
               QuizMaker
@@ -332,7 +332,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             {/* Search Bar */}
             {!isCollapsed && (
               <div className="relative flex-1 max-w-xs">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-theme-text-tertiary" />
                 <input
                   type="text"
                   placeholder="Search..."
