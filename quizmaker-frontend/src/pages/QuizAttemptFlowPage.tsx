@@ -180,7 +180,7 @@ const QuizAttemptFlowPage: React.FC = () => {
         <div className="mt-8 text-center">
           <button
             onClick={() => navigate(`/quizzes/${quizId}`)}
-            className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:ring-offset-2 transition-colors"
           >
             ← Back to Quiz Details
           </button>

@@ -160,7 +160,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleArchive}
                   disabled={isLoading}
-                  className="w-full bg-theme-bg-tertiary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-bg-tertiary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-focus-ring disabled:opacity-50 transition-colors"
                 >
                   {isLoading ? 'Archiving...' : 'Archive Quiz'}
                 </button>

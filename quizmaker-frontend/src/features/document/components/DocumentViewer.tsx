@@ -210,7 +210,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 onClick={navigateToPreviousSearchResult}
-                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
               >
                 ↑
               </button>
@@ -219,7 +219,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               </span>
               <button
                 onClick={navigateToNextSearchResult}
-                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
               >
                 ↓
               </button>

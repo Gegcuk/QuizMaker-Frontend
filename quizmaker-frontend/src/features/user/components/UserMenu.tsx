@@ -186,10 +186,10 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-md shadow-theme-shadow ring-1 ring-theme-border-primary z-50">
           <div className="py-1" role="menu" aria-orientation="vertical">
             {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-100">
+            <div className="px-4 py-3 border-b border-theme-border-primary">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-theme-interactive-primary text-theme-text-primary rounded-full flex items-center justify-center text-sm font-medium">
                   {getUserInitials(user.username)}
@@ -240,7 +240,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
             {/* Role-Based Actions */}
             {(hasRole('ROLE_QUIZ_CREATOR') || hasRole('ROLE_ADMIN') || hasRole('ROLE_SUPER_ADMIN')) && (
-              <div className="py-1 border-t border-gray-100">
+              <div className="py-1 border-t border-theme-border-primary">
                 <button
                   onClick={handleMyQuizzesClick}
                   className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
@@ -271,7 +271,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
             {/* Admin Actions */}
             {(hasRole('ROLE_ADMIN') || hasRole('ROLE_SUPER_ADMIN')) && (
-              <div className="py-1 border-t border-gray-100">
+              <div className="py-1 border-t border-theme-border-primary">
                 <button
                   onClick={handleAdminClick}
                   className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary focus:bg-theme-bg-secondary focus:outline-none transition-colors"
@@ -289,13 +289,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
 
             {/* Error Display */}
             {error && (
-              <div className="px-4 py-2 text-sm text-theme-interactive-danger bg-theme-bg-danger border-t border-gray-100">
+              <div className="px-4 py-2 text-sm text-theme-interactive-danger bg-theme-bg-danger border-t border-theme-border-primary">
                 {error}
               </div>
             )}
 
             {/* Logout Action */}
-            <div className="py-1 border-t border-gray-100">
+            <div className="py-1 border-t border-theme-border-primary">
               <button
                 onClick={handleLogout}
                 disabled={isLoading}

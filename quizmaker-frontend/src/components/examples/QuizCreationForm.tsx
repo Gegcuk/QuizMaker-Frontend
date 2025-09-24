@@ -66,7 +66,6 @@ const QuizCreationForm: React.FC = () => {
           <FormField
             name="difficulty"
             label="Difficulty"
-            type="select"
             validation={{ required: true }}
             required
           />
@@ -90,7 +89,6 @@ const QuizCreationForm: React.FC = () => {
         <FormField
           name="visibility"
           label="Visibility"
-          type="select"
           validation={{ required: true }}
           required
         />
@@ -105,7 +103,7 @@ const QuizCreationForm: React.FC = () => {
           
           <button
             type="button"
-            className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
           >
             Cancel
           </button>

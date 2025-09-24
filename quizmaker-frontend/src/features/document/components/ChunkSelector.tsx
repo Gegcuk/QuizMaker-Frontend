@@ -322,7 +322,7 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                       e.stopPropagation();
                       setPreviewChunk(chunk);
                     }}
-                    className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
                   >
                     Preview
                   </button>

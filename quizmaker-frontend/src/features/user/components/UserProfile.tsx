@@ -482,7 +482,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                     email: displayUser.email
                   });
                 }}
-                className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-focus-ring"
               >
                 Cancel
               </button>
