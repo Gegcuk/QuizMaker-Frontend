@@ -33,10 +33,10 @@ const Tooltip: React.FC<TooltipProps> = ({
   };
 
   const arrowClasses = {
-    top: 'top-full left-1/2 transform -translate-x-1/2 border-t-gray-900',
-    bottom: 'bottom-full left-1/2 transform -translate-x-1/2 border-b-gray-900',
-    left: 'left-full top-1/2 transform -translate-y-1/2 border-l-gray-900',
-    right: 'right-full top-1/2 transform -translate-y-1/2 border-r-gray-900'
+    top: 'top-full left-1/2 transform -translate-x-1/2 border-t-theme-bg-overlay',
+    bottom: 'bottom-full left-1/2 transform -translate-x-1/2 border-b-theme-bg-overlay',
+    left: 'left-full top-1/2 transform -translate-y-1/2 border-l-theme-bg-overlay',
+    right: 'right-full top-1/2 transform -translate-y-1/2 border-r-theme-bg-overlay'
   };
 
   const arrowStyles = {

@@ -47,10 +47,10 @@ export const getStatusHelpers = (palette: ColorPalette): StatusHelpers => ({
   info: 'text-theme-interactive-info',
   
   // Background colors
-  successBg: 'bg-theme-bg-tertiary',
-  warningBg: 'bg-theme-bg-tertiary',
-  dangerBg: 'bg-theme-bg-tertiary',
-  infoBg: 'bg-theme-bg-tertiary',
+  successBg: 'bg-theme-status-success-bg',
+  warningBg: 'bg-theme-status-warning-bg',
+  dangerBg: 'bg-theme-status-danger-bg',
+  infoBg: 'bg-theme-status-info-bg',
   
   // Border colors
   successBorder: 'border-theme-border-primary',
@@ -59,10 +59,10 @@ export const getStatusHelpers = (palette: ColorPalette): StatusHelpers => ({
   infoBorder: 'border-theme-border-primary',
   
   // Combined alert styles
-  successAlert: 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-success',
-  warningAlert: 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-warning',
-  dangerAlert: 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-danger',
-  infoAlert: 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-info',
+  successAlert: 'bg-theme-status-success-bg border border-theme-border-primary text-theme-interactive-success',
+  warningAlert: 'bg-theme-status-warning-bg border border-theme-border-primary text-theme-interactive-warning',
+  dangerAlert: 'bg-theme-status-danger-bg border border-theme-border-primary text-theme-interactive-danger',
+  infoAlert: 'bg-theme-status-info-bg border border-theme-border-primary text-theme-interactive-info',
 });
 
 /**
@@ -75,9 +75,9 @@ export const getScoreStatus = (score: number): string => {
 };
 
 export const getScoreBgStatus = (score: number): string => {
-  if (score >= 80) return 'bg-theme-bg-tertiary';
-  if (score >= 60) return 'bg-theme-bg-tertiary';
-  return 'bg-theme-bg-tertiary';
+  if (score >= 80) return 'bg-theme-status-success-bg';
+  if (score >= 60) return 'bg-theme-status-warning-bg';
+  return 'bg-theme-status-danger-bg';
 };
 
 /**
@@ -109,28 +109,28 @@ export const getQuizStatusColor = (status: string): string => {
  * Error state helpers
  */
 export const getErrorAlertClasses = (): string => {
-  return 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-danger';
+  return 'bg-theme-status-danger-bg border border-theme-border-primary text-theme-interactive-danger';
 };
 
 /**
  * Success state helpers
  */
 export const getSuccessAlertClasses = (): string => {
-  return 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-success';
+  return 'bg-theme-status-success-bg border border-theme-border-primary text-theme-interactive-success';
 };
 
 /**
  * Warning state helpers
  */
 export const getWarningAlertClasses = (): string => {
-  return 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-warning';
+  return 'bg-theme-status-warning-bg border border-theme-border-primary text-theme-interactive-warning';
 };
 
 /**
  * Info state helpers
  */
 export const getInfoAlertClasses = (): string => {
-  return 'bg-theme-bg-tertiary border border-theme-border-primary text-theme-interactive-info';
+  return 'bg-theme-status-info-bg border border-theme-border-primary text-theme-interactive-info';
 };
 
 /**
@@ -139,11 +139,11 @@ export const getInfoAlertClasses = (): string => {
 export const getDifficultyColor = (difficulty: string): string => {
   switch (difficulty.toUpperCase()) {
     case 'EASY':
-      return 'text-theme-interactive-success bg-theme-bg-tertiary';
+      return 'text-theme-interactive-success bg-theme-status-success-bg';
     case 'MEDIUM':
-      return 'text-theme-interactive-warning bg-theme-bg-tertiary';
+      return 'text-theme-interactive-warning bg-theme-status-warning-bg';
     case 'HARD':
-      return 'text-theme-interactive-danger bg-theme-bg-tertiary';
+      return 'text-theme-interactive-danger bg-theme-status-danger-bg';
     default:
       return 'text-theme-text-secondary bg-theme-bg-tertiary';
   }
@@ -184,9 +184,9 @@ export const getAnswerStatusIcon = (isCorrect: boolean): string => {
  * Performance color based on percentage
  */
 export const getPerformanceColor = (percentage: number): string => {
-  if (percentage >= 80) return 'text-theme-interactive-success bg-theme-bg-tertiary';
-  if (percentage >= 60) return 'text-theme-interactive-warning bg-theme-bg-tertiary';
-  return 'text-theme-interactive-danger bg-theme-bg-tertiary';
+  if (percentage >= 80) return 'text-theme-interactive-success bg-theme-status-success-bg';
+  if (percentage >= 60) return 'text-theme-interactive-warning bg-theme-status-warning-bg';
+  return 'text-theme-interactive-danger bg-theme-status-danger-bg';
 };
 
 /**
