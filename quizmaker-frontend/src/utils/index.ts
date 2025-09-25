@@ -31,3 +31,6 @@ export * from './statusHelpers';
 
 // Question utilities
 export * from './questionUtils';
+
+// Auth error handling utilities
+export * from './authErrorHandler';

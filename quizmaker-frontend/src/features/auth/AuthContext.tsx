@@ -76,6 +76,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchCurrentUser]);
 
   /* -------------------------------------------------------------------- */
+  /* Listen for force logout events from axios interceptor                */
+  /* -------------------------------------------------------------------- */
+  useEffect(() => {
+    const handleForceLogout = (event: CustomEvent) => {
+      const reason = event.detail?.reason;
+      console.log('Force logout triggered:', reason);
+      
+      // Clear auth state
+      clearTokens();
+      setUser(null);
+      
+      // Navigate to login with replace to prevent back navigation
+      navigate('/login', { replace: true });
+    };
+
+    // Listen for the custom event dispatched by axios interceptor
+    window.addEventListener('auth:force-logout', handleForceLogout as EventListener);
+    
+    return () => {
+      window.removeEventListener('auth:force-logout', handleForceLogout as EventListener);
+    };
+  }, [navigate]);
+
+  /* -------------------------------------------------------------------- */
   /*  Public actions                                                      */
   /* -------------------------------------------------------------------- */
   const login = useCallback(

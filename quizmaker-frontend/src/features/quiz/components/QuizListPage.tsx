@@ -10,6 +10,7 @@ import { getAllQuizzes, deleteQuiz } from '@/services';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { PageHeader, ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination } from '@/hooks';
+import { handleApiError } from '@/utils';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
@@ -60,8 +61,12 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
         const response = await getAllQuizzes({ scope: 'public' });
         setQuizzes(response.content || []);
       } catch (error) {
-        const axiosError = error as AxiosError<{ message?: string }>;
-        setError(axiosError.response?.data?.message || 'Failed to load quizzes');
+        // Use the utility function to handle auth errors properly
+        const errorMessage = handleApiError(error, 'Failed to load quizzes');
+        if (errorMessage) {
+          setError(errorMessage);
+        }
+        // If errorMessage is null, it's an auth error and the interceptor will handle it
       } finally {
         setIsLoading(false);
       }

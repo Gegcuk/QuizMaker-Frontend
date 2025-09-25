@@ -146,10 +146,22 @@ const runRefresh = async (): Promise<string> => {
   return data.accessToken;
 };
 
-/** Centralised “logout-and-redirect” so we do it the same way everywhere */
+/** Centralised "logout-and-redirect" so we do it the same way everywhere */
 const forceLogout = () => {
   clearTokens();
-  window.location.href = '/login'; // outside React, so hard redirect
+  
+  // Dispatch a custom event that AuthContext can listen to
+  // This allows for better integration with React state management
+  window.dispatchEvent(new CustomEvent('auth:force-logout', {
+    detail: { reason: 'token-expired' }
+  }));
+  
+  // Fallback: hard redirect if the event listener doesn't handle it
+  setTimeout(() => {
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+  }, 100);
 };
 
 api.interceptors.response.use(
