@@ -135,10 +135,11 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "deployment/dist/*"
+          source: "deployment/dist/**"
           target: "/var/www/quizzence/dist/"
+          strip_components: 2
 
-      - name: Verify files copied
+      - name: Flatten assert & rebuild
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -147,21 +148,7 @@ jobs:
           script: |
             set -e
             cd /var/www/quizzence
-            # Ensure we have the built files
-            ls -la dist/
+            test -f dist/index.html || { echo "dist/index.html missing"; ls -R dist; exit 1; }
+            docker compose build --no-cache || docker-compose build --no-cache
+            docker compose up -d || docker-compose up -d
 
-      - name: Start app
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            cd /var/www/quizzence
-            # Prefer plugin form if installed
-            if docker compose version >/dev/null 2>&1; then
-              docker compose up -d --build
-            else
-              docker-compose up -d --build
-            fi
