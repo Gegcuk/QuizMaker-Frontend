@@ -192,7 +192,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               type="email"
               autoComplete="email"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
                 errors.email ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               value={email}

@@ -279,7 +279,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
                 errors.password ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               value={password}
@@ -322,7 +322,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
                 errors.confirmPassword ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               value={confirmPassword}

@@ -17,6 +17,8 @@ import { useAuth } from '../features/auth';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
@@ -78,6 +80,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={authRedirect('login')} />
         <Route path="/register" element={authRedirect('register')} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
