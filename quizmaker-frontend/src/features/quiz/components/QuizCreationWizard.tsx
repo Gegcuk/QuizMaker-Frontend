@@ -19,7 +19,7 @@ import { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
 import { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
 import { QuizQuestionManager } from './QuizQuestionManager';
 import { QuizAIGenerationStep } from './QuizAIGenerationStep';
-import { QuizGenerationStatus } from './QuizGenerationStatus';
+import { QuizGenerationStatus as QuizGenerationStatusComponent } from './QuizGenerationStatus';
 import type { AxiosError } from 'axios';
 
 export type CreationMethod = 'manual' | 'text' | 'document';
@@ -308,7 +308,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
         } else if (creationMethod === 'text' || creationMethod === 'document') {
           // Show generation status for AI methods
           return (
-            <QuizGenerationStatus
+            <QuizGenerationStatusComponent
               jobId={createdQuiz.id}
               initialStatus="PENDING"
               estimatedTimeSeconds={60}

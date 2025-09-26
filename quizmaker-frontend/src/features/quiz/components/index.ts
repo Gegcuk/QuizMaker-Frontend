@@ -20,7 +20,7 @@ export { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
 export { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
 export { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
 export { QuizAIGenerationStep } from './QuizAIGenerationStep';
-export { QuizGenerationStatus } from './QuizGenerationStatus';
+// QuizGenerationStatus component is exported with explicit name in main index.ts to avoid conflict
 
 // Legacy Creation Components (kept for compatibility)
 export { QuizCreationTabs } from './QuizCreationTabs';

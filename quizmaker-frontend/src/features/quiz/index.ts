@@ -23,3 +23,6 @@ export { useQuizFiltering } from './hooks/useQuizFiltering';
 
 // Components
 export * from './components';
+
+// Re-export QuizGenerationStatus component with explicit name to avoid conflict
+export { QuizGenerationStatus as QuizGenerationStatusComponent } from './components/QuizGenerationStatus';
