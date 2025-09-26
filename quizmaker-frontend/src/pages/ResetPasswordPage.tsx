@@ -4,13 +4,9 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { ResetPasswordForm } from '../features/auth';
 
 const ResetPasswordPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-
   return (
     <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -26,7 +22,6 @@ const ResetPasswordPage: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <ResetPasswordForm 
-            token={token || ''}
             onSuccess={() => {
               console.log('Password reset successfully');
             }}
