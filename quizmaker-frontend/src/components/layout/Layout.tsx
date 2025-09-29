@@ -1,15 +1,16 @@
 import React from 'react';
-import { Navbar } from './';
 import { Outlet } from 'react-router-dom';
+import { Footer, Navbar } from './';
 
 const Layout: React.FC = () => (
-  <>
+  <div className="min-h-screen flex flex-col bg-theme-bg-secondary">
     <Navbar />
-    {/* Main content area with consistent max-width and padding */}
-    <main className="min-h-screen bg-theme-bg-secondary">
+    {/* Main content area grows to push footer to the bottom when content is short */}
+    <main className="flex-1">
       <Outlet />
     </main>
-  </>
+    <Footer />
+  </div>
 );
 
 export default Layout;
