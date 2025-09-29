@@ -11,10 +11,10 @@ const TermsPage: React.FC = () => {
         <section className="mb-10">
           <h2>1. Accepting these terms</h2>
           <p>
-            By accessing QuizMaker you agree to operate within our feature-first architecture and API boundaries. The frontend
+            By accessing Quizzence you agree to operate within our feature-first architecture and API boundaries. The frontend
             integrates React Router layouts, protected routes for private flows, and axios-powered services that assume secure,
             authenticated requests. Use of the platform signifies your commitment to respecting these constraints and any
-            additional agreements reached with the QuizMaker team.
+            additional agreements reached with the Quizzence team.
           </p>
         </section>
 
@@ -33,7 +33,7 @@ const TermsPage: React.FC = () => {
         <section className="mb-10">
           <h2>3. Content ownership & usage</h2>
           <p>
-            Quiz content you create remains yours. Granting QuizMaker a non-exclusive license allows us to render quizzes through
+            Quiz content you create remains yours. Granting Quizzence a non-exclusive license allows us to render quizzes through
             our shared UI primitives, store metadata in associated services, and improve recommendation models. You warrant that
             uploaded questions and documents respect copyright and are free from prohibited content.
           </p>

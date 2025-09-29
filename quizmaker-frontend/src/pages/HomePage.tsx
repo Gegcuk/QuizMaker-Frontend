@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 text-center bg-theme-bg-secondary">
       {/* Site title ---------------------------------------------------- */}
       <h1 className="text-4xl md:text-5xl font-extrabold text-theme-interactive-primary mb-4">
-        Welcome to QuizMaker
+        Welcome to Quizzence
       </h1>
 
       {/* Tagline ------------------------------------------------------- */}

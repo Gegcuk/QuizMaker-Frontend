@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
           <div className="space-y-4">
-            <div className="text-2xl font-semibold text-theme-text-primary">QuizMaker</div>
+            <div className="text-2xl font-semibold text-theme-text-primary">Quizzence</div>
             <p className="text-sm leading-relaxed text-theme-text-secondary">
               Modular quizzes built with a feature-first React architecture, shared UI primitives, and type-safe API services.
             </p>
@@ -172,7 +172,7 @@ const Footer: React.FC = () => {
 
         <div className="mt-12 border-t border-theme-border-primary pt-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p className="text-sm text-theme-text-tertiary">© {currentYear} QuizMaker. All rights reserved.</p>
+            <p className="text-sm text-theme-text-tertiary">© {currentYear} Quizzence. All rights reserved.</p>
             <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
               {legalLinks.map((link) => (
                 <Link

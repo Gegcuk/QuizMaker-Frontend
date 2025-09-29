@@ -1,6 +1,6 @@
-# QuizMaker Frontend Contributor Guide
+# Quizzence Frontend Contributor Guide
 
-This document captures the conventions and guardrails that keep the QuizMaker frontend consistent. It applies to the entire repository unless a nested `AGENTS.md` overrides it.
+This document captures the conventions and guardrails that keep the Quizzence frontend consistent. It applies to the entire repository unless a nested `AGENTS.md` overrides it.
 
 ## Architecture Principles
 - **Feature-first organization**: Place domain-specific code under `src/features/<feature-name>` with the following optional buckets when relevant: `components/`, `hooks/`, `services/`, `types/`, `utils/`, and `index.ts` for curated exports.
@@ -42,4 +42,4 @@ This document captures the conventions and guardrails that keep the QuizMaker fr
 - **Resilience**: Design components to handle loading, empty, and error states, leveraging shared skeletons or spinners where available.
 - **Extensibility**: When introducing new configuration, expose sensible defaults and document extension points so future contributors can build on your work.
 
-Following these guidelines keeps the QuizMaker frontend maintainable and predictable for both humans and LLM collaborators.
+Following these guidelines keeps the Quizzence frontend maintainable and predictable for both humans and LLM collaborators.

@@ -1,6 +1,6 @@
 # Multi-Color Scheme Theme System
 
-This document explains how the advanced theme system works in QuizMaker and how to use it.
+This document explains how the advanced theme system works in Quizzence and how to use it.
 
 ## Overview
 

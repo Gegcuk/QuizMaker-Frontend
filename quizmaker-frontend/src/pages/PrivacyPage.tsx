@@ -11,7 +11,7 @@ const PrivacyPage: React.FC = () => {
         <section className="mb-10">
           <h2>1. Data we collect</h2>
           <p>
-            QuizMaker stores account information, quiz metadata, and learning analytics necessary to deliver personalised quiz
+            Quizzence stores account information, quiz metadata, and learning analytics necessary to deliver personalised quiz
             experiences. File uploads processed through the document services are encrypted in transit and stored according to our
             retention schedule.
           </p>
