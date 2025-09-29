@@ -60,8 +60,7 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { name: 'GitHub', href: 'https://github.com/quizmaker', icon: GitHubIcon },
-    { name: 'Twitter', href: 'https://twitter.com/quizmaker', icon: TwitterIcon },
+    { name: 'GitHub', href: 'https://github.com/Gegcuk/', icon: GitHubIcon },
     { name: 'Email', href: 'mailto:support@quizmaker.com', icon: EmailIcon },
     { name: 'LinkedIn', href: 'https://www.linkedin.com/in/alekseylazunin/', icon: LinkedInIcon },
   ];
@@ -79,10 +78,7 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="text-2xl font-semibold text-theme-text-primary">Quizzence</div>
             <p className="text-sm leading-relaxed text-theme-text-secondary">
-              Modular quizzes built with a feature-first React architecture, shared UI primitives, and type-safe API services.
-            </p>
-            <p className="text-xs text-theme-text-tertiary">
-              Frontend powered by Vite, React Router, and Tailwind-driven theming.
+              Create engaging quizzes, challenge yourself, and master any subject with our intuitive platform.
             </p>
           </div>
 
@@ -118,23 +114,6 @@ const Footer: React.FC = () => {
               ))}
             </div>
 
-            <div className="rounded-lg border border-theme-border-primary bg-theme-bg-secondary/40 p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-theme-text-primary">
-                Crafted by Aleksey Lazunin
-              </h3>
-              <p className="mt-3 text-sm text-theme-text-secondary">
-                This interface is continuously refined with accessibility and maintainability in mind. Connect with Aleksey on{' '}
-                <a
-                  href="https://www.linkedin.com/in/alekseylazunin/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-theme-interactive-primary hover:text-theme-interactive-info"
-                >
-                  LinkedIn
-                </a>{' '}
-                to follow the latest improvements and architecture updates.
-              </p>
-            </div>
           </div>
 
           <div className="space-y-6">
@@ -159,20 +138,25 @@ const Footer: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-lg border border-theme-border-primary/70 bg-theme-bg-secondary/50 p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-theme-text-primary">Architecture snapshot</h3>
-              <ul className="mt-3 space-y-2 text-sm text-theme-text-secondary">
-                <li>• Feature-first modules with shared providers and hooks.</li>
-                <li>• ProtectedRoute wrappers secure quiz authoring flows.</li>
-                <li>• Axios-based services centralize API policies.</li>
-              </ul>
-            </div>
           </div>
         </div>
 
         <div className="mt-12 border-t border-theme-border-primary pt-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <p className="text-sm text-theme-text-tertiary">© {currentYear} Quizzence. All rights reserved.</p>
+            <div className="flex items-center">
+              <p className="text-sm text-theme-text-tertiary">
+                Crafted by{' '}
+                <a
+                  href="https://www.linkedin.com/in/alekseylazunin/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-theme-interactive-primary hover:text-theme-interactive-info transition-colors duration-200"
+                >
+                  Aleksey Lazunin
+                </a>
+              </p>
+            </div>
             <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
               {legalLinks.map((link) => (
                 <Link
