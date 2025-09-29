@@ -23,8 +23,8 @@ const TermsPage: React.FC = () => {
           <p>
             You are responsible for safeguarding credentials issued to you. Our authentication hooks rely on valid tokens to
             manage protected quiz creation, document management, and analytics routes. Notify support immediately at
-            <a className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:support@quizmaker.com">
-              support@quizmaker.com
+            <a className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:support@quizzence.com">
+              support@quizzence.com
             </a>
             if you suspect unauthorized activity so we can revoke sessions via our centralized auth services.
           </p>
@@ -69,7 +69,7 @@ const TermsPage: React.FC = () => {
         <section>
           <h2>7. Contact</h2>
           <p>
-            For legal questions, contact <a className="text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:legal@quizmaker.com">legal@quizmaker.com</a>.
+            For legal questions, contact <a className="text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:legal@quizzence.com">legal@quizzence.com</a>.
             For architectural discussions, reach out to Aleksey Lazunin via LinkedIn using the footer link.
           </p>
         </section>

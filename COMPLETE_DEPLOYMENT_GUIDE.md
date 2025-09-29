@@ -1,6 +1,6 @@
-# QuizMaker Frontend - Complete Deployment Guide
+# Quizzence Frontend - Complete Deployment Guide
 
-This comprehensive guide covers everything you need to deploy your QuizMaker Frontend to Digital Ocean using GitHub Actions and Docker.
+This comprehensive guide covers everything you need to deploy your Quizzence Frontend to Digital Ocean using GitHub Actions and Docker.
 
 ## 🎯 Overview
 
@@ -66,7 +66,7 @@ sudo shred -u /home/deploy/.ssh/github_actions
 
 ### Step 4: Configure GitHub Secrets
 Go to your GitHub repository → Settings → Secrets and variables → Actions
-**Repository**: [https://github.com/Gegcuk/QuizMaker-Frontend](https://github.com/Gegcuk/QuizMaker-Frontend)
+**Repository**: [https://github.com/Gegcuk/Quizzence-Frontend](https://github.com/Gegcuk/Quizzence-Frontend)
 
 Add these secrets:
 - `SERVER_SSH_KEY`: (private key from step 3)

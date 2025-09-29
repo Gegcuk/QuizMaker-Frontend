@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
         { label: 'Terms & Conditions', to: '/terms' },
         { label: 'Privacy Policy', to: '/privacy' },
         { label: 'Reset Password', to: '/forgot-password' },
-        { label: 'Contact Support', href: 'mailto:support@quizmaker.com' },
+        { label: 'Contact Support', href: 'mailto:support@quizzence.com' },
       ],
     },
   ];
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
 
   const socialLinks = [
     { name: 'GitHub', href: 'https://github.com/Gegcuk/', icon: GitHubIcon },
-    { name: 'Email', href: 'mailto:support@quizmaker.com', icon: EmailIcon },
+    { name: 'Email', href: 'mailto:support@quizzence.com', icon: EmailIcon },
     { name: 'LinkedIn', href: 'https://www.linkedin.com/in/alekseylazunin/', icon: LinkedInIcon },
   ];
 

@@ -54,8 +54,8 @@ const PrivacyPage: React.FC = () => {
           <h2>6. Contact</h2>
           <p>
             Questions about privacy can be directed to
-            <a className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:privacy@quizmaker.com">
-              privacy@quizmaker.com
+            <a className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-info" href="mailto:privacy@quizzence.com">
+              privacy@quizzence.com
             </a>
             or through the support form. Architecture-specific privacy queries may be addressed to Aleksey Lazunin via LinkedIn.
           </p>
