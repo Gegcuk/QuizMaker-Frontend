@@ -20,6 +20,8 @@ import RegisterPage from '../pages/RegisterPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
+import TermsPage from '../pages/TermsPage';
+import PrivacyPage from '../pages/PrivacyPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
 import { QuizListPage } from '../components';
@@ -83,6 +85,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route

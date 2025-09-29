@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# QuizMaker Frontend - Local Deployment Script
+# Quizzence Frontend - Local Deployment Script
 # Run this script locally to test deployment
 
 echo "🚀 Starting local deployment test..."

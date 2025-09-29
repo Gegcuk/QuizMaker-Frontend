@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# QuizMaker Frontend - Server Setup Script
+# Quizzence Frontend - Server Setup Script
 # Run this script on your Digital Ocean Ubuntu server
 
-echo "🚀 Starting QuizMaker Frontend server setup..."
+echo "🚀 Starting Quizzence Frontend server setup..."
 
 # Check if running as root or with sudo
 if [ "$EUID" -ne 0 ]; then

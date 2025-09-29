@@ -1,6 +1,6 @@
 # Frontend UI Style Guide
 
-This guide documents the visual and interaction standards used across the QuizMaker frontend. Follow these guidelines when building new pages and components to keep the UI consistent and maintainable.
+This guide documents the visual and interaction standards used across the Quizzence frontend. Follow these guidelines when building new pages and components to keep the UI consistent and maintainable.
 
 ## Core Principles
 
