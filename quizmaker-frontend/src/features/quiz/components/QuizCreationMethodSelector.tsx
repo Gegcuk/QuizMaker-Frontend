@@ -171,10 +171,10 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-theme-interactive-info">
+            <h3 className="text-sm font-medium text-theme-text-primary">
               Need help choosing?
             </h3>
-            <div className="mt-2 text-sm text-theme-interactive-primary">
+            <div className="mt-2 text-sm text-theme-text-secondary">
               <ul className="list-disc list-inside space-y-1">
                 <li><strong>Manual:</strong> Best for custom quizzes with specific requirements</li>
                 <li><strong>From Text:</strong> Perfect for educational content or articles</li>

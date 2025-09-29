@@ -265,6 +265,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
+              minLength={8}
+              maxLength={100}
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*().?&quot;:{}|<>])[A-Za-z\d!@#$%^&*().?&quot;:{}|<>]{8,100}$"
+              title="Password must be 8-100 characters with uppercase, lowercase, numbers, and special characters"
               className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
                 errors.password ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
@@ -308,6 +312,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
               required
+              minLength={8}
+              maxLength={100}
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*().?&quot;:{}|<>])[A-Za-z\d!@#$%^&*().?&quot;:{}|<>]{8,100}$"
+              title="Password must be 8-100 characters with uppercase, lowercase, numbers, and special characters"
               className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm pr-10 ${
                 errors.confirmPassword ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
