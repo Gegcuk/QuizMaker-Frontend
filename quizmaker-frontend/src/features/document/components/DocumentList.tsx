@@ -47,7 +47,8 @@ interface DocumentListProps {
 
 const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
   const documentService = new DocumentService(api);
-  const [documents, setDocuments] = useState<DocumentDto[]>([]);
+  const [allDocuments, setAllDocuments] = useState<DocumentDto[]>([]);
+  const [filteredDocuments, setFilteredDocuments] = useState<DocumentDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,9 +61,15 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
 
   const pageSize = 10;
 
+  // Load documents only once on component mount
   useEffect(() => {
     loadDocuments();
-  }, [currentPage, searchQuery, statusFilter]);
+  }, []);
+
+  // Filter documents locally when search or status filter changes
+  useEffect(() => {
+    filterDocuments();
+  }, [allDocuments, searchQuery, statusFilter]);
 
   const loadDocuments = async () => {
     try {
@@ -70,32 +77,46 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       setError(null);
       
       const response = await documentService.getDocuments({
-        page: currentPage - 1,
-        size: pageSize
+        page: 0, // Get all documents
+        size: 1000 // Large size to get all documents
       });
       
-      // Filter by status if needed
-      let filteredDocuments = response.content;
-      if (statusFilter !== 'ALL') {
-        filteredDocuments = response.content.filter(doc => doc.status === statusFilter);
-      }
-      
-      // Filter by search query if needed
-      if (searchQuery) {
-        filteredDocuments = filteredDocuments.filter(doc => 
-          doc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doc.originalFilename.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      
-      setDocuments(filteredDocuments);
-      setTotalPages(response.totalPages);
+      setAllDocuments(response.content);
     } catch (err) {
       setError('Failed to load documents');
       console.error('Error loading documents:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterDocuments = () => {
+    let filtered = [...allDocuments];
+    
+    // Filter by status
+    if (statusFilter !== 'ALL') {
+      filtered = filtered.filter(doc => doc.status === statusFilter);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(doc => 
+        doc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.originalFilename.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    setFilteredDocuments(filtered);
+    
+    // Calculate pagination
+    const totalPages = Math.ceil(filtered.length / pageSize);
+    setTotalPages(totalPages);
+  };
+
+  const getPaginatedDocuments = () => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredDocuments.slice(startIndex, endIndex);
   };
 
   const handleDelete = async () => {
@@ -106,7 +127,9 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       await documentService.deleteDocument(selectedDocument.id);
       setShowDeleteModal(false);
       setSelectedDocument(null);
-      loadDocuments();
+      
+      // Update local state instead of reloading from backend
+      setAllDocuments(prev => prev.filter(doc => doc.id !== selectedDocument.id));
     } catch (err) {
       setError('Failed to delete document');
       console.error('Error deleting document:', err);
@@ -122,7 +145,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         maxChunkSize: 5000,
         storeChunks: true
       });
-      loadDocuments();
+      
+      // Update the document status locally
+      setAllDocuments(prev => prev.map(doc => 
+        doc.id === documentId ? { ...doc, status: 'PROCESSING' } : doc
+      ));
     } catch (err) {
       setError('Failed to reprocess document');
       console.error('Error reprocessing document:', err);
@@ -249,7 +276,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     }
   ];
 
-  if (loading && documents.length === 0) {
+  if (loading && allDocuments.length === 0) {
     return (
       <div className={`flex justify-center items-center h-64 ${className}`}>
         <Spinner size="lg" />
@@ -283,40 +310,29 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <FunnelIcon className="h-5 w-5 text-theme-text-tertiary" />
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-32 border border-theme-border-primary rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
-                style={{ 
-                  appearance: 'none', 
-                  WebkitAppearance: 'none', 
-                  MozAppearance: 'none',
-                  backgroundImage: 'none'
-                }}
-              >
-                <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Status</option>
-                <option value="UPLOADED" className="bg-theme-bg-primary text-theme-text-primary">Uploaded</option>
-                <option value="PROCESSING" className="bg-theme-bg-primary text-theme-text-primary">Processing</option>
-                <option value="PROCESSED" className="bg-theme-bg-primary text-theme-text-primary">Processed</option>
-                <option value="FAILED" className="bg-theme-bg-primary text-theme-text-primary">Failed</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg className="w-4 h-4 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
+           <div className="flex items-center space-x-2">
+             <FunnelIcon className="h-5 w-5 text-theme-text-tertiary" />
+             <Dropdown
+               options={[
+                 { value: 'ALL', label: 'All Status' },
+                 { value: 'UPLOADED', label: 'Uploaded' },
+                 { value: 'PROCESSING', label: 'Processing' },
+                 { value: 'PROCESSED', label: 'Processed' },
+                 { value: 'FAILED', label: 'Failed' }
+               ]}
+               value={statusFilter}
+               onChange={(value) => setStatusFilter(value as string)}
+               size="md"
+               className="w-32 min-w-32 max-w-32"
+             />
+           </div>
         </div>
       </Card>
 
       {/* Documents Table */}
       <Card>
         <Table
-          data={documents}
+          data={getPaginatedDocuments()}
           columns={columns}
           emptyMessage="No documents found"
         />
