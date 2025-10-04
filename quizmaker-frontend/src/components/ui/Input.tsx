@@ -22,6 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   fullWidth = false,
   className = '',
   id,
+  onChange,
   ...props
 }, ref) => {
   const generatedId = useId();
@@ -85,6 +86,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
           ref={ref}
           id={inputId}
           className={inputClasses}
+          onChange={onChange}
           {...props}
         />
         
@@ -104,7 +106,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
               className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
               onClick={() => {
                 const input = document.getElementById(inputId) as HTMLInputElement;
-                if (input) {
+                if (input && onChange) {
                   const currentValue = parseInt(input.value) || 0;
                   const step = parseInt(input.step) || 1;
                   const min = input.min ? parseInt(input.min) : undefined;
@@ -112,9 +114,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   let newValue = currentValue + step;
                   if (max !== undefined && newValue > max) newValue = max;
                   if (min !== undefined && newValue < min) newValue = min;
-                  input.value = newValue.toString();
-                  input.dispatchEvent(new Event('input', { bubbles: true }));
-                  input.dispatchEvent(new Event('change', { bubbles: true }));
+                  
+                  // Directly call React's onChange handler instead of dispatching events
+                  const syntheticEvent = {
+                    target: { value: newValue.toString() },
+                    currentTarget: { value: newValue.toString() }
+                  } as React.ChangeEvent<HTMLInputElement>;
+                  onChange(syntheticEvent);
                 }
               }}
               tabIndex={-1}
@@ -128,7 +134,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
               className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
               onClick={() => {
                 const input = document.getElementById(inputId) as HTMLInputElement;
-                if (input) {
+                if (input && onChange) {
                   const currentValue = parseInt(input.value) || 0;
                   const step = parseInt(input.step) || 1;
                   const min = input.min ? parseInt(input.min) : undefined;
@@ -136,9 +142,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   let newValue = currentValue - step;
                   if (min !== undefined && newValue < min) newValue = min;
                   if (max !== undefined && newValue > max) newValue = max;
-                  input.value = newValue.toString();
-                  input.dispatchEvent(new Event('input', { bubbles: true }));
-                  input.dispatchEvent(new Event('change', { bubbles: true }));
+                  
+                  // Directly call React's onChange handler instead of dispatching events
+                  const syntheticEvent = {
+                    target: { value: newValue.toString() },
+                    currentTarget: { value: newValue.toString() }
+                  } as React.ChangeEvent<HTMLInputElement>;
+                  onChange(syntheticEvent);
                 }
               }}
               tabIndex={-1}

@@ -262,6 +262,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
                 case 'text':
                   return (
                     <TextQuizConfigurationForm
+                      key="text-quiz-form"
                       quizData={quizData}
                       onDataChange={handleQuizConfigChange}
                       errors={errors}
@@ -272,6 +273,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
                 case 'document':
                   return (
                     <DocumentQuizConfigurationForm
+                      key="document-quiz-form"
                       quizData={quizData}
                       onDataChange={handleQuizConfigChange}
                       errors={errors}

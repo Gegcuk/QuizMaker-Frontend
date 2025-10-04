@@ -3,7 +3,7 @@
 // Includes text input and AI generation parameters
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
 import { Button, Input, useToast } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
@@ -27,14 +27,20 @@ interface TextGenerationConfig {
 }
 
 export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps> = ({
-  quizData,
   onDataChange,
   errors,
   onCreateQuiz,
   isCreating
 }) => {
   const { addToast } = useToast();
-  const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>(quizData);
+  
+  // Keep all state completely local - no syncing with parent until submission
+  const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>({
+    title: '',
+    description: '',
+    difficulty: 'MEDIUM'
+  });
+  
   const [generationConfig, setGenerationConfig] = useState<TextGenerationConfig>({
     text: '',
     language: 'en',
@@ -54,73 +60,28 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
     estimatedTimePerQuestion: 2
   });
 
-  useEffect(() => {
-    const { generationConfig: incomingGenerationConfig, ...rest } = quizData;
-    const { generationRequest, ...baseQuizData } = rest as { generationRequest?: unknown } & Partial<CreateQuizRequest>;
-    void generationRequest;
-    setLocalData(baseQuizData);
-
-    if (incomingGenerationConfig) {
-      const config = incomingGenerationConfig as TextGenerationConfig;
-      setGenerationConfig(prev => ({
-        ...prev,
-        ...config,
-        questionsPerType: {
-          ...prev.questionsPerType,
-          ...config.questionsPerType,
-        },
-      }));
-    }
-  }, [quizData]);
-
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
-    const newData = { ...localData, [field]: value };
-    setLocalData(newData);
-    // Preserve existing generationRequest and generationConfig when updating basic fields
-    const dataToSend: QuizWizardDraft = {
-      ...newData,
-      generationRequest: quizData.generationRequest,
-      generationConfig,
-    };
-    onDataChange(dataToSend);
+    setLocalData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleGenerationConfigChange = <K extends keyof TextGenerationConfig>(field: K, value: TextGenerationConfig[K]) => {
-    const updatedConfig: TextGenerationConfig = {
-      ...generationConfig,
-      [field]: value,
-    };
-
-    setGenerationConfig(updatedConfig);
-
-    const dataToSend: QuizWizardDraft = {
-      ...localData,
-      generationConfig: updatedConfig,
-      generationRequest: quizData.generationRequest,
-    };
-    onDataChange(dataToSend);
+    setGenerationConfig(prev => ({ ...prev, [field]: value }));
   };
 
   const handleQuestionTypeChange = (type: string, count: number) => {
-    const updatedQuestions = { ...generationConfig.questionsPerType, [type]: count };
-    const updatedConfig: TextGenerationConfig = {
-      ...generationConfig,
-      questionsPerType: updatedQuestions,
-    };
-
-    setGenerationConfig(updatedConfig);
-
-    const dataToSend: QuizWizardDraft = {
-      ...localData,
-      generationConfig: updatedConfig,
-      generationRequest: quizData.generationRequest,
-    };
-    onDataChange(dataToSend);
+    setGenerationConfig(prev => ({
+      ...prev,
+      questionsPerType: {
+        ...prev.questionsPerType,
+        [type]: count
+      }
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation - check all required fields before submission
     if (!localData.title?.trim()) {
       addToast({ message: 'Please enter a quiz title' });
       return;
@@ -131,6 +92,13 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       return;
     }
 
+    // Check if at least one question type is selected
+    const totalQuestions = Object.values(generationConfig.questionsPerType).reduce((sum, count) => sum + count, 0);
+    if (totalQuestions === 0) {
+      addToast({ message: 'Please select at least one question type with a count greater than 0' });
+      return;
+    }
+
     // Filter out question types with 0 counts (API expects only types with actual counts)
     const filteredQuestionsPerType = Object.entries(generationConfig.questionsPerType)
       .filter(([, count]) => count > 0)
@@ -138,7 +106,6 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         acc[type] = count;
         return acc;
       }, {} as Record<string, number>);
-
 
     // Prepare the generation request
     const generationRequest = {
@@ -156,15 +123,13 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       ...(localData.tagIds && localData.tagIds.length > 0 && { tagIds: localData.tagIds })
     };
 
-
-    // Store generation config in quizData for later use
+    // NOW send all data to parent - only at submission time
     const dataWithConfig: QuizWizardDraft = {
       ...localData,
       generationConfig,
       generationRequest,
     };
     onDataChange(dataWithConfig);
-
     onCreateQuiz(dataWithConfig);
   };
 
