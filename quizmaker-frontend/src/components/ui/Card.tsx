@@ -96,7 +96,7 @@ const Card: React.FC<CardProps> = ({
       } : undefined}
     >
       {header && (
-        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           {header}
         </div>
       )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../features/auth';
 
 // Simple SVG icons for social links (no external dependencies)
 const GitHubIcon = () => (
@@ -32,12 +33,13 @@ const EmailIcon = () => (
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const { isLoggedIn } = useAuth();
 
   const navigationGroups = [
     {
       heading: 'Platform',
       links: [
-        { label: 'Home', to: '/' },
+        { label: 'Home', to: isLoggedIn ? '/quizzes' : '/' },
         { label: 'Browse Quizzes', to: '/quizzes' },
         { label: 'Create Quiz', to: '/quizzes/create' },
         { label: 'Theme Demo', to: '/theme-demo' },

@@ -103,7 +103,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* ----- Logo / site title ------------------------------------ */}
           <Link 
-            to="/quizzes" 
+            to={isLoggedIn ? "/quizzes" : "/"} 
             className="text-xl font-bold text-theme-text-primary hover:text-theme-interactive-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary rounded-lg px-2 py-1"
           >
             Quizzence
