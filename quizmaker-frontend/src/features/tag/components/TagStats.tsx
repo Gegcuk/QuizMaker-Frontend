@@ -305,7 +305,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
                   <div className="mt-2">
                     <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 bg-theme-bg-danger0 rounded-full"
+                        className="h-2 bg-theme-bg-danger rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.highUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
@@ -320,7 +320,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
                   <div className="mt-2">
                     <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 bg-theme-bg-warning0 rounded-full"
+                        className="h-2 bg-theme-bg-warning rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.mediumUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>
@@ -335,7 +335,7 @@ export const TagStats: React.FC<TagStatsProps> = ({
                   <div className="mt-2">
                     <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 bg-theme-bg-success0 rounded-full"
+                        className="h-2 bg-theme-bg-success rounded-full"
                         style={{ width: `${stats.totalTags > 0 ? (stats.usageDistribution.lowUsage / stats.totalTags) * 100 : 0}%` }}
                       ></div>
                     </div>

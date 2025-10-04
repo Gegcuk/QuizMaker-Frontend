@@ -307,8 +307,8 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
                       <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            difficulty === 'EASY' ? 'bg-theme-bg-success0' :
-                            difficulty === 'MEDIUM' ? 'bg-theme-bg-warning0' : 'bg-theme-bg-danger0'
+                            difficulty === 'EASY' ? 'bg-theme-bg-success' :
+                            difficulty === 'MEDIUM' ? 'bg-theme-bg-warning' : 'bg-theme-bg-danger'
                           }`}
                           style={{ width: `${stats.totalQuizzes > 0 ? (count / stats.totalQuizzes) * 100 : 0}%` }}
                         ></div>

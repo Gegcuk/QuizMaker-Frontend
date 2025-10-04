@@ -168,7 +168,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
               </div>
               <div className="w-full bg-theme-bg-tertiary rounded-full h-3">
                 <div
-                  className="h-3 rounded-full bg-theme-bg-success0 transition-all duration-500"
+                  className="h-3 rounded-full bg-theme-bg-success transition-all duration-500"
                   style={{ width: `${accuracy}%` }}
                 />
               </div>
@@ -181,11 +181,11 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
               </div>
               <div className="flex h-3 rounded-full overflow-hidden">
                 <div
-                  className="bg-theme-bg-success0"
+                  className="bg-theme-bg-success"
                   style={{ width: `${(result.correctCount / result.totalQuestions) * 100}%` }}
                 />
                 <div
-                  className="bg-theme-bg-danger0"
+                  className="bg-theme-bg-danger"
                   style={{ width: `${(incorrectCount / result.totalQuestions) * 100}%` }}
                 />
               </div>

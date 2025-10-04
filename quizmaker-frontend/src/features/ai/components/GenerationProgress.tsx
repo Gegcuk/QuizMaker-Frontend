@@ -263,11 +263,11 @@ const GenerationProgress: React.FC<GenerationProgressProps> = ({
           <h4 className="font-medium text-theme-text-primary mb-3">Processing Stages</h4>
           <div className="space-y-2">
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-theme-bg-success0 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-success rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-secondary">Document analysis completed</span>
             </div>
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-theme-bg-info0 rounded-full mr-3"></div>
+              <div className="w-2 h-2 bg-theme-bg-info rounded-full mr-3"></div>
               <span className="text-sm text-theme-text-secondary">AI question generation in progress</span>
             </div>
             <div className="flex items-center">

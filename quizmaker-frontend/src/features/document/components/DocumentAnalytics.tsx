@@ -270,7 +270,7 @@ const DocumentAnalytics: React.FC<DocumentAnalyticsProps> = ({
                 </div>
                 <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                   <div
-                    className="h-2 rounded-full bg-theme-bg-info0"
+                    className="h-2 rounded-full bg-theme-bg-info"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>

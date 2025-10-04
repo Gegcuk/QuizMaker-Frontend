@@ -67,14 +67,14 @@ const Avatar: React.FC<AvatarProps> = ({
 
   const getRandomColor = (name: string) => {
     const colors = [
-      'bg-theme-bg-danger0',
-      'bg-theme-bg-info0',
-      'bg-theme-bg-success0',
-      'bg-theme-bg-warning0',
-      'bg-theme-bg-primary0',
-      'bg-theme-bg-secondary0',
-      'bg-theme-bg-primary0',
-      'bg-theme-bg-info0'
+      'bg-theme-bg-danger',
+      'bg-theme-bg-info',
+      'bg-theme-bg-success',
+      'bg-theme-bg-warning',
+      'bg-theme-bg-primary',
+      'bg-theme-bg-secondary',
+      'bg-theme-bg-primary',
+      'bg-theme-bg-info'
     ];
     
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -141,7 +141,7 @@ const Avatar: React.FC<AvatarProps> = ({
       {/* Status indicator */}
       {status && (
         <span
-          className={`absolute bottom-0 right-0 block ${statusSizeClasses[size]} ${statusClasses[status]} ${shapeClasses[shape]} ring-2 ring-white`}
+          className={`absolute bottom-0 right-0 block ${statusSizeClasses[size]} ${statusClasses[status]} ${shapeClasses[shape]} ring-2 ring-theme-focus-ring-offset`}
         />
       )}
     </div>

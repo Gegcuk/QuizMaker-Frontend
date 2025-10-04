@@ -49,7 +49,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     variantClasses[variant],
     sizeClasses[size],
     animated && 'animate-pulse',
-    striped && 'bg-gradient-to-r from-transparent via-white to-transparent bg-[length:20px_100%] animate-pulse'
+    striped && 'bg-gradient-to-r from-transparent via-theme-focus-ring-offset to-transparent bg-[length:20px_100%] animate-pulse'
   ].filter(Boolean).join(' ');
 
   return (

@@ -62,6 +62,7 @@ export interface ColorPalette {
     // Special colors
     accent: string;       // Accent color for highlights
     shadow: string;       // Shadow color
+    overlay: string;      // Overlay color for modals/tooltips
   };
 }
 
@@ -117,6 +118,7 @@ export const lightPalette: ColorPalette = {
     },
     accent: '#3b82f6',
     shadow: 'rgba(0, 0, 0, 0.1)',
+    overlay: 'rgba(0, 0, 0, 0.5)',
   },
 };
 
@@ -172,6 +174,7 @@ export const darkPalette: ColorPalette = {
     },
     accent: '#60a5fa',
     shadow: 'rgba(0, 0, 0, 0.3)',
+    overlay: 'rgba(0, 0, 0, 0.7)',
   },
 };
 
@@ -227,6 +230,7 @@ export const bluePalette: ColorPalette = {
     },
     accent: '#8eaccd',
     shadow: 'rgba(142, 172, 205, 0.2)',
+    overlay: 'rgba(142, 172, 205, 0.6)',
   },
 };
 
@@ -282,6 +286,7 @@ export const purplePalette: ColorPalette = {
     },
     accent: '#c8acd6',
     shadow: 'rgba(23, 21, 59, 0.4)',
+    overlay: 'rgba(23, 21, 59, 0.8)',
   },
 };
 
@@ -337,6 +342,7 @@ export const greenPalette: ColorPalette = {
     },
     accent: '#22c55e',
     shadow: 'rgba(34, 197, 94, 0.2)',
+    overlay: 'rgba(34, 197, 94, 0.6)',
   },
 };
 
@@ -389,5 +395,6 @@ export const generateCSSVariables = (palette: ColorPalette): Record<string, stri
     '--color-neutral-subtle': palette.colors.neutral.subtle,
     '--color-accent': palette.colors.accent,
     '--color-shadow': palette.colors.shadow,
+    '--color-bg-overlay': palette.colors.overlay,
   };
 };

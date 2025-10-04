@@ -201,7 +201,7 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
       {isSaving && (
         <div className="mt-3">
           <div className="w-full bg-theme-bg-tertiary rounded-full h-1">
-            <div className="bg-theme-bg-info0 h-1 rounded-full animate-pulse" style={{ width: '100%' }} />
+            <div className="bg-theme-bg-info h-1 rounded-full animate-pulse" style={{ width: '100%' }} />
           </div>
         </div>
       )}

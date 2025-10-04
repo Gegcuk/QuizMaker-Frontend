@@ -113,9 +113,9 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               <div className="flex-shrink-0">
                 <span className={`inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-full ${
                   status === 'correct'
-                    ? 'bg-theme-bg-success0 text-theme-text-primary'
+                    ? 'bg-theme-bg-success text-theme-text-primary'
                     : status === 'incorrect'
-                    ? 'bg-theme-bg-danger0 text-theme-text-primary'
+                    ? 'bg-theme-bg-danger text-theme-text-primary'
                     : 'bg-theme-bg-tertiary text-theme-text-secondary'
                 }`}>
                   {index + 1}

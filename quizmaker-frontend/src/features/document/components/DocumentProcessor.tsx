@@ -248,7 +248,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
         <div className="w-full bg-theme-bg-tertiary rounded-full h-3 mb-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
-              document.status === 'FAILED' ? 'bg-theme-bg-danger0' : 'bg-theme-bg-info0'
+              document.status === 'FAILED' ? 'bg-theme-bg-danger' : 'bg-theme-bg-info'
             }`}
             style={{ width: `${progress}%` }}
           />

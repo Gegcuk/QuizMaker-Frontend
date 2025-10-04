@@ -333,7 +333,7 @@ const UserStats: React.FC<UserStatsProps> = ({
                         </div>
                         <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                           <div
-                            className="bg-theme-bg-warning0 h-2 rounded-full"
+                            className="bg-theme-bg-warning h-2 rounded-full"
                             style={{
                               width: `${Math.min((achievement.progress / achievement.maxProgress) * 100, 100)}%`
                             }}

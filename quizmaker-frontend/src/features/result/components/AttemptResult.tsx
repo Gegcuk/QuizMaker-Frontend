@@ -133,7 +133,7 @@ const AttemptResult: React.FC<AttemptResultProps> = ({
             <div className="flex items-center space-x-2">
               <div className="w-32 bg-theme-bg-tertiary rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-theme-bg-success0"
+                  className="h-2 rounded-full bg-theme-bg-success"
                   style={{ width: `${accuracy}%` }}
                 />
               </div>

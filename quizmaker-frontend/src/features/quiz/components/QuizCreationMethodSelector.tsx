@@ -113,7 +113,7 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
               {/* Selection indicator */}
               {selectedMethod === option.id && (
                 <div className="absolute top-4 right-4">
-                  <div className="w-6 h-6 bg-theme-bg-info0 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-theme-bg-info rounded-full flex items-center justify-center">
                     <svg className="w-4 h-4 text-theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>

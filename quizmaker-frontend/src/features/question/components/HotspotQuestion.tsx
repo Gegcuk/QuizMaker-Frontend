@@ -117,11 +117,11 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                     key={region.id}
                     className={`absolute border-2 transition-all duration-200 ${
                       status === 'correct'
-                        ? 'border-theme-border-success bg-theme-bg-success0 bg-opacity-20'
+                        ? 'border-theme-border-success bg-theme-bg-success bg-opacity-20'
                         : status === 'incorrect'
-                        ? 'border-theme-border-danger bg-theme-bg-danger0 bg-opacity-20'
+                        ? 'border-theme-border-danger bg-theme-bg-danger bg-opacity-20'
                         : isClicked
-                        ? 'border-theme-border-primary bg-theme-bg-primary0 bg-opacity-20'
+                        ? 'border-theme-border-primary bg-theme-bg-primary bg-opacity-20'
                         : 'border-transparent hover:border-theme-border-secondary hover:bg-theme-bg-tertiary hover:bg-opacity-10'
                     }`}
                     style={{
@@ -135,12 +135,12 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
                     {/* Region Label */}
                     <div className={`absolute -top-2 -left-2 px-2 py-1 text-xs font-medium rounded ${
                       status === 'correct'
-                        ? 'bg-theme-bg-success0 text-theme-text-primary'
+                        ? 'bg-theme-bg-success text-theme-text-primary'
                         : status === 'incorrect'
-                        ? 'bg-theme-bg-danger0 text-theme-text-primary'
+                        ? 'bg-theme-bg-danger text-theme-text-primary'
                         : isClicked
-                        ? 'bg-theme-bg-primary0 text-theme-text-primary'
-                        : 'bg-theme-bg-secondary0 text-theme-text-primary'
+                        ? 'bg-theme-bg-primary text-theme-text-primary'
+                        : 'bg-theme-bg-secondary text-theme-text-primary'
                     }`}>
                       {region.id}
                     </div>

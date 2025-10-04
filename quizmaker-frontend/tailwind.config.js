@@ -41,6 +41,24 @@ export default {
         'theme-status-warning-bg': 'var(--color-status-warning-bg)',
         'theme-status-danger-bg': 'var(--color-status-danger-bg)',
         'theme-status-info-bg': 'var(--color-status-info-bg)',
+        
+        // Additional theme tokens used throughout the app
+        'theme-bg-success': 'var(--color-status-success-bg)',
+        'theme-bg-danger': 'var(--color-status-danger-bg)',
+        'theme-bg-warning': 'var(--color-status-warning-bg)',
+        'theme-bg-info': 'var(--color-status-info-bg)',
+        'theme-bg-overlay': 'var(--color-bg-overlay)',
+        
+        'theme-text-success': 'var(--color-status-success)',
+        'theme-text-danger': 'var(--color-status-danger)',
+        'theme-text-warning': 'var(--color-status-warning)',
+        'theme-text-info': 'var(--color-status-info)',
+        
+        'theme-border-success': 'var(--color-status-success)',
+        'theme-border-danger': 'var(--color-status-danger)',
+        'theme-border-warning': 'var(--color-status-warning)',
+        'theme-border-info': 'var(--color-status-info)',
+        
         'theme-focus-ring': 'var(--color-focus-ring)',
         'theme-focus-ring-offset': 'var(--color-focus-ring-offset)',
         'theme-neutral-muted': 'var(--color-neutral-muted)',

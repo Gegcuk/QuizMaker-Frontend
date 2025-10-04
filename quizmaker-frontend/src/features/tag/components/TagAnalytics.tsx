@@ -449,7 +449,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             value: item.usageCount
           })),
           'Top Tags by Usage',
-          'bg-theme-bg-info0'
+          'bg-theme-bg-info'
         )}
         
         {/* Tag Efficiency */}

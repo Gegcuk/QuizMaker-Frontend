@@ -118,7 +118,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
-                className="h-2 rounded-full bg-theme-bg-info0"
+                className="h-2 rounded-full bg-theme-bg-info"
                 style={{ width: `${stats.completionPercentage}%` }}
               />
             </div>
@@ -131,7 +131,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
-                className="h-2 rounded-full bg-theme-bg-success0"
+                className="h-2 rounded-full bg-theme-bg-success"
                 style={{ width: `${(stats.questionsAnswered / totalQuestions) * 100}%` }}
               />
             </div>

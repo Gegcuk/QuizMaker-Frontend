@@ -147,7 +147,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       {/* Progress Bar */}
       <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
         <div
-          className="bg-theme-bg-success0 h-2 rounded-full transition-all duration-300"
+          className="bg-theme-bg-success h-2 rounded-full transition-all duration-300"
           style={{ width: `${(selectedStatements.length / statements.length) * 100}%` }}
         />
       </div>
