@@ -334,7 +334,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             </label>
             <select
               value={generationConfig.chunkingStrategy}
-              onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
+              onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value as 'CHAPTER_BASED' | 'FIXED_SIZE')}
               className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
@@ -367,7 +367,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             </label>
             <select
               value={generationConfig.quizScope}
-              onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value)}
+              onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value as 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS')}
               className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>

@@ -276,7 +276,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
               </label>
               <select
                 value={generationConfig.chunkingStrategy}
-                onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value)}
+                onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value as 'CHAPTER_BASED' | 'FIXED_SIZE')}
                 className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               >
                 <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
