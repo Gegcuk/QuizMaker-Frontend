@@ -6,12 +6,13 @@
 import React, { useState, useEffect } from 'react';
 import { CreateQuizRequest, Visibility, Difficulty } from '@/types';
 import { Button, Input, useToast } from '@/components';
+import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface ManualQuizConfigurationFormProps {
-  quizData: Partial<CreateQuizRequest>;
-  onDataChange: (data: Partial<CreateQuizRequest>) => void;
+  quizData: QuizWizardDraft;
+  onDataChange: (data: QuizWizardDraft) => void;
   errors: Record<string, string | undefined>;
-  onCreateQuiz: () => void;
+  onCreateQuiz: (data?: QuizWizardDraft) => void;
   isCreating: boolean;
 }
 
@@ -44,7 +45,8 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
       return;
     }
     
-    onCreateQuiz();
+    const submissionData: QuizWizardDraft = { ...localData };
+    onCreateQuiz(submissionData);
   };
 
   return (

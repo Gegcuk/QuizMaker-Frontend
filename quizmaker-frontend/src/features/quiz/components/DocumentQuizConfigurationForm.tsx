@@ -4,14 +4,15 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { CreateQuizRequest, Visibility, Difficulty } from '@/types';
+import { CreateQuizRequest, Difficulty } from '@/types';
 import { Button, Input, useToast } from '@/components';
+import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface DocumentQuizConfigurationFormProps {
-  quizData: Partial<CreateQuizRequest>;
-  onDataChange: (data: Partial<CreateQuizRequest>) => void;
+  quizData: QuizWizardDraft;
+  onDataChange: (data: QuizWizardDraft) => void;
   errors: Record<string, string | undefined>;
-  onCreateQuiz: () => void;
+  onCreateQuiz: (data?: QuizWizardDraft) => void;
   isCreating: boolean;
 }
 
@@ -57,24 +58,65 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   });
 
   useEffect(() => {
-    setLocalData(quizData);
+    const { generationConfig: incomingGenerationConfig, ...rest } = quizData;
+    const { generationRequest, ...baseQuizData } = rest as { generationRequest?: unknown } & Partial<CreateQuizRequest>;
+    void generationRequest;
+    setLocalData(baseQuizData);
+    if (incomingGenerationConfig) {
+      const config = incomingGenerationConfig as DocumentGenerationConfig;
+      setGenerationConfig(prev => ({
+        ...prev,
+        ...config,
+        questionsPerType: {
+          ...prev.questionsPerType,
+          ...config.questionsPerType,
+        },
+      }));
+    }
   }, [quizData]);
 
-  const handleInputChange = (field: keyof CreateQuizRequest, value: any) => {
+  const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
     const newData = { ...localData, [field]: value };
     setLocalData(newData);
-    onDataChange(newData);
+    const dataToSend: QuizWizardDraft = {
+      ...newData,
+      generationRequest: quizData.generationRequest,
+      generationConfig,
+    };
+    onDataChange(dataToSend);
   };
 
-  const handleGenerationConfigChange = (field: keyof DocumentGenerationConfig, value: any) => {
-    setGenerationConfig(prev => ({ ...prev, [field]: value }));
+  const handleGenerationConfigChange = <K extends keyof DocumentGenerationConfig>(field: K, value: DocumentGenerationConfig[K]) => {
+    const updatedConfig: DocumentGenerationConfig = {
+      ...generationConfig,
+      [field]: value,
+    };
+
+    setGenerationConfig(updatedConfig);
+
+    const dataToSend: QuizWizardDraft = {
+      ...localData,
+      generationConfig: updatedConfig,
+      generationRequest: quizData.generationRequest,
+    };
+    onDataChange(dataToSend);
   };
 
   const handleQuestionTypeChange = (type: string, count: number) => {
-    setGenerationConfig(prev => ({
-      ...prev,
-      questionsPerType: { ...prev.questionsPerType, [type]: count }
-    }));
+    const updatedQuestions = { ...generationConfig.questionsPerType, [type]: count };
+    const updatedConfig: DocumentGenerationConfig = {
+      ...generationConfig,
+      questionsPerType: updatedQuestions,
+    };
+
+    setGenerationConfig(updatedConfig);
+
+    const dataToSend: QuizWizardDraft = {
+      ...localData,
+      generationConfig: updatedConfig,
+      generationRequest: quizData.generationRequest,
+    };
+    onDataChange(dataToSend);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +141,14 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         return;
       }
 
-      setGenerationConfig(prev => ({ ...prev, file }));
+      const updatedConfig: DocumentGenerationConfig = { ...generationConfig, file };
+      setGenerationConfig(updatedConfig);
+      const dataToSend: QuizWizardDraft = {
+        ...localData,
+        generationConfig: updatedConfig,
+        generationRequest: quizData.generationRequest,
+      };
+      onDataChange(dataToSend);
     }
   };
 
@@ -127,17 +176,25 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     if (generationConfig.chapterTitle) {
       formData.append('chapterTitle', generationConfig.chapterTitle);
     }
-    if (generationConfig.chapterNumber) {
+    if (typeof generationConfig.chapterNumber === 'number') {
       formData.append('chapterNumber', generationConfig.chapterNumber.toString());
     }
-    if (generationConfig.chunkIndices) {
+    if (generationConfig.chunkIndices && generationConfig.chunkIndices.length > 0) {
       formData.append('chunkIndices', JSON.stringify(generationConfig.chunkIndices));
     }
     formData.append('quizTitle', localData.title!);
     if (localData.description) {
       formData.append('quizDescription', localData.description);
     }
-    formData.append('questionsPerType', JSON.stringify(generationConfig.questionsPerType));
+    // Filter out question types with 0 counts (API expects only types with actual counts)
+    const filteredQuestionsPerType = Object.entries(generationConfig.questionsPerType)
+      .filter(([, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        acc[type] = count;
+        return acc;
+      }, {} as Record<string, number>);
+    
+    formData.append('questionsPerType', JSON.stringify(filteredQuestionsPerType));
     formData.append('difficulty', generationConfig.difficulty);
     formData.append('estimatedTimePerQuestion', generationConfig.estimatedTimePerQuestion.toString());
     if (localData.categoryId) {
@@ -150,14 +207,14 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     const generationRequest = formData;
 
     // Store generation config in quizData for later use
-    const dataWithConfig = {
+    const dataWithConfig: QuizWizardDraft = {
       ...localData,
       generationConfig,
-      generationRequest
+      generationRequest,
     };
     onDataChange(dataWithConfig);
-    
-    onCreateQuiz();
+
+    onCreateQuiz(dataWithConfig);
   };
 
   return (

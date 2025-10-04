@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreateQuizRequest, QuizDto, QuestionDifficulty } from '@/types';
+import { CreateQuizRequest, QuizDto, QuestionDifficulty, GenerateQuizFromTextRequest } from '@/types';
 import { createQuiz } from '@/services';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
@@ -20,6 +20,7 @@ import { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
 import { QuizQuestionManager } from './QuizQuestionManager';
 import { QuizAIGenerationStep } from './QuizAIGenerationStep';
 import { QuizGenerationStatus as QuizGenerationStatusComponent } from './QuizGenerationStatus';
+import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import type { AxiosError } from 'axios';
 
 export type CreationMethod = 'manual' | 'text' | 'document';
@@ -40,7 +41,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   // Wizard state
   const [currentStep, setCurrentStep] = useState(1);
   const [creationMethod, setCreationMethod] = useState<CreationMethod | null>(null);
-  const [quizData, setQuizData] = useState<Partial<CreateQuizRequest>>({
+  const [quizData, setQuizData] = useState<QuizWizardDraft>({
     title: '',
     description: '',
     visibility: 'PRIVATE',
@@ -71,8 +72,11 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   };
 
   // Step 2: Configure quiz
-  const handleQuizConfigChange = (newData: Partial<CreateQuizRequest>) => {
-    setQuizData(prev => ({ ...prev, ...newData }));
+  const handleQuizConfigChange = (newData: QuizWizardDraft) => {
+    setQuizData(prev => {
+      const updated = { ...prev, ...newData };
+      return updated;
+    });
     
     // Clear errors for updated fields
     const fieldsToClear = Object.keys(newData);
@@ -89,119 +93,129 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
     }
   };
 
-  const validateQuizConfig = (): FormErrors => {
+  const validateQuizConfig = (data: QuizWizardDraft = quizData): FormErrors => {
     const newErrors: FormErrors = {};
 
-    if (!quizData.title?.trim()) {
+    if (!data.title?.trim()) {
       newErrors.title = 'Quiz title is required';
-    } else if (quizData.title.trim().length < 3) {
+    } else if (data.title.trim().length < 3) {
       newErrors.title = 'Quiz title must be at least 3 characters';
-    } else if (quizData.title.trim().length > 100) {
+    } else if (data.title.trim().length > 100) {
       newErrors.title = 'Quiz title must be no more than 100 characters';
     }
 
-    if (quizData.description && quizData.description.trim().length > 1000) {
+    if (data.description && data.description.trim().length > 1000) {
       newErrors.description = 'Description must be no more than 1000 characters';
     }
 
-    if (!quizData.estimatedTime || quizData.estimatedTime < 1) {
+    if (!data.estimatedTime || data.estimatedTime < 1) {
       newErrors.estimatedTime = 'Estimated time must be at least 1 minute';
-    } else if (quizData.estimatedTime > 180) {
+    } else if (data.estimatedTime > 180) {
       newErrors.estimatedTime = 'Estimated time must be no more than 180 minutes';
     }
 
-    if (quizData.timerEnabled && (!quizData.timerDuration || quizData.timerDuration < 1)) {
+    if (data.timerEnabled && (!data.timerDuration || data.timerDuration < 1)) {
       newErrors.timerDuration = 'Timer duration must be at least 1 minute when timer is enabled';
-    } else if (quizData.timerEnabled && quizData.timerDuration && quizData.timerDuration > 180) {
+    } else if (data.timerEnabled && data.timerDuration && data.timerDuration > 180) {
       newErrors.timerDuration = 'Timer duration must be no more than 180 minutes';
     }
 
     return newErrors;
   };
 
-  const handleCreateQuiz = async () => {
-    const validationErrors = validateQuizConfig();
+  const handleCreateQuiz = async (overrideData?: QuizWizardDraft) => {
+    const submissionData: QuizWizardDraft = overrideData ? { ...quizData, ...overrideData } : quizData;
+
+    const validationErrors = validateQuizConfig(submissionData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
+    }
+
+    if (overrideData) {
+      setQuizData(prev => ({ ...prev, ...overrideData }));
     }
 
     setIsCreatingQuiz(true);
     try {
       if (creationMethod === 'manual') {
         // Manual creation - create quiz directly
-        const result = await createQuiz(quizData as CreateQuizRequest);
+        const result = await createQuiz(submissionData as CreateQuizRequest);
         setCreatedQuiz({ 
           id: result.quizId,
-          ...quizData,
+          ...submissionData,
           status: 'DRAFT',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           creatorId: '', // Will be set by backend
-          tagIds: quizData.tagIds || []
+          tagIds: submissionData.tagIds || []
         } as QuizDto);
-        
+
         addToast({ 
           type: 'success', 
           message: 'Quiz created successfully! Now you can add questions.' 
         });
-        
+
         setCurrentStep(3);
       } else if (creationMethod === 'text') {
         // AI generation from text - start generation job
-        const generationRequest = (quizData as any).generationRequest;
+        const generationRequest = submissionData.generationRequest as GenerateQuizFromTextRequest | undefined;
         if (!generationRequest) {
           addToast({ message: 'Generation request data is missing. Please try again.' });
           return;
         }
         const response = await quizService.generateQuizFromText(generationRequest);
-        
+
         setCreatedQuiz({ 
           id: response.jobId!,
-          title: quizData.title || 'Generating Quiz...',
+          title: submissionData.title || 'Generating Quiz...',
           description: 'AI is generating your quiz...',
-          difficulty: quizData.difficulty || 'MEDIUM',
-          visibility: quizData.visibility || 'PRIVATE',
+          difficulty: submissionData.difficulty || 'MEDIUM',
+          visibility: submissionData.visibility || 'PRIVATE',
           status: 'DRAFT',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           creatorId: '',
-          tagIds: quizData.tagIds || []
+          tagIds: submissionData.tagIds || []
         } as QuizDto);
-        
+
         addToast({ 
           type: 'info', 
           message: response.message || 'Quiz generation started! Please wait while AI creates your quiz.' 
         });
-        
+
         setCurrentStep(3);
       } else if (creationMethod === 'document') {
         // AI generation from document - start generation job
-        const generationRequest = (quizData as any).generationRequest;
+        const generationRequest = submissionData.generationRequest;
         if (!generationRequest) {
           addToast({ message: 'Generation request data is missing. Please try again.' });
           return;
         }
+        if (!(generationRequest instanceof FormData)) {
+          addToast({ message: 'Document generation request is invalid. Please re-upload your file.' });
+          return;
+        }
         const response = await quizService.generateQuizFromUpload(generationRequest);
-        
+
         setCreatedQuiz({ 
           id: response.jobId!,
-          title: quizData.title || 'Generating Quiz...',
+          title: submissionData.title || 'Generating Quiz...',
           description: 'AI is generating your quiz...',
-          difficulty: quizData.difficulty || 'MEDIUM',
-          visibility: quizData.visibility || 'PRIVATE',
+          difficulty: submissionData.difficulty || 'MEDIUM',
+          visibility: submissionData.visibility || 'PRIVATE',
           status: 'DRAFT',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           creatorId: '',
-          tagIds: quizData.tagIds || []
+          tagIds: submissionData.tagIds || []
         } as QuizDto);
-        
+
         addToast({ 
           type: 'info', 
           message: response.message || 'Quiz generation started! Please wait while AI creates your quiz.' 
         });
-        
+
         setCurrentStep(3);
       }
     } catch (error) {
@@ -214,32 +228,8 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
     }
   };
 
-  // Step 3: Handle question management completion
-  const handleQuestionsComplete = () => {
-    addToast({ 
-      type: 'success', 
-      message: 'Quiz creation completed successfully!' 
-    });
-    navigate('/my-quizzes');
-  };
-
   // Navigation helpers
   const canGoBack = currentStep > 1;
-  const canGoForward = () => {
-    switch (currentStep) {
-      case 1:
-        return creationMethod !== null;
-      case 2:
-        return Object.keys(validateQuizConfig()).length === 0;
-      case 3:
-        return false; // AI generation or questions step doesn't have forward navigation
-      case 4:
-        return false; // Final step doesn't have forward navigation
-      default:
-        return false;
-    }
-  };
-
   const goBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
