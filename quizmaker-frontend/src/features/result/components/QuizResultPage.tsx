@@ -35,6 +35,7 @@ const QuizResultPage: React.FC = () => {
   const [enhancedAnswers, setEnhancedAnswers] = useState<EnhancedAnswerResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
 
   /* ------------------------------------------------------------------ */
   /*  Fetch attempt results and question details                        */
@@ -113,6 +114,21 @@ const QuizResultPage: React.FC = () => {
   /* ------------------------------------------------------------------ */
   /*  Helper functions                                                  */
   /* ------------------------------------------------------------------ */
+  const toggleQuestionExpansion = (answerId: string) => {
+    setExpandedQuestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(answerId)) {
+        newSet.delete(answerId);
+      } else {
+        newSet.add(answerId);
+      }
+      return newSet;
+    });
+  };
+
+  const isQuestionExpanded = (answerId: string) => {
+    return expandedQuestions.has(answerId);
+  };
   const getScoreColor = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
     if (percentage >= 80) return 'text-theme-interactive-success';
@@ -279,118 +295,113 @@ const QuizResultPage: React.FC = () => {
       </div>
 
       {/* Question Breakdown */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-theme-text-primary">Question Breakdown</h2>
         
-        {enhancedAnswers.map((item, index) => (
-          <div 
-            key={item.answer.answerId} 
-            className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 border-l-4 border border-theme-border-primary ${
-              item.answer.isCorrect ? 'border-l-theme-interactive-success' : 'border-l-theme-interactive-danger'
-            }`}
-          >
-            {/* Question Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="bg-theme-bg-tertiary text-theme-text-secondary px-3 py-1 rounded-full text-sm font-medium">
-                    Question {index + 1}
-                  </span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    item.answer.isCorrect 
-                      ? 'bg-theme-bg-success text-theme-text-success' 
-                      : 'bg-theme-bg-danger text-theme-text-danger'
-                  }`}>
-                    {item.answer.isCorrect ? 'Correct' : 'Incorrect'}
-                  </span>
-                  <span className="text-sm text-theme-text-tertiary">
-                    {item.question.type.replace('_', ' ')}
-                  </span>
+        {enhancedAnswers.map((item, index) => {
+          const isExpanded = isQuestionExpanded(item.answer.answerId);
+          return (
+            <div 
+              key={item.answer.answerId} 
+              className={`bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary transition-all duration-200 ${
+                item.answer.isCorrect ? 'border-l-4 border-l-theme-interactive-success' : 'border-l-4 border-l-theme-interactive-danger'
+              }`}
+            >
+              {/* Collapsed Question Header */}
+              <div 
+                className="p-4 cursor-pointer hover:bg-theme-bg-secondary transition-colors"
+                onClick={() => toggleQuestionExpansion(item.answer.answerId)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-theme-bg-tertiary text-theme-text-secondary px-3 py-1 rounded-full text-sm font-medium">
+                      Q{index + 1}
+                    </span>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.answer.isCorrect 
+                        ? 'bg-theme-bg-success text-theme-text-success' 
+                        : 'bg-theme-bg-danger text-theme-text-danger'
+                    }`}>
+                      {item.answer.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    </span>
+                    <span className="text-sm text-theme-text-tertiary">
+                      {item.question.type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className={`text-sm font-medium ${getScoreColor(item.answer.score ?? 0, 1)}`}>
+                      {item.answer.score ?? 0} pt{(item.answer.score ?? 0) !== 1 ? 's' : ''}
+                    </div>
+                    <div className="text-theme-text-tertiary">
+                      {isExpanded ? '▼' : '▶'}
+                    </div>
+                  </div>
                 </div>
-                                 <h3 className="text-lg font-medium text-theme-text-primary">
-                   {item.question.type === 'FILL_GAP' ? (
-                     <div>
-                       <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
-                       <div 
-                         className="text-theme-text-primary"
-                         dangerouslySetInnerHTML={{
-                           __html: (item.question.content as any)?.text?.replace(/_{3,}/g, '<span class="bg-theme-bg-tertiary px-2 py-1 rounded text-theme-text-secondary">___</span>') || item.question.questionText
-                         }}
-                       />
-                     </div>
-                   ) : (
-                     item.question.questionText
-                   )}
-                 </h3>
-              </div>
-              <div className="text-right">
-                <div className={`text-lg font-bold ${getScoreColor(item.answer.score ?? 0, 1)}`}>
-                  {item.answer.score ?? 0} pt{(item.answer.score ?? 0) !== 1 ? 's' : ''}
+                
+                {/* Question Preview */}
+                <div className="mt-2">
+                  <h3 className="text-sm font-medium text-theme-text-primary line-clamp-2">
+                    {item.question.type === 'FILL_GAP' ? (
+                      <div>
+                        <div className="mb-1 text-theme-text-secondary text-xs">Complete the sentence:</div>
+                        <div className="text-theme-text-primary">
+                          {(item.question.content as any)?.text?.replace(/_{3,}/g, '___') || item.question.questionText}
+                        </div>
+                      </div>
+                    ) : (
+                      item.question.questionText
+                    )}
+                  </h3>
                 </div>
               </div>
+
+              {/* Expanded Question Details */}
+              {isExpanded && (
+                <div className="border-t border-theme-border-primary p-6">
+                  {/* Correct Answer */}
+                  <div>
+                    <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
+                    <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary">
+                      {item.question.type === 'FILL_GAP' ? (
+                        <div className="text-sm">
+                          <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
+                          <div 
+                            className="text-theme-text-primary"
+                            dangerouslySetInnerHTML={{
+                              __html: formatCorrectAnswer(item.question)
+                                .replace(/\*\*(.*?)\*\*/g, '<span class="bg-theme-bg-success px-1 rounded font-medium">$1</span>')
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-theme-text-primary">
+                          {formatCorrectAnswer(item.question)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Explanation */}
+                  {item.question.explanation && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
+                      <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary">
+                        <p className="text-sm text-theme-text-secondary">
+                          {item.question.explanation}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Timing Info */}
+                  <div className="mt-4 text-xs text-theme-text-tertiary">
+                    Answered at: {new Date(item.answer.answeredAt).toLocaleTimeString()}
+                  </div>
+                </div>
+              )}
             </div>
-
-                         {/* Answer Details */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {/* Result Status */}
-               <div>
-                 <h4 className="font-medium text-theme-text-primary mb-2">Result:</h4>
-                 <div className="flex items-center space-x-3">
-                   <span className={`px-2 py-1 rounded text-sm font-medium ${
-                     item.answer.isCorrect 
-                       ? 'bg-theme-bg-success text-theme-text-success border border-theme-border-success' 
-                       : 'bg-theme-bg-danger text-theme-text-danger border border-theme-border-danger'
-                   }`}>
-                     {item.answer.isCorrect ? 'Correct' : 'Incorrect'}
-                   </span>
-                   <span className="text-xs text-theme-text-tertiary">
-                     {item.answer.score} point{item.answer.score !== 1 ? 's' : ''}
-                   </span>
-                 </div>
-               </div>
-
-               {/* Correct Answer */}
-               <div>
-                 <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
-                 <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-                   {item.question.type === 'FILL_GAP' ? (
-                     <div className="text-sm">
-                       <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
-                       <div 
-                         className="text-theme-text-primary"
-                         dangerouslySetInnerHTML={{
-                           __html: formatCorrectAnswer(item.question)
-                             .replace(/\*\*(.*?)\*\*/g, '<span class="bg-theme-bg-success px-1 rounded font-medium">$1</span>')
-                         }}
-                       />
-                     </div>
-                   ) : (
-                     <p className="text-sm text-theme-text-primary">
-                       {formatCorrectAnswer(item.question)}
-                     </p>
-                   )}
-                 </div>
-               </div>
-             </div>
-
-            {/* Explanation */}
-            {item.question.explanation && (
-              <div className="mt-4">
-                <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
-                <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-                  <p className="text-sm text-theme-text-secondary">
-                    {item.question.explanation}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Timing Info */}
-            <div className="mt-4 text-xs text-theme-text-tertiary">
-              Answered at: {new Date(item.answer.answeredAt).toLocaleTimeString()}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Action Buttons */}
