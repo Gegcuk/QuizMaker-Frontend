@@ -570,7 +570,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       return (
                         <MatchingAnswer
                           question={q}
-                          currentAnswer={previewAnswer as Record<number, number>}
+                          currentAnswer={previewAnswer as { matches: Array<{ leftId: number; rightId: number }> }}
                           onAnswerChange={setPreviewAnswer}
                         />
                       );

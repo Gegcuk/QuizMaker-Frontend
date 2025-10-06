@@ -138,7 +138,7 @@ const AttemptDetails: React.FC<AttemptDetailsProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="p-4 bg-theme-bg-primary rounded-lg border border-theme-border-primary">
           <div className="text-2xl font-bold text-theme-interactive-primary mb-2">
             {formatDuration(details.startedAt, details.completedAt ?? undefined)}
           </div>

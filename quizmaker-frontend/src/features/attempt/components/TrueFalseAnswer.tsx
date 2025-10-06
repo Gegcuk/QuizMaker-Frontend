@@ -37,11 +37,7 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
     const baseClass = 'flex-1 p-6 border-2 rounded-lg text-center transition-all duration-200 font-medium text-lg';
     
     if (selectedAnswer === isTrue) {
-      return `${baseClass} ${
-        isTrue 
-          ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-text-primary' 
-          : 'border-theme-interactive-danger bg-theme-bg-tertiary text-theme-text-primary'
-      }`;
+      return `${baseClass} border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary`;
     }
     
     return `${baseClass} border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:border-theme-border-secondary hover:bg-theme-bg-secondary ${
@@ -51,9 +47,9 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
 
   const getAnswerIcon = (isTrue: boolean): string => {
     if (selectedAnswer === isTrue) {
-      return isTrue ? '✅' : '❌';
+      return '●'; // Solid circle for selected
     }
-    return isTrue ? '✓' : '✗';
+    return isTrue ? '○' : '○'; // Empty circle for unselected
   };
 
   return (

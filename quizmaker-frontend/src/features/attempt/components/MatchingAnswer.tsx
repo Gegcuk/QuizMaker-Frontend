@@ -8,15 +8,15 @@ import { QuestionForAttemptDto } from '../types/attempt.types';
 
 interface MatchingAnswerProps {
   question: QuestionForAttemptDto;
-  currentAnswer: Record<number, number> | null; // leftItemId -> rightItemId
-  onAnswerChange: (answer: Record<number, number>) => void;
+  currentAnswer: { matches: Array<{ leftId: number; rightId: number }> } | null;
+  onAnswerChange: (answer: { matches: Array<{ leftId: number; rightId: number }> }) => void;
   disabled?: boolean;
   className?: string;
 }
 
 export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
   question,
-  currentAnswer = {},
+  currentAnswer = { matches: [] },
   onAnswerChange,
   disabled = false,
   className = ''
@@ -30,40 +30,63 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
   const handleLeftItemClick = (leftId: number) => {
     if (disabled) return;
     
-    if (selectedLeft === leftId) {
+    const matchedRightId = getMatchedRightId(leftId);
+    
+    if (matchedRightId) {
+      // If this left item is already matched, remove the match
+      const newMatches = currentAnswer?.matches?.filter(m => m.leftId !== leftId) || [];
+      onAnswerChange({ matches: newMatches });
+      setSelectedLeft(null);
+    } else if (selectedLeft === leftId) {
+      // If this is the currently selected left item, deselect it
       setSelectedLeft(null);
     } else {
+      // Select this left item
       setSelectedLeft(leftId);
     }
   };
 
   const handleRightItemClick = (rightId: number) => {
-    if (disabled || selectedLeft === null) return;
+    if (disabled) return;
 
-    // Create new answer with the match
-    const newAnswer = {
-      ...currentAnswer,
-      [selectedLeft]: rightId
-    };
-
-    onAnswerChange(newAnswer);
-    setSelectedLeft(null);
-    setSelectedRight(null);
+    const matchedLeftId = getMatchedLeftId(rightId);
+    
+    if (matchedLeftId) {
+      // If this right item is already matched, remove the match
+      const newMatches = currentAnswer?.matches?.filter(m => m.rightId !== rightId) || [];
+      onAnswerChange({ matches: newMatches });
+      setSelectedLeft(null);
+    } else if (selectedLeft === null) {
+      // If no left item is selected, don't do anything
+      return;
+    } else {
+      // Create new answer with the match
+      const newMatches = [
+        ...(currentAnswer?.matches?.filter(m => m.leftId !== selectedLeft) || []),
+        { leftId: selectedLeft, rightId: rightId }
+      ];
+      onAnswerChange({ matches: newMatches });
+      setSelectedLeft(null);
+      setSelectedRight(null);
+    }
   };
 
   const getMatchedRightId = (leftId: number) => {
-    return currentAnswer?.[leftId] || null;
+    if (!currentAnswer?.matches) return null;
+    const match = currentAnswer.matches.find(m => m.leftId === leftId);
+    return match?.rightId || null;
   };
 
   const getMatchedLeftId = (rightId: number) => {
-    if (!currentAnswer) return null;
-    return Object.entries(currentAnswer).find(([_, rightIdMatch]) => rightIdMatch === rightId)?.[0] || null;
+    if (!currentAnswer?.matches) return null;
+    const match = currentAnswer.matches.find(m => m.rightId === rightId);
+    return match?.leftId || null;
   };
 
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="text-sm text-theme-text-secondary mb-4">
-        Click an item on the left, then click its match on the right to connect them.
+        Click an item on the left, then click its match on the right to connect them. Click on matched items to uncheck them.
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -81,19 +104,19 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => handleLeftItemClick(item.id)}
-                  disabled={disabled || isMatched}
+                  disabled={disabled}
                   className={`w-full p-3 text-left border rounded-lg transition-colors ${
                     isSelected
                       ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
                       : isMatched
-                      ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-interactive-success'
+                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
                       : 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary'
                   } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{item.text}</span>
                     {isMatched && (
-                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-success px-2 py-1 rounded">
+                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
                         Matched
                       </span>
                     )}
@@ -122,10 +145,10 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => handleRightItemClick(item.id)}
-                  disabled={disabled || isMatched || selectedLeft === null}
+                  disabled={disabled}
                   className={`w-full p-3 text-left border rounded-lg transition-colors ${
                     isMatched
-                      ? 'border-theme-interactive-success bg-theme-bg-tertiary text-theme-interactive-success'
+                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
                       : selectedLeft !== null
                       ? 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary cursor-pointer'
                       : 'border-theme-border-primary bg-theme-bg-secondary cursor-not-allowed opacity-50'
@@ -134,7 +157,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{item.text}</span>
                     {isMatched && (
-                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-success px-2 py-1 rounded">
+                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
                         Matched
                       </span>
                     )}
@@ -148,16 +171,16 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
 
       {/* Instructions */}
       {selectedLeft !== null && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3">
           <p className="text-sm text-theme-text-primary">
-            Now click the matching item in the right column to connect them.
+            Now click the matching item in the right column to connect them, or click the selected item again to cancel.
           </p>
         </div>
       )}
 
       {/* Progress */}
       <div className="text-sm text-theme-text-secondary">
-        {Object.keys(currentAnswer || {}).length} of {leftItems.length} matches completed
+        {currentAnswer?.matches?.length || 0} of {leftItems.length} matches completed
       </div>
     </div>
   );

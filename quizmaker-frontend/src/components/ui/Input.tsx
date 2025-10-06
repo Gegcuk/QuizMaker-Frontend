@@ -105,17 +105,18 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
               type="button"
               className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
               onClick={() => {
-                const input = document.getElementById(inputId) as HTMLInputElement;
-                if (input && onChange) {
-                  const currentValue = parseInt(input.value) || 0;
-                  const step = parseInt(input.step) || 1;
-                  const min = input.min ? parseInt(input.min) : undefined;
-                  const max = input.max ? parseInt(input.max) : undefined;
+                if (onChange) {
+                  // Use props instead of DOM reads to avoid stale values
+                  const currentValue = typeof props.value === 'number' ? props.value : parseInt(props.value as string) || 0;
+                  const step = props.step ? Number(props.step) : 1;
+                  const min = props.min != null ? Number(props.min) : undefined;
+                  const max = props.max != null ? Number(props.max) : undefined;
+                  
                   let newValue = currentValue + step;
                   if (max !== undefined && newValue > max) newValue = max;
                   if (min !== undefined && newValue < min) newValue = min;
                   
-                  // Directly call React's onChange handler instead of dispatching events
+                  // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
                     target: { value: newValue.toString() },
                     currentTarget: { value: newValue.toString() }
@@ -133,17 +134,18 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
               type="button"
               className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
               onClick={() => {
-                const input = document.getElementById(inputId) as HTMLInputElement;
-                if (input && onChange) {
-                  const currentValue = parseInt(input.value) || 0;
-                  const step = parseInt(input.step) || 1;
-                  const min = input.min ? parseInt(input.min) : undefined;
-                  const max = input.max ? parseInt(input.max) : undefined;
+                if (onChange) {
+                  // Use props instead of DOM reads to avoid stale values
+                  const currentValue = typeof props.value === 'number' ? props.value : parseInt(props.value as string) || 0;
+                  const step = props.step ? Number(props.step) : 1;
+                  const min = props.min != null ? Number(props.min) : undefined;
+                  const max = props.max != null ? Number(props.max) : undefined;
+                  
                   let newValue = currentValue - step;
                   if (min !== undefined && newValue < min) newValue = min;
                   if (max !== undefined && newValue > max) newValue = max;
                   
-                  // Directly call React's onChange handler instead of dispatching events
+                  // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
                     target: { value: newValue.toString() },
                     currentTarget: { value: newValue.toString() }
