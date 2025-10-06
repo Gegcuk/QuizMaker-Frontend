@@ -287,9 +287,9 @@ const QuizResultPage: React.FC = () => {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-theme-text-primary">
-              {Math.round((results.totalScore / results.totalQuestions) * 100)}%
+              {results.totalScore} pts
             </div>
-            <div className="text-sm text-theme-text-secondary">Score Percentage</div>
+            <div className="text-sm text-theme-text-secondary">Points Earned</div>
           </div>
         </div>
       </div>
@@ -323,9 +323,6 @@ const QuizResultPage: React.FC = () => {
                         : 'bg-theme-bg-danger text-theme-text-danger'
                     }`}>
                       {item.answer.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                    </span>
-                    <span className="text-sm text-theme-text-tertiary">
-                      {item.question.type.replace('_', ' ')}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
