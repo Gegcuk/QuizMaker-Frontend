@@ -18,12 +18,8 @@ interface TextQuizConfigurationFormProps {
 
 interface TextGenerationConfig {
   text: string;
-  language: string;
-  chunkingStrategy: 'CHAPTER_BASED' | 'FIXED_SIZE';
-  maxChunkSize: number;
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
-  estimatedTimePerQuestion: number;
 }
 
 export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps> = ({
@@ -43,9 +39,6 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   
   const [generationConfig, setGenerationConfig] = useState<TextGenerationConfig>({
     text: '',
-    language: 'en',
-    chunkingStrategy: 'CHAPTER_BASED',
-    maxChunkSize: 5000,
     questionsPerType: {
       MCQ_SINGLE: 3,
       MCQ_MULTI: 1,
@@ -56,8 +49,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       HOTSPOT: 0,
       MATCHING: 0
     },
-    difficulty: 'MEDIUM',
-    estimatedTimePerQuestion: 2
+    difficulty: 'MEDIUM'
   });
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
@@ -110,14 +102,10 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
     // Prepare the generation request
     const generationRequest = {
       text: generationConfig.text,
-      language: generationConfig.language,
-      chunkingStrategy: generationConfig.chunkingStrategy,
-      maxChunkSize: generationConfig.maxChunkSize,
       quizTitle: localData.title,
       quizDescription: localData.description || '',
       questionsPerType: filteredQuestionsPerType,
       difficulty: generationConfig.difficulty,
-      estimatedTimePerQuestion: generationConfig.estimatedTimePerQuestion,
       // Only include categoryId and tagIds if they have values
       ...(localData.categoryId && { categoryId: localData.categoryId }),
       ...(localData.tagIds && localData.tagIds.length > 0 && { tagIds: localData.tagIds })
@@ -218,37 +206,6 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Language
-              </label>
-              <select
-                value={generationConfig.language}
-                onChange={(e) => handleGenerationConfigChange('language', e.target.value)}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
-                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
-                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
-                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Chunking Strategy
-              </label>
-              <select
-                value={generationConfig.chunkingStrategy}
-                onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value as 'CHAPTER_BASED' | 'FIXED_SIZE')}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
-                <option value="FIXED_SIZE" className="bg-theme-bg-primary text-theme-text-primary">Fixed Size</option>
-              </select>
-            </div>
-          </div>
         </div>
 
         {/* Generation Settings */}
@@ -273,35 +230,6 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Estimated Time per Question (minutes)
-              </label>
-              <Input
-                type="number"
-                value={generationConfig.estimatedTimePerQuestion}
-                onChange={(e) => handleGenerationConfigChange('estimatedTimePerQuestion', parseInt(e.target.value) || 2)}
-                min="1"
-                max="10"
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Max Chunk Size
-              </label>
-              <Input
-                type="number"
-                value={generationConfig.maxChunkSize}
-                onChange={(e) => handleGenerationConfigChange('maxChunkSize', parseInt(e.target.value) || 5000)}
-                min="1000"
-                max="300000"
-                className="w-full"
-              />
-            </div>
-          </div>
         </div>
 
         {/* Action Button */}

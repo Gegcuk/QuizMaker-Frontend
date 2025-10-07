@@ -332,7 +332,6 @@ const QuizAttemptPage: React.FC = () => {
         setCurrentQuestion(data.nextQuestion);
         setAnswerInput(null);
         updateProgress();
-        await fetchAttemptStats();
       } else {
         await attemptService.completeAttempt(attemptId);
         navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);

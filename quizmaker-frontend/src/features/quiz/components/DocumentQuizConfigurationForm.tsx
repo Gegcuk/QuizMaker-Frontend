@@ -18,15 +18,12 @@ interface DocumentQuizConfigurationFormProps {
 
 interface DocumentGenerationConfig {
   file: File | null;
-  chunkingStrategy: 'CHAPTER_BASED' | 'FIXED_SIZE';
-  maxChunkSize?: number;
   quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS';
   chapterTitle?: string;
   chapterNumber?: number;
   chunkIndices?: number[];
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
-  estimatedTimePerQuestion: number;
 }
 
 export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFormProps> = ({
@@ -46,8 +43,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   
   const [generationConfig, setGenerationConfig] = useState<DocumentGenerationConfig>({
     file: null,
-    chunkingStrategy: 'CHAPTER_BASED',
-    maxChunkSize: 10000,
     quizScope: 'ENTIRE_DOCUMENT',
     questionsPerType: {
       MCQ_SINGLE: 3,
@@ -59,8 +54,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       HOTSPOT: 0,
       MATCHING: 0
     },
-    difficulty: 'MEDIUM',
-    estimatedTimePerQuestion: 2
+    difficulty: 'MEDIUM'
   });
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
@@ -131,10 +125,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     // Prepare the generation request as FormData
     const formData = new FormData();
     formData.append('file', generationConfig.file!);
-    formData.append('chunkingStrategy', generationConfig.chunkingStrategy || 'CHAPTER_BASED');
-    if (generationConfig.maxChunkSize) {
-      formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
-    }
     formData.append('quizScope', generationConfig.quizScope);
     if (generationConfig.chapterTitle) {
       formData.append('chapterTitle', generationConfig.chapterTitle);
@@ -160,7 +150,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     
     formData.append('questionsPerType', JSON.stringify(filteredQuestionsPerType));
     formData.append('difficulty', generationConfig.difficulty);
-    formData.append('estimatedTimePerQuestion', generationConfig.estimatedTimePerQuestion.toString());
     if (localData.categoryId) {
       formData.append('categoryId', localData.categoryId);
     }
@@ -290,39 +279,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             )}
           </div>
 
-          {/* Chunking Strategy */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Chunking Strategy
-            </label>
-            <select
-              value={generationConfig.chunkingStrategy}
-              onChange={(e) => handleGenerationConfigChange('chunkingStrategy', e.target.value as 'CHAPTER_BASED' | 'FIXED_SIZE')}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
-              <option value="FIXED_SIZE" className="bg-theme-bg-primary text-theme-text-primary">Fixed Size</option>
-            </select>
-          </div>
-
-          {/* Max Chunk Size */}
-          {generationConfig.chunkingStrategy === 'FIXED_SIZE' && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Max Chunk Size (characters)
-              </label>
-              <Input
-                type="number"
-                value={generationConfig.maxChunkSize || ''}
-                onChange={(e) => handleGenerationConfigChange('maxChunkSize', parseInt(e.target.value) || undefined)}
-                placeholder="10000"
-                min="1000"
-                max="100000"
-                className="w-full"
-              />
-            </div>
-          )}
-
           {/* Quiz Scope */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">
@@ -391,22 +347,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 />
               </div>
             ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Estimated Time per Question (minutes)
-              </label>
-              <Input
-                type="number"
-                value={generationConfig.estimatedTimePerQuestion}
-                onChange={(e) => handleGenerationConfigChange('estimatedTimePerQuestion', parseInt(e.target.value) || 2)}
-                min="1"
-                max="10"
-                className="w-full"
-              />
-            </div>
           </div>
         </div>
 
