@@ -35,7 +35,9 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     if (matchedRightId) {
       // If this left item is already matched, remove the match
       const newMatches = currentAnswer?.matches?.filter(m => m.leftId !== leftId) || [];
-      onAnswerChange({ matches: newMatches });
+      const newAnswer = { matches: newMatches };
+      console.log('MatchingAnswer: Unmatching left item', { leftId, matchedRightId, newAnswer });
+      onAnswerChange(newAnswer);
       setSelectedLeft(null);
     } else if (selectedLeft === leftId) {
       // If this is the currently selected left item, deselect it
@@ -54,7 +56,9 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     if (matchedLeftId) {
       // If this right item is already matched, remove the match
       const newMatches = currentAnswer?.matches?.filter(m => m.rightId !== rightId) || [];
-      onAnswerChange({ matches: newMatches });
+      const newAnswer = { matches: newMatches };
+      console.log('MatchingAnswer: Unmatching right item', { rightId, matchedLeftId, newAnswer });
+      onAnswerChange(newAnswer);
       setSelectedLeft(null);
     } else if (selectedLeft === null) {
       // If no left item is selected, don't do anything
@@ -65,7 +69,9 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         ...(currentAnswer?.matches?.filter(m => m.leftId !== selectedLeft) || []),
         { leftId: selectedLeft, rightId: rightId }
       ];
-      onAnswerChange({ matches: newMatches });
+      const newAnswer = { matches: newMatches };
+      console.log('MatchingAnswer: Creating new match', { selectedLeft, rightId, newAnswer });
+      onAnswerChange(newAnswer);
       setSelectedLeft(null);
       setSelectedRight(null);
     }

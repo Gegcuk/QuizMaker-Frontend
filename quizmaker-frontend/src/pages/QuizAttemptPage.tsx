@@ -307,6 +307,8 @@ const QuizAttemptPage: React.FC = () => {
           return { regionId: answerInput };
         case "ORDERING":
           return { orderedItemIds: answerInput ?? [] };
+        case "MATCHING":
+          return answerInput ?? { matches: [] };
         default:
           return { answer: answerInput };
       }
