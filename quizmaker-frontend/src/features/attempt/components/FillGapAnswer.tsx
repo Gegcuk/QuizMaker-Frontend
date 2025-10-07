@@ -176,51 +176,6 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
         />
       </div>
 
-      {/* Gap List (Alternative View) */}
-      {gaps.length > 0 && (
-        <div className="border-t border-theme-border-primary pt-4">
-          <div className="text-sm font-medium text-theme-text-secondary mb-3">
-            Gap Summary:
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {gaps.map((gap: GapAnswer, index: number) => (
-              <div key={gap.id} className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-theme-text-secondary min-w-[60px]">
-                  Gap {index + 1}:
-                </span>
-                <input
-                  type="text"
-                  value={gapAnswers?.[gap.id] || ''}
-                  onChange={(e) => handleGapChange(gap.id, e.target.value)}
-                  disabled={disabled}
-                  placeholder={`Answer for gap ${index + 1}`}
-                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                />
-                {gapAnswers?.[gap.id] && (
-                  <span className="text-theme-interactive-primary text-sm">✓</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-
-      {completionPercentage > 0 && completionPercentage < 100 && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-          <div className="text-sm text-theme-text-secondary">
-            ⚠️ {totalGaps - filledGaps} gap{totalGaps - filledGaps !== 1 ? 's' : ''} remaining
-          </div>
-        </div>
-      )}
-
-      {completionPercentage === 0 && (
-        <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-          <div className="text-sm text-theme-text-secondary">
-            <strong>Instructions:</strong> Read the text carefully and fill in each blank with the appropriate word or phrase.
-          </div>
-        </div>
-      )}
     </div>
   );
 };

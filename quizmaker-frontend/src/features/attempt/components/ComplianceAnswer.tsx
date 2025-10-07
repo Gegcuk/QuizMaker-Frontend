@@ -164,34 +164,6 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
         </div>
       )}
 
-      {/* No Selection Warning */}
-      {selectedStatements.length === 0 && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
-          <div className="text-sm text-theme-text-secondary">
-            Please select at least one compliant statement to continue.
-          </div>
-        </div>
-      )}
-
-      {/* Instructions */}
-      <div className="p-3 bg-theme-bg-info border border-theme-border-info rounded-md">
-        <div className="text-sm text-theme-interactive-primary">
-          <strong>Instructions:</strong> Review each statement carefully and select all that comply with the requirements or criteria mentioned in the question.
-        </div>
-      </div>
-
-      {/* Tips */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md">
-        <div className="text-sm text-theme-text-secondary">
-          <strong>Tips:</strong>
-          <ul className="mt-1 ml-4 list-disc">
-            <li>Read each statement thoroughly</li>
-            <li>Consider the specific criteria mentioned</li>
-            <li>You can select multiple statements if they all apply</li>
-            <li>Don't select statements that don't meet the requirements</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 };
