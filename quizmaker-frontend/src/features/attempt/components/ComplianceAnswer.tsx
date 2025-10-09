@@ -75,7 +75,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
       {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-theme-text-secondary">
-          {selectedStatements.length} of {statements.length} statements selected
+          {selectedStatements.length} statement{selectedStatements.length !== 1 ? 's' : ''} selected
         </div>
         <div className="flex space-x-2">
           <button
@@ -144,22 +144,11 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
         })}
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-        <div
-          className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-          style={{ width: `${(selectedStatements.length / statements.length) * 100}%` }}
-        />
-      </div>
-
       {/* Selection Summary */}
       {selectedStatements.length > 0 && (
         <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md">
           <div className="text-sm text-theme-text-primary">
-            <strong>Selected Statements:</strong> {selectedStatements.length} of {statements.length}
-          </div>
-          <div className="text-xs text-theme-text-secondary mt-1">
-            Statements: {selectedStatements.map(id => id).join(', ')}
+            <strong>Selected:</strong> {selectedStatements.length} statement{selectedStatements.length !== 1 ? 's' : ''}
           </div>
         </div>
       )}

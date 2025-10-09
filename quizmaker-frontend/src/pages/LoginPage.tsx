@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Branding */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-theme-text-primary">Quizzence Studio</h1>
+          <h1 className="text-3xl font-bold text-theme-text-primary">Quizzence</h1>
           <p className="mt-2 text-sm text-theme-text-secondary">
             Master any subject. One quiz at a time.
           </p>
