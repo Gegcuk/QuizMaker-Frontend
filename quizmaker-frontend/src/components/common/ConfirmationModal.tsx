@@ -34,7 +34,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           ),
-          confirmButton: 'bg-theme-interactive-danger hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
+          confirmButton: 'bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
           iconBg: 'bg-theme-bg-tertiary'
         };
       case 'warning':
@@ -44,7 +44,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           ),
-          confirmButton: 'bg-theme-interactive-warning hover:bg-theme-interactive-warning/90 focus:ring-theme-interactive-warning',
+          confirmButton: 'bg-theme-interactive-warning text-theme-text-inverse hover:bg-theme-interactive-warning/90 focus:ring-theme-interactive-warning',
           iconBg: 'bg-theme-bg-tertiary'
         };
       case 'info':
@@ -54,7 +54,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           ),
-          confirmButton: 'bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:ring-theme-interactive-primary',
+          confirmButton: 'bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:ring-theme-interactive-primary',
           iconBg: 'bg-theme-bg-tertiary'
         };
       default:
@@ -64,7 +64,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           ),
-          confirmButton: 'bg-theme-interactive-danger hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
+          confirmButton: 'bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
           iconBg: 'bg-theme-bg-tertiary'
         };
     }
@@ -103,13 +103,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <div className="bg-theme-bg-secondary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="button"
-              className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm ${styles.confirmButton} disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary sm:ml-3 sm:w-auto ${styles.confirmButton} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={onConfirm}
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -121,7 +121,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </button>
             <button
               type="button"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-theme-border-primary shadow-sm px-4 py-2 bg-theme-bg-primary text-base font-medium text-theme-text-secondary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm bg-theme-bg-primary text-theme-text-primary"
+              className="mt-3 w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary sm:mt-0 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={onClose}
               disabled={isLoading}
             >

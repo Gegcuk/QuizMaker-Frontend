@@ -32,14 +32,16 @@ const Navbar: React.FC = () => {
   /*  Link groups – modern styling with consistent design                 */
   /* -------------------------------------------------------------------- */
   const linkClasses = "relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-tertiary text-theme-text-secondary hover:text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
+  const primaryLinkClasses = "relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
   const mobileLinkClasses = "block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-tertiary text-theme-text-secondary hover:text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2";
+  const mobilePrimaryLinkClasses = "block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2";
   
   const guestLinks = (
     <>
       <Link to="/login" className={linkClasses}>
         Login
       </Link>
-      <Link to="/register" className={`${linkClasses} bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover`}>
+      <Link to="/register" className={primaryLinkClasses}>
         Register
       </Link>
     </>
@@ -50,7 +52,7 @@ const Navbar: React.FC = () => {
       <Link to="/login" className={mobileLinkClasses}>
         Login
       </Link>
-      <Link to="/register" className={`${mobileLinkClasses} bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover`}>
+      <Link to="/register" className={mobilePrimaryLinkClasses}>
         Register
       </Link>
     </>

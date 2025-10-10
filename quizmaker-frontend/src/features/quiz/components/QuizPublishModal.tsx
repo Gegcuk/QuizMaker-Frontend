@@ -140,7 +140,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleConfirm}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-success text-theme-text-inverse py-2 px-4 rounded-md hover:bg-theme-interactive-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-success disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-success text-theme-text-inverse px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-interactive-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-success disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Publishing...' : 'Publish Quiz'}
                 </button>
@@ -150,7 +150,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleDraft}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-warning text-theme-text-inverse py-2 px-4 rounded-md hover:bg-theme-interactive-warning-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-warning disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-interactive-warning text-theme-text-inverse px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-interactive-warning-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-warning disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Saving...' : 'Save as Draft'}
                 </button>
@@ -160,7 +160,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                 <button
                   onClick={handleArchive}
                   disabled={isLoading}
-                  className="w-full bg-theme-bg-tertiary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-focus-ring disabled:opacity-50 transition-colors"
+                  className="w-full bg-theme-bg-tertiary text-theme-text-primary px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Archiving...' : 'Archive Quiz'}
                 </button>
@@ -180,7 +180,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="w-full inline-flex justify-center rounded-md border border-theme-border-primary shadow-sm px-4 py-2 bg-theme-bg-primary text-base font-medium text-theme-text-secondary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
+              className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

@@ -119,7 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <div className="text-sm">
             <Link
               to="/forgot-password"
-              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
+              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors duration-200"
             >
               Forgot your password?
             </Link>
@@ -130,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         <div>
           <button
             type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-theme-text-primary bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Sign in
           </button>
@@ -142,7 +142,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
+              className="font-medium text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors duration-200"
             >
               Sign up here
             </Link>

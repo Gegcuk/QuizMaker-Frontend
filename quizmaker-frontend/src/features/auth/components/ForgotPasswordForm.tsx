@@ -132,7 +132,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsSubmitted(false)}
-                    className="bg-theme-bg-success px-2 py-1.5 rounded-md text-sm font-medium text-theme-interactive-success hover:bg-theme-bg-success focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-bg-success text-theme-interactive-success hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2"
                   >
                     Send another email
                   </button>
@@ -145,7 +145,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="mt-6 text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors duration-200"
           >
             Back to login
           </Link>
@@ -211,11 +211,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-theme-text-primary bg-theme-interactive-primary hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -231,7 +231,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <div className="text-center">
           <Link
             to="/login"
-            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary"
+            className="text-sm font-medium text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors duration-200"
           >
             Back to login
           </Link>
