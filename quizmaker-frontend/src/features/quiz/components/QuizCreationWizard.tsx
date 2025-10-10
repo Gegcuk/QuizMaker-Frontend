@@ -12,7 +12,7 @@ import { CreateQuizRequest, QuizDto, QuestionDifficulty, GenerateQuizFromTextReq
 import { createQuiz } from '@/services';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
-import { Button, useToast } from '@/components';
+import { Button, useToast, InsufficientBalanceModal } from '@/components';
 import { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
 import { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
 import { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
@@ -56,6 +56,14 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   const [createdQuiz, setCreatedQuiz] = useState<QuizDto | null>(null);
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  
+  // Insufficient balance modal state
+  const [showInsufficientBalanceModal, setShowInsufficientBalanceModal] = useState(false);
+  const [balanceErrorData, setBalanceErrorData] = useState<{
+    message?: string;
+    requiredTokens?: number;
+    currentBalance?: number;
+  }>({});
 
   const totalSteps = 4;
   const stepTitles = [
@@ -218,11 +226,60 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
         setCurrentStep(3);
       }
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to create quiz';
-      setErrors({ general: errorMessage });
-      addToast({ type: 'error', message: errorMessage });
+    } catch (error: any) {
+      // Check if this is an insufficient balance error (enhanced by quiz service)
+      const axiosError = error as AxiosError<any>;
+      const status = axiosError.response?.status || error.status;
+      const responseData = axiosError.response?.data || error.data || {};
+      
+      // Support RFC 7807 Problem Details format (detail, title) and standard format (message)
+      const errorMessage = error.userMessage || 
+                          responseData.detail || 
+                          responseData.title || 
+                          responseData.message || 
+                          error.message || 
+                          'Failed to create quiz';
+      
+      console.log('🔴 Quiz creation error - isBalanceError:', error.isBalanceError);
+      console.log('🔴 Error message:', errorMessage);
+      console.log('🔴 Response data:', responseData);
+
+      // Check for insufficient balance - either via enhanced flag from service
+      const isBalanceError = error.isBalanceError || error.code === 'INSUFFICIENT_BALANCE';
+
+      if (isBalanceError) {
+        console.log('✅ Showing insufficient balance modal');
+        
+        // Try to extract token counts from the detail message
+        // Format: "required=6, available=0"
+        let requiredTokens: number | undefined;
+        let currentBalance: number | undefined;
+        
+        const detail = responseData.detail || '';
+        const requiredMatch = detail.match(/required[=:]?\s*(\d+)/i);
+        const availableMatch = detail.match(/available[=:]?\s*(\d+)/i);
+        
+        if (requiredMatch) requiredTokens = parseInt(requiredMatch[1]);
+        if (availableMatch) currentBalance = parseInt(availableMatch[1]);
+        
+        // Also check if backend provides them directly
+        requiredTokens = requiredTokens || responseData.requiredTokens || responseData.required;
+        currentBalance = currentBalance || responseData.currentBalance || responseData.available;
+        
+        console.log('📊 Token data - required:', requiredTokens, 'available:', currentBalance);
+        
+        setBalanceErrorData({
+          message: errorMessage,
+          requiredTokens,
+          currentBalance
+        });
+        setShowInsufficientBalanceModal(true);
+      } else {
+        // Handle other errors normally
+        console.log('⚠️ Showing generic error');
+        setErrors({ general: errorMessage });
+        addToast({ type: 'error', message: errorMessage });
+      }
     } finally {
       setIsCreatingQuiz(false);
     }
@@ -446,6 +503,15 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           )}
         </div>
       </div>
+
+      {/* Insufficient Balance Modal */}
+      <InsufficientBalanceModal
+        isOpen={showInsufficientBalanceModal}
+        onClose={() => setShowInsufficientBalanceModal(false)}
+        message={balanceErrorData.message}
+        requiredTokens={balanceErrorData.requiredTokens}
+        currentBalance={balanceErrorData.currentBalance}
+      />
     </div>
   );
 };

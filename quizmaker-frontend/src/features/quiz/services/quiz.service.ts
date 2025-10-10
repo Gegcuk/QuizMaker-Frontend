@@ -343,27 +343,70 @@ export class QuizService extends BaseService<QuizDto> {
   private handleQuizError(error: any): Error {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const errorData = error.response?.data;
+      
+      // Support both standard and RFC 7807 Problem Details formats
+      // RFC 7807: { title, detail, status, type, instance }
+      // Standard: { message }
+      const message = errorData?.detail || errorData?.title || errorData?.message || error.message;
+      console.log('🔧 handleQuizError - status:', status);
+      console.log('🔧 handleQuizError - extracted message:', message);
+
+      // For 409 errors, preserve the full axios error with enhanced properties
+      if (status === 409) {
+        // Check if this is an insufficient balance error
+        const messageText = message?.toLowerCase() || '';
+        const titleText = errorData?.title?.toLowerCase() || '';
+        
+        const isBalanceError = 
+          messageText.includes('insufficient') ||
+          messageText.includes('balance') ||
+          messageText.includes('token') ||
+          titleText.includes('insufficient') ||
+          titleText.includes('balance') ||
+          titleText.includes('token');
+
+        if (isBalanceError) {
+          // Enhance the original error object instead of creating a new one
+          console.log('✅ Detected insufficient balance error!');
+          (error as any).code = 'INSUFFICIENT_BALANCE';
+          (error as any).isBalanceError = true;
+          (error as any).userMessage = message; // Store the user-friendly message
+          console.log('✅ Enhanced error with balance flag');
+          return error;
+        }
+      }
+
+      // For other errors, create a new error but preserve the response
+      const enhancedError = new Error(message) as any;
+      enhancedError.response = error.response;
+      enhancedError.isAxiosError = true;
+      enhancedError.status = status;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          enhancedError.message = `Validation error: ${message}`;
+          break;
         case 401:
-          return new Error('Authentication required');
+          enhancedError.message = 'Authentication required';
+          break;
         case 403:
-          return new Error('Insufficient permissions');
+          enhancedError.message = 'Insufficient permissions';
+          break;
         case 404:
-          return new Error('Quiz not found');
-        case 409:
-          return new Error('Quiz conflict occurred');
+          enhancedError.message = 'Quiz not found';
+          break;
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          enhancedError.message = 'Server error occurred';
+          break;
         default:
-          return new Error(message || 'Quiz operation failed');
+          enhancedError.message = message || 'Quiz operation failed';
       }
+      
+      return enhancedError;
     }
 
     return new Error(error.message || 'Network error occurred');

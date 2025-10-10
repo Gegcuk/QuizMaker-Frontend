@@ -15,6 +15,7 @@ import { Spinner, ConfirmationModal, Button } from '@/components';
 
 interface UserAttemptsProps {
   className?: string;
+  onAttemptsLoaded?: (hasAttempts: boolean) => void;
 }
 
 interface AttemptWithStats extends AttemptDto {
@@ -24,7 +25,7 @@ interface AttemptWithStats extends AttemptDto {
   currentQuestion?: CurrentQuestionDto;
 }
 
-const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
+const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsLoaded }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const attemptService = new AttemptService(api);
@@ -98,6 +99,13 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
 
     loadAttempts();
   }, [user?.id]);
+
+  // Notify parent component about attempts
+  useEffect(() => {
+    if (!isLoading && onAttemptsLoaded) {
+      onAttemptsLoaded(attempts.length > 0);
+    }
+  }, [attempts.length, isLoading, onAttemptsLoaded]);
 
   const handleResumeAttempt = async (attempt: AttemptWithStats) => {
     setResumingAttempt(attempt.attemptId);
@@ -230,6 +238,11 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '' }) => {
   // Get attempts to display (based on displayedCount)
   const displayedAttempts = attempts.slice(0, displayedCount);
   const hasMoreAttempts = attempts.length > displayedCount;
+
+  // Don't render anything if there are no attempts and not loading
+  if (!isLoading && attempts.length === 0) {
+    return null;
+  }
 
   return (
     <div className={`space-y-6 ${className}`}>

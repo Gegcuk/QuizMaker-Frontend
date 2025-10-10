@@ -42,6 +42,7 @@ export { default as ProtectedRoute } from './layout/ProtectedRoute';
 export { default as ConfirmationModal } from './common/ConfirmationModal';
 export { default as ErrorBoundary } from './common/ErrorBoundary';
 export { default as SafeContent, SafeLink } from './common/SafeContent';
+export { default as InsufficientBalanceModal } from './common/InsufficientBalanceModal';
 
 // Quiz Components
 export * from '../features/quiz/components';

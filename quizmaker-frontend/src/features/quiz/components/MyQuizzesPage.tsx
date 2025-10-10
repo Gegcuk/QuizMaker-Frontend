@@ -30,6 +30,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [hasActiveAttempts, setHasActiveAttempts] = useState(false);
 
   // Filters and pagination
   const [filters, setFilters] = useState<FilterOptions>({});
@@ -171,13 +172,17 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     setCurrentPage(1);
   };
 
+  const handleAttemptsLoaded = (hasAttempts: boolean) => {
+    setHasActiveAttempts(hasAttempts);
+  };
+
   return (
     <>
       <div className={className}>
         {/* Page Header */}
         <PageHeader
-          title="My Quizzes & Attempts"
-          subtitle="Continue your quiz attempts and manage your created quizzes"
+          title={hasActiveAttempts ? "My Quizzes & Attempts" : "My Quizzes"}
+          subtitle={hasActiveAttempts ? "Continue your quiz attempts and manage your created quizzes" : "Manage your created quizzes"}
           showBreadcrumb={true}
           actions={[
             {
@@ -190,22 +195,22 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* User Attempts Section */}
-          <div className="mb-8">
-            <UserAttempts />
-          </div>
+          {/* User Attempts Section - Always render to allow callback to fire */}
+          <UserAttempts onAttemptsLoaded={handleAttemptsLoaded} />
 
-          {/* Section Divider */}
-          <div className="border-t border-theme-border-primary my-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-theme-border-secondary" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 text-theme-text-secondary">Your Created Quizzes</span>
+          {/* Section Divider - Only show if there are active attempts */}
+          {hasActiveAttempts && (
+            <div className="border-t border-theme-border-primary my-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-theme-border-secondary" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 text-theme-text-secondary">Your Created Quizzes</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Error Message */}
           {error && (
