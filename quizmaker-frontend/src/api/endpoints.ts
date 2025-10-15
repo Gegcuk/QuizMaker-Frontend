@@ -40,6 +40,7 @@ export const QUIZ_ENDPOINTS = {
   GENERATED_QUIZ: (jobId: string) => `/v1/quizzes/generated-quiz/${jobId}`,
   GENERATION_JOBS: '/v1/quizzes/generation-jobs',
   GENERATION_STATISTICS: '/v1/quizzes/generation-jobs/statistics',
+  EXPORT: '/v1/quizzes/export',
 } as const;
 
 

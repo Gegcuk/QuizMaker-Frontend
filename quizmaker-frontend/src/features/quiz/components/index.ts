@@ -46,4 +46,5 @@ export { default as QuizAnalytics } from './QuizAnalytics';
 export { default as QuizLeaderboard } from './QuizLeaderboard';
 export { default as QuizShare } from './QuizShare';
 export { default as QuizExport } from './QuizExport';
+export { default as QuizExportModal } from './QuizExportModal';
 export { default as QuizGenerationJobs } from './QuizGenerationJobs';

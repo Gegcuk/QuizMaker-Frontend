@@ -14,6 +14,7 @@ interface QuizGridProps {
   selectedQuizzes?: string[];
   onEdit?: (quizId: string) => void;
   onDelete?: (quizId: string) => void;
+  onExport?: (quizId: string) => void;
   onStart?: (quizId: string) => void;
   onSelect?: (quizId: string, selected: boolean) => void;
   onSelectAll?: (selected: boolean) => void;
@@ -27,6 +28,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
   selectedQuizzes = [],
   onEdit,
   onDelete,
+  onExport,
   onStart,
   onSelect,
   onSelectAll,
@@ -96,6 +98,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
             isSelected={selectedQuizzes.includes(quiz.id)}
             onEdit={onEdit}
             onDelete={onDelete}
+            onExport={onExport}
             onStart={onStart}
             onSelect={onSelect}
           />

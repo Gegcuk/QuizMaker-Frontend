@@ -226,4 +226,74 @@ export interface UpdateQuizVisibilityRequest {
  */
 export interface UpdateQuizStatusRequest {
   status: QuizStatus;
+}
+
+/**
+ * Question export DTO
+ * Matches QuestionExportDto from API documentation
+ * Used in quiz exports with full question content
+ */
+export interface QuestionExportDto {
+  id: string;                       // Question unique identifier
+  type: QuizQuestionType;           // Question type
+  difficulty: Difficulty;           // Question difficulty
+  questionText: string;             // The question text
+  content: Record<string, any>;     // Question-specific content (options, answers, etc.)
+  hint: string | null;              // Optional hint text
+  explanation: string | null;       // Optional explanation text
+  attachmentUrl: string | null;     // Optional attachment URL
+}
+
+/**
+ * Quiz export DTO
+ * Matches QuizExportDto from API documentation
+ * Stable structure designed for round-trip import/export
+ * Used in JSON_EDITABLE format exports
+ */
+export interface QuizExportDto {
+  id: string;                       // Quiz unique identifier
+  title: string;                    // Quiz title
+  description: string | null;       // Quiz description
+  visibility: Visibility;           // PUBLIC or PRIVATE
+  difficulty: Difficulty;           // EASY, MEDIUM, or HARD
+  estimatedTime: number | null;     // Estimated completion time in minutes
+  tags: string[];                   // Tag names (not IDs)
+  category: string | null;          // Category name (not ID)
+  creatorId: string;                // User who created the quiz
+  questions: QuestionExportDto[];   // Nested questions with full content
+  createdAt: string;                // Creation timestamp (ISO 8601)
+  updatedAt: string;                // Last update timestamp (ISO 8601)
+}
+
+/**
+ * Export format enum
+ * Matches format parameter in export endpoint
+ */
+export type ExportFormat = 'JSON_EDITABLE' | 'XLSX_EDITABLE' | 'HTML_PRINT' | 'PDF_PRINT';
+
+/**
+ * Export scope enum
+ * Determines which quizzes to export
+ */
+export type ExportScope = 'public' | 'me' | 'all';
+
+/**
+ * Quiz export request parameters
+ * Matches query parameters for GET /quizzes/export
+ */
+export interface QuizExportRequest {
+  format: ExportFormat;                    // Export format (required)
+  scope?: ExportScope;                     // Access scope filter (default: public)
+  categoryIds?: string[];                  // Filter by categories
+  tags?: string[];                         // Filter by tag names
+  authorId?: string;                       // Filter by author
+  difficulty?: Difficulty;                 // Filter by difficulty
+  search?: string;                         // Search in title/description
+  quizIds?: string[];                      // Export specific quizzes
+  includeCover?: boolean;                  // Include cover page (print formats)
+  includeMetadata?: boolean;               // Include quiz metadata (print formats)
+  answersOnSeparatePages?: boolean;        // Separate answer key pages (print formats)
+  includeHints?: boolean;                  // Include question hints (print formats)
+  includeExplanations?: boolean;           // Include answer explanations (print formats)
+  groupQuestionsByType?: boolean;          // Group by question type (print formats)
 } 

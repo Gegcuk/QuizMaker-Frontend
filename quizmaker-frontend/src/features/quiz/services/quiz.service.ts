@@ -13,7 +13,8 @@ import {
   QuizResultSummaryDto,
   LeaderboardEntryDto,
   UpdateQuizVisibilityRequest,
-  UpdateQuizStatusRequest
+  UpdateQuizStatusRequest,
+  QuizExportRequest
 } from '@/types';
 import { BaseService } from '../../../api/base.service';
 import api from '../../../api/axiosInstance';
@@ -330,6 +331,22 @@ export class QuizService extends BaseService<QuizDto> {
     try {
       const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.PUBLIC_QUIZZES, {
         params
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Export quizzes
+   * GET /api/v1/quizzes/export
+   */
+  async exportQuizzes(params: QuizExportRequest): Promise<Blob> {
+    try {
+      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.EXPORT, {
+        params,
+        responseType: 'blob'
       });
       return response.data;
     } catch (error) {

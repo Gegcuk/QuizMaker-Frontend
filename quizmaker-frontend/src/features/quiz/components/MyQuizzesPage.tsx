@@ -10,9 +10,12 @@ import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
-import { PageHeader } from '@/components';
+import { PageHeader, useToast } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination } from '@/hooks';
+import QuizExportModal, { ExportOptions } from './QuizExportModal';
+import { QuizService } from '../services/quiz.service';
+import { api } from '@/services';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
@@ -46,6 +49,11 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
+  
+  // Export modal
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [quizToExport, setQuizToExport] = useState<QuizDto | null>(null);
+  const { addToast } = useToast();
 
   // Use custom hooks for filtering, sorting, and pagination
   const filteredAndSortedQuizzes = useQuizFiltering(quizzes, filters, sortBy);
@@ -146,6 +154,69 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
   const handleStartQuiz = (quizId: string) => {
     navigate(`/quizzes/${quizId}/attempt`);
+  };
+
+  const handleExportQuiz = (quizId: string) => {
+    const quiz = quizzes.find(q => q.id === quizId);
+    if (quiz) {
+      setQuizToExport(quiz);
+      setShowExportModal(true);
+    }
+  };
+
+  const handleExport = async (format: string, options: ExportOptions) => {
+    if (!quizToExport) return;
+
+    try {
+      const quizService = new QuizService(api);
+      
+      // Call the export API with proper types
+      const blob = await quizService.exportQuizzes({
+        format: format as import('@/types').ExportFormat,
+        scope: 'me',
+        quizIds: [quizToExport.id],
+        includeCover: options.includeCover,
+        includeMetadata: options.includeMetadata,
+        answersOnSeparatePages: options.answersOnSeparatePages,
+        includeHints: options.includeHints,
+        includeExplanations: options.includeExplanations,
+        groupQuestionsByType: options.groupQuestionsByType
+      });
+      
+      // Determine file extension
+      const extensionMap: Record<string, string> = {
+        'JSON_EDITABLE': 'json',
+        'XLSX_EDITABLE': 'xlsx',
+        'HTML_PRINT': 'html',
+        'PDF_PRINT': 'pdf'
+      };
+      const extension = extensionMap[format] || 'file';
+      
+      // Create download link
+      const fileName = `${quizToExport.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.${extension}`;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      addToast({
+        type: 'success',
+        message: `Quiz "${quizToExport.title}" exported successfully`
+      });
+      
+      setShowExportModal(false);
+      setQuizToExport(null);
+    } catch (error) {
+      console.error('Export failed:', error);
+      addToast({
+        type: 'error',
+        message: 'Failed to export quiz. Please try again.'
+      });
+    }
   };
 
   const handleClearFilters = () => {
@@ -356,6 +427,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                   selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
+                  onExport={handleExportQuiz}
                   onStart={handleStartQuiz}
                   onSelect={handleSelectQuiz}
                   onSelectAll={handleSelectAll}
@@ -367,6 +439,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                   selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
                   onDelete={handleDeleteQuiz}
+                  onExport={handleExportQuiz}
                   onStart={handleStartQuiz}
                   onSelect={handleSelectQuiz}
                   onSelectAll={handleSelectAll}
@@ -409,6 +482,19 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         variant="danger"
         isLoading={isBulkDeleting}
       />
+
+      {/* Export Modal */}
+      {quizToExport && (
+        <QuizExportModal
+          isOpen={showExportModal}
+          onClose={() => {
+            setShowExportModal(false);
+            setQuizToExport(null);
+          }}
+          quiz={quizToExport}
+          onExport={handleExport}
+        />
+      )}
     </>
   );
 };
