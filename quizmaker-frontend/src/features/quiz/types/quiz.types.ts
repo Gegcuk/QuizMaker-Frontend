@@ -266,24 +266,24 @@ export interface QuizExportDto {
 }
 
 /**
- * Export format enum
+ * Quiz export format enum
  * Matches format parameter in export endpoint
  */
-export type ExportFormat = 'JSON_EDITABLE' | 'XLSX_EDITABLE' | 'HTML_PRINT' | 'PDF_PRINT';
+export type QuizExportFormat = 'JSON_EDITABLE' | 'XLSX_EDITABLE' | 'HTML_PRINT' | 'PDF_PRINT';
 
 /**
- * Export scope enum
+ * Quiz export scope enum
  * Determines which quizzes to export
  */
-export type ExportScope = 'public' | 'me' | 'all';
+export type QuizExportScope = 'public' | 'me' | 'all';
 
 /**
  * Quiz export request parameters
  * Matches query parameters for GET /quizzes/export
  */
 export interface QuizExportRequest {
-  format: ExportFormat;                    // Export format (required)
-  scope?: ExportScope;                     // Access scope filter (default: public)
+  format: QuizExportFormat;                // Export format (required)
+  scope?: QuizExportScope;                 // Access scope filter (default: public)
   categoryIds?: string[];                  // Filter by categories
   tags?: string[];                         // Filter by tag names
   authorId?: string;                       // Filter by author

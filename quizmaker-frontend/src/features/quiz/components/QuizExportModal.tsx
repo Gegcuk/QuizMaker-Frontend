@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Modal, Button } from '@/components';
-import { QuizDto, ExportFormat } from '@/types';
+import { QuizDto, QuizExportFormat } from '@/types';
 
 interface QuizExportModalProps {
   isOpen: boolean;
@@ -15,7 +15,7 @@ interface QuizExportModalProps {
 }
 
 export interface ExportOptions {
-  format: ExportFormat;
+  format: QuizExportFormat;
   includeCover?: boolean;
   includeMetadata?: boolean;
   answersOnSeparatePages?: boolean;
@@ -30,7 +30,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
   quiz,
   onExport
 }) => {
-  const [format, setFormat] = useState<ExportFormat>('PDF_PRINT');
+  const [format, setFormat] = useState<QuizExportFormat>('PDF_PRINT');
   const [options, setOptions] = useState<ExportOptions>({
     format: 'PDF_PRINT',
     includeCover: true,

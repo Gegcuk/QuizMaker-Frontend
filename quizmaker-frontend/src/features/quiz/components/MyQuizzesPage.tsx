@@ -172,7 +172,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       
       // Call the export API with proper types
       const blob = await quizService.exportQuizzes({
-        format: format as import('@/types').ExportFormat,
+        format: format as import('@/types').QuizExportFormat,
         scope: 'me',
         quizIds: [quizToExport.id],
         includeCover: options.includeCover,
