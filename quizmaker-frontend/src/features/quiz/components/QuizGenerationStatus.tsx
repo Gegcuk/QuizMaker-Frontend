@@ -3,7 +3,7 @@
 // Shows progress, allows cancellation, and links to completed quiz
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, useToast } from '@/components';
 import { QuizService } from '../services/quiz.service';
@@ -51,14 +51,14 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
   
   const [isPolling, setIsPolling] = useState(true);
   const [localElapsedSeconds, setLocalElapsedSeconds] = useState<number>(0);
-  const [lastSyncEpochMs, setLastSyncEpochMs] = useState<number>(() => Date.now());
+  const lastSyncEpochMsRef = useRef<number>(Date.now());
 
   // Initialize and locally tick elapsed time every second for smooth updates
   useEffect(() => {
     // Determine base elapsed from server data if available
     const baseElapsed = status.elapsedTimeSeconds || 0;
     setLocalElapsedSeconds(baseElapsed);
-    setLastSyncEpochMs(Date.now());
+    lastSyncEpochMsRef.current = Date.now();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.startedAt]);
 
@@ -69,16 +69,16 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
 
     const tick = () => {
       const now = Date.now();
-      const delta = Math.floor((now - lastSyncEpochMs) / 1000);
+      const delta = Math.floor((now - lastSyncEpochMsRef.current) / 1000);
       if (delta > 0) {
         setLocalElapsedSeconds(prev => prev + delta);
-        setLastSyncEpochMs(now);
+        lastSyncEpochMsRef.current = now;
       }
     };
 
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [status.status, lastSyncEpochMs]);
+  }, [status.status]);
 
   // Poll for status updates
   useEffect(() => {
@@ -115,7 +115,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
       await quizService.cancelGenerationJob(jobId);
       
       setIsPolling(false);
-      setStatus(prev => ({ ...prev, status: 'CANCELLED', message: 'Generation cancelled' }));
+      setStatus(prev => ({ ...prev, status: 'CANCELLED', errorMessage: 'Generation cancelled' }));
       onCancel?.();
       addToast({ message: 'Generation cancelled' });
     } catch (error: any) {
