@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <LoginForm 
-            redirectTo="/quizzes"
+            redirectTo="/my-quizzes"
             onSuccess={() => {
               console.log('Login successful');
             }}

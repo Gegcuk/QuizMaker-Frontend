@@ -4,7 +4,7 @@
 // • Public pages render directly.
 // • Private pages are wrapped in <ProtectedRoute> so they require auth.
 // • Visiting /login or /register while *already* logged in forwards the
-//   user to /quizzes to avoid showing an auth form unnecessarily.
+//   user to /my-quizzes to avoid showing an auth form unnecessarily.
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -64,10 +64,10 @@ const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
 
   /* Helper: if an authenticated user hits /login or /register, bounce them
-     to /quizzes instead of showing the auth form again. */
+     to /my-quizzes instead of showing the auth form again. */
   const authRedirect = (page: 'login' | 'register') =>
     isLoggedIn ? (
-      <Navigate to="/quizzes" replace />
+      <Navigate to="/my-quizzes" replace />
     ) : page === 'login' ? (
       <LoginPage />
     ) : (
@@ -79,7 +79,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route element={<Layout />}>
         {/* --------------------------  Public  ------------------------------ */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Navigate to="/my-quizzes" replace />} />
         <Route path="/login" element={authRedirect('login')} />
         <Route path="/register" element={authRedirect('register')} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -89,14 +89,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/privacy" element={<PrivacyPage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
-        <Route
-          path="/quizzes"
-          element={
-            <ProtectedRoute>
-              <QuizListPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />
         <Route
           path="/quizzes/:quizId"
           element={

@@ -46,7 +46,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   // Route to label mapping for dynamic generation
   const routeLabels: Record<string, string> = {
     '/': 'Home',
-    '/quizzes': 'All Quizzes',
+    '/quizzes': 'My Quizzes',
     '/my-quizzes': 'My Quizzes',
     '/quizzes/create': 'Create Quiz',
     '/tags': 'Tags',
@@ -101,7 +101,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     if (showHome) {
       breadcrumbs.push({
         label: 'Home',
-        path: '/quizzes',
+        path: '/my-quizzes',
         isCurrent: pathSegments.length === 0,
       });
     }

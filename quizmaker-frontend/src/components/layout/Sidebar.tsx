@@ -114,20 +114,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: HomeIcon,
-      path: '/quizzes',
+      path: '/my-quizzes',
     },
     {
       id: 'quiz-management',
       label: 'Quiz Management',
       icon: AcademicCapIcon,
-      path: '/quizzes',
+      path: '/my-quizzes',
       children: [
-        {
-          id: 'all-quizzes',
-          label: 'All Quizzes',
-          icon: ClipboardDocumentListIcon,
-          path: '/quizzes',
-        },
         {
           id: 'my-quizzes',
           label: 'My Quizzes',
@@ -323,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           {!isCollapsed && (
-            <Link to="/quizzes" className="text-xl font-semibold text-theme-text-primary">
+            <Link to="/my-quizzes" className="text-xl font-semibold text-theme-text-primary">
               Quizzence
             </Link>
           )}

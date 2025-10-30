@@ -134,7 +134,7 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
         subtitle={quiz.description}
         showBreadcrumb={true}
         showBackButton={true}
-        backTo="/quizzes"
+        backTo="/my-quizzes"
         actions={buildActions()}
       />
 

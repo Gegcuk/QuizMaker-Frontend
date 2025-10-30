@@ -51,10 +51,10 @@ const QuizResultsSummaryPage: React.FC = () => {
       <div className="max-w-4xl mx-auto py-8 text-center">
         <p className="text-theme-interactive-danger">Quiz ID is missing from URL.</p>
         <button
-          onClick={() => navigate('/quizzes')}
+          onClick={() => navigate('/my-quizzes')}
           className="mt-4 px-4 py-2 border rounded"
         >
-          Back to All Quizzes
+          Back to My Quizzes
         </button>
       </div>
     );
@@ -80,10 +80,10 @@ const QuizResultsSummaryPage: React.FC = () => {
       <div className="max-w-4xl mx-auto py-8 text-center">
         <p>No results available for this quiz yet.</p>
         <button
-          onClick={() => navigate('/quizzes')}
+          onClick={() => navigate('/my-quizzes')}
           className="mt-4 px-4 py-2 border rounded"
         >
-          Back to All Quizzes
+          Back to My Quizzes
         </button>
       </div>
     );
@@ -147,9 +147,9 @@ const QuizResultsSummaryPage: React.FC = () => {
       {/* back button */}
       <button
         className="mt-4 px-4 py-2 border rounded"
-        onClick={() => navigate('/quizzes')}
+        onClick={() => navigate('/my-quizzes')}
       >
-        Back to All Quizzes
+        Back to My Quizzes
       </button>
     </div>
   );
