@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
+import { Cog6ToothIcon, QuestionMarkCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto, QuizStatus } from '@/types';
 import { QuestionDifficulty } from '@/types';
@@ -350,11 +351,11 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     );
   }
 
-  const tabs = [
-    { id: 'management', name: 'Management', icon: '⚙️', description: 'Basic info, settings, tags, and category' },
-    { id: 'questions', name: 'Questions', icon: '❓', description: 'Add and manage quiz questions' },
-    { id: 'preview', name: 'Preview', icon: '👁️', description: 'Preview your quiz' }
-  ] as const;
+  const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }>; description: string }[] = [
+    { id: 'management', name: 'Management', icon: Cog6ToothIcon, description: 'Basic info, settings, tags, and category' },
+    { id: 'questions', name: 'Questions', icon: QuestionMarkCircleIcon, description: 'Add and manage quiz questions' },
+    { id: 'preview', name: 'Preview', icon: EyeIcon, description: 'Preview your quiz' }
+  ];
 
   return (
     <div className={className}>
@@ -392,7 +393,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
                   }`}
                   title={tab.description}
                 >
-                  <span className="mr-2">{tab.icon}</span>
+                  {(() => { const Icon = tab.icon; return <Icon className="w-4 h-4 mr-2 inline" />; })()}
                   {tab.name}
                 </button>
               ))}

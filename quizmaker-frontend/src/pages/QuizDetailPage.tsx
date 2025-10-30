@@ -5,6 +5,14 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
+import {
+  ChartBarIcon,
+  Cog6ToothIcon,
+  PresentationChartLineIcon,
+  TrophyIcon,
+  ArrowUpOnSquareIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
@@ -93,14 +101,14 @@ const QuizDetailPage: React.FC = () => {
     );
   }
 
-  const tabs = [
-    { id: 'overview', name: 'Overview', icon: '📊' },
-    { id: 'management', name: 'Management', icon: '⚙️' },
-    { id: 'analytics', name: 'Analytics', icon: '📈' },
-    { id: 'leaderboard', name: 'Leaderboard', icon: '🏆' },
-    { id: 'export', name: 'Export', icon: '📤' },
-    { id: 'generation', name: 'AI Generation', icon: '🤖' }
-  ] as const;
+  const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'overview', name: 'Overview', icon: ChartBarIcon },
+    { id: 'management', name: 'Management', icon: Cog6ToothIcon },
+    { id: 'analytics', name: 'Analytics', icon: PresentationChartLineIcon },
+    { id: 'leaderboard', name: 'Leaderboard', icon: TrophyIcon },
+    { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon },
+    { id: 'generation', name: 'AI Generation', icon: SparklesIcon }
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -127,7 +135,7 @@ const QuizDetailPage: React.FC = () => {
                   : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
               }`}
             >
-              <span className="mr-2">{tab.icon}</span>
+              {(() => { const Icon = tab.icon; return <Icon className="w-4 h-4 mr-2 inline" />; })()}
               {tab.name}
             </button>
           ))}
