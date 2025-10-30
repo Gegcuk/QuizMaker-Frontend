@@ -150,12 +150,12 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
           <div className="mb-6">
             <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
               <span>Progress</span>
-              <span>{status.progressPercentage || 0}%</span>
+              <span>{Math.round(Math.min(Math.max(status.progressPercentage || 0, 0), 100))}%</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2 overflow-hidden">
               <div 
                 className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(Math.max(status.progressPercentage || 0, 0), 100)}%` }}
+                style={{ width: `${Math.round(Math.min(Math.max(status.progressPercentage || 0, 0), 100))}%` }}
               />
             </div>
           </div>
