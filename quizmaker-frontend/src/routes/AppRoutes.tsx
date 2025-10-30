@@ -79,7 +79,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route element={<Layout />}>
         {/* --------------------------  Public  ------------------------------ */}
-        <Route path="/" element={<Navigate to="/my-quizzes" replace />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={authRedirect('login')} />
         <Route path="/register" element={authRedirect('register')} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
