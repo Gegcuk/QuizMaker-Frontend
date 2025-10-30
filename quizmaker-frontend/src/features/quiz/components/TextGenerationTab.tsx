@@ -31,7 +31,6 @@ export const TextGenerationTab: React.FC = () => {
       FILL_GAP: 1,
       COMPLIANCE: 0,
       ORDERING: 0,
-      HOTSPOT: 0
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
@@ -316,7 +315,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="10"
+                    max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -333,7 +332,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="5"
+                    max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -350,7 +349,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="10"
+                    max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -367,7 +366,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="5"
+                    max="3"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -384,7 +383,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="5"
+                    max="10"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -401,7 +400,7 @@ export const TextGenerationTab: React.FC = () => {
                         }
                       }))}
                       min="0"
-                      max="3"
+                    max="10"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>

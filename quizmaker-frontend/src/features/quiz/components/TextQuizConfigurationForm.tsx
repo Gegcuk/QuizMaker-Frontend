@@ -46,7 +46,6 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       FILL_GAP: 1,
       COMPLIANCE: 0,
       ORDERING: 0,
-      HOTSPOT: 0,
       MATCHING: 0
     },
     difficulty: 'MEDIUM'

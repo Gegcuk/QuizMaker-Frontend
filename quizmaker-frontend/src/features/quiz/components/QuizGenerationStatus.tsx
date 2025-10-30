@@ -50,6 +50,35 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
   });
   
   const [isPolling, setIsPolling] = useState(true);
+  const [localElapsedSeconds, setLocalElapsedSeconds] = useState<number>(0);
+  const [lastSyncEpochMs, setLastSyncEpochMs] = useState<number>(() => Date.now());
+
+  // Initialize and locally tick elapsed time every second for smooth updates
+  useEffect(() => {
+    // Determine base elapsed from server data if available
+    const baseElapsed = status.elapsedTimeSeconds || 0;
+    setLocalElapsedSeconds(baseElapsed);
+    setLastSyncEpochMs(Date.now());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status.startedAt]);
+
+  useEffect(() => {
+    if (status.status === 'COMPLETED' || status.status === 'FAILED' || status.status === 'CANCELLED') {
+      return;
+    }
+
+    const tick = () => {
+      const now = Date.now();
+      const delta = Math.floor((now - lastSyncEpochMs) / 1000);
+      if (delta > 0) {
+        setLocalElapsedSeconds(prev => prev + delta);
+        setLastSyncEpochMs(now);
+      }
+    };
+
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [status.status, lastSyncEpochMs]);
 
   // Poll for status updates
   useEffect(() => {
@@ -164,8 +193,8 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
         {/* Time Information */}
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
           <div className="text-center p-3 bg-theme-bg-secondary rounded-lg">
-            <div className="font-medium text-theme-text-primary">Elapsed Time</div>
-            <div className="text-theme-text-secondary">{formatTime(status.elapsedTimeSeconds || 0)}</div>
+          <div className="font-medium text-theme-text-primary">Elapsed Time</div>
+          <div className="text-theme-text-secondary">{formatTime(localElapsedSeconds)}</div>
           </div>
           {status.estimatedTimeRemainingSeconds && (
             <div className="text-center p-3 bg-theme-bg-secondary rounded-lg">
