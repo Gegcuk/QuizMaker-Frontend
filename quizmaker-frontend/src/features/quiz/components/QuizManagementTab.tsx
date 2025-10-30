@@ -39,6 +39,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
   isEditing = false,
   className = ''
 }) => {
+  const ENABLE_TAGS_AND_CATEGORY = false;
   const tagService = new TagService(api);
 
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
@@ -59,6 +60,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
   // Load tags and categories
   useEffect(() => {
+    if (!ENABLE_TAGS_AND_CATEGORY) return;
     const loadData = async () => {
       try {
         const [tagsResponse, categoriesResponse] = await Promise.all([
@@ -249,8 +251,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
   return (
     <div className={`space-y-6 ${className}`}>
         {/* Basic Information Section */}
-        <div className="space-y-6">
-          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 space-y-6">
+          <h4 className="text-md font-medium text-theme-text-primary">
             Basic Information
           </h4>
           
@@ -297,8 +299,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
         </div>
 
         {/* Settings Section */}
-        <div className="space-y-6">
-          <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 space-y-6">
+          <h4 className="text-md font-medium text-theme-text-primary">
             Quiz Settings
           </h4>
           
@@ -410,6 +412,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
         </div>
 
         {/* Tags and Category Section */}
+        {ENABLE_TAGS_AND_CATEGORY && (
         <div className="space-y-6">
           <h4 className="text-md font-medium text-theme-text-primary border-b border-theme-border-primary pb-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             Organization
@@ -519,9 +522,10 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
             </div>
           </div>
         </div>
+        )}
 
       {/* Tag Selection Modal */}
-      {showTagModal && (
+      {ENABLE_TAGS_AND_CATEGORY && showTagModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -634,7 +638,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
       )}
 
       {/* Category Selection Modal */}
-      {showCategoryModal && (
+      {ENABLE_TAGS_AND_CATEGORY && showCategoryModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">

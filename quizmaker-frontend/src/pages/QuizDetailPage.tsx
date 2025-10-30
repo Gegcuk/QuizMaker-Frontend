@@ -8,11 +8,11 @@ import React, { useState } from 'react';
 import {
   ChartBarIcon,
   Cog6ToothIcon,
-  PresentationChartLineIcon,
-  TrophyIcon,
   ArrowUpOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
+import { updateQuiz } from '@/services';
+import { useToast } from '@/components';
 import { useAuth } from '@/features/auth';
 import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
 import { 
@@ -20,8 +20,7 @@ import {
   ConfirmationModal,
   QuizDetailHeader,
   QuizStats,
-    QuizLeaderboard,
-    QuizAnalytics,
+  
   QuizExport,
   QuizGenerationJobs,
   QuizManagementTab
@@ -32,8 +31,11 @@ const QuizDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'analytics' | 'leaderboard' | 'export'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'export'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
+  const [isSavingManagement, setIsSavingManagement] = useState(false);
+  const { addToast } = useToast();
 
   // React Query hooks
   const { data: quiz, isLoading: quizLoading, error: quizError } = useQuiz(quizId!);
@@ -72,6 +74,37 @@ const QuizDetailPage: React.FC = () => {
     navigate(`/quizzes/${quizId}/edit?tab=questions`);
   };
 
+  const handleSaveManagement = async () => {
+    if (!quizId || !managementData) return;
+    setIsSavingManagement(true);
+    try {
+      await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
+      addToast({ type: 'success', message: 'Quiz settings saved.' });
+    } catch (e) {
+      addToast({ type: 'error', message: 'Failed to save changes.' });
+    } finally {
+      setIsSavingManagement(false);
+    }
+  };
+
+  // Initialize local management form data when quiz loads
+  React.useEffect(() => {
+    if (quiz) {
+      setManagementData({
+        title: quiz.title,
+        description: quiz.description,
+        visibility: quiz.visibility,
+        difficulty: quiz.difficulty,
+        estimatedTime: quiz.estimatedTime,
+        isRepetitionEnabled: quiz.isRepetitionEnabled,
+        timerEnabled: quiz.timerEnabled,
+        timerDuration: quiz.timerDuration,
+        categoryId: quiz.categoryId,
+        tagIds: quiz.tagIds,
+      });
+    }
+  }, [quiz]);
+
   if (quizLoading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -102,8 +135,6 @@ const QuizDetailPage: React.FC = () => {
   const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'management', name: 'Management', icon: Cog6ToothIcon },
-    { id: 'analytics', name: 'Analytics', icon: PresentationChartLineIcon },
-    { id: 'leaderboard', name: 'Leaderboard', icon: TrophyIcon },
     { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon }
   ];
 
@@ -144,40 +175,35 @@ const QuizDetailPage: React.FC = () => {
           <div className="p-6">
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                {stats && <QuizStats stats={stats} />}
+                {stats && (
+                  <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+                    <QuizStats stats={stats} useContainer={false} />
+                  </div>
+                )}
               </div>
             )}
 
-            {activeTab === 'management' && (
-              <QuizManagementTab
-                quizId={quizId!}
-                quizData={{
-                  title: quiz.title,
-                  description: quiz.description,
-                  visibility: quiz.visibility,
-                  difficulty: quiz.difficulty,
-                  estimatedTime: quiz.estimatedTime,
-                  isRepetitionEnabled: quiz.isRepetitionEnabled,
-                  timerEnabled: quiz.timerEnabled,
-                  timerDuration: quiz.timerDuration,
-                  categoryId: quiz.categoryId,
-                  tagIds: quiz.tagIds
-                }}
-                onDataChange={(updatedData) => {
-                  // TODO: Implement quiz update logic
-                  console.log('Quiz data updated:', updatedData);
-                }}
-                isEditing={true}
-              />
+            {activeTab === 'management' && managementData && (
+              <>
+                <QuizManagementTab
+                  quizId={quizId!}
+                  quizData={managementData}
+                  onDataChange={(updatedData) => setManagementData(prev => ({ ...(prev || {}), ...updatedData }))}
+                  isEditing={true}
+                />
+                <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
+                  <button
+                    onClick={handleSaveManagement}
+                    disabled={isSavingManagement}
+                    className="px-4 py-2 text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover disabled:opacity-50"
+                  >
+                    {isSavingManagement ? 'Saving…' : 'Save Changes'}
+                  </button>
+                </div>
+              </>
             )}
 
-            {activeTab === 'analytics' && stats && (
-              <QuizAnalytics stats={stats} />
-            )}
-
-            {activeTab === 'leaderboard' && leaderboardEntries && (
-              <QuizLeaderboard entries={leaderboardEntries} />
-            )}
+            
 
             {activeTab === 'export' && (
               <QuizExport quiz={quiz} />

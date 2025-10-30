@@ -403,15 +403,13 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
           {/* Tab Content */}
           <div className="p-6">
         {activeTab === 'management' && (
-          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
-            <QuizManagementTab
-              quizId={quizId}
-              quizData={quizData}
-              onDataChange={handleDataChange}
-              errors={errors as Record<string, string>}
-              isEditing={true}
-            />
-          </div>
+          <QuizManagementTab
+            quizId={quizId}
+            quizData={quizData}
+            onDataChange={handleDataChange}
+            errors={errors as Record<string, string>}
+            isEditing={true}
+          />
         )}
 
         {activeTab === 'questions' && (
