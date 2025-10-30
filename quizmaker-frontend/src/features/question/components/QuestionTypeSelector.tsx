@@ -5,6 +5,17 @@
 
 import React from 'react';
 import { QuestionType } from '@/types';
+import {
+  CheckCircleIcon,
+  Squares2X2Icon,
+  CheckBadgeIcon,
+  PencilSquareIcon,
+  ClipboardDocumentCheckIcon,
+  ArrowsUpDownIcon,
+  PhotoIcon,
+  LinkIcon,
+  CheckIcon,
+} from '@heroicons/react/24/outline';
 
 interface QuestionTypeSelectorProps {
   selectedType: QuestionType;
@@ -22,56 +33,56 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       type: 'MCQ_SINGLE' as QuestionType,
       label: 'Multiple Choice (Single Answer)',
       description: 'Choose one correct answer from multiple options',
-      icon: '🔘',
+      icon: CheckCircleIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'MCQ_MULTI' as QuestionType,
       label: 'Multiple Choice (Multiple Answers)',
       description: 'Choose multiple correct answers from options',
-      icon: '☑️',
+      icon: Squares2X2Icon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'TRUE_FALSE' as QuestionType,
       label: 'True/False',
       description: 'Simple true or false question',
-      icon: '✅',
+      icon: CheckBadgeIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'FILL_GAP' as QuestionType,
       label: 'Fill in the Blank',
       description: 'Complete missing words in text',
-      icon: '⬜',
+      icon: PencilSquareIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'COMPLIANCE' as QuestionType,
       label: 'Compliance',
       description: 'Identify compliant/non-compliant statements',
-      icon: '📋',
+      icon: ClipboardDocumentCheckIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'ORDERING' as QuestionType,
       label: 'Ordering',
       description: 'Arrange items in correct order',
-      icon: '📊',
+      icon: ArrowsUpDownIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'HOTSPOT' as QuestionType,
       label: 'Hotspot',
       description: 'Click on correct areas in an image',
-      icon: '🎯',
+      icon: PhotoIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'MATCHING' as QuestionType,
       label: 'Matching',
       description: 'Match items from two columns together',
-      icon: '🔗',
+      icon: LinkIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     }
   ];
@@ -104,7 +115,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
           {/* Content */}
           <div className="ml-3 flex-1">
             <div className="flex items-center">
-              <span className="text-lg mr-2">{questionType.icon}</span>
+              {(() => { const Icon = questionType.icon; return <Icon className="w-5 h-5 mr-2 text-theme-text-tertiary" />; })()}
               <label className="text-sm font-medium text-theme-text-primary cursor-pointer">
                 {questionType.label}
               </label>
@@ -114,14 +125,7 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
             </p>
           </div>
 
-          {/* Selected Indicator */}
-          {selectedType === questionType.type && (
-            <div className="absolute top-2 right-2">
-              <svg className="h-5 w-5 text-current" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-          )}
+          {/* Selected Indicator removed as unnecessary */}
         </button>
       ))}
     </div>

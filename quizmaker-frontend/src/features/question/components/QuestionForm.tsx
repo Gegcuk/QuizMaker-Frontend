@@ -336,11 +336,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
       {/* Edit Mode with Live Preview */}
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-          <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-            <h3 className="text-lg font-medium text-theme-text-primary">Question Details</h3>
-          </div>
-          <div className="px-6 py-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-md font-medium text-theme-text-primary mb-4">Question Details</h4>
+          <div>
             <div className="space-y-6">
                 {/* Question Type */}
                 <div>
