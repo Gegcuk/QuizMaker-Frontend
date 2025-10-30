@@ -47,7 +47,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
               <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <p className={`text-2xl font-bold text-theme-interactive-primary`}>{formatPercentage(stats.averageScore)}</p>
+          <p className={`text-2xl font-bold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</p>
           <p className="text-sm text-theme-text-secondary">Average Score</p>
         </div>
 
@@ -58,7 +58,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
               <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
           </div>
-          <p className={`text-2xl font-bold text-theme-interactive-success`}>{formatPercentage(stats.bestScore)}</p>
+          <p className={`text-2xl font-bold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</p>
           <p className="text-sm text-theme-text-secondary">Best Score</p>
         </div>
 
@@ -84,17 +84,17 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
               <span className={`text-sm font-semibold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-              <div className={`h-2 rounded-full bg-theme-interactive-success`} style={{ width: `${stats.bestScore}%` }} />
+              <div className={`h-2 rounded-full ${getScoreColor(stats.bestScore).replace('text-', 'bg-')}`} style={{ width: `${stats.bestScore}%` }} />
             </div>
           </div>
 
           <div className="bg-theme-bg-secondary rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-theme-text-secondary">Average Score</span>
-              <span className={`text-sm font-semibold text-theme-interactive-primary`}>{formatPercentage(stats.averageScore)}</span>
+              <span className={`text-sm font-semibold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-              <div className={`h-2 rounded-full bg-theme-interactive-primary`} style={{ width: `${stats.averageScore}%` }} />
+              <div className={`h-2 rounded-full ${getScoreColor(stats.averageScore).replace('text-', 'bg-')}`} style={{ width: `${stats.averageScore}%` }} />
             </div>
           </div>
 
@@ -104,7 +104,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
               <span className={`text-sm font-semibold ${getScoreColor(stats.worstScore)}`}>{formatPercentage(stats.worstScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-              <div className={`h-2 rounded-full bg-theme-interactive-danger`} style={{ width: `${stats.worstScore}%` }} />
+              <div className={`h-2 rounded-full ${getScoreColor(stats.worstScore).replace('text-', 'bg-')}`} style={{ width: `${stats.worstScore}%` }} />
             </div>
           </div>
         </div>
