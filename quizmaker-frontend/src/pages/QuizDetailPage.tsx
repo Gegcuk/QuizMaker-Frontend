@@ -11,7 +11,6 @@ import {
   PresentationChartLineIcon,
   TrophyIcon,
   ArrowUpOnSquareIcon,
-  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
@@ -21,9 +20,8 @@ import {
   ConfirmationModal,
   QuizDetailHeader,
   QuizStats,
-  QuizLeaderboard,
-  QuizAnalytics,
-  QuizShare,
+    QuizLeaderboard,
+    QuizAnalytics,
   QuizExport,
   QuizGenerationJobs,
   QuizManagementTab
@@ -34,7 +32,7 @@ const QuizDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'analytics' | 'leaderboard' | 'export' | 'generation'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'analytics' | 'leaderboard' | 'export'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
   // React Query hooks
@@ -106,12 +104,11 @@ const QuizDetailPage: React.FC = () => {
     { id: 'management', name: 'Management', icon: Cog6ToothIcon },
     { id: 'analytics', name: 'Analytics', icon: PresentationChartLineIcon },
     { id: 'leaderboard', name: 'Leaderboard', icon: TrophyIcon },
-    { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon },
-    { id: 'generation', name: 'AI Generation', icon: SparklesIcon }
+    { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       {/* Quiz Detail Header */}
       <QuizDetailHeader
         quiz={quiz}
@@ -119,79 +116,76 @@ const QuizDetailPage: React.FC = () => {
         onDelete={handleDeleteQuiz}
         onStart={handleStartQuiz}
         onManageQuestions={handleManageQuestions}
-        onManageGeneration={() => navigate(`/quizzes/${quizId}/generation`)}
       />
 
-      {/* Tab Navigation */}
-      <div className="mt-8">
-        <nav className="flex space-x-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
-                  ? 'border-theme-border-primary text-theme-interactive-primary'
-                  : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
-              }`}
-            >
-              {(() => { const Icon = tab.icon; return <Icon className="w-4 h-4 mr-2 inline" />; })()}
-              {tab.name}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tab Content */}
-      <div className="mt-8">
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Quiz Statistics */}
-            {stats && <QuizStats stats={stats} />}
-            
-            {/* Social Sharing */}
-            <QuizShare quiz={quiz} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
+          {/* Tabs header attached to content */}
+          <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
+            <nav className="flex space-x-8">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? 'border-theme-interactive-primary text-theme-interactive-primary'
+                      : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
+                  }`}
+                >
+                  {(() => { const Icon = tab.icon; return <Icon className="w-4 h-4 mr-2 inline" />; })()}
+                  {tab.name}
+                </button>
+              ))}
+            </nav>
           </div>
-        )}
 
-        {activeTab === 'management' && (
-          <QuizManagementTab
-            quizId={quizId!}
-            quizData={{
-              title: quiz.title,
-              description: quiz.description,
-              visibility: quiz.visibility,
-              difficulty: quiz.difficulty,
-              estimatedTime: quiz.estimatedTime,
-              isRepetitionEnabled: quiz.isRepetitionEnabled,
-              timerEnabled: quiz.timerEnabled,
-              timerDuration: quiz.timerDuration,
-              categoryId: quiz.categoryId,
-              tagIds: quiz.tagIds
-            }}
-            onDataChange={(updatedData) => {
-              // TODO: Implement quiz update logic
-              console.log('Quiz data updated:', updatedData);
-            }}
-            isEditing={true}
-          />
-        )}
+          {/* Tab Content - inside same rounded container */}
+          <div className="p-6">
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {stats && <QuizStats stats={stats} />}
+              </div>
+            )}
 
-        {activeTab === 'analytics' && stats && (
-          <QuizAnalytics stats={stats} />
-        )}
+            {activeTab === 'management' && (
+              <QuizManagementTab
+                quizId={quizId!}
+                quizData={{
+                  title: quiz.title,
+                  description: quiz.description,
+                  visibility: quiz.visibility,
+                  difficulty: quiz.difficulty,
+                  estimatedTime: quiz.estimatedTime,
+                  isRepetitionEnabled: quiz.isRepetitionEnabled,
+                  timerEnabled: quiz.timerEnabled,
+                  timerDuration: quiz.timerDuration,
+                  categoryId: quiz.categoryId,
+                  tagIds: quiz.tagIds
+                }}
+                onDataChange={(updatedData) => {
+                  // TODO: Implement quiz update logic
+                  console.log('Quiz data updated:', updatedData);
+                }}
+                isEditing={true}
+              />
+            )}
 
-        {activeTab === 'leaderboard' && leaderboardEntries && (
-          <QuizLeaderboard entries={leaderboardEntries} />
-        )}
+            {activeTab === 'analytics' && stats && (
+              <QuizAnalytics stats={stats} />
+            )}
 
-        {activeTab === 'export' && (
-          <QuizExport quiz={quiz} />
-        )}
+            {activeTab === 'leaderboard' && leaderboardEntries && (
+              <QuizLeaderboard entries={leaderboardEntries} />
+            )}
 
-        {activeTab === 'generation' && (
-          <QuizGenerationJobs quizId={quizId!} />
-        )}
+            {activeTab === 'export' && (
+              <QuizExport quiz={quiz} />
+            )}
+
+            {/* AI Generation tab removed */}
+          </div>
+        </div>
       </div>
 
       {/* Confirmation Modal */}
@@ -205,7 +199,7 @@ const QuizDetailPage: React.FC = () => {
         variant="danger"
         isLoading={deleteQuizMutation.isPending}
       />
-    </div>
+    </>
   );
 };
 

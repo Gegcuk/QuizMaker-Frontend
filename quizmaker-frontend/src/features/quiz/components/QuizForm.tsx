@@ -377,10 +377,10 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
 
       {/* Form content */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Tabs */}
-        <div className="bg-theme-bg-primary shadow-theme rounded-lg">
-          <div className="border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-            <nav className="flex space-x-8 px-6">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
+          {/* Tabs header attached to form content */}
+          <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
+            <nav className="flex space-x-8">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -399,16 +399,19 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
               ))}
             </nav>
           </div>
-          
+
+          {/* Tab Content */}
           <div className="p-6">
         {activeTab === 'management' && (
-          <QuizManagementTab
-            quizId={quizId}
-            quizData={quizData}
-            onDataChange={handleDataChange}
-            errors={errors as Record<string, string>}
-            isEditing={true}
-          />
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+            <QuizManagementTab
+              quizId={quizId}
+              quizData={quizData}
+              onDataChange={handleDataChange}
+              errors={errors as Record<string, string>}
+              isEditing={true}
+            />
+          </div>
         )}
 
         {activeTab === 'questions' && (
@@ -548,7 +551,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
 
         {/* Action Buttons for Editing Existing Quizzes */}
         {isEditing && currentQuiz && (
-          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
             <Button type="button" variant="primary" size="sm" onClick={() => handleSubmit()} disabled={isSaving} loading={isSaving}>
               Save Changes
             </Button>
@@ -560,7 +563,6 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             </Button>
           </div>
         )}
-
           </div>
         </div>
       </form>

@@ -4,6 +4,12 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
+import {
+  DocumentTextIcon,
+  TableCellsIcon,
+  GlobeAltIcon,
+  WrenchScrewdriverIcon,
+} from '@heroicons/react/24/outline';
 import { Modal, Button } from '@/components';
 import { QuizDto, QuizExportFormat } from '@/types';
 
@@ -73,11 +79,11 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
           </label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { value: 'PDF_PRINT', label: 'PDF Print', icon: '📄', desc: 'Professional printing' },
-              { value: 'XLSX_EDITABLE', label: 'Excel Editable', icon: '📊', desc: 'Spreadsheet format' },
-              { value: 'HTML_PRINT', label: 'HTML Print', icon: '🌐', desc: 'Browser printing' },
-              { value: 'JSON_EDITABLE', label: 'JSON Editable', icon: '🔧', desc: 'Full data export' },
-            ].map(({ value, label, icon, desc }) => (
+              { value: 'PDF_PRINT', label: 'PDF Print', Icon: DocumentTextIcon, desc: 'Professional printing' },
+              { value: 'XLSX_EDITABLE', label: 'Excel Editable', Icon: TableCellsIcon, desc: 'Spreadsheet format' },
+              { value: 'HTML_PRINT', label: 'HTML Print', Icon: GlobeAltIcon, desc: 'Browser printing' },
+              { value: 'JSON_EDITABLE', label: 'JSON Editable', Icon: WrenchScrewdriverIcon, desc: 'Full data export' },
+            ].map(({ value, label, Icon, desc }) => (
               <button
                 key={value}
                 type="button"
@@ -91,7 +97,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 `}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{icon}</span>
+                  {(() => { const I = Icon; return <I className="w-5 h-5 text-theme-text-tertiary" />; })()}
                   <span className="text-sm font-medium">{label}</span>
                 </div>
                 <span className="text-xs text-theme-text-tertiary">{desc}</span>
