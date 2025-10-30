@@ -60,11 +60,35 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   };
 
   const handleQuestionTypeChange = (type: string, count: number) => {
+    const getMaxForType = (t: string) => {
+      switch (t) {
+        case 'MCQ_MULTI':
+          return 5;
+        case 'OPEN':
+          return 5;
+        case 'FILL_GAP':
+          return 5;
+        case 'ORDERING':
+          return 3;
+        case 'MCQ_SINGLE':
+          return 10;
+        case 'TRUE_FALSE':
+          return 10;
+        case 'COMPLIANCE':
+          return 10;
+        case 'MATCHING':
+          return 5;
+        default:
+          return 10;
+      }
+    };
+    const max = getMaxForType(type);
+    const clamped = Math.max(0, Math.min(count, max));
     setGenerationConfig(prev => ({
       ...prev,
       questionsPerType: {
         ...prev.questionsPerType,
-        [type]: count
+        [type]: clamped
       }
     }));
   };
@@ -207,15 +231,24 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
         </div>
 
-        {/* Generation Settings */}
+        {/* Questions per type */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-          <h4 className="text-lg font-medium text-theme-text-primary mb-4">Question Generation Settings</h4>
+          <h4 className="text-lg font-medium text-theme-text-primary mb-1">Number of Questions per Type</h4>
+          <p className="text-sm text-theme-text-secondary mb-4">Set how many questions to generate for each type.</p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (
               <div key={type}>
                 <label className="block text-sm font-medium text-theme-text-secondary mb-1">
-                  {type.replace('_', ' ')}
+                  {(
+                    type === 'MCQ_SINGLE' ? 'Single Choice' :
+                    type === 'MCQ_MULTI' ? 'Multiple Choice' :
+                    type === 'TRUE_FALSE' ? 'True/False' :
+                    type === 'FILL_GAP' ? 'Fill in the Gap' :
+                    type === 'COMPLIANCE' ? 'Compliance' :
+                    type === 'ORDERING' ? 'Ordering' :
+                    type === 'MATCHING' ? 'Matching' : type.replace('_', ' ')
+                  )}
                 </label>
                 <Input
                   type="number"

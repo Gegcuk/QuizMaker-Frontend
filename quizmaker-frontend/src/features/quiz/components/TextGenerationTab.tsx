@@ -303,7 +303,7 @@ export const TextGenerationTab: React.FC = () => {
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Single)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Single Choice</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_SINGLE}
@@ -311,16 +311,16 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          MCQ_SINGLE: parseInt(e.target.value) || 0
+                          MCQ_SINGLE: Math.max(0, Math.min(parseInt(e.target.value) || 0, 10))
                         }
                       }))}
                       min="0"
-                    max="5"
+                      max="10"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Multi)</label>
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>
                     <input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_MULTI}
@@ -328,11 +328,11 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          MCQ_MULTI: parseInt(e.target.value) || 0
+                          MCQ_MULTI: Math.max(0, Math.min(parseInt(e.target.value) || 0, 5))
                         }
                       }))}
                       min="0"
-                    max="5"
+                      max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -345,11 +345,11 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          TRUE_FALSE: parseInt(e.target.value) || 0
+                          TRUE_FALSE: Math.max(0, Math.min(parseInt(e.target.value) || 0, 10))
                         }
                       }))}
                       min="0"
-                    max="5"
+                      max="10"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -362,11 +362,11 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          OPEN: parseInt(e.target.value) || 0
+                          OPEN: Math.max(0, Math.min(parseInt(e.target.value) || 0, 5))
                         }
                       }))}
                       min="0"
-                    max="3"
+                      max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -379,11 +379,11 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          FILL_GAP: parseInt(e.target.value) || 0
+                          FILL_GAP: Math.max(0, Math.min(parseInt(e.target.value) || 0, 5))
                         }
                       }))}
                       min="0"
-                    max="10"
+                      max="5"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
@@ -396,11 +396,11 @@ export const TextGenerationTab: React.FC = () => {
                         ...prev,
                         questionTypes: {
                           ...prev.questionTypes,
-                          ORDERING: parseInt(e.target.value) || 0
+                          ORDERING: Math.max(0, Math.min(parseInt(e.target.value) || 0, 3))
                         }
                       }))}
                       min="0"
-                    max="10"
+                      max="3"
                       className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
