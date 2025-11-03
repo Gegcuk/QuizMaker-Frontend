@@ -14,7 +14,7 @@ services:
       timeout: 5s
       retries: 3
     extra_hosts:
-      - "backend:host-gateway"
+      - "host.docker.internal:host-gateway"
     networks:
       - quizzence-network
 
