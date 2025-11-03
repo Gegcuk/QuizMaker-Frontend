@@ -22,7 +22,27 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080",   // Spring
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/v3": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/swagger-ui": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/swagger-resources": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/webjars": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },

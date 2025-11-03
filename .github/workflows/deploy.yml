@@ -47,97 +47,16 @@ jobs:
             cd /var/www/quizzence
             docker compose down || true
 
-      - name: Copy files
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            cd /var/www/quizzence
-            rm -rf *
-            # Copy files from GitHub runner
-            cat > docker-compose.yml << 'EOF'
-            version: "3.8"
-            
-            services:
-              quizzence-frontend:
-                build:
-                  context: .
-                  dockerfile: Dockerfile
-                ports:
-                  - "127.0.0.1:3000:80"
-                restart: unless-stopped
-                healthcheck:
-                  test: ["CMD", "curl", "-fsS", "http://localhost/"]
-                  interval: 30s
-                  timeout: 5s
-                  retries: 3
-                networks:
-                  - quizzence-network
-            
-            networks:
-              quizzence-network:
-                driver: bridge
-            EOF
-            
-            cat > Dockerfile << 'EOF'
-            FROM nginx:alpine
-            RUN apk add --no-cache curl
-            COPY dist /usr/share/nginx/html
-            COPY nginx.conf /etc/nginx/conf.d/default.conf
-            EXPOSE 80
-            CMD ["nginx", "-g", "daemon off;"]
-            EOF
-            
-            cat > nginx.conf << 'EOF'
-            server {
-                listen 80;
-                server_name quizzence.com www.quizzence.com;
-                
-                root /usr/share/nginx/html;
-                index index.html;
-                
-                location / {
-                    try_files $uri $uri/ /index.html;
-                }
-                
-                location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-                    expires 1y;
-                    add_header Cache-Control "public, immutable";
-                }
-                
-                add_header X-Frame-Options "SAMEORIGIN" always;
-                add_header X-Content-Type-Options "nosniff" always;
-                add_header X-XSS-Protection "1; mode=block" always;
-                add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-            }
-            EOF
-
-      - name: Copy built files
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            cd /var/www/quizzence
-            # Create dist directory
-            mkdir -p dist
-            # Remove any existing deployment folder
-            rm -rf dist/deployment
-
-      - name: Copy dist files
+      - name: Copy deployment bundle
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "deployment/dist/**"
-          target: "/var/www/quizzence/dist/"
-          strip_components: 2
+          source: "deployment/*"
+          target: "/var/www/quizzence/"
+          strip_components: 1
+          rm: true
 
       - name: Flatten assert & rebuild
         uses: appleboy/ssh-action@v1.0.3
