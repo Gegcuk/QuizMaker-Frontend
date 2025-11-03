@@ -35,17 +35,17 @@ jobs:
           cp quizmaker-frontend/docker-compose.yml deployment/
           cp quizmaker-frontend/nginx.conf deployment/
 
-      - name: Stop old app (ignore if first run)
+      - name: Stop old app and prepare directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            set -e
-            mkdir -p /var/www/quizzence
+            cd /var/www/quizzence || mkdir -p /var/www/quizzence
             cd /var/www/quizzence
-            docker compose down || true
+            docker compose down || docker-compose down || true
+            rm -rf dist/ docker-compose.yml Dockerfile nginx.conf
 
       - name: Copy deployment bundle
         uses: appleboy/scp-action@v0.1.7
@@ -56,7 +56,6 @@ jobs:
           source: "deployment/*"
           target: "/var/www/quizzence/"
           strip_components: 1
-          rm: true
 
       - name: Flatten assert & rebuild
         uses: appleboy/ssh-action@v1.0.3
