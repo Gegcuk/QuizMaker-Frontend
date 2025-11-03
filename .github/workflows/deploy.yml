@@ -48,16 +48,16 @@ jobs:
             rm -rf dist/ docker-compose.yml Dockerfile nginx.conf
 
       - name: Copy deployment bundle
-        uses: appleboy/scp-action@v0.1.7
+        uses: burnett01/rsync-deployments@7.0.1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "deployment/*"
-          target: "/var/www/quizzence/"
-          strip_components: 1
+          switches: -avzr --delete
+          path: deployment/
+          remote_path: /var/www/quizzence/
+          remote_host: ${{ secrets.SERVER_HOST }}
+          remote_user: ${{ secrets.SERVER_USER }}
+          remote_key: ${{ secrets.SERVER_SSH_KEY }}
 
-      - name: Flatten assert & rebuild
+      - name: Verify deployment files
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -66,7 +66,33 @@ jobs:
           script: |
             set -e
             cd /var/www/quizzence
-            test -f dist/index.html || { echo "dist/index.html missing"; ls -R dist; exit 1; }
+            echo "=== Deployment directory contents ==="
+            ls -la
+            echo ""
+            echo "=== Verifying required files ==="
+            test -f dist/index.html || { echo "❌ dist/index.html missing"; exit 1; }
+            test -f Dockerfile || { echo "❌ Dockerfile missing"; exit 1; }
+            test -f docker-compose.yml || { echo "❌ docker-compose.yml missing"; exit 1; }
+            test -f nginx.conf || { echo "❌ nginx.conf missing"; exit 1; }
+            echo "✅ All required files present"
+            echo ""
+            echo "=== Checking nginx.conf for proxy rules ==="
+            grep -q "location /swagger-ui/" nginx.conf && echo "✅ Swagger UI proxy found" || echo "❌ Swagger UI proxy missing"
+            grep -q "location /v3/" nginx.conf && echo "✅ OpenAPI proxy found" || echo "❌ OpenAPI proxy missing"
+            grep -q "proxy_pass http://backend:8080" nginx.conf && echo "✅ Backend proxy configured" || echo "❌ Backend proxy missing"
+            
+      - name: Build and start containers
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/quizzence
             docker compose build --no-cache || docker-compose build --no-cache
             docker compose up -d || docker-compose up -d
+            echo ""
+            echo "=== Container status ==="
+            docker compose ps || docker-compose ps
 
