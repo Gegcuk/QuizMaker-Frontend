@@ -10,7 +10,7 @@ import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
-import { PageHeader, useToast } from '@/components';
+import { PageHeader, useToast, Button } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination } from '@/hooks';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
@@ -310,15 +310,19 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 Get started by creating your first quiz.
               </p>
               <div className="mt-6">
-                <button
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
                   onClick={() => navigate('/quizzes/create')}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+                  leftIcon={
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  }
                 >
-                  <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
                   Create Quiz
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -336,31 +340,33 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
                 <div className="flex items-center space-x-3">
                   {/* View Mode Toggle */}
-                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary">
-                    <button
+                  <div className="inline-flex rounded-md shadow-sm" role="group">
+                    <Button
+                      type="button"
+                      variant={viewMode === 'grid' ? 'primary' : 'outline'}
+                      size="sm"
                       onClick={() => setViewMode('grid')}
-                      className={`px-3 py-2 text-sm font-medium rounded-l-md transition-colors ${
-                        viewMode === 'grid'
-                          ? 'bg-theme-interactive-primary text-theme-text-inverse'
-                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
-                      }`}
+                      className="rounded-r-none"
+                      title="Grid view"
+                      aria-label="Switch to grid view"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                       </svg>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={viewMode === 'list' ? 'primary' : 'outline'}
+                      size="sm"
                       onClick={() => setViewMode('list')}
-                      className={`px-3 py-2 text-sm font-medium rounded-r-md transition-colors ${
-                        viewMode === 'list'
-                          ? 'bg-theme-interactive-primary text-theme-text-inverse'
-                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
-                      }`}
+                      className="rounded-l-none -ml-px"
+                      title="List view"
+                      aria-label="Switch to list view"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                       </svg>
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Filter Dropdown */}
@@ -386,35 +392,32 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                       <span className="text-sm font-medium text-theme-text-primary">
                         {selectedQuizzes.length} quiz(zes) selected
                       </span>
-                      <button
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setSelectedQuizzes([])}
-                        className="text-sm text-theme-interactive-primary hover:text-theme-interactive-info"
                       >
                         Clear selection
-                      </button>
+                      </Button>
                     </div>
-                    <button
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
                       onClick={handleBulkDelete}
                       disabled={isBulkDeleting}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-danger hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger disabled:opacity-50"
-                    >
-                      {isBulkDeleting ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-theme-text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      loading={isBulkDeleting}
+                      leftIcon={
+                        !isBulkDeleting ? (
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                          Delete Selected
-                        </>
-                      )}
-                    </button>
+                        ) : undefined
+                      }
+                    >
+                      {isBulkDeleting ? 'Deleting...' : 'Delete Selected'}
+                    </Button>
                   </div>
                 </div>
               )}
