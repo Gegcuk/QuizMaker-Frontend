@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Button } from '@/components';
 
 interface PaginationInfo {
   pageNumber: number;
@@ -100,20 +101,20 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
       {/* Pagination Controls */}
       <div className="flex items-center space-x-2">
         {/* Previous Button */}
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => onPageChange(pageNumber - 1)}
           disabled={pageNumber === 1}
-          className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
-            pageNumber === 1
-              ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
-              : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
-          }`}
+          title="Previous page"
+          aria-label="Go to previous page"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
           <span className="sr-only">Previous</span>
-        </button>
+        </Button>
 
         {/* Page Numbers */}
         <div className="hidden sm:flex items-center space-x-1">
@@ -122,16 +123,17 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
               {page === '...' ? (
                 <span className="px-3 py-2 text-sm text-theme-text-tertiary">...</span>
               ) : (
-                <button
+                <Button
+                  type="button"
+                  variant={page === pageNumber ? 'primary' : 'ghost'}
+                  size="sm"
                   onClick={() => onPageChange(page as number)}
-                  className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                    page === pageNumber
-                      ? 'bg-theme-interactive-primary text-theme-text-primary'
-                      : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
-                  }`}
+                  title={`Go to page ${page}`}
+                  aria-label={`Go to page ${page}`}
+                  aria-current={page === pageNumber ? 'page' : undefined}
                 >
                   {page}
-                </button>
+                </Button>
               )}
             </React.Fragment>
           ))}
@@ -145,20 +147,20 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
         </div>
 
         {/* Next Button */}
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => onPageChange(pageNumber + 1)}
           disabled={pageNumber === totalPages}
-          className={`relative inline-flex items-center px-2 py-2 rounded-md text-sm font-medium ${
-            pageNumber === totalPages
-              ? 'bg-theme-bg-tertiary text-theme-text-tertiary cursor-not-allowed'
-              : 'bg-theme-bg-primary text-theme-text-tertiary hover:bg-theme-bg-tertiary border border-theme-border-primary'
-          }`}
+          title="Next page"
+          aria-label="Go to next page"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
           <span className="sr-only">Next</span>
-        </button>
+        </Button>
       </div>
 
       {/* Jump to Page */}

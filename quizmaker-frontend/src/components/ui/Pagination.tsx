@@ -10,6 +10,7 @@
 
 import React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import Button from './Button';
 
 export interface PaginationProps {
   /** Current page number (1-based) */
@@ -106,19 +107,18 @@ const Pagination: React.FC<PaginationProps> = ({
       {/* Pagination Controls */}
       <div className="flex items-center space-x-1">
         {/* Previous Button */}
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={disabled || currentPage <= 1}
-          className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            disabled || currentPage <= 1
-              ? 'text-theme-text-tertiary cursor-not-allowed'
-              : 'text-theme-text-tertiary hover:text-theme-text-secondary hover:bg-theme-bg-secondary'
-          }`}
+          title="Previous page"
           aria-label="Go to previous page"
         >
           <ChevronLeftIcon className="h-4 w-4" />
           <span className="sr-only">Previous</span>
-        </button>
+        </Button>
 
         {/* Page Numbers */}
         <div className="flex items-center space-x-1">
@@ -138,40 +138,36 @@ const Pagination: React.FC<PaginationProps> = ({
             const isCurrent = pageNumber === currentPage;
             
             return (
-              <button
+              <Button
                 key={pageNumber}
+                type="button"
+                variant={isCurrent ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => handlePageChange(pageNumber)}
-                disabled={disabled}
-                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isCurrent
-                    ? 'bg-theme-interactive-primary text-theme-text-inverse cursor-default'
-                    : disabled
-                    ? 'text-theme-text-tertiary cursor-not-allowed'
-                    : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary'
-                }`}
+                disabled={disabled || isCurrent}
+                title={`Go to page ${pageNumber}`}
                 aria-label={`Go to page ${pageNumber}`}
                 aria-current={isCurrent ? 'page' : undefined}
               >
                 {pageNumber}
-              </button>
+              </Button>
             );
           })}
         </div>
 
         {/* Next Button */}
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={disabled || currentPage >= totalPages}
-          className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            disabled || currentPage >= totalPages
-              ? 'text-theme-text-tertiary cursor-not-allowed'
-              : 'text-theme-text-tertiary hover:text-theme-text-secondary hover:bg-theme-bg-secondary'
-          }`}
+          title="Next page"
           aria-label="Go to next page"
         >
           <ChevronRightIcon className="h-4 w-4" />
           <span className="sr-only">Next</span>
-        </button>
+        </Button>
       </div>
     </div>
   );
