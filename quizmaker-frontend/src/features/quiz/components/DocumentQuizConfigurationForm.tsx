@@ -172,7 +172,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       }, {} as Record<string, number>);
     
     formData.append('questionsPerType', JSON.stringify(filteredQuestionsPerType));
-    formData.append('difficulty', generationConfig.difficulty);
+    formData.append('difficulty', localData.difficulty || 'MEDIUM');
     if (localData.categoryId) {
       formData.append('categoryId', localData.categoryId);
     }

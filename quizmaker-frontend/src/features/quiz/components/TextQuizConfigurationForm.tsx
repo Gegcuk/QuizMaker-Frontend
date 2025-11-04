@@ -128,7 +128,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       quizTitle: localData.title,
       quizDescription: localData.description || '',
       questionsPerType: filteredQuestionsPerType,
-      difficulty: generationConfig.difficulty,
+      difficulty: localData.difficulty || 'MEDIUM',
       // Only include categoryId and tagIds if they have values
       ...(localData.categoryId && { categoryId: localData.categoryId }),
       ...(localData.tagIds && localData.tagIds.length > 0 && { tagIds: localData.tagIds })
