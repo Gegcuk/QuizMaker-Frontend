@@ -10,7 +10,7 @@ import { AttemptService } from '@/services';
 import { QuizService, api } from "@/services";
 import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from '@/types';
 import { QuizDto } from "@/types";
-import { Spinner } from "@/components";
+import { Spinner, Button } from "@/components";
 import { 
   McqAnswer, 
   TrueFalseAnswer, 
@@ -588,13 +588,16 @@ const QuizAttemptPage: React.FC = () => {
 
         {error && <p className="text-theme-interactive-danger mt-4">{error}</p>}
 
-        <button
+        <Button
           onClick={handleSubmitAnswer}
           disabled={submitting || !isAnswerProvided()}
-          className="mt-4 px-6 py-2 bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover text-theme-text-inverse rounded disabled:opacity-50"
+          loading={submitting}
+          variant="primary"
+          size="md"
+          className="mt-4"
         >
           {submitting ? "Submitting..." : "Submit Answer"}
-        </button>
+        </Button>
       </div>
     );
   };
@@ -727,20 +730,15 @@ const QuizAttemptPage: React.FC = () => {
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8">
-          <button
+          <Button
             onClick={handleSubmitAnswer}
             disabled={submitting || !isAnswerProvided()}
-            className="px-6 py-3 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            loading={submitting}
+            variant="primary"
+            size="lg"
           >
-            {submitting ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
-                Submitting...
-              </div>
-            ) : (
-              'Submit Answer'
-            )}
-          </button>
+            {submitting ? 'Submitting...' : 'Submit Answer'}
+          </Button>
         </div>
       </div>
     );

@@ -6,7 +6,7 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
-import { Button } from '@/components';
+import { Button, Input } from '@/components';
 
 interface ForgotPasswordFormProps {
   onSuccess?: () => void;
@@ -181,30 +181,20 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         )}
 
         {/* Email field */}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-theme-text-secondary">
-            Email Address
-          </label>
-          <div className="mt-1">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                errors.email ? 'border-theme-border-danger' : 'border-theme-border-primary'
-              }`}
-              value={email}
-              onChange={handleInputChange}
-              disabled={isSubmitting}
-              placeholder="Enter your email address"
-            />
-          </div>
-          {errors.email && (
-            <p className="mt-2 text-sm text-theme-interactive-danger">{errors.email}</p>
-          )}
-        </div>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          label="Email Address"
+          autoComplete="email"
+          required
+          fullWidth
+          value={email}
+          onChange={handleInputChange}
+          disabled={isSubmitting}
+          placeholder="Enter your email address"
+          error={errors.email}
+        />
 
         {/* Submit button */}
         <div>

@@ -409,26 +409,30 @@ const QuestionManagementPage: React.FC = () => {
               </div>
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                  <button
+                  <Button
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
                     disabled={page === 0}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-l-md rounded-r-none"
+                    aria-label="Previous page"
                   >
-                    <span className="sr-only">Previous</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
                     disabled={page + 1 === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 bg-theme-bg-primary text-theme-text-primary"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-r-md rounded-l-none"
+                    aria-label="Next page"
                   >
-                    <span className="sr-only">Next</span>
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                     </svg>
-                  </button>
+                  </Button>
                 </nav>
               </div>
             </div>

@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizDto } from '@/types';
-import { Spinner } from '@/components';
+import { Spinner, Button } from '@/components';
 import { AttemptContinuation, AttemptStart } from '@/features/attempt';
 
 type AttemptFlowStep = 'checking' | 'continuation' | 'start' | 'attempting';
@@ -91,12 +91,13 @@ const QuizAttemptFlowPage: React.FC = () => {
             <h3 className="mt-2 text-sm font-medium text-theme-interactive-danger">Error</h3>
             <p className="mt-1 text-sm text-theme-interactive-danger">{error}</p>
             <div className="mt-4">
-              <button
+              <Button
                 onClick={() => window.history.back()}
-                className="px-4 py-2 bg-theme-bg-danger text-theme-interactive-danger font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger focus:ring-offset-2"
+                variant="secondary"
+                size="md"
               >
                 Go Back
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -116,12 +117,13 @@ const QuizAttemptFlowPage: React.FC = () => {
             The quiz you're looking for doesn't exist or you don't have access to it.
           </p>
           <div className="mt-6">
-            <button
+            <Button
               onClick={() => navigate('/quizzes')}
-              className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
+              variant="primary"
+              size="md"
             >
               Browse Quizzes
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -178,12 +180,13 @@ const QuizAttemptFlowPage: React.FC = () => {
 
         {/* Back Button */}
         <div className="mt-8 text-center">
-          <button
+          <Button
             onClick={() => navigate(`/quizzes/${quizId}`)}
-            className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:ring-offset-2 transition-colors"
+            variant="secondary"
+            size="md"
           >
             ← Back to Quiz Details
-          </button>
+          </Button>
         </div>
       </div>
     </div>
