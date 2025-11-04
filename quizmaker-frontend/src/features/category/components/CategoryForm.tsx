@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '@/types';
 import { categoryService } from '@/services';
+import { Button, Input } from '@/components';
 
 interface CategoryFormProps {
   category?: CategoryDto;
@@ -118,13 +119,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           <h3 className="text-lg font-medium text-theme-text-primary">
             {isEditing ? 'Edit Category' : 'Create New Category'}
           </h3>
-          <button
+          <Button
             type="button"
             onClick={handlePreviewToggle}
-            className="text-sm text-theme-interactive-primary hover:text-theme-interactive-info px-3 py-1 rounded-md hover:bg-theme-bg-info"
+            variant="ghost"
+            size="sm"
           >
             {previewMode ? 'Edit Mode' : 'Preview Mode'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -147,50 +149,51 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name Field */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Category Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
-                errors.name ? 'border-theme-border-danger' : 'border-theme-border-primary'
-              }`}
-              placeholder="Enter category name (3-100 characters)"
-              maxLength={100}
-            />
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-sm text-theme-interactive-danger">{errors.name}</span>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-theme-text-secondary">
+                Category Name <span className="text-theme-interactive-danger">*</span>
+              </label>
               <span className="text-sm text-theme-text-tertiary">
                 {characterCount.name}/100
               </span>
             </div>
+            <Input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Enter category name (3-100 characters)"
+              maxLength={100}
+              fullWidth
+              error={errors.name}
+            />
           </div>
 
           {/* Description Field */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Description
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary">
+                Description
+              </label>
+              <span className="text-sm text-theme-text-tertiary">
+                {characterCount.description}/1000
+              </span>
+            </div>
             <textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary ${
                 errors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
               }`}
               placeholder="Enter category description (optional, max 1000 characters)"
               maxLength={1000}
             />
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-sm text-theme-interactive-danger">{errors.description}</span>
-              <span className="text-sm text-theme-text-tertiary">
-                {characterCount.description}/1000
-              </span>
-            </div>
+            {errors.description && (
+              <p className="mt-1 text-sm text-theme-interactive-danger">{errors.description}</p>
+            )}
           </div>
 
           {/* Submit Error */}
@@ -206,32 +209,25 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-            <button
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-theme-border-primary">
+            <Button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="secondary"
+              size="md"
               disabled={loading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={loading || !formData.name.trim()}
-              className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              loading={loading}
             >
-              {loading ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {isEditing ? 'Updating...' : 'Creating...'}
-                </div>
-              ) : (
-                isEditing ? 'Update Category' : 'Create Category'
-              )}
-            </button>
+              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Category' : 'Create Category')}
+            </Button>
           </div>
         </form>
       )}

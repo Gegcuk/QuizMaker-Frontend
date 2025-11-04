@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, PageContainer, ConfirmationModal } from '@/components';
+import { Spinner, PageContainer, ConfirmationModal, Button, Input } from '@/components';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
 
@@ -167,18 +167,27 @@ const TagManagementPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text-primary">{tag.name}</td>
                     <td className="px-6 py-4 text-sm text-theme-text-tertiary">{tag.description}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => openEditForm(tag)}
-                        className="text-theme-interactive-primary hover:text-theme-text-primary"
+                        title="Edit tag"
+                        aria-label="Edit tag"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleDelete(tag.id)}
-                        className="text-theme-interactive-danger hover:text-theme-text-primary"
+                        title="Delete tag"
+                        aria-label="Delete tag"
+                        className="text-theme-interactive-danger hover:text-theme-interactive-danger"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -189,15 +198,19 @@ const TagManagementPage: React.FC = () => {
           {/* Show More Button */}
           {tags.length > displayedCount && (
             <div className="flex justify-center pt-2">
-              <button
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setDisplayedCount(prev => Math.min(prev + 5, tags.length))}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                }
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
                 Show 5 More
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -216,15 +229,15 @@ const TagManagementPage: React.FC = () => {
                 <label htmlFor="tagName" className="block text-sm font-medium text-theme-text-secondary mb-1">
                   Name <span className="text-theme-interactive-danger">*</span>
                 </label>
-                <input
+                <Input
                   id="tagName"
+                  name="tagName"
                   type="text"
                   required
-                  minLength={3}
-                  maxLength={50}
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  fullWidth
                   value={tagName}
                   onChange={(e) => setTagName(e.target.value)}
+                  placeholder="Enter tag name"
                 />
               </div>
               <div>
@@ -241,20 +254,23 @@ const TagManagementPage: React.FC = () => {
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-4">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="md"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-theme-text-primary bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary disabled:opacity-50"
+                  variant="primary"
+                  size="md"
                   disabled={formSubmitting}
+                  loading={formSubmitting}
                 >
                   {formSubmitting ? 'Saving...' : editingTag ? 'Save' : 'Create'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

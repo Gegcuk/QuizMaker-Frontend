@@ -96,7 +96,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const visiblePages = getVisiblePages();
 
   return (
-    <div className={`flex items-center justify-between ${className}`}>
+    <div className={`bg-theme-bg-primary px-4 py-3 flex items-center justify-between border border-theme-border-primary rounded-lg shadow-sm ${className}`}>
       {/* Page Info */}
       {showPageInfo && (
         <div className="text-sm text-theme-text-secondary">
@@ -144,7 +144,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 variant={isCurrent ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => handlePageChange(pageNumber)}
-                disabled={disabled || isCurrent}
+                disabled={disabled}
                 title={`Go to page ${pageNumber}`}
                 aria-label={`Go to page ${pageNumber}`}
                 aria-current={isCurrent ? 'page' : undefined}

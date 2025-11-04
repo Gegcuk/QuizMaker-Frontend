@@ -11,7 +11,7 @@ import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
 import type { BalanceDto } from '@/types';
 import { TokenTopUp } from '@/features/billing';
-import { Button } from '@/components';
+import { Button, Input } from '@/components';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -427,45 +427,29 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
         {isEditing ? (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-theme-text-secondary">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username || ''}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                  errors.username ? 'border-theme-border-danger' : 'border-theme-border-primary'
-                }`}
-                disabled={isSaving}
-              />
-              {errors.username && (
-                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.username}</p>
-              )}
-            </div>
+            <Input
+              type="text"
+              id="username"
+              name="username"
+              label="Username"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              error={errors.username}
+              disabled={isSaving}
+              fullWidth
+            />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-theme-text-secondary">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email || ''}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                  errors.email ? 'border-theme-border-danger' : 'border-theme-border-primary'
-                }`}
-                disabled={isSaving}
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.email}</p>
-              )}
-            </div>
+            <Input
+              type="email"
+              id="email"
+              name="email"
+              label="Email Address"
+              value={formData.email || ''}
+              onChange={handleInputChange}
+              error={errors.email}
+              disabled={isSaving}
+              fullWidth
+            />
 
             <div className="flex space-x-3 pt-4">
               <Button

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, PageContainer, ConfirmationModal, Button } from '@/components';
+import { Spinner, PageContainer, ConfirmationModal, Button, Input } from '@/components';
 import { CategoryDto } from '../features/category';
 import {
   getAllCategories,
@@ -223,15 +223,15 @@ const CategoryManagementPage: React.FC = () => {
                 <label htmlFor="catName" className="block text-sm font-medium text-theme-text-secondary mb-1">
                   Name <span className="text-theme-interactive-danger">*</span>
                 </label>
-                <input
+                <Input
                   id="catName"
+                  name="name"
                   type="text"
                   required
-                  minLength={3}
-                  maxLength={100}
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  fullWidth
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter category name"
                 />
               </div>
               <div>
