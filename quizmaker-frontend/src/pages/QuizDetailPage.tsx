@@ -20,7 +20,7 @@ import {
   ConfirmationModal,
   QuizDetailHeader,
   QuizStats,
-  
+  Button,
   QuizExport,
   QuizGenerationJobs,
   QuizManagementTab
@@ -155,18 +155,21 @@ const QuizDetailPage: React.FC = () => {
           <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
             <nav className="flex space-x-8">
               {tabs.map((tab) => (
-                <button
+                <Button
                   key={tab.id}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-1 border-b-2 rounded-none ${
                     activeTab === tab.id
                       ? 'border-theme-interactive-primary text-theme-interactive-primary'
-                      : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
+                      : 'border-transparent'
                   }`}
+                  leftIcon={(() => { const Icon = tab.icon; return <Icon className="w-4 h-4" />; })()}
                 >
-                  {(() => { const Icon = tab.icon; return <Icon className="w-4 h-4 mr-2 inline" />; })()}
                   {tab.name}
-                </button>
+                </Button>
               ))}
             </nav>
           </div>
@@ -192,13 +195,16 @@ const QuizDetailPage: React.FC = () => {
                   isEditing={true}
                 />
                 <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
-                  <button
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="md"
                     onClick={handleSaveManagement}
                     disabled={isSavingManagement}
-                    className="px-4 py-2 text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover disabled:opacity-50"
+                    loading={isSavingManagement}
                   >
                     {isSavingManagement ? 'Saving…' : 'Save Changes'}
-                  </button>
+                  </Button>
                 </div>
               </>
             )}

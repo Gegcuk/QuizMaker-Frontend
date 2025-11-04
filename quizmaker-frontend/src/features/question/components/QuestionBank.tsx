@@ -173,17 +173,19 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
           {/* Clear Filters */}
           <div className="flex items-end">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => {
                 setSearchTerm('');
                 setSelectedType('ALL');
                 setSelectedDifficulty('ALL');
               }}
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
+              fullWidth
             >
               Clear Filters
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -318,25 +320,31 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredQuestions.length)} of {filteredQuestions.length} results
             </div>
             <div className="flex space-x-2">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
+                title="Previous page"
+                aria-label="Go to previous page"
               >
                 Previous
-              </button>
+              </Button>
               <span className="px-3 py-1 text-sm text-theme-text-secondary">
                 Page {currentPage} of {totalPages}
               </span>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-theme-border-primary rounded-md text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
+                title="Next page"
+                aria-label="Go to next page"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         </div>

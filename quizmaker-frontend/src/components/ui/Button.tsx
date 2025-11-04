@@ -24,17 +24,17 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variantClasses = {
-    primary: 'bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:ring-theme-interactive-primary',
-    secondary: 'bg-theme-interactive-secondary text-theme-text-inverse hover:bg-theme-interactive-secondary-hover focus:ring-theme-interactive-secondary',
-    success: 'bg-theme-interactive-success text-theme-text-inverse hover:bg-theme-interactive-success/90 focus:ring-theme-interactive-success',
-    danger: 'bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-interactive-danger/90 focus:ring-theme-interactive-danger',
-    warning: 'bg-theme-interactive-warning text-theme-text-inverse hover:bg-theme-interactive-warning/90 focus:ring-theme-interactive-warning',
-    info: 'bg-theme-interactive-info text-theme-text-inverse hover:bg-theme-interactive-info/90 focus:ring-theme-interactive-info',
-    outline: 'border-2 border-theme-interactive-primary text-theme-interactive-primary hover:bg-theme-bg-tertiary focus:ring-theme-interactive-primary',
-    ghost: 'text-theme-interactive-primary hover:bg-theme-bg-tertiary focus:ring-theme-interactive-primary'
+    primary: 'bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus-visible:ring-theme-interactive-primary',
+    secondary: 'bg-theme-interactive-secondary text-theme-text-inverse hover:bg-theme-interactive-secondary-hover focus-visible:ring-theme-interactive-secondary',
+    success: 'bg-theme-interactive-success text-theme-text-inverse hover:bg-theme-interactive-success/90 focus-visible:ring-theme-interactive-success',
+    danger: 'bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-interactive-danger/90 focus-visible:ring-theme-interactive-danger',
+    warning: 'bg-theme-interactive-warning text-theme-text-inverse hover:bg-theme-interactive-warning/90 focus-visible:ring-theme-interactive-warning',
+    info: 'bg-theme-interactive-info text-theme-text-inverse hover:bg-theme-interactive-info/90 focus-visible:ring-theme-interactive-info',
+    outline: 'border-2 border-theme-interactive-primary text-theme-interactive-primary hover:bg-theme-bg-tertiary focus-visible:ring-theme-interactive-primary',
+    ghost: 'text-theme-interactive-primary hover:bg-theme-bg-tertiary focus-visible:ring-theme-interactive-primary'
   };
 
   const sizeClasses = {

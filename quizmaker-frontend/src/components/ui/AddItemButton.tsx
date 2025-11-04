@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import Button from './Button';
 
 interface AddItemButtonProps {
   onClick: () => void;
@@ -19,17 +20,20 @@ const AddItemButton: React.FC<AddItemButtonProps> = ({
 }) => {
   return (
     <div className={`flex justify-center ${className}`}>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={onClick}
         disabled={disabled}
-        className="inline-flex items-center px-4 py-2 border border-theme-border-primary rounded-md shadow-sm text-sm font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
+        leftIcon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        }
       >
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
         Add {itemType}
-      </button>
+      </Button>
     </div>
   );
 };
