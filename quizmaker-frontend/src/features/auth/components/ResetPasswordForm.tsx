@@ -6,6 +6,7 @@
 import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
+import { Button } from '@/components';
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
@@ -194,11 +195,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         </div>
         
         <div className="mt-6 text-center">
-          <Link
-            to="/login"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
-          >
-            Continue to login
+          <Link to="/login">
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+            >
+              Continue to login
+            </Button>
           </Link>
         </div>
       </div>
@@ -230,11 +234,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         </div>
         
         <div className="mt-6 text-center">
-          <Link
-            to="/forgot-password"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
-          >
-            Request new reset link
+          <Link to="/forgot-password">
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+            >
+              Request new reset link
+            </Button>
           </Link>
         </div>
       </div>
@@ -293,9 +300,10 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-theme-text-tertiary hover:text-theme-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary rounded"
               onClick={() => setShowPassword(!showPassword)}
               disabled={isSubmitting}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
                 <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,9 +348,10 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-theme-text-tertiary hover:text-theme-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary rounded"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               disabled={isSubmitting}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
             >
               {showConfirmPassword ? (
                 <svg className="h-5 w-5 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -363,23 +372,16 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
         {/* Submit button */}
         <div>
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
+            fullWidth
             disabled={isSubmitting}
-            className="w-full flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={isSubmitting}
           >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Resetting password...
-              </>
-            ) : (
-              'Reset password'
-            )}
-          </button>
+            {isSubmitting ? 'Resetting password...' : 'Reset password'}
+          </Button>
         </div>
 
         {/* Back to login link */}

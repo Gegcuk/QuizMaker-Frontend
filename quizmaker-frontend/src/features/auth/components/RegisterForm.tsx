@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { RegisterRequest } from '@/types';
-import { Form, FormField } from '@/components';
+import { Form, FormField, Button } from '@/components';
 import type { AxiosError } from 'axios';
 
 interface RegisterFormProps {
@@ -31,6 +31,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const { register } = useAuth();
   const navigate = useNavigate();
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password strength validation
   const validatePasswordStrength = (password: string): string | null => {
@@ -109,6 +111,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   return (
     <div className={`max-w-md mx-auto ${className}`}>
       <Form<ExtendedRegisterRequest>
+        name="register-form"
         onSubmit={handleSubmit}
         defaultValues={{
           username: '',
@@ -160,7 +163,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         <FormField
           name="password"
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Create a strong password"
           validation={{
             required: true,
@@ -170,12 +173,32 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           }}
           autoComplete="new-password"
           required
+          rightIconClickable={true}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-theme-text-tertiary hover:text-theme-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary rounded p-0.5"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-1.654 0-3.188-.429-4.53-1.181m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          }
         />
 
         <FormField
           name="confirmPassword"
           label="Confirm Password"
-          type="password"
+          type={showConfirmPassword ? "text" : "password"}
           placeholder="Confirm your password"
           validation={{
             required: true,
@@ -183,6 +206,26 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           }}
           autoComplete="new-password"
           required
+          rightIconClickable={true}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="text-theme-text-tertiary hover:text-theme-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary rounded p-0.5"
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-1.654 0-3.188-.429-4.53-1.181m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          }
         />
 
         {/* Terms and conditions */}
@@ -221,12 +264,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
         {/* Submit button */}
         <div>
-          <button
+          <Button
             type="submit"
-            className="w-full flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="primary"
+            size="md"
+            fullWidth
           >
             Create account
-          </button>
+          </Button>
         </div>
 
         {/* Login link */}

@@ -6,6 +6,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  rightIconClickable?: boolean;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'filled' | 'outlined';
   fullWidth?: boolean;
@@ -17,6 +18,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   helperText,
   leftIcon,
   rightIcon,
+  rightIconClickable = false,
   size = 'md',
   variant = 'default',
   fullWidth = false,
@@ -91,7 +93,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         />
         
         {rightIcon && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <div className={`absolute inset-y-0 right-0 pr-3 flex items-center ${rightIconClickable ? '' : 'pointer-events-none'}`}>
             <div className="text-theme-text-tertiary">
               {rightIcon}
             </div>

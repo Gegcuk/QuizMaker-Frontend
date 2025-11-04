@@ -6,6 +6,7 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
+import { Button } from '@/components';
 
 interface ForgotPasswordFormProps {
   onSuccess?: () => void;
@@ -128,15 +129,14 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 </p>
               </div>
               <div className="mt-4">
-                <div className="-mx-2 -my-1.5 flex">
-                  <button
-                    type="button"
-                    onClick={() => setIsSubmitted(false)}
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-bg-success text-theme-interactive-success hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2"
-                  >
-                    Send another email
-                  </button>
-                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsSubmitted(false)}
+                >
+                  Send another email
+                </Button>
               </div>
             </div>
           </div>
@@ -208,23 +208,16 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
         {/* Submit button */}
         <div>
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
+            fullWidth
             disabled={isSubmitting}
-            className="w-full flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={isSubmitting}
           >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Sending...
-              </>
-            ) : (
-              'Send reset link'
-            )}
-          </button>
+            {isSubmitting ? 'Sending...' : 'Send reset link'}
+          </Button>
         </div>
 
         {/* Back to login link */}

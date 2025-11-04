@@ -13,6 +13,8 @@ export interface FormFieldProps {
   className?: string;
   disabled?: boolean;
   autoComplete?: string;
+  rightIcon?: React.ReactNode;
+  rightIconClickable?: boolean;
   validation?: {
     required?: boolean;
     minLength?: number;
@@ -32,6 +34,8 @@ const FormField: React.FC<FormFieldProps> = ({
   className = '',
   disabled = false,
   autoComplete,
+  rightIcon,
+  rightIconClickable = false,
   validation = {}
 }) => {
   const { form } = useFormContext();
@@ -92,6 +96,8 @@ const FormField: React.FC<FormFieldProps> = ({
         helperText={helperText}
         disabled={disabled}
         autoComplete={autoComplete}
+        rightIcon={rightIcon}
+        rightIconClickable={rightIconClickable}
         onBlur={handleBlur}
         required={required}
       />

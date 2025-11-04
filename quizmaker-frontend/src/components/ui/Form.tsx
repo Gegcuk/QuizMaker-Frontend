@@ -168,6 +168,7 @@ export interface FormProps<T extends FieldValues = FieldValues> {
   disabled?: boolean;
   loading?: boolean;
   showValidationErrors?: boolean;
+  name?: string;
 }
 
 const Form = <T extends FieldValues = FieldValues>({
@@ -177,7 +178,8 @@ const Form = <T extends FieldValues = FieldValues>({
   className = '',
   disabled = false,
   loading = false,
-  showValidationErrors = true
+  showValidationErrors = true,
+  name
 }: FormProps<T>) => {
   const form = useForm<T>(defaultValues);
 
@@ -204,6 +206,7 @@ const Form = <T extends FieldValues = FieldValues>({
   return (
     <FormContext.Provider value={contextValue}>
       <form
+        name={name}
         onSubmit={handleSubmit(onSubmitHandler)}
         className={`space-y-6 ${className}`}
         noValidate
