@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components';
 
 export interface FilterOptions {
   difficulty?: string[];
@@ -100,28 +101,37 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Filter Button */}
-      <button
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
+        rounded
+        leftIcon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+          </svg>
+        }
+        rightIcon={
+          <div className="flex items-center space-x-2">
+            {activeFiltersCount > 0 && (
+              <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-theme-text-inverse bg-theme-interactive-primary rounded-full">
+                {activeFiltersCount}
+              </span>
+            )}
+            <svg 
+              className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        }
       >
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-        </svg>
-        <span className="mr-2">Filters</span>
-        {activeFiltersCount > 0 && (
-          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-theme-text-primary bg-theme-interactive-primary rounded-full">
-            {activeFiltersCount}
-          </span>
-        )}
-        <svg 
-          className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+        Filters
+      </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
@@ -131,12 +141,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium text-theme-text-primary">Filters</h3>
               {activeFiltersCount > 0 && (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={onClearFilters}
-                  className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
                 >
                   Clear all
-                </button>
+                </Button>
               )}
             </div>
 
@@ -150,7 +162,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.difficulty?.includes(option.value) || false}
                       onChange={() => handleFilterChange('difficulty', option.value)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
@@ -169,7 +181,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.category?.includes(category.id) || false}
                         onChange={() => handleFilterChange('category', category.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
                       />
                       <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                     </label>
@@ -189,7 +201,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.tags?.includes(tag.id) || false}
                         onChange={() => handleFilterChange('tags', tag.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
                       />
                       <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
                     </label>
@@ -208,7 +220,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.status?.includes(option.value) || false}
                       onChange={() => handleFilterChange('status', option.value)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
@@ -230,7 +242,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         filters.estimatedTime?.max === range.max
                       }
                       onChange={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{range.label}</span>
                   </label>

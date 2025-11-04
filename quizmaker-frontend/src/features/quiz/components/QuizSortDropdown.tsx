@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components';
 
 export type SortOption = 
   | 'recommended'
@@ -67,20 +68,25 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Sort Button */}
-      <button
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-full hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
+        rounded
+        rightIcon={
+          <svg 
+            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        }
       >
-        <span className="mr-2">Sort by: {getCurrentSortLabel()}</span>
-        <svg 
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+        Sort by: {getCurrentSortLabel()}
+      </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
@@ -89,9 +95,10 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
             {sortOptions.map((option) => (
               <button
                 key={option.value}
+                type="button"
                 onClick={() => handleSortChange(option.value)}
-                className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors ${
-                  sortBy === option.value ? 'bg-theme-bg-primary text-theme-interactive-primary' : 'text-theme-text-secondary'
+                className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-interactive-primary ${
+                  sortBy === option.value ? 'bg-theme-bg-tertiary text-theme-interactive-primary' : 'text-theme-text-secondary'
                 }`}
               >
                 <div className="flex items-center justify-between">

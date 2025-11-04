@@ -7,6 +7,7 @@ import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useAuth } from '@/features/auth';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
+import { Button } from '@/components';
 
 interface UserSettingsProps {
   onSave?: () => void;
@@ -347,13 +348,15 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         {/* Save Button */}
         <div className="px-6 py-4 bg-theme-bg-secondary">
           <div className="flex justify-end">
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={isSaving}
-              className="bg-theme-interactive-primary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
+              loading={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Settings'}
-            </button>
+            </Button>
           </div>
         </div>
       </form>

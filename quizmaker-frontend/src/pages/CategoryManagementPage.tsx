@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, PageContainer, ConfirmationModal } from '@/components';
+import { Spinner, PageContainer, ConfirmationModal, Button } from '@/components';
 import { CategoryDto } from '../features/category';
 import {
   getAllCategories,
@@ -163,12 +163,27 @@ const CategoryManagementPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-text-primary">{cat.name}</td>
                     <td className="px-6 py-4 text-sm text-theme-text-tertiary">{cat.description}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button onClick={() => openEdit(cat)} className="text-theme-interactive-primary hover:text-theme-text-primary">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEdit(cat)}
+                        title="Edit category"
+                        aria-label="Edit category"
+                      >
                         Edit
-                      </button>
-                      <button onClick={() => handleDelete(cat.id)} className="text-theme-interactive-danger hover:text-theme-text-primary">
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(cat.id)}
+                        title="Delete category"
+                        aria-label="Delete category"
+                        className="text-theme-interactive-danger hover:text-theme-interactive-danger"
+                      >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -179,15 +194,19 @@ const CategoryManagementPage: React.FC = () => {
           {/* Show More Button */}
           {categories.length > displayedCount && (
             <div className="flex justify-center pt-2">
-              <button
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setDisplayedCount(prev => Math.min(prev + 5, categories.length))}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                }
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
                 Show 5 More
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -229,20 +248,23 @@ const CategoryManagementPage: React.FC = () => {
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-4">
-                <button 
-                  type="button" 
-                  onClick={() => setShowForm(false)} 
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setShowForm(false)}
                 >
                   Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 text-sm font-medium text-theme-text-primary bg-theme-interactive-primary border border-transparent rounded-md hover:bg-theme-interactive-primary disabled:opacity-50" 
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
                   disabled={formSubmitting}
+                  loading={formSubmitting}
                 >
                   {formSubmitting ? 'Saving...' : editing ? 'Save' : 'Create'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

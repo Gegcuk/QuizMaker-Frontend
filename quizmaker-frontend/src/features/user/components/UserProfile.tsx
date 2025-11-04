@@ -11,6 +11,7 @@ import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
 import type { BalanceDto } from '@/types';
 import { TokenTopUp } from '@/features/billing';
+import { Button } from '@/components';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -360,23 +361,23 @@ const UserProfile: React.FC<UserProfileProps> = ({
           {!isEditing && (
             <div className="flex space-x-2">
               {isAdminView && (
-                <button
+                <Button
+                  type="button"
+                  variant={displayUser.isActive ? 'danger' : 'success'}
+                  size="sm"
                   onClick={handleToggleActivation}
-                  className={`px-3 py-1 text-sm font-medium rounded-md ${
-                    displayUser.isActive
-                      ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-theme-bg-tertiary'
-                      : 'bg-theme-bg-success text-theme-interactive-success hover:bg-theme-bg-tertiary'
-                  }`}
                 >
                   {displayUser.isActive ? 'Deactivate' : 'Activate'}
-                </button>
+                </Button>
               )}
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsEditing(true)}
-                className="px-3 py-1 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary rounded-md hover:bg-theme-bg-tertiary"
               >
                 Edit
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -404,14 +405,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-sm font-medium text-theme-text-secondary">Token Balance</h3>
               {!billingDisabled && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={handleRefreshBalance}
                   disabled={isBalanceLoading}
-                  className="text-xs font-medium text-theme-interactive-primary hover:text-theme-interactive-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  loading={isBalanceLoading}
                 >
                   {isBalanceLoading ? 'Refreshing…' : 'Refresh balance'}
-                </button>
+                </Button>
               )}
             </div>
             {renderBalanceSection()}
@@ -465,15 +468,20 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             <div className="flex space-x-3 pt-4">
-              <button
+              <Button
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={isSaving}
-                className="flex-1 bg-theme-interactive-primary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50"
+                loading={isSaving}
+                fullWidth
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                size="md"
                 onClick={() => {
                   setIsEditing(false);
                   setErrors({});
@@ -482,10 +490,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
                     email: displayUser.email
                   });
                 }}
-                className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-focus-ring"
+                fullWidth
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         ) : (

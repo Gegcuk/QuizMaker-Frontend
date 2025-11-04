@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
 import type { BillingConfigResponse, TokenPackDto } from '@/types';
+import { Button } from '@/components';
 
 interface TokenTopUpProps {
   className?: string;
@@ -118,14 +119,16 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
             Purchase additional billing tokens securely via Stripe checkout.
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={handleRetry}
-          className="text-xs font-medium text-theme-interactive-primary hover:text-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLoading}
+          loading={isLoading}
         >
           {isLoading ? 'Refreshing…' : 'Reload packs'}
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -159,12 +162,13 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
                   type="button"
                   key={pack.id}
                   onClick={() => setSelectedPackId(pack.id)}
-                  className={`w-full rounded-md border p-4 text-left transition-all ${
+                  className={`w-full rounded-lg border-2 p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
                     isSelected
-                      ? 'border-theme-border-primary bg-theme-bg-primary shadow-sm'
+                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary shadow-md'
                       : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-interactive-primary hover:shadow-sm'
                   }`}
                   aria-pressed={isSelected}
+                  aria-label={`Select ${pack.name} pack with ${pack.tokens} tokens for ${formatPrice(pack)}`}
                 >
                   <p className="text-sm font-semibold text-theme-text-primary">{pack.name}</p>
                   <p className="mt-1 text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
@@ -181,14 +185,16 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               You will be redirected to Stripe Checkout to complete your purchase. Tokens become available immediately after
               payment confirmation.
             </p>
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="md"
               onClick={handleCheckout}
               disabled={!selectedPack || isProcessingCheckout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-theme-interactive-primary px-4 py-2 text-sm font-semibold text-theme-text-primary shadow-sm hover:bg-theme-interactive-primary-hover disabled:cursor-not-allowed disabled:bg-theme-bg-tertiary"
+              loading={isProcessingCheckout}
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
-            </button>
+            </Button>
           </div>
         </>
       ) : null}
