@@ -6,15 +6,18 @@
 //  • Mobile  (< md): hamburger "☰" toggles a vertical dropdown.
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth';
 import { ThemeToggle } from '../ui';
 import ColorSchemeDropdown from '../ui/ColorSchemeDropdown';
+import { billingService } from '@/services';
+import type { BalanceDto } from '@/types';
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu
   const [isOpen, setIsOpen] = useState<boolean>(false); // ← mobile toggle
+  const [balance, setBalance] = useState<BalanceDto | null>(null);
   const navigate = useNavigate();
 
   /** Handles the logout click: AuthProvider already handles navigation */
@@ -27,6 +30,26 @@ const Navbar: React.FC = () => {
     if (!user?.roles) return false;
     return requiredRoles.some(role => user.roles.includes(role));
   };
+
+  /** Fetch token balance */
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!isLoggedIn) {
+        setBalance(null);
+        return;
+      }
+
+      try {
+        const balanceData = await billingService.getBalance();
+        setBalance(balanceData);
+      } catch (error) {
+        // Silently fail - balance is optional UI enhancement
+        setBalance(null);
+      }
+    };
+
+    fetchBalance();
+  }, [isLoggedIn]);
 
   /* -------------------------------------------------------------------- */
   /*  Link groups – modern styling with consistent design                 */
@@ -81,8 +104,8 @@ const Navbar: React.FC = () => {
           Documents
         </Link>
       )}
-      <Link to="/settings" className={mobileLinkClasses}>
-        Settings
+      <Link to="/profile" className={mobileLinkClasses}>
+        Profile
       </Link>
       <button
         onClick={handleLogout}
@@ -115,30 +138,23 @@ const Navbar: React.FC = () => {
             {/* Color Scheme Dropdown */}
             <ColorSchemeDropdown />
             
-            {/* Profile Icon (desktop only) */}
+            {/* Profile Icon with Token Balance (desktop only) */}
             {isLoggedIn && (
               <Link
                 to="/profile"
-                aria-label="Profile"
-                className="hidden md:flex p-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
+                aria-label={balance ? `Profile - ${balance.availableTokens} tokens available` : 'Profile'}
+                className="hidden md:flex items-center gap-1.5 px-2 py-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-              </Link>
-            )}
-            
-            {/* Settings Icon (desktop only) */}
-            {isLoggedIn && (
-              <Link
-                to="/settings"
-                aria-label="Settings"
-                className="hidden md:flex p-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                {balance && balance.availableTokens > 0 && (
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold text-theme-text-inverse bg-theme-interactive-primary rounded-full">
+                    {balance.availableTokens >= 1000 
+                      ? `${Math.floor(balance.availableTokens / 1000)}k` 
+                      : balance.availableTokens}
+                  </span>
+                )}
               </Link>
             )}
             

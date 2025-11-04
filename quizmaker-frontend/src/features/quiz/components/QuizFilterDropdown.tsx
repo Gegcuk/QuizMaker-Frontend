@@ -162,7 +162,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.difficulty?.includes(option.value) || false}
                       onChange={() => handleFilterChange('difficulty', option.value)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
@@ -181,7 +181,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.category?.includes(category.id) || false}
                         onChange={() => handleFilterChange('category', category.id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
                       />
                       <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
                     </label>
@@ -201,7 +201,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         type="checkbox"
                         checked={filters.tags?.includes(tag.id) || false}
                         onChange={() => handleFilterChange('tags', tag.id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
                       />
                       <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
                     </label>
@@ -220,7 +220,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                       type="checkbox"
                       checked={filters.status?.includes(option.value) || false}
                       onChange={() => handleFilterChange('status', option.value)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary rounded bg-theme-bg-primary"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
                   </label>
@@ -242,7 +242,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                         filters.estimatedTime?.max === range.max
                       }
                       onChange={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-theme-border-primary bg-theme-bg-primary"
+                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary"
                     />
                     <span className="ml-2 text-sm text-theme-text-secondary">{range.label}</span>
                   </label>
