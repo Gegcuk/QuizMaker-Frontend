@@ -2,15 +2,40 @@
 // Used for role management and system administration as documented in the API specification
 
 /**
- * Role data transfer object
+ * Role entity (full entity with relationships)
+ * Matches Role from API documentation
+ */
+export interface Role {
+  roleId: number;                  // Role identifier
+  roleName: string;                // Role name
+  description?: string;            // Role description
+  default: boolean;                // Whether this is a default role
+  users?: User[];                  // Users assigned to this role
+  permissions?: Permission[];      // Full permission objects (circular reference handled)
+}
+
+/**
+ * User entity reference (simplified to avoid circular dependency)
+ * Full User type is in auth/user types
+ */
+export interface User {
+  id: string;                      // User UUID
+  username: string;                // Username
+  email: string;                   // Email
+  active: boolean;                 // Whether user is active
+  // Other fields omitted to avoid circular dependencies
+}
+
+/**
+ * Role data transfer object (simplified DTO for display)
  * Matches RoleDto from API documentation
  */
 export interface RoleDto {
   roleId: number;                  // Role identifier
   roleName: string;                // Role name
   description: string;             // Role description
-  isDefault: boolean;              // Whether this is a default role
-  permissions: string[];           // Set of permissions assigned to this role
+  default: boolean;                // Whether this is a default role
+  permissions: string[];           // Set of permission names (strings, not full objects)
   userCount: number;               // Number of users with this role
 }
 
@@ -21,7 +46,7 @@ export interface RoleDto {
 export interface CreateRoleRequest {
   roleName: string;                // Required: Role name
   description?: string;            // Optional: Role description
-  isDefault?: boolean;             // Optional: Whether this is a default role
+  default?: boolean;               // Optional: Whether this is a default role
 }
 
 /**
@@ -30,7 +55,7 @@ export interface CreateRoleRequest {
  */
 export interface UpdateRoleRequest {
   description?: string;            // Optional: Updated description
-  isDefault?: boolean;             // Optional: Updated default status
+  default?: boolean;               // Optional: Updated default status
 }
 
 /**
@@ -115,9 +140,9 @@ export interface Permission {
   permissionId: number;     // Numeric ID
   permissionName: string;   // e.g., "QUIZ_CREATE"
   description?: string;     // Human-readable description
-  resource: string;         // Resource type, e.g., "quiz"
-  action: string;          // Action type, e.g., "create"
-  roles: Set<RoleDto>;     // Roles that have this permission
+  resource?: string;        // Resource type, e.g., "quiz"
+  action?: string;          // Action type, e.g., "create"
+  roles?: Role[];           // Roles that have this permission (array, not Set)
 }
 
 /**
@@ -161,13 +186,48 @@ export interface ReconciliationResult {
  * Matches PolicyDiff from API documentation
  */
 export interface PolicyDiff {
-  missingPermissions: string[];           // Permissions in manifest but not in DB
-  extraPermissions: string[];             // Permissions in DB but not in manifest
-  missingRoles: string[];                 // Roles in manifest but not in DB
-  extraRoles: string[];                   // Roles in DB but not in manifest
-  rolePermissionMismatches: Map<string, string[]>;  // Role name -> missing permissions
-  manifestVersion: string;                // Version of the canonical manifest
-  isInSync: boolean;                      // Whether DB is in sync with manifest
+  missingPermissions: string[];              // Permissions in manifest but not in DB
+  extraPermissions: string[];                // Permissions in DB but not in manifest
+  missingRoles: string[];                    // Roles in manifest but not in DB
+  extraRoles: string[];                      // Roles in DB but not in manifest
+  rolePermissionMismatches: Record<string, string[]>;  // Role name -> missing permissions (object, not Map)
+  manifestVersion: string;                   // Version of the canonical manifest
+  isInSync: boolean;                         // Whether DB is in sync with manifest
+}
+
+/**
+ * Quiz moderation audit entry
+ * Matches QuizModerationAuditDto from API documentation
+ */
+export interface QuizModerationAuditDto {
+  id: string;                              // Audit UUID
+  quizId: string;                          // Quiz UUID
+  moderatorId: string;                     // Moderator UUID
+  action: 'SUBMIT' | 'APPROVE' | 'REJECT' | 'UNPUBLISH';  // Moderation action
+  reason?: string;                         // Reason for the action
+  createdAt: string;                       // Timestamp (ISO 8601)
+}
+
+/**
+ * Pending review quiz summary
+ * Matches PendingReviewQuizDto from API documentation
+ */
+export interface PendingReviewQuizDto {
+  id: string;                              // Quiz UUID
+  title: string;                           // Quiz title
+  creatorId: string;                       // Creator user UUID
+  createdAt: string;                       // Created timestamp (ISO 8601)
+}
+
+/**
+ * Email provider status
+ * Matches EmailProviderStatus from API documentation
+ */
+export interface EmailProviderStatus {
+  providerClass: string;                   // Email provider class name (e.g., "AwsSesEmailService")
+  isNoop: boolean;                         // Whether using no-op provider
+  isSes: boolean;                          // Whether using AWS SES
+  isSmtp: boolean;                         // Whether using SMTP
 }
 
 /**

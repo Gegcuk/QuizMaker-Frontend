@@ -8,8 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { getAllQuizzes, deleteQuiz } from '@/services';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
-import { PageHeader, ConfirmationModal } from '@/components';
-import { useQuizFiltering, useQuizPagination } from '@/hooks';
+import { PageHeader, ConfirmationModal, Button } from '@/components';
+import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
 import { handleApiError } from '@/utils';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
@@ -26,8 +26,10 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showSort, setShowSort] = useState(false);
+  
+  // Responsive view mode - automatically switches to grid on mobile
+  const { viewMode, setViewMode, isMobile } = useResponsiveViewMode({ defaultDesktopView: 'list' });
 
   // Delete confirmation modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -178,33 +180,37 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  {/* View Mode Toggle */}
-                  <div className="flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`px-3 py-2 text-sm font-medium rounded-l-md ${
-                        viewMode === 'grid'
-                          ? 'bg-theme-interactive-primary text-theme-text-primary'
-                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`px-3 py-2 text-sm font-medium rounded-r-md ${
-                        viewMode === 'list'
-                          ? 'bg-theme-interactive-primary text-theme-text-primary'
-                          : 'bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
+                  {/* View Mode Toggle - Hidden on mobile since grid is enforced */}
+                  {!isMobile && (
+                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                      <Button
+                        type="button"
+                        variant={viewMode === 'grid' ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => setViewMode('grid')}
+                        className="rounded-r-none"
+                        title="Grid view"
+                        aria-label="Switch to grid view"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={viewMode === 'list' ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => setViewMode('list')}
+                        className="rounded-l-none -ml-px"
+                        title="List view"
+                        aria-label="Switch to list view"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Filter Dropdown */}
                   <QuizFilterDropdown
