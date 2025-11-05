@@ -40,21 +40,10 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
 
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-4">
-          <div className="text-sm font-medium text-theme-text-secondary">
-            {getProgressText()}
-          </div>
-          <div className="text-sm text-theme-text-tertiary">
-            {Math.round(progressPercentage)}% complete
-          </div>
+      <div className="mb-3">
+        <div className="text-sm font-medium text-theme-text-secondary">
+          {getProgressText()}
         </div>
-        
-        {attemptMode === 'ONE_BY_ONE' && (
-          <div className="text-sm font-medium text-theme-interactive-primary">
-            {answeredQuestions} answered
-          </div>
-        )}
       </div>
 
       {/* Progress Bar */}

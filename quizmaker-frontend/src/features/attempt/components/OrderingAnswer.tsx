@@ -53,8 +53,15 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
       
       setOrderedItems([...ordered, ...missingItems]);
     } else {
-      // Initialize with original order
-      setOrderedItems([...originalItems]);
+      // Initialize with original order and set it as the initial answer
+      const initialOrder = [...originalItems];
+      setOrderedItems(initialOrder);
+      
+      // Set the initial order as the answer so submit button is enabled
+      if (initialOrder.length > 0) {
+        const initialAnswer = initialOrder.map(item => item.id);
+        onAnswerChange(initialAnswer);
+      }
     }
   }, [currentAnswer, originalItems]);
 
@@ -117,9 +124,11 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   };
 
   const handleReset = () => {
-    setOrderedItems([...originalItems]);
-    console.log("OrderingAnswer reset onAnswerChange:", []);
-    onAnswerChange([]);
+    const resetOrder = [...originalItems];
+    setOrderedItems(resetOrder);
+    const resetAnswer = resetOrder.map(item => item.id);
+    console.log("OrderingAnswer reset onAnswerChange:", resetAnswer);
+    onAnswerChange(resetAnswer);
   };
 
   if (originalItems.length === 0) {

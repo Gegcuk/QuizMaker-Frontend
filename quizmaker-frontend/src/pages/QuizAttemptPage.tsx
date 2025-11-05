@@ -545,31 +545,19 @@ const QuizAttemptPage: React.FC = () => {
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Progress Indicator */}
         <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <div className="text-sm font-medium text-theme-text-primary">
               Question {currentQuestionNumber} of {totalQuestions || '?'}
             </div>
-            <div className="text-sm text-theme-text-secondary">
-              {questionsAnswered} answered
-            </div>
           </div>
           
-          <div className="w-full bg-theme-bg-secondary rounded-full h-2 mb-2">
+          <div className="w-full bg-theme-bg-secondary rounded-full h-2">
             <div 
               className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
                 width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
               }}
             />
-          </div>
-          
-          <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
-            <span>
-              {questionsAnswered} of {totalQuestions || '?'} questions completed
-            </span>
-            <span>
-              {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
-            </span>
           </div>
         </div>
 
@@ -674,12 +662,9 @@ const QuizAttemptPage: React.FC = () => {
       <div className="max-w-2xl mx-auto py-8 px-4">
         {/* Timer and Progress */}
         <div className="mb-6 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <div className="text-sm font-medium text-theme-text-primary">
-              Question {currentQuestionNumber} of {totalQuestions || '?'} (Timed Mode)
-            </div>
-            <div className="text-sm text-theme-text-secondary">
-              {questionsAnswered} answered
+              Question {currentQuestionNumber} of {totalQuestions || '?'}
             </div>
           </div>
           
@@ -698,22 +683,13 @@ const QuizAttemptPage: React.FC = () => {
             />
           )}
           
-          <div className="w-full bg-theme-bg-secondary rounded-full h-2 mb-2">
+          <div className="w-full bg-theme-bg-secondary rounded-full h-2">
             <div 
               className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
                 width: `${totalQuestions > 0 ? (questionsAnswered / totalQuestions) * 100 : 0}%` 
               }}
             />
-          </div>
-          
-          <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
-            <span>
-              {questionsAnswered} of {totalQuestions || '?'} questions completed
-            </span>
-            <span>
-              {totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0}% complete
-            </span>
           </div>
         </div>
 
