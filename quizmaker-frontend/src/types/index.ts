@@ -55,6 +55,8 @@ export type {
   AnswerSubmissionDto,
   AttemptResultDto,
   AttemptStatsDto,
+  AttemptReviewDto,
+  AnswerReviewDto,
   QuestionForAttemptDto,
   CurrentQuestionDto,
   QuestionTimingStatsDto

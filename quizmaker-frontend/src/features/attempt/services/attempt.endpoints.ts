@@ -10,6 +10,7 @@ export const ATTEMPT_ENDPOINTS = {
   SUBMIT_BATCH_ANSWERS: (id: string) => `/v1/attempts/${id}/answers/batch`,
   COMPLETE_ATTEMPT: (id: string) => `/v1/attempts/${id}/complete`,
   GET_ATTEMPT_STATS: (id: string) => `/v1/attempts/${id}/stats`,
+  GET_ANSWER_KEY: (id: string) => `/v1/attempts/${id}/answer-key`,
   PAUSE_ATTEMPT: (id: string) => `/v1/attempts/${id}/pause`,
   RESUME_ATTEMPT: (id: string) => `/v1/attempts/${id}/resume`,
   DELETE_ATTEMPT: (id: string) => `/v1/attempts/${id}`,

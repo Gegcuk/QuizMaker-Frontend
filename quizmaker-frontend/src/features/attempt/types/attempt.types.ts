@@ -182,6 +182,42 @@ export interface AttemptStatsDto {
 }
 
 /**
+ * Answer review DTO
+ * Matches AnswerReviewDto from API documentation
+ * Used for reviewing individual answers with user responses and correct answers
+ */
+export interface AnswerReviewDto {
+  questionId: string;                // UUID
+  type: QuestionType;
+  questionText: string;
+  hint?: string | null;
+  attachmentUrl?: string | null;
+  questionSafeContent: any;          // Safe question content for rendering (without correct answers)
+  userResponse: any;                 // User's submitted response (JSON structure depends on question type)
+  correctAnswer: any;                // Correct answer (JSON structure depends on question type)
+  isCorrect: boolean;
+  score: number;
+  answeredAt: string;                // ISO
+}
+
+/**
+ * Attempt review DTO
+ * Matches AttemptReviewDto from API documentation
+ * Complete review of a finished attempt with user answers and correct answers
+ */
+export interface AttemptReviewDto {
+  attemptId: string;                 // UUID
+  quizId: string;                    // UUID
+  userId: string;                    // UUID
+  startedAt: string;                 // ISO
+  completedAt: string;               // ISO
+  totalScore: number;
+  correctCount: number;
+  totalQuestions: number;
+  answers: AnswerReviewDto[];        // Detailed review of each answer
+}
+
+/**
  * Sort configuration for pagination
  */
 export interface Sort {

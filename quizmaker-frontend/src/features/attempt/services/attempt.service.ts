@@ -10,6 +10,7 @@ import {
   BatchAnswerSubmissionRequest,
   AttemptResultDto,
   AttemptStatsDto,
+  AttemptReviewDto,
   QuestionForAttemptDto,
   CurrentQuestionDto,
   Page
@@ -30,7 +31,7 @@ export class AttemptService {
    * Start a new attempt for a quiz
    * POST /api/v1/attempts/quizzes/{quizId}
    */
-  async startAttempt(quizId: string, data?: StartAttemptRequest): Promise<StartAttemptResponse> {
+  async startAttempt(quizId: string, data: StartAttemptRequest): Promise<StartAttemptResponse> {
     try {
       const response = await this.axiosInstance.post<StartAttemptResponse>(
         ATTEMPT_ENDPOINTS.START_ATTEMPT(quizId), 
@@ -148,6 +149,24 @@ export class AttemptService {
     try {
       const response = await this.axiosInstance.get<AttemptStatsDto>(
         ATTEMPT_ENDPOINTS.GET_ATTEMPT_STATS(attemptId)
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAttemptError(error);
+    }
+  }
+
+  /**
+   * Get attempt answer key
+   * GET /api/v1/attempts/{attemptId}/answer-key
+   * Retrieve an answer key for a completed attempt (correct answers only, no user responses).
+   * This is a convenience endpoint that returns correct answers with question context.
+   * Only available to the attempt owner and only for completed attempts.
+   */
+  async getAttemptAnswerKey(attemptId: string): Promise<AttemptReviewDto> {
+    try {
+      const response = await this.axiosInstance.get<AttemptReviewDto>(
+        ATTEMPT_ENDPOINTS.GET_ANSWER_KEY(attemptId)
       );
       return response.data;
     } catch (error) {
