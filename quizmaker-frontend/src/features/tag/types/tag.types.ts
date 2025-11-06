@@ -17,13 +17,14 @@ export interface TagDto extends BaseEntity {
  * Matches CreateTagRequest from API documentation
  */
 export interface CreateTagRequest {
-  name?: string;                   // Tag name (3-50 characters)
+  name: string;                    // Tag name (3-50 characters)
   description?: string;            // Tag description (max 1000 characters)
 }
 
 /**
  * Update tag request
  * Matches UpdateTagRequest from API documentation
+ * Note: API spec shows all fields as optional, but name is practically required
  */
 export interface UpdateTagRequest {
   name?: string;                   // Updated tag name (3-50 characters)

@@ -40,7 +40,7 @@ export const TagForm: React.FC<TagFormProps> = ({
     const newErrors: Record<string, string> = {};
 
     // Name validation
-    if (!formData.name.trim()) {
+    if (!formData.name || !formData.name.trim()) {
       newErrors.name = 'Tag name is required';
     } else if (formData.name.length < 3) {
       newErrors.name = 'Tag name must be at least 3 characters';
@@ -109,7 +109,7 @@ export const TagForm: React.FC<TagFormProps> = ({
   };
 
   const characterCount = {
-    name: formData.name.length,
+    name: formData.name?.length || 0,
     description: formData.description?.length || 0
   };
 
@@ -229,7 +229,7 @@ export const TagForm: React.FC<TagFormProps> = ({
               type="submit"
               variant="primary"
               size="md"
-              disabled={loading || !formData.name.trim()}
+              disabled={loading || !formData.name || !formData.name.trim()}
               loading={loading}
             >
               {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Tag' : 'Create Tag')}
