@@ -86,11 +86,12 @@ const Navbar: React.FC = () => {
       <Link to="/my-quizzes" className={linkClasses}>
         My Quizzes
       </Link>
-      {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
+      {/* Hidden for now - Documents */}
+      {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <Link to="/documents" className={linkClasses}>
           Documents
         </Link>
-      )}
+      )} */}
     </>
   );
 
@@ -99,11 +100,12 @@ const Navbar: React.FC = () => {
       <Link to="/my-quizzes" className={mobileLinkClasses}>
         My Quizzes
       </Link>
-      {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
+      {/* Hidden for now - Documents */}
+      {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <Link to="/documents" className={mobileLinkClasses}>
           Documents
         </Link>
-      )}
+      )} */}
       <Link to="/profile" className={mobileLinkClasses}>
         Profile
       </Link>

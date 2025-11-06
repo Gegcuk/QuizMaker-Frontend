@@ -143,28 +143,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
       path: '/questions',
       roles: ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
     },
-    {
-      id: 'document-management',
-      label: 'Document Management',
-      icon: DocumentTextIcon,
-      path: '/documents',
-      roles: ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
-      children: [
-        {
-          id: 'documents',
-          label: 'All Documents',
-          icon: DocumentTextIcon,
-          path: '/documents',
-        },
-        {
-          id: 'upload-document',
-          label: 'Upload Document',
-          icon: DocumentTextIcon,
-          path: '/documents/upload',
-        },
-        
-      ],
-    },
+    // Hidden for now - Document Management
+    // {
+    //   id: 'document-management',
+    //   label: 'Document Management',
+    //   icon: DocumentTextIcon,
+    //   path: '/documents',
+    //   roles: ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
+    //   children: [
+    //     {
+    //       id: 'documents',
+    //       label: 'All Documents',
+    //       icon: DocumentTextIcon,
+    //       path: '/documents',
+    //     },
+    //     {
+    //       id: 'upload-document',
+    //       label: 'Upload Document',
+    //       icon: DocumentTextIcon,
+    //       path: '/documents/upload',
+    //     },
+    //     
+    //   ],
+    // },
   ];
 
   const userMenuItems = [

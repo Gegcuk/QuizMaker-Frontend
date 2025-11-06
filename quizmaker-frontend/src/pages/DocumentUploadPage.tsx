@@ -4,20 +4,26 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer } from '@/components';
+import { PageHeader } from '@/components';
 import { DocumentUpload } from '../features/document';
 
 const DocumentUploadPage: React.FC = () => {
   return (
-    <PageContainer
-      title="Upload Document"
-      subtitle="Upload a document to process and generate quiz questions"
-      showBreadcrumb={true}
-      showBackButton={true}
-      backTo="/documents"
-    >
-      <DocumentUpload />
-    </PageContainer>
+    <>
+      {/* Page Header */}
+      <PageHeader
+        title="Upload Document"
+        subtitle="Upload a document to process and generate quiz questions"
+        showBreadcrumb={true}
+        showBackButton={true}
+        backTo="/documents"
+      />
+
+      {/* Page Content with same wrapper as other pages */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <DocumentUpload />
+      </div>
+    </>
   );
 };
 
