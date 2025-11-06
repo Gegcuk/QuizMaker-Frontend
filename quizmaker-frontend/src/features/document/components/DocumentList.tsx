@@ -131,8 +131,14 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       // Update local state instead of reloading from backend
       setAllDocuments(prev => prev.filter(doc => doc.id !== selectedDocument.id));
     } catch (err) {
-      setError('Failed to delete document');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete document';
+      setError(errorMessage);
       console.error('Error deleting document:', err);
+      
+      // Reload documents to sync with backend state (document might not exist)
+      loadDocuments();
+      setShowDeleteModal(false);
+      setSelectedDocument(null);
     } finally {
       setDeleting(false);
     }
@@ -198,12 +204,14 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     {
       key: 'title',
       header: 'Document',
-      render: (document: DocumentDto) => (
-        <div className="flex items-center space-x-3">
-          <DocumentTextIcon className="h-8 w-8 text-theme-text-tertiary" />
-          <div>
-            <div className="font-medium text-theme-text-primary">{document?.title || document?.originalFilename || 'Untitled Document'}</div>
-            <div className="text-sm text-theme-text-tertiary">{document?.originalFilename || 'Unknown file'}</div>
+      width: '400px',  // Fixed width to prevent expanding with long titles
+      render: (_value: any, document: DocumentDto) => (
+        <div className="flex items-center space-x-3 max-w-sm">
+          <DocumentTextIcon className="h-8 w-8 text-theme-text-tertiary flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="font-medium text-theme-text-primary truncate">
+              {document?.originalFilename || 'Untitled Document'}
+            </div>
           </div>
         </div>
       )
@@ -211,7 +219,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     {
       key: 'status',
       header: 'Status',
-      render: (document: DocumentDto) => (
+      render: (_value: any, document: DocumentDto) => (
         <div className="flex items-center space-x-2">
           {getStatusIcon(document?.status || 'UPLOADED')}
           {getStatusBadge(document?.status || 'UPLOADED')}
@@ -221,7 +229,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     {
       key: 'details',
       header: 'Details',
-      render: (document: DocumentDto) => (
+      render: (_value: any, document: DocumentDto) => (
         <div className="text-sm text-theme-text-secondary">
           <div>{formatFileSize(document?.fileSize || 0)}</div>
           <div>{document?.totalPages || 0} pages</div>
@@ -232,45 +240,55 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     {
       key: 'uploadedAt',
       header: 'Uploaded',
-      render: (document: DocumentDto) => (
+      render: (_value: any, document: DocumentDto) => (
         <div className="text-sm text-theme-text-secondary">
-          {document?.uploadedAt ? new Date(document.uploadedAt).toLocaleDateString() : 'Unknown'}
+          {document?.uploadedAt ? new Date(document.uploadedAt).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }) : 'Unknown'}
         </div>
       )
     },
     {
       key: 'actions',
       header: 'Actions',
-      render: (document: DocumentDto) => (
+      render: (_value: any, document: DocumentDto) => (
         <div className="flex items-center space-x-2">
           <Link
             to={`/documents/${document?.id}`}
-            className="p-2 text-theme-interactive-primary hover:text-theme-interactive-info hover:bg-theme-bg-info rounded-md transition-colors"
+            className="p-2 text-theme-interactive-primary hover:text-theme-interactive-info hover:bg-theme-bg-info rounded-md transition-colors inline-flex items-center justify-center"
             title="View document"
           >
             <EyeIcon className="h-4 w-4" />
           </Link>
           
           {document?.status === 'FAILED' && (
-            <button
+            <Button
+              type="button"
+              variant="warning"
+              size="sm"
               onClick={() => handleReprocess(document.id)}
-              className="p-2 text-theme-interactive-warning hover:text-theme-interactive-warning hover:bg-theme-bg-warning rounded-md transition-colors"
               title="Reprocess document"
+              className="p-2"
             >
               <ArrowPathIcon className="h-4 w-4" />
-            </button>
+            </Button>
           )}
           
-          <button
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
             onClick={() => {
               setSelectedDocument(document);
               setShowDeleteModal(true);
             }}
-            className="p-2 text-theme-interactive-danger hover:text-theme-interactive-danger hover:bg-theme-bg-danger rounded-md transition-colors"
             title="Delete document"
+            className="p-2"
           >
             <TrashIcon className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )
     }
@@ -357,7 +375,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       >
         <div className="space-y-4">
           <p>
-            Are you sure you want to delete "{selectedDocument?.title || selectedDocument?.originalFilename}"?
+            Are you sure you want to delete "{selectedDocument?.originalFilename}"?
             This action cannot be undone.
           </p>
           

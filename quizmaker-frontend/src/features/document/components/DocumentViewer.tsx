@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentDto, DocumentChunkDto } from '@/types';
 import { api } from '@/services';
+import { Button } from '@/components/ui';
 
 interface DocumentViewerProps {
   documentId: string;
@@ -106,11 +107,19 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     }
   };
 
+  const escapeHtml = (text: string): string => {
+    const div = window.document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
   const highlightSearchTerm = (text: string): string => {
-    if (!searchTerm) return text;
+    if (!searchTerm) return escapeHtml(text);
     
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
-    return text.replace(regex, '<mark class="bg-theme-bg-tertiary">$1</mark>');
+    const escapedText = escapeHtml(text);
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+    return escapedText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
   };
 
   const formatDate = (dateString: string): string => {
@@ -208,21 +217,27 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           
           {searchResults.length > 0 && (
             <div className="flex items-center space-x-2">
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={navigateToPreviousSearchResult}
-                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
+                title="Previous result"
               >
                 ↑
-              </button>
+              </Button>
               <span className="text-sm text-theme-text-secondary">
                 {currentSearchIndex + 1} of {searchResults.length}
               </span>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={navigateToNextSearchResult}
-                className="px-3 py-2 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
+                title="Next result"
               >
                 ↓
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -230,18 +245,21 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {/* Navigation */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <button
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
               onClick={() => navigateToChunk(currentChunkIndex - 1)}
               disabled={currentChunkIndex === 0}
-              className="px-4 py-2 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              title="Previous chunk"
             >
               ← Previous
-            </button>
+            </Button>
             
             <select
               value={currentChunkIndex}
               onChange={(e) => navigateToChunk(parseInt(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
             >
               {chunks.map((chunk, index) => (
                 <option key={chunk.id} value={index}>
@@ -250,17 +268,22 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               ))}
             </select>
             
-            <button
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
               onClick={() => navigateToChunk(currentChunkIndex + 1)}
               disabled={currentChunkIndex === chunks.length - 1}
-              className="px-4 py-2 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:bg-theme-bg-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+              title="Next chunk"
             >
               Next →
-            </button>
+            </Button>
           </div>
           
           <div className="text-sm text-theme-text-secondary">
-            Page {currentChunk.startPage}-{currentChunk.endPage}
+            {currentChunk.startPage !== null && currentChunk.endPage !== null && (
+              <>Page {currentChunk.startPage}-{currentChunk.endPage}</>
+            )}
           </div>
         </div>
       </div>
@@ -275,7 +298,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               <h3 className="text-lg font-semibold text-theme-text-primary">{currentChunk.title}</h3>
             </div>
             <div className="text-sm text-theme-text-secondary">
-              {currentChunk.wordCount} words • {currentChunk.characterCount} characters
+              {currentChunk.wordCount !== null && <>{currentChunk.wordCount} words</>}
+              {currentChunk.wordCount !== null && currentChunk.characterCount !== null && <> • </>}
+              {currentChunk.characterCount !== null && <>{currentChunk.characterCount} characters</>}
             </div>
           </div>
           
@@ -302,20 +327,22 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
 
         {/* Chunk Footer */}
-        <div className="mt-6 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+        <div className="mt-6 pt-4 border-t border-theme-border-primary">
           <div className="flex items-center justify-between text-sm text-theme-text-secondary">
             <div>
               Chunk {currentChunkIndex + 1} of {chunks.length}
             </div>
             <div>
-              Pages {currentChunk.startPage}-{currentChunk.endPage}
+              {currentChunk.startPage !== null && currentChunk.endPage !== null && (
+                <>Pages {currentChunk.startPage}-{currentChunk.endPage}</>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Chunk Navigation Sidebar */}
-      <div className="border-t border-theme-border-primary p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
+      <div className="border-t border-theme-border-primary p-4 bg-theme-bg-secondary">
         <h4 className="text-sm font-medium text-theme-text-primary mb-3">All Chunks</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
           {chunks.map((chunk, index) => (
@@ -330,7 +357,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             >
               <div className="font-medium truncate">{chunk.title}</div>
               <div className="text-xs text-theme-text-tertiary">
-                {chunk.wordCount} words • Pages {chunk.startPage}-{chunk.endPage}
+                {chunk.wordCount !== null && <>{chunk.wordCount} words</>}
+                {chunk.wordCount !== null && chunk.startPage !== null && chunk.endPage !== null && <> • </>}
+                {chunk.startPage !== null && chunk.endPage !== null && <>Pages {chunk.startPage}-{chunk.endPage}</>}
               </div>
             </button>
           ))}
