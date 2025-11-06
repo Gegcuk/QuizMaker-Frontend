@@ -86,6 +86,9 @@ const Navbar: React.FC = () => {
       <Link to="/my-quizzes" className={linkClasses}>
         My Quizzes
       </Link>
+      <Link to="/my-attempts" className={linkClasses}>
+        My Attempts
+      </Link>
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <Link to="/documents" className={linkClasses}>
@@ -99,6 +102,9 @@ const Navbar: React.FC = () => {
     <>
       <Link to="/my-quizzes" className={mobileLinkClasses}>
         My Quizzes
+      </Link>
+      <Link to="/my-attempts" className={mobileLinkClasses}>
+        My Attempts
       </Link>
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (

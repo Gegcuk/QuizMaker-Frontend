@@ -49,6 +49,9 @@ import DocumentViewPage from '../pages/DocumentViewPage';
 /* ----------  User profile pages  ----------------------------------------- */
 import { ProfilePage, SettingsPage } from '@/features/user';
 
+/* ----------  Attempt pages  ---------------------------------------------- */
+import MyAttemptsPage from '../pages/MyAttemptsPage';
+
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
 import AiAnalysisPage from '../pages/AiAnalysisPage';
@@ -255,6 +258,16 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Attempts Route */}
+        <Route
+          path="/my-attempts"
+          element={
+            <ProtectedRoute>
+              <MyAttemptsPage />
             </ProtectedRoute>
           }
         />

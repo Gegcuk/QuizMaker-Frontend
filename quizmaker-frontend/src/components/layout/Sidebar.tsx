@@ -25,6 +25,7 @@ import {
   ArrowRightStartOnRectangleIcon,
   UserCircleIcon,
   AdjustmentsHorizontalIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -135,6 +136,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
           path: '/quizzes/create',
         },
       ],
+    },
+    {
+      id: 'my-attempts',
+      label: 'My Attempts',
+      icon: ClockIcon,
+      path: '/my-attempts',
     },
     {
       id: 'question-management',
