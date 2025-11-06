@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
@@ -26,6 +26,7 @@ interface MyQuizzesPageProps {
 
 const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   // State management
@@ -56,6 +57,18 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [quizToExport, setQuizToExport] = useState<QuizDto | null>(null);
   const { addToast } = useToast();
+
+  // Cleanup: Reset modal states on route change
+  useEffect(() => {
+    return () => {
+      setShowDeleteModal(false);
+      setShowBulkDeleteModal(false);
+      setShowExportModal(false);
+      setQuizToDelete(null);
+      setQuizToExport(null);
+      setError(null);
+    };
+  }, [location.pathname]);
 
   // Use custom hooks for filtering, sorting, and pagination
   const filteredAndSortedQuizzes = useQuizFiltering(quizzes, filters, sortBy);

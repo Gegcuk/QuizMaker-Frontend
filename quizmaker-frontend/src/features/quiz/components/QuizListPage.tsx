@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { getAllQuizzes, deleteQuiz } from '@/services';
 import { QuizCard, QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
@@ -21,6 +21,7 @@ interface QuizListPageProps {
 
 const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // State management
   const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
@@ -41,6 +42,15 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
+
+  // Cleanup: Reset modal states on route change
+  useEffect(() => {
+    return () => {
+      setShowDeleteModal(false);
+      setQuizToDelete(null);
+      setError(null);
+    };
+  }, [location.pathname]);
 
   // Use custom hooks for filtering, sorting, and pagination
   const filteredAndSortedQuizzes = useQuizFiltering(quizzes, filters, sortBy);

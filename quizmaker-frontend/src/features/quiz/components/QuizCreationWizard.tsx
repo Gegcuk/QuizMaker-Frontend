@@ -6,8 +6,8 @@
 // 3. Add questions (using the new quiz ID)
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CreateQuizRequest, QuizDto, QuestionDifficulty, GenerateQuizFromTextRequest } from '@/types';
 import { createQuiz } from '@/services';
 import { QuizService } from '../services/quiz.service';
@@ -35,6 +35,7 @@ interface FormErrors {
 
 const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToast } = useToast();
   const quizService = new QuizService(api);
   
@@ -64,6 +65,15 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
     requiredTokens?: number;
     currentBalance?: number;
   }>({});
+
+  // Cleanup: Reset modal state on unmount or route change
+  useEffect(() => {
+    return () => {
+      setShowInsufficientBalanceModal(false);
+      setBalanceErrorData({});
+      setErrors({});
+    };
+  }, [location.pathname]);
 
   const totalSteps = 4;
   const stepTitles = [

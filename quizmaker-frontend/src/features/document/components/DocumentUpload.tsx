@@ -5,7 +5,8 @@
 // Includes quiz generation functionality
 // ---------------------------------------------------------------------------
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { DocumentService } from '@/services';
 import { QuizService, api } from '@/services';
 import { DocumentDto, DocumentConfigDto, ChunkingStrategy, GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '@/types';
@@ -25,6 +26,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   onQuizGenerationStarted,
   className = ''
 }) => {
+  const location = useLocation();
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,6 +46,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentService = new DocumentService(api);
   const quizService = new QuizService(api);
+
+  // Cleanup: Reset modal and error states on route change
+  useEffect(() => {
+    return () => {
+      setShowQuizGenerationModal(false);
+      setGenerationError(null);
+      setError(null);
+    };
+  }, [location.pathname]);
 
   // Quiz generation configuration
   const [quizConfig, setQuizConfig] = useState<Partial<GenerateQuizFromDocumentRequest>>({
