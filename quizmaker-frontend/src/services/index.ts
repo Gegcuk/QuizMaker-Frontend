@@ -26,7 +26,7 @@ export { QuestionService } from '../features/question/services/question.service'
 export { AttemptService } from '../features/attempt/services/attempt.service';
 
 // Result services
-export { ResultService, getQuizResults, getAttemptResults, getQuizLeaderboard, getUserQuizAttempts, getAttemptAnalysis } from '../features/result/services/result.service';
+export { ResultService, getQuizResults, getQuizLeaderboard } from '../features/result/services/result.service';
 
 // API services
 export { default as api } from '../api/axiosInstance';

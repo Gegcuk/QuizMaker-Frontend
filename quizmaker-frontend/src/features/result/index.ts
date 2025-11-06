@@ -5,10 +5,7 @@
 export { ResultService } from './services/result.service';
 export { 
   getQuizResults, 
-  getAttemptResults, 
-  getQuizLeaderboard, 
-  getUserQuizAttempts, 
-  getAttemptAnalysis 
+  getQuizLeaderboard
 } from './services/result.service';
 
 // Types

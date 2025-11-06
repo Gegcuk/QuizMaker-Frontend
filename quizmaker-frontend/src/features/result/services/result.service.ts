@@ -22,46 +22,19 @@ export class ResultService {
 
   /**
    * Get quiz results summary
-   * GET /api/quizzes/{quizId}/results/summary
+   * GET /api/v1/quizzes/{quizId}/results
    */
   async getQuizResults(quizId: string): Promise<QuizResultSummaryDto> {
-    const response = await this.axiosInstance.get<QuizResultSummaryDto>(`/api/quizzes/${quizId}/results/summary`);
-    return response.data;
-  }
-
-  /**
-   * Get attempt results
-   * GET /api/attempts/{attemptId}/results
-   */
-  async getAttemptResults(attemptId: string): Promise<AttemptResultDto> {
-    const response = await this.axiosInstance.get<AttemptResultDto>(`/api/attempts/${attemptId}/results`);
+    const response = await this.axiosInstance.get<QuizResultSummaryDto>(`/v1/quizzes/${quizId}/results`);
     return response.data;
   }
 
   /**
    * Get quiz leaderboard
-   * GET /api/quizzes/{quizId}/leaderboard
+   * GET /api/v1/quizzes/{quizId}/leaderboard
    */
   async getQuizLeaderboard(quizId: string): Promise<LeaderboardEntryDto[]> {
-    const response = await this.axiosInstance.get<LeaderboardEntryDto[]>(`/api/quizzes/${quizId}/leaderboard`);
-    return response.data;
-  }
-
-  /**
-   * Get user's quiz attempts
-   * GET /api/quizzes/{quizId}/attempts/user
-   */
-  async getUserQuizAttempts(quizId: string): Promise<AttemptResultDto[]> {
-    const response = await this.axiosInstance.get<AttemptResultDto[]>(`/api/quizzes/${quizId}/attempts/user`);
-    return response.data;
-  }
-
-  /**
-   * Get detailed attempt analysis
-   * GET /api/attempts/{attemptId}/analysis
-   */
-  async getAttemptAnalysis(attemptId: string): Promise<any> {
-    const response = await this.axiosInstance.get(`/api/attempts/${attemptId}/analysis`);
+    const response = await this.axiosInstance.get<LeaderboardEntryDto[]>(`/v1/quizzes/${quizId}/leaderboard`);
     return response.data;
   }
 }
@@ -72,7 +45,4 @@ export default resultService;
 
 // Export individual functions for convenience
 export const getQuizResults = (quizId: string) => resultService.getQuizResults(quizId);
-export const getAttemptResults = (attemptId: string) => resultService.getAttemptResults(attemptId);
 export const getQuizLeaderboard = (quizId: string) => resultService.getQuizLeaderboard(quizId);
-export const getUserQuizAttempts = (quizId: string) => resultService.getUserQuizAttempts(quizId);
-export const getAttemptAnalysis = (attemptId: string) => resultService.getAttemptAnalysis(attemptId);

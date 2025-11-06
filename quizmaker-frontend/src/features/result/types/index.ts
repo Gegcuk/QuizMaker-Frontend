@@ -4,8 +4,8 @@
 // Re-export result-related types from central types
 export type {
   QuizResultSummaryDto,
+  QuestionStatsDto,
   AttemptResultDto,
   AnswerSubmissionDto,
-  LeaderboardEntryDto,
-  QuestionStatDto
+  LeaderboardEntryDto
 } from '@/types';

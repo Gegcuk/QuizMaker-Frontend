@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getQuizById, deleteQuiz, updateQuiz } from '@/services';
+import { getQuizById, deleteQuiz, updateQuiz, getQuizResults, getQuizLeaderboard } from '@/services';
 import { QuizDto, QuizResultSummaryDto } from '@/types';
 import { logger } from '@/utils';
 
@@ -28,20 +28,9 @@ export const useQuiz = (quizId: string) => {
 export const useQuizStats = (quizId: string) => {
   return useQuery({
     queryKey: quizKeys.stats(quizId),
-    queryFn: async (): Promise<QuizResultSummaryDto> => {
-      // TODO: Replace with actual API call when backend is ready
+    queryFn: () => {
       logger.debug('Fetching quiz stats', 'useQuizStats', { quizId });
-      
-      // Mock data for now
-      return {
-        quizId,
-        attemptsCount: 156,
-        averageScore: 78.5,
-        bestScore: 95.0,
-        worstScore: 45.0,
-        passRate: 82.3,
-        questionStats: []
-      };
+      return getQuizResults(quizId);
     },
     enabled: !!quizId,
     staleTime: 5 * 60 * 1000, // 5 minutes for stats
@@ -52,18 +41,9 @@ export const useQuizStats = (quizId: string) => {
 export const useQuizLeaderboard = (quizId: string) => {
   return useQuery({
     queryKey: quizKeys.leaderboard(quizId),
-    queryFn: async () => {
-      // TODO: Replace with actual API call when backend is ready
+    queryFn: () => {
       logger.debug('Fetching quiz leaderboard', 'useQuizLeaderboard', { quizId });
-      
-      // Mock data for now
-      return [
-        { userId: '1', username: 'John Doe', bestScore: 95 },
-        { userId: '2', username: 'Jane Smith', bestScore: 92 },
-        { userId: '3', username: 'Bob Johnson', bestScore: 88 },
-        { userId: '4', username: 'Alice Brown', bestScore: 85 },
-        { userId: '5', username: 'Charlie Wilson', bestScore: 82 }
-      ];
+      return getQuizLeaderboard(quizId);
     },
     enabled: !!quizId,
     staleTime: 10 * 60 * 1000, // 10 minutes for leaderboard

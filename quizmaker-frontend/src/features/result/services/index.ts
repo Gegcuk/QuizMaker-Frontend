@@ -4,8 +4,5 @@
 export { ResultService } from './result.service';
 export { 
   getQuizResults, 
-  getAttemptResults, 
-  getQuizLeaderboard, 
-  getUserQuizAttempts, 
-  getAttemptAnalysis 
+  getQuizLeaderboard
 } from './result.service';

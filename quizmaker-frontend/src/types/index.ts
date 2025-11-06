@@ -86,5 +86,11 @@ export type {
   ProcessDocumentRequest
 } from '../features/document/types/document.types';
 
+// Legacy API types (from api.d.ts) - kept for backward compatibility
+export type {
+  QuestionStatsDto,
+  QuizResultSummaryDto
+} from './api.d';
+
 // Note: api.d.ts contains legacy types that conflict with new comprehensive types
 // Use the new domain-specific type files instead 

@@ -73,7 +73,7 @@ export type UpdateQuizRequest = Partial<CreateQuizRequest>;
 
 
 /* ----------  Quiz results summary  ------------------------------------ */
-export interface QuizQuestionStatsDto {
+export interface QuestionStatsDto {
   questionId: string;
   timesAsked: number;
   timesCorrect: number;
@@ -81,12 +81,13 @@ export interface QuizQuestionStatsDto {
 }
 
 export interface QuizResultSummaryDto {
+  quizId: string;                      // Quiz UUID (added to match API)
   attemptsCount: number;
   averageScore: number;
   bestScore: number;
   worstScore: number;
   passRate: number;
-  questionStats: QuizQuestionStatsDto[];
+  questionStats: QuestionStatsDto[];
 }
 
 
