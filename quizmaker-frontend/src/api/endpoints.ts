@@ -6,8 +6,9 @@
  * User management endpoints
  */
 export const USER_ENDPOINTS = {
-  PROFILE: '/v1/users/me',           // User profile (was /v1/users/profile - corrected to match API)
-  UPLOAD_AVATAR: '/v1/users/me/avatar',  // Upload avatar
+  PROFILE: '/v1/users/me',                // GET/PATCH /api/v1/users/me (user profile)
+  UPLOAD_AVATAR: '/v1/users/me/avatar',   // POST /api/v1/users/me/avatar (upload avatar)
+  // Note: Admin user management endpoints below are not yet implemented in backend API
   USERS: '/v1/users',
   USER_BY_ID: (id: string) => `/v1/users/${id}`,
   ACTIVATE_USER: (id: string) => `/v1/users/${id}/activate`,
@@ -72,7 +73,6 @@ export const QUIZ_ENDPOINTS = {
 export const TAG_ENDPOINTS = {
   TAGS: '/v1/tags',
   TAG_BY_ID: (id: string) => `/v1/tags/${id}`,
-  ANALYTICS: (id: string) => `/v1/tags/${id}/analytics`,
 } as const;
 
 

@@ -99,7 +99,9 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
     const statusBreakdown: Record<QuizStatus, number> = {
       DRAFT: 0,
       PUBLISHED: 0,
-      ARCHIVED: 0
+      ARCHIVED: 0,
+      PENDING_REVIEW: 0,
+      REJECTED: 0
     };
 
     let totalEstimatedTime = 0;

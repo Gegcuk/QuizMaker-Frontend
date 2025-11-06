@@ -51,11 +51,11 @@ export class UserService extends BaseService<UserDto> {
 
   /**
    * Update user profile
-   * PUT /api/v1/users/me
+   * PATCH /api/v1/users/me
    */
   async updateUserProfile(data: Partial<UserProfileResponse>): Promise<UserProfileResponse> {
     try {
-      const response = await this.axiosInstance.put<UserProfileResponse>(USER_ENDPOINTS.PROFILE, data);
+      const response = await this.axiosInstance.patch<UserProfileResponse>(USER_ENDPOINTS.PROFILE, data);
       return response.data;
     } catch (error) {
       throw this.handleUserError(error);

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
 import { useAuth } from '@/features/auth';
-import { UserDto } from '@/types';
+import { UserDto, UserProfileResponse } from '@/types';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
@@ -15,7 +15,7 @@ import { Button, Input } from '@/components';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
-  onUpdate?: (user: UserDto) => void;
+  onUpdate?: (user: UserProfileResponse) => void;
   onError?: (error: string) => void;
   className?: string;
 }
@@ -34,7 +34,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 }) => {
   console.log('🚀 UserProfile component is rendering!');
   const { user: currentUser } = useAuth();
-  const [user, setUser] = useState<UserDto | null>(null);
+  const [user, setUser] = useState<UserProfileResponse | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -45,11 +45,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [billingDisabled, setBillingDisabled] = useState(false);
 
   // Form state for editing
-  const [formData, setFormData] = useState<Partial<UserDto>>({});
+  const [formData, setFormData] = useState<Partial<UserProfileResponse>>({});
 
   // Determine if this is admin view
   const isAdminView = !!userId && userId !== currentUser?.id;
-  const displayUser = user || currentUser;
+  // For admin view, displayUser should be the loaded user (UserProfileResponse)
+  // For own profile, use currentUser until profile is loaded
+  const displayUser = user || (currentUser as any);
 
   // DEBUG: Log the state values
   console.log('UserProfile DEBUG:', {
@@ -64,23 +66,21 @@ const UserProfile: React.FC<UserProfileProps> = ({
   // Load user data
   useEffect(() => {
     const loadUser = async () => {
-      if (!displayUser) return;
-
       setIsLoading(true);
       try {
         if (userId && userId !== currentUser?.id) {
-          // Admin view - load specific user
-          const userData = await userService.getUserById(userId);
+          // Admin view - load specific user (endpoint not implemented in backend yet)
+          // For now, show error message
+          setErrors({ general: 'Admin user view not yet implemented' });
+        } else {
+          // Own profile view - load full profile from API
+          const userData = await userService.getUserProfile();
           setUser(userData);
           setFormData({
             username: userData.username,
-            email: userData.email
-          });
-        } else {
-          // Own profile view
-          setFormData({
-            username: displayUser.username,
-            email: displayUser.email
+            email: userData.email,
+            displayName: userData.displayName || '',
+            bio: userData.bio || ''
           });
         }
       } catch (error) {
@@ -94,7 +94,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     };
 
     loadUser();
-  }, [userId, currentUser, displayUser, onError]);
+  }, [userId, currentUser, onError]);
 
 
   const fetchBalance = useCallback(async () => {
@@ -282,22 +282,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   // Handle user activation/deactivation (admin only)
   const handleToggleActivation = async () => {
+    // Admin user management endpoints not yet implemented in backend
     if (!user || !isAdminView) return;
-
-    try {
-      if (user.isActive) {
-        await userService.deactivateUser(user.id);
-        setUser({ ...user, isActive: false });
-      } else {
-        await userService.activateUser(user.id);
-        setUser({ ...user, isActive: true });
-      }
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to update user status';
-      setErrors({ general: errorMessage });
-      if (onError) onError(errorMessage);
-    }
+    
+    // TODO: Implement when backend endpoints are available
+    console.warn('Admin user management not yet implemented');
   };
 
   if (isLoading) {
@@ -354,7 +343,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 {isAdminView ? `${displayUser.username}'s Profile` : 'My Profile'}
               </h2>
               <p className="text-sm text-theme-text-tertiary">
-                {displayUser.roles.join(', ')} • {displayUser.isActive ? 'Active' : 'Inactive'}
+                {displayUser.roles.join(', ')} • {displayUser.verified ? 'Verified' : 'Unverified'}
               </p>
             </div>
           </div>
@@ -363,11 +352,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
               {isAdminView && (
                 <Button
                   type="button"
-                  variant={displayUser.isActive ? 'danger' : 'success'}
+                  variant="secondary"
                   size="sm"
                   onClick={handleToggleActivation}
+                  disabled
+                  title="Admin user management not yet implemented"
                 >
-                  {displayUser.isActive ? 'Deactivate' : 'Activate'}
+                  Manage User
                 </Button>
               )}
               <Button
@@ -496,11 +487,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <label className="block text-sm font-medium text-theme-text-secondary">Account Status</label>
               <p className="mt-1 text-sm text-theme-text-primary">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  displayUser.isActive 
+                  displayUser.verified 
                     ? 'bg-theme-bg-success text-theme-interactive-success' 
-                    : 'bg-theme-bg-danger text-theme-interactive-danger'
+                    : 'bg-theme-bg-warning text-theme-interactive-warning'
                 }`}>
-                  {displayUser.isActive ? 'Active' : 'Inactive'}
+                  {displayUser.verified ? 'Email Verified' : 'Email Not Verified'}
                 </span>
               </p>
             </div>
@@ -508,7 +499,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary">Roles</label>
               <div className="mt-1 flex flex-wrap gap-2">
-                {displayUser.roles.map((role) => (
+                {displayUser.roles.map((role: string) => (
                   <span
                     key={role}
                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
@@ -522,18 +513,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary">Member Since</label>
               <p className="mt-1 text-sm text-theme-text-primary">
-                {new Date(displayUser.createdAt).toLocaleDateString()}
+                {new Date(displayUser.joinedAt).toLocaleDateString()}
               </p>
             </div>
-
-            {displayUser.lastLoginDate && (
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary">Last Login</label>
-                <p className="mt-1 text-sm text-theme-text-primary">
-                  {new Date(displayUser.lastLoginDate).toLocaleString()}
-                </p>
-              </div>
-            )}
           </div>
         )}
       </div>
