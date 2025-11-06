@@ -1,24 +1,11 @@
 // Question-related type definitions
 // Used for question creation, management, and retrieval for quizzes as documented in the API specification
 
-/**
- * Question types
- */
-export type QuestionType = 
-  | 'MCQ_SINGLE'    // Multiple choice single answer
-  | 'MCQ_MULTI'     // Multiple choice multiple answers
-  | 'OPEN'          // Open-ended questions
-  | 'FILL_GAP'      // Fill in the blank
-  | 'COMPLIANCE'    // Compliance questions
-  | 'TRUE_FALSE'    // True/False questions
-  | 'ORDERING'      // Ordering questions
-  | 'HOTSPOT'       // Hotspot questions
-  | 'MATCHING';     // Matching questions
+// Import shared types from common to avoid duplication
+import type { QuestionType, Difficulty } from '../../../types/common.types';
 
-/**
- * Question difficulty levels
- */
-export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+// Re-export for convenience
+export type { QuestionType, Difficulty };
 
 /**
  * Create question request

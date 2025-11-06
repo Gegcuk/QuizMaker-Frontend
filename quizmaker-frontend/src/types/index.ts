@@ -1,7 +1,7 @@
 // Re-exports all types for convenient imports
 // This allows importing multiple types from a single location
 
-// Common types
+// Common types (includes shared QuestionType and Difficulty)
 export * from './common.types';
 
 // Core domain types
@@ -14,10 +14,9 @@ export * from '../features/category/types/category.types';
 export * from '../features/admin/types/admin.types';
 export * from '../features/billing/types/billing.types';
 
-// Question types (explicit exports to avoid conflicts with quiz types)
+// Question types (explicit exports to avoid conflicts)
+// Note: QuestionType and Difficulty are now in common.types and exported from there
 export type {
-  QuestionType,
-  Difficulty as QuestionDifficulty,
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionDto,
@@ -43,7 +42,11 @@ export type {
   MatchingContent
 } from '../features/question/types/question.types';
 
+// Re-export Difficulty as QuestionDifficulty for backward compatibility
+export type { Difficulty as QuestionDifficulty } from './common.types';
+
 // Attempt types (explicit exports to avoid conflicts)
+// Note: QuestionType and Difficulty are now in common.types
 export type {
   AttemptMode,
   AttemptStatus,

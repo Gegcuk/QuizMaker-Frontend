@@ -8,97 +8,48 @@ import React, { useEffect, useState } from 'react';
 import {
   useParams,
   useSearchParams,
-  Link,
   useNavigate,
 } from 'react-router-dom';
-import { AttemptService, QuestionService, ResultService } from '@/services';
-import { Spinner } from '@/components';
-import type { AttemptResultDto, AnswerSubmissionDto, QuestionDto } from '@/types';
+import { AttemptService } from '@/services';
+import { Spinner, Button, Badge, PageHeader } from '@/components';
+import type { AttemptReviewDto, AnswerReviewDto } from '@/types';
 import { api } from '@/services';
-
-interface EnhancedAnswerResult {
-  answer: AnswerSubmissionDto;
-  question: QuestionDto;
-}
+import { 
+  CheckCircleIcon, 
+  XCircleIcon,
+  ChevronDownIcon,
+  ChevronRightIcon
+} from '@heroicons/react/24/outline';
 
 const QuizResultPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const attemptService = new AttemptService(api);
-  const questionService = new QuestionService(api);
 
   const attemptId = searchParams.get('attemptId');
-  const backUrl = quizId ? `/quizzes/${quizId}` : '/quizzes';
 
-  const [results, setResults] = useState<AttemptResultDto | null>(null);
-  const [enhancedAnswers, setEnhancedAnswers] = useState<EnhancedAnswerResult[]>([]);
+  const [review, setReview] = useState<AttemptReviewDto | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
 
   /* ------------------------------------------------------------------ */
-  /*  Fetch attempt results and question details                        */
+  /*  Fetch attempt review with answers                                */
   /* ------------------------------------------------------------------ */
   useEffect(() => {
     if (!attemptId) return;
 
-    const fetchResults = async () => {
+    const fetchReview = async () => {
       setLoading(true);
       setError(null);
       try {
-        // First, get the attempt results
-        const attemptData = await attemptService.getAttemptDetails(attemptId);
-        
-        // Convert to AttemptResultDto format if needed
-        const resultData: AttemptResultDto = {
-          attemptId: attemptData.attemptId,
-          quizId: attemptData.quizId,
-          userId: attemptData.userId,
-          startedAt: attemptData.startedAt,
-          completedAt: attemptData.completedAt || new Date().toISOString(),
-          totalScore: 0, // Will calculate from answers
-          correctCount: 0, // Will calculate from answers
-          totalQuestions: attemptData.answers.length,
-          answers: attemptData.answers
-        };
-
-        // Calculate totals
-        resultData.totalScore = attemptData.answers.reduce((sum, answer) => sum + (answer.score ?? 0), 0);
-        resultData.correctCount = attemptData.answers.filter(answer => answer.isCorrect).length;
-        
-        setResults(resultData);
-
-        // Then, fetch question details for each answer
-        const questionPromises = attemptData.answers.map(async (answer) => {
-          try {
-            const question = await questionService.getQuestionById(answer.questionId);
-            return { answer, question };
-          } catch (error) {
-            console.error(`Failed to fetch question ${answer.questionId}:`, error);
-                         // Return a placeholder question if we can't fetch it
-             return {
-               answer,
-               question: {
-                 id: answer.questionId,
-                 type: 'MCQ_SINGLE',
-                 difficulty: 'MEDIUM',
-                 questionText: `Question ${answer.questionId} (Unable to load)`,
-                 content: { options: [] },
-                 explanation: 'Question details could not be loaded.',
-                 attachmentUrl: null,
-                 quizIds: [resultData.quizId],
-                 tagIds: [],
-                 createdAt: '',
-                 updatedAt: ''
-               } as unknown as QuestionDto
-             };
-          }
+        const reviewData = await attemptService.getAttemptReview(attemptId, {
+          includeUserAnswers: true,
+          includeCorrectAnswers: true,
+          includeQuestionContext: true
         });
-
-        const enhancedAnswersData = await Promise.all(questionPromises);
-        setEnhancedAnswers(enhancedAnswersData);
-
+        setReview(reviewData);
       } catch (e: any) {
         setError(
           e?.response?.data?.error || 'Failed to fetch results. Please retry.',
@@ -108,109 +59,302 @@ const QuizResultPage: React.FC = () => {
       }
     };
 
-    fetchResults();
+    fetchReview();
   }, [attemptId]);
 
   /* ------------------------------------------------------------------ */
   /*  Helper functions                                                  */
   /* ------------------------------------------------------------------ */
-  const toggleQuestionExpansion = (answerId: string) => {
+  const toggleQuestionExpansion = (questionId: string) => {
     setExpandedQuestions(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(answerId)) {
-        newSet.delete(answerId);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
       } else {
-        newSet.add(answerId);
+        newSet.add(questionId);
       }
       return newSet;
     });
   };
 
-  const isQuestionExpanded = (answerId: string) => {
-    return expandedQuestions.has(answerId);
-  };
-  const getScoreColor = (score: number, maxScore: number) => {
-    const percentage = (score / maxScore) * 100;
-    if (percentage >= 80) return 'text-theme-interactive-success';
-    if (percentage >= 60) return 'text-theme-text-warning';
-    return 'text-theme-text-danger';
+  const isQuestionExpanded = (questionId: string) => {
+    return expandedQuestions.has(questionId);
   };
 
-  const getScoreBackground = (score: number, maxScore: number) => {
-    const percentage = (score / maxScore) * 100;
+  const getScoreColor = (isCorrect: boolean) => {
+    return isCorrect ? 'text-theme-interactive-success' : 'text-theme-interactive-danger';
+  };
+
+  const getScoreBackground = (correctCount: number, totalQuestions: number) => {
+    const percentage = (correctCount / totalQuestions) * 100;
     if (percentage >= 80) return 'bg-theme-bg-success border-theme-border-success';
     if (percentage >= 60) return 'bg-theme-bg-warning border-theme-border-warning';
     return 'bg-theme-bg-danger border-theme-border-danger';
   };
 
-  const formatCorrectAnswer = (question: QuestionDto) => {
-    // Extract correct answer from question content based on type
-    switch (question.type) {
+  // Format answer for display with context - resolves IDs to readable text using questionSafeContent
+  const formatAnswerWithContext = (answer: any, type: string, safeContent: any): React.ReactNode => {
+    if (!answer) return <span className="text-theme-text-tertiary italic">No answer provided</span>;
+    
+    switch (type) {
       case 'MCQ_SINGLE':
-        const mcqSingleContent = question.content as any;
-        return mcqSingleContent.options?.filter((opt: any) => opt.correct)?.map((opt: any) => opt.text)?.join(', ') || 'N/A';
+        // Answer: { selectedOptionId: string | number } - ID can be string!
+        // SafeContent: { options: [{ id, text }] }
+        if (answer.selectedOptionId !== undefined && safeContent?.options) {
+          const option = safeContent.options.find((opt: any) => opt.id === answer.selectedOptionId);
+          return option?.text || `Option ${answer.selectedOptionId}`;
+        }
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'MCQ_MULTI':
-        const mcqMultiContent = question.content as any;
-        return mcqMultiContent.options?.filter((opt: any) => opt.correct)?.map((opt: any) => opt.text)?.join(', ') || 'N/A';
+        // Answer: { selectedOptionIds: [string | number, ...] } - IDs can be strings!
+        // SafeContent: { options: [{ id, text }] }
+        if (Array.isArray(answer.selectedOptionIds) && answer.selectedOptionIds.length > 0 && safeContent?.options) {
+          return (
+            <ul className="list-disc list-inside space-y-1">
+              {answer.selectedOptionIds.map((optId: any, idx: number) => {
+                const option = safeContent.options.find((opt: any) => opt.id === optId);
+                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'TRUE_FALSE':
-        const trueFalseContent = question.content as any;
-        return trueFalseContent.answer ? 'True' : 'False';
+        // Answer: { answer: boolean }
+        return answer.answer !== undefined ? (answer.answer ? 'True' : 'False') : <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'OPEN':
-        const openContent = question.content as any;
-        return openContent.answer || 'N/A';
+        // Answer: { answer: "text" }
+        return answer.answer ? (
+          <div className="whitespace-pre-wrap">{answer.answer}</div>
+        ) : <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'FILL_GAP':
-        const fillGapContent = question.content as any;
-        if (fillGapContent.text && fillGapContent.gaps) {
-          // Replace ___ with the correct answers in order
-          let resultText = fillGapContent.text;
-          let gapIndex = 0;
-          
-          // Find all gaps marked with ___ and replace them with the corresponding gap answers
-          const gapRegex = /_{3,}/g;
-          let match;
-          
-          while ((match = gapRegex.exec(resultText)) !== null && gapIndex < fillGapContent.gaps.length) {
-            const gap = fillGapContent.gaps[gapIndex];
-            const beforeGap = resultText.substring(0, match.index);
-            const afterGap = resultText.substring(match.index + match[0].length);
-            resultText = beforeGap + `**${gap.answer}**` + afterGap;
-            gapIndex++;
-            
-            // Reset regex lastIndex since we modified the string
-            gapRegex.lastIndex = match.index + `**${gap.answer}**`.length;
-          }
-          return resultText;
+        // Answer: { answers: [{ gapId: number, answer: "text" }] }
+        // SafeContent: { text: "...", gaps: [{ gapId, placeholder }] }
+        if (Array.isArray(answer.answers) && answer.answers.length > 0) {
+          return (
+            <div className="space-y-1">
+              {answer.answers.map((gap: any) => (
+                <div key={gap.gapId} className="text-sm">
+                  Gap {gap.gapId}: <span className="font-medium">{gap.answer || gap.text}</span>
+                </div>
+              ))}
+            </div>
+          );
         }
-        return fillGapContent.gaps?.map((gap: any) => gap.answer)?.join(', ') || 'N/A';
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'ORDERING':
-        const orderingContent = question.content as any;
-        return orderingContent.items?.map((item: any) => item.text)?.join(' → ') || 'N/A';
+        // Answer: { orderedItemIds: [number, ...] }
+        // SafeContent: { items: [{ id, text }] }
+        if (Array.isArray(answer.orderedItemIds) && answer.orderedItemIds.length > 0 && safeContent?.items) {
+          return (
+            <div className="flex items-center gap-2 flex-wrap">
+              {answer.orderedItemIds.map((itemId: number, idx: number) => {
+                const item = safeContent.items.find((i: any) => i.id === itemId);
+                return (
+                  <React.Fragment key={itemId}>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
+                      {item?.text || `Item ${itemId}`}
+                    </span>
+                    {idx < answer.orderedItemIds.length - 1 && <span className="text-theme-text-tertiary">→</span>}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          );
+        }
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'COMPLIANCE':
-        const complianceContent = question.content as any;
-        return complianceContent.statements?.filter((stmt: any) => stmt.compliant)?.map((stmt: any) => stmt.text)?.join(', ') || 'N/A';
+        // Answer: { selectedStatementIds: [number, ...] }
+        // SafeContent: { statements: [{ id, text }] }
+        if (Array.isArray(answer.selectedStatementIds) && answer.selectedStatementIds.length > 0 && safeContent?.statements) {
+          return (
+            <ul className="space-y-1">
+              {answer.selectedStatementIds.map((stmtId: number) => {
+                const statement = safeContent.statements.find((s: any) => s.id === stmtId);
+                return (
+                  <li key={stmtId} className="flex items-center gap-2">
+                    <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
+                      Compliant
+                    </span>
+                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'HOTSPOT':
-        return 'Click on the correct area of the image';
+        // Answer: { regionId: number }
+        // SafeContent: { imageUrl, regions: [{ id, label }] }
+        if (answer.regionId && safeContent?.regions) {
+          const region = safeContent.regions.find((r: any) => r.id === answer.regionId);
+          return region?.label || `Region ${answer.regionId}`;
+        }
+        if (answer.regionId) return `Region ${answer.regionId}`;
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       case 'MATCHING':
-        const matchingContent = question.content as any;
-        if (matchingContent.left && matchingContent.right) {
-          const matches = matchingContent.left.map((leftItem: any) => {
-            const rightItem = matchingContent.right.find((right: any) => right.id === leftItem.matchId);
-            return `${leftItem.text} → ${rightItem?.text || 'N/A'}`;
-          });
-          return matches.join(', ');
+        // Answer: { matches: [{ leftId: number, rightId: number }] }
+        // SafeContent: { left: [{ id, text }], right: [{ id, text }] }
+        if (Array.isArray(answer.matches) && answer.matches.length > 0 && safeContent?.left && safeContent?.right) {
+          return (
+            <ul className="space-y-1">
+              {answer.matches.map((match: any, idx: number) => {
+                const leftItem = safeContent.left.find((l: any) => l.id === match.leftId);
+                const rightItem = safeContent.right.find((r: any) => r.id === match.rightId);
+                return (
+                  <li key={idx} className="flex items-center gap-2 text-sm">
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || match.leftId}</span>
+                    <span className="text-theme-text-tertiary">→</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || match.rightId}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
         }
-        return 'N/A';
+        return <span className="text-theme-text-tertiary">No answer</span>;
       
       default:
-        return 'N/A';
+        return <span className="text-theme-text-tertiary">Unknown question type</span>;
+    }
+  };
+
+  // Format correct answer - handles the actual API response structure
+  const formatCorrectAnswer = (answer: any, type: string, safeContent: any): React.ReactNode => {
+    if (!answer) return <span className="text-theme-text-tertiary italic">N/A</span>;
+    
+    switch (type) {
+      case 'MCQ_SINGLE':
+        // CorrectAnswer: { correctOptionId: string | number } - ID can be string!
+        if (answer.correctOptionId !== undefined && safeContent?.options) {
+          const option = safeContent.options.find((opt: any) => opt.id === answer.correctOptionId);
+          return option?.text || `Option ${answer.correctOptionId}`;
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'MCQ_MULTI':
+        // CorrectAnswer: { correctOptionIds: [string | number, ...] } - IDs can be strings!
+        if (Array.isArray(answer.correctOptionIds) && answer.correctOptionIds.length > 0 && safeContent?.options) {
+          return (
+            <ul className="list-disc list-inside space-y-1">
+              {answer.correctOptionIds.map((optId: any, idx: number) => {
+                const option = safeContent.options.find((opt: any) => opt.id === optId);
+                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'TRUE_FALSE':
+        // CorrectAnswer: { answer: boolean }
+        return answer.answer !== undefined ? (answer.answer ? 'True' : 'False') : <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'OPEN':
+        // CorrectAnswer: { answer: "text" }
+        return answer.answer ? (
+          <div className="whitespace-pre-wrap">{answer.answer}</div>
+        ) : <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'FILL_GAP':
+        // CorrectAnswer: { answers: [{ id: number, text: "answer" }] } - uses "text" not "answer"!
+        if (Array.isArray(answer.answers) && answer.answers.length > 0) {
+          return (
+            <div className="space-y-1">
+              {answer.answers.map((gap: any) => (
+                <div key={gap.id || gap.gapId} className="text-sm">
+                  Gap {gap.id || gap.gapId}: <span className="font-medium">{gap.text || gap.answer}</span>
+                </div>
+              ))}
+            </div>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'ORDERING':
+        // CorrectAnswer: { order: [number, ...] } - field is "order" not "correctOrder"!
+        if (Array.isArray(answer.order) && answer.order.length > 0 && safeContent?.items) {
+          return (
+            <div className="flex items-center gap-2 flex-wrap">
+              {answer.order.map((itemId: number, idx: number) => {
+                const item = safeContent.items.find((i: any) => i.id === itemId);
+                return (
+                  <React.Fragment key={itemId}>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
+                      {item?.text || `Item ${itemId}`}
+                    </span>
+                    {idx < answer.order.length - 1 && <span className="text-theme-text-tertiary">→</span>}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'COMPLIANCE':
+        // CorrectAnswer: { compliantIds: [number, ...] } - field is "compliantIds"!
+        if (Array.isArray(answer.compliantIds) && answer.compliantIds.length > 0 && safeContent?.statements) {
+          return (
+            <ul className="space-y-1">
+              {answer.compliantIds.map((stmtId: number) => {
+                const statement = safeContent.statements.find((s: any) => s.id === stmtId);
+                return (
+                  <li key={stmtId} className="flex items-center gap-2">
+                    <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
+                      Compliant
+                    </span>
+                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'HOTSPOT':
+        // CorrectAnswer: { correctRegionId: number }
+        if (answer.correctRegionId !== undefined && safeContent?.regions) {
+          const region = safeContent.regions.find((r: any) => r.id === answer.correctRegionId);
+          return region?.label || `Region ${answer.correctRegionId}`;
+        }
+        if (answer.correctRegionId !== undefined) return `Region ${answer.correctRegionId}`;
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'MATCHING':
+        // CorrectAnswer: { pairs: [{ leftId: number, rightId: number }] }
+        // SafeContent: { left: [{ id, text }], right: [{ id, text }] }
+        if (Array.isArray(answer.pairs) && answer.pairs.length > 0 && safeContent?.left && safeContent?.right) {
+          return (
+            <ul className="space-y-1">
+              {answer.pairs.map((pair: any, idx: number) => {
+                const leftItem = safeContent.left.find((l: any) => l.id === pair.leftId);
+                const rightItem = safeContent.right.find((r: any) => r.id === pair.rightId);
+                return (
+                  <li key={idx} className="flex items-center gap-2 text-sm">
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || pair.leftId}</span>
+                    <span className="text-theme-text-tertiary">→</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || pair.rightId}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      default:
+        return <span className="text-theme-text-tertiary">Unknown type</span>;
     }
   };
 
@@ -219,206 +363,303 @@ const QuizResultPage: React.FC = () => {
   /* ------------------------------------------------------------------ */
   if (!attemptId) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p className="text-theme-text-danger">No attempt ID provided.</p>
-        <Link to={backUrl} className="text-theme-interactive-primary hover:underline mt-4">
-          ← Back to Quizzes
-        </Link>
-      </div>
+      <>
+        <PageHeader
+          title="Quiz Results"
+          subtitle="No attempt ID provided"
+          showBreadcrumb={true}
+          customBreadcrumbItems={[
+            { label: 'Home', path: '/my-quizzes' },
+            { label: 'My Attempts', path: '/my-attempts' },
+            { label: 'Quiz Results', path: '#', isCurrent: true }
+          ]}
+          showBackButton={true}
+          backTo="/my-attempts"
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+          <p className="text-theme-interactive-danger">No attempt ID provided.</p>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/my-attempts')}
+            className="mt-4"
+          >
+            ← Back to My Attempts
+          </Button>
+        </div>
+      </>
     );
   }
 
-  if (loading) return <Spinner />;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p className="text-theme-text-danger">{error}</p>
-        <button
-          onClick={() => navigate(0)}
-          className="mt-4 text-theme-interactive-primary hover:underline"
-        >
-          Retry
-        </button>
-      </div>
+      <>
+        <PageHeader
+          title="Quiz Results"
+          subtitle="Error loading results"
+          showBreadcrumb={true}
+          customBreadcrumbItems={[
+            { label: 'Home', path: '/my-quizzes' },
+            { label: 'My Attempts', path: '/my-attempts' },
+            { label: 'Quiz Results', path: `/quizzes/${quizId}/results?attemptId=${attemptId}`, isCurrent: true }
+          ]}
+          showBackButton={true}
+          backTo="/my-attempts"
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4">
+            <div className="flex items-center">
+              <XCircleIcon className="h-5 w-5 text-theme-interactive-danger flex-shrink-0" />
+              <p className="ml-3 text-sm text-theme-interactive-danger">{error}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Button
+              variant="primary"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </>
     );
   }
 
-  if (!results) {
+  if (!review) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        <p className="text-theme-text-primary">No results found.</p>
-        <Link to={backUrl} className="text-theme-interactive-primary hover:underline mt-4">
-          ← Back to Quizzes
-        </Link>
-      </div>
+      <>
+        <PageHeader
+          title="Quiz Results"
+          subtitle="No results found"
+          showBreadcrumb={true}
+          customBreadcrumbItems={[
+            { label: 'Home', path: '/my-quizzes' },
+            { label: 'My Attempts', path: '/my-attempts' },
+            { label: 'Quiz Results', path: `/quizzes/${quizId}/results?attemptId=${attemptId}`, isCurrent: true }
+          ]}
+          showBackButton={true}
+          backTo="/my-attempts"
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <p className="text-theme-text-primary">No results found.</p>
+        </div>
+      </>
     );
   }
+
+  const accuracyPercentage = Math.round((review.correctCount / review.totalQuestions) * 100);
 
   /* ------------------------------------------------------------------ */
   /*  Render results                                                    */
   /* ------------------------------------------------------------------ */
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-theme-text-primary mb-2">Quiz Results</h1>
-        <p className="text-theme-text-secondary">
-          Attempt completed on {new Date(results.completedAt).toLocaleDateString()} at {new Date(results.completedAt).toLocaleTimeString()}
-        </p>
-      </div>
+    <>
+      <PageHeader
+        title="Quiz Results"
+        subtitle={`Completed on ${new Date(review.completedAt).toLocaleDateString('en-GB', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`}
+        showBreadcrumb={true}
+        customBreadcrumbItems={[
+          { label: 'Home', path: '/my-quizzes' },
+          { label: 'My Attempts', path: '/my-attempts' },
+          { label: 'Quiz Results', path: `/quizzes/${quizId}/results?attemptId=${attemptId}`, isCurrent: true }
+        ]}
+        showBackButton={true}
+        backTo="/my-attempts"
+      />
 
-      {/* Summary Card */}
-      <div className="bg-theme-bg-primary rounded-lg shadow-theme p-6 mb-8 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-theme-text-primary">{results.totalScore}</div>
-            <div className="text-sm text-theme-text-secondary">Total Score</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-theme-text-primary">{results.correctCount}/{results.totalQuestions}</div>
-            <div className="text-sm text-theme-text-secondary">Correct Answers</div>
-          </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${getScoreColor(results.totalScore, results.totalQuestions)}`}>
-              {Math.round((results.correctCount / results.totalQuestions) * 100)}%
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Summary Card */}
+        <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 mb-8 border-2 ${getScoreBackground(review.correctCount, review.totalQuestions)}`}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-theme-text-primary">{review.totalScore}</div>
+              <div className="text-sm text-theme-text-secondary mt-1">Total Score</div>
             </div>
-            <div className="text-sm text-theme-text-secondary">Accuracy</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-theme-text-primary">
-              {results.totalScore} pts
+            <div className="text-center">
+              <div className="text-3xl font-bold text-theme-text-primary">
+                {review.correctCount}/{review.totalQuestions}
+              </div>
+              <div className="text-sm text-theme-text-secondary mt-1">Correct Answers</div>
             </div>
-            <div className="text-sm text-theme-text-secondary">Points Earned</div>
+            <div className="text-center">
+              <div className={`text-3xl font-bold ${accuracyPercentage >= 80 ? 'text-theme-interactive-success' : accuracyPercentage >= 60 ? 'text-theme-interactive-warning' : 'text-theme-interactive-danger'}`}>
+                {accuracyPercentage}%
+              </div>
+              <div className="text-sm text-theme-text-secondary mt-1">Accuracy</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-theme-text-primary">
+                {review.totalQuestions}
+              </div>
+              <div className="text-sm text-theme-text-secondary mt-1">Questions</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Question Breakdown */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-theme-text-primary">Question Breakdown</h2>
-        
-        {enhancedAnswers.map((item, index) => {
-          const isExpanded = isQuestionExpanded(item.answer.answerId);
-          return (
-            <div 
-              key={item.answer.answerId} 
-              className={`bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary transition-all duration-200 ${
-                item.answer.isCorrect ? 'border-l-4 border-l-theme-interactive-success' : 'border-l-4 border-l-theme-interactive-danger'
-              }`}
-            >
-              {/* Collapsed Question Header */}
+        {/* Question Breakdown */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-theme-text-primary mb-4">Answer Review</h2>
+          
+          {review.answers.map((answer, index) => {
+            const isExpanded = isQuestionExpanded(answer.questionId);
+            return (
               <div 
-                className="p-4 cursor-pointer hover:bg-theme-bg-secondary transition-colors"
-                onClick={() => toggleQuestionExpansion(item.answer.answerId)}
+                key={answer.questionId} 
+                className={`bg-theme-bg-primary rounded-lg border-2 transition-all duration-200 ${
+                  answer.isCorrect ? 'border-l-theme-interactive-success' : 'border-l-theme-interactive-danger'
+                } border-theme-border-primary`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-theme-bg-tertiary text-theme-text-secondary px-3 py-1 rounded-full text-sm font-medium">
-                      Q{index + 1}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.answer.isCorrect 
-                        ? 'bg-theme-bg-success text-theme-text-success' 
-                        : 'bg-theme-bg-danger text-theme-text-danger'
-                    }`}>
-                      {item.answer.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className={`text-sm font-medium ${getScoreColor(item.answer.score ?? 0, 1)}`}>
-                      {item.answer.score ?? 0} pt{(item.answer.score ?? 0) !== 1 ? 's' : ''}
-                    </div>
-                    <div className="text-theme-text-tertiary">
-                      {isExpanded ? '▼' : '▶'}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Question Preview */}
-                <div className="mt-2">
-                  <h3 className="text-sm font-medium text-theme-text-primary line-clamp-2">
-                    {item.question.type === 'FILL_GAP' ? (
-                      <div>
-                        <div className="mb-1 text-theme-text-secondary text-xs">Complete the sentence:</div>
-                        <div className="text-theme-text-primary">
-                          {(item.question.content as any)?.text?.replace(/_{3,}/g, '___') || item.question.questionText}
-                        </div>
+                {/* Question Header */}
+                <div 
+                  className="p-4 cursor-pointer hover:bg-theme-bg-secondary transition-colors"
+                  onClick={() => toggleQuestionExpansion(answer.questionId)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <span className="bg-theme-bg-tertiary text-theme-text-secondary px-3 py-1 rounded-full text-sm font-medium flex-shrink-0">
+                        Q{index + 1}
+                      </span>
+                      <span 
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
+                          answer.isCorrect 
+                            ? 'bg-theme-bg-success text-theme-text-success border border-theme-border-success' 
+                            : 'bg-theme-bg-danger text-theme-text-danger border border-theme-border-danger'
+                        }`}
+                      >
+                        {answer.isCorrect ? (
+                          <>
+                            <CheckCircleIcon className="h-3 w-3" />
+                            Correct
+                          </>
+                        ) : (
+                          <>
+                            <XCircleIcon className="h-3 w-3" />
+                            Incorrect
+                          </>
+                        )}
+                      </span>
+                      <Badge variant="neutral" size="sm" className="flex-shrink-0">
+                        {answer.type.replace(/_/g, ' ')}
+                      </Badge>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-theme-text-primary line-clamp-2">
+                          {answer.questionText}
+                        </h3>
                       </div>
-                    ) : (
-                      item.question.questionText
-                    )}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Expanded Question Details */}
-              {isExpanded && (
-                <div className="border-t border-theme-border-primary p-6">
-                  {/* Correct Answer */}
-                  <div>
-                    <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
-                    <div className="p-3 rounded-md border bg-theme-bg-tertiary border-theme-border-primary">
-                      {item.question.type === 'FILL_GAP' ? (
-                        <div className="text-sm">
-                          <div className="mb-2 text-theme-text-secondary">Complete the sentence:</div>
-                          <div 
-                            className="text-theme-text-primary"
-                            dangerouslySetInnerHTML={{
-                              __html: formatCorrectAnswer(item.question)
-                                .replace(/\*\*(.*?)\*\*/g, '<span class="bg-theme-bg-success px-1 rounded font-medium">$1</span>')
-                            }}
-                          />
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className={`text-sm font-medium ${getScoreColor(answer.isCorrect)}`}>
+                        {answer.score} pt{answer.score !== 1 ? 's' : ''}
+                      </div>
+                      {isExpanded ? (
+                        <ChevronDownIcon className="h-5 w-5 text-theme-text-tertiary" />
                       ) : (
-                        <p className="text-sm text-theme-text-primary">
-                          {formatCorrectAnswer(item.question)}
-                        </p>
+                        <ChevronRightIcon className="h-5 w-5 text-theme-text-tertiary" />
                       )}
                     </div>
                   </div>
+                </div>
 
-                  {/* Explanation */}
-                  {item.question.explanation && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
-                      <div className="p-3 rounded-md border bg-theme-bg-secondary border-theme-border-primary">
-                        <p className="text-sm text-theme-text-secondary">
-                          {item.question.explanation}
+                {/* Expanded Question Details */}
+                {isExpanded && (
+                  <div className="border-t border-theme-border-primary p-6 space-y-4">
+                    {/* Question Text */}
+                    <div>
+                      <h4 className="font-medium text-theme-text-primary mb-2">Question:</h4>
+                      <div className="p-3 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
+                        <p className="text-sm text-theme-text-primary whitespace-pre-wrap">
+                          {answer.questionText}
                         </p>
                       </div>
                     </div>
-                  )}
 
-                  {/* Timing Info */}
-                  <div className="mt-4 text-xs text-theme-text-tertiary">
-                    Answered at: {new Date(item.answer.answeredAt).toLocaleTimeString()}
+                    {/* User's Answer */}
+                    <div>
+                      <h4 className="font-medium text-theme-text-primary mb-2">Your Answer:</h4>
+                      <div className={`p-3 rounded-md border ${
+                        answer.isCorrect 
+                          ? 'bg-theme-bg-success border-theme-border-success' 
+                          : 'bg-theme-bg-danger border-theme-border-danger'
+                      }`}>
+                        <div className="text-sm text-theme-text-primary">
+                          {formatAnswerWithContext(answer.userResponse, answer.type, answer.questionSafeContent)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Correct Answer */}
+                    <div>
+                      <h4 className="font-medium text-theme-text-primary mb-2">Correct Answer:</h4>
+                      <div className="p-3 rounded-md bg-theme-bg-success border border-theme-border-success">
+                        <div className="text-sm text-theme-text-primary">
+                          {formatCorrectAnswer(answer.correctAnswer, answer.type, answer.questionSafeContent)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Explanation */}
+                    {answer.explanation && (
+                      <div>
+                        <h4 className="font-medium text-theme-text-primary mb-2">Explanation:</h4>
+                        <div className="p-3 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
+                          <p className="text-sm text-theme-text-secondary whitespace-pre-wrap">
+                            {answer.explanation}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Timing Info */}
+                    <div className="flex items-center justify-between text-xs text-theme-text-tertiary pt-2 border-t border-theme-border-secondary">
+                      <span>Answered: {new Date(answer.answeredAt).toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</span>
+                      <span>{answer.score} point{answer.score !== 1 ? 's' : ''} earned</span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-      {/* Action Buttons */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-4">
-        <Link
-          to={backUrl}
-          className="inline-flex items-center justify-center px-6 py-3 border border-theme-border-primary shadow-sm text-base font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
-        >
-          ← Back to Quizzes
-        </Link>
-        {quizId && (
-          <Link
-            to={`/quizzes/${quizId}`}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+        {/* Action Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/my-attempts')}
           >
-            View Quiz Details
-          </Link>
-        )}
+            ← Back to My Attempts
+          </Button>
+          {quizId && (
+            <Button
+              variant="primary"
+              onClick={() => navigate(`/quizzes/${quizId}`)}
+            >
+              View Quiz Details
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

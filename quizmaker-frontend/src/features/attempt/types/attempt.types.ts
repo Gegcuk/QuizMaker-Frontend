@@ -1,6 +1,12 @@
 // Attempt-related type definitions
 // Used for quiz attempts, answer submission, progress tracking, and attempt completion as documented in the API specification
 
+// Import shared types from common to avoid duplication
+import type { QuestionType, Difficulty } from '../../../types/common.types';
+
+// Re-export for convenience
+export type { QuestionType, Difficulty };
+
 /**
  * Attempt modes
  */
@@ -10,25 +16,6 @@ export type AttemptMode = 'ONE_BY_ONE' | 'ALL_AT_ONCE' | 'TIMED';
  * Attempt status
  */
 export type AttemptStatus = 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED' | 'PAUSED';
-
-/**
- * Question types for attempts
- */
-export type QuestionType = 
-  | 'MCQ_SINGLE'    // Multiple choice single answer
-  | 'MCQ_MULTI'     // Multiple choice multiple answers
-  | 'OPEN'          // Open-ended questions
-  | 'FILL_GAP'      // Fill in the blank
-  | 'COMPLIANCE'    // Compliance questions
-  | 'TRUE_FALSE'    // True/False questions
-  | 'ORDERING'      // Ordering questions
-  | 'HOTSPOT'       // Hotspot questions
-  | 'MATCHING';     // Matching questions
-
-/**
- * Question difficulty levels for attempts
- */
-export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
 /**
  * Start attempt request
@@ -198,6 +185,7 @@ export interface AnswerReviewDto {
   isCorrect: boolean;
   score: number;
   answeredAt: string;                // ISO
+  explanation?: string | null;       // Optional explanation for the correct answer
 }
 
 /**

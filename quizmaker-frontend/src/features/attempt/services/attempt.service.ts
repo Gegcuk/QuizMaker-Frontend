@@ -175,6 +175,31 @@ export class AttemptService {
   }
 
   /**
+   * Get comprehensive review of a completed attempt with user answers and correct answers
+   * GET /api/v1/attempts/{attemptId}/review
+   * Query parameters allow customizing what information to include in the response.
+   * Only available to the attempt owner and only for completed attempts.
+   */
+  async getAttemptReview(
+    attemptId: string,
+    options?: {
+      includeUserAnswers?: boolean;
+      includeCorrectAnswers?: boolean;
+      includeQuestionContext?: boolean;
+    }
+  ): Promise<AttemptReviewDto> {
+    try {
+      const response = await this.axiosInstance.get<AttemptReviewDto>(
+        ATTEMPT_ENDPOINTS.GET_REVIEW(attemptId),
+        { params: options }
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAttemptError(error);
+    }
+  }
+
+  /**
    * Pause an in-progress attempt
    * POST /api/v1/attempts/{attemptId}/pause
    */

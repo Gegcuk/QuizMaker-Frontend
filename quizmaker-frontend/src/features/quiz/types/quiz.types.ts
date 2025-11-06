@@ -1,7 +1,10 @@
 // Quiz-related type definitions
 // Used for quiz creation, management, AI-powered generation, and analytics as documented in the API specification
 
-import { BaseEntity, AuditableEntity } from '../../../types/common.types';
+import { BaseEntity, AuditableEntity, Difficulty } from '../../../types/common.types';
+
+// Re-export Difficulty for convenience
+export type { Difficulty };
 
 /**
  * Quiz visibility options
@@ -12,11 +15,6 @@ export type Visibility = 'PUBLIC' | 'PRIVATE';
  * Quiz status options
  */
 export type QuizStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'PENDING_REVIEW' | 'REJECTED';
-
-/**
- * Quiz difficulty levels
- */
-export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
 /**
  * Quiz generation status

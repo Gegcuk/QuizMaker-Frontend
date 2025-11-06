@@ -11,6 +11,7 @@ export const ATTEMPT_ENDPOINTS = {
   COMPLETE_ATTEMPT: (id: string) => `/v1/attempts/${id}/complete`,
   GET_ATTEMPT_STATS: (id: string) => `/v1/attempts/${id}/stats`,
   GET_ANSWER_KEY: (id: string) => `/v1/attempts/${id}/answer-key`,
+  GET_REVIEW: (id: string) => `/v1/attempts/${id}/review`,
   PAUSE_ATTEMPT: (id: string) => `/v1/attempts/${id}/pause`,
   RESUME_ATTEMPT: (id: string) => `/v1/attempts/${id}/resume`,
   DELETE_ATTEMPT: (id: string) => `/v1/attempts/${id}`,

@@ -1,6 +1,25 @@
 // Common types used across all API services
 
 /**
+ * Question types - shared across question, quiz, and attempt features
+ */
+export type QuestionType = 
+  | 'MCQ_SINGLE'    // Multiple choice single answer
+  | 'MCQ_MULTI'     // Multiple choice multiple answers
+  | 'OPEN'          // Open-ended questions
+  | 'FILL_GAP'      // Fill in the blank
+  | 'COMPLIANCE'    // Compliance questions
+  | 'TRUE_FALSE'    // True/False questions
+  | 'ORDERING'      // Ordering questions
+  | 'HOTSPOT'       // Hotspot questions
+  | 'MATCHING';     // Matching questions
+
+/**
+ * Difficulty levels - shared across quiz and question features
+ */
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+/**
  * Standard API response envelope
  */
 export interface ApiResponse<T = any> {
