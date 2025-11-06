@@ -11,6 +11,7 @@ import {
   AttemptResultDto,
   AttemptStatsDto,
   AttemptReviewDto,
+  AttemptSummaryDto,
   QuestionForAttemptDto,
   CurrentQuestionDto,
   Page
@@ -56,6 +57,28 @@ export class AttemptService {
     try {
       const response = await this.axiosInstance.get<Page<AttemptDto>>(
         ATTEMPT_ENDPOINTS.GET_ATTEMPTS,
+        { params }
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAttemptError(error);
+    }
+  }
+
+  /**
+   * Get attempts with embedded quiz and stats (optimized, reduces N+1 queries)
+   * GET /api/v1/attempts/summary
+   */
+  async getAttemptsSummary(params?: {
+    page?: number;
+    size?: number;
+    quizId?: string;
+    userId?: string;
+    status?: string;
+  }): Promise<Page<AttemptSummaryDto>> {
+    try {
+      const response = await this.axiosInstance.get<Page<AttemptSummaryDto>>(
+        ATTEMPT_ENDPOINTS.GET_ATTEMPTS_SUMMARY,
         { params }
       );
       return response.data;

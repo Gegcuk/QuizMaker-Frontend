@@ -15,12 +15,13 @@ import {
   Spinner, 
   Button, 
   ConfirmationModal,
-  useToast
+  useToast,
+  GroupedList,
+  SortDropdown
 } from '@/components';
+import type { GroupedListGroup, SortOption as SortOptionType } from '@/components';
 import { 
-  AttemptDto, 
-  AttemptStatsDto, 
-  QuizDto 
+  AttemptSummaryDto
 } from '@/types';
 import { 
   ClockIcon, 
@@ -32,28 +33,23 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 
-interface AttemptWithDetails extends AttemptDto {
-  quiz?: QuizDto;
-  stats?: AttemptStatsDto;
-}
-
 const MyAttemptsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const attemptService = new AttemptService(api);
-  const quizService = new QuizService(api);
 
-  // Sort options type
-  type SortOption = 'newest' | 'oldest' | 'quiz_asc' | 'quiz_desc' | 'completion_asc' | 'completion_desc';
+  // View mode type
+  type ViewMode = 'list' | 'grouped';
 
   // State
-  const [attempts, setAttempts] = useState<AttemptWithDetails[]>([]);
+  const [attempts, setAttempts] = useState<AttemptSummaryDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all');
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [sortBy, setSortBy] = useState<string>('newest');
+  const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(12);
   
@@ -61,13 +57,9 @@ const MyAttemptsPage: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   
-  // Sort dropdown state
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const sortDropdownRef = useRef<HTMLDivElement>(null);
-  
   // Delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [attemptToDelete, setAttemptToDelete] = useState<AttemptWithDetails | null>(null);
+  const [attemptToDelete, setAttemptToDelete] = useState<AttemptSummaryDto | null>(null);
   const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
 
   // Load attempts
@@ -79,38 +71,14 @@ const MyAttemptsPage: React.FC = () => {
       setError(null);
 
       try {
-        // Load all attempts for client-side filtering and pagination
-        const response = await attemptService.getAttempts({
+        // Load attempts with embedded quiz and stats (single API call!)
+        const response = await attemptService.getAttemptsSummary({
           userId: user.id,
           page: 0,
           size: 1000
         });
 
-        // Fetch quiz details and stats for each attempt
-        const attemptsWithDetails = await Promise.all(
-          response.content.map(async (attempt) => {
-            try {
-              const [quiz, stats] = await Promise.all([
-                quizService.getQuizById(attempt.quizId).catch(() => undefined),
-                attemptService.getAttemptStats(attempt.attemptId).catch(() => undefined)
-              ]);
-              return {
-                ...attempt,
-                quiz,
-                stats
-              };
-            } catch (error) {
-              console.warn(`Could not fetch details for attempt ${attempt.attemptId}:`, error);
-              return {
-                ...attempt,
-                quiz: undefined,
-                stats: undefined
-              };
-            }
-          })
-        );
-
-        setAttempts(attemptsWithDetails);
+        setAttempts(response.content);
       } catch (err: any) {
         console.error('Failed to load attempts:', err);
         setError(err.message || 'Failed to load your attempts. Please try again.');
@@ -132,14 +100,11 @@ const MyAttemptsPage: React.FC = () => {
     setSearchParams(searchParams, { replace: true });
   }, [statusFilter]);
 
-  // Close dropdowns when clicking outside
+  // Close filter dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
         setIsFilterOpen(false);
-      }
-      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
-        setIsSortOpen(false);
       }
     };
 
@@ -148,6 +113,16 @@ const MyAttemptsPage: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Sort options
+  const sortOptions: SortOptionType[] = [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'quiz_asc', label: 'Quiz A-Z' },
+    { value: 'quiz_desc', label: 'Quiz Z-A' },
+    { value: 'completion_asc', label: 'Progress Low-High' },
+    { value: 'completion_desc', label: 'Progress High-Low' }
+  ];
 
   // Filter attempts
   const filteredAttempts = statusFilter === 'all' 
@@ -174,7 +149,31 @@ const MyAttemptsPage: React.FC = () => {
     }
   });
 
-  // Paginate sorted attempts
+  // Group attempts by quiz (for grouped view)
+  const groupedAttempts: GroupedListGroup<AttemptSummaryDto>[] = React.useMemo(() => {
+    const groups = new Map<string, AttemptSummaryDto[]>();
+    
+    sortedAttempts.forEach(attempt => {
+      const quizTitle = attempt.quiz?.title || 'Unknown Quiz';
+      const quizId = attempt.quizId;
+      const key = `${quizId}-${quizTitle}`;
+      
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key)!.push(attempt);
+    });
+
+    return Array.from(groups.entries()).map(([key, items]) => ({
+      key,
+      label: items[0]?.quiz?.title || 'Unknown Quiz',
+      items,
+      count: items.length,
+      metadata: { quizId: items[0]?.quizId }
+    }));
+  }, [sortedAttempts]);
+
+  // Paginate sorted attempts (for list view)
   const totalPages = Math.ceil(sortedAttempts.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedAttempts = sortedAttempts.slice(startIndex, startIndex + pageSize);
@@ -275,8 +274,98 @@ const MyAttemptsPage: React.FC = () => {
     }
   };
 
+  // Render attempt card (reusable for both list and grouped views)
+  const renderAttemptCard = (attempt: AttemptSummaryDto) => (
+    <div className="p-4 hover:bg-theme-bg-secondary transition-colors">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          {/* Status and Mode */}
+          <div className="flex items-center space-x-3 mb-2">
+            <Badge variant={getStatusVariant(attempt.status)} size="sm">
+              {getStatusText(attempt.status)}
+            </Badge>
+            <span className="text-sm text-theme-text-tertiary">
+              {getModeText(attempt.mode)}
+            </span>
+          </div>
+
+          {/* Quiz Title (only in list view, not in grouped) */}
+          {viewMode === 'list' && (
+            <h4 className="font-medium text-theme-text-primary mb-1">
+              {attempt.quiz?.title || 'Unknown Quiz'}
+            </h4>
+          )}
+
+          {/* Metadata Row */}
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-theme-text-secondary">
+            <span>Started: {formatDate(attempt.startedAt)}</span>
+            
+            <span>•</span>
+            <span>
+              {attempt.quiz.questionCount} question{attempt.quiz.questionCount !== 1 ? 's' : ''}
+            </span>
+            
+            {attempt.stats && (
+              <>
+                {attempt.stats.totalTime && (
+                  <>
+                    <span>•</span>
+                    <span>{formatDuration(attempt.stats.totalTime)}</span>
+                  </>
+                )}
+                
+                {attempt.status === 'COMPLETED' && (
+                  <>
+                    <span>•</span>
+                    <span className="font-medium text-theme-text-primary">
+                      {Math.round(attempt.stats.accuracyPercentage)}% accuracy
+                    </span>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="ml-4 flex-shrink-0">
+          <div className="flex space-x-2">
+            {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleResumeAttempt(attempt)}
+                leftIcon={<PlayIcon className="w-4 h-4" />}
+              >
+                {attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
+              </Button>
+            )}
+            {attempt.status === 'COMPLETED' && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleViewResults(attempt)}
+                leftIcon={<EyeIcon className="w-4 h-4" />}
+              >
+                View Results
+              </Button>
+            )}
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleDeleteAttempt(attempt)}
+              leftIcon={<TrashIcon className="w-4 w-4" />}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Handle resume attempt
-  const handleResumeAttempt = async (attempt: AttemptWithDetails) => {
+  const handleResumeAttempt = async (attempt: AttemptSummaryDto) => {
     try {
       if (attempt.status === 'PAUSED') {
         await attemptService.resumeAttempt(attempt.attemptId);
@@ -294,12 +383,12 @@ const MyAttemptsPage: React.FC = () => {
   };
 
   // Handle view results
-  const handleViewResults = (attempt: AttemptWithDetails) => {
+  const handleViewResults = (attempt: AttemptSummaryDto) => {
     navigate(`/quizzes/${attempt.quizId}/results?attemptId=${attempt.attemptId}`);
   };
 
   // Handle delete attempt
-  const handleDeleteAttempt = (attempt: AttemptWithDetails) => {
+  const handleDeleteAttempt = (attempt: AttemptSummaryDto) => {
     setAttemptToDelete(attempt);
     setShowDeleteModal(true);
   };
@@ -392,6 +481,36 @@ const MyAttemptsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
+                {/* View Mode Toggle */}
+                <div className="inline-flex rounded-md shadow-sm" role="group">
+                  <Button
+                    type="button"
+                    variant={viewMode === 'list' ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="rounded-r-none"
+                    title="List view"
+                    aria-label="Switch to list view"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewMode === 'grouped' ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('grouped')}
+                    className="rounded-l-none -ml-px"
+                    title="Grouped view"
+                    aria-label="Switch to grouped view"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                  </Button>
+                </div>
+                
                 {/* Status Filter Dropdown */}
                 <div className="relative" ref={filterDropdownRef}>
                   <Button
@@ -480,179 +599,40 @@ const MyAttemptsPage: React.FC = () => {
                 </div>
 
                 {/* Sort Dropdown */}
-                <div className="relative" ref={sortDropdownRef}>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsSortOpen(!isSortOpen)}
-                    rounded
-                    rightIcon={
-                      <svg 
-                        className={`w-4 h-4 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    }
-                  >
-                    Sort by: {
-                      sortBy === 'newest' ? 'Newest First' :
-                      sortBy === 'oldest' ? 'Oldest First' :
-                      sortBy === 'quiz_asc' ? 'Quiz A-Z' :
-                      sortBy === 'quiz_desc' ? 'Quiz Z-A' :
-                      sortBy === 'completion_asc' ? 'Progress Low-High' :
-                      'Progress High-Low'
-                    }
-                  </Button>
-
-                  {/* Dropdown Panel */}
-                  {isSortOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
-                      <div className="py-1">
-                        {[
-                          { value: 'newest' as SortOption, label: 'Newest First' },
-                          { value: 'oldest' as SortOption, label: 'Oldest First' },
-                          { value: 'quiz_asc' as SortOption, label: 'Quiz A-Z' },
-                          { value: 'quiz_desc' as SortOption, label: 'Quiz Z-A' },
-                          { value: 'completion_asc' as SortOption, label: 'Progress Low-High' },
-                          { value: 'completion_desc' as SortOption, label: 'Progress High-Low' }
-                        ].map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => {
-                              setSortBy(option.value);
-                              setIsSortOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 hover:bg-theme-bg-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-interactive-primary ${
-                              sortBy === option.value ? 'bg-theme-bg-tertiary text-theme-interactive-primary' : 'text-theme-text-secondary'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm font-medium">{option.label}</div>
-                              {sortBy === option.value && (
-                                <svg className="w-4 h-4 text-theme-interactive-primary" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <SortDropdown
+                  options={sortOptions}
+                  value={sortBy}
+                  onChange={setSortBy}
+                />
               </div>
             </div>
 
-            {/* Attempts Grid */}
-            <div className="grid gap-4">
-              {paginatedAttempts.map((attempt) => (
-                <div
-                  key={attempt.attemptId}
-                  className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      {/* Status and Mode */}
-                      <div className="flex items-center space-x-3 mb-2">
-                        <Badge variant={getStatusVariant(attempt.status)} size="sm">
-                          {getStatusText(attempt.status)}
-                        </Badge>
-                        <span className="text-sm text-theme-text-tertiary">
-                          {getModeText(attempt.mode)}
-                        </span>
-                      </div>
-
-                      {/* Quiz Title */}
-                      <h4 className="font-medium text-theme-text-primary mb-1">
-                        {attempt.quiz?.title || 'Unknown Quiz'}
-                      </h4>
-
-                      {/* Metadata Row */}
-                      <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-theme-text-secondary">
-                        <span>Started: {formatDate(attempt.startedAt)}</span>
-                        
-                        {attempt.stats && (
-                          <>
-                            <span>•</span>
-                            <span>
-                              {attempt.stats.questionsAnswered} / {attempt.quiz?.questionCount || '?'} answered
-                            </span>
-                            
-                            {attempt.stats.totalTime && (
-                              <>
-                                <span>•</span>
-                                <span>{formatDuration(attempt.stats.totalTime)}</span>
-                              </>
-                            )}
-                            
-                            {attempt.status === 'COMPLETED' && (
-                              <>
-                                <span>•</span>
-                                <span className="font-medium text-theme-text-primary">
-                                  {Math.round(attempt.stats.accuracyPercentage)}% accuracy
-                                </span>
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                      {/* Progress Bar */}
-                      {attempt.stats && attempt.stats.completionPercentage > 0 && (
-                        <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mt-2">
-                          <div
-                            className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${attempt.stats.completionPercentage}%` }}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="ml-4 flex-shrink-0">
-                      <div className="flex space-x-2">
-                        {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleResumeAttempt(attempt)}
-                            leftIcon={<PlayIcon className="w-4 h-4" />}
-                          >
-                            {attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
-                          </Button>
-                        )}
-                        {attempt.status === 'COMPLETED' && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleViewResults(attempt)}
-                            leftIcon={<EyeIcon className="w-4 h-4" />}
-                          >
-                            View Results
-                          </Button>
-                        )}
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleDeleteAttempt(attempt)}
-                          leftIcon={<TrashIcon className="w-4 h-4" />}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
+            {/* Attempts Display - List or Grouped */}
+            {viewMode === 'list' ? (
+              <div className="grid gap-4">
+                {paginatedAttempts.map((attempt) => (
+                  <div
+                    key={attempt.attemptId}
+                    className="bg-theme-bg-primary border border-theme-border-primary rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    {renderAttemptCard(attempt)}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <GroupedList<AttemptSummaryDto>
+                groups={groupedAttempts}
+                renderItem={(attempt: AttemptSummaryDto) => renderAttemptCard(attempt)}
+                showCount={true}
+                itemLabel="attempt"
+                itemLabelPlural="attempts"
+                emptyMessage="No attempts found"
+                defaultExpandedGroups={[]}
+              />
+            )}
 
-            {/* Pagination */}
-            {totalPages > 1 && sortedAttempts.length > 0 && (
+            {/* Pagination - Only show in list view */}
+            {viewMode === 'list' && totalPages > 1 && sortedAttempts.length > 0 && (
               <div className="mt-6 bg-theme-bg-primary px-4 py-3 flex items-center justify-between border border-theme-border-primary rounded-lg shadow-sm">
                 {/* Results Info */}
                 <div className="flex-1 flex justify-center sm:justify-start">

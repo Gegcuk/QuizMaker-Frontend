@@ -242,3 +242,33 @@ export interface Page<T> {
   first: boolean;
   empty: boolean;
 }
+
+/**
+ * Lightweight quiz summary for embedded display
+ * Matches QuizSummaryDto from API documentation
+ */
+export interface QuizSummaryDto {
+  id: string;                   // UUID
+  title: string;
+  questionCount: number;
+  categoryId: string;           // UUID
+  isPublic: boolean;
+}
+
+/**
+ * Enriched attempt with embedded quiz and stats
+ * Matches AttemptSummaryDto from API documentation
+ * Used by /api/v1/attempts/summary endpoint to reduce N+1 queries
+ */
+export interface AttemptSummaryDto {
+  attemptId: string;            // UUID
+  quizId: string;               // UUID
+  userId: string;               // UUID
+  startedAt: string;            // ISO
+  completedAt?: string | null;  // ISO
+  status: AttemptStatus;
+  mode: AttemptMode;
+  totalScore?: number | null;
+  quiz: QuizSummaryDto;         // Embedded quiz summary
+  stats?: AttemptStatsDto | null; // Embedded attempt statistics
+}

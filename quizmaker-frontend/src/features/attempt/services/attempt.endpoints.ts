@@ -5,6 +5,7 @@
 export const ATTEMPT_ENDPOINTS = {
   START_ATTEMPT: (quizId: string) => `/v1/attempts/quizzes/${quizId}`,
   GET_ATTEMPTS: '/v1/attempts',
+  GET_ATTEMPTS_SUMMARY: '/v1/attempts/summary',
   GET_ATTEMPT: (id: string) => `/v1/attempts/${id}`,
   SUBMIT_ANSWER: (id: string) => `/v1/attempts/${id}/answers`,
   SUBMIT_BATCH_ANSWERS: (id: string) => `/v1/attempts/${id}/answers/batch`,

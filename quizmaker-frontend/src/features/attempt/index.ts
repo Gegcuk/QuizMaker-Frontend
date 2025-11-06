@@ -20,6 +20,8 @@ export type {
   QuestionForAttemptDto,
   CurrentQuestionDto,
   QuestionTimingStatsDto,
+  QuizSummaryDto,
+  AttemptSummaryDto,
   Sort,
   Pageable,
   Page

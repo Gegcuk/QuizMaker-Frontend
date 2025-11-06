@@ -22,6 +22,8 @@ export { default as ProgressBar } from './ProgressBar';
 export { default as Rating } from './Rating';
 export { default as Avatar } from './Avatar';
 export { default as Pagination } from './Pagination';
+export { GroupedList } from './GroupedList';
+export { default as SortDropdown } from './SortDropdown';
 
 // Form Components
 export { default as Form, useFormContext } from './Form';
@@ -59,6 +61,7 @@ export type { ProgressBarProps } from './ProgressBar';
 export type { RatingProps } from './Rating';
 export type { AvatarProps } from './Avatar';
 export type { PaginationProps } from './Pagination';
+export type { GroupedListProps, GroupedListGroup } from './GroupedList';
 
 // Form Component Types
 export type { FormProps, FormContextValue, FieldValues, UseFormReturn, SubmitHandler } from './Form';
