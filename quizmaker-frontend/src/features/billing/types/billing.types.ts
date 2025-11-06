@@ -138,14 +138,13 @@ export interface CheckoutSessionResponse {
 
 /**
  * Checkout session status
+ * Matches CheckoutSessionStatus from API documentation
  */
 export interface CheckoutSessionStatus {
   sessionId: string;                   // Stripe session ID
-  status: string;                      // Session status
-  paymentStatus: string;               // Payment status
-  amountTotal: number;                 // Total amount in cents
-  currency: string;                    // Currency code
-  customerEmail: string;               // Customer email
+  status: string;                      // Session status (e.g., "complete")
+  credited: boolean;                   // Whether tokens have been credited to user balance
+  creditedTokens: number | null;      // Number of tokens credited (null if not credited)
 }
 
 /**
@@ -157,11 +156,12 @@ export interface CreateCustomerRequest {
 
 /**
  * Customer response
+ * Matches CustomerResponse from API documentation
  */
 export interface CustomerResponse {
-  customerId: string;                  // Stripe customer ID
+  id: string;                          // Stripe customer ID
   email: string;                       // Customer email
-  created: number;                     // Unix timestamp
+  name: string | null;                 // Customer name (nullable)
 }
 
 /**
@@ -173,12 +173,11 @@ export interface CreateSubscriptionRequest {
 
 /**
  * Subscription response
+ * Matches SubscriptionResponse from API documentation
  */
 export interface SubscriptionResponse {
   subscriptionId: string;              // Stripe subscription ID
-  status: string;                      // Subscription status
-  currentPeriodStart: number;          // Unix timestamp
-  currentPeriodEnd: number;            // Unix timestamp
+  clientSecret: string;                // Client secret for confirming subscription
 }
 
 /**

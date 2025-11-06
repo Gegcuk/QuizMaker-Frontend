@@ -12,9 +12,10 @@ export type DocumentStatus =
 
 /**
  * Document Process status enum
+ * Matches API documentation enum
  */
 export type DocumentProcessStatus = 
-  | 'INGESTED'     // Document uploaded and ingested successfully
+  | 'PENDING'      // Document pending processing
   | 'NORMALIZED'   // Document has been normalized
   | 'STRUCTURED'   // Document has been processed and structured
   | 'FAILED';      // Processing failed
@@ -98,8 +99,17 @@ export interface DocumentProcessViewDto {
  * Matches IngestRequest from API documentation
  */
 export interface IngestRequestDto {
-  text: string;                          // Document content as text
-  language: string;                      // Language code (e.g., 'en')
+  text: string;                          // Document content as text (required)
+  language: string;                      // Language code (ISO 639-1, e.g., 'en')
+}
+
+/**
+ * Ingest Response DTO
+ * Matches IngestResponse from API documentation
+ */
+export interface IngestResponseDto {
+  id: string;                            // UUID of the ingested document
+  status: DocumentProcessStatus;         // Document processing status
 }
 
 /**
@@ -162,12 +172,10 @@ export interface StructureBuildResponseDto {
 export interface ExtractResponseDto {
   documentId: string;                    // UUID of the document
   nodeId: string;                        // UUID of the node
-  nodeTitle: string;                     // Node title
-  nodeType: NodeType;                    // Node type
-  startOffset: number;                   // Starting character offset
-  endOffset: number;                     // Ending character offset
-  content: string;                       // Extracted content
-  contentLength: number;                 // Content length
+  title: string;                         // Node title
+  start: number;                         // Start offset in document text (inclusive)
+  end: number;                           // End offset in document text (exclusive)
+  text: string;                          // Extracted text content for this node
 }
 
 /**

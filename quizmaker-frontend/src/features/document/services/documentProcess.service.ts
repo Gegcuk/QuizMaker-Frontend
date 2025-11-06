@@ -4,6 +4,7 @@ import {
   DocumentProcessDto,
   DocumentProcessViewDto,
   IngestRequestDto,
+  IngestResponseDto,
   TextSliceResponseDto,
   StructureTreeResponseDto,
   StructureFlatResponseDto,
@@ -21,6 +22,22 @@ export class DocumentProcessService {
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
+  }
+
+  /**
+   * Ingest text content
+   * POST /v1/documentProcess/documents (application/json)
+   */
+  async ingestText(data: IngestRequestDto): Promise<IngestResponseDto> {
+    try {
+      const response = await this.axiosInstance.post<IngestResponseDto>(
+        DOCUMENT_PROCESS_ENDPOINTS.INGEST,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   /**

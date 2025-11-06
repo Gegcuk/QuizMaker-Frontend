@@ -64,8 +64,8 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'INGESTED':
-        return <Badge variant="outline" className="text-theme-interactive-primary border-theme-interactive-primary">Ingested</Badge>;
+      case 'PENDING':
+        return <Badge variant="outline" className="text-theme-interactive-primary border-theme-interactive-primary">Pending</Badge>;
       case 'NORMALIZED':
         return <Badge variant="outline" className="text-theme-text-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">Normalized</Badge>;
       case 'STRUCTURED':
@@ -79,7 +79,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'INGESTED':
+      case 'PENDING':
         return <ClockIcon className="h-5 w-5 text-theme-interactive-info" />;
       case 'NORMALIZED':
         return <CheckCircleIcon className="h-5 w-5 text-theme-interactive-primary" />;
@@ -268,9 +268,9 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                   )}
                 </Button>
                 
-                                 {(document.status === 'INGESTED' || document.status === 'NORMALIZED') && (
-                   <Button
-                     variant="outline"
+                                 {(document.status === 'PENDING' || document.status === 'NORMALIZED') && (
+                  <Button
+                    variant="outline"
                      size="sm"
                      onClick={() => handleBuildStructure(document.id)}
                      disabled={loadingStates[document.id] === 'building'}
@@ -358,10 +358,10 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                               <div className="mt-3 p-3 bg-theme-bg-secondary rounded border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
                                 <h6 className="text-sm font-medium mb-2">Content Preview</h6>
                                 <p className="text-sm text-theme-text-secondary line-clamp-3">
-                                  {extractedContent[`${document.id}-${node.id}`]?.content}
+                                  {extractedContent[`${document.id}-${node.id}`]?.text}
                                 </p>
                                 <div className="mt-2 text-xs text-theme-text-tertiary">
-                                  Length: {extractedContent[`${document.id}-${node.id}`]?.contentLength} characters
+                                  Length: {extractedContent[`${document.id}-${node.id}`]?.text.length} characters
                                 </div>
                               </div>
                             )}

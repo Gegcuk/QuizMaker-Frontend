@@ -74,6 +74,7 @@ export type {
   DocumentProcessDto,
   DocumentProcessViewDto,
   IngestRequestDto,
+  IngestResponseDto,
   TextSliceResponseDto,
   DocumentStructureNodeDto,
   StructureTreeResponseDto,
