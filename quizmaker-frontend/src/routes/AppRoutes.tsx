@@ -44,7 +44,7 @@ import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 /* ----------  Document management pages  --------------------------------------- */
 import DocumentListPage from '../pages/DocumentListPage';
 import DocumentUploadPage from '../pages/DocumentUploadPage';
-import { DocumentViewer } from '../features/document';
+import DocumentViewPage from '../pages/DocumentViewPage';
 
 /* ----------  User profile pages  ----------------------------------------- */
 import { ProfilePage, SettingsPage } from '@/features/user';
@@ -53,12 +53,6 @@ import { ProfilePage, SettingsPage } from '@/features/user';
 import NotFoundPage from '../pages/NotFoundPage';
 import AiAnalysisPage from '../pages/AiAnalysisPage';
 import FormTestPage from '../pages/FormTestPage';
-
-// Wrapper component to extract documentId from URL params
-const DocumentViewerWrapper: React.FC = () => {
-  const { documentId } = useParams<{ documentId: string }>();
-  return <DocumentViewer documentId={documentId!} />;
-};
 
 const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -216,7 +210,7 @@ const AppRoutes: React.FC = () => {
           path="/documents/:documentId"
           element={
             <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentViewerWrapper />
+              <DocumentViewPage />
             </ProtectedRoute>
           }
         />

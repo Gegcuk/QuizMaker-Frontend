@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentDto, DocumentChunkDto } from '@/types';
 import { api } from '@/services';
-import { Button } from '@/components/ui';
+import { Button, Dropdown, Input, Card } from '@/components/ui';
 
 interface DocumentViewerProps {
   documentId: string;
@@ -143,70 +143,60 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
+      <Card className={className}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto mb-4"></div>
           <p className="text-theme-text-secondary">Loading document...</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
+      <Card className={className}>
         <div className="text-center">
           <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
           <p className="text-theme-interactive-danger">{error}</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
   if (!document || chunks.length === 0) {
     return (
-      <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
+      <Card className={className}>
         <div className="text-center">
           <p className="text-theme-text-secondary">No document content available</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
   const currentChunk = chunks[currentChunkIndex];
 
   return (
-    <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg ${className}`}>
-      {/* Header */}
-      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+    <Card className={className}>
+      {/* Document Info and Search */}
+      <div className="p-6 border-b border-theme-border-primary">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-theme-text-primary">{document.originalFilename}</h2>
-            <p className="text-theme-text-secondary">
-              {chunks.length} chunks • {currentChunkIndex + 1} of {chunks.length}
-            </p>
+          <div className="text-sm text-theme-text-secondary">
+            {chunks.length} chunks • Viewing chunk {currentChunkIndex + 1} of {chunks.length}
           </div>
-          <div className="text-right">
-            <div className="text-sm text-theme-text-secondary">
-              Uploaded: {formatDate(document.uploadedAt)}
-            </div>
-            {document.processedAt && (
-              <div className="text-sm text-theme-text-secondary">
-                Processed: {formatDate(document.processedAt)}
-              </div>
-            )}
+          <div className="text-right text-sm text-theme-text-secondary">
+            Uploaded: {formatDate(document.uploadedAt)}
+            {document.processedAt && <> • Processed: {formatDate(document.processedAt)}</>}
           </div>
         </div>
 
         {/* Search Bar */}
         <div className="flex items-center space-x-2 mb-4">
           <div className="flex-1 relative">
-            <input
+            <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search document content..."
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             />
             {searchTerm && (
               <div className="absolute right-2 top-2 text-sm text-theme-text-tertiary">
@@ -256,17 +246,16 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
               ← Previous
             </Button>
             
-            <select
-              value={currentChunkIndex}
-              onChange={(e) => navigateToChunk(parseInt(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              {chunks.map((chunk, index) => (
-                <option key={chunk.id} value={index}>
-                  Chunk {index + 1}: {chunk.title}
-                </option>
-              ))}
-            </select>
+            <Dropdown
+              options={chunks.map((chunk, index) => ({
+                value: index.toString(),
+                label: `Chunk ${index + 1}: ${chunk.title}`
+              }))}
+              value={currentChunkIndex.toString()}
+              onChange={(value) => navigateToChunk(parseInt(value as string))}
+              size="md"
+              className="min-w-[200px]"
+            />
             
             <Button
               type="button"
@@ -346,26 +335,31 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         <h4 className="text-sm font-medium text-theme-text-primary mb-3">All Chunks</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
           {chunks.map((chunk, index) => (
-            <button
+            <Button
               key={chunk.id}
+              type="button"
               onClick={() => navigateToChunk(index)}
-              className={`p-2 text-left rounded-md text-sm transition-colors ${
+              variant="ghost"
+              size="sm"
+              className={`p-2 text-left justify-start h-auto ${
                 index === currentChunkIndex
                   ? 'bg-theme-bg-info text-theme-interactive-info border border-theme-border-info'
                   : 'hover:bg-theme-bg-tertiary text-theme-text-secondary'
               }`}
             >
-              <div className="font-medium truncate">{chunk.title}</div>
-              <div className="text-xs text-theme-text-tertiary">
-                {chunk.wordCount !== null && <>{chunk.wordCount} words</>}
-                {chunk.wordCount !== null && chunk.startPage !== null && chunk.endPage !== null && <> • </>}
-                {chunk.startPage !== null && chunk.endPage !== null && <>Pages {chunk.startPage}-{chunk.endPage}</>}
+              <div className="w-full">
+                <div className="font-medium truncate">{chunk.title}</div>
+                <div className="text-xs text-theme-text-tertiary">
+                  {chunk.wordCount !== null && <>{chunk.wordCount} words</>}
+                  {chunk.wordCount !== null && chunk.startPage !== null && chunk.endPage !== null && <> • </>}
+                  {chunk.startPage !== null && chunk.endPage !== null && <>Pages {chunk.startPage}-{chunk.endPage}</>}
+                </div>
               </div>
-            </button>
+            </Button>
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

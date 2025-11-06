@@ -70,12 +70,19 @@ export interface ActionButton {
   confirmMessage?: string; // For delete actions
 }
 
+export interface BreadcrumbItem {
+  label: string;
+  path: string;
+  isCurrent?: boolean;
+}
+
 export interface PageHeaderProps {
   title: string;
   subtitle?: string;
   icon?: React.ComponentType<{ className?: string }>;
   actions?: ActionButton[];
   showBreadcrumb?: boolean;
+  customBreadcrumbItems?: BreadcrumbItem[];
   showBackButton?: boolean;
   backTo?: string;
   onBack?: () => void;
@@ -88,6 +95,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   icon: Icon,
   actions = [],
   showBreadcrumb = false,
+  customBreadcrumbItems,
   showBackButton = false,
   backTo,
   onBack,
@@ -169,7 +177,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         {/* Breadcrumb */}
         {showBreadcrumb && (
           <div className="mb-4">
-            <Breadcrumb />
+            <Breadcrumb customItems={customBreadcrumbItems} />
           </div>
         )}
 
