@@ -143,4 +143,32 @@ export interface ResendVerificationRequest {
  */
 export interface ResendVerificationResponse {
   message: string;
+}
+
+/**
+ * User profile response
+ * Matches UserProfileResponse DTO from API documentation
+ * Full user profile with preferences and metadata
+ */
+export interface UserProfileResponse {
+  id: string;                       // UUID
+  username: string;
+  email: string;
+  displayName?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  preferences?: Record<string, any>; // User preferences (JSON object)
+  joinedAt: string;                 // ISO date-time (account creation)
+  verified: boolean;                // Email verified flag
+  roles: string[];                  // Assigned roles
+  version: number;                  // Entity version for optimistic locking
+}
+
+/**
+ * Avatar upload response
+ * Matches AvatarUploadResponse DTO from API documentation
+ */
+export interface AvatarUploadResponse {
+  avatarUrl: string;  // Public URL of the uploaded avatar
+  message: string;    // Human friendly message
 } 

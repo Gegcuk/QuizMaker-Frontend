@@ -173,10 +173,8 @@ export class QuizService extends BaseService<QuizDto> {
         QUIZ_ENDPOINTS.GENERATE_FROM_UPLOAD, 
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+          _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
+        } as any
       );
       return response.data;
     } catch (error) {

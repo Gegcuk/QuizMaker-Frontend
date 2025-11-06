@@ -42,10 +42,8 @@ export class DocumentService {
       }
 
       const response = await this.axiosInstance.post<DocumentDto>(DOCUMENT_ENDPOINTS.UPLOAD, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+        _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
+      } as any);
       return response.data;
     } catch (error) {
       throw this.handleDocumentError(error);

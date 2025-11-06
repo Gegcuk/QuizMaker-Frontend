@@ -156,16 +156,14 @@ export abstract class BaseService<T extends BaseEntity> {
     formData.append('file', file);
 
     const response = await this.axiosInstance.post<{ id: string; url: string }>(`${this.basePath}/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
+      _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
       onUploadProgress: (progressEvent: any) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           onProgress(progress);
         }
       }
-    });
+    } as any);
     return response.data;
   }
 

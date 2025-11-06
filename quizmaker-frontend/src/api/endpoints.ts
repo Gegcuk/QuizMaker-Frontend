@@ -6,7 +6,8 @@
  * User management endpoints
  */
 export const USER_ENDPOINTS = {
-  PROFILE: '/v1/users/profile',
+  PROFILE: '/v1/users/me',           // User profile (was /v1/users/profile - corrected to match API)
+  UPLOAD_AVATAR: '/v1/users/me/avatar',  // Upload avatar
   USERS: '/v1/users',
   USER_BY_ID: (id: string) => `/v1/users/${id}`,
   ACTIVATE_USER: (id: string) => `/v1/users/${id}/activate`,
