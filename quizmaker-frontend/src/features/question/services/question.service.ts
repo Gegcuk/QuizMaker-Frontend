@@ -4,6 +4,7 @@ import {
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionDto,
+  QuestionSchemaResponse,
   Page
 } from '@/types';
 
@@ -92,6 +93,36 @@ export class QuestionService {
   async deleteQuestion(id: string): Promise<void> {
     try {
       await this.axiosInstance.delete(QUESTION_ENDPOINTS.DELETE_QUESTION(id));
+    } catch (error) {
+      throw this.handleQuestionError(error);
+    }
+  }
+
+  /**
+   * Get all question type schemas
+   * GET /api/v1/questions/schemas
+   */
+  async getAllSchemas(): Promise<Record<string, QuestionSchemaResponse>> {
+    try {
+      const response = await this.axiosInstance.get<Record<string, QuestionSchemaResponse>>(
+        QUESTION_ENDPOINTS.GET_ALL_SCHEMAS
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuestionError(error);
+    }
+  }
+
+  /**
+   * Get schema for a specific question type
+   * GET /api/v1/questions/schemas/{questionType}
+   */
+  async getSchemaByType(questionType: string): Promise<QuestionSchemaResponse> {
+    try {
+      const response = await this.axiosInstance.get<QuestionSchemaResponse>(
+        QUESTION_ENDPOINTS.GET_SCHEMA_BY_TYPE(questionType)
+      );
+      return response.data;
     } catch (error) {
       throw this.handleQuestionError(error);
     }

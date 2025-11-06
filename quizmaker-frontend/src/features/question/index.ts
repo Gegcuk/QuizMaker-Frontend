@@ -10,6 +10,7 @@ export type {
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionDto,
+  QuestionSchemaResponse,
   Sort,
   Pageable,
   Page

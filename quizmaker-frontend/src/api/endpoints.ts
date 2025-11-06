@@ -29,11 +29,29 @@ export const QUIZ_ENDPOINTS = {
   BULK_DELETE: '/v1/quizzes',
   VISIBILITY: (id: string) => `/v1/quizzes/${id}/visibility`,
   STATUS: (id: string) => `/v1/quizzes/${id}/status`,
+  SUBMIT_FOR_REVIEW: (id: string) => `/v1/quizzes/${id}/submit-for-review`,
   ADD_QUESTION: (quizId: string, questionId: string) => `/v1/quizzes/${quizId}/questions/${questionId}`,
   REMOVE_QUESTION: (quizId: string, questionId: string) => `/v1/quizzes/${quizId}/questions/${questionId}`,
   ADD_TAG: (quizId: string, tagId: string) => `/v1/quizzes/${quizId}/tags/${tagId}`,
   REMOVE_TAG: (quizId: string, tagId: string) => `/v1/quizzes/${quizId}/tags/${tagId}`,
   CHANGE_CATEGORY: (quizId: string, categoryId: string) => `/v1/quizzes/${quizId}/category/${categoryId}`,
+  // Share link endpoints
+  CREATE_SHARE_LINK: (id: string) => `/v1/quizzes/${id}/share-link`,
+  GET_SHARE_LINKS: '/v1/quizzes/share-links',
+  DELETE_SHARE_LINK: (tokenId: string) => `/v1/quizzes/shared/${tokenId}`,
+  GET_SHARED_QUIZ: (token: string) => `/v1/quizzes/shared/${token}`,
+  CONSUME_SHARE_LINK: (token: string) => `/v1/quizzes/shared/${token}/consume`,
+  // Shared quiz attempts
+  START_SHARED_ATTEMPT: (token: string) => `/v1/quizzes/shared/${token}/attempts`,
+  SUBMIT_SHARED_ANSWER: (attemptId: string) => `/v1/quizzes/shared/attempts/${attemptId}/answers`,
+  SUBMIT_SHARED_BATCH: (attemptId: string) => `/v1/quizzes/shared/attempts/${attemptId}/answers/batch`,
+  COMPLETE_SHARED_ATTEMPT: (attemptId: string) => `/v1/quizzes/shared/attempts/${attemptId}/complete`,
+  GET_SHARED_ATTEMPT_STATS: (attemptId: string) => `/v1/quizzes/shared/attempts/${attemptId}/stats`,
+  GET_SHARED_CURRENT_QUESTION: (attemptId: string) => `/v1/quizzes/shared/attempts/${attemptId}/current-question`,
+  // Quiz attempts and results
+  GET_QUIZ_ATTEMPTS: (quizId: string) => `/v1/quizzes/${quizId}/attempts`,
+  GET_ATTEMPT_STATS: (quizId: string, attemptId: string) => `/v1/quizzes/${quizId}/attempts/${attemptId}/stats`,
+  // Generation endpoints
   GENERATE_FROM_DOCUMENT: '/v1/quizzes/generate-from-document',
   GENERATE_FROM_UPLOAD: '/v1/quizzes/generate-from-upload',
   GENERATE_FROM_TEXT: '/v1/quizzes/generate-from-text',
@@ -41,6 +59,8 @@ export const QUIZ_ENDPOINTS = {
   GENERATED_QUIZ: (jobId: string) => `/v1/quizzes/generated-quiz/${jobId}`,
   GENERATION_JOBS: '/v1/quizzes/generation-jobs',
   GENERATION_STATISTICS: '/v1/quizzes/generation-jobs/statistics',
+  FORCE_CANCEL_JOB: (jobId: string) => `/v1/quizzes/generation-jobs/${jobId}/force-cancel`,
+  CLEANUP_STALE_JOBS: '/v1/quizzes/generation-jobs/cleanup-stale',
   EXPORT: '/v1/quizzes/export',
 } as const;
 

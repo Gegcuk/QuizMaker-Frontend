@@ -109,6 +109,16 @@ export interface Page<T> {
   empty: boolean;
 }
 
+/**
+ * Question schema response
+ * Contains JSON Schema and example for a question type
+ */
+export interface QuestionSchemaResponse {
+  schema: any;                           // JSON Schema defining the content structure
+  example: any;                          // Example content for this question type
+  description: string;                   // Human-readable description
+}
+
 // ============================================================================
 // Question Content Types
 // Based on JSON structures from question_controller.md

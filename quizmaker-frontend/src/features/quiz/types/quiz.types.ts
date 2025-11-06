@@ -11,7 +11,7 @@ export type Visibility = 'PUBLIC' | 'PRIVATE';
 /**
  * Quiz status options
  */
-export type QuizStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type QuizStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'PENDING_REVIEW' | 'REJECTED';
 
 /**
  * Quiz difficulty levels
@@ -296,4 +296,44 @@ export interface QuizExportRequest {
   includeHints?: boolean;                  // Include question hints (print formats)
   includeExplanations?: boolean;           // Include answer explanations (print formats)
   groupQuestionsByType?: boolean;          // Group by question type (print formats)
+}
+
+/**
+ * Share link scope
+ */
+export type ShareLinkScope = 'QUIZ_VIEW' | 'QUIZ_ATTEMPT_START';
+
+/**
+ * Create share link request
+ * Matches CreateShareLinkRequest from API
+ */
+export interface CreateShareLinkRequest {
+  quizId: string;                          // Quiz UUID
+  scope: ShareLinkScope;                   // Link scope
+  expiresAt?: string;                      // Optional expiry (ISO date-time)
+  oneTime?: boolean;                       // Optional one-time use flag
+}
+
+/**
+ * Create share link response
+ * Matches CreateShareLinkResponse from API
+ */
+export interface CreateShareLinkResponse {
+  token: string;                           // Share token
+  shareUrl: string;                        // Full share URL
+}
+
+/**
+ * Share link DTO
+ * Matches ShareLinkDto from API
+ */
+export interface ShareLinkDto {
+  id: string;                              // Share link UUID
+  quizId: string;                          // Quiz UUID
+  createdBy: string;                       // Creator UUID
+  scope: ShareLinkScope;                   // Link scope
+  expiresAt?: string;                      // Expiry (ISO date-time)
+  oneTime: boolean;                        // One-time use flag
+  revokedAt?: string;                      // Revoked at (ISO date-time)
+  createdAt: string;                       // Created at (ISO date-time)
 } 

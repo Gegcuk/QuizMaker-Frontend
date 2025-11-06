@@ -21,6 +21,7 @@ export type {
   CreateQuestionRequest,
   UpdateQuestionRequest,
   QuestionDto,
+  QuestionSchemaResponse,
   Sort as QuestionSort,
   Pageable as QuestionPageable,
   Page as QuestionPage,
