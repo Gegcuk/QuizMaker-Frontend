@@ -19,6 +19,7 @@ export interface QuizDto {
   tagIds?: string[];
   timerEnabled: boolean;
   timerDuration?: number;
+  questionCount?: number;
   createdAt: string;
   updatedAt: string;
 }

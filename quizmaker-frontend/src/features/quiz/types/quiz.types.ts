@@ -93,6 +93,7 @@ export interface QuizDto extends BaseEntity, AuditableEntity {
   timerEnabled: boolean;            // Timer setting
   timerDuration: number;            // Timer duration in minutes
   tagIds: string[];                 // Associated tag IDs
+  questionCount?: number;           // Total number of questions in the quiz (optional, populated by backend)
 }
 
 /**
