@@ -60,7 +60,8 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
 
       try {
         // Show public quizzes that users can take
-        const response = await getAllQuizzes({ scope: 'public' });
+        // Load all quizzes at once for client-side pagination (backend default is only 20)
+        const response = await getAllQuizzes({ scope: 'public', size: 1000 });
         setQuizzes(response.content || []);
       } catch (error) {
         // Use the utility function to handle auth errors properly

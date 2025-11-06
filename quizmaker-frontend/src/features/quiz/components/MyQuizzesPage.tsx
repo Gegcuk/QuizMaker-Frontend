@@ -74,7 +74,9 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setError(null);
 
       try {
-        const response = await getMyQuizzes();
+        // Load all quizzes at once for client-side pagination
+        // Set a large size to get all user's quizzes (backend default is only 20)
+        const response = await getMyQuizzes({ size: 1000 });
         setQuizzes(response.content || []);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
