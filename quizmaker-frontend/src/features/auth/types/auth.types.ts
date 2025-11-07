@@ -171,4 +171,43 @@ export interface UserProfileResponse {
 export interface AvatarUploadResponse {
   avatarUrl: string;  // Public URL of the uploaded avatar
   message: string;    // Human friendly message
+}
+
+/**
+ * OAuth provider types
+ * Supported OAuth2 social login providers
+ */
+export type OAuthProvider = 'GOOGLE' | 'GITHUB' | 'FACEBOOK' | 'MICROSOFT' | 'APPLE';
+
+/**
+ * OAuth account DTO
+ * Matches OAuthAccountDto from API documentation
+ * Represents a linked OAuth social login account
+ */
+export interface OAuthAccountDto {
+  id: number;                 // Unique identifier of the OAuth account
+  provider: OAuthProvider;    // OAuth provider name
+  email: string;              // Email address from the OAuth provider
+  name: string;               // Display name from the OAuth provider
+  profileImageUrl?: string;   // Profile image URL from the OAuth provider
+  createdAt: string;          // When the OAuth account was linked (ISO date-time)
+  updatedAt: string;          // Last time the OAuth account info was updated (ISO date-time)
+}
+
+/**
+ * Linked accounts response
+ * Matches LinkedAccountsResponse from API documentation
+ * Contains all OAuth accounts linked to the authenticated user
+ */
+export interface LinkedAccountsResponse {
+  accounts: OAuthAccountDto[]; // List of linked OAuth accounts
+}
+
+/**
+ * Unlink account request
+ * Matches UnlinkAccountRequest from API documentation
+ * Used to unlink an OAuth provider from the user account
+ */
+export interface UnlinkAccountRequest {
+  provider: OAuthProvider; // OAuth provider to unlink
 } 

@@ -2,7 +2,7 @@
 // This allows importing services from a single location
 
 // Auth services
-export { AuthService } from '../features/auth/services/auth.service';
+export { AuthService, authService } from '../features/auth/services/auth.service';
 
 // Admin services
 export { AdminService } from '../features/admin/services/admin.service';

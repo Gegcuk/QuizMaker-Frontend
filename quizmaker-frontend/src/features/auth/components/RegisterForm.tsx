@@ -10,6 +10,7 @@ import { useAuth } from '../AuthContext';
 import { RegisterRequest } from '@/types';
 import { Form, FormField, Button } from '@/components';
 import type { AxiosError } from 'axios';
+import OAuthButton from './OAuthButton';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -287,6 +288,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           </p>
         </div>
       </Form>
+
+      {/* OAuth Divider */}
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-theme-border-primary"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-theme-bg-primary text-theme-text-secondary">Or sign up with</span>
+          </div>
+        </div>
+      </div>
+
+      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
+      <div className="mt-6 flex flex-wrap justify-center sm:flex-col gap-3">
+        <OAuthButton provider="GOOGLE" fullWidth={false} />
+        <OAuthButton provider="GITHUB" fullWidth={false} />
+        <OAuthButton provider="MICROSOFT" fullWidth={false} />
+        <OAuthButton provider="FACEBOOK" fullWidth={false} />
+        <OAuthButton provider="APPLE" fullWidth={false} />
+      </div>
     </div>
   );
 };

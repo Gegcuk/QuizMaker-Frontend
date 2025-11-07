@@ -14,7 +14,10 @@ import {
   VerifyEmailRequest,
   VerifyEmailResponse,
   ResendVerificationRequest,
-  ResendVerificationResponse
+  ResendVerificationResponse,
+  OAuthProvider,
+  LinkedAccountsResponse,
+  UnlinkAccountRequest
 } from '@/types';
 import { BaseService } from '@/services';
 
@@ -147,6 +150,43 @@ export class AuthService extends BaseService<UserDto> {
   }
 
   /**
+   * Get OAuth authorization URL for a provider
+   * This initiates the OAuth login flow by redirecting to the provider
+   * 
+   * @param provider - OAuth provider (GOOGLE, GITHUB, etc.)
+   * @returns The full authorization URL
+   */
+  getOAuthAuthorizationUrl(provider: OAuthProvider): string {
+    const baseUrl = this.axiosInstance.defaults.baseURL || '';
+    return `${baseUrl}${AUTH_ENDPOINTS.OAUTH_AUTHORIZATION(provider)}`;
+  }
+
+  /**
+   * Get linked OAuth accounts for the authenticated user
+   * GET /api/v1/auth/oauth/accounts
+   */
+  async getLinkedAccounts(): Promise<LinkedAccountsResponse> {
+    try {
+      const response = await this.axiosInstance.get<LinkedAccountsResponse>(AUTH_ENDPOINTS.OAUTH_ACCOUNTS);
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Unlink an OAuth account from the authenticated user
+   * DELETE /api/v1/auth/oauth/accounts
+   */
+  async unlinkAccount(data: UnlinkAccountRequest): Promise<void> {
+    try {
+      await this.axiosInstance.delete(AUTH_ENDPOINTS.OAUTH_ACCOUNTS, { data });
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
    * Handle auth-specific errors
    */
   private handleAuthError(error: any): Error {
@@ -175,4 +215,10 @@ export class AuthService extends BaseService<UserDto> {
 
     return new Error(error.message || 'Network error occurred');
   }
-} 
+}
+
+// Import api instance for creating the singleton
+import api from '@/api/axiosInstance';
+
+// Export singleton instance
+export const authService = new AuthService(api); 

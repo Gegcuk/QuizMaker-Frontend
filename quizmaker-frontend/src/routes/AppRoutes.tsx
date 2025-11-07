@@ -19,6 +19,7 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
+import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
 import TermsPage from '../pages/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage';
@@ -81,6 +82,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/register" element={authRedirect('register')} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+        <Route path="/oauth2/redirect" element={<OAuthCallbackPage />} />
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />

@@ -37,6 +37,7 @@ interface AuthContextType {
     password: string;
   }) => Promise<void>;
   logout: () => void;
+  checkAuthStatus: () => Promise<void>;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -144,8 +145,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       login,
       register,
       logout,
+      checkAuthStatus: fetchCurrentUser,
     }),
-    [user, isLoading, login, register, logout],
+    [user, isLoading, login, register, logout, fetchCurrentUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

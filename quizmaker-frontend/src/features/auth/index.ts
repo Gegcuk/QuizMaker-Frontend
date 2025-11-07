@@ -1,5 +1,5 @@
 // Auth feature exports
-export { AuthService } from './services/auth.service';
+export { AuthService, authService } from './services/auth.service';
 export { AUTH_ENDPOINTS } from './services/auth.endpoints';
 export { AuthProvider, useAuth } from './AuthContext';
 export type {
