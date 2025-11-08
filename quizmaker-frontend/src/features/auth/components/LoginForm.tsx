@@ -190,9 +190,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
       <div className="mt-6 flex flex-wrap justify-center sm:flex-col gap-3">
         <OAuthButton provider="GOOGLE" fullWidth={false} />
         <OAuthButton provider="GITHUB" fullWidth={false} />
-        <OAuthButton provider="MICROSOFT" fullWidth={false} />
-        <OAuthButton provider="FACEBOOK" fullWidth={false} />
-        <OAuthButton provider="APPLE" fullWidth={false} />
       </div>
     </div>
   );
