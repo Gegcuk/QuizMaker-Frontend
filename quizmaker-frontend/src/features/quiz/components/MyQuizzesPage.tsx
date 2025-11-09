@@ -406,20 +406,18 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
               {/* Bulk Actions */}
               {selectedQuizzes.length > 0 && (
                 <div className="mb-4 bg-theme-bg-info border border-theme-border-info rounded-md p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm font-medium text-theme-text-primary">
-                        {selectedQuizzes.length} quiz(zes) selected
-                      </span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedQuizzes([])}
-                      >
-                        Clear selection
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-theme-text-primary">
+                      {selectedQuizzes.length} quiz(zes) selected
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedQuizzes([])}
+                    >
+                      Clear selection
+                    </Button>
                     <Button
                       type="button"
                       variant="danger"

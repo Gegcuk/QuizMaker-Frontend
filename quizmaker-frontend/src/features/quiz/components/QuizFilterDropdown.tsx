@@ -135,7 +135,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto bg-theme-bg-primary text-theme-text-primary">
+        <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-64 sm:w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto bg-theme-bg-primary text-theme-text-primary">
           <div className="p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">

@@ -90,7 +90,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 bg-theme-bg-primary text-theme-text-primary">
+        <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 bg-theme-bg-primary text-theme-text-primary">
           <div className="py-1">
             {sortOptions.map((option) => (
               <button

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { AttemptDto, CurrentQuestionDto, QuizDto } from '@/types';
-import { Badge, Button, Card, CardBody, CardActions, Spinner } from '@/components';
+import { Badge, Button, Card, CardBody } from '@/components';
 
 export interface AttemptWithDetails extends AttemptDto {
   quiz?: QuizDto;
@@ -65,12 +65,12 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
   // Helper function to get mode text
   const getModeText = (mode: string): string => {
     switch (mode) {
-      case 'STUDY':
-        return 'Study Mode';
-      case 'EXAM':
-        return 'Exam Mode';
-      case 'PRACTICE':
-        return 'Practice Mode';
+      case 'ONE_BY_ONE':
+        return 'One by One';
+      case 'ALL_AT_ONCE':
+        return 'All at Once';
+      case 'TIMED':
+        return 'Timed';
       default:
         return mode;
     }
@@ -100,92 +100,70 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
       className={className}
     >
       <CardBody>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            {/* Status and Mode Badges */}
-            <div className="flex items-center space-x-3 mb-2">
-              <Badge variant={getStatusColor(attempt.status)} size="sm">
-                {getStatusText(attempt.status)}
-              </Badge>
-              <span className="text-sm text-theme-text-tertiary">
-                {getModeText(attempt.mode)}
-              </span>
-            </div>
+        {/* Mobile Layout - Simple vertical stack */}
+        <div className="md:hidden space-y-3">
+          {/* Quiz Title */}
+          {attempt.quiz && (
+            <h4 className="text-lg font-semibold text-theme-text-primary">
+              {attempt.quiz.title}
+            </h4>
+          )}
 
-            {/* Quiz Title and Details */}
-            <div className="space-y-1">
-              {attempt.quiz && (
-                <h4 className="font-medium text-theme-text-primary">
-                  {attempt.quiz.title}
-                </h4>
-              )}
-              <p className="text-sm text-theme-text-secondary">
-                Started: {formatDate(attempt.startedAt)}
-              </p>
-              
-              {/* Current Question Info */}
-              {attempt.currentQuestion && (
-                <div className="flex items-center space-x-4 text-sm text-theme-text-secondary">
-                  <span className="font-medium text-theme-interactive-primary">
-                    Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
-                  </span>
-                </div>
-              )}
+          {/* Started Date */}
+          <p className="text-sm text-theme-text-secondary">
+            Started: {formatDate(attempt.startedAt)}
+          </p>
+          
+          {/* Number of Questions */}
+          {attempt.currentQuestion && (
+            <p className="text-sm font-medium text-theme-interactive-primary">
+              Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
+            </p>
+          )}
 
-              {/* Progress Bar */}
-              {attempt.stats && attempt.stats.completionPercentage > 0 && (
-                <div className="mt-2">
-                  <div className="flex justify-between text-xs text-theme-text-tertiary mb-1">
-                    <span>Progress</span>
-                    <span>{attempt.stats.completionPercentage}%</span>
-                  </div>
-                  <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-                    <div
-                      className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${attempt.stats.completionPercentage}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* Progress Bar */}
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
+            <div
+              className="bg-theme-interactive-primary h-full rounded-full transition-all duration-300"
+              style={{ width: `${attempt.stats?.completionPercentage || 0}%` }}
+            />
           </div>
 
-          {/* Actions */}
+          {/* Action Buttons */}
           {showActions && (
-            <div className="ml-4 flex-shrink-0">
-              <CardActions align="right">
-                {onResume && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => onResume(attempt)}
-                    disabled={isResuming || isDeleting}
-                    loading={isResuming}
-                    leftIcon={
-                      !isResuming && (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )
-                    }
-                  >
-                    {isResuming 
-                      ? (attempt.status === 'PAUSED' ? 'Resuming...' : 'Loading...')
-                      : (attempt.status === 'PAUSED' ? 'Resume' : 'Continue')
-                    }
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => onDelete(attempt)}
-                    disabled={isResuming || isDeleting}
-                    loading={isDeleting}
-                    leftIcon={
-                      !isDeleting && (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <div className="flex gap-2">
+              {onResume && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => onResume(attempt)}
+                  disabled={isResuming || isDeleting}
+                  loading={isResuming}
+                  leftIcon={
+                    !isResuming && (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    )
+                  }
+                >
+                  {isResuming 
+                    ? (attempt.status === 'PAUSED' ? 'Resuming...' : 'Loading...')
+                    : (attempt.status === 'PAUSED' ? 'Resume' : 'Continue')
+                  }
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => onDelete(attempt)}
+                  disabled={isResuming || isDeleting}
+                  loading={isDeleting}
+                  leftIcon={
+                    !isDeleting && (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       )
                     }
@@ -193,9 +171,101 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
                     Delete
                   </Button>
                 )}
-              </CardActions>
             </div>
           )}
+        </div>
+
+        {/* Desktop Layout - Detailed with badges and progress */}
+        <div className="hidden md:block">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              {/* Status and Mode Badges */}
+              <div className="flex items-center space-x-3 mb-2">
+                <Badge variant={getStatusColor(attempt.status)} size="sm">
+                  {getStatusText(attempt.status)}
+                </Badge>
+                <span className="text-sm text-theme-text-tertiary">
+                  {getModeText(attempt.mode)}
+                </span>
+              </div>
+
+              {/* Quiz Title and Details */}
+              <div className="space-y-1">
+                {attempt.quiz && (
+                  <h4 className="font-medium text-theme-text-primary">
+                    {attempt.quiz.title}
+                  </h4>
+                )}
+                <p className="text-sm text-theme-text-secondary">
+                  Started: {formatDate(attempt.startedAt)}
+                </p>
+                
+                {/* Current Question Info */}
+                {attempt.currentQuestion && (
+                  <div className="flex items-center space-x-4 text-sm text-theme-text-secondary">
+                    <span className="font-medium text-theme-interactive-primary">
+                      Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
+                    </span>
+                  </div>
+                )}
+
+                {/* Progress Bar */}
+                <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mt-2">
+                  <div
+                    className="bg-theme-interactive-primary h-full rounded-full transition-all duration-300"
+                    style={{ width: `${attempt.stats?.completionPercentage || 0}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            {showActions && (
+              <div className="ml-4 flex-shrink-0">
+                <div className="flex gap-2">
+                  {onResume && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => onResume(attempt)}
+                      disabled={isResuming || isDeleting}
+                      loading={isResuming}
+                      leftIcon={
+                        !isResuming && (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )
+                      }
+                    >
+                      {isResuming 
+                        ? (attempt.status === 'PAUSED' ? 'Resuming...' : 'Loading...')
+                        : (attempt.status === 'PAUSED' ? 'Resume' : 'Continue')
+                      }
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => onDelete(attempt)}
+                      disabled={isResuming || isDeleting}
+                      loading={isDeleting}
+                      leftIcon={
+                        !isDeleting && (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          )
+                        }
+                      >
+                        Delete
+                      </Button>
+                    )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </CardBody>
     </Card>

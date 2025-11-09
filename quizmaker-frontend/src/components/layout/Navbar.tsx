@@ -72,10 +72,10 @@ const Navbar: React.FC = () => {
 
   const guestMobileLinks = (
     <>
-      <Link to="/login" className={mobileLinkClasses}>
+      <Link to="/login" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         Login
       </Link>
-      <Link to="/register" className={mobilePrimaryLinkClasses}>
+      <Link to="/register" className={mobilePrimaryLinkClasses} onClick={() => setIsOpen(false)}>
         Register
       </Link>
     </>
@@ -100,23 +100,26 @@ const Navbar: React.FC = () => {
 
   const authMobileLinks = (
     <>
-      <Link to="/my-quizzes" className={mobileLinkClasses}>
+      <Link to="/my-quizzes" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         My Quizzes
       </Link>
-      <Link to="/my-attempts" className={mobileLinkClasses}>
+      <Link to="/my-attempts" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         My Attempts
       </Link>
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
-        <Link to="/documents" className={mobileLinkClasses}>
+        <Link to="/documents" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
           Documents
         </Link>
       )} */}
-      <Link to="/profile" className={mobileLinkClasses}>
+      <Link to="/profile" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         Profile
       </Link>
       <button
-        onClick={handleLogout}
+        onClick={() => {
+          handleLogout();
+          setIsOpen(false);
+        }}
         className={`${mobileLinkClasses} text-left`}
       >
         Logout
