@@ -1,13 +1,14 @@
 // src/components/QuizCard.tsx
 // ---------------------------------------------------------------------------
 // Individual quiz display card based on QuizDto
+// Uses base Card component for consistent styling
 // ---------------------------------------------------------------------------
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
-import { Badge, Button } from '@/components';
+import { Badge, Button, Card, CardHeader, CardBody, CardFooter, CardActions } from '@/components';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -79,9 +80,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   return (
-    <div className={`bg-theme-bg-primary rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${isSelected ? 'ring-2 ring-theme-interactive-primary' : ''} ${className}`}>
-      {/* Card Header */}
-      <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+    <Card 
+      variant="elevated" 
+      padding="none" 
+      hoverable 
+      selected={isSelected}
+      className={className}
+    >
+      <CardHeader className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start space-x-3 flex-1 min-w-0">
             {onSelect && (
@@ -89,7 +95,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 type="checkbox"
                 checked={isSelected}
                 onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
               />
             )}
             <div className="flex-1 min-w-0">
@@ -124,10 +130,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
             <span>{quiz.timerEnabled ? formatTime(quiz.timerDuration) : 'No limit'}</span>
           </div>
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Card Body */}
-      <div className="p-6">
+      <CardBody className="p-6">
         {/* Quiz Features */}
         <div className="flex items-center space-x-4 mb-4">
           <div className="flex items-center text-sm text-theme-text-secondary">
@@ -175,14 +180,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
         )}
 
         {/* Created/Updated Info */}
-        <div className="text-xs text-theme-text-tertiary mb-4">
+        <div className="text-xs text-theme-text-tertiary">
           <div>Created: {new Date(quiz.createdAt).toLocaleDateString()}</div>
           <div>Updated: {new Date(quiz.updatedAt).toLocaleDateString()}</div>
         </div>
+      </CardBody>
 
-        {/* Action Buttons */}
-        {showActions && (
-          <div className="flex items-center justify-between pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+      {/* Action Buttons */}
+      {showActions && (
+        <CardFooter className="p-6">
+          <CardActions align="between">
             <div className="flex space-x-2">
               {onStart && (
                 <Button
@@ -223,10 +230,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 </Button>
               )}
             </div>
-          </div>
-        )}
-      </div>
-    </div>
+          </CardActions>
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 

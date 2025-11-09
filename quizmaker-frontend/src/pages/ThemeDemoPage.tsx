@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, CardTitle, Input } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
 
 const ThemeDemoPage: React.FC = () => {
@@ -23,7 +23,7 @@ const ThemeDemoPage: React.FC = () => {
         {/* Color Scheme Selector */}
         <Card>
           <CardHeader>
-            <CardTitle>Choose Your Color Scheme</CardTitle>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Choose Your Color Scheme</h3>
           </CardHeader>
           <CardBody>
             <ColorSchemeSelector />
@@ -33,7 +33,7 @@ const ThemeDemoPage: React.FC = () => {
         {/* Current Palette Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Current Palette: {currentPalette.name}</CardTitle>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Current Palette: {currentPalette.name}</h3>
           </CardHeader>
           <CardBody>
             <p className="text-theme-text-secondary mb-4">{currentPalette.description}</p>
@@ -154,7 +154,7 @@ const ThemeDemoPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Button Variants</CardTitle>
+              <h3 className="text-lg font-semibold text-theme-text-primary">Button Variants</h3>
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
@@ -176,7 +176,7 @@ const ThemeDemoPage: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Typography</CardTitle>
+              <h3 className="text-lg font-semibold text-theme-text-primary">Typography</h3>
             </CardHeader>
             <CardBody>
               <div className="space-y-3">
@@ -197,7 +197,7 @@ const ThemeDemoPage: React.FC = () => {
         {/* Form Elements */}
         <Card>
           <CardHeader>
-            <CardTitle>Form Elements</CardTitle>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Form Elements</h3>
           </CardHeader>
           <CardBody>
             <div className="space-y-4">
@@ -225,7 +225,7 @@ const ThemeDemoPage: React.FC = () => {
         {/* Current Scheme Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Current Configuration</CardTitle>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Current Configuration</h3>
           </CardHeader>
           <CardBody>
             <div className="bg-theme-bg-tertiary p-4 rounded-lg">

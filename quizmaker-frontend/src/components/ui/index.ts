@@ -8,7 +8,7 @@ export { default as Dropdown } from './Dropdown';
 export { default as Tooltip } from './Tooltip';
 export { default as Alert } from './Alert';
 export { default as Badge } from './Badge';
-export { default as Card, CardHeader, CardBody, CardFooter, CardContent, CardTitle } from './Card';
+export { default as Card, CardHeader, CardBody, CardFooter, CardActions } from './Card';
 export { default as Spinner } from './Spinner';
 export { ToastProvider, useToast } from './Toast';
 
@@ -51,7 +51,7 @@ export type { DropdownProps, DropdownOption } from './Dropdown';
 export type { TooltipProps } from './Tooltip';
 export type { AlertProps } from './Alert';
 export type { BadgeProps } from './Badge';
-export type { CardProps, CardHeaderProps, CardBodyProps, CardFooterProps, CardContentProps, CardTitleProps } from './Card';
+export type { CardProps, CardHeaderProps, CardBodyProps, CardFooterProps, CardActionsProps } from './Card';
 export type { SpinnerProps } from './Spinner';
 
 // Data Display Component Types

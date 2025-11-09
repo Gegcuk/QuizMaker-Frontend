@@ -14,7 +14,7 @@ import {
   ExtractResponseDto
 } from '@/types';
 import { api } from '@/services';
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Alert, Spinner } from '@/components';
+import { Button, Card, CardBody, CardHeader, Badge, Alert, Spinner } from '@/components';
 import { 
   DocumentTextIcon, 
   EyeIcon, 
@@ -217,7 +217,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
   if (documents.length === 0) {
     return (
       <Card>
-        <CardContent className="pt-6">
+        <CardBody className="pt-6">
           <div className="text-center py-8">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
             <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No documents yet</h3>
@@ -230,7 +230,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
               </p>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     );
   }
@@ -244,7 +244,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
               <div className="flex items-center space-x-3">
                 <DocumentTextIcon className="h-6 w-6 text-theme-text-tertiary" />
                 <div>
-                                     <CardTitle className="text-lg">{document.name || `Document ${document.id.slice(0, 8)}`}</CardTitle>
+                                     <h3 className="text-lg font-semibold text-theme-text-primary">{document.name || `Document ${document.id.slice(0, 8)}`}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     {getStatusIcon(document.status)}
                     {getStatusBadge(document.status)}
@@ -312,7 +312,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
 
           {/* Expanded Content */}
           {expandedDocuments.has(document.id) && (
-            <CardContent className="pt-0">
+            <CardBody className="pt-0">
               <div className="space-y-4">
                 {/* Document Structure */}
                 {document.status === 'STRUCTURED' && (
@@ -411,7 +411,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
                   </Button>
                 </div>
               </div>
-            </CardContent>
+            </CardBody>
           )}
         </Card>
       ))}

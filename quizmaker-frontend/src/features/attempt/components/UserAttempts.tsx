@@ -8,21 +8,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 import { AttemptService } from '@/services';
-import { Badge } from '@/components';
 import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, CurrentQuestionDto, QuizDto } from '@/types';
-import { Spinner, ConfirmationModal, Button } from '@/components';
+import { ConfirmationModal, Spinner } from '@/components';
+import AttemptCard, { AttemptWithDetails } from './AttemptCard';
 
 interface UserAttemptsProps {
   className?: string;
   onAttemptsLoaded?: (hasAttempts: boolean) => void;
-}
-
-interface AttemptWithStats extends AttemptDto {
-  stats?: AttemptStatsDto;
-  quizTitle?: string;
-  quiz?: QuizDto;
-  currentQuestion?: CurrentQuestionDto;
 }
 
 const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsLoaded }) => {
@@ -31,13 +24,13 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
   const attemptService = new AttemptService(api);
   const quizService = new QuizService(api);
 
-  const [attempts, setAttempts] = useState<AttemptWithStats[]>([]);
+  const [attempts, setAttempts] = useState<AttemptWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumingAttempt, setResumingAttempt] = useState<string | null>(null);
   const [deletingAttempt, setDeletingAttempt] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [attemptToDelete, setAttemptToDelete] = useState<AttemptWithStats | null>(null);
+  const [attemptToDelete, setAttemptToDelete] = useState<AttemptWithDetails | null>(null);
   const [displayedCount, setDisplayedCount] = useState(3);
 
   // Load user attempts
@@ -107,7 +100,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
     }
   }, [attempts.length, isLoading, onAttemptsLoaded]);
 
-  const handleResumeAttempt = async (attempt: AttemptWithStats) => {
+  const handleResumeAttempt = async (attempt: AttemptWithDetails) => {
     setResumingAttempt(attempt.attemptId);
     
     try {
@@ -135,7 +128,7 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
     }
   };
 
-  const handleDeleteAttempt = async (attempt: AttemptWithStats) => {
+  const handleDeleteAttempt = async (attempt: AttemptWithDetails) => {
     setAttemptToDelete(attempt);
     setShowDeleteModal(true);
   };
@@ -154,59 +147,6 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
       setDeletingAttempt(null);
       setAttemptToDelete(null);
       setShowDeleteModal(false);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'primary';
-      case 'PAUSED':
-        return 'warning';
-      case 'COMPLETED':
-        return 'success';
-      case 'ABANDONED':
-        return 'neutral';
-      default:
-        return 'neutral';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'PAUSED':
-        return 'Paused';
-      case 'COMPLETED':
-        return 'Completed';
-      case 'ABANDONED':
-        return 'Abandoned';
-      default:
-        return status;
-    }
-  };
-
-  const getModeText = (mode: string) => {
-    switch (mode) {
-      case 'ONE_BY_ONE':
-        return 'One by One';
-      case 'ALL_AT_ONCE':
-        return 'All at Once';
-      case 'TIMED':
-        return 'Timed';
-      default:
-        return mode;
     }
   };
 
@@ -261,91 +201,14 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
 
           <div className="grid gap-4">
             {displayedAttempts.map((attempt) => (
-              <div
+              <AttemptCard
                 key={attempt.attemptId}
-                className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 hover:shadow-md transition-shadow bg-theme-bg-primary text-theme-text-primary"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Badge variant={getStatusColor(attempt.status)} size="sm">
-                        {getStatusText(attempt.status)}
-                      </Badge>
-                      <span className="text-sm text-theme-text-tertiary">
-                        {getModeText(attempt.mode)}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      {attempt.quiz && (
-                        <h4 className="font-medium text-theme-text-primary">
-                          {attempt.quiz.title}
-                        </h4>
-                      )}
-                      <p className="text-sm text-theme-text-secondary">
-                        Started: {formatDate(attempt.startedAt)}
-                      </p>
-                      
-
-
-                                             {attempt.currentQuestion && (
-                         <div className="flex items-center space-x-4 text-sm text-theme-text-secondary">
-                           <span className="font-medium text-theme-interactive-primary">
-                             Current: Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
-                           </span>
-                         </div>
-                       )}
-
-                      {attempt.stats && attempt.stats.completionPercentage > 0 && (
-                        <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mt-2">
-                          <div
-                            className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${attempt.stats.completionPercentage}%` }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="ml-4 flex-shrink-0">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleResumeAttempt(attempt)}
-                        disabled={resumingAttempt === attempt.attemptId}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {resumingAttempt === attempt.attemptId ? (
-                          <>
-                            <Spinner size="sm" className="mr-2" />
-                            {attempt.status === 'PAUSED' ? 'Resuming...' : 'Loading...'}
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
-                          </>
-                        )}
-                      </button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteAttempt(attempt)}
-                        disabled={deletingAttempt === attempt.attemptId}
-                        loading={deletingAttempt === attempt.attemptId}
-                        leftIcon={
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        }
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                attempt={attempt}
+                onResume={handleResumeAttempt}
+                onDelete={handleDeleteAttempt}
+                isResuming={resumingAttempt === attempt.attemptId}
+                isDeleting={deletingAttempt === attempt.attemptId}
+              />
             ))}
           </div>
           {hasMoreAttempts && (

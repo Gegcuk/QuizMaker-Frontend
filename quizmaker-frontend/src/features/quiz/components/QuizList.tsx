@@ -123,13 +123,13 @@ const QuizList: React.FC<QuizListProps> = ({
     <div className={`bg-theme-bg-primary shadow overflow-hidden sm:rounded-md ${className}`}>
       {/* Select All Checkbox */}
       {onSelectAll && (
-        <div className="px-4 py-3 border-b border-theme-border-primary bg-theme-bg-tertiary bg-theme-bg-primary text-theme-text-primary">
+        <div className="px-4 py-3 border-b border-theme-border-primary bg-theme-bg-tertiary">
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
               checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
               onChange={(e) => onSelectAll(e.target.checked)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
             />
             <label className="text-sm font-medium text-theme-text-secondary">
               Select All ({selectedQuizzes.length}/{quizzes.length})
@@ -150,7 +150,7 @@ const QuizList: React.FC<QuizListProps> = ({
                         type="checkbox"
                         checked={selectedQuizzes.includes(quiz.id)}
                         onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
                       />
                     )}
                     <h3 className="text-lg font-medium text-theme-text-primary truncate group-hover:text-theme-interactive-primary">

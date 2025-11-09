@@ -8,7 +8,7 @@ export { default as Input } from './ui/Input';
 export { default as Alert } from './ui/Alert';
 export { default as Spinner } from './ui/Spinner';
 export { default as Modal } from './ui/Modal';
-export { default as Card, CardHeader, CardContent, CardTitle } from './ui/Card';
+export { default as Card, CardHeader, CardBody, CardFooter, CardActions } from './ui/Card';
 export { default as Table } from './ui/Table';
 export { default as Pagination } from './ui/Pagination';
 export { default as Dropdown } from './ui/Dropdown';

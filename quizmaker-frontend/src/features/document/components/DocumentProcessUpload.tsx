@@ -8,7 +8,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { DocumentProcessService } from '@/services';
 import { DocumentProcessDto, DocumentProcessViewDto } from '@/types';
 import { api } from '@/services';
-import { Button, Alert, Badge, Card, CardContent, CardHeader, CardTitle } from '@/components';
+import { Button, Alert, Badge, Card, CardBody, CardHeader } from '@/components';
 import { 
   DocumentArrowUpIcon, 
   DocumentTextIcon, 
@@ -246,12 +246,12 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
       {uploadMode === 'file' && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <h3 className="flex items-center space-x-2 text-lg font-semibold text-theme-text-primary">
               <CloudArrowUpIcon className="h-5 w-5" />
               <span>Upload Document File</span>
-            </CardTitle>
+            </h3>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragActive
@@ -314,7 +314,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
               <p>Supported formats: PDF, DOCX, TXT</p>
               <p>Maximum file size: 50 MB</p>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       )}
 
@@ -322,12 +322,12 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
       {uploadMode === 'text' && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <h3 className="flex items-center space-x-2 text-lg font-semibold text-theme-text-primary">
               <DocumentTextIcon className="h-5 w-5" />
               <span>Enter Document Text</span>
-            </CardTitle>
+            </h3>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardBody className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="language" className="block text-sm font-medium text-theme-text-secondary">
                 Language
@@ -368,14 +368,14 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
             <div className="text-sm text-theme-text-tertiary">
               <p>Character count: {textInput.length.toLocaleString()}</p>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       )}
 
       {/* Upload Progress */}
       {isUploading && (
         <Card>
-          <CardContent className="pt-6">
+          <CardBody className="pt-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Uploading...</span>
@@ -388,7 +388,7 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
                 />
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       )}
 

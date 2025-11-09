@@ -81,7 +81,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
             type="checkbox"
             checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
             onChange={(e) => onSelectAll(e.target.checked)}
-            className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+            className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
           />
           <label className="text-sm font-medium text-theme-text-secondary">
             Select All ({selectedQuizzes.length}/{quizzes.length})

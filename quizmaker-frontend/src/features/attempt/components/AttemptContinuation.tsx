@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { AttemptService } from '@/services';
 import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, QuizDto } from '@/types';
-import { Spinner } from '@/components';
+import { Spinner, Button } from '@/components';
+import AttemptCard, { AttemptWithDetails } from './AttemptCard';
 
 interface AttemptContinuationProps {
   quizId: string;
@@ -17,11 +18,6 @@ interface AttemptContinuationProps {
   onAttemptResumed?: (attemptId: string) => void;
   onNewAttempt?: () => void;
   className?: string;
-}
-
-interface AttemptWithDetails extends AttemptDto {
-  stats?: AttemptStatsDto;
-  quiz?: QuizDto;
 }
 
 const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
@@ -124,56 +120,6 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'bg-theme-bg-info text-theme-interactive-info';
-      case 'PAUSED':
-        return 'bg-theme-bg-warning text-theme-interactive-warning';
-      default:
-        return 'bg-theme-bg-tertiary text-theme-text-primary';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'PAUSED':
-        return 'Paused';
-      default:
-        return status;
-    }
-  };
-
-  const getModeText = (mode: string) => {
-    switch (mode) {
-      case 'ONE_BY_ONE':
-        return 'One by One';
-      case 'ALL_AT_ONCE':
-        return 'All at Once';
-      case 'TIMED':
-        return 'Timed';
-      default:
-        return mode;
-    }
-  };
-
-  const getProgressPercentage = (attempt: AttemptWithDetails) => {
-    if (!attempt.stats) return 0;
-    return Math.round(attempt.stats.completionPercentage);
-  };
-
   if (isLoading) {
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
@@ -242,67 +188,13 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       {/* Existing Attempts */}
       <div className="space-y-4 mb-6">
         {existingAttempts.map((attempt) => (
-          <div
+          <AttemptCard
             key={attempt.attemptId}
-            className="border border-theme-border-primary rounded-lg p-4 hover:border-theme-border-secondary transition-colors bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(attempt.status)}`}>
-                  {getStatusText(attempt.status)}
-                </span>
-                <span className="text-sm text-theme-text-secondary">
-                  {getModeText(attempt.mode)} Mode
-                </span>
-              </div>
-              <div className="text-sm text-theme-text-tertiary">
-                Started {formatDate(attempt.startedAt)}
-              </div>
-            </div>
-
-            {/* Progress Information */}
-            {attempt.stats && (
-              <div className="mb-4">
-                <div className="flex justify-between text-sm text-theme-text-secondary mb-2">
-                  <span>Progress</span>
-                  <span>{getProgressPercentage(attempt)}%</span>
-                </div>
-                <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
-                  <div
-                    className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${getProgressPercentage(attempt)}%` }}
-                  />
-                </div>
-                <div className="mt-2 text-xs text-theme-text-tertiary">
-                  {attempt.stats.questionsAnswered} questions answered • {getProgressPercentage(attempt)}% complete
-                </div>
-              </div>
-            )}
-
-            {/* Resume Button */}
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-theme-text-secondary">
-                {attempt.status === 'PAUSED' 
-                  ? 'Your progress is saved. You can resume from where you left off.'
-                  : 'Your attempt is currently in progress.'
-                }
-              </div>
-              <button
-                onClick={() => handleResumeAttempt(attempt)}
-                disabled={resumingAttempt === attempt.attemptId}
-                className="px-4 py-2 bg-theme-interactive-primary text-theme-bg-primary text-sm font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {resumingAttempt === attempt.attemptId ? (
-                  <div className="flex items-center">
-                    <Spinner size="sm" />
-                    <span className="ml-2">Resuming...</span>
-                  </div>
-                ) : (
-                  'Resume Attempt'
-                )}
-              </button>
-            </div>
-          </div>
+            attempt={attempt}
+            onResume={handleResumeAttempt}
+            isResuming={resumingAttempt === attempt.attemptId}
+            showActions={true}
+          />
         ))}
       </div>
 
