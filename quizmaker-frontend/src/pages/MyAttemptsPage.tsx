@@ -337,7 +337,7 @@ const MyAttemptsPage: React.FC = () => {
               variant="danger"
               size="sm"
               onClick={() => handleDeleteAttempt(attempt)}
-              leftIcon={<TrashIcon className="w-4 w-4" />}
+              leftIcon={<TrashIcon className="w-4 h-4" />}
             >
               Delete
             </Button>

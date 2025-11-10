@@ -9,6 +9,11 @@
 import React from 'react';
 import { CreationMethod } from './QuizCreationWizard';
 import { Button, Card } from '@/components';
+import { 
+  PencilSquareIcon, 
+  DocumentTextIcon, 
+  DocumentArrowUpIcon 
+} from '@heroicons/react/24/outline';
 
 interface QuizCreationMethodSelectorProps {
   onMethodSelect: (method: CreationMethod) => void;
@@ -19,7 +24,7 @@ interface MethodOption {
   id: CreationMethod;
   title: string;
   description: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
   features: string[];
   estimatedTime: string;
   difficulty: 'Easy' | 'Medium' | 'Advanced';
@@ -30,7 +35,7 @@ const methodOptions: MethodOption[] = [
     id: 'manual',
     title: 'Manual Creation',
     description: 'Create your quiz manually by adding questions one by one. Perfect for custom content and precise control.',
-    icon: '✏️',
+    icon: PencilSquareIcon,
     features: [
       'Full control over questions and answers',
       'Custom question types',
@@ -44,7 +49,7 @@ const methodOptions: MethodOption[] = [
     id: 'text',
     title: 'Generate from Text',
     description: 'Paste your text content and let AI generate relevant questions automatically. Great for educational content.',
-    icon: '📝',
+    icon: DocumentTextIcon,
     features: [
       'AI-powered question generation',
       'Multiple question types',
@@ -58,7 +63,7 @@ const methodOptions: MethodOption[] = [
     id: 'document',
     title: 'Generate from Document',
     description: 'Upload a document (PDF, Word, etc.) and generate a comprehensive quiz automatically.',
-    icon: '📄',
+    icon: DocumentArrowUpIcon,
     features: [
       'Document parsing and analysis',
       'Chapter-based question generation',
@@ -123,7 +128,9 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
 
               {/* Icon and title */}
               <div className="flex items-center mb-4">
-                <span className="text-3xl mr-3">{option.icon}</span>
+                <div className="w-12 h-12 flex items-center justify-center bg-theme-bg-tertiary rounded-lg mr-3 flex-shrink-0">
+                  <option.icon className="w-6 h-6 text-theme-interactive-primary" />
+                </div>
                 <div>
                   <h4 className="text-lg font-semibold text-theme-text-primary">{option.title}</h4>
                 </div>
@@ -134,8 +141,8 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 {option.description}
               </p>
 
-              {/* Features */}
-              <div className="mb-4">
+              {/* Features - Hidden on mobile */}
+              <div className="hidden md:block mb-4">
                 <h5 className="text-sm font-medium text-theme-text-primary mb-2">Key Features:</h5>
                 <ul className="text-sm text-theme-text-secondary space-y-1">
                   {option.features.map((feature, index) => (
@@ -149,8 +156,8 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 </ul>
               </div>
 
-              {/* Estimated time */}
-              <div className="flex items-center text-sm text-theme-text-tertiary mb-4">
+              {/* Estimated time - Hidden on mobile */}
+              <div className="hidden md:flex items-center text-sm text-theme-text-tertiary mb-4">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

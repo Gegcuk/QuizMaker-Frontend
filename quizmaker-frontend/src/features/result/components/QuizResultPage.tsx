@@ -552,7 +552,7 @@ const QuizResultPage: React.FC = () => {
                           </>
                         )}
                       </span>
-                      <Badge variant="neutral" size="sm" className="flex-shrink-0">
+                      <Badge variant="neutral" size="sm" className="hidden md:inline-flex flex-shrink-0">
                         {answer.type.replace(/_/g, ' ')}
                       </Badge>
                       <div className="flex-1 min-w-0">
