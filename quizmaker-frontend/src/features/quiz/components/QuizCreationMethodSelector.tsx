@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { CreationMethod } from './QuizCreationWizard';
-import { Button, Card } from '@/components';
+import { Button, Card, Hint } from '@/components';
 import { 
   PencilSquareIcon, 
   DocumentTextIcon, 
@@ -30,7 +30,11 @@ interface MethodOption {
   difficulty: 'Easy' | 'Medium' | 'Advanced';
 }
 
-const methodOptions: MethodOption[] = [
+interface MethodOptionWithHint extends MethodOption {
+  hint: string;
+}
+
+const methodOptions: MethodOptionWithHint[] = [
   {
     id: 'manual',
     title: 'Manual Creation',
@@ -43,7 +47,8 @@ const methodOptions: MethodOption[] = [
       'Immediate editing and preview'
     ],
     estimatedTime: '15-30 minutes',
-    difficulty: 'Easy'
+    difficulty: 'Easy',
+    hint: 'Best for custom quizzes with specific requirements'
   },
   {
     id: 'text',
@@ -57,7 +62,8 @@ const methodOptions: MethodOption[] = [
       'Content-based question creation'
     ],
     estimatedTime: '5-10 minutes',
-    difficulty: 'Medium'
+    difficulty: 'Medium',
+    hint: 'Perfect for educational content or articles'
   },
   {
     id: 'document',
@@ -71,7 +77,8 @@ const methodOptions: MethodOption[] = [
       'Bulk question creation'
     ],
     estimatedTime: '2-5 minutes',
-    difficulty: 'Advanced'
+    difficulty: 'Advanced',
+    hint: 'Ideal for textbooks, manuals, or structured documents'
   }
 ];
 
@@ -131,8 +138,16 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 <div className="w-12 h-12 flex items-center justify-center bg-theme-bg-tertiary rounded-lg mr-3 flex-shrink-0">
                   <option.icon className="w-6 h-6 text-theme-interactive-primary" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h4 className="text-lg font-semibold text-theme-text-primary">{option.title}</h4>
+                </div>
+                {/* Hint icon - Mobile only */}
+                <div className="md:hidden ml-2">
+                  <Hint 
+                    content={option.hint} 
+                    position="left"
+                    size="sm"
+                  />
                 </div>
               </div>
 
@@ -169,8 +184,8 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
         ))}
       </div>
 
-      {/* Additional info */}
-      <div className="bg-theme-bg-info border border-theme-border-info rounded-lg p-4">
+      {/* Additional info - Desktop only */}
+      <div className="hidden md:block bg-theme-bg-info border border-theme-border-info rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-theme-text-tertiary" viewBox="0 0 20 20" fill="currentColor">

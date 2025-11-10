@@ -16,8 +16,10 @@ export { default as SortDropdown } from './ui/SortDropdown';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/Tabs';
 export { useToast } from './ui/Toast';
 export { GroupedList } from './ui/GroupedList';
+export { default as Hint } from './ui/Hint';
 export type { GroupedListGroup, GroupedListProps } from './ui/GroupedList';
 export type { SortOption } from './ui/SortDropdown';
+export type { HintProps } from './ui/Hint';
 
 // Form Components
 export { default as Form, useFormContext } from './ui/Form';

@@ -11,6 +11,7 @@ export { default as Badge } from './Badge';
 export { default as Card, CardHeader, CardBody, CardFooter, CardActions } from './Card';
 export { default as Spinner } from './Spinner';
 export { ToastProvider, useToast } from './Toast';
+export { default as Hint } from './Hint';
 
 // Navigation Components
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
@@ -53,6 +54,7 @@ export type { AlertProps } from './Alert';
 export type { BadgeProps } from './Badge';
 export type { CardProps, CardHeaderProps, CardBodyProps, CardFooterProps, CardActionsProps } from './Card';
 export type { SpinnerProps } from './Spinner';
+export type { HintProps } from './Hint';
 
 // Data Display Component Types
 export type { TableProps, TableColumn } from './Table';
