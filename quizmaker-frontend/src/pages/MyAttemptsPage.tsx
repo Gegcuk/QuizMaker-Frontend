@@ -164,13 +164,18 @@ const MyAttemptsPage: React.FC = () => {
       groups.get(key)!.push(attempt);
     });
 
-    return Array.from(groups.entries()).map(([key, items]) => ({
-      key,
-      label: items[0]?.quiz?.title || 'Unknown Quiz',
-      items,
-      count: items.length,
-      metadata: { quizId: items[0]?.quizId }
-    }));
+    return Array.from(groups.entries()).map(([key, items]) => {
+      const activeCount = items.filter(a => a.status === 'IN_PROGRESS' || a.status === 'PAUSED').length;
+      
+      return {
+        key,
+        label: items[0]?.quiz?.title || 'Unknown Quiz',
+        items,
+        count: items.length,
+        activeCount,
+        metadata: { quizId: items[0]?.quizId }
+      };
+    });
   }, [sortedAttempts]);
 
   // Paginate sorted attempts (for list view)
@@ -481,8 +486,8 @@ const MyAttemptsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-3">
-                {/* View Mode Toggle */}
-                <div className="inline-flex rounded-md shadow-sm" role="group">
+                {/* View Mode Toggle - Hidden on mobile */}
+                <div className="hidden md:inline-flex rounded-md shadow-sm" role="group">
                   <Button
                     type="button"
                     variant={viewMode === 'list' ? 'primary' : 'outline'}

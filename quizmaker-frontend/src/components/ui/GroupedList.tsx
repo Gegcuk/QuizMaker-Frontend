@@ -12,6 +12,7 @@ export interface GroupedListGroup<T> {
   label: string;
   items: T[];
   count?: number;
+  activeCount?: number; // Number of active/in-progress items
   metadata?: any;
 }
 
@@ -109,17 +110,22 @@ function GroupedListInner<T>(props: GroupedListProps<T>) {
                 onClick={() => toggleGroup(group.key)}
                 className="w-full flex items-center justify-between p-4 bg-theme-bg-secondary hover:bg-theme-bg-tertiary transition-colors text-left"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   {isExpanded ? (
                     <ChevronDownIcon className="h-5 w-5 text-theme-text-secondary flex-shrink-0" />
                   ) : (
                     <ChevronRightIcon className="h-5 w-5 text-theme-text-secondary flex-shrink-0" />
                   )}
-                  <h3 className="font-medium text-theme-text-primary">{group.label}</h3>
+                  <h3 className="font-medium text-theme-text-primary truncate">{group.label}</h3>
                 </div>
                 {showCount && (
-                  <span className="text-sm text-theme-text-tertiary">
-                    {itemCount} {itemCount === 1 ? itemLabel : itemLabelPlural}
+                  <span className="text-sm text-theme-text-tertiary flex-shrink-0">
+                    <span className="whitespace-nowrap">{itemCount} {itemCount === 1 ? itemLabel : itemLabelPlural}</span>
+                    {group.activeCount !== undefined && group.activeCount > 0 && (
+                      <span className="text-theme-interactive-primary ml-1 whitespace-nowrap">
+                        ({group.activeCount} active)
+                      </span>
+                    )}
                   </span>
                 )}
               </button>
