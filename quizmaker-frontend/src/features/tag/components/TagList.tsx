@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
-import { Spinner, Card, Table } from '@/components';
+import { Spinner, Card, CardHeader, CardBody, Table } from '@/components';
 import { TableColumn } from '@/components/ui/Table';
 
 interface TagListProps {
@@ -190,9 +190,8 @@ export const TagList: React.FC<TagListProps> = ({
   }
 
   return (
-    <Card 
-      className={className}
-      header={
+    <Card className={className} padding="none">
+      <CardHeader className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex-1 max-w-md">
             <input
@@ -200,14 +199,14 @@ export const TagList: React.FC<TagListProps> = ({
               placeholder="Search tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent bg-theme-bg-primary text-theme-text-primary"
             />
           </div>
           <div className="flex items-center gap-2">
             <select
               value={pageSize}
               onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary"
             >
               <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>
@@ -216,8 +215,8 @@ export const TagList: React.FC<TagListProps> = ({
             </select>
           </div>
         </div>
-      }
-    >
+      </CardHeader>
+      <CardBody className="p-0">
 
       {/* Tags Table */}
       <Table
@@ -233,6 +232,7 @@ export const TagList: React.FC<TagListProps> = ({
           onPageSizeChange: handlePageSizeChange
         }}
       />
+      </CardBody>
     </Card>
   );
 };

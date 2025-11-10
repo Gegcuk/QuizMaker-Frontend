@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizDto } from '@/types';
-import Card from '@/components/ui/Card';
+import { Card, CardHeader, CardBody } from '@/components';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
@@ -138,29 +138,29 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
 
   return (
     <>
-      <Card
-        className={className}
-        header={
+      <Card className={className}>
+        <CardHeader>
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 className="text-lg font-medium text-theme-text-primary">Export Quiz</h3>
           </div>
-        }
-      >
-        <div className="text-center">
-          <p className="text-sm text-theme-text-secondary mb-4">Export your quiz to PDF, HTML, XLSX or JSON.</p>
-          <button
-            onClick={() => setShowExportModal(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Export Quiz
-          </button>
-        </div>
+        </CardHeader>
+        <CardBody>
+          <div className="text-center">
+            <p className="text-sm text-theme-text-secondary mb-4">Export your quiz to PDF, HTML, XLSX or JSON.</p>
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export Quiz
+            </button>
+          </div>
+        </CardBody>
       </Card>
 
       {/* Export Modal - shared implementation */}

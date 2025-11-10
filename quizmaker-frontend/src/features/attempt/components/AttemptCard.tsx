@@ -5,10 +5,11 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { AttemptDto, CurrentQuestionDto, QuizDto } from '@/types';
+import { AttemptDto, AttemptStatsDto, CurrentQuestionDto, QuizDto } from '@/types';
 import { Badge, Button, Card, CardBody } from '@/components';
 
 export interface AttemptWithDetails extends AttemptDto {
+  stats?: AttemptStatsDto;
   quiz?: QuizDto;
   currentQuestion?: CurrentQuestionDto;
 }

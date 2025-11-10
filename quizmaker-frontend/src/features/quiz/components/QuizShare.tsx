@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizDto } from '@/types';
-import Card from '@/components/ui/Card';
+import { Card, CardHeader, CardBody } from '@/components';
 
 interface QuizShareProps {
   quiz: QuizDto;
@@ -140,31 +140,31 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
 
   return (
     <>
-      <Card
-        className={className}
-        header={
+      <Card className={className}>
+        <CardHeader>
           <div className="flex items-center">
             <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
             </svg>
             <h3 className="text-lg font-medium text-theme-text-primary">Share Quiz</h3>
           </div>
-        }
-      >
-        <div className="text-center">
-          <p className="text-sm text-theme-text-secondary mb-4">
-            Share this quiz with others via social media or by copying the link.
-          </p>
-          <button
-            onClick={shareNative}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
-            Share Quiz
-          </button>
-        </div>
+        </CardHeader>
+        <CardBody>
+          <div className="text-center">
+            <p className="text-sm text-theme-text-secondary mb-4">
+              Share this quiz with others via social media or by copying the link.
+            </p>
+            <button
+              onClick={shareNative}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              </svg>
+              Share Quiz
+            </button>
+          </div>
+        </CardBody>
       </Card>
 
       {/* Share Modal */}
