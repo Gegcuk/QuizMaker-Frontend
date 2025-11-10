@@ -109,11 +109,6 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
               {attempt.quiz.title}
             </h4>
           )}
-
-          {/* Started Date */}
-          <p className="text-sm text-theme-text-secondary mb-1">
-            Started: {formatDate(attempt.startedAt)}
-          </p>
           
           {/* Number of Questions */}
           {attempt.currentQuestion && (
