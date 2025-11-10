@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { getErrorMessage, getErrorTitle, isProblemDetails } from '@/utils/errorUtils';
 
 export interface AlertProps {
   type?: 'success' | 'error' | 'warning' | 'info';
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  error?: any; // Auto-format errors (ProblemDetails, Axios errors, strings)
   dismissible?: boolean;
   onDismiss?: () => void;
   className?: string;
@@ -13,14 +15,23 @@ export interface AlertProps {
 
 const Alert: React.FC<AlertProps> = ({
   type = 'info',
-  title,
+  title: titleProp,
   children,
+  error,
   dismissible = false,
   onDismiss,
   className = '',
   showIcon = true
 }) => {
   const [isVisible, setIsVisible] = useState(true);
+
+  // Auto-format error if provided
+  const errorMessage = error ? getErrorMessage(error) : null;
+  const errorTitle = error ? getErrorTitle(error) : null;
+  
+  // Determine final title and content
+  const title = titleProp || errorTitle;
+  const content = error ? errorMessage : children;
 
   const typeConfig = {
     success: {
@@ -89,7 +100,7 @@ const Alert: React.FC<AlertProps> = ({
             </h3>
           )}
           <div className={`text-sm ${config.text} ${title ? 'mt-1' : ''}`}>
-            {children}
+            {content}
           </div>
         </div>
         {dismissible && (

@@ -1,18 +1,24 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { getErrorMessage, getErrorTitle } from '@/utils/errorUtils';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastOptions {
   id?: string;
   title?: string;
-  message: string;
+  message?: string;
+  error?: any; // Auto-format errors (ProblemDetails, Axios errors, strings)
   type?: ToastType;
   duration?: number; // ms
 }
 
-interface ToastInternal extends Required<Omit<ToastOptions, 'id'>> {
+interface ToastInternal {
   id: string;
+  title: string;
+  message: string;
+  type: ToastType;
+  duration: number;
 }
 
 interface ToastContextValue {
@@ -52,10 +58,23 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addToast = useCallback((opts: ToastOptions) => {
     // Use crypto.randomUUID for better ID generation, fallback to Math.random for older browsers
     const id = opts.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+    
+    // Auto-format error if provided
+    let message = opts.message || '';
+    let title = opts.title || '';
+    
+    if (opts.error) {
+      message = getErrorMessage(opts.error);
+      const errorTitle = getErrorTitle(opts.error);
+      if (errorTitle && !title) {
+        title = errorTitle;
+      }
+    }
+    
     const toast: ToastInternal = {
       id,
-      title: opts.title || '',
-      message: opts.message,
+      title,
+      message,
       type: opts.type || 'info',
       duration: opts.duration ?? 3000,
     };

@@ -55,7 +55,7 @@ export interface PaginationParams {
 }
 
 /**
- * Standard API error response
+ * Standard API error response (legacy)
  */
 export interface ApiErrorResponse {
   message: string;
@@ -64,6 +64,21 @@ export interface ApiErrorResponse {
   timestamp: string;
   path: string;
   details?: Record<string, any>;
+}
+
+/**
+ * RFC 7807 Problem Details for HTTP APIs
+ * Standard error format used by Spring Boot 3+
+ * @see https://datatracker.ietf.org/doc/html/rfc7807
+ */
+export interface ProblemDetails {
+  type?: string;        // URI reference identifying the problem type
+  title: string;        // Short, human-readable summary
+  status: number;       // HTTP status code
+  detail?: string;      // Human-readable explanation specific to this occurrence
+  instance?: string;    // URI reference for this specific occurrence
+  timestamp?: string;   // When the error occurred
+  errors?: Record<string, string[]>; // Field-specific validation errors (Spring Validation)
 }
 
 /**

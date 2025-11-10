@@ -34,3 +34,6 @@ export * from './questionUtils';
 
 // Auth error handling utilities
 export * from './authErrorHandler';
+
+// Error utilities (ProblemDetails support)
+export * from './errorUtils';
