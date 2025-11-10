@@ -10,7 +10,7 @@ import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
-import { PageHeader, useToast, Button } from '@/components';
+import { PageHeader, useToast, Button, Alert } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
@@ -302,18 +302,14 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-theme-interactive-danger">{error}</p>
-                </div>
-              </div>
-            </div>
+            <Alert 
+              type="error" 
+              dismissible 
+              onDismiss={() => setError(null)}
+              className="mb-6"
+            >
+              {error}
+            </Alert>
           )}
 
           {/* Empty State */}

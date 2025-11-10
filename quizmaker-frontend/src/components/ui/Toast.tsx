@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -84,22 +85,21 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ToastContext.Provider value={value}>
       {children}
       {/* Container */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col space-y-3 w-80">
+      <div className="fixed top-4 right-4 z-50 flex flex-col space-y-3 w-80 sm:w-96">
         {toasts.map((t) => (
-          <div key={t.id} className={`border rounded-md shadow-sm p-3 ${typeStyles[t.type]}`}>
-            <div className="flex items-start">
+          <div key={t.id} className={`border rounded-lg shadow-lg p-4 ${typeStyles[t.type]}`}>
+            <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
-                {t.title && <p className="text-sm font-semibold mb-0.5">{t.title}</p>}
+                {t.title && <p className="text-sm font-semibold mb-1">{t.title}</p>}
                 <p className="text-sm break-words">{t.message}</p>
               </div>
               <button
-                aria-label="Close toast"
-                className="ml-3 text-current/70 hover:text-current"
+                aria-label="Close"
+                className="flex-shrink-0 text-theme-text-secondary hover:text-theme-text-primary transition-colors p-1 hover:bg-theme-bg-tertiary rounded-md"
                 onClick={() => removeToast(t.id)}
+                type="button"
               >
-                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 8.586L3.757 2.343 2.343 3.757 8.586 10l-6.243 6.243 1.414 1.414L10 11.414l6.243 6.243 1.414-1.414L11.414 10l6.243-6.243-1.414-1.414L10 8.586z" clipRule="evenodd" />
-                </svg>
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
           </div>

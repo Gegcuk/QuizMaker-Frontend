@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export interface AlertProps {
   type?: 'success' | 'error' | 'warning' | 'info';
@@ -7,6 +8,7 @@ export interface AlertProps {
   dismissible?: boolean;
   onDismiss?: () => void;
   className?: string;
+  showIcon?: boolean;
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -15,7 +17,8 @@ const Alert: React.FC<AlertProps> = ({
   children,
   dismissible = false,
   onDismiss,
-  className = ''
+  className = '',
+  showIcon = true
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -74,10 +77,12 @@ const Alert: React.FC<AlertProps> = ({
   return (
     <div className={`rounded-md p-4 border ${config.bg} ${config.border} ${className}`}>
       <div className="flex">
-        <div className="flex-shrink-0">
-          {config.icon}
-        </div>
-        <div className="ml-3 flex-1">
+        {showIcon && (
+          <div className="flex-shrink-0">
+            {config.icon}
+          </div>
+        )}
+        <div className={`flex-1 ${showIcon ? 'ml-3' : ''}`}>
           {title && (
             <h3 className={`text-sm font-medium ${config.text}`}>
               {title}
@@ -89,18 +94,14 @@ const Alert: React.FC<AlertProps> = ({
         </div>
         {dismissible && (
           <div className="ml-auto pl-3">
-            <div className="-mx-1.5 -my-1.5">
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className={`inline-flex rounded-md p-1.5 ${config.bg} ${config.text} hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-${type}-50 focus:ring-${type}-600`}
-              >
-                <span className="sr-only">Dismiss</span>
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className={`flex-shrink-0 ${config.text} hover:bg-theme-bg-tertiary transition-colors p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary`}
+              aria-label="Close"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
           </div>
         )}
       </div>

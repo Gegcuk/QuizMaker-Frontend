@@ -12,7 +12,7 @@ import { QuestionService } from '@/services';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '@/services';
 import { api } from '@/services';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
-import { Button, useToast, ConfirmationModal } from '@/components';
+import { Button, useToast, ConfirmationModal, Alert } from '@/components';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {
@@ -361,18 +361,14 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     <div className={className}>
       {/* Error message */}
       {errors.general && (
-        <div className="mb-6 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
-            </div>
-          </div>
-        </div>
+        <Alert 
+          type="error" 
+          dismissible 
+          onDismiss={() => setErrors({ ...errors, general: undefined })}
+          className="mb-6"
+        >
+          {errors.general}
+        </Alert>
       )}
 
       {/* Form content */}

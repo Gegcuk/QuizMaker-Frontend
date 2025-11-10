@@ -12,7 +12,7 @@ import { CreateQuizRequest, QuizDto, QuestionDifficulty, GenerateQuizFromTextReq
 import { createQuiz } from '@/services';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
-import { Button, useToast, InsufficientBalanceModal } from '@/components';
+import { Button, useToast, InsufficientBalanceModal, Alert } from '@/components';
 import { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
 import { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
 import { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
@@ -400,32 +400,26 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       case 4:
         return createdQuiz ? (
           <div className="text-center space-y-6">
-            <div className="bg-theme-bg-success border border-theme-border-success rounded-lg p-6">
-              <div className="flex items-center justify-center mb-4">
-                <svg className="h-12 w-12 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-theme-text-primary mb-2">
-                Quiz Created Successfully!
-              </h3>
-              <p className="text-theme-interactive-success mb-4">
-                Your quiz "{createdQuiz.title}" has been created and is ready to use.
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Button
-                  variant="primary"
-                  onClick={() => navigate(`/quizzes/${createdQuiz.id}/edit`)}
-                >
-                  Edit Quiz
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/my-quizzes')}
-                >
-                  View My Quizzes
-                </Button>
-              </div>
+            <Alert 
+              type="success" 
+              title="Quiz Created Successfully!"
+              showIcon={true}
+            >
+              Your quiz "{createdQuiz.title}" has been created and is ready to use.
+            </Alert>
+            <div className="flex justify-center space-x-4">
+              <Button
+                variant="primary"
+                onClick={() => navigate(`/quizzes/${createdQuiz.id}/edit`)}
+              >
+                Edit Quiz
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/my-quizzes')}
+              >
+                View My Quizzes
+              </Button>
             </div>
           </div>
         ) : null;
@@ -459,18 +453,14 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
       {/* Error message */}
       {errors.general && (
-        <div className="mb-6 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
-            </div>
-          </div>
-        </div>
+        <Alert 
+          type="error" 
+          dismissible 
+          onDismiss={() => setErrors({ ...errors, general: undefined })}
+          className="mb-6"
+        >
+          {errors.general}
+        </Alert>
       )}
 
       {/* Step content */}
