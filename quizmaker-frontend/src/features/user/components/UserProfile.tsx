@@ -3,14 +3,11 @@
 // User profile display and editing component based on UserDto
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, FormEvent, ChangeEvent, useCallback } from 'react';
-import { useAuth } from '@/features/auth';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { useAuth, LinkedAccounts } from '@/features/auth';
 import { UserDto, UserProfileResponse } from '@/types';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
-import { billingService } from '@/services';
-import type { BalanceDto } from '@/types';
-import { TokenTopUp } from '@/features/billing';
 import { Button, Input } from '@/components';
 
 interface UserProfileProps {
@@ -39,10 +36,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [balance, setBalance] = useState<BalanceDto | null>(null);
-  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
-  const [balanceError, setBalanceError] = useState<string | null>(null);
-  const [billingDisabled, setBillingDisabled] = useState(false);
 
   // Form state for editing
   const [formData, setFormData] = useState<Partial<UserProfileResponse>>({});
@@ -52,16 +45,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   // For admin view, displayUser should be the loaded user (UserProfileResponse)
   // For own profile, use currentUser until profile is loaded
   const displayUser = user || (currentUser as any);
-
-  // DEBUG: Log the state values
-  console.log('UserProfile DEBUG:', {
-    isAdminView,
-    billingDisabled,
-    balanceError,
-    balance,
-    currentUser: currentUser?.id,
-    userId
-  });
 
   // Load user data
   useEffect(() => {
@@ -95,127 +78,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     loadUser();
   }, [userId, currentUser, onError]);
-
-
-  const fetchBalance = useCallback(async () => {
-    if (isAdminView || !currentUser) {
-      setBalance(null);
-      setBillingDisabled(false);
-      setBalanceError(null);
-      return;
-    }
-
-    setIsBalanceLoading(true);
-    setBalanceError(null);
-    setBillingDisabled(false);
-
-    try {
-      const balanceResponse = await billingService.getBalance();
-      setBalance(balanceResponse);
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const status = axiosError.response?.status;
-
-      setBalance(null);
-
-      if (status === 404) {
-        setBillingDisabled(true);
-      } else if (status === 403) {
-        setBalanceError('You do not have permission to view billing information.');
-      } else {
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load billing information';
-        setBalanceError(errorMessage);
-      }
-    } finally {
-      setIsBalanceLoading(false);
-    }
-  }, [currentUser?.id, isAdminView]);
-
-  useEffect(() => {
-    void fetchBalance();
-  }, [fetchBalance]);
-
-  const handleRefreshBalance = () => {
-    void fetchBalance();
-  };
-  
-  const renderBalanceSection = () => {
-    if (isBalanceLoading) {
-      return (
-        <div className="space-y-4">
-          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
-            <div className="animate-pulse grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <div className="h-3 bg-theme-bg-primary rounded w-24 mb-2" />
-                <div className="h-6 bg-theme-bg-primary rounded" />
-              </div>
-              <div>
-                <div className="h-3 bg-theme-bg-primary rounded w-20 mb-2" />
-                <div className="h-6 bg-theme-bg-primary rounded" />
-              </div>
-              <div>
-                <div className="h-3 bg-theme-bg-primary rounded w-28 mb-2" />
-                <div className="h-6 bg-theme-bg-primary rounded" />
-              </div>
-            </div>
-          </div>
-          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
-            <div className="h-4 bg-theme-bg-primary rounded w-40 mb-2 animate-pulse" />
-            <div className="h-16 bg-theme-bg-primary rounded animate-pulse" />
-          </div>
-        </div>
-      );
-    }
-
-
-    if (billingDisabled) {
-      return (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 text-sm text-theme-text-secondary bg-theme-bg-primary text-theme-text-primary">
-          Billing features are not enabled for this environment yet. Token balance will appear here once available.
-        </div>
-      );
-    }
-
-    if (balanceError) {
-      return (
-        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 text-sm text-theme-interactive-danger">
-          {balanceError}
-        </div>
-      );
-    }
-
-    if (!balance) {
-      return null;
-    }
-
-    return (
-      <div className="space-y-4">
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Available Tokens</p>
-              <p className="mt-1 text-2xl font-semibold text-theme-text-primary">
-                {balance.availableTokens.toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Reserved Tokens</p>
-              <p className="mt-1 text-lg font-semibold text-theme-text-primary">
-                {balance.reservedTokens.toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-theme-interactive-primary">Last Updated</p>
-              <p className="mt-1 text-sm text-theme-text-primary">
-                {balance.updatedAt ? new Date(balance.updatedAt).toLocaleString() : '—'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    );
-  };
 
   // Clear field errors when user starts typing
   const clearFieldError = (field: keyof FormErrors) => {
@@ -343,7 +205,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 {isAdminView ? `${displayUser.username}'s Profile` : 'My Profile'}
               </h2>
               <p className="text-sm text-theme-text-tertiary">
-                {displayUser.roles.join(', ')} • {displayUser.verified ? 'Verified' : 'Unverified'}
+                @{displayUser.username}
               </p>
             </div>
           </div>
@@ -389,31 +251,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
               </div>
             </div>
           </div>
-        )}
-
-        {!isAdminView && (
-          <div className="mb-6 space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-medium text-theme-text-secondary">Token Balance</h3>
-              {!billingDisabled && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRefreshBalance}
-                  disabled={isBalanceLoading}
-                  loading={isBalanceLoading}
-                >
-                  {isBalanceLoading ? 'Refreshing…' : 'Refresh balance'}
-                </Button>
-              )}
-            </div>
-            {renderBalanceSection()}
-          </div>
-        )}
-
-        {!isAdminView && !billingDisabled && !balanceError && (
-          <TokenTopUp className="mb-6" />
         )}
 
         {isEditing ? (
@@ -519,6 +356,14 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         )}
       </div>
+
+      {/* Linked OAuth Accounts Section */}
+      {!isAdminView && (
+        <div className="px-6 py-4 border-t border-theme-border-primary">
+          <h3 className="text-sm font-medium text-theme-text-secondary mb-4">Connected Accounts</h3>
+          <LinkedAccounts />
+        </div>
+      )}
     </div>
   );
 };

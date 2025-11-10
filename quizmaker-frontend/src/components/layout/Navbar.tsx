@@ -89,6 +89,9 @@ const Navbar: React.FC = () => {
       <Link to="/my-attempts" className={linkClasses}>
         My Attempts
       </Link>
+      <Link to="/billing" className={linkClasses}>
+        Billing
+      </Link>
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <Link to="/documents" className={linkClasses}>
@@ -105,6 +108,9 @@ const Navbar: React.FC = () => {
       </Link>
       <Link to="/my-attempts" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         My Attempts
+      </Link>
+      <Link to="/billing" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
+        Billing
       </Link>
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (

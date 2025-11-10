@@ -50,6 +50,9 @@ import DocumentViewPage from '../pages/DocumentViewPage';
 /* ----------  User profile pages  ----------------------------------------- */
 import { ProfilePage, SettingsPage } from '@/features/user';
 
+/* ----------  Billing pages  ---------------------------------------------- */
+import { BillingPage } from '@/features/billing';
+
 /* ----------  Attempt pages  ---------------------------------------------- */
 import MyAttemptsPage from '../pages/MyAttemptsPage';
 
@@ -261,6 +264,16 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Billing Route */}
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute>
+              <BillingPage />
             </ProtectedRoute>
           }
         />
