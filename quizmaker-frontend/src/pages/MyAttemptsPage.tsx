@@ -219,14 +219,12 @@ const MyAttemptsPage: React.FC = () => {
     return rangeWithDots;
   };
 
-  // Format date
+  // Format date (date only, no time)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
   };
 
@@ -282,57 +280,37 @@ const MyAttemptsPage: React.FC = () => {
   // Render attempt card (reusable for both list and grouped views)
   const renderAttemptCard = (attempt: AttemptSummaryDto) => (
     <div className="p-4 hover:bg-theme-bg-secondary transition-colors">
-      <div className="flex items-start justify-between">
+      {/* Desktop Layout - Side by side */}
+      <div className="hidden md:flex items-start justify-between">
         <div className="flex-1">
-          {/* Status and Mode */}
-          <div className="flex items-center space-x-3 mb-2">
-            <Badge variant={getStatusVariant(attempt.status)} size="sm">
-              {getStatusText(attempt.status)}
-            </Badge>
-            <span className="text-sm text-theme-text-tertiary">
-              {getModeText(attempt.mode)}
-            </span>
-          </div>
-
           {/* Quiz Title (only in list view, not in grouped) */}
           {viewMode === 'list' && (
-            <h4 className="font-medium text-theme-text-primary mb-1">
+            <h4 className="font-medium text-theme-text-primary mb-2">
               {attempt.quiz?.title || 'Unknown Quiz'}
             </h4>
           )}
 
           {/* Metadata Row */}
           <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-theme-text-secondary">
-            <span>Started: {formatDate(attempt.startedAt)}</span>
+            <span className="font-semibold text-theme-text-primary">{formatDate(attempt.startedAt)}</span>
             
             <span>•</span>
             <span>
               {attempt.quiz.questionCount} question{attempt.quiz.questionCount !== 1 ? 's' : ''}
             </span>
             
-            {attempt.stats && (
+            {attempt.stats && attempt.status === 'COMPLETED' && (
               <>
-                {attempt.stats.totalTime && (
-                  <>
-                    <span>•</span>
-                    <span>{formatDuration(attempt.stats.totalTime)}</span>
-                  </>
-                )}
-                
-                {attempt.status === 'COMPLETED' && (
-                  <>
-                    <span>•</span>
-                    <span className="font-medium text-theme-text-primary">
-                      {Math.round(attempt.stats.accuracyPercentage)}% accuracy
-                    </span>
-                  </>
-                )}
+                <span>•</span>
+                <span className="font-medium text-theme-text-primary">
+                  {Math.round(attempt.stats.accuracyPercentage)}% accuracy
+                </span>
               </>
             )}
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions - Right side on desktop */}
         <div className="ml-4 flex-shrink-0">
           <div className="flex space-x-2">
             {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
@@ -364,6 +342,67 @@ const MyAttemptsPage: React.FC = () => {
               Delete
             </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout - Buttons at bottom */}
+      <div className="md:hidden space-y-3">
+        {/* Quiz Title (only in list view, not in grouped) */}
+        {viewMode === 'list' && (
+          <h4 className="font-medium text-theme-text-primary">
+            {attempt.quiz?.title || 'Unknown Quiz'}
+          </h4>
+        )}
+
+        {/* Metadata Row */}
+        <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-theme-text-secondary">
+          <span className="font-semibold text-theme-text-primary">{formatDate(attempt.startedAt)}</span>
+          
+          <span>•</span>
+          <span>
+            {attempt.quiz.questionCount} question{attempt.quiz.questionCount !== 1 ? 's' : ''}
+          </span>
+          
+          {attempt.stats && attempt.status === 'COMPLETED' && (
+            <>
+              <span>•</span>
+              <span className="font-medium text-theme-text-primary">
+                {Math.round(attempt.stats.accuracyPercentage)}% accuracy
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Actions - Bottom on mobile */}
+        <div className="flex gap-2 pt-2 border-t border-theme-border-secondary">
+          {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleResumeAttempt(attempt)}
+              leftIcon={<PlayIcon className="w-4 h-4" />}
+            >
+              {attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
+            </Button>
+          )}
+          {attempt.status === 'COMPLETED' && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleViewResults(attempt)}
+              leftIcon={<EyeIcon className="w-4 h-4" />}
+            >
+              View Results
+            </Button>
+          )}
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => handleDeleteAttempt(attempt)}
+            leftIcon={<TrashIcon className="w-4 w-4" />}
+          >
+            Delete
+          </Button>
         </div>
       </div>
     </div>

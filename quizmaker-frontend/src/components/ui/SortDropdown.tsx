@@ -61,6 +61,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         rounded
+        className="whitespace-nowrap"
         rightIcon={
           <svg 
             className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 

@@ -74,6 +74,7 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         rounded
+        className="whitespace-nowrap"
         rightIcon={
           <svg 
             className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
@@ -85,7 +86,8 @@ const QuizSortDropdown: React.FC<QuizSortDropdownProps> = ({
           </svg>
         }
       >
-        Sort by: {getCurrentSortLabel()}
+        <span className="hidden sm:inline">Sort by: {getCurrentSortLabel()}</span>
+        <span className="sm:hidden">Sort by</span>
       </Button>
 
       {/* Dropdown Menu */}

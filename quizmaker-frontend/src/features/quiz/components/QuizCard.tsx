@@ -176,10 +176,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
             )}
           </div>
 
-          {/* Estimated Time */}
-          <p className="text-sm text-theme-text-secondary mb-2">
-            {formatTime(quiz.estimatedTime)}
-          </p>
+          {/* Estimated Time and Question Count */}
+          <div className="flex items-center gap-3 text-sm text-theme-text-secondary mb-2">
+            <span>{formatTime(quiz.estimatedTime)}</span>
+            {quiz.questionCount !== undefined && (
+              <>
+                <span>•</span>
+                <span>{quiz.questionCount} question{quiz.questionCount !== 1 ? 's' : ''}</span>
+              </>
+            )}
+          </div>
 
           {/* Action Buttons */}
           {showActions && (
