@@ -345,64 +345,59 @@ const MyAttemptsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Layout - Buttons at bottom */}
-      <div className="md:hidden space-y-3">
+      {/* Mobile Layout - Compact with icons */}
+      <div className="md:hidden">
         {/* Quiz Title (only in list view, not in grouped) */}
         {viewMode === 'list' && (
-          <h4 className="font-medium text-theme-text-primary">
+          <h4 className="font-medium text-theme-text-primary mb-2">
             {attempt.quiz?.title || 'Unknown Quiz'}
           </h4>
         )}
 
-        {/* Metadata Row */}
-        <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-theme-text-secondary">
-          <span className="font-semibold text-theme-text-primary">{formatDate(attempt.startedAt)}</span>
-          
-          <span>•</span>
-          <span>
-            {attempt.quiz.questionCount} question{attempt.quiz.questionCount !== 1 ? 's' : ''}
-          </span>
-          
-          {attempt.stats && attempt.status === 'COMPLETED' && (
-            <>
-              <span>•</span>
-              <span className="font-medium text-theme-text-primary">
-                {Math.round(attempt.stats.accuracyPercentage)}% accuracy
-              </span>
-            </>
-          )}
-        </div>
+        {/* Metadata Row with Icon Actions */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-theme-text-secondary flex-1 min-w-0">
+            <span className="font-semibold text-theme-text-primary whitespace-nowrap">{formatDate(attempt.startedAt)}</span>
+            <span>•</span>
+            <span className="whitespace-nowrap">
+              {attempt.quiz.questionCount} question{attempt.quiz.questionCount !== 1 ? 's' : ''}
+              {attempt.stats && attempt.status === 'COMPLETED' && (
+                <span className="font-medium text-theme-text-primary"> ({Math.round(attempt.stats.accuracyPercentage)}%)</span>
+              )}
+            </span>
+          </div>
 
-        {/* Actions - Bottom on mobile */}
-        <div className="flex gap-2 pt-2 border-t border-theme-border-secondary">
-          {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
+          {/* Icon Actions */}
+          <div className="flex gap-1 flex-shrink-0">
+            {(attempt.status === 'IN_PROGRESS' || attempt.status === 'PAUSED') && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleResumeAttempt(attempt)}
+                title={attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
+              >
+                <PlayIcon className="w-4 h-4" />
+              </Button>
+            )}
+            {attempt.status === 'COMPLETED' && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleViewResults(attempt)}
+                title="View Results"
+              >
+                <EyeIcon className="w-4 h-4" />
+              </Button>
+            )}
             <Button
-              variant="primary"
+              variant="danger"
               size="sm"
-              onClick={() => handleResumeAttempt(attempt)}
-              leftIcon={<PlayIcon className="w-4 h-4" />}
+              onClick={() => handleDeleteAttempt(attempt)}
+              title="Delete"
             >
-              {attempt.status === 'PAUSED' ? 'Resume' : 'Continue'}
+              <TrashIcon className="w-4 h-4" />
             </Button>
-          )}
-          {attempt.status === 'COMPLETED' && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => handleViewResults(attempt)}
-              leftIcon={<EyeIcon className="w-4 h-4" />}
-            >
-              View Results
-            </Button>
-          )}
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => handleDeleteAttempt(attempt)}
-            leftIcon={<TrashIcon className="w-4 w-4" />}
-          >
-            Delete
-          </Button>
+          </div>
         </div>
       </div>
     </div>
