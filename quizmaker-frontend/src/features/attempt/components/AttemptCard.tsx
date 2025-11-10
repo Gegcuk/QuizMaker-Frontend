@@ -102,28 +102,28 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
     >
       <CardBody>
         {/* Mobile Layout - Simple vertical stack */}
-        <div className="md:hidden space-y-3">
+        <div className="md:hidden">
           {/* Quiz Title */}
           {attempt.quiz && (
-            <h4 className="text-lg font-semibold text-theme-text-primary">
+            <h4 className="text-lg font-semibold text-theme-text-primary mb-1 truncate">
               {attempt.quiz.title}
             </h4>
           )}
 
           {/* Started Date */}
-          <p className="text-sm text-theme-text-secondary">
+          <p className="text-sm text-theme-text-secondary mb-1">
             Started: {formatDate(attempt.startedAt)}
           </p>
           
           {/* Number of Questions */}
           {attempt.currentQuestion && (
-            <p className="text-sm font-medium text-theme-interactive-primary">
+            <p className="text-sm font-medium text-theme-interactive-primary mb-2">
               Question {attempt.currentQuestion.questionNumber} of {attempt.currentQuestion.totalQuestions}
             </p>
           )}
 
           {/* Progress Bar */}
-          <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
+          <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-3">
             <div
               className="bg-theme-interactive-primary h-full rounded-full transition-all duration-300"
               style={{ width: `${attempt.stats?.completionPercentage || 0}%` }}
@@ -193,7 +193,7 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
               {/* Quiz Title and Details */}
               <div className="space-y-1">
                 {attempt.quiz && (
-                  <h4 className="font-medium text-theme-text-primary">
+                  <h4 className="font-medium text-theme-text-primary truncate">
                     {attempt.quiz.title}
                   </h4>
                 )}
