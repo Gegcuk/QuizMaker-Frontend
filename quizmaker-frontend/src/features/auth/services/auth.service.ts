@@ -156,9 +156,16 @@ export class AuthService extends BaseService<UserDto> {
    * @param provider - OAuth provider (GOOGLE, GITHUB, etc.)
    * @returns The full authorization URL
    */
-  getOAuthAuthorizationUrl(provider: OAuthProvider): string {
+  getOAuthAuthorizationUrl(provider: OAuthProvider, action: 'login' | 'link' = 'login'): string {
     const baseUrl = this.axiosInstance.defaults.baseURL || '';
-    return `${baseUrl}${AUTH_ENDPOINTS.OAUTH_AUTHORIZATION(provider)}`;
+    const authUrl = `${baseUrl}${AUTH_ENDPOINTS.OAUTH_AUTHORIZATION(provider)}`;
+    
+    // Add action parameter to indicate if this is a linking operation
+    if (action === 'link') {
+      return `${authUrl}?action=link`;
+    }
+    
+    return authUrl;
   }
 
   /**

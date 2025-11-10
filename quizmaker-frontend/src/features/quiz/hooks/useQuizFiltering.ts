@@ -40,12 +40,15 @@ export const useQuizFiltering = (
       );
     }
 
-    if (filters.estimatedTime?.min !== undefined || filters.estimatedTime?.max !== undefined) {
+    if (filters.estimatedTime && filters.estimatedTime.length > 0) {
       result = result.filter(quiz => {
         const time = quiz.estimatedTime || 0;
-        const min = filters.estimatedTime?.min || 0;
-        const max = filters.estimatedTime?.max || Infinity;
-        return time >= min && time <= max;
+        // Check if quiz time matches ANY of the selected time ranges
+        return filters.estimatedTime!.some(range => {
+          const min = range.min || 0;
+          const max = range.max || Infinity;
+          return time >= min && time <= max;
+        });
       });
     }
 

@@ -95,7 +95,7 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
 
   // Handle link account
   const handleLinkAccount = (provider: OAuthProvider) => {
-    const authUrl = authService.getOAuthAuthorizationUrl(provider);
+    const authUrl = authService.getOAuthAuthorizationUrl(provider, 'link');
     window.location.href = authUrl;
   };
 

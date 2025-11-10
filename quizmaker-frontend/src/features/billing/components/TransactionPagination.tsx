@@ -1,6 +1,6 @@
-// src/components/QuizPagination.tsx
+// src/features/billing/components/TransactionPagination.tsx
 // ---------------------------------------------------------------------------
-// Pagination for quiz lists
+// Pagination for transaction history
 // ---------------------------------------------------------------------------
 
 import React from 'react';
@@ -13,14 +13,14 @@ interface PaginationInfo {
   totalPages: number;
 }
 
-interface QuizPaginationProps {
+interface TransactionPaginationProps {
   pagination: PaginationInfo;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   className?: string;
 }
 
-const QuizPagination: React.FC<QuizPaginationProps> = ({
+const TransactionPagination: React.FC<TransactionPaginationProps> = ({
   pagination,
   onPageChange,
   onPageSizeChange,
@@ -67,7 +67,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
   const endItem = Math.min(pageNumber * pageSize, totalElements);
 
   return (
-    <div className={`bg-theme-bg-primary px-4 py-3 flex items-center justify-between border border-theme-border-primary rounded-b-lg shadow-sm ${className}`}>
+    <div className={`bg-theme-bg-primary px-4 py-3 flex items-center justify-between border border-theme-border-primary rounded-lg shadow-sm ${className}`}>
       {/* Page Size Selector - Desktop Only */}
       <div className="hidden md:flex items-center space-x-2">
         {onPageSizeChange && (
@@ -84,7 +84,6 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
               <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={50}>50</option>
-              <option value={100}>100</option>
             </select>
             <span className="text-sm text-theme-text-secondary">per page</span>
           </>
@@ -96,7 +95,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
         <p className="text-sm text-theme-text-secondary">
           Showing <span className="font-medium">{startItem}</span> to{' '}
           <span className="font-medium">{endItem}</span> of{' '}
-          <span className="font-medium">{totalElements}</span> results
+          <span className="font-medium">{totalElements}</span> transactions
         </p>
       </div>
 
@@ -190,4 +189,5 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
   );
 };
 
-export default QuizPagination; 
+export default TransactionPagination;
+

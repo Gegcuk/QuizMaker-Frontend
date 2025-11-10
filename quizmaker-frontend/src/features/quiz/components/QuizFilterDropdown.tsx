@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components';
+import { Button, Badge } from '@/components';
 
 export interface FilterOptions {
   difficulty?: string[];
   category?: string[];
   tags?: string[];
-  estimatedTime?: {
+  estimatedTime?: Array<{
     min?: number;
     max?: number;
-  };
+  }>;
   status?: string[];
 }
 
@@ -71,7 +71,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
     if (filters.category?.length) count += filters.category.length;
     if (filters.tags?.length) count += filters.tags.length;
     if (filters.status?.length) count += filters.status.length;
-    if (filters.estimatedTime?.min || filters.estimatedTime?.max) count += 1;
+    if (filters.estimatedTime?.length) count += filters.estimatedTime.length;
     return count;
   };
 
@@ -90,7 +90,20 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
       
       newFilters[filterType] = currentValues.length > 0 ? currentValues : undefined;
     } else if (filterType === 'estimatedTime') {
-      newFilters[filterType] = value;
+      const currentRanges = newFilters.estimatedTime || [];
+      const existingIndex = currentRanges.findIndex(
+        range => range.min === value.min && range.max === value.max
+      );
+      
+      if (existingIndex > -1) {
+        // Remove range
+        currentRanges.splice(existingIndex, 1);
+      } else {
+        // Add range
+        currentRanges.push(value);
+      }
+      
+      newFilters.estimatedTime = currentRanges.length > 0 ? currentRanges : undefined;
     }
     
     onFiltersChange(newFilters);
@@ -107,146 +120,183 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         rounded
-        leftIcon={
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+        className="relative"
+        rightIcon={
+          <svg 
+            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         }
-        rightIcon={
-          <div className="flex items-center space-x-2">
-            {activeFiltersCount > 0 && (
-              <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-theme-text-inverse bg-theme-interactive-primary rounded-full">
-                {activeFiltersCount}
-              </span>
-            )}
-            <svg 
-              className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        }
       >
-        Filters
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        <span className="hidden sm:inline">Filter</span>
+        {activeFiltersCount > 0 && (
+          <Badge variant="primary" size="sm" className="ml-1">
+            {activeFiltersCount}
+          </Badge>
+        )}
       </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-64 sm:w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto bg-theme-bg-primary text-theme-text-primary">
+        <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto">
           <div className="p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-theme-text-primary">Filters</h3>
+              <h3 className="text-sm font-semibold text-theme-text-primary">Filters</h3>
               {activeFiltersCount > 0 && (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClearFilters}
+                  onClick={() => {
+                    onClearFilters();
+                    setIsOpen(false);
+                  }}
+                  className="text-xs text-theme-interactive-primary hover:underline"
                 >
                   Clear all
-                </Button>
+                </button>
               )}
             </div>
 
             {/* Difficulty Filter */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Difficulty</h4>
-              <div className="space-y-2">
-                {difficultyOptions.map((option) => (
-                  <label key={option.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.difficulty?.includes(option.value) || false}
-                      onChange={() => handleFilterChange('difficulty', option.value)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
-                  </label>
-                ))}
+            <div className="mb-4">
+              <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                Difficulty
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {difficultyOptions.map((option) => {
+                  const isSelected = filters.difficulty?.includes(option.value) || false;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleFilterChange('difficulty', option.value)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
+                        isSelected
+                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
+                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Category Filter */}
             {availableCategories.length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Category</h4>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {availableCategories.map((category) => (
-                    <label key={category.id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.category?.includes(category.id) || false}
-                        onChange={() => handleFilterChange('category', category.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
-                      />
-                      <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
-                    </label>
-                  ))}
+              <div className="mb-4">
+                <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                  Category
+                </label>
+                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                  {availableCategories.map((category) => {
+                    const isSelected = filters.category?.includes(category.id) || false;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => handleFilterChange('category', category.id)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
+                          isSelected
+                            ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
+                            : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Tags Filter */}
             {availableTags.length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-theme-text-primary mb-3">Tags</h4>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {availableTags.map((tag) => (
-                    <label key={tag.id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.tags?.includes(tag.id) || false}
-                        onChange={() => handleFilterChange('tags', tag.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
-                      />
-                      <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
-                    </label>
-                  ))}
+              <div className="mb-4">
+                <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                  Tags
+                </label>
+                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                  {availableTags.map((tag) => {
+                    const isSelected = filters.tags?.includes(tag.id) || false;
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => handleFilterChange('tags', tag.id)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
+                          isSelected
+                            ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
+                            : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
+                        }`}
+                      >
+                        {tag.name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Status Filter */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Status</h4>
-              <div className="space-y-2">
-                {statusOptions.map((option) => (
-                  <label key={option.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.status?.includes(option.value) || false}
-                      onChange={() => handleFilterChange('status', option.value)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{option.label}</span>
-                  </label>
-                ))}
+            <div className="mb-4">
+              <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                Status
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {statusOptions.map((option) => {
+                  const isSelected = filters.status?.includes(option.value) || false;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleFilterChange('status', option.value)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
+                        isSelected
+                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
+                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Duration Filter */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-theme-text-primary mb-3">Duration</h4>
-              <div className="space-y-2">
-                {timeRanges.map((range) => (
-                  <label key={range.value} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="duration"
-                      checked={
-                        filters.estimatedTime?.min === range.min && 
-                        filters.estimatedTime?.max === range.max
-                      }
-                      onChange={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{range.label}</span>
-                  </label>
-                ))}
+            <div>
+              <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                Duration
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {timeRanges.map((range) => {
+                  const isSelected = filters.estimatedTime?.some(
+                    t => t.min === range.min && t.max === range.max
+                  ) || false;
+                  return (
+                    <button
+                      key={range.value}
+                      type="button"
+                      onClick={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
+                        isSelected
+                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
+                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
