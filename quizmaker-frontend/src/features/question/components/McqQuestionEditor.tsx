@@ -33,6 +33,16 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
     onChange({ options } as McqSingleContent | McqMultiContent);
   }, [options, onChange]);
 
+  // Auto-resize all textareas on mount and when options change
+  useEffect(() => {
+    const textareas = document.querySelectorAll('textarea[data-mcq-option]');
+    textareas.forEach((textarea) => {
+      const element = textarea as HTMLTextAreaElement;
+      element.style.height = 'auto';
+      element.style.height = element.scrollHeight + 'px';
+    });
+  }, [options]);
+
   const handleOptionTextChange = (id: string, text: string) => {
     setOptions(prev => prev.map(option => 
       option.id === id ? { ...option, text } : option
@@ -65,13 +75,6 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
     setOptions(prev => prev.filter(option => option.id !== id));
   };
 
-  const reorderOption = (fromIndex: number, toIndex: number) => {
-    const newOptions = [...options];
-    const [movedOption] = newOptions.splice(fromIndex, 1);
-    newOptions.splice(toIndex, 0, movedOption);
-    setOptions(newOptions);
-  };
-
   const getCorrectCount = () => options.filter(option => option.correct).length;
 
   return (
@@ -101,20 +104,6 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
       <div className="space-y-3">
         {options.map((option, index) => (
           <div key={option.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-            {/* Drag Handle */}
-            <div className="flex-shrink-0 mt-2 cursor-move">
-              <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
-              </svg>
-            </div>
-
-            {/* Option Letter */}
-            <div className="flex-shrink-0 mt-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
-                {option.id.toUpperCase()}
-              </span>
-            </div>
-
             {/* Correct Answer Checkbox */}
             <div className="flex-shrink-0 mt-2">
               <input
@@ -131,11 +120,18 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
             {/* Option Text */}
             <div className="flex-1">
               <textarea
+                data-mcq-option
                 value={option.text}
-                onChange={(e) => handleOptionTextChange(option.id, e.target.value)}
-                placeholder={`Option ${option.id.toUpperCase()}...`}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
-                rows={2}
+                onChange={(e) => {
+                  handleOptionTextChange(option.id, e.target.value);
+                  // Auto-resize textarea
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                placeholder={`Option text...`}
+                className="block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none overflow-hidden"
+                rows={1}
+                style={{ minHeight: '38px' }}
               />
             </div>
 
@@ -166,13 +162,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
         <ul className="list-disc list-inside space-y-1">
           <li>Enter the text for each option</li>
           <li>Mark the correct answer(s) using the checkbox/radio button</li>
-          <li>Drag options to reorder them</li>
-          <li>Minimum 2 options required</li>
-          {isMultiSelect ? (
-            <li>Multiple correct answers allowed</li>
-          ) : (
-            <li>Only one correct answer allowed</li>
-          )}
+          {isMultiSelect && <li>Multiple correct answers allowed</li>}
         </ul>
       </InstructionsModal>
     </div>

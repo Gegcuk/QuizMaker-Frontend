@@ -10,7 +10,7 @@ import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
 import { QuestionRenderer } from './';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto } from '@/features/attempt';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto, HintDisplay } from '@/features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -570,7 +570,22 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 </div>
               {/* Live Preview at bottom */}
               <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
-                <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Live Preview (Attempt-like)</h4>
+                <h4 className="text-sm font-medium text-theme-text-secondary mb-4">Live Preview (Attempt-like)</h4>
+                
+                {/* Question Text - matches QuizAttemptPage */}
+                {formData.questionText && (
+                  <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
+                    {formData.questionText}
+                  </h2>
+                )}
+                
+                {/* Hint Display - matches QuizAttemptPage */}
+                {formData.hint && (
+                  <HintDisplay hint={formData.hint} />
+                )}
+                
+                {/* Question Options */}
+                <div className="space-y-2 mb-6">
                 {(() => {
                   const q = toAttemptQuestion();
                   switch (q.type) {
@@ -651,6 +666,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       return null;
                   }
                 })()}
+                </div>
               </div>
             </div>
           </div>
