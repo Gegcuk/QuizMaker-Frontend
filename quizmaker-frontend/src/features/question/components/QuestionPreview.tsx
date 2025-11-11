@@ -21,9 +21,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {
       case 'MCQ_SINGLE':
-        return 'Multiple Choice (Single Answer)';
+        return 'Single Choice';
       case 'MCQ_MULTI':
-        return 'Multiple Choice (Multiple Answers)';
+        return 'Multiple Choice';
       case 'TRUE_FALSE':
         return 'True/False';
       case 'OPEN':

@@ -144,8 +144,8 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
             >
               <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
-              <option value="MCQ_SINGLE" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice (Single)</option>
-              <option value="MCQ_MULTI" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice (Multi)</option>
+              <option value="MCQ_SINGLE" className="bg-theme-bg-primary text-theme-text-primary">Single Choice</option>
+              <option value="MCQ_MULTI" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice</option>
               <option value="TRUE_FALSE" className="bg-theme-bg-primary text-theme-text-primary">True/False</option>
               <option value="OPEN" className="bg-theme-bg-primary text-theme-text-primary">Open Ended</option>
               <option value="FILL_GAP" className="bg-theme-bg-primary text-theme-text-primary">Fill in the Blank</option>

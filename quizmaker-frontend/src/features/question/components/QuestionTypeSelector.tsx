@@ -31,14 +31,14 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
   const questionTypes = [
     {
       type: 'MCQ_SINGLE' as QuestionType,
-      label: 'Multiple Choice (Single Answer)',
+      label: 'Single Choice',
       description: 'Choose one correct answer from multiple options',
       icon: CheckCircleIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
       type: 'MCQ_MULTI' as QuestionType,
-      label: 'Multiple Choice (Multiple Answers)',
+      label: 'Multiple Choice',
       description: 'Choose multiple correct answers from options',
       icon: Squares2X2Icon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
@@ -88,46 +88,44 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
   ];
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${className}`}>
-      {questionTypes.map((questionType) => (
-        <button
-          type="button"
-          key={questionType.type}
-          className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-            selectedType === questionType.type
-              ? `${questionType.color} border-current`
-              : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary'
-          }`}
-          onClick={() => onTypeChange(questionType.type)}
-        >
-          {/* Radio Button */}
-          <div className="flex items-center h-5 mt-0.5">
-            <input
-              type="radio"
-              name="questionType"
-              value={questionType.type}
-              checked={selectedType === questionType.type}
-              onChange={() => onTypeChange(questionType.type)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary"
-            />
-          </div>
+    <div className={`grid grid-cols-2 gap-3 ${className}`}>
+      {questionTypes.map((questionType) => {
+        const isSelected = selectedType === questionType.type;
+        return (
+          <button
+            type="button"
+            key={questionType.type}
+            className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              isSelected
+                ? 'bg-theme-bg-secondary border-theme-interactive-primary shadow-md'
+                : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary hover:shadow-sm'
+            }`}
+            onClick={() => onTypeChange(questionType.type)}
+          >
+            {/* Selected Checkmark - Top Right */}
+            {isSelected && (
+              <div className="absolute top-2 right-2">
+                <CheckIcon className="w-5 h-5 text-theme-interactive-primary" strokeWidth={2.5} />
+              </div>
+            )}
 
-          {/* Content */}
-          <div className="ml-3 flex-1">
-            <div className="flex items-center">
-              {(() => { const Icon = questionType.icon; return <Icon className="w-5 h-5 mr-2 text-theme-text-tertiary" />; })()}
-              <label className="text-sm font-medium text-theme-text-primary cursor-pointer">
-                {questionType.label}
-              </label>
+            {/* Content */}
+            <div className="flex-1 pr-6">
+              <div className="flex items-start">
+                {(() => { const Icon = questionType.icon; return <Icon className={`w-5 h-5 mr-2 flex-shrink-0 ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}`} />; })()}
+                <div className="flex-1">
+                  <label className={`text-sm font-medium cursor-pointer block ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-primary'}`}>
+                    {questionType.label}
+                  </label>
+                  <p className="mt-1 text-sm text-theme-text-tertiary hidden sm:block">
+                    {questionType.description}
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="mt-1 text-sm text-theme-text-tertiary">
-              {questionType.description}
-            </p>
-          </div>
-
-          {/* Selected Indicator removed as unnecessary */}
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 };
