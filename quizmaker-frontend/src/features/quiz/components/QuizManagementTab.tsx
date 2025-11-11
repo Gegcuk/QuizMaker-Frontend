@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Input, Button } from '@/components';
+import { Input, Button, Dropdown } from '@/components';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';
@@ -306,108 +306,47 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Visibility */}
-            <div>
-              <label htmlFor="visibility" className="block text-sm font-medium text-theme-text-secondary">
-                Visibility
-              </label>
-              <select
-                id="visibility"
-                name="visibility"
-                value={quizData.visibility || 'PRIVATE'}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                disabled={!isEditing}
-              >
-                <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
-                <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
-              </select>
-            </div>
+            <Dropdown
+              label="Visibility"
+              options={[
+                { value: 'PRIVATE', label: 'Private' },
+                { value: 'PUBLIC', label: 'Public' }
+              ]}
+              value={quizData.visibility || 'PRIVATE'}
+              onChange={(value) => onDataChange({ ...quizData, visibility: value as 'PRIVATE' | 'PUBLIC' })}
+              disabled={!isEditing}
+              fullWidth
+            />
 
             {/* Difficulty */}
-            <div>
-              <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary">
-                Difficulty Level
-              </label>
-              <select
-                id="difficulty"
-                name="difficulty"
-                value={quizData.difficulty || 'MEDIUM'}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                disabled={!isEditing}
-              >
-                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-              </select>
-            </div>
+            <Dropdown
+              label="Difficulty Level"
+              options={[
+                { value: 'EASY', label: 'Easy' },
+                { value: 'MEDIUM', label: 'Medium' },
+                { value: 'HARD', label: 'Hard' }
+              ]}
+              value={quizData.difficulty || 'MEDIUM'}
+              onChange={(value) => onDataChange({ ...quizData, difficulty: value as 'EASY' | 'MEDIUM' | 'HARD' })}
+              disabled={!isEditing}
+              fullWidth
+            />
 
             {/* Estimated Time */}
-            <div>
-              <Input
-                type="number"
-                id="estimatedTime"
-                name="estimatedTime"
-                min={1}
-                max={180}
-                value={quizData.estimatedTime || ''}
-                onChange={handleInputChange}
-                placeholder="30"
-                label="Estimated Time (minutes)"
-                fullWidth
-                disabled={!isEditing}
-                error={combinedErrors.estimatedTime}
-              />
-            </div>
-
-            {/* Timer Duration */}
-            <div>
-              <label className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  name="timerEnabled"
-                  checked={quizData.timerEnabled || false}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-                  disabled={!isEditing}
-                />
-                <span className="ml-2 text-sm font-medium text-theme-text-secondary">
-                  Enable Timer
-                </span>
-              </label>
-              {quizData.timerEnabled && (
-                <Input
-                  type="number"
-                  id="timerDuration"
-                  name="timerDuration"
-                  min={1}
-                  max={180}
-                  value={quizData.timerDuration || ''}
-                  onChange={handleInputChange}
-                  placeholder="30"
-                  fullWidth
-                  disabled={!isEditing}
-                  error={combinedErrors.timerDuration}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Repetition Setting */}
-          <div>
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="isRepetitionEnabled"
-                checked={quizData.isRepetitionEnabled || false}
-                onChange={handleInputChange}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-                disabled={!isEditing}
-              />
-              <span className="ml-2 text-sm font-medium text-theme-text-secondary">
-                Allow Multiple Attempts
-              </span>
-            </label>
+            <Input
+              type="number"
+              id="estimatedTime"
+              name="estimatedTime"
+              min={1}
+              max={180}
+              value={quizData.estimatedTime || ''}
+              onChange={handleInputChange}
+              placeholder="30"
+              label="Estimated Time (minutes)"
+              fullWidth
+              disabled={!isEditing}
+              error={combinedErrors.estimatedTime}
+            />
           </div>
         </div>
 

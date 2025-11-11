@@ -120,8 +120,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   
                   // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
-                    target: { value: newValue.toString() },
-                    currentTarget: { value: newValue.toString() }
+                    target: { 
+                      value: newValue.toString(),
+                      name: props.name || '',
+                      type: 'number'
+                    },
+                    currentTarget: { 
+                      value: newValue.toString(),
+                      name: props.name || '',
+                      type: 'number'
+                    }
                   } as React.ChangeEvent<HTMLInputElement>;
                   onChange(syntheticEvent);
                 }
@@ -149,8 +157,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   
                   // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
-                    target: { value: newValue.toString() },
-                    currentTarget: { value: newValue.toString() }
+                    target: { 
+                      value: newValue.toString(),
+                      name: props.name || '',
+                      type: 'number'
+                    },
+                    currentTarget: { 
+                      value: newValue.toString(),
+                      name: props.name || '',
+                      type: 'number'
+                    }
                   } as React.ChangeEvent<HTMLInputElement>;
                   onChange(syntheticEvent);
                 }

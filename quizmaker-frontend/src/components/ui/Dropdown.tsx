@@ -39,6 +39,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
@@ -94,6 +95,8 @@ const Dropdown: React.FC<DropdownProps> = ({
     } else {
       onChange(optionValue);
       setIsOpen(false);
+      // Remove focus from button after selection
+      buttonRef.current?.blur();
     }
   };
 
@@ -102,6 +105,8 @@ const Dropdown: React.FC<DropdownProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        // Remove focus from button when closing
+        buttonRef.current?.blur();
       }
     };
 
@@ -119,6 +124,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       
       <div ref={dropdownRef} className="relative">
         <button
+          ref={buttonRef}
           type="button"
           className={`${dropdownClasses} flex items-center justify-between w-full text-left`}
           onClick={() => !disabled && setIsOpen(!isOpen)}
