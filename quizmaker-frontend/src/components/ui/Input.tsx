@@ -1,4 +1,4 @@
-import React, { forwardRef, useId } from 'react';
+import React, { forwardRef, useId, useRef } from 'react';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
@@ -29,6 +29,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 }, ref) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
+  const internalRef = useRef<HTMLInputElement>(null);
+  const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
   
   const isNumberInput = props.type === 'number';
 
@@ -85,7 +87,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         )}
         
         <input
-          ref={ref}
+          ref={(el) => {
+            if (typeof ref === 'function') {
+              ref(el);
+            } else if (ref) {
+              (ref as React.MutableRefObject<HTMLInputElement | null>).current = el;
+            }
+            internalRef.current = el;
+          }}
           id={inputId}
           className={inputClasses}
           onChange={onChange}
@@ -102,14 +111,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         
         {/* Custom number input controls */}
         {isNumberInput && (
-          <div className="absolute inset-y-0 right-0 flex flex-col border-l border-theme-border-primary rounded-md">
+          <div className="absolute inset-y-0 right-0 flex flex-col border-l border-theme-border-primary rounded-r-md overflow-hidden">
             <button
               type="button"
-              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
-              onClick={() => {
-                if (onChange) {
-                  // Use props instead of DOM reads to avoid stale values
-                  const currentValue = typeof props.value === 'number' ? props.value : parseInt(props.value as string) || 0;
+              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary active:bg-theme-bg-tertiary focus:outline-none transition-colors"
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent focus and sticky hover state
+                
+                if (!onChange || !internalRef.current) return;
+                
+                const increment = () => {
+                  if (!internalRef.current || !onChange) return;
+                  
+                  // Read current value from the DOM element
+                  const currentValue = parseInt(internalRef.current.value) || 0;
                   const step = props.step ? Number(props.step) : 1;
                   const min = props.min != null ? Number(props.min) : undefined;
                   const max = props.max != null ? Number(props.max) : undefined;
@@ -118,7 +133,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   if (max !== undefined && newValue > max) newValue = max;
                   if (min !== undefined && newValue < min) newValue = min;
                   
-                  // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
                     target: { 
                       value: newValue.toString(),
@@ -132,7 +146,28 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                     }
                   } as React.ChangeEvent<HTMLInputElement>;
                   onChange(syntheticEvent);
-                }
+                };
+                
+                // Initial increment
+                increment();
+                
+                // Set up repeat on hold (after 500ms delay, then every 100ms)
+                const timeout = setTimeout(() => {
+                  const interval = setInterval(increment, 100);
+                  
+                  const stopRepeat = () => {
+                    clearInterval(interval);
+                    document.removeEventListener('mouseup', stopRepeat);
+                  };
+                  
+                  document.addEventListener('mouseup', stopRepeat, { once: true });
+                }, 500);
+                
+                const cleanup = () => {
+                  clearTimeout(timeout);
+                };
+                
+                document.addEventListener('mouseup', cleanup, { once: true });
               }}
               tabIndex={-1}
             >
@@ -142,11 +177,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
             </button>
             <button
               type="button"
-              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:bg-theme-bg-tertiary transition-colors"
-              onClick={() => {
-                if (onChange) {
-                  // Use props instead of DOM reads to avoid stale values
-                  const currentValue = typeof props.value === 'number' ? props.value : parseInt(props.value as string) || 0;
+              className="flex-1 flex items-center justify-center px-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary active:bg-theme-bg-tertiary focus:outline-none transition-colors"
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent focus and sticky hover state
+                
+                if (!onChange || !internalRef.current) return;
+                
+                const decrement = () => {
+                  if (!internalRef.current || !onChange) return;
+                  
+                  // Read current value from the DOM element
+                  const currentValue = parseInt(internalRef.current.value) || 0;
                   const step = props.step ? Number(props.step) : 1;
                   const min = props.min != null ? Number(props.min) : undefined;
                   const max = props.max != null ? Number(props.max) : undefined;
@@ -155,7 +196,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                   if (min !== undefined && newValue < min) newValue = min;
                   if (max !== undefined && newValue > max) newValue = max;
                   
-                  // Directly call React's onChange handler with the computed value
                   const syntheticEvent = {
                     target: { 
                       value: newValue.toString(),
@@ -169,7 +209,28 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                     }
                   } as React.ChangeEvent<HTMLInputElement>;
                   onChange(syntheticEvent);
-                }
+                };
+                
+                // Initial decrement
+                decrement();
+                
+                // Set up repeat on hold (after 500ms delay, then every 100ms)
+                const timeout = setTimeout(() => {
+                  const interval = setInterval(decrement, 100);
+                  
+                  const stopRepeat = () => {
+                    clearInterval(interval);
+                    document.removeEventListener('mouseup', stopRepeat);
+                  };
+                  
+                  document.addEventListener('mouseup', stopRepeat, { once: true });
+                }, 500);
+                
+                const cleanup = () => {
+                  clearTimeout(timeout);
+                };
+                
+                document.addEventListener('mouseup', cleanup, { once: true });
               }}
               tabIndex={-1}
             >
