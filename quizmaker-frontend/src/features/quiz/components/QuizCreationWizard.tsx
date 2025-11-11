@@ -410,7 +410,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
             <div className="flex justify-center space-x-4">
               <Button
                 variant="primary"
-                onClick={() => navigate(`/quizzes/${createdQuiz.id}/edit`)}
+                onClick={() => navigate(`/quizzes/${createdQuiz.id}?tab=management`)}
               >
                 Edit Quiz
               </Button>

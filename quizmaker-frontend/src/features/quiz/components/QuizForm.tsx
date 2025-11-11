@@ -133,8 +133,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       // Success toast
       addToast({ type: 'success', message: status === 'PUBLISHED' ? 'Quiz created and published.' : 'Quiz draft created.' });
 
-      // Navigate to the quiz detail page
-      navigate(`/quizzes/${resultQuizId}`);
+      // Navigate to the quiz detail page Settings tab
+      navigate(`/quizzes/${resultQuizId}?tab=management`);
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       const errorMessage = axiosError.response?.data?.message || 'Failed to create quiz';

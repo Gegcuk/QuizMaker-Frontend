@@ -104,7 +104,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
   // Handle quiz actions
   const handleEditQuiz = (quizId: string) => {
-    navigate(`/quizzes/${quizId}/edit`);
+    navigate(`/quizzes/${quizId}?tab=management`);
   };
 
   const handleDeleteQuiz = async (quizId: string) => {

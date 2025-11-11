@@ -118,7 +118,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         if (onSuccess) {
           onSuccess();
         } else if (actualQuizId) {
-          navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
+          navigate(`/quizzes/${actualQuizId}?tab=questions`);
         } else {
           navigate('/questions');
         }
@@ -132,7 +132,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         if (onSuccess) {
           onSuccess({ questionId: res.questionId });
         } else if (actualQuizId) {
-          navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
+          navigate(`/quizzes/${actualQuizId}?tab=questions`);
         } else {
           navigate('/questions');
         }
@@ -290,7 +290,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     if (onCancel) {
       onCancel();
     } else if (actualQuizId) {
-      navigate(`/quizzes/${actualQuizId}/edit?tab=questions`);
+      navigate(`/quizzes/${actualQuizId}?tab=questions`);
     } else {
       navigate('/questions');
     }

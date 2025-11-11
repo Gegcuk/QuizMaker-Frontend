@@ -11,7 +11,7 @@ import {
   ArrowUpOnSquareIcon,
   QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { updateQuiz, updateQuizStatus, QuestionService, api } from '@/services';
 import { useToast } from '@/components';
 import { useAuth } from '@/features/auth';
@@ -38,9 +38,13 @@ const QuizDetailPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const questionService = new QuestionService(api);
-  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'questions' | 'export'>('overview');
+  
+  // Initialize tab from query parameter if present, otherwise default to 'overview'
+  const initialTab = (searchParams.get('tab') as 'overview' | 'management' | 'questions' | 'export') || 'overview';
+  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'questions' | 'export'>(initialTab);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
