@@ -67,7 +67,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
           onChange={handleChange}
           disabled={disabled}
           className={checkboxClasses}
-          aria-describedby={description ? `${id}-description` : undefined}
+          aria-describedby={description && id ? `${id}-description` : undefined}
           aria-invalid={error ? 'true' : 'false'}
         />
       </div>
@@ -85,9 +85,9 @@ const Checkbox: React.FC<CheckboxProps> = ({
           )}
           {description && (
             <p
-              id={`${id}-description`}
+              id={id ? `${id}-description` : undefined}
               className={`text-xs ${
-                disabled ? 'text-theme-text-tertiary' : 'text-theme-text-tertiary'
+                disabled ? 'text-theme-text-tertiary' : 'text-theme-text-secondary'
               } mt-0.5`}
             >
               {description}
