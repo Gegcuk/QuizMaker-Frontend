@@ -84,7 +84,8 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   // Handle option selection
   const handleOptionClick = (optionValue: string) => {
-    if (optionValue === value) return;
+    // Convert both to strings for comparison to handle numeric values
+    if (String(optionValue) === String(value)) return;
 
     if (multiple) {
       const currentValues = Array.isArray(value) ? value : [];
@@ -172,7 +173,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 {filteredOptions.map((option) => {
                   const isSelected = multiple
                     ? Array.isArray(value) && value.includes(option.value)
-                    : value === option.value;
+                    : String(value) === String(option.value);
 
                   return (
                     <button

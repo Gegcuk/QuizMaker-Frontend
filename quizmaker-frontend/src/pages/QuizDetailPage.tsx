@@ -35,6 +35,7 @@ const QuizDetailPage: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [isSavingManagement, setIsSavingManagement] = useState(false);
+  const [managementErrors, setManagementErrors] = useState<Record<string, string>>({});
   const { addToast } = useToast();
 
   // React Query hooks
@@ -192,6 +193,7 @@ const QuizDetailPage: React.FC = () => {
                   quizId={quizId!}
                   quizData={managementData}
                   onDataChange={(updatedData) => setManagementData(prev => ({ ...(prev || {}), ...updatedData }))}
+                  errors={managementErrors}
                   isEditing={true}
                 />
                 <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
