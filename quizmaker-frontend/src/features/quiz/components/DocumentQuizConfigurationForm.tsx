@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
-import { Button, Input, useToast } from '@/components';
+import { Button, Input, useToast, Dropdown } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface DocumentQuizConfigurationFormProps {
@@ -244,15 +244,15 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Overall Difficulty
               </label>
-              <select
+              <Dropdown
                 value={localData.difficulty || 'MEDIUM'}
-                onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-              </select>
+                onChange={(value) => handleInputChange('difficulty', value as Difficulty)}
+                options={[
+                  { label: 'Easy', value: 'EASY' },
+                  { label: 'Medium', value: 'MEDIUM' },
+                  { label: 'Hard', value: 'HARD' }
+                ]}
+              />
             </div>
           </div>
         </div>
