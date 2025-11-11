@@ -7,6 +7,12 @@ import React from 'react';
 import { QuizResultSummaryDto } from '@/types';
 import { getScoreStatus, getScoreBgStatus } from '@/utils/statusHelpers';
 import { Card } from '@/components';
+import { 
+  ChartBarIcon, 
+  DocumentTextIcon, 
+  SparklesIcon, 
+  CheckCircleIcon 
+} from '@heroicons/react/24/outline';
 
 interface QuizStatsProps {
   stats: QuizResultSummaryDto;
@@ -22,9 +28,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
   const inner = (
     <>
       <div className="flex items-center mb-4">
-        <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
+        <ChartBarIcon className="w-5 h-5 text-theme-text-tertiary mr-2" />
         <h3 className="text-lg font-medium text-theme-text-primary">Quiz Statistics</h3>
       </div>
 
@@ -32,9 +36,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
         {/* Total Attempts */}
         <div className="text-center">
           <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <svg className="w-6 h-6 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <DocumentTextIcon className="w-6 h-6 text-theme-interactive-primary" />
           </div>
           <p className="text-2xl font-bold text-theme-text-primary">{stats.attemptsCount}</p>
           <p className="text-sm text-theme-text-secondary">Total Attempts</p>
@@ -43,9 +45,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
         {/* Average Score */}
         <div className="text-center">
           <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <svg className="w-6 h-6 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+            <ChartBarIcon className="w-6 h-6 text-theme-interactive-success" />
           </div>
           <p className={`text-2xl font-bold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</p>
           <p className="text-sm text-theme-text-secondary">Average Score</p>
@@ -54,9 +54,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
         {/* Best Score */}
         <div className="text-center">
           <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <svg className="w-6 h-6 text-theme-interactive-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-            </svg>
+            <SparklesIcon className="w-6 h-6 text-theme-interactive-warning" />
           </div>
           <p className={`text-2xl font-bold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</p>
           <p className="text-sm text-theme-text-secondary">Best Score</p>
@@ -65,9 +63,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
         {/* Pass Rate */}
         <div className="text-center">
           <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <svg className="w-6 h-6 text-theme-interactive-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <CheckCircleIcon className="w-6 h-6 text-theme-interactive-info" />
           </div>
           <p className={`text-2xl font-bold ${getScoreColor(stats.passRate)}`}>{formatPercentage(stats.passRate)}</p>
           <p className="text-sm text-theme-text-secondary">Pass Rate</p>

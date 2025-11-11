@@ -7,6 +7,12 @@ import React, { useState } from 'react';
 import { QuizResultSummaryDto, QuestionStatDto } from '@/types';
 import { useFeatureFlag } from '@/utils';
 import { getProgressColor } from '@/utils/statusHelpers';
+import { 
+  ChartBarIcon, 
+  ArrowTrendingUpIcon, 
+  CheckCircleIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
 
 interface QuizAnalyticsProps {
   stats: QuizResultSummaryDto;
@@ -109,9 +115,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
       <div className={`bg-theme-bg-primary shadow rounded-lg border border-theme-border-primary ${className}`}>
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-theme-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+            <ChartBarIcon className="w-8 h-8 text-theme-text-tertiary" />
           </div>
           <h3 className="text-lg font-medium text-theme-text-primary mb-2">Analytics</h3>
           <p className="text-sm text-theme-text-tertiary mb-4">Advanced analytics features are currently disabled.</p>
@@ -131,9 +135,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
       <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+            <ChartBarIcon className="w-5 h-5 text-theme-text-tertiary mr-2" />
             <h3 className="text-lg font-medium text-theme-text-primary">Analytics</h3>
           </div>
           
@@ -281,9 +283,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-theme-bg-secondary rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-theme-interactive-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
+                <ArrowTrendingUpIcon className="w-5 h-5 text-theme-interactive-primary mr-2" />
                 <div>
                   <p className="text-sm font-medium text-theme-text-primary">Performance Trend</p>
                   <p className="text-xs text-theme-text-secondary">
@@ -295,9 +295,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
 
             <div className="bg-theme-bg-tertiary rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-theme-interactive-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CheckCircleIcon className="w-5 h-5 text-theme-interactive-success mr-2" />
                 <div>
                   <p className="text-sm font-medium text-theme-text-primary">Pass Rate</p>
                   <p className="text-xs text-theme-text-secondary">
@@ -309,9 +307,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
 
             <div className="bg-theme-bg-primary rounded-lg p-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-theme-interactive-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <ClockIcon className="w-5 h-5 text-theme-interactive-primary mr-2" />
                 <div>
                   <p className="text-sm font-medium text-theme-text-primary">Engagement</p>
                   <p className="text-xs text-theme-text-primary">

@@ -8,6 +8,16 @@ import { QuizGenerationResponse, GenerationStatus } from '@/types';
 import { Badge } from '@/components';
 import { getGenerationStatusVariant } from '@/utils/statusHelpers';
 import type { AxiosError } from 'axios';
+import {
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  ExclamationCircleIcon,
+  ArrowPathIcon,
+  BoltIcon,
+  XMarkIcon,
+  EyeIcon
+} from '@heroicons/react/24/outline';
 
 interface QuizGenerationJobsProps {
   quizId?: string;
@@ -116,41 +126,17 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
   const getStatusIcon = (status: GenerationStatus) => {
     switch (status) {
       case 'COMPLETED':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <CheckCircleIcon className="w-5 h-5" />;
       case 'PROCESSING':
-        return (
-          <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        );
+        return <ArrowPathIcon className="w-5 h-5 animate-spin" />;
       case 'PENDING':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <ClockIcon className="w-5 h-5" />;
       case 'FAILED':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <ExclamationCircleIcon className="w-5 h-5" />;
       case 'CANCELLED':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        );
+        return <XCircleIcon className="w-5 h-5" />;
       default:
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <ExclamationCircleIcon className="w-5 h-5" />;
     }
   };
 
@@ -212,9 +198,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
       <div className={`bg-theme-bg-primary shadow-theme rounded-lg border border-theme-border-primary ${className}`}>
         <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            <BoltIcon className="w-5 h-5 text-theme-text-tertiary mr-2" />
             <h3 className="text-lg font-medium text-theme-text-primary">Generation Jobs</h3>
           </div>
         </div>
@@ -243,9 +227,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
         <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-theme-text-tertiary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <BoltIcon className="w-5 h-5 text-theme-text-tertiary mr-2" />
               <h3 className="text-lg font-medium text-theme-text-primary">Generation Jobs</h3>
             </div>
             <span className="text-sm text-theme-text-tertiary">
@@ -262,9 +244,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-8">
-              <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <BoltIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
               <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No generation jobs</h3>
               <p className="mt-1 text-sm text-theme-text-tertiary">
                 Start generating quizzes from documents to see jobs here.
@@ -314,10 +294,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                           className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary"
                           title="View Details"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
+                          <EyeIcon className="w-4 h-4" />
                         </button>
 
                         {job.status === 'PENDING' && (
@@ -326,9 +303,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                             className="p-1 text-theme-text-tertiary hover:text-theme-text-danger"
                             title="Cancel Job"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <XMarkIcon className="w-4 h-4" />
                           </button>
                         )}
 
@@ -338,9 +313,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                             className="p-1 text-theme-text-tertiary hover:text-theme-interactive-success"
                             title="Retry Job"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
+                            <ArrowPathIcon className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -364,9 +337,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
                   onClick={() => setShowDetails(false)}
                   className="text-theme-text-tertiary hover:text-theme-text-secondary"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <XMarkIcon className="w-6 h-6" />
                 </button>
               </div>
 

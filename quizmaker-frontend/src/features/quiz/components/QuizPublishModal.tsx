@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { QuizStatus, QuizDto } from '@/types';
 import { Badge } from '@/components';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface QuizPublishModalProps {
   isOpen: boolean;
@@ -83,9 +84,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
           <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
               <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-theme-bg-tertiary sm:mx-0 sm:h-10 sm:w-10">
-                <svg className="h-6 w-6 text-theme-interactive-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CheckCircleIcon className="h-6 w-6 text-theme-interactive-primary" />
               </div>
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
@@ -104,9 +103,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
               <div className="mt-4 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
+                    <XCircleIcon className="h-5 w-5 text-theme-interactive-danger" />
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-theme-interactive-danger">{error}</p>
