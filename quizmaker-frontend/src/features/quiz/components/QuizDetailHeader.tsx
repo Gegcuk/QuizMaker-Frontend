@@ -140,20 +140,20 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
 
       {/* Quiz Stats Overview */}
       <div className="bg-theme-bg-primary border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {/* Quiz Status */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-theme-bg-primary rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-theme-bg-primary rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-theme-text-tertiary">Status</p>
-                <div className="flex items-center space-x-2">
+              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-theme-text-tertiary truncate">Status</p>
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                   <Badge variant={statusToBadge(quiz.status)} size="sm">{quiz.status}</Badge>
                   <Badge variant={visibilityToBadge(quiz.visibility)} size="sm">{quiz.visibility}</Badge>
                 </div>
@@ -161,47 +161,47 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
             </div>
 
             {/* Difficulty */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-theme-bg-warning rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-theme-interactive-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-theme-bg-warning rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-theme-interactive-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-theme-text-tertiary">Difficulty</p>
+              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-theme-text-tertiary truncate">Difficulty</p>
                 <Badge variant={difficultyToBadge(quiz.difficulty)} size="sm">{quiz.difficulty}</Badge>
               </div>
             </div>
 
             {/* Estimated Time */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-theme-bg-success rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-theme-bg-success rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-theme-text-tertiary">Estimated Time</p>
-                <p className="text-lg font-semibold text-theme-text-primary">{formatTime(quiz.estimatedTime)}</p>
+              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-theme-text-tertiary truncate">Estimated Time</p>
+                <p className="text-base sm:text-lg font-semibold text-theme-text-primary truncate">{formatTime(quiz.estimatedTime)}</p>
               </div>
             </div>
 
             {/* Timer */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-theme-bg-primary rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-theme-bg-primary rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-theme-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-theme-text-tertiary">Timer</p>
-                <p className="text-lg font-semibold text-theme-text-primary">
+              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-theme-text-tertiary truncate">Timer</p>
+                <p className="text-base sm:text-lg font-semibold text-theme-text-primary truncate">
                   {quiz.timerEnabled ? formatTime(quiz.timerDuration) : 'No limit'}
                 </p>
               </div>
@@ -209,26 +209,26 @@ const QuizDetailHeader: React.FC<QuizDetailHeaderProps> = ({
           </div>
 
           {/* Additional Quiz Features */}
-          <div className="mt-6 flex flex-wrap items-center space-x-4 text-sm text-theme-text-secondary">
+          <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-theme-text-secondary">
             {quiz.isRepetitionEnabled && (
               <div className="flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                <span>Multiple attempts allowed</span>
+                <span className="whitespace-nowrap">Multiple attempts</span>
               </div>
             )}
             <div className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Created: {new Date(quiz.createdAt).toLocaleDateString()}</span>
+              <span className="whitespace-nowrap">Created: {new Date(quiz.createdAt).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Updated: {new Date(quiz.updatedAt).toLocaleDateString()}</span>
+              <span className="whitespace-nowrap">Updated: {new Date(quiz.updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>

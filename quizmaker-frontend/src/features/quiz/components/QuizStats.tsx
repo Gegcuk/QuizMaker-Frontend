@@ -32,72 +32,72 @@ const QuizStats: React.FC<QuizStatsProps> = ({ stats, className = '', useContain
         <h3 className="text-lg font-medium text-theme-text-primary">Quiz Statistics</h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {/* Total Attempts */}
         <div className="text-center">
-          <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <DocumentTextIcon className="w-6 h-6 text-theme-interactive-primary" />
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-2 sm:mb-3">
+            <DocumentTextIcon className="w-5 h-5 sm:w-6 sm:h-6 text-theme-interactive-primary" />
           </div>
-          <p className="text-2xl font-bold text-theme-text-primary">{stats.attemptsCount}</p>
-          <p className="text-sm text-theme-text-secondary">Total Attempts</p>
+          <p className="text-xl sm:text-2xl font-bold text-theme-text-primary">{stats.attemptsCount}</p>
+          <p className="text-xs sm:text-sm text-theme-text-secondary">Total Attempts</p>
         </div>
 
         {/* Average Score */}
         <div className="text-center">
-          <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <ChartBarIcon className="w-6 h-6 text-theme-interactive-success" />
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-2 sm:mb-3">
+            <ChartBarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-theme-interactive-success" />
           </div>
-          <p className={`text-2xl font-bold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</p>
-          <p className="text-sm text-theme-text-secondary">Average Score</p>
+          <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</p>
+          <p className="text-xs sm:text-sm text-theme-text-secondary">Average Score</p>
         </div>
 
         {/* Best Score */}
         <div className="text-center">
-          <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <SparklesIcon className="w-6 h-6 text-theme-interactive-warning" />
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-2 sm:mb-3">
+            <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 text-theme-interactive-warning" />
           </div>
-          <p className={`text-2xl font-bold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</p>
-          <p className="text-sm text-theme-text-secondary">Best Score</p>
+          <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</p>
+          <p className="text-xs sm:text-sm text-theme-text-secondary">Best Score</p>
         </div>
 
         {/* Pass Rate */}
         <div className="text-center">
-          <div className="flex items-center justify-center w-12 h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-3">
-            <CheckCircleIcon className="w-6 h-6 text-theme-interactive-info" />
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-theme-bg-tertiary rounded-lg mx-auto mb-2 sm:mb-3">
+            <CheckCircleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-theme-interactive-info" />
           </div>
-          <p className={`text-2xl font-bold ${getScoreColor(stats.passRate)}`}>{formatPercentage(stats.passRate)}</p>
-          <p className="text-sm text-theme-text-secondary">Pass Rate</p>
+          <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(stats.passRate)}`}>{formatPercentage(stats.passRate)}</p>
+          <p className="text-xs sm:text-sm text-theme-text-secondary">Pass Rate</p>
         </div>
       </div>
 
       {/* Score Range */}
-      <div className="mt-8">
-        <h4 className="text-sm font-medium text-theme-text-primary mb-4">Score Distribution</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-theme-bg-secondary rounded-lg p-4">
+      <div className="mt-6 sm:mt-8">
+        <h4 className="text-xs sm:text-sm font-medium text-theme-text-primary mb-3 sm:mb-4">Score Distribution</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="bg-theme-bg-secondary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-theme-text-secondary">Best Score</span>
-              <span className={`text-sm font-semibold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</span>
+              <span className="text-xs sm:text-sm font-medium text-theme-text-secondary">Best Score</span>
+              <span className={`text-xs sm:text-sm font-semibold ${getScoreColor(stats.bestScore)}`}>{formatPercentage(stats.bestScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div className={`h-2 rounded-full ${getScoreColor(stats.bestScore).replace('text-', 'bg-')}`} style={{ width: `${stats.bestScore}%` }} />
             </div>
           </div>
 
-          <div className="bg-theme-bg-secondary rounded-lg p-4">
+          <div className="bg-theme-bg-secondary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-theme-text-secondary">Average Score</span>
-              <span className={`text-sm font-semibold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</span>
+              <span className="text-xs sm:text-sm font-medium text-theme-text-secondary">Average Score</span>
+              <span className={`text-xs sm:text-sm font-semibold ${getScoreColor(stats.averageScore)}`}>{formatPercentage(stats.averageScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div className={`h-2 rounded-full ${getScoreColor(stats.averageScore).replace('text-', 'bg-')}`} style={{ width: `${stats.averageScore}%` }} />
             </div>
           </div>
 
-          <div className="bg-theme-bg-secondary rounded-lg p-4">
+          <div className="bg-theme-bg-secondary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-theme-text-secondary">Worst Score</span>
-              <span className={`text-sm font-semibold ${getScoreColor(stats.worstScore)}`}>{formatPercentage(stats.worstScore)}</span>
+              <span className="text-xs sm:text-sm font-medium text-theme-text-secondary">Worst Score</span>
+              <span className={`text-xs sm:text-sm font-semibold ${getScoreColor(stats.worstScore)}`}>{formatPercentage(stats.worstScore)}</span>
             </div>
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div className={`h-2 rounded-full ${getScoreColor(stats.worstScore).replace('text-', 'bg-')}`} style={{ width: `${stats.worstScore}%` }} />
