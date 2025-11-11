@@ -55,7 +55,7 @@ const QuizDetailPage: React.FC = () => {
   const { addToast } = useToast();
 
   // React Query hooks
-  const { data: quiz, isLoading: quizLoading, error: quizError } = useQuiz(quizId!);
+  const { data: quiz, isLoading: quizLoading, error: quizError, refetch } = useQuiz(quizId!);
   const { data: stats, isLoading: statsLoading } = useQuizStats(quizId!);
   const { data: leaderboardEntries, isLoading: leaderboardLoading } = useQuizLeaderboard(quizId!);
   const deleteQuizMutation = useDeleteQuiz();
@@ -92,15 +92,27 @@ const QuizDetailPage: React.FC = () => {
   };
 
   const handleSaveManagement = async () => {
-    if (!quizId || !managementData) return;
+    if (!quizId || !managementData || !quiz) return;
     setIsSavingManagement(true);
     try {
+      // Step 1: Save changes
       await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
-      addToast({ type: 'success', message: 'Quiz settings saved.' });
+      
+      // Step 2: If quiz is PRIVATE, automatically publish it
+      if (quiz.visibility === 'PRIVATE') {
+        await updateQuizStatus(quizId, { status: 'PUBLISHED' });
+        addToast({ type: 'success', message: 'Quiz saved and published successfully!' });
+      } else {
+        // For PUBLIC quizzes, backend will handle PENDING_REVIEW status
+        addToast({ type: 'success', message: 'Quiz settings saved.' });
+      }
+      
       // Reset initial data to mark form as pristine after successful save
       setInitialManagementData({ ...managementData });
+      // Refetch quiz data to get updated status from backend
+      refetch();
     } catch (e) {
-      addToast({ type: 'error', message: 'Failed to save changes.' });
+      addToast({ type: 'error', error: e });
     } finally {
       setIsSavingManagement(false);
     }
@@ -112,8 +124,8 @@ const QuizDetailPage: React.FC = () => {
       await updateQuizStatus(quizId, { status: newStatus });
       addToast({ type: 'success', message: `Quiz ${newStatus.toLowerCase()} successfully.` });
       setShowPublishModal(false);
-      // Refetch quiz data to update UI
-      window.location.reload(); // Simple way to refresh data
+      // Refetch quiz data to update UI with new status
+      refetch();
     } catch (e) {
       addToast({ type: 'error', message: 'Failed to update quiz status.' });
     }
@@ -251,11 +263,13 @@ const QuizDetailPage: React.FC = () => {
                       >
                         {isSavingManagement ? 'Saving…' : 'Save Changes'}
                       </Button>
+                      
                       <Button
                         type="button"
                         variant="secondary"
                         size="sm"
                         onClick={() => setShowPublishModal(true)}
+                        disabled={isSavingManagement}
                       >
                         Manage Status
                       </Button>
@@ -264,6 +278,7 @@ const QuizDetailPage: React.FC = () => {
                         variant="danger"
                         size="sm"
                         onClick={handleDeleteQuiz}
+                        disabled={isSavingManagement}
                       >
                         Delete Quiz
                       </Button>
