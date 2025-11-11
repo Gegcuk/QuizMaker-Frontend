@@ -4,14 +4,15 @@
 // Integrates all components from section 3.3 Quiz Details & Analytics
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
   Cog6ToothIcon,
   ArrowUpOnSquareIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateQuiz, updateQuizStatus } from '@/services';
+import { updateQuiz, updateQuizStatus, QuestionService, api } from '@/services';
 import { useToast } from '@/components';
 import { useAuth } from '@/features/auth';
 import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
@@ -25,25 +26,28 @@ import {
   QuizGenerationJobs,
   QuizManagementTab,
   QuizPublishModal,
+  QuizQuestionInline,
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent
 } from '@/components';
-import type { QuizStatus } from '@/types';
+import type { QuizStatus, QuestionDifficulty } from '@/types';
 
 const QuizDetailPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'export'>('overview');
+  const questionService = new QuestionService(api);
+  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'questions' | 'export'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [initialManagementData, setInitialManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [isSavingManagement, setIsSavingManagement] = useState(false);
   const [managementErrors, setManagementErrors] = useState<Record<string, string>>({});
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const { addToast } = useToast();
 
   // React Query hooks
@@ -79,8 +83,8 @@ const QuizDetailPage: React.FC = () => {
     navigate(`/quizzes/${quizId}/attempt`);
   };
 
-  const handleManageQuestions = () => {
-    navigate(`/quizzes/${quizId}/edit?tab=questions`);
+  const handleQuestionsChange = (questionIds: string[]) => {
+    setSelectedQuestionIds(questionIds);
   };
 
   const handleSaveManagement = async () => {
@@ -112,7 +116,7 @@ const QuizDetailPage: React.FC = () => {
   };
 
   // Initialize local management form data when quiz loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (quiz) {
       const initialData = {
         title: quiz.title,
@@ -130,6 +134,22 @@ const QuizDetailPage: React.FC = () => {
       setInitialManagementData(initialData);
     }
   }, [quiz]);
+
+  // Load questions for the quiz
+  useEffect(() => {
+    if (quizId) {
+      const loadQuestions = async () => {
+        try {
+          const questions = await questionService.getQuestions({ quizId });
+          const existingIds = questions.content.map((q: any) => q.id);
+          setSelectedQuestionIds(existingIds);
+        } catch (error) {
+          console.error('Failed to load questions:', error);
+        }
+      };
+      loadQuestions();
+    }
+  }, [quizId]);
 
   // Check if form has unsaved changes
   const isDirty = React.useMemo(() => {
@@ -169,10 +189,8 @@ const QuizDetailPage: React.FC = () => {
       {/* Quiz Detail Header */}
       <QuizDetailHeader
         quiz={quiz}
-        onEdit={handleEditQuiz}
         onDelete={handleDeleteQuiz}
         onStart={handleStartQuiz}
-        onManageQuestions={handleManageQuestions}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -186,6 +204,9 @@ const QuizDetailPage: React.FC = () => {
                 </TabsTrigger>
                 <TabsTrigger value="management" icon={<Cog6ToothIcon className="w-4 h-4" />}>
                   Settings
+                </TabsTrigger>
+                <TabsTrigger value="questions" icon={<QuestionMarkCircleIcon className="w-4 h-4" />}>
+                  Questions
                 </TabsTrigger>
                 <TabsTrigger value="export" icon={<ArrowUpOnSquareIcon className="w-4 h-4" />}>
                   Export
@@ -245,6 +266,17 @@ const QuizDetailPage: React.FC = () => {
                     </div>
                   </>
                 )}
+              </TabsContent>
+
+              <TabsContent value="questions">
+                <div className="space-y-6">
+                  <QuizQuestionInline
+                    quizId={quizId || undefined}
+                    questionIds={selectedQuestionIds}
+                    onChange={handleQuestionsChange}
+                    defaultDifficulty={(managementData?.difficulty as QuestionDifficulty) || 'MEDIUM'}
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="export">
