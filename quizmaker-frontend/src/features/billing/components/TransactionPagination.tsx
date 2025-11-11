@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Button } from '@/components';
+import { Button, Dropdown } from '@/components';
 
 interface PaginationInfo {
   pageNumber: number;
@@ -72,19 +72,19 @@ const TransactionPagination: React.FC<TransactionPaginationProps> = ({
       <div className="hidden md:flex items-center space-x-2">
         {onPageSizeChange && (
           <>
-            <label htmlFor="page-size" className="text-sm text-theme-text-secondary">
-              Show:
-            </label>
-            <select
-              id="page-size"
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+            <span className="text-sm text-theme-text-secondary">Show:</span>
+            <div className="w-24">
+              <Dropdown
+                options={[
+                  { value: '10', label: '10' },
+                  { value: '20', label: '20' },
+                  { value: '50', label: '50' }
+                ]}
+                value={String(pageSize)}
+                onChange={(value) => onPageSizeChange(Number(value))}
+                size="sm"
+              />
+            </div>
             <span className="text-sm text-theme-text-secondary">per page</span>
           </>
         )}

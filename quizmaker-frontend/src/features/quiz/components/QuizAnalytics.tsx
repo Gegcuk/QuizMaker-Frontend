@@ -193,7 +193,7 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
                     </div>
                     <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
                       <div
-                        className="h-2 rounded-full bg-theme-bg-secondary0"
+                        className={`h-2 rounded-full ${getProgressColor(item.percentage)}`}
                         style={{ width: `${item.percentage}%` }}
                       ></div>
                     </div>

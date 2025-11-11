@@ -75,8 +75,8 @@ const Dropdown: React.FC<DropdownProps> = ({
         return option?.label || placeholder;
       }
       return `${value.length} items selected`;
-    } else if (!multiple && typeof value === 'string') {
-      const option = options.find(opt => opt.value === value);
+    } else if (!multiple && value) {
+      const option = options.find(opt => opt.value === String(value));
       return option?.label || placeholder;
     }
     return placeholder;
