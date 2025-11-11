@@ -11,6 +11,7 @@ import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuizQuestionInline from './QuizQuestionInline';
 import QuizPreview from './QuizPreview';
+import { QuestionMarkCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 interface QuizQuestionManagerProps {
   quizId: string;
@@ -113,24 +114,26 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           <button
             type="button"
             onClick={() => setActiveView('questions')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'questions'
                 ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                 : 'text-theme-text-secondary hover:text-theme-text-primary'
             }`}
           >
-            ❓ Questions ({selectedQuestionIds.length})
+            <QuestionMarkCircleIcon className="w-4 h-4 mr-2" />
+            Questions ({selectedQuestionIds.length})
           </button>
           <button
             type="button"
             onClick={() => setActiveView('preview')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'preview'
                 ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
                 : 'text-theme-text-secondary hover:text-theme-text-primary'
             }`}
           >
-            👁️ Preview
+            <EyeIcon className="w-4 h-4 mr-2" />
+            Preview
           </button>
         </div>
       </div>
@@ -147,8 +150,8 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           
           {/* Action buttons */}
           <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
+            <div className="space-y-4">
+              <div>
                 <h4 className="text-lg font-medium text-theme-text-primary">
                   {selectedQuestionIds.length > 0 ? 'Ready to Complete?' : 'Add Questions'}
                 </h4>
@@ -162,11 +165,12 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   <strong>Complete:</strong> Finish quiz creation and go to quiz list • <strong>Save Draft:</strong> Save for later editing
                 </p>
               </div>
-              <div className="ml-6 flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={handleSaveDraft}
+                  className="w-full sm:w-auto"
                 >
                   Save Draft
                 </Button>
@@ -175,6 +179,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   variant="primary"
                   onClick={handleComplete}
                   disabled={selectedQuestionIds.length === 0}
+                  className="w-full sm:w-auto"
                 >
                   Complete Quiz Creation
                 </Button>
@@ -208,8 +213,8 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
           
           {/* Action buttons */}
           <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
+            <div className="space-y-4">
+              <div>
                 <h4 className="text-lg font-medium text-theme-text-primary">
                   Preview Complete
                 </h4>
@@ -217,11 +222,12 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   Review your quiz above. Switch back to Questions to add more content.
                 </p>
               </div>
-              <div className="ml-6 flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => setActiveView('questions')}
+                  className="w-full sm:w-auto"
                 >
                   Back to Questions
                 </Button>
@@ -230,6 +236,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   variant="primary"
                   onClick={handleComplete}
                   disabled={selectedQuestionIds.length === 0}
+                  className="w-full sm:w-auto"
                 >
                   Complete Quiz Creation
                 </Button>

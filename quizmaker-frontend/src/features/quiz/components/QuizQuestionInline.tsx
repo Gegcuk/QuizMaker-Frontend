@@ -12,7 +12,7 @@ import { QuestionService } from '@/services';
 import { Button, Modal, Spinner, Alert, useToast, Badge } from '@/components';
 import { QuestionForm } from '@/features/question';
 import { api } from '@/services';
-import { PencilSquareIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, PlusIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 interface QuizQuestionInlineProps {
   quizId?: string;
@@ -272,11 +272,15 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
           </div>
         ) : questions.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <DocumentTextIcon className="mx-auto h-12 w-12 text-theme-text-tertiary" />
             <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No questions yet</h3>
-            <p className="mt-1 text-sm text-theme-text-tertiary">Click "Add Question" to create one.</p>
+            <p className="mt-1 text-sm text-theme-text-tertiary">Get started by adding your first question.</p>
+            <div className="mt-6">
+              <Button type="button" variant="primary" onClick={openCreate} disabled={working}>
+                <PlusIcon className="w-4 h-4 mr-2" />
+                Add Question
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-theme-border-primary">
