@@ -34,6 +34,7 @@ const QuizDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'export'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
+  const [initialManagementData, setInitialManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [isSavingManagement, setIsSavingManagement] = useState(false);
   const [managementErrors, setManagementErrors] = useState<Record<string, string>>({});
   const { addToast } = useToast();
@@ -81,6 +82,8 @@ const QuizDetailPage: React.FC = () => {
     try {
       await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
       addToast({ type: 'success', message: 'Quiz settings saved.' });
+      // Reset initial data to mark form as pristine after successful save
+      setInitialManagementData({ ...managementData });
     } catch (e) {
       addToast({ type: 'error', message: 'Failed to save changes.' });
     } finally {
@@ -91,7 +94,7 @@ const QuizDetailPage: React.FC = () => {
   // Initialize local management form data when quiz loads
   React.useEffect(() => {
     if (quiz) {
-      setManagementData({
+      const initialData = {
         title: quiz.title,
         description: quiz.description,
         visibility: quiz.visibility,
@@ -102,9 +105,17 @@ const QuizDetailPage: React.FC = () => {
         timerDuration: quiz.timerDuration,
         categoryId: quiz.categoryId,
         tagIds: quiz.tagIds,
-      });
+      };
+      setManagementData(initialData);
+      setInitialManagementData(initialData);
     }
   }, [quiz]);
+
+  // Check if form has unsaved changes
+  const isDirty = React.useMemo(() => {
+    if (!managementData || !initialManagementData) return false;
+    return JSON.stringify(managementData) !== JSON.stringify(initialManagementData);
+  }, [managementData, initialManagementData]);
 
   if (quizLoading) {
     return (
@@ -202,7 +213,7 @@ const QuizDetailPage: React.FC = () => {
                     variant="primary"
                     size="md"
                     onClick={handleSaveManagement}
-                    disabled={isSavingManagement}
+                    disabled={isSavingManagement || !isDirty}
                     loading={isSavingManagement}
                   >
                     {isSavingManagement ? 'Saving…' : 'Save Changes'}
