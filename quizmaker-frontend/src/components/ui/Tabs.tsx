@@ -57,7 +57,7 @@ interface TabsListProps {
 
 export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
   return (
-    <nav className={`flex space-x-8 ${className}`}>
+    <nav className={`flex space-x-4 sm:space-x-8 ${className}`}>
       {children}
     </nav>
   );
@@ -79,7 +79,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, icon,
       type="button"
       onClick={() => setActiveTab(value)}
       className={`
-        inline-flex items-center py-4 px-1 border-b-2 rounded-none text-sm font-medium transition-colors
+        inline-flex items-center py-4 px-0.5 sm:px-1 border-b-2 rounded-none text-sm font-medium transition-colors
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary
         ${isActive 
           ? 'border-theme-interactive-primary text-theme-interactive-primary' 
@@ -88,8 +88,8 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, icon,
         ${className}
       `}
     >
-      {icon && <span className="mr-2">{icon}</span>}
-      {children}
+      {icon && <span className="mr-1 sm:mr-2 flex-shrink-0">{icon}</span>}
+      <span className="whitespace-nowrap">{children}</span>
     </button>
   );
 };

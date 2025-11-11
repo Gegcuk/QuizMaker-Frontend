@@ -98,13 +98,21 @@ const QuizDetailPage: React.FC = () => {
       // Step 1: Save changes
       await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
       
-      // Step 2: If quiz is PRIVATE, automatically publish it
-      if (quiz.visibility === 'PRIVATE') {
+      // Step 2: Handle status based on visibility change
+      const isChangingToPublic = managementData.visibility === 'PUBLIC' && quiz.visibility === 'PRIVATE';
+      const isPrivate = managementData.visibility === 'PRIVATE';
+      
+      if (isChangingToPublic) {
+        // Changing to PUBLIC visibility → submit for moderation
+        await updateQuizStatus(quizId, { status: 'PENDING_REVIEW' });
+        addToast({ type: 'success', message: 'Quiz saved and submitted for moderation!' });
+      } else if (isPrivate) {
+        // PRIVATE quiz → publish immediately
         await updateQuizStatus(quizId, { status: 'PUBLISHED' });
         addToast({ type: 'success', message: 'Quiz saved and published successfully!' });
       } else {
-        // For PUBLIC quizzes, backend will handle PENDING_REVIEW status
-        addToast({ type: 'success', message: 'Quiz settings saved.' });
+        // Already PUBLIC → backend will handle PENDING_REVIEW status
+        addToast({ type: 'success', message: 'Quiz settings saved and submitted for review.' });
       }
       
       // Reset initial data to mark form as pristine after successful save
