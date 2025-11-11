@@ -135,7 +135,7 @@ const QuizDetailPage: React.FC = () => {
 
   const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
-    { id: 'management', name: 'Management', icon: Cog6ToothIcon },
+    { id: 'management', name: 'Settings', icon: Cog6ToothIcon },
     { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon }
   ];
 

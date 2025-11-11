@@ -352,7 +352,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
   }
 
   const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }>; description: string }[] = [
-    { id: 'management', name: 'Management', icon: Cog6ToothIcon, description: 'Basic info, settings, tags, and category' },
+    { id: 'management', name: 'Settings', icon: Cog6ToothIcon, description: 'Basic info, settings, tags, and category' },
     { id: 'questions', name: 'Questions', icon: QuestionMarkCircleIcon, description: 'Add and manage quiz questions' },
     { id: 'preview', name: 'Preview', icon: EyeIcon, description: 'Preview your quiz' }
   ];
