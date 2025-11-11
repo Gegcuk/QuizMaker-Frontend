@@ -99,8 +99,10 @@ const QuizDetailPage: React.FC = () => {
       await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
       
       // Step 2: Handle status based on visibility change
-      const isChangingToPublic = managementData.visibility === 'PUBLIC' && quiz.visibility === 'PRIVATE';
-      const isPrivate = managementData.visibility === 'PRIVATE';
+      const oldVisibility = initialManagementData?.visibility;
+      const newVisibility = managementData.visibility;
+      const isChangingToPublic = newVisibility === 'PUBLIC' && oldVisibility === 'PRIVATE';
+      const isPrivate = newVisibility === 'PRIVATE';
       
       if (isChangingToPublic) {
         // Changing to PUBLIC visibility → submit for moderation
