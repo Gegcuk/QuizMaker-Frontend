@@ -13,7 +13,7 @@ import QuizCreationWizard from '@/features/quiz/components/QuizCreationWizard';
 const QuizFormPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const [params] = useSearchParams();
-  const defaultTab = (params.get('tab') as 'management' | 'questions' | 'preview' | null) || undefined;
+  const defaultTab = (params.get('tab') as 'management' | null) || undefined;
   const isEditing = Boolean(quizId);
 
   // If editing, show only the manual form

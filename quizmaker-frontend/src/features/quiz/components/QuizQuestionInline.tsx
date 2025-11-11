@@ -47,6 +47,15 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   const [qTotalElements, setQTotalElements] = useState<number>(0);
   const [showAll, setShowAll] = useState<boolean>(true);
 
+  // Format question text for FILL_GAP questions - replace {N} with underscores
+  const formatQuestionText = (questionText: string, questionType: string): string => {
+    if (questionType === 'FILL_GAP') {
+      // Replace {1}, {2}, {3}, etc. with ______
+      return questionText.replace(/\{\d+\}/g, '___');
+    }
+    return questionText;
+  };
+
   // Helpers
   const idsFromQuestions = useMemo(() => questions.map((q) => q.id), [questions]);
 
@@ -272,7 +281,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
         ) : (
           <div className="divide-y divide-theme-border-primary">
             {questions.map((q) => {
-              const text = q.questionText || '';
+              const text = formatQuestionText(q.questionText || '', q.type);
               const truncated = text.length > 160 ? text.slice(0, 160) + '…' : text;
               const typeLabel = (q.type || '').replace(/_/g, ' ');
               return (
