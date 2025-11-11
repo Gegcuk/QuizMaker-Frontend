@@ -19,8 +19,8 @@ import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
 import { MatchingQuestionForm } from './MatchingQuestionForm';
-import { Spinner, Alert } from '@/components';
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Spinner, Alert, Dropdown } from '@/components';
+import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -368,7 +368,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                    value={formData.questionText}
                    onChange={(e) => handleInputChange('questionText', e.target.value)}
                    rows={4}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
+                   className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
                    placeholder="Enter your question here..."
                  />
                </div>
@@ -378,97 +378,116 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                    Difficulty Level
                  </label>
-                 <select
+                 <Dropdown
                    value={formData.difficulty}
-                   onChange={(e) => handleInputChange('difficulty', e.target.value as QuestionDifficulty)}
-                   className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                 >
-                   <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                   <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                   <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-                 </select>
+                   onChange={(value) => handleInputChange('difficulty', value as QuestionDifficulty)}
+                   options={[
+                     { label: 'Easy', value: 'EASY' },
+                     { label: 'Medium', value: 'MEDIUM' },
+                     { label: 'Hard', value: 'HARD' }
+                   ]}
+                 />
                </div>
 
-               {/* Hint - Collapsible */}
-               {!showHint ? (
-                 <button
-                   type="button"
-                   onClick={() => setShowHint(true)}
-                   className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
-                 >
-                   <PlusIcon className="w-4 h-4 mr-1" />
-                   Add hint
-                 </button>
-               ) : (
-                 <div>
-                   <div className="flex items-center justify-between mb-2">
-                     <label className="block text-sm font-medium text-theme-text-secondary">
-                       Hint (Optional)
-                     </label>
-                     <button
-                       type="button"
-                       onClick={() => {
-                         setShowHint(false);
-                         handleInputChange('hint', '');
-                       }}
-                       className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
-                       title="Remove hint"
-                     >
-                       <XMarkIcon className="w-4 h-4" />
-                     </button>
+               {/* Hint & Explanation - Collapsible */}
+               <div className="space-y-4">
+                 {/* Add Buttons (when both collapsed) */}
+                 {(!showHint || !showExplanation) && (
+                   <div className="flex items-center gap-4">
+                     {!showHint && (
+                       <button
+                         type="button"
+                         onClick={() => setShowHint(true)}
+                         className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
+                       >
+                         <LightBulbIcon className="w-4 h-4 mr-1.5" />
+                         Add hint
+                       </button>
+                     )}
+                     {!showExplanation && (
+                       <button
+                         type="button"
+                         onClick={() => setShowExplanation(true)}
+                         className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
+                       >
+                         <QuestionMarkCircleIcon className="w-4 h-4 mr-1.5" />
+                         Add explanation
+                       </button>
+                     )}
                    </div>
-                   <textarea
-                     value={formData.hint || ''}
-                     onChange={(e) => handleInputChange('hint', e.target.value)}
-                     rows={2}
-                     className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                     placeholder="Provide a hint for students..."
-                   />
-                 </div>
-               )}
+                 )}
 
-               {/* Explanation - Collapsible */}
-               {!showExplanation ? (
-                 <button
-                   type="button"
-                   onClick={() => setShowExplanation(true)}
-                   className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
-                 >
-                   <PlusIcon className="w-4 h-4 mr-1" />
-                   Add explanation
-                 </button>
-               ) : (
-                 <div>
-                   <div className="flex items-center justify-between mb-2">
-                     <label className="block text-sm font-medium text-theme-text-secondary">
-                       Explanation (Optional)
-                     </label>
-                     <button
-                       type="button"
-                       onClick={() => {
-                         setShowExplanation(false);
-                         handleInputChange('explanation', '');
-                       }}
-                       className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
-                       title="Remove explanation"
-                     >
-                       <XMarkIcon className="w-4 h-4" />
-                     </button>
+                 {/* Hint Field */}
+                 {showHint && (
+                   <div>
+                     <div className="flex items-center justify-between mb-2">
+                       <label className="block text-sm font-medium text-theme-text-secondary">
+                         Hint (Optional)
+                       </label>
+                       <button
+                         type="button"
+                         onClick={() => {
+                           setShowHint(false);
+                           handleInputChange('hint', '');
+                         }}
+                         className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
+                         title="Remove hint"
+                       >
+                         <XMarkIcon className="w-4 h-4" />
+                       </button>
+                     </div>
+                     <textarea
+                       value={formData.hint || ''}
+                       onChange={(e) => handleInputChange('hint', e.target.value)}
+                       rows={2}
+                       className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                       placeholder="Provide a hint for students..."
+                     />
                    </div>
-                   <textarea
-                     value={formData.explanation || ''}
-                     onChange={(e) => handleInputChange('explanation', e.target.value)}
-                     rows={3}
-                     className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                     placeholder="Provide an explanation for the correct answer..."
-                   />
-                 </div>
-               )}
+                 )}
+
+                 {/* Explanation Field */}
+                 {showExplanation && (
+                   <div>
+                     <div className="flex items-center justify-between mb-2">
+                       <label className="block text-sm font-medium text-theme-text-secondary">
+                         Explanation (Optional)
+                       </label>
+                       <button
+                         type="button"
+                         onClick={() => {
+                           setShowExplanation(false);
+                           handleInputChange('explanation', '');
+                         }}
+                         className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
+                         title="Remove explanation"
+                       >
+                         <XMarkIcon className="w-4 h-4" />
+                       </button>
+                     </div>
+                     <textarea
+                       value={formData.explanation || ''}
+                       onChange={(e) => handleInputChange('explanation', e.target.value)}
+                       rows={3}
+                       className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                       placeholder="Provide an explanation for the correct answer..."
+                     />
+                   </div>
+                 )}
+               </div>
 
                 {/* Type-specific Content */}
                 <div>
-                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    {formData.type.replace('_', ' ')} Content
+                  <label className="block text-sm font-medium text-theme-text-secondary mb-4">
+                    {formData.type === 'MCQ_SINGLE' ? 'Single Choice' : 
+                     formData.type === 'MCQ_MULTI' ? 'Multiple Choice' :
+                     formData.type === 'TRUE_FALSE' ? 'True/False' :
+                     formData.type === 'OPEN' ? 'Open Ended' :
+                     formData.type === 'FILL_GAP' ? 'Fill in the Blank' :
+                     formData.type === 'COMPLIANCE' ? 'Compliance' :
+                     formData.type === 'ORDERING' ? 'Ordering' :
+                     formData.type === 'HOTSPOT' ? 'Hotspot' :
+                     formData.type === 'MATCHING' ? 'Matching' : formData.type}
                   </label>
                   {(() => {
                     switch (formData.type) {

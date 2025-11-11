@@ -64,10 +64,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">Fill in the Blank Question</h4>
-          <p className="text-sm text-theme-text-tertiary">Create text with gaps for students to fill</p>
-        </div>
+        <p className="text-sm text-theme-text-tertiary">Create text with gaps for students to fill</p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             {getGapCount()} gap{getGapCount() !== 1 ? 's' : ''}

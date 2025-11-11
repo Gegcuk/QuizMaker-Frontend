@@ -76,19 +76,14 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Header */}
+      {/* Header - Validation Only */}
       <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">
-            {isMultiSelect ? 'Multiple Choice' : 'Single Choice'}
-          </h4>
-          <p className="text-sm text-theme-text-tertiary">
-            {isMultiSelect 
-              ? 'Select all correct answers' 
-              : 'Select the one correct answer'
-            }
-          </p>
-        </div>
+        <p className="text-sm text-theme-text-tertiary">
+          {isMultiSelect 
+            ? 'Select all correct answers' 
+            : 'Select the one correct answer'
+          }
+        </p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             {getCorrectCount()} correct answer{getCorrectCount() !== 1 ? 's' : ''}

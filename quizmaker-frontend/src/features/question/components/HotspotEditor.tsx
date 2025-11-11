@@ -69,10 +69,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">Hotspot Question</h4>
-          <p className="text-sm text-theme-text-tertiary">Click on correct areas in an image</p>
-        </div>
+        <p className="text-sm text-theme-text-tertiary">Click on correct areas in an image</p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             {regions.length} region{regions.length !== 1 ? 's' : ''}

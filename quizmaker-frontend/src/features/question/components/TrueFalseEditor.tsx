@@ -32,10 +32,7 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">True/False Question</h4>
-          <p className="text-sm text-theme-text-tertiary">Select the correct answer</p>
-        </div>
+        <p className="text-sm text-theme-text-tertiary">Select the correct answer</p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             Correct Answer: <span className="font-medium">{answer ? 'True' : 'False'}</span>

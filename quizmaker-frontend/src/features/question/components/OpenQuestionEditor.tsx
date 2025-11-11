@@ -32,10 +32,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-lg font-medium text-theme-text-primary">Open-Ended Question</h4>
-          <p className="text-sm text-theme-text-tertiary">Provide a model answer for grading</p>
-        </div>
+        <p className="text-sm text-theme-text-tertiary">Provide a model answer for grading</p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             Model Answer: {modelAnswer ? 'Provided' : 'Not provided'}
