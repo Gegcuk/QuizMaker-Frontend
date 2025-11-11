@@ -58,8 +58,8 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     gapsCount: gaps.length,
     gaps: gaps,
     currentAnswer: currentAnswer,
-    hasUnderscores: text.includes('___'),
-    underscoreCount: (text.match(/_{3,}/g) || []).length
+    hasGapMarkers: text.includes('{'),
+    gapMarkerCount: (text.match(/\{\d+\}/g) || []).length
   });
 
   const renderTextWithGaps = () => {
@@ -76,8 +76,8 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     let currentText = text;
     let gapIndex = 0;
 
-    // Find all gaps marked with ___ and replace them with input fields
-    const gapRegex = /_{3,}/g;
+    // Find all gaps marked with {N} and replace them with input fields
+    const gapRegex = /\{\d+\}/g;
     let match;
     let lastIndex = 0;
     const matches = currentText.match(gapRegex) || [];
@@ -102,15 +102,20 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
       // Add gap input
       const gap = gaps[gapIndex];
+      const currentValue = gapAnswers?.[gap.id] || '';
+      // Calculate dynamic width: minimum 60px, grows with content (roughly 8px per character)
+      const inputWidth = Math.max(60, Math.min(currentValue.length * 8 + 20, 400));
+      
       parts.push(
         <input
           key={`gap-${gap.id}`}
           type="text"
-          value={gapAnswers?.[gap.id] || ''}
+          value={currentValue}
           onChange={(e) => handleGapChange(gap.id, e.target.value)}
           disabled={disabled}
-          placeholder={`Gap ${gapIndex + 1}`}
-          className="mx-1 px-2 py-1 my-1 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 min-w-[120px] text-center bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+          placeholder=""
+          style={{ width: `${inputWidth}px` }}
+          className="mx-1 px-2 py-1 my-1 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 text-center bg-theme-bg-primary text-theme-text-primary transition-all duration-150"
         />
       );
 

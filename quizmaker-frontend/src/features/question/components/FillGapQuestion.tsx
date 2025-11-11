@@ -36,14 +36,16 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
   const renderTextWithGaps = () => {
     if (!text) return null;
 
-    const parts = text.split(/(___\d+___)/);
+    const parts = text.split(/(\{\d+\})/);
     return parts.map((part, index) => {
-      const gapMatch = part.match(/___(\d+)___/);
+      const gapMatch = part.match(/\{(\d+)\}/);
       if (gapMatch) {
         const gapId = parseInt(gapMatch[1]);
         const gap = gaps?.find(g => g.id === gapId);
         const userAnswer = answers[gapId] || '';
         const correctAnswer = gap?.answer || '';
+        // Calculate dynamic width: minimum 60px, grows with content
+        const inputWidth = Math.max(60, Math.min(userAnswer.length * 8 + 20, 400));
 
         return (
           <span key={index} className="inline-flex items-center space-x-2">
@@ -52,14 +54,15 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
               value={userAnswer}
               onChange={(e) => handleGapChange(gapId, e.target.value)}
               disabled={disabled}
-              className={`inline-block min-w-[120px] border rounded-md px-2 py-1 text-sm ${
+              style={{ width: `${inputWidth}px` }}
+              className={`inline-block border rounded-md px-2 py-1 text-sm text-center transition-all duration-150 ${
                 showCorrectAnswer
                   ? userAnswer === correctAnswer
                     ? 'border-theme-border-success bg-theme-bg-success text-theme-interactive-success'
                     : 'border-theme-border-danger bg-theme-bg-danger text-theme-interactive-danger'
                   : 'border-theme-border-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary'
               }`}
-              placeholder={`Gap ${gapId}`}
+              placeholder=""
             />
             {showCorrectAnswer && (
               <span className="text-xs text-theme-text-tertiary">

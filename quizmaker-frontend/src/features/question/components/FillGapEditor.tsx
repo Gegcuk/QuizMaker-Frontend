@@ -45,7 +45,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 
   const insertGapMarker = () => {
     const gapId = gaps.length + 1;
-    const gapMarker = `___${gapId}___`;
+    const gapMarker = `{${gapId}}`;
     setText(prev => prev + gapMarker);
     setGaps(prev => [...prev, { id: gapId, answer: '' }]);
   };
@@ -92,7 +92,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                 id="gap-text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with ___..."
+                placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with {1}, {2}, etc."
                 className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
                 rows={6}
                 required
@@ -107,7 +107,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
               </button>
             </div>
             <p className="mt-1 text-sm text-theme-text-tertiary">
-              Use ___1___, ___2___, etc. to mark gaps. Each gap will appear as a blank field for students.
+              Use {'{1}'}, {'{2}'}, etc. to mark gaps. Each gap will appear as a blank field for students.
             </p>
           </div>
 
@@ -116,7 +116,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
             <div className="space-y-1">
               <p>Example text with gaps:</p>
               <div className="bg-theme-bg-primary p-3 rounded border font-mono text-sm">
-                "The capital of France is ___1___. The Eiffel Tower is located in ___2___."
+                "The capital of France is {'{1}'}. The Eiffel Tower is located in {'{2}'}."
               </div>
               <p className="mt-2">Click "Add Gap" to automatically insert gap markers, or type them manually.</p>
             </div>
@@ -141,7 +141,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                     type="text"
                     value={gap.answer}
                     onChange={(e) => updateGapAnswer(gap.id, e.target.value)}
-                    placeholder={`Answer for gap ${gap.id}...`}
+                    placeholder="Enter correct answer..."
                     className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
                   />
                 </div>
@@ -167,10 +167,10 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
-          <li>Write your question text with gaps marked as ___1___, ___2___, etc.</li>
+          <li>Write your question text with gaps marked as {'{1}'}, {'{2}'}, etc.</li>
           <li>Use the "Add Gap" button to automatically insert gap markers</li>
           <li>Provide the correct answer for each gap</li>
-          <li>Consider multiple acceptable answers for each gap</li>
+          <li>Maximum 3 gaps per question</li>
         </ul>
       </InstructionsModal>
 
@@ -182,17 +182,16 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
             <div className="mt-2 bg-theme-bg-primary p-3 rounded border">
               {text ? (
                 <div className="space-y-2">
-                  {text.split(/(___\d+___)/).map((part, index) => {
-                    const gapMatch = part.match(/___(\d+)___/);
+                  {text.split(/(\{\d+\})/).map((part, index) => {
+                    const gapMatch = part.match(/\{(\d+)\}/);
                     if (gapMatch) {
-                      const gapId = parseInt(gapMatch[1]);
                       return (
                         <input
                           key={index}
                           type="text"
-                          placeholder={`Gap ${gapId}`}
+                          placeholder=""
                           disabled
-                          className="inline-block w-24 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                          className="inline-block min-w-[60px] w-20 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary text-center"
                         />
                       );
                     }

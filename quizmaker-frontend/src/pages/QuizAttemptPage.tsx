@@ -239,8 +239,17 @@ const QuizAttemptPage: React.FC = () => {
         return typeof answerInput === "string" && answerInput.trim().length > 0;
       case "COMPLIANCE":
         return Array.isArray(answerInput) && answerInput.length > 0;
-      case "FILL_GAP":
-        return answerInput && Object.keys(answerInput).length > 0;
+      case "FILL_GAP": {
+        // Check that ALL gaps are filled
+        const totalGaps = currentQuestion?.safeContent?.gaps?.length || 0;
+        if (totalGaps === 0) return false;
+        
+        const filledGaps = Object.values(answerInput || {}).filter(
+          (answer) => typeof answer === 'string' && answer.trim().length > 0
+        ).length;
+        
+        return filledGaps === totalGaps;
+      }
       case "HOTSPOT":
         return Boolean(answerInput);
       case "ORDERING":
@@ -561,9 +570,12 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
-          {currentQuestion.questionText}
-        </h2>
+        {/* Question Text - Skip for FILL_GAP as it's embedded in the answer component */}
+        {currentQuestion.type !== 'FILL_GAP' && (
+          <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
+            {currentQuestion.questionText}
+          </h2>
+        )}
 
         {currentQuestion.hint && (
           <HintDisplay hint={currentQuestion.hint} />
@@ -693,9 +705,12 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
-          {currentQuestion.questionText}
-        </h2>
+        {/* Question Text - Skip for FILL_GAP as it's embedded in the answer component */}
+        {currentQuestion.type !== 'FILL_GAP' && (
+          <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
+            {currentQuestion.questionText}
+          </h2>
+        )}
 
         {currentQuestion.hint && (
           <HintDisplay hint={currentQuestion.hint} />

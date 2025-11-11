@@ -92,6 +92,15 @@ const QuizResultPage: React.FC = () => {
     return 'bg-theme-bg-danger border-theme-border-danger';
   };
 
+  // Format question text for FILL_GAP questions - replace {N} with underscores
+  const formatQuestionText = (questionText: string, questionType: string): string => {
+    if (questionType === 'FILL_GAP') {
+      // Replace {1}, {2}, {3}, etc. with ______
+      return questionText.replace(/\{\d+\}/g, '______');
+    }
+    return questionText;
+  };
+
   // Format answer for display with context - resolves IDs to readable text using questionSafeContent
   const formatAnswerWithContext = (answer: any, type: string, safeContent: any): React.ReactNode => {
     if (!answer) return <span className="text-theme-text-tertiary italic">No answer provided</span>;
@@ -557,7 +566,7 @@ const QuizResultPage: React.FC = () => {
                       </Badge>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-medium text-theme-text-primary line-clamp-2">
-                          {answer.questionText}
+                          {formatQuestionText(answer.questionText, answer.type)}
                         </h3>
                       </div>
                     </div>
@@ -582,7 +591,7 @@ const QuizResultPage: React.FC = () => {
                       <h4 className="font-medium text-theme-text-primary mb-2">Question:</h4>
                       <div className="p-3 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
                         <p className="text-sm text-theme-text-primary whitespace-pre-wrap">
-                          {answer.questionText}
+                          {formatQuestionText(answer.questionText, answer.type)}
                         </p>
                       </div>
                     </div>
