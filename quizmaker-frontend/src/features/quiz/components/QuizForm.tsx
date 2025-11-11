@@ -12,7 +12,7 @@ import { QuestionService } from '@/services';
 import { getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '@/services';
 import { api } from '@/services';
 import { QuizManagementTab, QuizPreview, QuizPublishModal, QuizQuestionInline } from './';
-import { Button, useToast, ConfirmationModal, Alert } from '@/components';
+import { Button, useToast, ConfirmationModal, Alert, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {
@@ -49,11 +49,13 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     tagIds: []
   });
   
+  const [initialQuizData, setInitialQuizData] = useState<Partial<CreateQuizRequest | UpdateQuizRequest>>();
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const [initialQuestionIds, setInitialQuestionIds] = useState<string[]>([]);
   const [currentQuiz, setCurrentQuiz] = useState<QuizDto | null>(null);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingManagement, setIsSavingManagement] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [activeTab, setActiveTab] = useState<'management' | 'questions' | 'preview'>(defaultTab || 'management');
   const [showPublishModal, setShowPublishModal] = useState(false);
@@ -72,7 +74,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
           ]);
           
           setCurrentQuiz(quiz);
-          setQuizData({
+          const loadedData = {
             title: quiz.title,
             description: quiz.description,
             visibility: quiz.visibility,
@@ -83,7 +85,9 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
             timerDuration: quiz.timerDuration,
             categoryId: quiz.categoryId,
             tagIds: quiz.tagIds
-          });
+          };
+          setQuizData(loadedData);
+          setInitialQuizData(loadedData);
           
           // Set existing questions
           const existingIds = questions.content.map((q: any) => q.id);
@@ -101,6 +105,12 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       loadQuiz();
     }
   }, [isEditing, quizId]);
+
+  // Check if form has unsaved changes
+  const isDirty = React.useMemo(() => {
+    if (!quizData || !initialQuizData) return false;
+    return JSON.stringify(quizData) !== JSON.stringify(initialQuizData);
+  }, [quizData, initialQuizData]);
 
   // Validation function
   const validateForm = (): FormErrors => {
@@ -149,6 +159,31 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
         });
         return newErrors;
       });
+    }
+  };
+
+  // Handle saving management/settings data only
+  const handleSaveManagement = async () => {
+    if (!quizId || !quizData) return;
+    
+    // Validate form
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    setIsSavingManagement(true);
+    try {
+      await updateQuiz(quizId, quizData as UpdateQuizRequest);
+      addToast({ type: 'success', message: 'Quiz settings saved.' });
+      // Reset initial data to mark form as pristine after successful save
+      setInitialQuizData({ ...quizData });
+      setErrors({}); // Clear any errors
+    } catch (e) {
+      addToast({ type: 'error', message: 'Failed to save changes.' });
+    } finally {
+      setIsSavingManagement(false);
     }
   };
 
@@ -351,12 +386,6 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     );
   }
 
-  const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }>; description: string }[] = [
-    { id: 'management', name: 'Settings', icon: Cog6ToothIcon, description: 'Basic info, settings, tags, and category' },
-    { id: 'questions', name: 'Questions', icon: QuestionMarkCircleIcon, description: 'Add and manage quiz questions' },
-    { id: 'preview', name: 'Preview', icon: EyeIcon, description: 'Preview your quiz' }
-  ];
-
   return (
     <div className={className}>
       {/* Error message */}
@@ -374,192 +403,202 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       {/* Form content */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
-          {/* Tabs header attached to form content */}
-          <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
-            <nav className="flex space-x-8">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 rounded-none ${
-                    activeTab === tab.id
-                      ? 'border-theme-interactive-primary text-theme-interactive-primary'
-                      : 'border-transparent'
-                  }`}
-                  title={tab.description}
-                  leftIcon={(() => { const Icon = tab.icon; return <Icon className="w-4 h-4" />; })()}
-                >
-                  {tab.name}
-                </Button>
-              ))}
-            </nav>
-          </div>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+            {/* Tabs header attached to form content */}
+            <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
+              <TabsList>
+                <TabsTrigger value="management" icon={<Cog6ToothIcon className="w-4 h-4" />}>
+                  Settings
+                </TabsTrigger>
+                <TabsTrigger value="questions" icon={<QuestionMarkCircleIcon className="w-4 h-4" />}>
+                  Questions
+                </TabsTrigger>
+                <TabsTrigger value="preview" icon={<EyeIcon className="w-4 h-4" />}>
+                  Preview
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          {/* Tab Content */}
-          <div className="p-6">
-        {activeTab === 'management' && (
-          <QuizManagementTab
-            quizId={quizId}
-            quizData={quizData}
-            onDataChange={handleDataChange}
-            errors={errors as Record<string, string>}
-            isEditing={true}
-          />
-        )}
-
-        {activeTab === 'questions' && (
-          <div className="space-y-6">
-            <QuizQuestionInline
-              quizId={quizId || undefined}
-              questionIds={selectedQuestionIds}
-              onChange={handleQuestionsChange}
-              defaultDifficulty={(quizData.difficulty as QuestionDifficulty) || 'MEDIUM'}
-            />
-            
-            {/* Create Quiz Buttons for Questions Tab */}
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
-                  <p className="text-sm text-theme-text-secondary mt-1">
-                    {selectedQuestionIds.length > 0 
-                      ? `${selectedQuestionIds.length} questions selected` 
-                      : 'No questions selected yet'}
-                  </p>
-                  <p className="text-xs text-theme-text-tertiary mt-2">
-                    <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
-                  </p>
-                  
-                  {/* Validation Messages */}
-                  {(!isQuizMetaValid() || !isReadyToPublish()) && (
-                    <div className="mt-3">
-                      <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
-                      <ul className="text-sm text-theme-interactive-danger space-y-1">
-                        {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
-                          <li key={index} className="flex items-center">
-                            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            {message}
-                          </li>
-                        ))}
-                      </ul>
+            {/* Tab Content */}
+            <div className="p-6">
+              <TabsContent value="management">
+                <>
+                  <QuizManagementTab
+                    quizId={quizId}
+                    quizData={quizData}
+                    onDataChange={handleDataChange}
+                    errors={errors as Record<string, string>}
+                    isEditing={true}
+                  />
+                  {isEditing && (
+                    <div className="flex justify-center space-x-4 pt-6">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSaveManagement}
+                        disabled={isSavingManagement || !isDirty}
+                        loading={isSavingManagement}
+                      >
+                        {isSavingManagement ? 'Saving…' : 'Save Changes'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowPublishModal(true)}
+                      >
+                        Manage Status
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        Delete Quiz
+                      </Button>
                     </div>
                   )}
-                </div>
-                <div className="ml-6 flex space-x-3">
-                  {/* Create Draft Button */}
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleCreateQuiz('DRAFT')}
-                    disabled={isSaving || !isQuizMetaValid()}
-                    loading={isSaving}
-                  >
-                    {isEditing ? 'Save Draft' : 'Create Draft'}
-                  </Button>
+                </>
+              </TabsContent>
 
-                  {/* Create & Publish Button */}
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleCreateQuiz('PUBLISHED')}
-                    disabled={isSaving || !isReadyToPublish()}
-                    loading={isSaving}
-                  >
-                    {isEditing ? 'Save & Publish' : 'Create & Publish'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'preview' && (
-          <div className="space-y-6">
-            <QuizPreview
-              quizData={currentQuiz || quizData}
-            />
-            
-            {/* Create Quiz Buttons for Preview Tab */}
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
-                  <p className="text-sm text-theme-text-secondary mt-1">
-                    Review your quiz details above and create when ready
-                  </p>
-                  <p className="text-xs text-theme-text-tertiary mt-2">
-                    <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
-                  </p>
+              <TabsContent value="questions">
+                <div className="space-y-6">
+                  <QuizQuestionInline
+                    quizId={quizId || undefined}
+                    questionIds={selectedQuestionIds}
+                    onChange={handleQuestionsChange}
+                    defaultDifficulty={(quizData.difficulty as QuestionDifficulty) || 'MEDIUM'}
+                  />
                   
-                  {/* Validation Messages */}
-                  {(!isQuizMetaValid() || !isReadyToPublish()) && (
-                    <div className="mt-3">
-                      <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
-                      <ul className="text-sm text-theme-interactive-danger space-y-1">
-                        {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
-                          <li key={index} className="flex items-center">
-                            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            {message}
-                          </li>
-                        ))}
-                      </ul>
+                  {/* Create Quiz Buttons for Questions Tab */}
+                  <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
+                        <p className="text-sm text-theme-text-secondary mt-1">
+                          {selectedQuestionIds.length > 0 
+                            ? `${selectedQuestionIds.length} questions selected` 
+                            : 'No questions selected yet'}
+                        </p>
+                        <p className="text-xs text-theme-text-tertiary mt-2">
+                          <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
+                        </p>
+                        
+                        {/* Validation Messages */}
+                        {(!isQuizMetaValid() || !isReadyToPublish()) && (
+                          <div className="mt-3">
+                            <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
+                            <ul className="text-sm text-theme-interactive-danger space-y-1">
+                              {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
+                                <li key={index} className="flex items-center">
+                                  <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  {message}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <div className="ml-6 flex space-x-3">
+                        {/* Create Draft Button */}
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleCreateQuiz('DRAFT')}
+                          disabled={isSaving || !isQuizMetaValid()}
+                          loading={isSaving}
+                        >
+                          {isEditing ? 'Save Draft' : 'Create Draft'}
+                        </Button>
+
+                        {/* Create & Publish Button */}
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleCreateQuiz('PUBLISHED')}
+                          disabled={isSaving || !isReadyToPublish()}
+                          loading={isSaving}
+                        >
+                          {isEditing ? 'Save & Publish' : 'Create & Publish'}
+                        </Button>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-                <div className="ml-6 flex space-x-3">
-                  {/* Create Draft Button */}
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleCreateQuiz('DRAFT')}
-                    disabled={isSaving || !isQuizMetaValid()}
-                    loading={isSaving}
-                  >
-                    {isEditing ? 'Save Draft' : 'Create Draft'}
-                  </Button>
+              </TabsContent>
 
-                  {/* Create & Publish Button */}
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleCreateQuiz('PUBLISHED')}
-                    disabled={isSaving || !isReadyToPublish()}
-                    loading={isSaving}
-                  >
-                    {isEditing ? 'Save & Publish' : 'Create & Publish'}
-                  </Button>
+              <TabsContent value="preview">
+                <div className="space-y-6">
+                  <QuizPreview
+                    quizData={currentQuiz || quizData}
+                  />
+                  
+                  {/* Create Quiz Buttons for Preview Tab */}
+                  <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-medium text-theme-text-primary">{isEditing ? 'Ready to Save Quiz?' : 'Ready to Create Quiz?'}</h4>
+                        <p className="text-sm text-theme-text-secondary mt-1">
+                          Review your quiz details above and create when ready
+                        </p>
+                        <p className="text-xs text-theme-text-tertiary mt-2">
+                          <strong>Draft:</strong> Save as draft for later editing • <strong>Publish:</strong> Make quiz available immediately
+                        </p>
+                        
+                        {/* Validation Messages */}
+                        {(!isQuizMetaValid() || !isReadyToPublish()) && (
+                          <div className="mt-3">
+                            <p className="text-sm font-medium text-theme-interactive-danger mb-2">Please complete the following:</p>
+                            <ul className="text-sm text-theme-interactive-danger space-y-1">
+                              {(isQuizMetaValid() ? getPublishValidationMessages() : getMetaValidationMessages()).map((message, index) => (
+                                <li key={index} className="flex items-center">
+                                  <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  {message}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <div className="ml-6 flex space-x-3">
+                        {/* Create Draft Button */}
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleCreateQuiz('DRAFT')}
+                          disabled={isSaving || !isQuizMetaValid()}
+                          loading={isSaving}
+                        >
+                          {isEditing ? 'Save Draft' : 'Create Draft'}
+                        </Button>
+
+                        {/* Create & Publish Button */}
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleCreateQuiz('PUBLISHED')}
+                          disabled={isSaving || !isReadyToPublish()}
+                          loading={isSaving}
+                        >
+                          {isEditing ? 'Save & Publish' : 'Create & Publish'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </TabsContent>
             </div>
-          </div>
-        )}
-
-        {/* Action Buttons for Editing Existing Quizzes */}
-        {isEditing && currentQuiz && (
-          <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
-            <Button type="button" variant="primary" size="sm" onClick={() => handleSubmit()} disabled={isSaving} loading={isSaving}>
-              Save Changes
-            </Button>
-            <Button type="button" variant="secondary" size="sm" onClick={() => setShowPublishModal(true)}>
-              Manage Status
-            </Button>
-            <Button type="button" variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
-              Delete Quiz
-            </Button>
-          </div>
-        )}
-          </div>
+          </Tabs>
         </div>
       </form>
 

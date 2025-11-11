@@ -21,13 +21,25 @@ const useTabsContext = () => {
 };
 
 interface TabsProps {
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
   children: React.ReactNode;
   className?: string;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ defaultValue, children, className = '' }) => {
-  const [activeTab, setActiveTab] = useState(defaultValue);
+export const Tabs: React.FC<TabsProps> = ({ defaultValue, value, onValueChange, children, className = '' }) => {
+  const [internalTab, setInternalTab] = useState(defaultValue || value || '');
+  
+  // Use controlled value if provided, otherwise use internal state
+  const activeTab = value !== undefined ? value : internalTab;
+  const setActiveTab = (newTab: string) => {
+    if (onValueChange) {
+      onValueChange(newTab);
+    } else {
+      setInternalTab(newTab);
+    }
+  };
 
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
@@ -45,34 +57,38 @@ interface TabsListProps {
 
 export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
   return (
-    <div className={`flex border-b border-theme-border-primary ${className}`}>
+    <nav className={`flex space-x-8 ${className}`}>
       {children}
-    </div>
+    </nav>
   );
 };
 
 interface TabsTriggerProps {
   value: string;
   children: React.ReactNode;
+  icon?: React.ReactNode;
   className?: string;
 }
 
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, className = '' }) => {
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, icon, className = '' }) => {
   const { activeTab, setActiveTab } = useTabsContext();
   const isActive = activeTab === value;
 
   return (
     <button
+      type="button"
       onClick={() => setActiveTab(value)}
       className={`
-        px-4 py-2 text-sm font-medium border-b-2 transition-colors
+        inline-flex items-center py-4 px-1 border-b-2 rounded-none text-sm font-medium transition-colors
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary
         ${isActive 
-          ? 'border-theme-border-info text-theme-interactive-primary bg-theme-bg-info' 
-          : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
+          ? 'border-theme-interactive-primary text-theme-interactive-primary' 
+          : 'border-transparent text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-border-secondary'
         }
         ${className}
       `}
     >
+      {icon && <span className="mr-2">{icon}</span>}
       {children}
     </button>
   );
@@ -92,7 +108,7 @@ export const TabsContent: React.FC<TabsContentProps> = ({ value, children, class
   }
 
   return (
-    <div className={`mt-4 ${className}`}>
+    <div className={className}>
       {children}
     </div>
   );

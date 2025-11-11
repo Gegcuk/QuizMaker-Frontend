@@ -11,7 +11,7 @@ import {
   ArrowUpOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateQuiz } from '@/services';
+import { updateQuiz, updateQuizStatus } from '@/services';
 import { useToast } from '@/components';
 import { useAuth } from '@/features/auth';
 import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
@@ -23,8 +23,14 @@ import {
   Button,
   QuizExport,
   QuizGenerationJobs,
-  QuizManagementTab
+  QuizManagementTab,
+  QuizPublishModal,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent
 } from '@/components';
+import type { QuizStatus } from '@/types';
 
 const QuizDetailPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -33,6 +39,7 @@ const QuizDetailPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'export'>('overview');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [initialManagementData, setInitialManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
   const [isSavingManagement, setIsSavingManagement] = useState(false);
@@ -91,6 +98,19 @@ const QuizDetailPage: React.FC = () => {
     }
   };
 
+  const handleStatusChange = async (newStatus: QuizStatus) => {
+    if (!quizId) return;
+    try {
+      await updateQuizStatus(quizId, { status: newStatus });
+      addToast({ type: 'success', message: `Quiz ${newStatus.toLowerCase()} successfully.` });
+      setShowPublishModal(false);
+      // Refetch quiz data to update UI
+      window.location.reload(); // Simple way to refresh data
+    } catch (e) {
+      addToast({ type: 'error', message: 'Failed to update quiz status.' });
+    }
+  };
+
   // Initialize local management form data when quiz loads
   React.useEffect(() => {
     if (quiz) {
@@ -144,12 +164,6 @@ const QuizDetailPage: React.FC = () => {
     );
   }
 
-  const tabs: { id: typeof activeTab; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'overview', name: 'Overview', icon: ChartBarIcon },
-    { id: 'management', name: 'Settings', icon: Cog6ToothIcon },
-    { id: 'export', name: 'Export', icon: ArrowUpOnSquareIcon }
-  ];
-
   return (
     <>
       {/* Quiz Detail Header */}
@@ -163,77 +177,85 @@ const QuizDetailPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
-          {/* Tabs header attached to content */}
-          <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
-            <nav className="flex space-x-8">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 rounded-none ${
-                    activeTab === tab.id
-                      ? 'border-theme-interactive-primary text-theme-interactive-primary'
-                      : 'border-transparent'
-                  }`}
-                  leftIcon={(() => { const Icon = tab.icon; return <Icon className="w-4 h-4" />; })()}
-                >
-                  {tab.name}
-                </Button>
-              ))}
-            </nav>
-          </div>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+            {/* Tabs header attached to content */}
+            <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
+              <TabsList>
+                <TabsTrigger value="overview" icon={<ChartBarIcon className="w-4 h-4" />}>
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="management" icon={<Cog6ToothIcon className="w-4 h-4" />}>
+                  Settings
+                </TabsTrigger>
+                <TabsTrigger value="export" icon={<ArrowUpOnSquareIcon className="w-4 h-4" />}>
+                  Export
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          {/* Tab Content - inside same rounded container */}
-          <div className="p-6">
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                {stats && (
-                  <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
-                    <QuizStats stats={stats} useContainer={false} />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'management' && managementData && (
-              <>
-                <QuizManagementTab
-                  quizId={quizId!}
-                  quizData={managementData}
-                  onDataChange={(updatedData) => setManagementData(prev => ({ ...(prev || {}), ...updatedData }))}
-                  errors={managementErrors}
-                  isEditing={true}
-                />
-                <div className="flex justify-center space-x-4 pt-6 border-t border-theme-border-primary">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="md"
-                    onClick={handleSaveManagement}
-                    disabled={isSavingManagement || !isDirty}
-                    loading={isSavingManagement}
-                  >
-                    {isSavingManagement ? 'Saving…' : 'Save Changes'}
-                  </Button>
+            {/* Tab Content - inside same rounded container */}
+            <div className="p-6">
+              <TabsContent value="overview">
+                <div className="space-y-6">
+                  {stats && (
+                    <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+                      <QuizStats stats={stats} useContainer={false} />
+                    </div>
+                  )}
                 </div>
-              </>
-            )}
+              </TabsContent>
 
-            
+              <TabsContent value="management">
+                {managementData && (
+                  <>
+                    <QuizManagementTab
+                      quizId={quizId!}
+                      quizData={managementData}
+                      onDataChange={(updatedData) => setManagementData(prev => ({ ...(prev || {}), ...updatedData }))}
+                      errors={managementErrors}
+                      isEditing={true}
+                    />
+                    <div className="flex justify-center space-x-4 pt-6">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSaveManagement}
+                        disabled={isSavingManagement || !isDirty}
+                        loading={isSavingManagement}
+                      >
+                        {isSavingManagement ? 'Saving…' : 'Save Changes'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowPublishModal(true)}
+                      >
+                        Manage Status
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={handleDeleteQuiz}
+                      >
+                        Delete Quiz
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </TabsContent>
 
-            {activeTab === 'export' && (
-              <QuizExport quiz={quiz} />
-            )}
-
-            {/* AI Generation tab removed */}
-          </div>
+              <TabsContent value="export">
+                <QuizExport quiz={quiz} />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -244,6 +266,16 @@ const QuizDetailPage: React.FC = () => {
         variant="danger"
         isLoading={deleteQuizMutation.isPending}
       />
+
+      {/* Publish/Status Modal */}
+      {quiz && (
+        <QuizPublishModal
+          isOpen={showPublishModal}
+          onClose={() => setShowPublishModal(false)}
+          onConfirm={handleStatusChange}
+          quiz={quiz}
+        />
+      )}
     </>
   );
 };
