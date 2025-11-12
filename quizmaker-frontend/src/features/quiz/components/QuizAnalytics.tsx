@@ -13,6 +13,7 @@ import {
   CheckCircleIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
+import { Button } from '@/components';
 
 interface QuizAnalyticsProps {
   stats: QuizResultSummaryDto;
@@ -141,36 +142,30 @@ const QuizAnalytics: React.FC<QuizAnalyticsProps> = ({ stats, className = '' }) 
           
           {/* Chart Type Selector */}
           <div className="flex space-x-1 bg-theme-bg-tertiary rounded-lg p-1">
-            <button
+            <Button
               onClick={() => setSelectedChart('score-distribution')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                selectedChart === 'score-distribution'
-                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-theme-text-secondary hover:text-theme-text-primary'
-              }`}
+              variant={selectedChart === 'score-distribution' ? 'primary' : 'ghost'}
+              size="sm"
+              className="!text-xs !py-1"
             >
               Score Distribution
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setSelectedChart('question-performance')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                selectedChart === 'question-performance'
-                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-theme-text-secondary hover:text-theme-text-primary'
-              }`}
+              variant={selectedChart === 'question-performance' ? 'primary' : 'ghost'}
+              size="sm"
+              className="!text-xs !py-1"
             >
               Question Performance
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setSelectedChart('attempt-trends')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                selectedChart === 'attempt-trends'
-                  ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                  : 'text-theme-text-secondary hover:text-theme-text-primary'
-              }`}
+              variant={selectedChart === 'attempt-trends' ? 'primary' : 'ghost'}
+              size="sm"
+              className="!text-xs !py-1"
             >
               Attempt Trends
-            </button>
+            </Button>
           </div>
         </div>
       </div>

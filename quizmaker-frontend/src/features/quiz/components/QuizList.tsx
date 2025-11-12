@@ -7,7 +7,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
-import { Badge, Button } from '@/components';
+import { Badge, Button, Checkbox } from '@/components';
 
 interface QuizListProps {
   quizzes: QuizDto[];
@@ -124,17 +124,11 @@ const QuizList: React.FC<QuizListProps> = ({
       {/* Select All Checkbox */}
       {onSelectAll && (
         <div className="px-4 py-3 border-b border-theme-border-primary bg-theme-bg-tertiary">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
-              onChange={(e) => onSelectAll(e.target.checked)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
-            />
-            <label className="text-sm font-medium text-theme-text-secondary">
-              Select All ({selectedQuizzes.length}/{quizzes.length})
-            </label>
-          </div>
+          <Checkbox
+            checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
+            onChange={onSelectAll}
+            label={`Select All (${selectedQuizzes.length}/${quizzes.length})`}
+          />
         </div>
       )}
       
@@ -146,11 +140,9 @@ const QuizList: React.FC<QuizListProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3">
                     {onSelect && (
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selectedQuizzes.includes(quiz.id)}
-                        onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+                        onChange={(checked) => onSelect(quiz.id, checked)}
                       />
                     )}
                     <h3 className="text-lg font-medium text-theme-text-primary truncate group-hover:text-theme-interactive-primary">

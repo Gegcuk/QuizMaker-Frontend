@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OpenContent } from '@/types';
-import { InstructionsModal } from '@/components';
+import { InstructionsModal, Textarea } from '@/components';
 // No specific content types - API uses JsonNode
 
 interface OpenQuestionEditorProps {
@@ -47,17 +47,19 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
       <div className="bg-theme-bg-secondary rounded-lg p-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="model-answer" className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Model Answer <span className="text-theme-text-danger">*</span>
-            </label>
-            <textarea
+            <Textarea
               id="model-answer"
+              label={
+                <>
+                  Model Answer <span className="text-theme-text-danger">*</span>
+                </>
+              }
               value={modelAnswer}
               onChange={(e) => setModelAnswer(e.target.value)}
               placeholder="Enter the model answer..."
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
               rows={6}
               required
+              fullWidth
             />
             <p className="mt-1 text-sm text-theme-text-tertiary">
               This answer will be used for grading and comparison with student responses.
@@ -96,11 +98,11 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
           <div className="text-sm text-theme-text-secondary">
             <p>How it will appear:</p>
             <div className="mt-2">
-              <textarea
+              <Textarea
                 placeholder="Enter your answer here..."
                 disabled
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 rows={4}
+                fullWidth
               />
             </div>
             <p className="mt-2 text-xs text-theme-text-tertiary">

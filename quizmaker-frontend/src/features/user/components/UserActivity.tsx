@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth';
 import type { AxiosError } from 'axios';
+import { Input, Dropdown, Alert } from '@/components';
 
 interface UserActivityProps {
   userId?: string; // If provided, shows activity for specific user (admin view)
@@ -303,17 +304,10 @@ const UserActivity: React.FC<UserActivityProps> = ({
 
   if (errors) {
     return (
-      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-md p-4 ${className}`}>
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-theme-interactive-danger">{errors}</p>
-          </div>
-        </div>
+      <div className={className}>
+        <Alert type="error">
+          {errors}
+        </Alert>
       </div>
     );
   }
@@ -334,39 +328,39 @@ const UserActivity: React.FC<UserActivityProps> = ({
       <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <input
+            <Input
               type="text"
               placeholder="Search activities..."
               value={filter.search || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              fullWidth
             />
           </div>
           <div className="flex gap-2">
-            <select
+            <Dropdown
               value={filter.type || ''}
-              onChange={(e) => setFilter(prev => ({ ...prev, type: e.target.value as ActivityItem['type'] || undefined }))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
-              <option value="quiz_completed" className="bg-theme-bg-primary text-theme-text-primary">Quiz Completed</option>
-              <option value="quiz_created" className="bg-theme-bg-primary text-theme-text-primary">Quiz Created</option>
-              <option value="quiz_shared" className="bg-theme-bg-primary text-theme-text-primary">Quiz Shared</option>
-              <option value="achievement_unlocked" className="bg-theme-bg-primary text-theme-text-primary">Achievement Unlocked</option>
-              <option value="login" className="bg-theme-bg-primary text-theme-text-primary">Login</option>
-              <option value="profile_updated" className="bg-theme-bg-primary text-theme-text-primary">Profile Updated</option>
-            </select>
-            <select
+              onChange={(value) => setFilter(prev => ({ ...prev, type: (Array.isArray(value) ? value[0] : value) as ActivityItem['type'] || undefined }))}
+              options={[
+                { label: 'All Types', value: '' },
+                { label: 'Quiz Completed', value: 'quiz_completed' },
+                { label: 'Quiz Created', value: 'quiz_created' },
+                { label: 'Quiz Shared', value: 'quiz_shared' },
+                { label: 'Achievement Unlocked', value: 'achievement_unlocked' },
+                { label: 'Login', value: 'login' },
+                { label: 'Profile Updated', value: 'profile_updated' }
+              ]}
+            />
+            <Dropdown
               value={filter.dateRange || 'week'}
-              onChange={(e) => setFilter(prev => ({ ...prev, dateRange: e.target.value as ActivityFilter['dateRange'] }))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="today" className="bg-theme-bg-primary text-theme-text-primary">Today</option>
-              <option value="week" className="bg-theme-bg-primary text-theme-text-primary">This Week</option>
-              <option value="month" className="bg-theme-bg-primary text-theme-text-primary">This Month</option>
-              <option value="year" className="bg-theme-bg-primary text-theme-text-primary">This Year</option>
-              <option value="all" className="bg-theme-bg-primary text-theme-text-primary">All Time</option>
-            </select>
+              onChange={(value) => setFilter(prev => ({ ...prev, dateRange: (Array.isArray(value) ? value[0] : value) as ActivityFilter['dateRange'] }))}
+              options={[
+                { label: 'Today', value: 'today' },
+                { label: 'This Week', value: 'week' },
+                { label: 'This Month', value: 'month' },
+                { label: 'This Year', value: 'year' },
+                { label: 'All Time', value: 'all' }
+              ]}
+            />
           </div>
         </div>
       </div>
