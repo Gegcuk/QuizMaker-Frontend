@@ -8,7 +8,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { DocumentProcessService } from '@/services';
 import { DocumentProcessDto, DocumentProcessViewDto } from '@/types';
 import { api } from '@/services';
-import { Button, Alert, Badge, Card, CardBody, CardHeader } from '@/components';
+import { Button, Alert, Badge, Card, CardBody, CardHeader, Dropdown, Textarea } from '@/components';
 import { 
   DocumentArrowUpIcon, 
   DocumentTextIcon, 
@@ -328,46 +328,34 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
             </h3>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="language" className="block text-sm font-medium text-theme-text-secondary">
-                Language
-              </label>
-              <select
-                id="language"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
-                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
-                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
-                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
-                <option value="it" className="bg-theme-bg-primary text-theme-text-primary">Italian</option>
-                <option value="pt" className="bg-theme-bg-primary text-theme-text-primary">Portuguese</option>
-                <option value="ru" className="bg-theme-bg-primary text-theme-text-primary">Russian</option>
-                <option value="zh" className="bg-theme-bg-primary text-theme-text-primary">Chinese</option>
-                <option value="ja" className="bg-theme-bg-primary text-theme-text-primary">Japanese</option>
-                <option value="ko" className="bg-theme-bg-primary text-theme-text-primary">Korean</option>
-              </select>
-            </div>
+            <Dropdown
+              label="Language"
+              value={language}
+              onChange={(value) => setLanguage(Array.isArray(value) ? value[0] : value)}
+              options={[
+                { label: 'English', value: 'en' },
+                { label: 'Spanish', value: 'es' },
+                { label: 'French', value: 'fr' },
+                { label: 'German', value: 'de' },
+                { label: 'Italian', value: 'it' },
+                { label: 'Portuguese', value: 'pt' },
+                { label: 'Russian', value: 'ru' },
+                { label: 'Chinese', value: 'zh' },
+                { label: 'Japanese', value: 'ja' },
+                { label: 'Korean', value: 'ko' }
+              ]}
+              fullWidth
+            />
 
-            <div className="space-y-2">
-              <label htmlFor="textInput" className="block text-sm font-medium text-theme-text-secondary">
-                Document Content
-              </label>
-              <textarea
-                id="textInput"
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Paste or type your document content here..."
-                rows={10}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent resize-vertical bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              />
-            </div>
-
-            <div className="text-sm text-theme-text-tertiary">
-              <p>Character count: {textInput.length.toLocaleString()}</p>
-            </div>
+            <Textarea
+              label="Document Content"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="Paste or type your document content here..."
+              rows={10}
+              showCharCount
+              fullWidth
+            />
           </CardBody>
         </Card>
       )}

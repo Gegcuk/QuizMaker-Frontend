@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, PageContainer, ConfirmationModal, Button, Input } from '@/components';
+import { Spinner, PageContainer, ConfirmationModal, Button, Input, Textarea } from '@/components';
 import { CategoryDto } from '../features/category';
 import {
   getAllCategories,
@@ -234,19 +234,15 @@ const CategoryManagementPage: React.FC = () => {
                   placeholder="Enter category name"
                 />
               </div>
-              <div>
-                <label htmlFor="catDesc" className="block text-sm font-medium text-theme-text-secondary mb-1">
-                  Description
-                </label>
-                <textarea
-                  id="catDesc"
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                  rows={3}
-                  maxLength={1000}
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                />
-              </div>
+              <Textarea
+                id="catDesc"
+                label="Description"
+                rows={3}
+                maxLength={1000}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                fullWidth
+              />
               <div className="flex justify-end space-x-3 pt-4">
                 <Button
                   type="button"

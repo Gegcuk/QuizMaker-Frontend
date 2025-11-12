@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth';
+import { Button, Input } from '@/components';
 
 // Heroicons imports (you'll need to install @heroicons/react)
 // If you prefer FontAwesome, replace these with FontAwesome icons
@@ -201,13 +202,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
     if (hasChildren) {
       return (
         <div key={item.id} className="space-y-1">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => toggleSection(item.id)}
-            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`!w-full !flex !items-center !px-3 !py-2 !text-sm !font-medium !rounded-md !justify-start ${
               active
-                ? 'bg-theme-bg-tertiary text-theme-text-primary'
-                : 'text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary'
-            } ${isChild ? 'pl-6' : ''}`}
+                ? '!bg-theme-bg-tertiary !text-theme-text-primary'
+                : '!text-theme-text-secondary hover:!bg-theme-bg-tertiary hover:!text-theme-text-primary'
+            } ${isChild ? '!pl-6' : ''}`}
           >
             <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
             {!isCollapsed && (
@@ -220,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
                 />
               </>
             )}
-          </button>
+          </Button>
           {isExpanded && !isCollapsed && (
             <div className="ml-4 space-y-1">
               {item.children!.map(child => renderMenuItem(child, true))}
@@ -295,13 +297,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             })}
             
             {/* Logout Button */}
-            <button
+            <Button
+              variant="ghost"
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-theme-text-secondary hover:bg-theme-bg-tertiary hover:text-theme-text-primary rounded-md transition-colors"
+              className="!flex !items-center !w-full !px-3 !py-2 !text-sm !font-medium !text-theme-text-secondary hover:!bg-theme-bg-tertiary hover:!text-theme-text-primary !rounded-md !justify-start"
+              leftIcon={<ArrowRightStartOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />}
             >
-              <ArrowRightStartOnRectangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
               {!isCollapsed && <span>Logout</span>}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -334,37 +337,43 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
             {/* Search Bar */}
             {!isCollapsed && (
               <div className="relative flex-1 max-w-xs">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-theme-text-tertiary" />
-                <input
+                <Input
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary"
+                  className="!pl-10"
+                  size="sm"
+                  fullWidth
                 />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-theme-text-tertiary pointer-events-none" />
               </div>
             )}
             
             {/* Toggle Collapse Button */}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors"
+              className="!p-2 !min-w-0"
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {isCollapsed ? (
-                <ChevronRightIcon className="h-5 w-5" />
-              ) : (
-                <ChevronLeftIcon className="h-5 w-5" />
-              )}
-            </button>
+              leftIcon={
+                isCollapsed ? (
+                  <ChevronRightIcon className="h-5 w-5" />
+                ) : (
+                  <ChevronLeftIcon className="h-5 w-5" />
+                )
+              }
+            />
             
             {/* Close Button (mobile only) */}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onClose}
-              className="lg:hidden p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
+              className="lg:hidden !p-2 !min-w-0"
+              leftIcon={<XMarkIcon className="h-5 w-5" />}
+            />
           </div>
         </div>
 

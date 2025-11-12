@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Badge } from '@/components';
+import { Button, Badge, Chip } from '@/components';
 import type { TokenTransactionType, TokenTransactionSource } from '@/types';
 
 export interface TransactionFilterOptions {
@@ -140,16 +140,17 @@ const TransactionFilterDropdown: React.FC<TransactionFilterDropdownProps> = ({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-theme-text-primary">Filters</h3>
               {activeCount > 0 && (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
                     onClearFilters();
                     setIsOpen(false);
                   }}
-                  className="text-xs text-theme-interactive-primary hover:underline"
+                  className="!text-xs !p-0 hover:!underline"
                 >
                   Clear all
-                </button>
+                </Button>
               )}
             </div>
 
@@ -162,18 +163,13 @@ const TransactionFilterDropdown: React.FC<TransactionFilterDropdownProps> = ({
                 {typeOptions.map((option) => {
                   const isSelected = filters.types?.includes(option.value) || false;
                   return (
-                    <button
+                    <Chip
                       key={option.value}
-                      type="button"
+                      label={option.label}
+                      selected={isSelected}
                       onClick={() => handleTypeChange(option.value)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                        isSelected
-                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
+                      size="sm"
+                    />
                   );
                 })}
               </div>
@@ -188,18 +184,13 @@ const TransactionFilterDropdown: React.FC<TransactionFilterDropdownProps> = ({
                 {sourceOptions.map((option) => {
                   const isSelected = filters.sources?.includes(option.value) || false;
                   return (
-                    <button
+                    <Chip
                       key={option.value}
-                      type="button"
+                      label={option.label}
+                      selected={isSelected}
                       onClick={() => handleSourceChange(option.value)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                        isSelected
-                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
+                      size="sm"
+                    />
                   );
                 })}
               </div>
