@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FillGapContent } from '@/types';
-import { InstructionsModal } from '@/components';
+import { InstructionsModal, Hint } from '@/components';
 
 interface FillGapEditorProps {
   content: FillGapContent;
@@ -64,7 +64,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-theme-text-tertiary">Create text with gaps for students to fill</p>
+        <p className="text-sm text-theme-text-tertiary">Create text with gaps to fill</p>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-theme-text-tertiary">
             {getGapCount()} gap{getGapCount() !== 1 ? 's' : ''}
@@ -103,21 +103,27 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                 Add Gap
               </button>
             </div>
-            <p className="mt-1 text-sm text-theme-text-tertiary">
-              Use {'{1}'}, {'{2}'}, etc. to mark gaps. Each gap will appear as a blank field for students.
-            </p>
-          </div>
-
-          {/* Gap Instructions */}
-          <InstructionsModal title="How to Create Gaps">
-            <div className="space-y-1">
-              <p>Example text with gaps:</p>
-              <div className="bg-theme-bg-primary p-3 rounded border font-mono text-sm">
-                "The capital of France is {'{1}'}. The Eiffel Tower is located in {'{2}'}."
-              </div>
-              <p className="mt-2">Click "Add Gap" to automatically insert gap markers, or type them manually.</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-sm text-theme-text-tertiary flex-1">
+                Use {'{1}'}, {'{2}'}, etc. to mark gaps. Each gap will appear as a blank input field.
+              </p>
+              <Hint
+                position="left"
+                size="sm"
+                content={
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium mb-1">Example:</p>
+                      <div className="bg-theme-bg-secondary p-2 rounded text-xs font-mono">
+                        "The capital of France is {'{1}'}. The Eiffel Tower is located in {'{2}'}."
+                      </div>
+                    </div>
+                    <p className="text-xs">Click "Add Gap" to automatically insert gap markers, or type them manually.</p>
+                  </div>
+                }
+              />
             </div>
-          </InstructionsModal>
+          </div>
         </div>
       </div>
 
@@ -164,8 +170,6 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
-          <li>Write your question text with gaps marked as {'{1}'}, {'{2}'}, etc.</li>
-          <li>Use the "Add Gap" button to automatically insert gap markers</li>
           <li>Provide the correct answer for each gap</li>
           <li>Maximum 3 gaps per question</li>
         </ul>
@@ -175,7 +179,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
         <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
-            <p>Students will see:</p>
+            <p>How it will appear:</p>
             <div className="mt-2 bg-theme-bg-primary p-3 rounded border">
               {text ? (
                 <div className="space-y-2">

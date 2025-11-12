@@ -20,6 +20,7 @@ const HintDisplay: React.FC<HintDisplayProps> = ({ hint, className = '' }) => {
   return (
     <div className={`mb-4 ${className}`}>
       <button
+        type="button"
         onClick={toggleHint}
         className="inline-flex items-center px-3 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
       >

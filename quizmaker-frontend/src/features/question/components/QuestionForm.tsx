@@ -51,6 +51,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [editorKey, setEditorKey] = useState(0); // Key to force editor remount on reset
   // Live preview is rendered alongside the form; no toggle needed
 
   // Form state
@@ -117,10 +118,33 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setSaving(true);
     setError(null);
 
+    // Validate question text
+    if (formData.type === 'FILL_GAP') {
+      // For FILL_GAP, validate content.text
+      const fillGapText = (formData.content as any)?.text || '';
+      if (!fillGapText || fillGapText.trim().length < 3) {
+        setError('Question text must be at least 3 characters long.');
+        setSaving(false);
+        return;
+      }
+    } else {
+      // For other types, validate questionText
+      if (!formData.questionText || formData.questionText.trim().length < 3) {
+        setError('Question text must be at least 3 characters long.');
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
+      // For FILL_GAP, copy content.text to questionText before submitting
+      const submissionData = formData.type === 'FILL_GAP' 
+        ? { ...formData, questionText: (formData.content as any)?.text || '' }
+        : formData;
+
       if (questionId) {
         // Update existing question
-        await questionService.updateQuestion(questionId, formData);
+        await questionService.updateQuestion(questionId, submissionData);
         if (onSuccess) {
           onSuccess();
         } else if (actualQuizId) {
@@ -131,7 +155,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       } else {
         // Create new question
         const questionData = {
-          ...formData,
+          ...submissionData,
           quizIds: actualQuizId ? [actualQuizId] : []
         };
         const res = await questionService.createQuestion(questionData);
@@ -267,9 +291,33 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     if (questionId) return; // Only for create flow
     setSaving(true);
     setError(null);
+    
+    // Validate question text
+    if (formData.type === 'FILL_GAP') {
+      // For FILL_GAP, validate content.text
+      const fillGapText = (formData.content as any)?.text || '';
+      if (!fillGapText || fillGapText.trim().length < 3) {
+        setError('Question text must be at least 3 characters long.');
+        setSaving(false);
+        return;
+      }
+    } else {
+      // For other types, validate questionText
+      if (!formData.questionText || formData.questionText.trim().length < 3) {
+        setError('Question text must be at least 3 characters long.');
+        setSaving(false);
+        return;
+      }
+    }
+    
     try {
+      // For FILL_GAP, copy content.text to questionText before submitting
+      const submissionData = formData.type === 'FILL_GAP' 
+        ? { ...formData, questionText: (formData.content as any)?.text || '' }
+        : formData;
+
       const questionData = {
-        ...formData,
+        ...submissionData,
         quizIds: actualQuizId ? [actualQuizId] : []
       };
       const res = await questionService.createQuestion(questionData);
@@ -285,12 +333,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         questionText: '',
         content: initContentForType(prevType),
         difficulty: prevDifficulty,
+        hint: '',
         explanation: '',
         tagIds: []
       });
-      // Reset hint/explanation visibility
+      // Reset hint/explanation visibility, preview answer, error state, and force editor remount
       setShowHint(false);
       setShowExplanation(false);
+      setPreviewAnswer(null);
+      setError(null);
+      setEditorKey(prev => prev + 1);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save question');
     } finally {
@@ -359,19 +411,29 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   />
                 </div>
 
-                             {/* Question Text */}
-               <div>
-                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                   Question Text
-                 </label>
-                 <textarea
-                   value={formData.questionText}
-                   onChange={(e) => handleInputChange('questionText', e.target.value)}
-                   rows={4}
-                   className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
-                   placeholder="Enter your question here..."
-                 />
-               </div>
+                             {/* Question Text - Hidden for FILL_GAP as it's part of the content */}
+               {formData.type !== 'FILL_GAP' && (
+                 <div>
+                   <label className="block text-sm font-medium text-theme-text-secondary mb-2">
+                     Question Text
+                   </label>
+                   <textarea
+                     value={formData.questionText}
+                     onChange={(e) => handleInputChange('questionText', e.target.value)}
+                     rows={4}
+                     className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
+                     placeholder="Enter your question here..."
+                   />
+                   <p className={`mt-1 text-xs ${
+                     formData.questionText.trim().length < 3 && formData.questionText.length > 0
+                       ? 'text-theme-interactive-danger'
+                       : 'text-theme-text-tertiary'
+                   }`}>
+                     {formData.questionText.length} characters
+                     {formData.questionText.trim().length < 3 && formData.questionText.length > 0 && ' (minimum 3 required)'}
+                   </p>
+                 </div>
+               )}
 
                {/* Difficulty */}
                <div>
@@ -494,6 +556,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'MCQ_SINGLE':
                         return (
                           <McqQuestionEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             isMultiSelect={false}
@@ -502,6 +565,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'MCQ_MULTI':
                         return (
                           <McqQuestionEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             isMultiSelect={true}
@@ -510,6 +574,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'TRUE_FALSE':
                         return (
                           <TrueFalseEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             showPreview={false}
@@ -518,6 +583,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'OPEN':
                         return (
                           <OpenQuestionEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             showPreview={false}
@@ -526,6 +592,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'FILL_GAP':
                         return (
                           <FillGapEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             showPreview={false}
@@ -534,6 +601,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       case 'COMPLIANCE':
                         return (
                           <ComplianceEditor
+                            key={editorKey}
                             content={formData.content as any}
                             onChange={handleContentChange}
                             showPreview={false}
@@ -542,6 +610,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'ORDERING':
                       return (
                         <OrderingEditor
+                          key={editorKey}
                           content={formData.content as any}
                           onChange={handleContentChange}
                           showPreview={false}
@@ -550,6 +619,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'HOTSPOT':
                       return (
                         <HotspotEditor
+                          key={editorKey}
                           content={formData.content as any}
                           onChange={handleContentChange}
                           showPreview={false}
@@ -573,7 +643,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 <h4 className="text-sm font-medium text-theme-text-secondary mb-4">Live Preview (Attempt-like)</h4>
                 
                 {/* Question Text - matches QuizAttemptPage */}
-                {formData.questionText && (
+                {formData.type !== 'FILL_GAP' && formData.questionText && (
                   <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
                     {formData.questionText}
                   </h2>
@@ -686,7 +756,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
             <button
               type="button"
               onClick={handleSaveAndAddAnother}
-              disabled={saving || !formData.questionText.trim()}
+              disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
               className="inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
@@ -701,7 +771,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           )}
           <button
             type="submit"
-            disabled={saving || !formData.questionText.trim()}
+            disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
             className="inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
