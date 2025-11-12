@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizStatus, QuizDto } from '@/types';
-import { Badge } from '@/components';
+import { Badge, Button, Alert } from '@/components';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface QuizPublishModalProps {
@@ -100,15 +100,10 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
 
             {/* Error message */}
             {error && (
-              <div className="mt-4 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <XCircleIcon className="h-5 w-5 text-theme-interactive-danger" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-theme-interactive-danger">{error}</p>
-                  </div>
-                </div>
+              <div className="mt-4">
+                <Alert type="error" className="text-sm">
+                  {error}
+                </Alert>
               </div>
             )}
 
@@ -134,33 +129,39 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
             {/* Action options */}
             <div className="mt-4 space-y-3">
               {quiz.status !== 'PUBLISHED' && (
-                <button
+                <Button
                   onClick={handleConfirm}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-success text-theme-text-inverse px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-interactive-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-success disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={isLoading}
+                  variant="primary"
+                  className="!w-full !bg-theme-interactive-success hover:!bg-theme-interactive-success-hover focus-visible:!ring-theme-interactive-success"
                 >
-                  {isLoading ? 'Publishing...' : 'Publish Quiz'}
-                </button>
+                  Publish Quiz
+                </Button>
               )}
               
               {quiz.status !== 'DRAFT' && (
-                <button
+                <Button
                   onClick={handleDraft}
                   disabled={isLoading}
-                  className="w-full bg-theme-interactive-warning text-theme-text-inverse px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-interactive-warning-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-warning disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={isLoading}
+                  variant="primary"
+                  className="!w-full !bg-theme-interactive-warning hover:!bg-theme-interactive-warning-hover focus-visible:!ring-theme-interactive-warning"
                 >
-                  {isLoading ? 'Saving...' : 'Save as Draft'}
-                </button>
+                  Save as Draft
+                </Button>
               )}
               
               {quiz.status !== 'ARCHIVED' && (
-                <button
+                <Button
                   onClick={handleArchive}
                   disabled={isLoading}
-                  className="w-full bg-theme-bg-tertiary text-theme-text-primary px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={isLoading}
+                  variant="ghost"
+                  className="!w-full"
                 >
-                  {isLoading ? 'Archiving...' : 'Archive Quiz'}
-                </button>
+                  Archive Quiz
+                </Button>
               )}
             </div>
 
@@ -173,14 +174,15 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
           </div>
 
           <div className="bg-theme-bg-secondary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="secondary"
+              className="w-full sm:ml-3 sm:w-auto"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       </div>

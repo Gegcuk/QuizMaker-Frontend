@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
+import { Input, Textarea } from '@/components';
 
 interface QuizBasicInfoProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest>;
@@ -88,24 +89,22 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
       <div className="px-6 py-4 space-y-6">
         {/* Quiz Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-theme-text-secondary">
-            Quiz Title <span className="text-theme-interactive-danger">*</span>
-          </label>
-          <input
+          <Input
             type="text"
             id="title"
             name="title"
+            label={
+              <>
+                Quiz Title <span className="text-theme-interactive-danger">*</span>
+              </>
+            }
             value={quizData.title || ''}
             onChange={handleInputChange}
             placeholder="Enter quiz title..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-              combinedErrors.title ? 'border-theme-border-danger' : 'border-theme-border-primary'
-            }`}
             disabled={!isEditing}
+            error={combinedErrors.title}
+            fullWidth
           />
-          {combinedErrors.title && (
-            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.title}</p>
-          )}
           <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.title?.length || 0}/100 characters
           </p>
@@ -113,24 +112,18 @@ const QuizBasicInfo: React.FC<QuizBasicInfoProps> = ({
 
         {/* Quiz Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary">
-            Description
-          </label>
-          <textarea
+          <Textarea
             id="description"
             name="description"
+            label="Description"
             rows={4}
             value={quizData.description || ''}
             onChange={handleInputChange}
             placeholder="Enter quiz description (optional)..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-              combinedErrors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
-            }`}
             disabled={!isEditing}
+            error={combinedErrors.description}
+            fullWidth
           />
-          {combinedErrors.description && (
-            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.description}</p>
-          )}
           <p className="mt-1 text-xs text-theme-text-tertiary">
             {quizData.description?.length || 0}/1000 characters
           </p>

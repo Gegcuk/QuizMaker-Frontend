@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { Spinner } from '@/components';
+import { Spinner, Button, Alert } from '@/components';
 import { getQuizResults } from '@/services';
 
 import type { QuizResultSummaryDto } from '@/types';
@@ -48,14 +48,16 @@ const QuizResultsSummaryPage: React.FC = () => {
   /* --------------------------- render ------------------------------- */
   if (!quizId) {
     return (
-      <div className="max-w-4xl mx-auto py-8 text-center">
-        <p className="text-theme-interactive-danger">Quiz ID is missing from URL.</p>
-        <button
+      <div className="max-w-4xl mx-auto py-8 text-center space-y-4">
+        <Alert type="error">
+          Quiz ID is missing from URL.
+        </Alert>
+        <Button
+          variant="secondary"
           onClick={() => navigate('/my-quizzes')}
-          className="mt-4 px-4 py-2 border rounded"
         >
           Back to My Quizzes
-        </button>
+        </Button>
       </div>
     );
   }
@@ -64,27 +66,29 @@ const QuizResultsSummaryPage: React.FC = () => {
 
   if (error)
     return (
-      <div className="max-w-4xl mx-auto py-8 text-center">
-        <p className="text-theme-interactive-danger">{error}</p>
-        <button
+      <div className="max-w-4xl mx-auto py-8 text-center space-y-4">
+        <Alert type="error">
+          {error}
+        </Alert>
+        <Button
+          variant="secondary"
           onClick={() => navigate(0)}
-          className="mt-4 px-4 py-2 border rounded"
         >
           Retry
-        </button>
+        </Button>
       </div>
     );
 
   if (!results)
     return (
-      <div className="max-w-4xl mx-auto py-8 text-center">
-        <p>No results available for this quiz yet.</p>
-        <button
+      <div className="max-w-4xl mx-auto py-8 text-center space-y-4">
+        <p className="text-theme-text-secondary">No results available for this quiz yet.</p>
+        <Button
+          variant="secondary"
           onClick={() => navigate('/my-quizzes')}
-          className="mt-4 px-4 py-2 border rounded"
         >
           Back to My Quizzes
-        </button>
+        </Button>
       </div>
     );
 
@@ -145,12 +149,14 @@ const QuizResultsSummaryPage: React.FC = () => {
       </div>
 
       {/* back button */}
-      <button
-        className="mt-4 px-4 py-2 border rounded"
-        onClick={() => navigate('/my-quizzes')}
-      >
-        Back to My Quizzes
-      </button>
+      <div className="flex justify-center">
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/my-quizzes')}
+        >
+          Back to My Quizzes
+        </Button>
+      </div>
     </div>
   );
 };

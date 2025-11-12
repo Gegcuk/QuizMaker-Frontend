@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, PageContainer, ConfirmationModal, Button, Input } from '@/components';
+import { Spinner, PageContainer, ConfirmationModal, Button, Input, Alert, Textarea } from '@/components';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
 
@@ -131,9 +131,9 @@ const TagManagementPage: React.FC = () => {
           <Spinner size="lg" />
         </div>
       ) : error ? (
-        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-          <p className="text-theme-interactive-danger">{error}</p>
-        </div>
+        <Alert type="error">
+          {error}
+        </Alert>
       ) : tags.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-theme-text-tertiary">No tags found.</p>
@@ -241,16 +241,14 @@ const TagManagementPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label htmlFor="tagDesc" className="block text-sm font-medium text-theme-text-secondary mb-1">
-                  Description
-                </label>
-                <textarea
+                <Textarea
                   id="tagDesc"
-                  className="w-full border border-theme-border-primary px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  label="Description"
                   rows={3}
                   maxLength={1000}
                   value={tagDesc}
                   onChange={(e) => setTagDesc(e.target.value)}
+                  fullWidth
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-4">
