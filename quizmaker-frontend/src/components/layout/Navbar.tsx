@@ -13,6 +13,7 @@ import { ThemeToggle } from '../ui';
 import ColorSchemeDropdown from '../ui/ColorSchemeDropdown';
 import { billingService } from '@/services';
 import type { BalanceDto } from '@/types';
+import { Button } from '@/components';
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu
@@ -121,15 +122,16 @@ const Navbar: React.FC = () => {
       <Link to="/profile" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         Profile
       </Link>
-      <button
+      <Button
         onClick={() => {
           handleLogout();
           setIsOpen(false);
         }}
-        className={`${mobileLinkClasses} text-left`}
+        variant="ghost"
+        className="!justify-start !w-full !px-4 !py-3 !text-sm !font-medium hover:!bg-theme-bg-tertiary !text-theme-text-secondary hover:!text-theme-text-primary"
       >
         Logout
-      </button>
+      </Button>
     </>
   );
 
@@ -177,27 +179,31 @@ const Navbar: React.FC = () => {
             
             {/* Logout Icon (desktop only) */}
             {isLoggedIn && (
-              <button
+              <Button
                 onClick={handleLogout}
+                variant="ghost"
+                size="sm"
+                className="hidden md:flex !p-2 !min-w-0"
                 aria-label="Logout"
-                className="hidden md:flex p-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-              </button>
+              </Button>
             )}
             
             {/* ----- Modern hamburger button (only visible on mobile) ------------- */}
-            <button
-              aria-label="Toggle navigation menu"
-              className="md:hidden p-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
+            <Button
               onClick={() => setIsOpen((prev) => !prev)}
+              variant="ghost"
+              size="sm"
+              className="md:hidden !p-2 !min-w-0"
+              aria-label="Toggle navigation menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
 

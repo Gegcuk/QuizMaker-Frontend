@@ -17,10 +17,11 @@ import {
   ConfirmationModal,
   useToast,
   GroupedList,
-  SortDropdown
+  SortDropdown,
+  Alert,
+  Chip
 } from '@/components';
 import type { GroupedListGroup, SortOption as SortOptionType } from '@/components';
-import { Alert } from '@/components';
 import { 
   AttemptSummaryDto
 } from '@/types';
@@ -48,7 +49,10 @@ const MyAttemptsPage: React.FC = () => {
   const [attempts, setAttempts] = useState<AttemptSummaryDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all');
+  const [statusFilters, setStatusFilters] = useState<string[]>(() => {
+    const param = searchParams.get('status');
+    return param ? param.split(',') : [];
+  });
   const [sortBy, setSortBy] = useState<string>('newest');
   const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,13 +97,13 @@ const MyAttemptsPage: React.FC = () => {
 
   // Update URL when filter changes
   useEffect(() => {
-    if (statusFilter === 'all') {
+    if (statusFilters.length === 0) {
       searchParams.delete('status');
     } else {
-      searchParams.set('status', statusFilter);
+      searchParams.set('status', statusFilters.join(','));
     }
     setSearchParams(searchParams, { replace: true });
-  }, [statusFilter]);
+  }, [statusFilters]);
 
   // Close filter dropdown when clicking outside
   useEffect(() => {
@@ -126,9 +130,9 @@ const MyAttemptsPage: React.FC = () => {
   ];
 
   // Filter attempts
-  const filteredAttempts = statusFilter === 'all' 
+  const filteredAttempts = statusFilters.length === 0
     ? attempts 
-    : attempts.filter(attempt => attempt.status === statusFilter);
+    : attempts.filter(attempt => statusFilters.includes(attempt.status));
 
   // Sort attempts
   const sortedAttempts = [...filteredAttempts].sort((a, b) => {
@@ -191,7 +195,7 @@ const MyAttemptsPage: React.FC = () => {
   // Reset to page 1 when filter or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, sortBy]);
+  }, [statusFilters, sortBy]);
 
   // Get page range for pagination
   const getPageRange = () => {
@@ -555,79 +559,80 @@ const MyAttemptsPage: React.FC = () => {
                     size="sm"
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                     rounded
-                    leftIcon={
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    className="relative"
+                    rightIcon={
+                      <svg 
+                        className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     }
-                    rightIcon={
-                      <div className="flex items-center space-x-2">
-                        {statusFilter !== 'all' && (
-                          <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-theme-text-inverse bg-theme-interactive-primary rounded-full">
-                            1
-                          </span>
-                        )}
-                        <svg 
-                          className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    }
                   >
-                    Filters
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span className="hidden sm:inline">Filter</span>
+                    {statusFilters.length > 0 && (
+                      <Badge variant="primary" size="sm" className="ml-1">
+                        {statusFilters.length}
+                      </Badge>
+                    )}
                   </Button>
 
                   {/* Dropdown Panel */}
                   {isFilterOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
+                    <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50 max-h-96 overflow-y-auto">
                       <div className="p-4">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-medium text-theme-text-primary">Status Filter</h3>
-                          {statusFilter !== 'all' && (
+                          <h3 className="text-sm font-semibold text-theme-text-primary">Filters</h3>
+                          {statusFilters.length > 0 && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() => {
-                                setStatusFilter('all');
+                                setStatusFilters([]);
                                 setIsFilterOpen(false);
                               }}
+                              className="!text-xs !p-0 hover:underline"
                             >
-                              Clear
+                              Clear all
                             </Button>
                           )}
                         </div>
 
                         {/* Status Options */}
-                        <div className="space-y-2">
-                          {[
-                            { value: 'all', label: 'All Attempts' },
-                            { value: 'IN_PROGRESS', label: 'In Progress' },
-                            { value: 'PAUSED', label: 'Paused' },
-                            { value: 'COMPLETED', label: 'Completed' },
-                            { value: 'ABANDONED', label: 'Abandoned' }
-                          ].map((option) => (
-                            <label key={option.value} className="flex items-center cursor-pointer">
-                              <input
-                                type="radio"
-                                name="status"
-                                checked={statusFilter === option.value}
-                                onChange={() => {
-                                  setStatusFilter(option.value);
-                                  setIsFilterOpen(false);
-                                }}
-                                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary"
-                              />
-                              <span className="ml-2 text-sm text-theme-text-secondary">
-                                {option.label}
-                              </span>
-                            </label>
-                          ))}
+                        <div>
+                          <label className="text-xs font-medium text-theme-text-secondary uppercase tracking-wider mb-2 block">
+                            Status
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { value: 'IN_PROGRESS', label: 'In Progress' },
+                              { value: 'PAUSED', label: 'Paused' },
+                              { value: 'COMPLETED', label: 'Completed' },
+                              { value: 'ABANDONED', label: 'Abandoned' }
+                            ].map((option) => {
+                              const isSelected = statusFilters.includes(option.value);
+                              return (
+                                <Chip
+                                  key={option.value}
+                                  label={option.label}
+                                  selected={isSelected}
+                                  onClick={() => {
+                                    const newFilters = isSelected
+                                      ? statusFilters.filter(s => s !== option.value)
+                                      : [...statusFilters, option.value];
+                                    setStatusFilters(newFilters);
+                                  }}
+                                />
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>

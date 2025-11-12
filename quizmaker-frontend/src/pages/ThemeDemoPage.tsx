@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
 
 const ThemeDemoPage: React.FC = () => {
@@ -208,16 +208,12 @@ const ThemeDemoPage: React.FC = () => {
                 fullWidth
               />
               
-              <div>
-                <label className="block text-sm font-medium text-theme-text-primary mb-2">
-                  Sample Textarea
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-border-focus"
-                  rows={3}
-                  placeholder="Enter your message..."
-                />
-              </div>
+              <Textarea
+                label="Sample Textarea"
+                rows={3}
+                placeholder="Enter your message..."
+                fullWidth
+              />
             </div>
           </CardBody>
         </Card>
