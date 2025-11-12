@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Radio, Chip } from '@/components';
 
 export type SortOption = 
   | 'title_asc'
@@ -102,22 +103,22 @@ const QuizSort: React.FC<QuizSortProps> = ({
               key={option.value}
               className="flex items-start space-x-3 cursor-pointer hover:bg-theme-bg-secondary p-2 rounded-md transition-colors"
             >
-              <input
-                type="radio"
+              <Radio
                 name="sort"
                 value={option.value}
                 checked={sortBy === option.value}
-                onChange={(e) => onSortChange(e.target.value as SortOption)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary mt-0.5 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                onChange={(value) => onSortChange(value as SortOption)}
+                label={
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-theme-text-primary">
+                      {option.label}
+                    </div>
+                    <div className="text-sm text-theme-text-tertiary">
+                      {option.description}
+                    </div>
+                  </div>
+                }
               />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-theme-text-primary">
-                  {option.label}
-                </div>
-                <div className="text-sm text-theme-text-tertiary">
-                  {option.description}
-                </div>
-              </div>
             </label>
           ))}
         </div>
@@ -127,46 +128,30 @@ const QuizSort: React.FC<QuizSortProps> = ({
       <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Quick Sort</h4>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Chip
+            label="Newest"
+            selected={sortBy === 'createdAt_desc'}
             onClick={() => onSortChange('createdAt_desc')}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${
-              sortBy === 'createdAt_desc'
-                ? 'bg-theme-bg-primary text-theme-interactive-primary'
-                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
-            }`}
-          >
-            Newest
-          </button>
-          <button
+            size="sm"
+          />
+          <Chip
+            label="A-Z"
+            selected={sortBy === 'title_asc'}
             onClick={() => onSortChange('title_asc')}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${
-              sortBy === 'title_asc'
-                ? 'bg-theme-bg-primary text-theme-interactive-primary'
-                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
-            }`}
-          >
-            A-Z
-          </button>
-          <button
+            size="sm"
+          />
+          <Chip
+            label="Easy First"
+            selected={sortBy === 'difficulty_asc'}
             onClick={() => onSortChange('difficulty_asc')}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${
-              sortBy === 'difficulty_asc'
-                ? 'bg-theme-bg-primary text-theme-interactive-primary'
-                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
-            }`}
-          >
-            Easy First
-          </button>
-          <button
+            size="sm"
+          />
+          <Chip
+            label="Quick"
+            selected={sortBy === 'estimatedTime_asc'}
             onClick={() => onSortChange('estimatedTime_asc')}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${
-              sortBy === 'estimatedTime_asc'
-                ? 'bg-theme-bg-primary text-theme-interactive-primary'
-                : 'bg-theme-bg-primary text-theme-text-secondary border border-theme-border-primary hover:bg-theme-bg-tertiary'
-            }`}
-          >
-            Quick
-          </button>
+            size="sm"
+          />
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
-import { Spinner, Card, CardHeader, CardBody, Table } from '@/components';
+import { Spinner, Card, CardHeader, CardBody, Table, Input, Dropdown, Button, Alert } from '@/components';
 import { TableColumn } from '@/components/ui/Table';
 
 interface TagListProps {
@@ -128,30 +128,35 @@ export const TagList: React.FC<TagListProps> = ({
       align: 'right' as const,
       render: (value: string, tag: TagDto) => (
         <div className="flex items-center justify-end gap-2">
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onEditTag(tag);
             }}
-            className="text-theme-text-tertiary hover:text-theme-text-primary"
             title="Edit tag"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          </button>
-          <button
+            leftIcon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            }
+          />
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(tag.id);
             }}
-            className="text-theme-text-tertiary hover:text-theme-text-danger focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger"
+            className="hover:!text-theme-interactive-danger"
             title="Delete tag"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+            leftIcon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            }
+          />
         </div>
       )
     }] : [])
@@ -172,19 +177,15 @@ export const TagList: React.FC<TagListProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 ${className}`}>
-        <div className="flex items-center">
-          <svg className="w-5 h-5 text-theme-text-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-          </svg>
-          <span className="text-theme-text-danger">{error}</span>
-        </div>
-        <button
-          onClick={loadTags}
-          className="mt-2 text-sm text-theme-text-danger hover:text-theme-text-danger underline"
-        >
-          Try again
-        </button>
+      <div className={className}>
+        <Alert type="error" dismissible onDismiss={() => setError(null)}>
+          {error}
+          <div className="mt-2">
+            <Button variant="ghost" size="sm" onClick={loadTags}>
+              Try again
+            </Button>
+          </div>
+        </Alert>
       </div>
     );
   }
@@ -194,25 +195,25 @@ export const TagList: React.FC<TagListProps> = ({
       <CardHeader className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex-1 max-w-md">
-            <input
+            <Input
               type="text"
               placeholder="Search tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent bg-theme-bg-primary text-theme-text-primary"
+              fullWidth
             />
           </div>
           <div className="flex items-center gap-2">
-            <select
-              value={pageSize}
-              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-              <option value={50}>50 per page</option>
-            </select>
+            <Dropdown
+              value={String(pageSize)}
+              onChange={(value) => handlePageSizeChange(Number(value))}
+              options={[
+                { label: '5 per page', value: '5' },
+                { label: '10 per page', value: '10' },
+                { label: '20 per page', value: '20' },
+                { label: '50 per page', value: '50' }
+              ]}
+            />
           </div>
         </div>
       </CardHeader>

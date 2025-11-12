@@ -8,7 +8,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
-import { Badge, Button, Card, CardHeader, CardBody, CardFooter, CardActions } from '@/components';
+import { Badge, Button, Card, CardHeader, CardBody, CardFooter, CardActions, Checkbox } from '@/components';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -110,11 +110,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
           {/* Header with checkbox, title and 3-dots menu */}
           <div className="flex items-start gap-3 mb-1">
             {onSelect && (
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isSelected}
-                onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
+                onChange={(checked) => onSelect(quiz.id, checked)}
+                label=""
+                className="mt-1"
               />
             )}
             <h3 className="text-lg font-semibold text-theme-text-primary truncate flex-1">
@@ -124,50 +124,58 @@ const QuizCard: React.FC<QuizCardProps> = ({
             {/* 3-Dots Menu in Top Right */}
             {(onEdit || onExport) && (
               <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowMobileMenu(!showMobileMenu)}
-                  className="p-1 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded transition-colors"
                   title="More options"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                  </svg>
-                </button>
+                  className="!p-1 !min-w-0"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  }
+                />
 
                 {/* Dropdown Menu */}
                 {showMobileMenu && (
                   <div className="absolute right-0 mt-1 w-44 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
                     <div className="py-1">
                       {onEdit && (
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => {
                             onEdit(quiz.id);
                             setShowMobileMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary hover:text-theme-text-primary transition-colors flex items-center"
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          leftIcon={
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          }
                         >
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
                           Edit Quiz
-                        </button>
+                        </Button>
                       )}
                       {onExport && (
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => {
                             onExport(quiz.id);
                             setShowMobileMenu(false);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-secondary hover:text-theme-text-primary transition-colors flex items-center"
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          leftIcon={
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                          }
                         >
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
                           Export Quiz
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -230,11 +238,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-start space-x-3 flex-1 min-w-0">
               {onSelect && (
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={isSelected}
-                  onChange={(e) => onSelect(quiz.id, e.target.checked)}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1"
+                  onChange={(checked) => onSelect(quiz.id, checked)}
+                  label=""
+                  className="mt-1"
                 />
               )}
               <div className="flex-1 min-w-0">

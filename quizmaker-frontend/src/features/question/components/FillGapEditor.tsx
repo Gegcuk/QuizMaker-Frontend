@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FillGapContent } from '@/types';
-import { InstructionsModal, Hint } from '@/components';
+import { InstructionsModal, Hint, Textarea, Input, Button } from '@/components';
 
 interface FillGapEditorProps {
   content: FillGapContent;
@@ -86,24 +86,24 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
               <label htmlFor="gap-text" className="block text-sm font-medium text-theme-text-secondary">
                 Question Text <span className="text-theme-text-danger">*</span>
               </label>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={insertGapMarker}
                 disabled={gaps.length >= 3}
-                className="inline-flex items-center px-3 py-1.5 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-theme-bg-primary"
                 title={gaps.length >= 3 ? 'Maximum 3 gaps allowed' : 'Insert gap marker'}
               >
                 Add Gap
-              </button>
+              </Button>
             </div>
-            <textarea
+            <Textarea
               id="gap-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with {1}, {2}, etc."
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
               rows={6}
               required
+              fullWidth
             />
             <div className="flex items-center gap-2 mt-1">
               <p className="text-sm text-theme-text-tertiary flex-1">
@@ -142,26 +142,28 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                   </span>
                 </div>
                 <div className="flex-1">
-                  <input
+                  <Input
                     type="text"
                     value={gap.answer}
                     onChange={(e) => updateGapAnswer(gap.id, e.target.value)}
                     placeholder="Enter correct answer..."
-                    className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
+                    fullWidth
                   />
                 </div>
                 <div className="flex-shrink-0">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => removeGap(gap.id)}
-                    className="text-theme-text-danger hover:text-theme-text-danger focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger rounded"
+                    className="!text-theme-interactive-danger hover:!text-theme-interactive-danger"
                     title="Remove gap"
                     aria-label={`Remove gap ${gap.id}`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                    leftIcon={
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    }
+                  />
                 </div>
               </div>
             ))}
@@ -189,12 +191,12 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                     const gapMatch = part.match(/\{(\d+)\}/);
                     if (gapMatch) {
                       return (
-                        <input
+                        <Input
                           key={index}
                           type="text"
                           placeholder=""
                           disabled
-                          className="inline-block min-w-[60px] w-20 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-tertiary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary text-center"
+                          className="!inline-block !min-w-[60px] !w-20 !text-center"
                         />
                       );
                     }

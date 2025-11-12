@@ -8,8 +8,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { QuestionDto, QuestionDifficulty } from '@/types';
-import { QuestionService } from '@/services';
-import { Button, Modal, Spinner, Alert, useToast, Badge } from '@/components';
+import { QuestionService, QuizService } from '@/services';
+import { Button, Modal, Spinner, Alert, useToast, Badge, ConfirmationModal } from '@/components';
 import { QuestionForm } from '@/features/question';
 import { api } from '@/services';
 import { PencilSquareIcon, TrashIcon, PlusIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
@@ -30,6 +30,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   defaultDifficulty,
 }) => {
   const questionService = new QuestionService(api);
+  const quizService = new QuizService(api);
   const { addToast } = useToast();
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,6 +39,8 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [working, setWorking] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
   const isEditingExistingQuiz = Boolean(quizId);
   // Pagination state for existing quiz questions
@@ -170,24 +173,33 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     setEditingQuestionId(null);
   };
 
-  const handleRemove = async (id: string) => {
-    if (!window.confirm('Remove this question from the quiz?')) return;
+  const handleRemove = (id: string) => {
+    setQuestionToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmRemove = async () => {
+    if (!questionToDelete) return;
+    
     setWorking(true);
     setError(null);
+    setShowDeleteModal(false);
+    
     try {
       if (quizId) {
-        // TODO: Implement removeQuestionFromQuiz in QuizService
-        // await removeQuestionFromQuiz(quizId, id);
+        // Call backend API to remove question from quiz
+        await quizService.removeQuestionFromQuiz(quizId, questionToDelete);
       }
-      const updatedIds = questionIds.filter((qid) => qid !== id);
+      const updatedIds = questionIds.filter((qid) => qid !== questionToDelete);
       onChange(updatedIds);
-      setQuestions((prev) => prev.filter((q) => q.id !== id));
+      setQuestions((prev) => prev.filter((q) => q.id !== questionToDelete));
       addToast({ type: 'success', message: 'Question removed from quiz.' });
     } catch (e: any) {
       setError(e?.message || 'Failed to remove question');
       addToast({ type: 'error', message: 'Failed to remove question.' });
     } finally {
       setWorking(false);
+      setQuestionToDelete(null);
     }
   };
 
@@ -354,6 +366,21 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
           onCancel={closeModal}
         />
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setQuestionToDelete(null);
+        }}
+        onConfirm={confirmRemove}
+        title="Remove Question"
+        message="Are you sure you want to remove this question from the quiz? This action cannot be undone."
+        confirmText="Remove"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };

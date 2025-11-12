@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TrueFalseContent } from '@/types';
-import { InstructionsModal } from '@/components';
+import { InstructionsModal, Radio } from '@/components';
 // No specific content types - API uses JsonNode
 
 interface TrueFalseEditorProps {
@@ -43,42 +43,44 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
       {/* Answer Selection */}
       <div className="bg-theme-bg-secondary rounded-lg p-6">
         <div className="space-y-4">
-          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
-            <input
-              type="radio"
+          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+            <Radio
               name="true-false-answer"
               id="true-option"
+              value="true"
               checked={answer === true}
               onChange={() => setAnswer(true)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              label={
+                <div className="flex items-center space-x-3 cursor-pointer">
+                  <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
+                    <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-lg font-medium text-theme-text-primary">True</span>
+                </div>
+              }
             />
-            <label htmlFor="true-option" className="flex items-center space-x-3 cursor-pointer">
-              <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
-                <svg className="w-5 h-5 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-lg font-medium text-theme-text-primary">True</span>
-            </label>
           </div>
 
-          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
-            <input
-              type="radio"
+          <div className="flex items-center space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary">
+            <Radio
               name="true-false-answer"
               id="false-option"
+              value="false"
               checked={answer === false}
               onChange={() => setAnswer(false)}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              label={
+                <div className="flex items-center space-x-3 cursor-pointer">
+                  <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
+                    <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <span className="text-lg font-medium text-theme-text-primary">False</span>
+                </div>
+              }
             />
-            <label htmlFor="false-option" className="flex items-center space-x-3 cursor-pointer">
-              <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary rounded-full">
-                <svg className="w-5 h-5 text-theme-interactive-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <span className="text-lg font-medium text-theme-text-primary">False</span>
-            </label>
           </div>
         </div>
       </div>
@@ -98,14 +100,22 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
           <div className="text-sm text-theme-text-secondary">
             <p>How it will appear:</p>
             <div className="mt-2 space-y-2">
-              <div className="flex items-center space-x-2">
-                <input type="radio" disabled className="h-4 w-4 text-theme-text-tertiary" />
-                <span>True</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input type="radio" disabled className="h-4 w-4 text-theme-text-tertiary" />
-                <span>False</span>
-              </div>
+              <Radio
+                name="preview-tf"
+                value="true"
+                checked={false}
+                onChange={() => {}}
+                disabled
+                label="True"
+              />
+              <Radio
+                name="preview-tf"
+                value="false"
+                checked={false}
+                onChange={() => {}}
+                disabled
+                label="False"
+              />
             </div>
           </div>
         </div>

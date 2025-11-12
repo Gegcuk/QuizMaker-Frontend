@@ -148,6 +148,30 @@ export class QuizService extends BaseService<QuizDto> {
   }
 
   /**
+   * Add question to quiz
+   * PUT /api/v1/quizzes/{quizId}/questions/{questionId}
+   */
+  async addQuestionToQuiz(quizId: string, questionId: string): Promise<void> {
+    try {
+      await this.axiosInstance.put(QUIZ_ENDPOINTS.ADD_QUESTION(quizId, questionId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Remove question from quiz
+   * DELETE /api/v1/quizzes/{quizId}/questions/{questionId}
+   */
+  async removeQuestionFromQuiz(quizId: string, questionId: string): Promise<void> {
+    try {
+      await this.axiosInstance.delete(QUIZ_ENDPOINTS.REMOVE_QUESTION(quizId, questionId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
    * Generate quiz from document
    * POST /api/v1/quizzes/generate-from-document
    */

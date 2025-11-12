@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CreateQuizRequest, Visibility, Difficulty } from '@/types';
-import { Button, Input, useToast, Dropdown } from '@/components';
+import { Button, Input, useToast, Dropdown, Textarea } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface ManualQuizConfigurationFormProps {
@@ -77,18 +77,14 @@ export const ManualQuizConfigurationForm: React.FC<ManualQuizConfigurationFormPr
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-            Description
-          </label>
-          <textarea
-            value={localData.description || ''}
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            rows={3}
-            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            placeholder="Describe your quiz..."
-          />
-        </div>
+        <Textarea
+          label="Description"
+          value={localData.description || ''}
+          onChange={(e) => handleInputChange('description', e.target.value)}
+          rows={3}
+          placeholder="Describe your quiz..."
+          fullWidth
+        />
 
 
         {/* Difficulty */}

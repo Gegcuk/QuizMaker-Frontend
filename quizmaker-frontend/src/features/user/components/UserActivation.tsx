@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth';
 import { userService } from '@/services';
 import { UserDto } from '@/types';
 import type { AxiosError } from 'axios';
+import { Button, Alert, Checkbox } from '@/components';
 
 interface UserActivationProps {
   userId: string;
@@ -103,18 +104,9 @@ export const UserActivation: React.FC<UserActivationProps> = ({
   return (
     <div className={className}>
       {errors && (
-        <div className="mb-3 bg-theme-bg-danger border border-theme-border-danger rounded-md p-3">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-interactive-danger">{errors}</p>
-            </div>
-          </div>
-        </div>
+        <Alert type="error" dismissible onDismiss={() => setErrors(null)} className="mb-3">
+          {errors}
+        </Alert>
       )}
 
       <div className="flex items-center justify-between">
@@ -131,27 +123,15 @@ export const UserActivation: React.FC<UserActivationProps> = ({
           </span>
         </div>
         
-        <button
+        <Button
+          variant={isActive ? 'danger' : 'success'}
+          size="sm"
           onClick={handleToggleActivation}
           disabled={isLoading}
-          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-            isActive
-              ? 'bg-theme-bg-danger text-theme-interactive-danger hover:bg-theme-bg-tertiary focus:ring-theme-interactive-danger'
-              : 'bg-theme-bg-success text-theme-interactive-success hover:bg-theme-bg-tertiary focus:ring-theme-interactive-success'
-          } focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50`}
+          loading={isLoading}
         >
-          {isLoading ? (
-            <div className="flex items-center space-x-1">
-              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>Processing...</span>
-            </div>
-          ) : (
-            isActive ? 'Deactivate' : 'Activate'
-          )}
-        </button>
+          {isActive ? 'Deactivate' : 'Activate'}
+        </Button>
       </div>
     </div>
   );
@@ -244,56 +224,33 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
       </div>
 
       {errors && (
-        <div className="mb-3 bg-theme-bg-danger border border-theme-border-danger rounded-md p-3">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-interactive-danger">{errors}</p>
-            </div>
-          </div>
-        </div>
+        <Alert type="error" dismissible onDismiss={() => setErrors(null)} className="mb-3">
+          {errors}
+        </Alert>
       )}
 
       <div className="flex space-x-2">
-        <button
+        <Button
+          variant="success"
+          size="sm"
           onClick={() => handleBulkActivation(true)}
           disabled={isLoading || userIds.length === 0}
-          className="flex-1 bg-theme-bg-success text-theme-interactive-success py-2 px-3 text-sm font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-success disabled:opacity-50 transition-colors"
+          loading={isLoading && action === 'activate'}
+          className="flex-1"
         >
-          {isLoading && action === 'activate' ? (
-            <div className="flex items-center justify-center space-x-1">
-              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>Activating...</span>
-            </div>
-          ) : (
-            'Activate All'
-          )}
-        </button>
+          Activate All
+        </Button>
         
-        <button
+        <Button
+          variant="danger"
+          size="sm"
           onClick={() => handleBulkActivation(false)}
           disabled={isLoading || userIds.length === 0}
-          className="flex-1 bg-theme-bg-danger text-theme-interactive-danger py-2 px-3 text-sm font-medium rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger disabled:opacity-50 transition-colors"
+          loading={isLoading && action === 'deactivate'}
+          className="flex-1"
         >
-          {isLoading && action === 'deactivate' ? (
-            <div className="flex items-center justify-center space-x-1">
-              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>Deactivating...</span>
-            </div>
-          ) : (
-            'Deactivate All'
-          )}
-        </button>
+          Deactivate All
+        </Button>
       </div>
 
       {userIds.length === 0 && (
@@ -365,25 +322,20 @@ const UserActivationManager: React.FC<{
           <>
             {/* Select All */}
             <div className="flex items-center space-x-3 p-3 bg-theme-bg-secondary rounded-md">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selectedUserIds.length === users.length && users.length > 0}
                 onChange={handleSelectAll}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                label={`Select All (${users.length} users)`}
               />
-              <span className="text-sm font-medium text-theme-text-primary">
-                Select All ({users.length} users)
-              </span>
             </div>
 
             {/* Individual Users */}
             {users.map((user) => (
-              <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-                <input
-                  type="checkbox"
+              <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
+                <Checkbox
                   checked={selectedUserIds.includes(user.id)}
-                  onChange={(e) => handleUserSelection(user.id, e.target.checked)}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  onChange={(checked) => handleUserSelection(user.id, checked)}
+                  label=""
                 />
                 <div className="flex-1">
                   <UserActivation

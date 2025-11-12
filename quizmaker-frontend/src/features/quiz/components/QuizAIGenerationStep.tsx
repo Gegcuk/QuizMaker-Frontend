@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, Difficulty, QuizScope } from '@/types';
-import { Button, Input, useToast } from '@/components';
+import { Button, Input, useToast, Textarea, Dropdown, Alert } from '@/components';
 import { CreationMethod } from './QuizCreationWizard';
 
 interface QuizAIGenerationStepProps {
@@ -126,37 +126,29 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
       </div>
 
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-            Text Content *
-          </label>
-          <textarea
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-            placeholder="Paste your text content here... (minimum 50 characters)"
-            rows={10}
-            className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-          />
-          <div className="text-xs text-theme-text-tertiary mt-1">
-            {textContent.length} characters (minimum 50)
-          </div>
-        </div>
+        <Textarea
+          label="Text Content *"
+          value={textContent}
+          onChange={(e) => setTextContent(e.target.value)}
+          placeholder="Paste your text content here... (minimum 50 characters)"
+          rows={10}
+          showCharCount
+          helperText="Minimum 50 characters required"
+          fullWidth
+        />
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Difficulty
-            </label>
-            <select
-              value={config.difficulty}
-              onChange={(e) => setConfig(prev => ({ ...prev, difficulty: e.target.value as Difficulty }))}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-              <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-              <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-            </select>
-          </div>
+          <Dropdown
+            label="Difficulty"
+            value={config.difficulty}
+            onChange={(value) => setConfig(prev => ({ ...prev, difficulty: value as Difficulty }))}
+            options={[
+              { label: 'Easy', value: 'EASY' },
+              { label: 'Medium', value: 'MEDIUM' },
+              { label: 'Hard', value: 'HARD' }
+            ]}
+            fullWidth
+          />
 
           <div>
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">
@@ -257,9 +249,9 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   if (error) {
     return (
       <div className="text-center space-y-4">
-        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-          <p className="text-theme-interactive-danger">{error}</p>
-        </div>
+        <Alert type="error" dismissible onDismiss={() => setError(null)}>
+          {error}
+        </Alert>
         <Button
           type="button"
           variant="secondary"

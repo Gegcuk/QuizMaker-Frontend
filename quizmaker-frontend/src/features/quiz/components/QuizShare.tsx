@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizDto } from '@/types';
-import { Card, CardHeader, CardBody } from '@/components';
+import { Card, CardHeader, CardBody, Button, Input } from '@/components';
 
 interface QuizShareProps {
   quiz: QuizDto;
@@ -154,15 +154,17 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
             <p className="text-sm text-theme-text-secondary mb-4">
               Share this quiz with others via social media or by copying the link.
             </p>
-            <button
+            <Button
+              variant="primary"
               onClick={shareNative}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+              }
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
               Share Quiz
-            </button>
+            </Button>
           </div>
         </CardBody>
       </Card>
@@ -174,14 +176,16 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-theme-text-primary">Share Quiz</h3>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowShareModal(false)}
-                  className="text-theme-text-tertiary hover:text-theme-text-secondary"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                  leftIcon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  }
+                />
               </div>
 
               {/* Quiz Info */}
@@ -195,45 +199,42 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
               {/* Social Share Buttons */}
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {socialPlatforms.map((platform) => (
-                  <button
+                  <Button
                     key={platform.name}
+                    variant="secondary"
                     onClick={platform.onClick}
-                    className={`flex flex-col items-center justify-center p-3 rounded-lg text-theme-text-primary ${platform.color} transition-colors`}
+                    className={`!flex !flex-col !items-center !justify-center !p-3 ${platform.color}`}
                   >
                     {platform.icon}
                     <span className="text-xs mt-1">{platform.name}</span>
-                  </button>
+                  </Button>
                 ))}
               </div>
 
               {/* Copy Link */}
               <div className="flex items-center space-x-2">
-                <input
+                <Input
                   type="text"
                   value={getShareUrl()}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-theme-border-primary rounded-md text-sm bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="flex-1"
                 />
-                <button
+                <Button
+                  variant={copied ? 'success' : 'secondary'}
                   onClick={copyToClipboard}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    copied
-                      ? 'bg-theme-bg-overlay text-theme-text-primary'
-                      : 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay'
-                  }`}
                 >
                   {copied ? 'Copied!' : 'Copy'}
-                </button>
+                </Button>
               </div>
 
               {/* Close Button */}
               <div className="mt-4 text-center">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => setShowShareModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Close
-                </button>
+                </Button>
               </div>
             </div>
           </div>

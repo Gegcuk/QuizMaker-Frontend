@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuizGenerationResponse, GenerationStatus } from '@/types';
-import { Badge } from '@/components';
+import { Badge, Button } from '@/components';
 import { getGenerationStatusVariant } from '@/utils/statusHelpers';
 import type { AxiosError } from 'axios';
 import {
@@ -289,32 +289,35 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
 
                       {/* Action Buttons */}
                       <div className="flex space-x-1">
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleViewDetails(job)}
-                          className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary"
                           title="View Details"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                        </button>
+                          className="!p-1 !min-w-0"
+                          leftIcon={<EyeIcon className="w-4 h-4" />}
+                        />
 
                         {job.status === 'PENDING' && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleCancelJob(job.id)}
-                            className="p-1 text-theme-text-tertiary hover:text-theme-text-danger"
                             title="Cancel Job"
-                          >
-                            <XMarkIcon className="w-4 h-4" />
-                          </button>
+                            className="!p-1 !min-w-0 hover:!text-theme-interactive-danger"
+                            leftIcon={<XMarkIcon className="w-4 h-4" />}
+                          />
                         )}
 
                         {job.status === 'FAILED' && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleRetryJob(job.id)}
-                            className="p-1 text-theme-text-tertiary hover:text-theme-interactive-success"
                             title="Retry Job"
-                          >
-                            <ArrowPathIcon className="w-4 h-4" />
-                          </button>
+                            className="!p-1 !min-w-0 hover:!text-theme-interactive-success"
+                            leftIcon={<ArrowPathIcon className="w-4 h-4" />}
+                          />
                         )}
                       </div>
                     </div>
@@ -333,12 +336,12 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-theme-text-primary">Job Details</h3>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowDetails(false)}
-                  className="text-theme-text-tertiary hover:text-theme-text-secondary"
-                >
-                  <XMarkIcon className="w-6 h-6" />
-                </button>
+                  leftIcon={<XMarkIcon className="w-6 h-6" />}
+                />
               </div>
 
               <div className="space-y-4">
@@ -405,12 +408,12 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
               </div>
 
               <div className="mt-6 flex justify-end">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => setShowDetails(false)}
-                  className="px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                 >
                   Close
-                </button>
+                </Button>
               </div>
             </div>
           </div>

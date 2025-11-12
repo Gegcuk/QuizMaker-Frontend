@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
+import { Button, Input, Alert } from '@/components';
 
 interface TagSelectorProps {
   selectedTags: TagDto[];
@@ -148,11 +149,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Main Selector Button */}
-      <button
-        type="button"
+      <Button
+        variant="secondary"
         onClick={handleToggleDropdown}
         disabled={disabled}
-        className={`w-full px-3 py-2 text-left bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`!w-full !px-3 !py-2 !text-left !justify-start ${
           isOpen ? 'ring-2 ring-theme-interactive-primary border-theme-border-info' : 'hover:border-theme-border-secondary'
         }`}
       >
@@ -166,18 +167,20 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
                     {tag.name}
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveTag(tag.id);
                       }}
-                      className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-theme-text-tertiary hover:bg-theme-bg-tertiary hover:text-theme-interactive-info"
-                    >
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
+                      className="!ml-1 !p-0 !w-4 !h-4 !rounded-full !text-theme-text-tertiary hover:!bg-theme-bg-tertiary hover:!text-theme-interactive-info !min-w-0"
+                      leftIcon={
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      }
+                    />
                   </span>
                 ))}
                 {selectedTags.length > 3 && (
@@ -194,19 +197,21 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           </div>
           <div className="flex items-center ml-2">
             {multiple && selectedTags.length > 0 && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClearAll();
                 }}
-                className="mr-1 p-1 text-theme-text-tertiary hover:text-theme-text-secondary"
+                className="!mr-1 !p-1 !min-w-0"
                 title="Clear all"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
+                leftIcon={
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                }
+              />
             )}
             <svg
               className={`w-5 h-5 text-theme-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -217,34 +222,31 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
             </svg>
           </div>
         </div>
-      </button>
+      </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-lg max-h-60 overflow-auto bg-theme-bg-primary text-theme-text-primary">
           {/* Search Input */}
           {showSearch && (
-            <div className="p-2 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-              <input
+            <div className="p-2 border-b border-theme-border-primary">
+              <Input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                fullWidth
               />
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="p-3 text-sm text-theme-interactive-danger bg-theme-bg-danger border-b border-theme-border-danger">
-              <div className="flex items-center">
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
+            <div className="p-3 border-b border-theme-border-primary">
+              <Alert type="error" className="text-sm !rounded-none !border-0">
                 {error}
-              </div>
+              </Alert>
             </div>
           )}
 
@@ -270,12 +272,12 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                 </div>
               ) : (
                 filteredTags.map((tag) => (
-                  <button
+                  <Button
                     key={tag.id}
-                    type="button"
+                    variant="ghost"
                     onClick={() => handleTagSelect(tag)}
-                    className={`w-full px-3 py-2 text-left text-sm hover:bg-theme-bg-tertiary focus:bg-theme-bg-tertiary focus:outline-none ${
-                      isTagSelected(tag) ? 'bg-theme-bg-info text-theme-text-primary' : 'text-theme-text-primary'
+                    className={`!w-full !px-3 !py-2 !text-left !justify-start !text-sm !rounded-none hover:!bg-theme-bg-tertiary ${
+                      isTagSelected(tag) ? '!bg-theme-bg-info !text-theme-text-primary' : '!text-theme-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -296,7 +298,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                         </svg>
                       )}
                     </div>
-                  </button>
+                  </Button>
                 ))
               )}
             </div>

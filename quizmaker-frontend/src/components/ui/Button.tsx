@@ -22,6 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   rounded = false,
   disabled,
   className = '',
+  type = 'button',
   ...props
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary disabled:opacity-50 disabled:cursor-not-allowed';
@@ -58,6 +59,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      type={type}
       className={classes}
       disabled={disabled || loading}
       {...props}
