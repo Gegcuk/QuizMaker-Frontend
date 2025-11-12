@@ -310,20 +310,20 @@ export const DocumentUploadTab: React.FC = () => {
                       }
                     />
                   </div>
-                  <Dropdown
-                    value={quizConfig.chunkingStrategy}
-                    onChange={(value) => setQuizConfig(prev => ({
-                      ...prev,
-                      chunkingStrategy: value
-                    }))}
-                    options={[
-                      { label: 'Auto - Best Strategy', value: 'AUTO' },
-                      { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                      { label: 'Section Based', value: 'SECTION_BASED' },
-                      { label: 'Size Based', value: 'SIZE_BASED' },
-                      { label: 'Page Based', value: 'PAGE_BASED' }
-                    ]}
-                  />
+                <Dropdown
+                  value={quizConfig.chunkingStrategy}
+                  onChange={(value) => setQuizConfig(prev => ({
+                    ...prev,
+                    chunkingStrategy: typeof value === 'string' ? value : value[0]
+                  }))}
+                  options={[
+                    { label: 'Auto - Best Strategy', value: 'AUTO' },
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
+                    { label: 'Section Based', value: 'SECTION_BASED' },
+                    { label: 'Size Based', value: 'SIZE_BASED' },
+                    { label: 'Page Based', value: 'PAGE_BASED' }
+                  ]}
+                />
                 </div>
 
                 {/* Max Chunk Size */}

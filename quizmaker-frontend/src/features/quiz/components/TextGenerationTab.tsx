@@ -182,7 +182,7 @@ export const TextGenerationTab: React.FC = () => {
                   value={quizConfig.language}
                   onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    language: value
+                    language: typeof value === 'string' ? value : value[0]
                   }))}
                   options={[
                     { label: 'English', value: 'en' },
@@ -221,7 +221,7 @@ export const TextGenerationTab: React.FC = () => {
                   value={quizConfig.chunkingStrategy}
                   onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    chunkingStrategy: value as any
+                    chunkingStrategy: (typeof value === 'string' ? value : value[0]) as 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED'
                   }))}
                   options={[
                     { label: 'Chapter Based', value: 'CHAPTER_BASED' },
