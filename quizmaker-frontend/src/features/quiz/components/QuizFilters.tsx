@@ -110,7 +110,6 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
 
         {/* Difficulty */}
         <Dropdown
-          id="difficulty"
           label="Difficulty"
           value={filters.difficulty || ''}
           onChange={(value) => handleInputChange('difficulty', (typeof value === 'string' ? value : value[0]) || undefined)}
@@ -158,7 +157,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                   <Checkbox
                     key={category.id}
                     checked={(filters.category || []).includes(category.name)}
-                    onChange={(e) => handleArrayChange('category', category.name, e.target.checked)}
+                    onChange={(checked) => handleArrayChange('category', category.name, checked)}
                     label={category.name}
                   />
                 ))}
@@ -189,7 +188,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                   <Checkbox
                     key={tag.id}
                     checked={(filters.tag || []).includes(tag.name)}
-                    onChange={(e) => handleArrayChange('tag', tag.name, e.target.checked)}
+                    onChange={(checked) => handleArrayChange('tag', tag.name, checked)}
                     label={`#${tag.name}`}
                   />
                 ))}

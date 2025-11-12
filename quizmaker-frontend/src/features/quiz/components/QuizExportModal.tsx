@@ -136,7 +136,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('includeCover', !options.includeCover)}
               >
                 <Checkbox
-                  checked={options.includeCover}
+                  checked={options.includeCover ?? false}
                   onChange={(checked) => handleOptionChange('includeCover', checked)}
                   label={
                     <div>
@@ -152,7 +152,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('includeMetadata', !options.includeMetadata)}
               >
                 <Checkbox
-                  checked={options.includeMetadata}
+                  checked={options.includeMetadata ?? false}
                   onChange={(checked) => handleOptionChange('includeMetadata', checked)}
                   label={
                     <div>
@@ -168,7 +168,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('answersOnSeparatePages', !options.answersOnSeparatePages)}
               >
                 <Checkbox
-                  checked={options.answersOnSeparatePages}
+                  checked={options.answersOnSeparatePages ?? false}
                   onChange={(checked) => handleOptionChange('answersOnSeparatePages', checked)}
                   label={
                     <div>
@@ -184,7 +184,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('includeHints', !options.includeHints)}
               >
                 <Checkbox
-                  checked={options.includeHints}
+                  checked={options.includeHints ?? false}
                   onChange={(checked) => handleOptionChange('includeHints', checked)}
                   label={
                     <div>
@@ -200,7 +200,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('includeExplanations', !options.includeExplanations)}
               >
                 <Checkbox
-                  checked={options.includeExplanations}
+                  checked={options.includeExplanations ?? false}
                   onChange={(checked) => handleOptionChange('includeExplanations', checked)}
                   label={
                     <div>
@@ -216,7 +216,7 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                 onClick={() => handleOptionChange('groupQuestionsByType', !options.groupQuestionsByType)}
               >
                 <Checkbox
-                  checked={options.groupQuestionsByType}
+                  checked={options.groupQuestionsByType ?? false}
                   onChange={(checked) => handleOptionChange('groupQuestionsByType', checked)}
                   label={
                     <div>
