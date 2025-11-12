@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { LoginRequest } from '@/types';
-import { Form, FormField, Button } from '@/components';
+import { Form, FormField, Button, Checkbox } from '@/components';
 import { commonRules } from '@/utils';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
@@ -124,19 +124,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
         {/* Remember me and forgot password */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-theme-text-primary">
-              Remember me
-            </label>
-          </div>
+          <Checkbox
+            id="remember-me"
+            name="remember-me"
+            checked={rememberMe}
+            onChange={setRememberMe}
+            label="Remember me"
+          />
 
           <div className="text-sm">
             <Link

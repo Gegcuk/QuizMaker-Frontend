@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Spinner, Button } from '@/components';
+import { Spinner, Button, Alert } from '@/components';
 import { AttemptService } from '@/services';
 import { QuizService, api } from '@/services';
 import { StartAttemptRequest, AttemptMode, QuizDto } from '@/types';
@@ -307,8 +307,10 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
-          <p className="text-sm text-theme-interactive-danger">{error}</p>
+        <div className="mb-4">
+          <Alert type="error" className="text-sm">
+            {error}
+          </Alert>
         </div>
       )}
 

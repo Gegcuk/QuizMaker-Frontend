@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { Button } from '@/components';
 
 interface AttemptNavigationProps {
   currentQuestionIndex: number;
@@ -59,25 +60,27 @@ const AttemptNavigation: React.FC<AttemptNavigationProps> = ({
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       {/* Main Navigation Controls */}
       <div className="flex items-center justify-between mb-4">
-        <button
+        <Button
           onClick={onPrevious}
           disabled={!canGoPrevious}
-          className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          variant="secondary"
+          size="md"
         >
           ← Previous
-        </button>
+        </Button>
 
         <div className="text-sm text-theme-text-secondary">
           Question {currentQuestionIndex + 1} of {totalQuestions}
         </div>
 
-        <button
+        <Button
           onClick={onNext}
           disabled={!canGoNext}
-          className="px-4 py-2 bg-theme-interactive-primary text-theme-bg-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          variant="primary"
+          size="md"
         >
           Next →
-        </button>
+        </Button>
       </div>
 
       {/* Question Jump Navigation (for ALL_AT_ONCE mode) */}
@@ -88,14 +91,16 @@ const AttemptNavigation: React.FC<AttemptNavigationProps> = ({
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {Array.from({ length: totalQuestions }, (_, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={() => onNavigateToQuestion(index)}
-                className={getQuestionButtonClass(index)}
+                variant="ghost"
+                size="sm"
+                className={`!w-8 !h-8 !p-0 !rounded-full !min-w-0 ${getQuestionButtonClass(index)}`}
                 title={`Question ${index + 1}${isQuestionAnswered(index) ? ' (Answered)' : index === currentQuestionIndex ? ' (Current)' : ' (Unanswered)'}`}
               >
                 {index + 1}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

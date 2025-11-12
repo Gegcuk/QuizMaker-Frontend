@@ -6,7 +6,7 @@
 import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
-import { Button, Input } from '@/components';
+import { Button, Input, Alert } from '@/components';
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
@@ -174,25 +174,12 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   if (isSubmitted) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-theme-bg-success border border-theme-border-success rounded-md p-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-text-tertiary" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-theme-interactive-success">
-                Password reset successful
-              </h3>
-              <div className="mt-2 text-sm text-theme-interactive-success">
-                <p>
-                  Your password has been successfully reset. You can now log in with your new password.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert type="success">
+          <h3 className="text-sm font-medium mb-2">Password reset successful</h3>
+          <p className="text-sm">
+            Your password has been successfully reset. You can now log in with your new password.
+          </p>
+        </Alert>
         
         <div className="mt-6 text-center">
           <Link to="/login">
@@ -213,25 +200,12 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   if (!token) {
     return (
       <div className={`max-w-md mx-auto ${className}`}>
-        <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-theme-interactive-danger">
-                Invalid reset link
-              </h3>
-              <div className="mt-2 text-sm text-theme-interactive-danger">
-                <p>
-                  This password reset link is invalid or has expired. Please request a new password reset.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert type="error">
+          <h3 className="text-sm font-medium mb-2">Invalid reset link</h3>
+          <p className="text-sm">
+            This password reset link is invalid or has expired. Please request a new password reset.
+          </p>
+        </Alert>
         
         <div className="mt-6 text-center">
           <Link to="/forgot-password">
@@ -260,18 +234,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* General error display */}
         {errors.general && (
-          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
-              </div>
-            </div>
-          </div>
+          <Alert type="error" className="text-sm">
+            {errors.general}
+          </Alert>
         )}
 
         {/* Password field */}

@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto } from '@/types';
+import { Button } from '@/components';
 
 interface OrderingAnswerProps {
   question: QuestionForAttemptDto;
@@ -149,14 +150,15 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
 
       {/* Reset Button */}
       <div className="flex justify-end">
-        <button
+        <Button
           type="button"
           onClick={handleReset}
           disabled={disabled}
-          className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
+          variant="outline"
+          size="sm"
         >
           Reset Order
-        </button>
+        </Button>
       </div>
 
       {/* Ordering List */}
@@ -194,28 +196,32 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
 
             {/* Move Controls */}
             <div className="flex space-x-1 ml-3 flex-shrink-0">
-              <button
+              <Button
                 type="button"
                 onClick={() => handleMoveUp(index)}
                 disabled={disabled || index === 0}
-                className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50 rounded"
+                variant="ghost"
+                size="sm"
+                className="!p-1 !min-w-0"
                 title="Move up"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
                 </svg>
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => handleMoveDown(index)}
                 disabled={disabled || index === orderedItems.length - 1}
-                className="p-1 text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50 rounded"
+                variant="ghost"
+                size="sm"
+                className="!p-1 !min-w-0"
                 title="Move down"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
         ))}
