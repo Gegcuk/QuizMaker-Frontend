@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '@/types';
 import { GenerationProgress } from '@/features/ai';
-import { Button, Alert, Input, Dropdown, Hint } from '@/components';
+import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 
 export const TextGenerationTab: React.FC = () => {
   const navigate = useNavigate();
@@ -145,22 +145,20 @@ export const TextGenerationTab: React.FC = () => {
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Text Content</h3>
             
             {/* Text Input */}
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Enter your text content <span className="text-theme-interactive-danger">*</span>
-              </label>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste or type your text content here... (1-300,000 characters)"
-                rows={12}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical bg-theme-bg-primary text-theme-text-primary sm:text-sm"
-              />
-              <div className="mt-2 flex justify-between text-xs text-theme-text-tertiary">
-                <span>Minimum: 10 characters</span>
-                <span>{text.length}/300,000 characters</span>
-              </div>
-            </div>
+            <Textarea
+              label={
+                <>
+                  Enter your text content <span className="text-theme-interactive-danger">*</span>
+                </>
+              }
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste or type your text content here... (1-300,000 characters)"
+              rows={12}
+              maxLength={300000}
+              showCharCount
+              helperText="Minimum: 10 characters"
+            />
 
             {/* Text Processing Configuration */}
             <div className="mt-6 space-y-4">
@@ -283,22 +281,18 @@ export const TextGenerationTab: React.FC = () => {
               </div>
 
               {/* Quiz Description */}
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Description
-                </label>
-                <textarea
-                  value={quizConfig.quizDescription}
-                  onChange={(e) => setQuizConfig(prev => ({
-                    ...prev,
-                    quizDescription: e.target.value
-                  }))}
-                  placeholder="Enter quiz description (optional - AI will generate if empty)"
-                  rows={3}
-                  maxLength={500}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary sm:text-sm"
-                />
-              </div>
+              <Textarea
+                label="Quiz Description"
+                value={quizConfig.quizDescription}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  quizDescription: e.target.value
+                }))}
+                placeholder="Enter quiz description (optional - AI will generate if empty)"
+                rows={3}
+                maxLength={500}
+                showCharCount
+              />
 
               {/* Difficulty */}
               <div>

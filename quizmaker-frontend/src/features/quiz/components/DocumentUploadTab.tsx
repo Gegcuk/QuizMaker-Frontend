@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizQuestionType, Difficulty, QuizScope } from '@/types';
 import { GenerationProgress } from '@/features/ai';
-import { Button, Alert, Input, Dropdown, Hint } from '@/components';
+import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 
 export const DocumentUploadTab: React.FC = () => {
   const navigate = useNavigate();
@@ -242,12 +242,13 @@ export const DocumentUploadTab: React.FC = () => {
                     <div className="text-sm text-theme-text-secondary">
                       {formatFileSize(selectedFile.size)} • {selectedFile.type}
                     </div>
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
                       onClick={() => setSelectedFile(null)}
-                      className="text-theme-interactive-danger hover:text-theme-interactive-danger text-sm"
                     >
                       Remove file
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -272,12 +273,12 @@ export const DocumentUploadTab: React.FC = () => {
                 />
                 
                 {!selectedFile && (
-                  <button
+                  <Button
+                    variant="primary"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
                   >
                     Choose File
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -377,21 +378,16 @@ export const DocumentUploadTab: React.FC = () => {
               </div>
 
               {/* Quiz Description */}
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Description
-                </label>
-                <textarea
-                  value={quizConfig.quizDescription}
-                  onChange={(e) => setQuizConfig(prev => ({
-                    ...prev,
-                    quizDescription: e.target.value
-                  }))}
-                  placeholder="Enter quiz description..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary sm:text-sm"
-                />
-              </div>
+              <Textarea
+                label="Quiz Description"
+                value={quizConfig.quizDescription}
+                onChange={(e) => setQuizConfig(prev => ({
+                  ...prev,
+                  quizDescription: e.target.value
+                }))}
+                placeholder="Enter quiz description..."
+                rows={3}
+              />
 
               {/* Quiz Scope */}
               <div>

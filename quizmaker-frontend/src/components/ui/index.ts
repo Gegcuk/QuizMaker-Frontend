@@ -32,6 +32,7 @@ export { default as FormField } from './FormField';
 export { default as ValidationMessage } from './ValidationMessage';
 export { default as FileUpload } from './FileUpload';
 export { default as Checkbox } from './Checkbox';
+export { default as Textarea } from './Textarea';
 export { default as InstructionsModal } from './InstructionsModal';
 export { default as QuestionEditorHeader } from './QuestionEditorHeader';
 export { default as AddItemButton } from './AddItemButton';
@@ -71,4 +72,5 @@ export type { FormProps, FormContextValue, FieldValues, UseFormReturn, SubmitHan
 export type { FormFieldProps } from './FormField';
 export type { ValidationMessageProps } from './ValidationMessage';
 export type { FileUploadProps } from './FileUpload';
-export type { CheckboxProps } from './Checkbox'; 
+export type { CheckboxProps } from './Checkbox';
+export type { TextareaProps } from './Textarea'; 
