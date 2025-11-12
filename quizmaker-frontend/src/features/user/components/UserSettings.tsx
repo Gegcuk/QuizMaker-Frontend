@@ -7,7 +7,7 @@ import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useAuth } from '@/features/auth';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
-import { Button } from '@/components';
+import { Button, Dropdown, Alert, Switch } from '@/components';
 
 interface UserSettingsProps {
   onSave?: () => void;
@@ -165,17 +165,10 @@ const UserSettings: React.FC<UserSettingsProps> = ({
 
       <form onSubmit={handleSubmit} className="divide-y divide-theme-border-primary">
         {errors.general && (
-          <div className="px-6 py-4 bg-theme-bg-danger border-b border-theme-border-danger">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-theme-interactive-danger">{errors.general}</p>
-              </div>
-            </div>
+          <div className="px-6 py-4">
+            <Alert type="error" dismissible onDismiss={() => setErrors({})}>
+              {errors.general}
+            </Alert>
           </div>
         )}
 
@@ -183,53 +176,26 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         <div className="px-6 py-4">
           <h3 className="text-lg font-medium text-theme-text-primary mb-4">Email Notifications</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">Quiz Results</p>
-                <p className="text-sm text-theme-text-tertiary">Receive email notifications when you complete quizzes</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.emailNotifications.quizResults}
-                  onChange={(e) => handleSettingChange('emailNotifications', 'quizResults', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="Quiz Results"
+              description="Receive email notifications when you complete quizzes"
+              checked={settings.emailNotifications.quizResults}
+              onChange={(checked) => handleSettingChange('emailNotifications', 'quizResults', checked)}
+            />
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">New Quizzes</p>
-                <p className="text-sm text-theme-text-tertiary">Get notified about new quizzes in your categories</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.emailNotifications.newQuizzes}
-                  onChange={(e) => handleSettingChange('emailNotifications', 'newQuizzes', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="New Quizzes"
+              description="Get notified about new quizzes in your categories"
+              checked={settings.emailNotifications.newQuizzes}
+              onChange={(checked) => handleSettingChange('emailNotifications', 'newQuizzes', checked)}
+            />
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">System Updates</p>
-                <p className="text-sm text-theme-text-tertiary">Receive important system announcements</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.emailNotifications.systemUpdates}
-                  onChange={(e) => handleSettingChange('emailNotifications', 'systemUpdates', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="System Updates"
+              description="Receive important system announcements"
+              checked={settings.emailNotifications.systemUpdates}
+              onChange={(checked) => handleSettingChange('emailNotifications', 'systemUpdates', checked)}
+            />
           </div>
         </div>
 
@@ -241,32 +207,23 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Profile Visibility
               </label>
-              <select
+              <Dropdown
                 value={settings.privacy.profileVisibility}
-                onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="public" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
-                <option value="private" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
-                <option value="friends" className="bg-theme-bg-primary text-theme-text-primary">Friends Only</option>
-              </select>
+                onChange={(value) => handleSettingChange('privacy', 'profileVisibility', typeof value === 'string' ? value : value[0])}
+                options={[
+                  { label: 'Public', value: 'public' },
+                  { label: 'Private', value: 'private' },
+                  { label: 'Friends Only', value: 'friends' }
+                ]}
+              />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">Show Email Address</p>
-                <p className="text-sm text-theme-text-tertiary">Allow other users to see your email address</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.privacy.showEmail}
-                  onChange={(e) => handleSettingChange('privacy', 'showEmail', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="Show Email Address"
+              description="Allow other users to see your email address"
+              checked={settings.privacy.showEmail}
+              onChange={(checked) => handleSettingChange('privacy', 'showEmail', checked)}
+            />
           </div>
         </div>
 
@@ -278,31 +235,31 @@ const UserSettings: React.FC<UserSettingsProps> = ({
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Theme
               </label>
-              <select
+              <Dropdown
                 value={settings.preferences.theme}
-                onChange={(e) => handleSettingChange('preferences', 'theme', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="light" className="bg-theme-bg-primary text-theme-text-primary">Light</option>
-                <option value="dark" className="bg-theme-bg-primary text-theme-text-primary">Dark</option>
-                <option value="auto" className="bg-theme-bg-primary text-theme-text-primary">Auto</option>
-              </select>
+                onChange={(value) => handleSettingChange('preferences', 'theme', typeof value === 'string' ? value : value[0])}
+                options={[
+                  { label: 'Light', value: 'light' },
+                  { label: 'Dark', value: 'dark' },
+                  { label: 'Auto', value: 'auto' }
+                ]}
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Language
               </label>
-              <select
+              <Dropdown
                 value={settings.preferences.language}
-                onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
-                className="block w-full bg-theme-bg-primary border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-theme-text-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
-                <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
-                <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
-                <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
-              </select>
+                onChange={(value) => handleSettingChange('preferences', 'language', typeof value === 'string' ? value : value[0])}
+                options={[
+                  { label: 'English', value: 'en' },
+                  { label: 'Spanish', value: 'es' },
+                  { label: 'French', value: 'fr' },
+                  { label: 'German', value: 'de' }
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -311,37 +268,19 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         <div className="px-6 py-4">
           <h3 className="text-lg font-medium text-theme-text-primary mb-4">Security</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">Two-Factor Authentication</p>
-                <p className="text-sm text-theme-text-tertiary">Add an extra layer of security to your account</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.security.twoFactorEnabled}
-                  onChange={(e) => handleSettingChange('security', 'twoFactorEnabled', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="Two-Factor Authentication"
+              description="Add an extra layer of security to your account"
+              checked={settings.security.twoFactorEnabled}
+              onChange={(checked) => handleSettingChange('security', 'twoFactorEnabled', checked)}
+            />
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-theme-text-secondary">Login Notifications</p>
-                <p className="text-sm text-theme-text-tertiary">Get notified of new login attempts</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.security.loginNotifications}
-                  onChange={(e) => handleSettingChange('security', 'loginNotifications', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-interactive-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-              </label>
-            </div>
+            <Switch
+              label="Login Notifications"
+              description="Get notified of new login attempts"
+              checked={settings.security.loginNotifications}
+              onChange={(checked) => handleSettingChange('security', 'loginNotifications', checked)}
+            />
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, TagService, api } from '@/services';
 import { categoryService } from '@/services';
+import { Button, Input, Dropdown, Checkbox } from '@/components';
 import { 
   QuizDto, 
   QuizSearchCriteria, 
@@ -322,7 +323,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       {/* Search Input */}
       <form onSubmit={handleSearchSubmit} className="relative">
         <div className="relative">
-          <input
+          <Input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
@@ -337,7 +338,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               setTimeout(() => setShowResults(false), 200);
             }}
             placeholder={placeholder}
-            className="w-full pl-10 pr-12 py-2 border border-theme-border-primary rounded-lg focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+            className="w-full pl-10"
             aria-label="Search"
           />
           
@@ -350,23 +351,27 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
           {/* Clear Button */}
           {searchQuery && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-theme-text-tertiary hover:text-theme-text-secondary transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 !p-0 !min-w-0 !w-auto text-theme-text-tertiary hover:text-theme-text-secondary"
               aria-label="Clear search"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+            </Button>
           )}
 
           {/* Filters Toggle */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setShowFilters(!showFilters)}
-            className={`absolute right-10 top-1/2 transform -translate-y-1/2 p-1 rounded transition-colors ${
+            className={`absolute right-10 top-1/2 transform -translate-y-1/2 !p-1 !min-w-0 !w-auto rounded transition-colors ${
               showFilters ? 'bg-theme-bg-info text-theme-interactive-primary' : 'text-theme-text-tertiary hover:text-theme-text-secondary'
             }`}
             aria-label="Toggle filters"
@@ -374,7 +379,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
             </svg>
-          </button>
+          </Button>
         </div>
 
         {/* Loading Indicator */}
@@ -397,15 +402,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">Categories</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {categories.map(category => (
-                  <label key={category.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category.id)}
-                      onChange={() => handleCategoryChange(category.id)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
-                  </label>
+                  <Checkbox
+                    key={category.id}
+                    checked={selectedCategories.includes(category.id)}
+                    onChange={() => handleCategoryChange(category.id)}
+                    label={category.name}
+                  />
                 ))}
               </div>
             </div>
@@ -415,15 +417,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">Tags</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {tags.map(tag => (
-                  <label key={tag.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedTags.includes(tag.id)}
-                      onChange={() => handleTagChange(tag.id)}
-                      className="rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{tag.name}</span>
-                  </label>
+                  <Checkbox
+                    key={tag.id}
+                    checked={selectedTags.includes(tag.id)}
+                    onChange={() => handleTagChange(tag.id)}
+                    label={tag.name}
+                  />
                 ))}
               </div>
             </div>
@@ -431,45 +430,44 @@ const SearchBar: React.FC<SearchBarProps> = ({
             {/* Difficulty */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">Difficulty</label>
-              <select
+              <Dropdown
                 value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty | '')}
-                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              >
-                <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
-                <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-              </select>
+                onChange={(value) => setSelectedDifficulty((typeof value === 'string' ? value : value[0]) as Difficulty | '')}
+                options={[
+                  { label: 'All Difficulties', value: '' },
+                  { label: 'Easy', value: 'EASY' },
+                  { label: 'Medium', value: 'MEDIUM' },
+                  { label: 'Hard', value: 'HARD' }
+                ]}
+              />
             </div>
 
             {/* Author */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">Author</label>
-              <input
+              <Input
                 type="text"
                 value={selectedAuthor}
                 onChange={(e) => setSelectedAuthor(e.target.value)}
                 placeholder="Search by author..."
-                className="w-full border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               />
             </div>
           </div>
 
           {/* Sort Options */}
-          <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+          <div className="mt-4 pt-4 border-t border-theme-border-primary">
             <label className="block text-sm font-medium text-theme-text-secondary mb-2">Sort By</label>
-            <select
+            <Dropdown
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="border border-theme-border-primary rounded-md px-3 py-2 text-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="relevance" className="bg-theme-bg-primary text-theme-text-primary">Relevance</option>
-              <option value="title,asc" className="bg-theme-bg-primary text-theme-text-primary">Title A-Z</option>
-              <option value="title,desc" className="bg-theme-bg-primary text-theme-text-primary">Title Z-A</option>
-              <option value="createdDate,desc" className="bg-theme-bg-primary text-theme-text-primary">Newest First</option>
-              <option value="createdDate,asc" className="bg-theme-bg-primary text-theme-text-primary">Oldest First</option>
-            </select>
+              onChange={(value) => setSortBy(typeof value === 'string' ? value : value[0])}
+              options={[
+                { label: 'Relevance', value: 'relevance' },
+                { label: 'Title A-Z', value: 'title,asc' },
+                { label: 'Title Z-A', value: 'title,desc' },
+                { label: 'Newest First', value: 'createdDate,desc' },
+                { label: 'Oldest First', value: 'createdDate,asc' }
+              ]}
+            />
           </div>
         </div>
       )}
@@ -480,13 +478,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
           <div className="p-2">
             <div className="text-xs font-medium text-theme-text-tertiary mb-2">Recent Searches</div>
             {suggestions.map((suggestion, index) => (
-              <button
+              <Button
                 key={index}
+                variant="ghost"
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left px-3 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-tertiary rounded transition-colors"
+                className="w-full !justify-start px-3 py-2 text-sm text-theme-text-secondary hover:bg-theme-bg-tertiary rounded"
               >
                 {suggestion}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -500,14 +499,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <div className="text-sm text-theme-text-secondary">
                 {totalResults} result{totalResults !== 1 ? 's' : ''} found
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowResults(false)}
-                className="text-theme-text-tertiary hover:text-theme-text-secondary"
+                className="!p-0 !min-w-0 !w-auto text-theme-text-tertiary hover:text-theme-text-secondary"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-3">
@@ -558,23 +559,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
             {totalPages > 1 && (
               <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <div className="flex justify-between items-center">
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 0}
-                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                   >
                     Previous
-                  </button>
+                  </Button>
                   <span className="text-sm text-theme-text-secondary">
                     Page {currentPage + 1} of {totalPages}
                   </span>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages - 1}
-                    className="px-3 py-1 text-sm border border-theme-border-primary rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
                   >
                     Next
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

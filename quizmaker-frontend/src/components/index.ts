@@ -7,6 +7,7 @@ export { default as Button } from './ui/Button';
 export { default as Input } from './ui/Input';
 export { default as Checkbox } from './ui/Checkbox';
 export { default as Textarea } from './ui/Textarea';
+export { default as Switch } from './ui/Switch';
 export { default as Alert } from './ui/Alert';
 export { default as Spinner } from './ui/Spinner';
 export { default as Modal } from './ui/Modal';
@@ -24,6 +25,7 @@ export type { SortOption } from './ui/SortDropdown';
 export type { HintProps } from './ui/Hint';
 export type { CheckboxProps } from './ui/Checkbox';
 export type { TextareaProps } from './ui/Textarea';
+export type { SwitchProps } from './ui/Switch';
 
 // Form Components
 export { default as Form, useFormContext } from './ui/Form';
