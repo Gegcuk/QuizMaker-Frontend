@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
 import type { AxiosError } from 'axios';
+import { Button, Input, Textarea, Checkbox, Alert } from '@/components';
 
 interface QuizTagManagerProps {
   quizId: string;
@@ -154,29 +155,21 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
               Select tags to categorize this quiz ({currentTagIds.length} selected)
             </p>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
           >
             {showCreateForm ? 'Cancel' : '+ Add New Tag'}
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="px-6 py-4">
         {error && (
-          <div className="mb-4 bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-theme-interactive-danger">{error}</p>
-              </div>
-            </div>
-          </div>
+          <Alert type="error" dismissible onDismiss={() => setError(null)} className="mb-4">
+            {error}
+          </Alert>
         )}
 
         {/* Create new tag form */}
@@ -184,50 +177,48 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
           <div className="mb-4 p-4 bg-theme-bg-secondary rounded-lg">
             <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Create New Tag</h4>
             <div className="space-y-3">
-              <div>
-                <label htmlFor="new-tag-name" className="block text-sm font-medium text-theme-text-secondary">
-                  Tag Name <span className="text-theme-interactive-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="new-tag-name"
-                  value={newTagName}
-                  onChange={(e) => setNewTagName(e.target.value)}
-                  placeholder="Enter tag name..."
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                />
-              </div>
-              <div>
-                <label htmlFor="new-tag-description" className="block text-sm font-medium text-theme-text-secondary">
-                  Description
-                </label>
-                <textarea
-                  id="new-tag-description"
-                  value={newTagDescription}
-                  onChange={(e) => setNewTagDescription(e.target.value)}
-                  placeholder="Enter tag description..."
-                  rows={2}
-                  className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                />
-              </div>
+              <Input
+                id="new-tag-name"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="Enter tag name..."
+                label={
+                  <>
+                    Tag Name <span className="text-theme-interactive-danger">*</span>
+                  </>
+                }
+                fullWidth
+              />
+              <Textarea
+                id="new-tag-description"
+                value={newTagDescription}
+                onChange={(e) => setNewTagDescription(e.target.value)}
+                placeholder="Enter tag description..."
+                rows={2}
+                label="Description"
+                fullWidth
+              />
               <div className="flex space-x-2">
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={handleCreateTag}
                   disabled={!newTagName.trim() || isCreating}
-                  className="px-3 py-1 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary disabled:opacity-50"
+                  loading={isCreating}
                 >
-                  {isCreating ? 'Creating...' : 'Create Tag'}
-                </button>
-                <button
+                  Create Tag
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => {
                     setShowCreateForm(false);
                     setNewTagName('');
                     setNewTagDescription('');
                   }}
-                  className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-secondary"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -235,37 +226,33 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
         {/* Search and filters */}
         <div className="mb-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label htmlFor="tag-search" className="block text-sm font-medium text-theme-text-secondary">
-                Search Tags
-              </label>
-              <input
-                type="text"
-                id="tag-search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by tag name or description..."
-                className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              />
-            </div>
-          </div>
+          <Input
+            type="text"
+            id="tag-search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by tag name or description..."
+            label="Search Tags"
+            fullWidth
+          />
 
           {/* Bulk actions */}
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center space-x-4">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handleBulkSelect(true)}
-                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
               >
                 Select All
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handleBulkSelect(false)}
-                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
               >
                 Clear All
-              </button>
+              </Button>
             </div>
             <p className="text-sm text-theme-text-tertiary">
               {filteredTags.length} tags found
@@ -303,49 +290,50 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   key={tag.id}
                   className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                     tag.isSelected
-                      ? 'border-theme-border-primary bg-theme-bg-primary'
-                      : 'border-theme-border-primary hover:border-theme-border-primary'
+                      ? 'border-theme-border-primary bg-theme-bg-secondary'
+                      : 'border-theme-border-primary hover:border-theme-border-secondary hover:bg-theme-bg-secondary'
                   }`}
                   onClick={() => handleTagToggle(tag.id)}
                 >
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={tag.isSelected}
-                      onChange={() => handleTagToggle(tag.id)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-sm font-medium text-theme-text-primary">
-                          #{tag.name}
-                        </span>
+                  <Checkbox
+                    checked={tag.isSelected}
+                    onChange={(checked) => handleTagToggle(tag.id)}
+                    label={
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="text-sm font-medium text-theme-text-primary">
+                            #{tag.name}
+                          </span>
+                        </div>
+                        {tag.description && (
+                          <p className="text-sm text-theme-text-secondary line-clamp-2">
+                            {tag.description}
+                          </p>
+                        )}
+                        <div className="mt-2 flex items-center space-x-4 text-xs text-theme-text-tertiary">
+                          <span>Created: {new Date(tag.createdAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                      {tag.description && (
-                        <p className="text-sm text-theme-text-secondary line-clamp-2">
-                          {tag.description}
-                        </p>
-                      )}
-                      <div className="mt-2 flex items-center space-x-4 text-xs text-theme-text-tertiary">
-                        <span>Created: {new Date(tag.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
+                    }
+                  />
                 </div>
               ))}
 
               {/* Show More Button */}
               {filteredTags.length > displayedCount && (
                 <div className="flex justify-center pt-2">
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => setDisplayedCount(prev => Math.min(prev + 5, filteredTags.length))}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-interactive-primary rounded-md hover:bg-theme-bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                    leftIcon={
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    }
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
                     Show 5 More
-                  </button>
+                  </Button>
                 </div>
               )}
             </>

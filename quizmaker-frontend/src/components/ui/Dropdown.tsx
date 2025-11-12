@@ -14,6 +14,7 @@ export interface DropdownProps {
   placeholder?: string;
   label?: string;
   error?: string;
+  helperText?: string;
   disabled?: boolean;
   multiple?: boolean;
   searchable?: boolean;
@@ -29,6 +30,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   placeholder = 'Select an option',
   label,
   error,
+  helperText,
   disabled = false,
   multiple = false,
   searchable = false,
@@ -218,6 +220,11 @@ const Dropdown: React.FC<DropdownProps> = ({
       {error && (
         <p className="mt-1 text-sm text-theme-interactive-danger">
           {error}
+        </p>
+      )}
+      {!error && helperText && (
+        <p className="mt-1 text-sm text-theme-text-tertiary">
+          {helperText}
         </p>
       )}
     </div>

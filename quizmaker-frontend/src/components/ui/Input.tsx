@@ -1,7 +1,7 @@
 import React, { forwardRef, useId, useRef } from 'react';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  label?: string;
+  label?: React.ReactNode;
   error?: string;
   helperText?: string;
   leftIcon?: React.ReactNode;

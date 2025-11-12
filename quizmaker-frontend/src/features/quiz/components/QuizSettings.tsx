@@ -10,6 +10,7 @@ import {
   Visibility, 
   Difficulty 
 } from '@/types';
+import { Dropdown, Input, Checkbox } from '@/components';
 
 interface QuizSettingsProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest>;
@@ -106,146 +107,98 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
 
       <div className="px-6 py-4 space-y-6">
         {/* Visibility */}
-        <div>
-          <label htmlFor="visibility" className="block text-sm font-medium text-theme-text-secondary">
-            Visibility
-          </label>
-          <select
-            id="visibility"
-            name="visibility"
-            value={quizData.visibility || 'PRIVATE'}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            disabled={!isEditing}
-          >
-            <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private - Only you can see and take this quiz</option>
-            <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public - Anyone can see and take this quiz</option>
-          </select>
-          <p className="mt-1 text-xs text-theme-text-tertiary">
-            {quizData.visibility === 'PUBLIC' 
+        <Dropdown
+          label="Visibility"
+          value={quizData.visibility || 'PRIVATE'}
+          onChange={(value) => onDataChange({ ...quizData, visibility: (typeof value === 'string' ? value : value[0]) as Visibility })}
+          options={[
+            { label: 'Private - Only you can see and take this quiz', value: 'PRIVATE' },
+            { label: 'Public - Anyone can see and take this quiz', value: 'PUBLIC' }
+          ]}
+          disabled={!isEditing}
+          fullWidth
+          helperText={
+            quizData.visibility === 'PUBLIC' 
               ? 'This quiz will be visible to all users' 
-              : 'This quiz will only be visible to you'}
-          </p>
-        </div>
+              : 'This quiz will only be visible to you'
+          }
+        />
 
         {/* Difficulty */}
-        <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary">
-            Difficulty Level
-          </label>
-          <select
-            id="difficulty"
-            name="difficulty"
-            value={quizData.difficulty || 'MEDIUM'}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            disabled={!isEditing}
-          >
-            <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy - Suitable for beginners</option>
-            <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium - Balanced difficulty</option>
-            <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard - Challenging questions</option>
-          </select>
-          <p className="mt-1 text-xs text-theme-text-tertiary">
-            This helps users understand the expected difficulty level
-          </p>
-        </div>
+        <Dropdown
+          label="Difficulty Level"
+          value={quizData.difficulty || 'MEDIUM'}
+          onChange={(value) => onDataChange({ ...quizData, difficulty: (typeof value === 'string' ? value : value[0]) as Difficulty })}
+          options={[
+            { label: 'Easy - Suitable for beginners', value: 'EASY' },
+            { label: 'Medium - Balanced difficulty', value: 'MEDIUM' },
+            { label: 'Hard - Challenging questions', value: 'HARD' }
+          ]}
+          disabled={!isEditing}
+          fullWidth
+          helperText="This helps users understand the expected difficulty level"
+        />
 
         {/* Timer Settings */}
         <div className="space-y-4">
-          <div>
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="timerEnabled"
-                checked={quizData.timerEnabled || false}
-                onChange={handleInputChange}
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-                disabled={!isEditing}
-              />
-              <span className="ml-2 text-sm font-medium text-theme-text-secondary">
-                Enable Timer
-              </span>
-            </label>
-            <p className="mt-1 text-xs text-theme-text-tertiary">
-              When enabled, users will have a time limit to complete the quiz
-            </p>
-          </div>
+          <Checkbox
+            name="timerEnabled"
+            checked={quizData.timerEnabled || false}
+            onChange={(checked) => onDataChange({ ...quizData, timerEnabled: checked })}
+            label="Enable Timer"
+            description="When enabled, users will have a time limit to complete the quiz"
+            disabled={!isEditing}
+          />
 
           {quizData.timerEnabled && (
-            <div>
-              <label htmlFor="timerDuration" className="block text-sm font-medium text-theme-text-secondary">
-                Timer Duration (minutes)
-              </label>
-              <input
-                type="number"
-                id="timerDuration"
-                name="timerDuration"
-                min="1"
-                max="180"
-                value={quizData.timerDuration || ''}
-                onChange={handleInputChange}
-                placeholder="Enter timer duration..."
-                className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
-                  combinedErrors.timerDuration ? 'border-theme-border-danger' : 'border-theme-border-primary'
-                }`}
-                disabled={!isEditing}
-              />
-              {combinedErrors.timerDuration && (
-                <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.timerDuration}</p>
-              )}
-              <p className="mt-1 text-xs text-theme-text-tertiary">
-                Time limit for completing the quiz (1-180 minutes)
-              </p>
-            </div>
+            <Input
+              type="number"
+              id="timerDuration"
+              name="timerDuration"
+              min={1}
+              max={180}
+              value={quizData.timerDuration || ''}
+              onChange={handleInputChange}
+              placeholder="Enter timer duration..."
+              label="Timer Duration (minutes)"
+              disabled={!isEditing}
+              error={combinedErrors.timerDuration}
+              helperText="Time limit for completing the quiz (1-180 minutes)"
+              fullWidth
+            />
           )}
         </div>
 
         {/* Estimated Time */}
-        <div>
-          <label htmlFor="estimatedTime" className="block text-sm font-medium text-theme-text-secondary">
-            Estimated Time (minutes) <span className="text-theme-interactive-danger">*</span>
-          </label>
-          <input
-            type="number"
-            id="estimatedTime"
-            name="estimatedTime"
-            min="1"
-            max="180"
-            value={quizData.estimatedTime || ''}
-            onChange={handleInputChange}
-            placeholder="Enter estimated time..."
-            className={`mt-1 block w-full border rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
-              combinedErrors.estimatedTime ? 'border-theme-border-danger' : 'border-theme-border-primary'
-            }`}
-            disabled={!isEditing}
-          />
-          {combinedErrors.estimatedTime && (
-            <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.estimatedTime}</p>
-          )}
-          <p className="mt-1 text-xs text-theme-text-tertiary">
-            Estimated time to complete the quiz (1-180 minutes)
-          </p>
-        </div>
+        <Input
+          type="number"
+          id="estimatedTime"
+          name="estimatedTime"
+          min={1}
+          max={180}
+          value={quizData.estimatedTime || ''}
+          onChange={handleInputChange}
+          placeholder="Enter estimated time..."
+          label={
+            <>
+              Estimated Time (minutes) <span className="text-theme-interactive-danger">*</span>
+            </>
+          }
+          disabled={!isEditing}
+          error={combinedErrors.estimatedTime}
+          helperText="Estimated time to complete the quiz (1-180 minutes)"
+          fullWidth
+        />
 
         {/* Repetition Settings */}
-        <div>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              name="isRepetitionEnabled"
-              checked={quizData.isRepetitionEnabled || false}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-              disabled={!isEditing}
-            />
-            <span className="ml-2 text-sm font-medium text-theme-text-secondary">
-              Allow Multiple Attempts
-            </span>
-          </label>
-          <p className="mt-1 text-xs text-theme-text-tertiary">
-            When enabled, users can take this quiz multiple times
-          </p>
-        </div>
+        <Checkbox
+          name="isRepetitionEnabled"
+          checked={quizData.isRepetitionEnabled || false}
+          onChange={(checked) => onDataChange({ ...quizData, isRepetitionEnabled: checked })}
+          label="Allow Multiple Attempts"
+          description="When enabled, users can take this quiz multiple times"
+          disabled={!isEditing}
+        />
 
         {/* Settings Summary */}
         <div className="bg-theme-bg-secondary p-4 rounded-md">
