@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader } from '@/components';
+import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader, Textarea, Dropdown } from '@/components';
 import {
   QuestionDto,
   QuizDto,
@@ -533,71 +533,59 @@ const QuizQuestionsPage: React.FC = () => {
                 </div>
 
                 {/* Question Text */}
-                <div>
-                  <label htmlFor="questionText" className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Question Text <span className="text-theme-interactive-danger">*</span>
-                  </label>
-                  <textarea
-                    id="questionText"
-                    required
-                    minLength={3}
-                    maxLength={1000}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    rows={4}
-                    value={questionText}
-                    onChange={(e) => setQuestionText(e.target.value)}
-                    placeholder="Enter your question here..."
-                  />
-                </div>
+                <Textarea
+                  id="questionText"
+                  required
+                  minLength={3}
+                  maxLength={1000}
+                  rows={4}
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                  placeholder="Enter your question here..."
+                  label={
+                    <>
+                      Question Text <span className="text-theme-interactive-danger">*</span>
+                    </>
+                  }
+                  showCharCount
+                />
 
                 {/* Difficulty */}
-                <div>
-                  <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Difficulty
-                  </label>
-                  <select
-                    id="difficulty"
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value as QuestionDto['difficulty'])}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                  >
-                    <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                    <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                    <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-                  </select>
-                </div>
+                <Dropdown
+                  label="Difficulty"
+                  value={difficulty}
+                  onChange={(value) => setDifficulty((typeof value === 'string' ? value : value[0]) as QuestionDto['difficulty'])}
+                  options={[
+                    { label: 'Easy', value: 'EASY' },
+                    { label: 'Medium', value: 'MEDIUM' },
+                    { label: 'Hard', value: 'HARD' }
+                  ]}
+                  fullWidth
+                />
 
                 {/* Hint */}
-                <div>
-                  <label htmlFor="hint" className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Hint (Optional)
-                  </label>
-                  <textarea
-                    id="hint"
-                    maxLength={500}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    rows={2}
-                    value={hint}
-                    onChange={(e) => setHint(e.target.value)}
-                    placeholder="Provide a hint for students..."
-                  />
-                </div>
+                <Textarea
+                  id="hint"
+                  maxLength={500}
+                  rows={2}
+                  value={hint}
+                  onChange={(e) => setHint(e.target.value)}
+                  placeholder="Provide a hint for students..."
+                  label="Hint (Optional)"
+                  showCharCount
+                />
 
                 {/* Explanation */}
-                <div>
-                  <label htmlFor="explanation" className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Explanation (Optional)
-                  </label>
-                  <textarea
-                    id="explanation"
-                    maxLength={2000}
-                    className="w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    rows={3}
-                    value={explanation}
-                    onChange={(e) => setExplanation(e.target.value)}
-                    placeholder="Provide an explanation for the correct answer..."
-                  />
-                </div>
+                <Textarea
+                  id="explanation"
+                  maxLength={2000}
+                  rows={3}
+                  value={explanation}
+                  onChange={(e) => setExplanation(e.target.value)}
+                  placeholder="Provide an explanation for the correct answer..."
+                  label="Explanation (Optional)"
+                  showCharCount
+                />
                 
                 {/* Question Type Specific Content Editor */}
                 <div>

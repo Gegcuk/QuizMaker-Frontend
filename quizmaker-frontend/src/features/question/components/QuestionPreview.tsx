@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Badge } from '@/components';
+import { Badge, Checkbox, Textarea, Input } from '@/components';
 import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
@@ -62,17 +62,14 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
-              <div key={option.id} className="flex items-center space-x-3">
-                <input
-                  type="radio"
-                  name="preview-answer"
+              <div key={option.id} className="flex items-center justify-between">
+                <Checkbox
                   id={`option-${option.id}`}
+                  checked={false}
+                  onChange={() => {}}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
+                  label={option.text || `Option ${option.id.toUpperCase()}`}
                 />
-                <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
-                  {option.text || `Option ${option.id.toUpperCase()}`}
-                </label>
                 {option.correct && (
                   <Badge variant="success" size="sm">Correct</Badge>
                 )}
@@ -85,16 +82,14 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
-              <div key={option.id} className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
+              <div key={option.id} className="flex items-center justify-between">
+                <Checkbox
                   id={`option-${option.id}`}
+                  checked={false}
+                  onChange={() => {}}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
+                  label={option.text || `Option ${option.id.toUpperCase()}`}
                 />
-                <label htmlFor={`option-${option.id}`} className="text-sm text-theme-text-secondary">
-                  {option.text || `Option ${option.id.toUpperCase()}`}
-                </label>
                 {option.correct && (
                   <Badge variant="success" size="sm">Correct</Badge>
                 )}
@@ -106,26 +101,20 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'TRUE_FALSE':
         return (
           <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name="preview-tf"
-                id="true-option"
-                disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-              />
-              <label htmlFor="true-option" className="text-sm text-theme-text-secondary">True</label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name="preview-tf"
-                id="false-option"
-                disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
-              />
-              <label htmlFor="false-option" className="text-sm text-theme-text-secondary">False</label>
-            </div>
+            <Checkbox
+              id="true-option"
+              checked={false}
+              onChange={() => {}}
+              disabled
+              label="True"
+            />
+            <Checkbox
+              id="false-option"
+              checked={false}
+              onChange={() => {}}
+              disabled
+              label="False"
+            />
             {question.content && 'answer' in question.content && (
               <div className="mt-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-bg-tertiary text-theme-text-secondary">
@@ -139,11 +128,12 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       case 'OPEN':
         return (
           <div className="space-y-3">
-            <textarea
+            <Textarea
               placeholder="Enter your answer here..."
               disabled
               rows={4}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              value=""
+              onChange={() => {}}
             />
             {question.content && 'answer' in question.content && (
               <div className="mt-2">
@@ -165,11 +155,13 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             {question.content && 'gaps' in question.content && (question.content.gaps as GapAnswer[]).map((gap) => (
               <div key={gap.id} className="flex items-center space-x-2">
                 <span className="text-sm text-theme-text-secondary">Gap {gap.id}:</span>
-                <input
+                <Input
                   type="text"
                   placeholder="Fill in the blank"
                   disabled
-                  className="block w-32 border-theme-border-primary rounded-md shadow-sm bg-theme-bg-secondary text-theme-text-tertiary text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  value=""
+                  onChange={() => {}}
+                  className="w-32"
                 />
                 <span className="text-xs text-theme-text-tertiary">Answer: {gap.answer}</span>
               </div>
@@ -181,16 +173,14 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         return (
           <div className="space-y-3">
             {question.content && 'statements' in question.content && (question.content.statements as ComplianceStatement[]).map((statement) => (
-              <div key={statement.id} className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
+              <div key={statement.id} className="flex items-center justify-between">
+                <Checkbox
                   id={`statement-${statement.id}`}
+                  checked={false}
+                  onChange={() => {}}
                   disabled
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
+                  label={statement.text}
                 />
-                <label htmlFor={`statement-${statement.id}`} className="text-sm text-theme-text-secondary">
-                  {statement.text}
-                </label>
                 <Badge variant={statement.compliant ? 'success' : 'danger'} size="sm">
                   {statement.compliant ? 'Compliant' : 'Non-compliant'}
                 </Badge>

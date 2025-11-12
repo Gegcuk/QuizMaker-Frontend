@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { HotspotContent, HotspotRegion } from '@/types';
-import { InstructionsModal, AddItemButton } from '@/components';
+import { InstructionsModal, AddItemButton, Input, Button } from '@/components';
 import { useTheme } from '@/context/ThemeContext';
 
 interface HotspotEditorProps {
@@ -83,23 +83,21 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
       {/* Image Upload */}
       <div className="bg-theme-bg-secondary rounded-lg p-6">
         <div className="space-y-4">
-          <div>
-            <label htmlFor="hotspot-image" className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Image <span className="text-theme-text-danger">*</span>
-            </label>
-            <input
-              id="hotspot-image"
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
-              className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-              required
-            />
-            <p className="mt-1 text-sm text-theme-text-tertiary">
-              Provide a URL to the image for interaction.
-            </p>
-          </div>
+          <Input
+            id="hotspot-image"
+            type="url"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+            label={
+              <>
+                Image <span className="text-theme-text-danger">*</span>
+              </>
+            }
+            required
+            helperText="Provide a URL to the image for interaction."
+            fullWidth
+          />
 
           {/* Image Preview */}
           {showPreview && imageUrl && (
@@ -170,83 +168,78 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleRegionCorrect(region.id);
                         }}
-                        className="text-sm text-theme-text-secondary hover:text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary rounded"
                         aria-label={`Toggle region ${region.id} correctness`}
                         title={`Toggle region ${region.id} correctness`}
                       >
                         Toggle
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeRegion(region.id);
                         }}
-                        className="text-theme-text-danger hover:text-theme-text-danger focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger rounded"
+                        className="!text-theme-text-danger hover:!text-theme-text-danger"
                         title="Remove region"
                         aria-label={`Remove region ${region.id}`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
                   {/* Region Properties */}
                   {selectedRegion === region.id && (
-                    <div className="mt-3 pt-3 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <label className="block text-xs font-medium text-theme-text-secondary mb-1">X Position (%)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={region.x}
-                            onChange={(e) => updateRegion(region.id, { x: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-theme-text-secondary mb-1">Y Position (%)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={region.y}
-                            onChange={(e) => updateRegion(region.id, { y: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-theme-text-secondary mb-1">Width (%)</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={region.width}
-                            onChange={(e) => updateRegion(region.id, { width: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-theme-text-secondary mb-1">Height (%)</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={region.height}
-                            onChange={(e) => updateRegion(region.id, { height: parseInt(e.target.value) })}
-                            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary text-xs bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                          />
-                        </div>
+                    <div className="mt-3 pt-3 border-t border-theme-border-primary">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={region.x}
+                          onChange={(e) => updateRegion(region.id, { x: parseInt(e.target.value) || 0 })}
+                          label="X Position (%)"
+                          size="sm"
+                        />
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={region.y}
+                          onChange={(e) => updateRegion(region.id, { y: parseInt(e.target.value) || 0 })}
+                          label="Y Position (%)"
+                          size="sm"
+                        />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={region.width}
+                          onChange={(e) => updateRegion(region.id, { width: parseInt(e.target.value) || 1 })}
+                          label="Width (%)"
+                          size="sm"
+                        />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={region.height}
+                          onChange={(e) => updateRegion(region.id, { height: parseInt(e.target.value) || 1 })}
+                          label="Height (%)"
+                          size="sm"
+                        />
                       </div>
                     </div>
                   )}

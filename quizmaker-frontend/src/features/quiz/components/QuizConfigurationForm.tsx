@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CreateQuizRequest, Visibility, Difficulty } from '@/types';
-import { Button, Input, useToast } from '@/components';
+import { Button, Input, useToast, Textarea, Dropdown, Switch } from '@/components';
 import { CreationMethod } from './QuizCreationWizard';
 
 interface QuizConfigurationFormProps {
@@ -106,61 +106,44 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Description
-              </label>
-              <textarea
+              <Textarea
                 value={localData.description || ''}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Enter quiz description..."
                 rows={4}
                 maxLength={1000}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary ${
-                  errors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
-                }`}
+                label="Description"
+                error={errors.description}
+                showCharCount
+                helperText="Optional description to help users understand the quiz"
               />
-              {errors.description && (
-                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.description}</p>
-              )}
-              <div className="text-xs text-theme-text-tertiary mt-1">
-                {(localData.description || '').length}/1000 characters
-              </div>
-              <p className="mt-1 text-xs text-theme-text-tertiary">
-                Optional description to help users understand the quiz
-              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Visibility
-                </label>
-                <select
-                  value={localData.visibility || 'PRIVATE'}
-                  onChange={(e) => handleInputChange('visibility', e.target.value as Visibility)}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="PRIVATE" className="bg-theme-bg-primary text-theme-text-primary">Private</option>
-                  <option value="PUBLIC" className="bg-theme-bg-primary text-theme-text-primary">Public</option>
-                </select>
-                <p className="mt-1 text-xs text-theme-text-tertiary">Who can see this quiz</p>
-              </div>
+              <Dropdown
+                value={localData.visibility || 'PRIVATE'}
+                onChange={(value) => handleInputChange('visibility', (typeof value === 'string' ? value : value[0]) as Visibility)}
+                options={[
+                  { label: 'Private', value: 'PRIVATE' },
+                  { label: 'Public', value: 'PUBLIC' }
+                ]}
+                label="Visibility"
+                helperText="Who can see this quiz"
+                fullWidth
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Difficulty
-                </label>
-                <select
-                  value={localData.difficulty || 'MEDIUM'}
-                  onChange={(e) => handleInputChange('difficulty', e.target.value as Difficulty)}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                  <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                  <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-                </select>
-                <p className="mt-1 text-xs text-theme-text-tertiary">Overall quiz difficulty</p>
-              </div>
+              <Dropdown
+                value={localData.difficulty || 'MEDIUM'}
+                onChange={(value) => handleInputChange('difficulty', (typeof value === 'string' ? value : value[0]) as Difficulty)}
+                options={[
+                  { label: 'Easy', value: 'EASY' },
+                  { label: 'Medium', value: 'MEDIUM' },
+                  { label: 'Hard', value: 'HARD' }
+                ]}
+                label="Difficulty"
+                helperText="Overall quiz difficulty"
+                fullWidth
+              />
             </div>
           </div>
         </div>
@@ -192,21 +175,12 @@ export const QuizConfigurationForm: React.FC<QuizConfigurationFormProps> = ({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-theme-text-secondary">Enable Timer</label>
-                  <p className="text-xs text-theme-text-tertiary">Add a time limit for the quiz</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={localData.timerEnabled || false}
-                    onChange={(e) => handleInputChange('timerEnabled', e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-theme-bg-tertiary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-theme-border-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-theme-bg-primary after:border-theme-border-primary after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"></div>
-                </label>
-              </div>
+              <Switch
+                checked={localData.timerEnabled || false}
+                onChange={(checked) => handleInputChange('timerEnabled', checked)}
+                label="Enable Timer"
+                description="Add a time limit for the quiz"
+              />
 
               {localData.timerEnabled && (
                 <div className="mb-4">
