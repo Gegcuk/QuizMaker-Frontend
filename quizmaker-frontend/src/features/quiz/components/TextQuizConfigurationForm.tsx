@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
-import { Button, Input, useToast, Dropdown } from '@/components';
+import { Button, Input, useToast, Dropdown, Textarea } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface TextQuizConfigurationFormProps {
@@ -214,19 +214,17 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Text Content</h4>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Text Content *
-            </label>
-            <textarea
+            <Textarea
+              label="Text Content *"
               value={generationConfig.text}
               onChange={(e) => handleGenerationConfigChange('text', e.target.value)}
               rows={8}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
               placeholder="Paste your text content here. The AI will analyze it and generate relevant questions..."
+              showCharCount
+              maxLength={300000}
+              helperText="The AI will analyze your text and generate relevant questions"
+              fullWidth
             />
-            <p className="text-sm text-theme-text-tertiary mt-1">
-              {generationConfig.text.length} characters (max 300,000)
-            </p>
           </div>
 
         </div>

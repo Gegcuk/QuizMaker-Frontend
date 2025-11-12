@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentConfigDto as DocumentConfigType, ChunkingStrategy } from '@/types';
 import { api } from '@/services';
+import { Button, Dropdown, Input } from '@/components';
 
 interface DocumentConfigProps {
   onConfigChange?: (config: Partial<DocumentConfigType>) => void;
@@ -146,12 +147,12 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           <p className="text-theme-text-secondary">Configure document processing settings</p>
         </div>
         {!isEditing && (
-          <button
+          <Button
+            variant="primary"
             onClick={() => setIsEditing(true)}
-            className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 transition-colors"
           >
             Edit Configuration
-          </button>
+          </Button>
         )}
       </div>
 
@@ -238,65 +239,54 @@ const DocumentConfig: React.FC<DocumentConfigProps> = ({
           
           <div className="space-y-4">
             {/* Chunking Strategy */}
-            <div>
-              <label className="block text-sm font-medium text-theme-interactive-warning mb-2">
-                Default Chunking Strategy
-              </label>
-              <select
-                value={editConfig.defaultStrategy || config.defaultStrategy}
-                onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
-                  ...prev,
-                  defaultStrategy: e.target.value as ChunkingStrategy
-                }))}
-                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary"
-              >
-                <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto - Best Strategy</option>
-                <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
-                <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section Based</option>
-                <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
-                <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
-              </select>
-              <p className="mt-1 text-xs text-theme-interactive-warning">
-                {getChunkingStrategyDescription((editConfig.defaultStrategy || config.defaultStrategy) as ChunkingStrategy)}
-              </p>
-            </div>
+            <Dropdown
+              label="Default Chunking Strategy"
+              value={editConfig.defaultStrategy || config.defaultStrategy}
+              onChange={(value) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
+                ...prev,
+                defaultStrategy: value as ChunkingStrategy
+              }))}
+              options={[
+                { label: 'Auto - Best Strategy', value: 'AUTO' },
+                { label: 'Chapter Based', value: 'CHAPTER_BASED' },
+                { label: 'Section Based', value: 'SECTION_BASED' },
+                { label: 'Size Based', value: 'SIZE_BASED' },
+                { label: 'Page Based', value: 'PAGE_BASED' }
+              ]}
+              helperText={getChunkingStrategyDescription((editConfig.defaultStrategy || config.defaultStrategy) as ChunkingStrategy)}
+              fullWidth
+            />
 
             {/* Max Chunk Size */}
-            <div>
-              <label className="block text-sm font-medium text-theme-interactive-warning mb-2">
-                Default Max Chunk Size (characters)
-              </label>
-              <input
-                type="number"
-                value={editConfig.defaultMaxChunkSize || config.defaultMaxChunkSize}
-                onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
-                  ...prev,
-                  defaultMaxChunkSize: parseInt(e.target.value) || config.defaultMaxChunkSize
-                }))}
-                min="100"
-                max="10000"
-                className="w-full px-3 py-2 border border-theme-border-warning rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning focus:border-theme-border-warning bg-theme-bg-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-              />
-              <p className="mt-1 text-xs text-theme-interactive-warning">
-                Recommended: 500-2000 characters for optimal quiz generation
-              </p>
-            </div>
+            <Input
+              type="number"
+              value={editConfig.defaultMaxChunkSize || config.defaultMaxChunkSize}
+              onChange={(e) => setEditConfig((prev: Partial<DocumentConfigType>) => ({
+                ...prev,
+                defaultMaxChunkSize: parseInt(e.target.value) || config.defaultMaxChunkSize
+              }))}
+              min={100}
+              max={10000}
+              label="Default Max Chunk Size (characters)"
+              helperText="Recommended: 500-2000 characters for optimal quiz generation"
+              fullWidth
+            />
           </div>
 
           {/* Action Buttons */}
           <div className="mt-4 flex space-x-3">
-            <button
+            <Button
+              variant="success"
               onClick={handleSave}
-              className="px-4 py-2 bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success focus:ring-offset-2 transition-colors"
             >
               Save Changes
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
               onClick={handleCancel}
-              className="px-4 py-2 bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:ring-offset-2 transition-colors"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

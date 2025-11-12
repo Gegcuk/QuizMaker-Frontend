@@ -8,7 +8,7 @@ import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 import { QuestionService } from '@/services';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 import { getDifficultyBadgeVariant } from '@/utils/statusHelpers';
-import { Spinner, Badge, Button } from '@/components';
+import { Spinner, Badge, Button, Input, Dropdown, Checkbox, Alert } from '@/components';
 import { api } from '@/services';
 
 interface QuestionBankProps {
@@ -124,52 +124,48 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       <div className="px-6 py-4 border-b border-theme-border-primary bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
-          <div>
-            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Search</label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search questions..."
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-            />
-          </div>
+          <Input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search questions..."
+            label="Search"
+            fullWidth
+          />
 
           {/* Type Filter */}
-          <div>
-            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Type</label>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value as QuestionType | 'ALL')}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
-              <option value="MCQ_SINGLE" className="bg-theme-bg-primary text-theme-text-primary">Single Choice</option>
-              <option value="MCQ_MULTI" className="bg-theme-bg-primary text-theme-text-primary">Multiple Choice</option>
-              <option value="TRUE_FALSE" className="bg-theme-bg-primary text-theme-text-primary">True/False</option>
-              <option value="OPEN" className="bg-theme-bg-primary text-theme-text-primary">Open Ended</option>
-              <option value="FILL_GAP" className="bg-theme-bg-primary text-theme-text-primary">Fill in the Blank</option>
-              <option value="COMPLIANCE" className="bg-theme-bg-primary text-theme-text-primary">Compliance</option>
-              <option value="ORDERING" className="bg-theme-bg-primary text-theme-text-primary">Ordering</option>
-              <option value="HOTSPOT" className="bg-theme-bg-primary text-theme-text-primary">Hotspot</option>
-              <option value="MATCHING" className="bg-theme-bg-primary text-theme-text-primary">Matching</option>
-            </select>
-          </div>
+          <Dropdown
+            value={selectedType}
+            onChange={(value) => setSelectedType(value as QuestionType | 'ALL')}
+            options={[
+              { label: 'All Types', value: 'ALL' },
+              { label: 'Single Choice', value: 'MCQ_SINGLE' },
+              { label: 'Multiple Choice', value: 'MCQ_MULTI' },
+              { label: 'True/False', value: 'TRUE_FALSE' },
+              { label: 'Open Ended', value: 'OPEN' },
+              { label: 'Fill in the Blank', value: 'FILL_GAP' },
+              { label: 'Compliance', value: 'COMPLIANCE' },
+              { label: 'Ordering', value: 'ORDERING' },
+              { label: 'Hotspot', value: 'HOTSPOT' },
+              { label: 'Matching', value: 'MATCHING' }
+            ]}
+            label="Type"
+            fullWidth
+          />
 
           {/* Difficulty Filter */}
-          <div>
-            <label className="block text-sm font-medium text-theme-text-secondary mb-1">Difficulty</label>
-            <select
-              value={selectedDifficulty}
-              onChange={(e) => setSelectedDifficulty(e.target.value as QuestionDifficulty | 'ALL')}
-              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
-              <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-              <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-              <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-            </select>
-          </div>
+          <Dropdown
+            value={selectedDifficulty}
+            onChange={(value) => setSelectedDifficulty(value as QuestionDifficulty | 'ALL')}
+            options={[
+              { label: 'All Difficulties', value: 'ALL' },
+              { label: 'Easy', value: 'EASY' },
+              { label: 'Medium', value: 'MEDIUM' },
+              { label: 'Hard', value: 'HARD' }
+            ]}
+            label="Difficulty"
+            fullWidth
+          />
 
           {/* Clear Filters */}
           <div className="flex items-end">
@@ -192,17 +188,10 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="px-6 py-4 bg-theme-bg-danger border-b border-theme-border-danger">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-text-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-text-danger">{error}</p>
-            </div>
-          </div>
+        <div className="px-6 py-4 border-b border-theme-border-primary">
+          <Alert type="error" dismissible onDismiss={() => setError(null)}>
+            {error}
+          </Alert>
         </div>
       )}
 
@@ -231,13 +220,14 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
               >
                 <div className="flex items-start space-x-4">
                   {/* Selection Checkbox */}
-                  <div className="flex-shrink-0 mt-1">
-                    <input
-                      type="checkbox"
+                  <div 
+                    className="flex-shrink-0 mt-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Checkbox
                       checked={isSelected}
                       onChange={() => handleQuestionSelect(question)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                      onClick={(e) => e.stopPropagation()}
+                      label=""
                     />
                   </div>
 

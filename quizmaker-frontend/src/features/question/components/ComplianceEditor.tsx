@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ComplianceContent, ComplianceStatement } from '@/types';
-import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
+import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer, Textarea, Button, Radio, Checkbox } from '@/components';
 
 interface ComplianceEditorProps {
   content: ComplianceContent;
@@ -91,69 +91,56 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         helperText={`${getCompliantCount()} Compliant • ${getNonCompliantCount()} Non-compliant`}
       >
         {statements.map((statement) => (
-          <div key={statement.id} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary space-y-3">
+          <div key={statement.id} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary space-y-3">
             {/* Statement Text */}
             <div className="flex-1">
-              <textarea
-                data-compliance-statement
+              <Textarea
                 value={statement.text}
-                onChange={(e) => {
-                  updateStatementText(statement.id, e.target.value);
-                  // Auto-resize textarea
-                  e.target.style.height = 'auto';
-                  e.target.style.height = e.target.scrollHeight + 'px';
-                }}
+                onChange={(e) => updateStatementText(statement.id, e.target.value)}
                 placeholder="Enter statement text..."
-                className="block w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 rows={1}
-                style={{ minHeight: '38px' }}
+                minRows={1}
+                autoResize
+                fullWidth
               />
             </div>
 
             {/* Compliance Toggle + Delete Button */}
-            <div className="flex items-center justify-between pl-1">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name={`compliance-${statement.id}`}
-                    id={`compliant-${statement.id}`}
-                    checked={statement.compliant}
-                    onChange={() => updateStatementCompliance(statement.id, true)}
-                    className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                  />
-                  <label htmlFor={`compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium cursor-pointer">
-                    Compliant
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name={`compliance-${statement.id}`}
-                    id={`non-compliant-${statement.id}`}
-                    checked={!statement.compliant}
-                    onChange={() => updateStatementCompliance(statement.id, false)}
-                    className="h-4 w-4 text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                  />
-                  <label htmlFor={`non-compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium cursor-pointer">
-                    Non-compliant
-                  </label>
-                </div>
+            <div className="flex items-start sm:items-center justify-between gap-3 pl-1">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <Radio
+                  id={`compliant-${statement.id}`}
+                  name={`compliance-${statement.id}`}
+                  value="compliant"
+                  checked={statement.compliant}
+                  onChange={() => updateStatementCompliance(statement.id, true)}
+                  label="Compliant"
+                />
+                <Radio
+                  id={`non-compliant-${statement.id}`}
+                  name={`compliance-${statement.id}`}
+                  value="non-compliant"
+                  checked={!statement.compliant}
+                  onChange={() => updateStatementCompliance(statement.id, false)}
+                  label="Non-compliant"
+                />
               </div>
 
               {/* Remove Button */}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => removeStatement(statement.id)}
                 disabled={statements.length <= 2}
-                className="text-theme-text-danger hover:text-theme-text-danger disabled:text-theme-text-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger rounded"
+                className="!text-theme-interactive-danger hover:!text-theme-interactive-danger disabled:!text-theme-text-tertiary"
                 title="Remove statement"
                 aria-label={`Remove statement ${statement.id}`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                }
+              />
             </div>
           </div>
         ))}
@@ -173,11 +160,13 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         <p>How it will appear:</p>
         <div className="mt-2 space-y-2">
           {statements.map((statement) => (
-            <div key={statement.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
-              <input
-                type="checkbox"
+            <div key={statement.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary">
+              <Checkbox
                 disabled
-                className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded mt-1 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
+                checked={false}
+                onChange={() => {}}
+                label=""
+                className="mt-1"
               />
               <span className="text-sm">
                 {statement.text || `Statement ${statement.id}`}

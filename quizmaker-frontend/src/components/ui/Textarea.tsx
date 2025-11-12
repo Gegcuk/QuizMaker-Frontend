@@ -36,7 +36,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   const internalRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
-  const baseClasses = 'block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed resize-y';
+  const baseClasses = 'block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed resize-y min-h-[44px]';
   
   const variantClasses = {
     default: 'border-theme-border-primary bg-theme-bg-primary',
@@ -67,11 +67,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
     const adjustHeight = () => {
       textarea.style.height = 'auto';
       
-      let newHeight = textarea.scrollHeight;
+      // Add a small buffer (2px) to prevent scrollbar on single-line content
+      let newHeight = textarea.scrollHeight + 2;
       
       if (minRows) {
         const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
-        const minHeight = lineHeight * minRows;
+        const minHeight = lineHeight * minRows + 2;
         newHeight = Math.max(newHeight, minHeight);
       }
       
@@ -90,7 +91,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (autoResize && textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      // Add a small buffer (2px) to prevent scrollbar
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 2}px`;
     }
     
     if (onChange) {

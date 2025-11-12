@@ -173,7 +173,9 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
   const getPercentageCoordinates = (x: number, y: number, width: number, height: number) => {
     const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0, width: 0, height: 0 };
+    if (!canvas || canvas.width === 0 || canvas.height === 0) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
 
     return {
       x: (x / canvas.width) * 100,
@@ -296,14 +298,14 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       </div>
 
       {/* Selection Details */}
-      {selectedRegion && (
+      {selectedRegion && selectedRegion.x !== undefined && selectedRegion.y !== undefined && (
         <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
           <div className="text-sm text-theme-interactive-primary">
             <strong>Selected Region:</strong>
             <div className="mt-1 text-xs">
-              X: {selectedRegion.x.toFixed(1)}%, Y: {selectedRegion.y.toFixed(1)}%
+              X: {(selectedRegion.x ?? 0).toFixed(1)}%, Y: {(selectedRegion.y ?? 0).toFixed(1)}%
               <br />
-              Width: {selectedRegion.width.toFixed(1)}%, Height: {selectedRegion.height.toFixed(1)}%
+              Width: {(selectedRegion.width ?? 0).toFixed(1)}%, Height: {(selectedRegion.height ?? 0).toFixed(1)}%
             </div>
           </div>
         </div>
