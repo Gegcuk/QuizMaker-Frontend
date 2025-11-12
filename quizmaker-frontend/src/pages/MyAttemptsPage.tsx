@@ -56,7 +56,7 @@ const MyAttemptsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [pageSize] = useState(10);
   
   // Filter dropdown state
   const [isFilterOpen, setIsFilterOpen] = useState(false);

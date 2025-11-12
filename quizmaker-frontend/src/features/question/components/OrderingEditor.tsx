@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OrderingContent, OrderingItem } from '@/types';
-import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
+import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer, Textarea, Button } from '@/components';
 
 interface OrderingEditorProps {
   content: OrderingContent;
@@ -95,36 +95,35 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
               <div key={item.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
                 {/* Item Text */}
                 <div className="flex-1">
-                  <textarea
+                  <Textarea
                     data-ordering-item
                     value={item.text}
                     onChange={(e) => {
                       updateItemText(item.id, e.target.value);
-                      // Auto-resize textarea
-                      e.target.style.height = 'auto';
-                      e.target.style.height = e.target.scrollHeight + 'px';
                     }}
                     placeholder="Enter item text..."
-                    className="block w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                     rows={1}
-                    style={{ minHeight: '38px' }}
+                    fullWidth
+                    className="!min-h-[38px]"
                   />
                 </div>
 
                 {/* Remove Button */}
                 <div className="flex-shrink-0 mt-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => removeItem(item.id)}
                     disabled={items.length <= 2}
-                    className="text-theme-text-danger hover:text-theme-text-danger disabled:text-theme-text-tertiary disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-danger rounded"
+                    variant="ghost"
+                    size="sm"
+                    className="!p-1 !min-w-0 !text-theme-interactive-danger hover:!text-theme-interactive-danger disabled:!text-theme-text-tertiary"
                     title="Remove item"
                     aria-label="Remove item"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}

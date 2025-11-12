@@ -111,30 +111,26 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
       {/* View Toggle */}
       <div className="flex justify-center">
         <div className="bg-theme-bg-tertiary rounded-lg p-1">
-          <button
+          <Button
             type="button"
             onClick={() => setActiveView('questions')}
-            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeView === 'questions'
-                ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                : 'text-theme-text-secondary hover:text-theme-text-primary'
-            }`}
+            variant={activeView === 'questions' ? 'primary' : 'ghost'}
+            size="md"
+            leftIcon={<QuestionMarkCircleIcon className="w-4 h-4" />}
+            className="!rounded-md"
           >
-            <QuestionMarkCircleIcon className="w-4 h-4 mr-2" />
             Questions ({selectedQuestionIds.length})
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setActiveView('preview')}
-            className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeView === 'preview'
-                ? 'bg-theme-bg-primary text-theme-text-primary shadow-sm'
-                : 'text-theme-text-secondary hover:text-theme-text-primary'
-            }`}
+            variant={activeView === 'preview' ? 'primary' : 'ghost'}
+            size="md"
+            leftIcon={<EyeIcon className="w-4 h-4" />}
+            className="!rounded-md"
           >
-            <EyeIcon className="w-4 h-4 mr-2" />
             Preview
-          </button>
+          </Button>
         </div>
       </div>
 

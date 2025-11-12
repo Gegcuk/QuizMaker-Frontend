@@ -42,7 +42,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [filters, setFilters] = useState<FilterOptions>({});
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(10);
 
   // Bulk selection
   const [selectedQuizzes, setSelectedQuizzes] = useState<string[]>([]);

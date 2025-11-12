@@ -41,7 +41,7 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
   const [filters, setFilters] = useState<FilterOptions>({});
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(10);
 
   // Cleanup: Reset modal states on route change
   useEffect(() => {

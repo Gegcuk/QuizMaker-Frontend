@@ -6,6 +6,7 @@
 import React from 'react';
 import { QuizDto } from '@/types';
 import { QuizCard } from './';
+import { Checkbox } from '@/components';
 
 interface QuizGridProps {
   quizzes: QuizDto[];
@@ -76,16 +77,12 @@ const QuizGrid: React.FC<QuizGridProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Select All Checkbox */}
       {onSelectAll && (
-        <div className="flex items-center space-x-2 mb-4">
-          <input
-            type="checkbox"
+        <div className="mb-4">
+          <Checkbox
             checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
-            onChange={(e) => onSelectAll(e.target.checked)}
-            className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded"
+            onChange={onSelectAll}
+            label={`Select All (${selectedQuizzes.length}/${quizzes.length})`}
           />
-          <label className="text-sm font-medium text-theme-text-secondary">
-            Select All ({selectedQuizzes.length}/{quizzes.length})
-          </label>
         </div>
       )}
       

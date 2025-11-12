@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { QuestionDto, QuestionType, QuestionDifficulty } from '@/types';
 // TODO: Implement getQuestionAnalytics in question.service.ts
 // import { getQuestionAnalytics } from '../../api/question.service';
-import { Spinner } from '@/components';
+import { Spinner, Dropdown, Alert } from '@/components';
 
 interface QuestionAnalyticsProps {
   questionId?: string; // If provided, show analytics for specific question
@@ -136,18 +136,9 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           <h3 className="text-lg font-medium text-theme-text-primary">Question Analytics</h3>
         </div>
         <div className="px-6 py-12 text-center">
-          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-theme-interactive-danger">{error || 'No analytics data available'}</p>
-              </div>
-            </div>
-          </div>
+          <Alert type="error">
+            {error || 'No analytics data available'}
+          </Alert>
         </div>
       </div>
     );
@@ -166,16 +157,17 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
-            <select
+            <Dropdown
               value={selectedTimeRange}
-              onChange={(e) => setSelectedTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y')}
-              className="border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="7d" className="bg-theme-bg-primary text-theme-text-primary">Last 7 days</option>
-              <option value="30d" className="bg-theme-bg-primary text-theme-text-primary">Last 30 days</option>
-              <option value="90d" className="bg-theme-bg-primary text-theme-text-primary">Last 90 days</option>
-              <option value="1y" className="bg-theme-bg-primary text-theme-text-primary">Last year</option>
-            </select>
+              onChange={(value) => setSelectedTimeRange((Array.isArray(value) ? value[0] : value) as '7d' | '30d' | '90d' | '1y')}
+              options={[
+                { label: 'Last 7 days', value: '7d' },
+                { label: 'Last 30 days', value: '30d' },
+                { label: 'Last 90 days', value: '90d' },
+                { label: 'Last year', value: '1y' }
+              ]}
+              size="sm"
+            />
           </div>
         </div>
       </div>

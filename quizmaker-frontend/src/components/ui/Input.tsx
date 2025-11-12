@@ -10,6 +10,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   size?: 'sm' | 'md' | 'lg';
   variant?: 'default' | 'filled' | 'outlined';
   fullWidth?: boolean;
+  hideNumberSpinners?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(({
@@ -22,6 +23,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   size = 'md',
   variant = 'default',
   fullWidth = false,
+  hideNumberSpinners = false,
   className = '',
   id,
   onChange,
@@ -32,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   const internalRef = useRef<HTMLInputElement>(null);
   const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
   
-  const isNumberInput = props.type === 'number';
+  const isNumberInput = props.type === 'number' && !hideNumberSpinners;
 
   const baseClasses = 'block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]';
   

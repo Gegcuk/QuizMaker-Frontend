@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { QuestionDto, OpenContent } from '@/types';
+import { Textarea } from '@/components';
 
 interface OpenQuestionProps {
   question: QuestionDto;
@@ -34,17 +35,15 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
       {/* Answer Input */}
       <div className="space-y-4">
         <div>
-          <label htmlFor="open-answer" className="block text-sm font-medium text-theme-text-secondary mb-2">
-            Your Answer
-          </label>
-          <textarea
+          <Textarea
             id="open-answer"
+            label="Your Answer"
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(e.target.value)}
             placeholder="Enter your answer here..."
             disabled={disabled}
-            className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
             rows={6}
+            fullWidth
           />
           <p className="mt-1 text-sm text-theme-text-tertiary">
             Provide a detailed answer to the question above.

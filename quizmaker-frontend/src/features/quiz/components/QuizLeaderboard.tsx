@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { LeaderboardEntryDto } from '@/types';
-import { Badge } from '@/components';
+import { Badge, Button } from '@/components';
 import { getScoreStatus } from '@/utils/statusHelpers';
 
 interface QuizLeaderboardProps {
@@ -131,12 +131,14 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
             <h3 className="text-lg font-medium text-theme-text-primary">Leaderboard</h3>
           </div>
           {entries.length > 10 && (
-            <button
+            <Button
               onClick={() => setShowTop10(!showTop10)}
-              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
+              variant="ghost"
+              size="sm"
+              className="!text-sm !p-0 hover:underline"
             >
               {showTop10 ? 'Show All' : 'Show Top 10'}
-            </button>
+            </Button>
           )}
         </div>
         <p className="mt-1 text-sm text-theme-text-tertiary">
@@ -195,12 +197,14 @@ const QuizLeaderboard: React.FC<QuizLeaderboardProps> = ({
         {/* Show More Button */}
         {showTop10 && entries.length > 10 && (
           <div className="mt-4 text-center">
-            <button
+            <Button
               onClick={() => setShowTop10(false)}
-              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary font-medium"
+              variant="ghost"
+              size="sm"
+              className="!text-sm !p-0 hover:underline"
             >
               Show all {entries.length} participants
-            </button>
+            </Button>
           </div>
         )}
 

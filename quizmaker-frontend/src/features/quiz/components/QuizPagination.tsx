@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Button, Dropdown } from '@/components';
+import { Button, Dropdown, Input } from '@/components';
 
 interface PaginationInfo {
   pageNumber: number;
@@ -82,7 +82,7 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
                   { value: '100', label: '100' }
                 ]}
                 value={String(pageSize)}
-                onChange={(value) => onPageSizeChange(Number(value))}
+                onChange={(value) => onPageSizeChange(Number(Array.isArray(value) ? value[0] : value))}
                 size="sm"
               />
             </div>
@@ -170,19 +170,21 @@ const QuizPagination: React.FC<QuizPaginationProps> = ({
         <label htmlFor="jump-page" className="text-sm text-theme-text-secondary">
           Jump to:
         </label>
-        <input
+        <Input
           type="number"
           id="jump-page"
           min={1}
           max={totalPages}
-          value={pageNumber}
+          value={String(pageNumber)}
           onChange={(e) => {
             const page = Number(e.target.value);
             if (page >= 1 && page <= totalPages) {
               onPageChange(page);
             }
           }}
-          className="w-16 border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+          size="sm"
+          hideNumberSpinners
+          className="!w-16"
         />
         <span className="text-sm text-theme-text-secondary">of {totalPages}</span>
       </div>
