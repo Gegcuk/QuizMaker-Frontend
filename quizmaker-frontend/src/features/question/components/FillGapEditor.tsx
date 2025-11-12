@@ -44,6 +44,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
   };
 
   const insertGapMarker = () => {
+    if (gaps.length >= 3) return; // Maximum 3 gaps allowed
     const gapId = gaps.length + 1;
     const gapMarker = `{${gapId}}`;
     setText(prev => prev + gapMarker);
@@ -66,8 +67,8 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       <div className="flex items-center justify-between">
         <p className="text-sm text-theme-text-tertiary">Create text with gaps to fill</p>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-theme-text-tertiary">
-            {getGapCount()} gap{getGapCount() !== 1 ? 's' : ''}
+          <span className={`text-sm ${getGapCount() >= 3 ? 'text-theme-interactive-warning font-medium' : 'text-theme-text-tertiary'}`}>
+            {getGapCount()}/3 gap{getGapCount() !== 1 ? 's' : ''}
           </span>
           {getMissingAnswers().length > 0 && (
             <span className="text-xs text-theme-text-danger">
@@ -81,28 +82,29 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       <div className="bg-theme-bg-secondary rounded-lg p-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="gap-text" className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Question Text <span className="text-theme-text-danger">*</span>
-            </label>
-            <div className="relative">
-              <textarea
-                id="gap-text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with {1}, {2}, etc."
-                className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
-                rows={6}
-                required
-              />
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="gap-text" className="block text-sm font-medium text-theme-text-secondary">
+                Question Text <span className="text-theme-text-danger">*</span>
+              </label>
               <button
                 type="button"
                 onClick={insertGapMarker}
-                className="absolute top-2 right-2 inline-flex items-center px-2 py-1 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary"
-                title="Insert gap marker"
+                disabled={gaps.length >= 3}
+                className="inline-flex items-center px-3 py-1.5 border border-theme-border-primary rounded-md shadow-sm text-xs font-medium text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-theme-bg-primary"
+                title={gaps.length >= 3 ? 'Maximum 3 gaps allowed' : 'Insert gap marker'}
               >
                 Add Gap
               </button>
             </div>
+            <textarea
+              id="gap-text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with {1}, {2}, etc."
+              className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
+              rows={6}
+              required
+            />
             <div className="flex items-center gap-2 mt-1">
               <p className="text-sm text-theme-text-tertiary flex-1">
                 Use {'{1}'}, {'{2}'}, etc. to mark gaps. Each gap will appear as a blank input field.
