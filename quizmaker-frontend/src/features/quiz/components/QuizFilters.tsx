@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { QuizSearchCriteria, Difficulty } from '@/types';
 import { useQuizMetadata } from '@/features/quiz/hooks/useQuizMetadataQueries';
-import { Badge } from '@/components';
+import { Badge, Button, Input, Dropdown, Checkbox } from '@/components';
 
 interface QuizFiltersProps {
   filters: QuizSearchCriteria;
@@ -71,22 +71,26 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             {hasActiveFilters && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={onClearFilters}
-                className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary font-medium"
               >
                 Clear All
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-theme-text-secondary hover:text-theme-text-tertiary flex items-center"
+              rightIcon={
+                <svg className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              }
             >
-              <svg className={`w-4 h-4 mr-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
               {isExpanded ? 'Hide' : 'Show'} Advanced
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -94,52 +98,41 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
       {/* Basic Filters */}
       <div className="px-6 py-4 space-y-4">
         {/* Search */}
-        <div>
-          <label htmlFor="search" className="block text-sm font-medium text-theme-text-secondary mb-1">
-            Search
-          </label>
-          <input
-            type="text"
-            id="search"
-            value={filters.search || ''}
-            onChange={(e) => handleInputChange('search', e.target.value)}
-            placeholder="Search by title or description..."
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-          />
-        </div>
+        <Input
+          type="text"
+          id="search"
+          label="Search"
+          value={filters.search || ''}
+          onChange={(e) => handleInputChange('search', e.target.value)}
+          placeholder="Search by title or description..."
+          fullWidth
+        />
 
         {/* Difficulty */}
-        <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium text-theme-text-secondary mb-1">
-            Difficulty
-          </label>
-          <select
-            id="difficulty"
-            value={filters.difficulty || ''}
-            onChange={(e) => handleInputChange('difficulty', e.target.value || undefined)}
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-          >
-            <option value="" className="bg-theme-bg-primary text-theme-text-primary">All Difficulties</option>
-            <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-            <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-            <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-          </select>
-        </div>
+        <Dropdown
+          id="difficulty"
+          label="Difficulty"
+          value={filters.difficulty || ''}
+          onChange={(value) => handleInputChange('difficulty', (typeof value === 'string' ? value : value[0]) || undefined)}
+          options={[
+            { label: 'All Difficulties', value: '' },
+            { label: 'Easy', value: 'EASY' },
+            { label: 'Medium', value: 'MEDIUM' },
+            { label: 'Hard', value: 'HARD' }
+          ]}
+          fullWidth
+        />
 
         {/* Author Name */}
-        <div>
-          <label htmlFor="authorName" className="block text-sm font-medium text-theme-text-secondary mb-1">
-            Author
-          </label>
-          <input
-            type="text"
-            id="authorName"
-            value={filters.authorName || ''}
-            onChange={(e) => handleInputChange('authorName', e.target.value)}
-            placeholder="Filter by author username..."
-            className="w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-          />
-        </div>
+        <Input
+          type="text"
+          id="authorName"
+          label="Author"
+          value={filters.authorName || ''}
+          onChange={(e) => handleInputChange('authorName', e.target.value)}
+          placeholder="Filter by author username..."
+          fullWidth
+        />
       </div>
 
       {/* Advanced Filters */}
@@ -162,15 +155,12 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             ) : (
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {categories.map((category) => (
-                  <label key={category.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={(filters.category || []).includes(category.name)}
-                      onChange={(e) => handleArrayChange('category', category.name, e.target.checked)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">{category.name}</span>
-                  </label>
+                  <Checkbox
+                    key={category.id}
+                    checked={(filters.category || []).includes(category.name)}
+                    onChange={(e) => handleArrayChange('category', category.name, e.target.checked)}
+                    label={category.name}
+                  />
                 ))}
                 {categories.length === 0 && (
                   <p className="text-sm text-theme-text-tertiary">No categories available</p>
@@ -196,15 +186,12 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
             ) : (
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {tags.map((tag) => (
-                  <label key={tag.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={(filters.tag || []).includes(tag.name)}
-                      onChange={(e) => handleArrayChange('tag', tag.name, e.target.checked)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                    />
-                    <span className="ml-2 text-sm text-theme-text-secondary">#{tag.name}</span>
-                  </label>
+                  <Checkbox
+                    key={tag.id}
+                    checked={(filters.tag || []).includes(tag.name)}
+                    onChange={(e) => handleArrayChange('tag', tag.name, e.target.checked)}
+                    label={`#${tag.name}`}
+                  />
                 ))}
                 {tags.length === 0 && (
                   <p className="text-sm text-theme-text-tertiary">No tags available</p>
@@ -220,12 +207,13 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
         <div className="px-6 py-3 bg-theme-bg-secondary border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-theme-text-secondary">Active Filters:</span>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onClearFilters}
-              className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary"
             >
               Clear All
-            </button>
+            </Button>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {filters.search && (

@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Input, Button, Dropdown } from '@/components';
+import { Input, Button, Dropdown, Textarea, Checkbox } from '@/components';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
 import { TagDto } from '@/types';
 import { CategoryDto } from '@/types';
@@ -273,29 +273,19 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
           </div>
 
           {/* Quiz Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-theme-text-secondary">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={4}
-              value={quizData.description || ''}
-              onChange={handleInputChange}
-              placeholder="Enter quiz description (optional)..."
-              className={`mt-1 block w-full border rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm ${
-                combinedErrors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
-              }`}
-              disabled={!isEditing}
-            />
-            {combinedErrors.description && (
-              <p className="mt-1 text-sm text-theme-interactive-danger">{combinedErrors.description}</p>
-            )}
-            <p className="mt-1 text-xs text-theme-text-tertiary">
-              {quizData.description?.length || 0}/1000 characters
-            </p>
-          </div>
+          <Textarea
+            id="description"
+            name="description"
+            rows={4}
+            value={quizData.description || ''}
+            onChange={handleInputChange}
+            placeholder="Enter quiz description (optional)..."
+            label="Description"
+            disabled={!isEditing}
+            error={combinedErrors.description}
+            showCharCount
+            maxLength={1000}
+          />
         </div>
 
         {/* Settings Section */}
@@ -373,15 +363,17 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                       >
                         #{tag.name}
                         {isEditing && (
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleTagToggle(tag.id)}
-                            className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary rounded-full"
+                            className="ml-1 !p-0 !min-w-0 !w-auto"
                             aria-label={`Remove tag ${tag.name}`}
                             title={`Remove tag ${tag.name}`}
                           >
                             ×
-                          </button>
+                          </Button>
                         )}
                       </span>
                     ))}
@@ -422,17 +414,19 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                       )}
                     </div>
                     {isEditing && (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleCategorySelect(undefined)}
-                        className="text-theme-text-tertiary hover:text-theme-text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary rounded"
+                        className="!p-1 !min-w-0 !w-auto"
                         aria-label={`Clear category ${selectedCategory.name}`}
                         title={`Clear category ${selectedCategory.name}`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ) : (
@@ -476,13 +470,15 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                    <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
                      Select Tags
                    </h3>
-                   <button
+                   <Button
                      type="button"
+                     variant="ghost"
+                     size="sm"
                      onClick={() => setShowCreateTagForm(!showCreateTagForm)}
-                     className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover"
+                     className="!p-1 text-sm"
                    >
                      {showCreateTagForm ? 'Cancel' : '+ New Tag'}
-                   </button>
+                   </Button>
                  </div>
 
                  {/* Create Tag Form */}
@@ -500,19 +496,15 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                            fullWidth
                          />
                        </div>
-                       <div>
-                         <label htmlFor="new-tag-description" className="block text-sm font-medium text-theme-text-secondary">
-                           Description
-                         </label>
-                         <textarea
-                           id="new-tag-description"
-                           value={newTagDescription}
-                           onChange={(e) => setNewTagDescription(e.target.value)}
-                           placeholder="Enter tag description..."
-                           rows={2}
-                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                         />
-                       </div>
+                       <Textarea
+                         id="new-tag-description"
+                         value={newTagDescription}
+                         onChange={(e) => setNewTagDescription(e.target.value)}
+                         placeholder="Enter tag description..."
+                         rows={2}
+                         label="Description"
+                         fullWidth
+                       />
                        <div className="flex space-x-2">
                          <Button
                            type="button"
@@ -543,20 +535,20 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
                  <div className="max-h-60 overflow-y-auto space-y-2">
                   {availableTags.map(tag => (
-                    <label key={tag.id} className="flex items-center p-2 hover:bg-theme-bg-secondary rounded cursor-pointer">
-                      <input
-                        type="checkbox"
+                    <div key={tag.id} className="p-2 hover:bg-theme-bg-secondary rounded">
+                      <Checkbox
                         checked={(quizData.tagIds || []).includes(tag.id)}
                         onChange={() => handleTagToggle(tag.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                        label={
+                          <div>
+                            <p className="text-sm font-medium text-theme-text-primary">#{tag.name}</p>
+                            {tag.description && (
+                              <p className="text-xs text-theme-text-secondary">{tag.description}</p>
+                            )}
+                          </div>
+                        }
                       />
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-theme-text-primary">#{tag.name}</p>
-                        {tag.description && (
-                          <p className="text-xs text-theme-text-secondary">{tag.description}</p>
-                        )}
-                      </div>
-                    </label>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -589,13 +581,15 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                    <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
                      Select Category
                    </h3>
-                   <button
+                   <Button
                      type="button"
+                     variant="ghost"
+                     size="sm"
                      onClick={() => setShowCreateCategoryForm(!showCreateCategoryForm)}
-                     className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover"
+                     className="!p-1 text-sm"
                    >
                      {showCreateCategoryForm ? 'Cancel' : '+ New Category'}
-                   </button>
+                   </Button>
                  </div>
 
                  {/* Create Category Form */}
@@ -613,19 +607,15 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                            fullWidth
                          />
                        </div>
-                       <div>
-                         <label htmlFor="new-category-description" className="block text-sm font-medium text-theme-text-secondary">
-                           Description
-                         </label>
-                         <textarea
-                           id="new-category-description"
-                           value={newCategoryDescription}
-                           onChange={(e) => setNewCategoryDescription(e.target.value)}
-                           placeholder="Enter category description..."
-                           rows={2}
-                           className="mt-1 block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm bg-theme-bg-primary text-theme-text-primary"
-                         />
-                       </div>
+                       <Textarea
+                         id="new-category-description"
+                         value={newCategoryDescription}
+                         onChange={(e) => setNewCategoryDescription(e.target.value)}
+                         placeholder="Enter category description..."
+                         rows={2}
+                         label="Description"
+                         fullWidth
+                       />
                        <div className="flex space-x-2">
                          <Button
                            type="button"
@@ -655,35 +645,33 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
                  )}
 
                  <div className="max-h-60 overflow-y-auto space-y-2">
-                  <label className="flex items-center p-2 hover:bg-theme-bg-secondary rounded cursor-pointer">
-                    <input
-                      type="radio"
-                      name="categorySelection"
+                  <div className="p-2 hover:bg-theme-bg-secondary rounded cursor-pointer" onClick={() => handleCategorySelect(undefined)}>
+                    <Checkbox
                       checked={!quizData.categoryId}
                       onChange={() => handleCategorySelect(undefined)}
-                      className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                      label={
+                        <div>
+                          <p className="text-sm font-medium text-theme-text-primary">No Category</p>
+                          <p className="text-xs text-theme-text-secondary">Don't assign to any category</p>
+                        </div>
+                      }
                     />
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-theme-text-primary">No Category</p>
-                      <p className="text-xs text-theme-text-secondary">Don't assign to any category</p>
-                    </div>
-                  </label>
+                  </div>
                   {availableCategories.map(category => (
-                    <label key={category.id} className="flex items-center p-2 hover:bg-theme-bg-secondary rounded cursor-pointer">
-                      <input
-                        type="radio"
-                        name="categorySelection"
+                    <div key={category.id} className="p-2 hover:bg-theme-bg-secondary rounded cursor-pointer" onClick={() => handleCategorySelect(category.id)}>
+                      <Checkbox
                         checked={quizData.categoryId === category.id}
                         onChange={() => handleCategorySelect(category.id)}
-                        className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                        label={
+                          <div>
+                            <p className="text-sm font-medium text-theme-text-primary">{category.name}</p>
+                            {category.description && (
+                              <p className="text-xs text-theme-text-secondary">{category.description}</p>
+                            )}
+                          </div>
+                        }
                       />
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-theme-text-primary">{category.name}</p>
-                        {category.description && (
-                          <p className="text-xs text-theme-text-secondary">{category.description}</p>
-                        )}
-                      </div>
-                    </label>
+                    </div>
                   ))}
                 </div>
               </div>

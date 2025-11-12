@@ -9,8 +9,9 @@ import {
   TableCellsIcon,
   GlobeAltIcon,
   WrenchScrewdriverIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
-import { Modal, Button } from '@/components';
+import { Modal, Button, Checkbox } from '@/components';
 import { QuizDto, QuizExportFormat } from '@/types';
 
 interface QuizExportModalProps {
@@ -83,26 +84,43 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
               { value: 'XLSX_EDITABLE', label: 'Excel Editable', Icon: TableCellsIcon, desc: 'Spreadsheet format' },
               { value: 'HTML_PRINT', label: 'HTML Print', Icon: GlobeAltIcon, desc: 'Browser printing' },
               { value: 'JSON_EDITABLE', label: 'JSON Editable', Icon: WrenchScrewdriverIcon, desc: 'Full data export' },
-            ].map(({ value, label, Icon, desc }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setFormat(value as any)}
-                className={`
-                  flex flex-col items-start gap-2 p-3 rounded-lg border-2 transition-all
-                  ${format === value
-                    ? 'border-theme-interactive-primary bg-theme-bg-secondary text-theme-text-primary'
-                    : 'border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:border-theme-interactive-primary/50'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2">
-                  {(() => { const I = Icon; return <I className="w-5 h-5 text-theme-text-tertiary" />; })()}
-                  <span className="text-sm font-medium">{label}</span>
-                </div>
-                <span className="text-xs text-theme-text-tertiary">{desc}</span>
-              </button>
-            ))}
+            ].map(({ value, label, Icon, desc }) => {
+              const isSelected = format === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormat(value as any)}
+                  className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    isSelected
+                      ? 'bg-theme-bg-secondary border-theme-interactive-primary shadow-md'
+                      : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary hover:shadow-sm'
+                  }`}
+                >
+                  {/* Selected Checkmark - Top Right */}
+                  {isSelected && (
+                    <div className="absolute top-2 right-2">
+                      <CheckIcon className="w-5 h-5 text-theme-interactive-primary" strokeWidth={2.5} />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="flex-1 pr-6">
+                    <div className="flex items-start">
+                      {(() => { const I = Icon; return <I className={`w-5 h-5 mr-2 flex-shrink-0 ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}`} />; })()}
+                      <div className="flex-1">
+                        <span className={`text-sm font-medium block ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-primary'}`}>
+                          {label}
+                        </span>
+                        <p className="mt-1 text-xs text-theme-text-tertiary">
+                          {desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -113,83 +131,101 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
               Print Options
             </label>
             <div className="space-y-2">
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('includeCover', !options.includeCover)}
+              >
+                <Checkbox
                   checked={options.includeCover}
-                  onChange={(e) => handleOptionChange('includeCover', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('includeCover', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Include Cover Page</div>
+                      <div className="text-xs text-theme-text-tertiary">Add title page and metadata</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Include Cover Page</div>
-                  <div className="text-xs text-theme-text-tertiary">Add title page and metadata</div>
-                </div>
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('includeMetadata', !options.includeMetadata)}
+              >
+                <Checkbox
                   checked={options.includeMetadata}
-                  onChange={(e) => handleOptionChange('includeMetadata', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('includeMetadata', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Include Metadata</div>
+                      <div className="text-xs text-theme-text-tertiary">Show quiz details and difficulty</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Include Metadata</div>
-                  <div className="text-xs text-theme-text-tertiary">Show quiz details and difficulty</div>
-                </div>
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('answersOnSeparatePages', !options.answersOnSeparatePages)}
+              >
+                <Checkbox
                   checked={options.answersOnSeparatePages}
-                  onChange={(e) => handleOptionChange('answersOnSeparatePages', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('answersOnSeparatePages', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Answers on Separate Pages</div>
+                      <div className="text-xs text-theme-text-tertiary">Print answer key separately</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Answers on Separate Pages</div>
-                  <div className="text-xs text-theme-text-tertiary">Print answer key separately</div>
-                </div>
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('includeHints', !options.includeHints)}
+              >
+                <Checkbox
                   checked={options.includeHints}
-                  onChange={(e) => handleOptionChange('includeHints', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('includeHints', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Include Hints</div>
+                      <div className="text-xs text-theme-text-tertiary">Show question hints</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Include Hints</div>
-                  <div className="text-xs text-theme-text-tertiary">Show question hints</div>
-                </div>
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('includeExplanations', !options.includeExplanations)}
+              >
+                <Checkbox
                   checked={options.includeExplanations}
-                  onChange={(e) => handleOptionChange('includeExplanations', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('includeExplanations', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Include Explanations</div>
+                      <div className="text-xs text-theme-text-tertiary">Show answer explanations</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Include Explanations</div>
-                  <div className="text-xs text-theme-text-tertiary">Show answer explanations</div>
-                </div>
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary cursor-pointer hover:bg-theme-bg-secondary transition-colors">
-                <input
-                  type="checkbox"
+              <div 
+                className="p-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary transition-colors cursor-pointer"
+                onClick={() => handleOptionChange('groupQuestionsByType', !options.groupQuestionsByType)}
+              >
+                <Checkbox
                   checked={options.groupQuestionsByType}
-                  onChange={(e) => handleOptionChange('groupQuestionsByType', e.target.checked)}
-                  className="w-4 h-4 text-theme-interactive-primary border-theme-border-primary rounded focus:ring-theme-interactive-primary"
+                  onChange={(checked) => handleOptionChange('groupQuestionsByType', checked)}
+                  label={
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-primary">Group by Question Type</div>
+                      <div className="text-xs text-theme-text-tertiary">Organize questions by type (MCQ, True/False, etc.)</div>
+                    </div>
+                  }
                 />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-theme-text-primary">Group by Question Type</div>
-                  <div className="text-xs text-theme-text-tertiary">Organize questions by type (MCQ, True/False, etc.)</div>
-                </div>
-              </label>
+              </div>
             </div>
           </div>
         )}

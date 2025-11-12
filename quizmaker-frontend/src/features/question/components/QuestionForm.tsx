@@ -19,7 +19,7 @@ import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
 import { MatchingQuestionForm } from './MatchingQuestionForm';
-import { Spinner, Alert, Dropdown } from '@/components';
+import { Spinner, Alert, Dropdown, Button, Textarea } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 
 interface QuestionFormProps {
@@ -414,28 +414,21 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 )}
 
                              {/* Question Text - Hidden for FILL_GAP as it's part of the content */}
-               {formData.type !== 'FILL_GAP' && (
-                 <div>
-                   <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                     Question Text
-                   </label>
-                   <textarea
-                     value={formData.questionText}
-                     onChange={(e) => handleInputChange('questionText', e.target.value)}
-                     rows={4}
-                     className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
-                     placeholder="Enter your question here..."
-                   />
-                   <p className={`mt-1 text-xs ${
-                     formData.questionText.trim().length < 3 && formData.questionText.length > 0
-                       ? 'text-theme-interactive-danger'
-                       : 'text-theme-text-tertiary'
-                   }`}>
-                     {formData.questionText.length} characters
-                     {formData.questionText.trim().length < 3 && formData.questionText.length > 0 && ' (minimum 3 required)'}
-                   </p>
-                 </div>
-               )}
+              {formData.type !== 'FILL_GAP' && (
+                <Textarea
+                  label="Question Text"
+                  value={formData.questionText}
+                  onChange={(e) => handleInputChange('questionText', e.target.value)}
+                  rows={4}
+                  placeholder="Enter your question here..."
+                  helperText={
+                    formData.questionText.trim().length < 3 && formData.questionText.length > 0
+                      ? `${formData.questionText.length} characters (minimum 3 required)`
+                      : `${formData.questionText.length} characters`
+                  }
+                  error={formData.questionText.trim().length < 3 && formData.questionText.length > 0 ? 'Minimum 3 characters required' : undefined}
+                />
+              )}
 
                {/* Difficulty */}
                <div>
@@ -455,89 +448,93 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
                {/* Hint & Explanation - Collapsible */}
                <div className="space-y-4">
-                 {/* Add Buttons (when both collapsed) */}
-                 {(!showHint || !showExplanation) && (
-                   <div className="flex items-center gap-4">
-                     {!showHint && (
-                       <button
-                         type="button"
-                         onClick={() => setShowHint(true)}
-                         className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
-                       >
-                         <LightBulbIcon className="w-4 h-4 mr-1.5" />
-                         Add hint
-                       </button>
-                     )}
-                     {!showExplanation && (
-                       <button
-                         type="button"
-                         onClick={() => setShowExplanation(true)}
-                         className="inline-flex items-center text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover transition-colors"
-                       >
-                         <QuestionMarkCircleIcon className="w-4 h-4 mr-1.5" />
-                         Add explanation
-                       </button>
-                     )}
-                   </div>
-                 )}
+                {/* Add Buttons (when both collapsed) */}
+                {(!showHint || !showExplanation) && (
+                  <div className="flex items-center gap-4">
+                    {!showHint && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowHint(true)}
+                        leftIcon={<LightBulbIcon className="w-4 h-4" />}
+                      >
+                        Add hint
+                      </Button>
+                    )}
+                    {!showExplanation && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowExplanation(true)}
+                        leftIcon={<QuestionMarkCircleIcon className="w-4 h-4" />}
+                      >
+                        Add explanation
+                      </Button>
+                    )}
+                  </div>
+                )}
 
-                 {/* Hint Field */}
-                 {showHint && (
-                   <div>
-                     <div className="flex items-center justify-between mb-2">
-                       <label className="block text-sm font-medium text-theme-text-secondary">
-                         Hint (Optional)
-                       </label>
-                       <button
-                         type="button"
-                         onClick={() => {
-                           setShowHint(false);
-                           handleInputChange('hint', '');
-                         }}
-                         className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
-                         title="Remove hint"
-                       >
-                         <XMarkIcon className="w-4 h-4" />
-                       </button>
-                     </div>
-                     <textarea
-                       value={formData.hint || ''}
-                       onChange={(e) => handleInputChange('hint', e.target.value)}
-                       rows={2}
-                       className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
-                       placeholder="Provide a hint..."
-                     />
-                   </div>
-                 )}
+                {/* Hint Field */}
+                {showHint && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-theme-text-secondary">
+                        Hint (Optional)
+                      </label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowHint(false);
+                          handleInputChange('hint', '');
+                        }}
+                        className="!p-1 !min-w-0 !w-auto"
+                        title="Remove hint"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={formData.hint || ''}
+                      onChange={(e) => handleInputChange('hint', e.target.value)}
+                      rows={2}
+                      placeholder="Provide a hint..."
+                    />
+                  </div>
+                )}
 
-                 {/* Explanation Field */}
-                 {showExplanation && (
-                   <div>
-                     <div className="flex items-center justify-between mb-2">
-                       <label className="block text-sm font-medium text-theme-text-secondary">
-                         Explanation (Optional)
-                       </label>
-                       <button
-                         type="button"
-                         onClick={() => {
-                           setShowExplanation(false);
-                           handleInputChange('explanation', '');
-                         }}
-                         className="text-theme-text-tertiary hover:text-theme-text-primary transition-colors"
-                         title="Remove explanation"
-                       >
-                         <XMarkIcon className="w-4 h-4" />
-                       </button>
-                     </div>
-                     <textarea
-                       value={formData.explanation || ''}
-                       onChange={(e) => handleInputChange('explanation', e.target.value)}
-                       rows={3}
-                       className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
-                       placeholder="Provide an explanation for the correct answer..."
-                     />
-                   </div>
-                 )}
+                {/* Explanation Field */}
+                {showExplanation && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-theme-text-secondary">
+                        Explanation (Optional)
+                      </label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowExplanation(false);
+                          handleInputChange('explanation', '');
+                        }}
+                        className="!p-1 !min-w-0 !w-auto"
+                        title="Remove explanation"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={formData.explanation || ''}
+                      onChange={(e) => handleInputChange('explanation', e.target.value)}
+                      rows={3}
+                      placeholder="Provide an explanation for the correct answer..."
+                    />
+                  </div>
+                )}
                </div>
 
                 {/* Type-specific Content */}
@@ -747,44 +744,32 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-3">
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={handleCancel}
-            className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
-          </button>
+          </Button>
           {!questionId && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={handleSaveAndAddAnother}
               disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              loading={saving}
             >
-              {saving ? (
-                <>
-                  <Spinner />
-                  <span className="ml-2">Saving...</span>
-                </>
-              ) : (
-                'Save & Add Another'
-              )}
-            </button>
+              Save & Add Another
+            </Button>
           )}
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
-            className="inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={saving}
           >
-            {saving ? (
-              <>
-                <Spinner />
-                <span className="ml-2">Saving...</span>
-              </>
-            ) : (
-              questionId ? 'Update Question' : 'Create Question'
-            )}
-          </button>
+            {questionId ? 'Update Question' : 'Create Question'}
+          </Button>
         </div>
       </form>
     </div>
