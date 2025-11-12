@@ -119,7 +119,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     const escapedText = escapeHtml(text);
     const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    return escapedText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+    return escapedText.replace(regex, '<mark class="bg-theme-bg-warning text-theme-text-primary">$1</mark>');
   };
 
   const formatDate = (dateString: string): string => {
