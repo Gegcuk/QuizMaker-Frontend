@@ -1,6 +1,6 @@
 import React, { forwardRef, useId } from 'react';
 
-export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
+export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type' | 'onChange'> {
   label?: React.ReactNode;
   description?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
