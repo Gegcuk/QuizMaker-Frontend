@@ -3,6 +3,7 @@
 
 // UI Components
 export { default as Badge } from './ui/Badge';
+export { default as Chip } from './ui/Chip';
 export { default as Button } from './ui/Button';
 export { default as Input } from './ui/Input';
 export { default as Checkbox } from './ui/Checkbox';
@@ -26,6 +27,7 @@ export type { HintProps } from './ui/Hint';
 export type { CheckboxProps } from './ui/Checkbox';
 export type { TextareaProps } from './ui/Textarea';
 export type { SwitchProps } from './ui/Switch';
+export type { ChipProps } from './ui/Chip';
 
 // Form Components
 export { default as Form, useFormContext } from './ui/Form';

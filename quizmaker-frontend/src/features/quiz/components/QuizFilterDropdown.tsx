@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Badge } from '@/components';
+import { Button, Badge, Chip } from '@/components';
 
 export interface FilterOptions {
   difficulty?: string[];
@@ -151,16 +151,18 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-theme-text-primary">Filters</h3>
               {activeFiltersCount > 0 && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
                     onClearFilters();
                     setIsOpen(false);
                   }}
-                  className="text-xs text-theme-interactive-primary hover:underline"
+                  className="!text-xs !p-0 hover:underline"
                 >
                   Clear all
-                </button>
+                </Button>
               )}
             </div>
 
@@ -170,23 +172,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                 Difficulty
               </label>
               <div className="flex flex-wrap gap-2">
-                {difficultyOptions.map((option) => {
-                  const isSelected = filters.difficulty?.includes(option.value) || false;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleFilterChange('difficulty', option.value)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                        isSelected
-                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
+                {difficultyOptions.map((option) => (
+                  <Chip
+                    key={option.value}
+                    label={option.label}
+                    selected={filters.difficulty?.includes(option.value) || false}
+                    onClick={() => handleFilterChange('difficulty', option.value)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -197,23 +190,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                   Category
                 </label>
                 <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                  {availableCategories.map((category) => {
-                    const isSelected = filters.category?.includes(category.id) || false;
-                    return (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => handleFilterChange('category', category.id)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                          isSelected
-                            ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                            : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                        }`}
-                      >
-                        {category.name}
-                      </button>
-                    );
-                  })}
+                  {availableCategories.map((category) => (
+                    <Chip
+                      key={category.id}
+                      label={category.name}
+                      selected={filters.category?.includes(category.id) || false}
+                      onClick={() => handleFilterChange('category', category.id)}
+                    />
+                  ))}
                 </div>
               </div>
             )}
@@ -225,23 +209,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                   Tags
                 </label>
                 <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                  {availableTags.map((tag) => {
-                    const isSelected = filters.tags?.includes(tag.id) || false;
-                    return (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => handleFilterChange('tags', tag.id)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                          isSelected
-                            ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                            : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                        }`}
-                      >
-                        {tag.name}
-                      </button>
-                    );
-                  })}
+                  {availableTags.map((tag) => (
+                    <Chip
+                      key={tag.id}
+                      label={tag.name}
+                      selected={filters.tags?.includes(tag.id) || false}
+                      onClick={() => handleFilterChange('tags', tag.id)}
+                    />
+                  ))}
                 </div>
               </div>
             )}
@@ -252,23 +227,14 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                 Status
               </label>
               <div className="flex flex-wrap gap-2">
-                {statusOptions.map((option) => {
-                  const isSelected = filters.status?.includes(option.value) || false;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleFilterChange('status', option.value)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                        isSelected
-                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
+                {statusOptions.map((option) => (
+                  <Chip
+                    key={option.value}
+                    label={option.label}
+                    selected={filters.status?.includes(option.value) || false}
+                    onClick={() => handleFilterChange('status', option.value)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -278,25 +244,16 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
                 Duration
               </label>
               <div className="flex flex-wrap gap-2">
-                {timeRanges.map((range) => {
-                  const isSelected = filters.estimatedTime?.some(
-                    t => t.min === range.min && t.max === range.max
-                  ) || false;
-                  return (
-                    <button
-                      key={range.value}
-                      type="button"
-                      onClick={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-interactive-primary ${
-                        isSelected
-                          ? 'bg-theme-interactive-primary text-white border-theme-interactive-primary'
-                          : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border-primary hover:bg-theme-bg-tertiary'
-                      }`}
-                    >
-                      {range.label}
-                    </button>
-                  );
-                })}
+                {timeRanges.map((range) => (
+                  <Chip
+                    key={range.value}
+                    label={range.label}
+                    selected={filters.estimatedTime?.some(
+                      t => t.min === range.min && t.max === range.max
+                    ) || false}
+                    onClick={() => handleFilterChange('estimatedTime', { min: range.min, max: range.max })}
+                  />
+                ))}
               </div>
             </div>
           </div>
