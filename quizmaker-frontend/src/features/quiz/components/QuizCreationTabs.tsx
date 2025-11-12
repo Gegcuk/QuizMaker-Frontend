@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import QuizForm from './QuizForm';
 import { TextGenerationTab } from './TextGenerationTab';
 import { DocumentUploadTab } from './DocumentUploadTab';
+import { Button } from '@/components';
 
 type TabType = 'manual' | 'text' | 'upload';
 
@@ -51,20 +52,22 @@ export const QuizCreationTabs: React.FC = () => {
         <div className="border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                variant="ghost"
+                size="sm"
                 className={`
-                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                  !whitespace-nowrap !py-4 !px-1 !rounded-none border-b-2 !font-medium !text-sm
                   ${activeTab === tab.id
-                    ? 'border-theme-border-info text-theme-interactive-primary'
-                    : 'border-transparent text-theme-text-tertiary hover:text-theme-text-secondary hover:border-theme-border-primary'
+                    ? 'border-theme-border-info !text-theme-interactive-primary'
+                    : 'border-transparent !text-theme-text-tertiary hover:!text-theme-text-secondary hover:border-theme-border-primary'
                   }
                 `}
               >
                 <span className="mr-2">{tab.icon}</span>
                 {tab.label}
-              </button>
+              </Button>
             ))}
           </nav>
         </div>

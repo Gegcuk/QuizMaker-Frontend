@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
+import { Button } from '@/components';
 
 interface HintDisplayProps {
   hint: string;
@@ -19,16 +20,19 @@ const HintDisplay: React.FC<HintDisplayProps> = ({ hint, className = '' }) => {
 
   return (
     <div className={`mb-4 ${className}`}>
-      <button
+      <Button
         type="button"
         onClick={toggleHint}
-        className="inline-flex items-center px-3 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-tertiary border border-theme-border-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
+        variant="secondary"
+        size="sm"
+        leftIcon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        }
       >
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
         {isHintVisible ? 'Hide Hint' : 'Show Hint'}
-      </button>
+      </Button>
       
       {isHintVisible && (
         <div className="mt-3 p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">

@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '@/utils';
+import { Button } from '@/components';
 
 interface Props {
   children: ReactNode;
@@ -71,12 +72,13 @@ class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
             <div className="mt-4">
-              <button
+              <Button
                 onClick={() => window.location.reload()}
-                className="bg-theme-interactive-primary text-theme-text-inverse px-4 py-2 rounded-md text-sm font-medium hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+                variant="primary"
+                size="md"
               >
                 Refresh Page
-              </button>
+              </Button>
             </div>
           </div>
         </div>

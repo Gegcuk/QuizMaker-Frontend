@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { AttemptService } from '@/services';
 import { BatchAnswerSubmissionRequest, AnswerSubmissionRequest } from '@/types';
 import { api } from '@/services';
+import { Button } from '@/components';
 
 interface AttemptBatchAnswersProps {
   attemptId: string;
@@ -214,20 +215,15 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4">
-        <button
+        <Button
           onClick={handleBatchSubmission}
           disabled={isSubmitting || answeredCount === 0}
-          className="px-6 py-3 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          loading={isSubmitting}
+          variant="primary"
+          size="lg"
         >
-          {isSubmitting ? (
-            <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
-              Submitting...
-            </div>
-          ) : (
-            'Submit All Answers'
-          )}
-        </button>
+          Submit All Answers
+        </Button>
       </div>
 
       {/* Warning for incomplete answers */}

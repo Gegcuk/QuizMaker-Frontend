@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { CreateQuizRequest, UpdateQuizRequest, QuizDto } from '@/types';
-import { Badge } from '@/components';
+import { Badge, Button } from '@/components';
 
 interface QuizPreviewProps {
   quizData: Partial<CreateQuizRequest | UpdateQuizRequest> | QuizDto;
@@ -163,12 +163,14 @@ const QuizPreview: React.FC<QuizPreviewProps> = ({
 
             {/* Start Quiz Button */}
             <div className="border-t border-theme-border-primary pt-4 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-              <button
+              <Button
                 type="button"
-                className="w-full bg-theme-interactive-primary text-theme-text-inverse py-3 px-4 rounded-md hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors"
+                variant="primary"
+                size="lg"
+                fullWidth
               >
                 Start Quiz
-              </button>
+              </Button>
               <p className="mt-2 text-xs text-theme-text-tertiary text-center">
                 This is a preview. The actual quiz will be available when published.
               </p>

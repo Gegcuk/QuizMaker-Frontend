@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QuestionForAttemptDto } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components';
 
 interface HotspotAnswerProps {
   question: QuestionForAttemptDto;
@@ -286,14 +287,16 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
           {selectedRegion ? 'Region selected' : 'No region selected'}
         </div>
         {selectedRegion && (
-          <button
+          <Button
             type="button"
             onClick={handleClearSelection}
             disabled={disabled}
-            className="text-sm text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50"
+            variant="ghost"
+            size="sm"
+            className="!text-sm !p-0 hover:underline"
           >
             Clear Selection
-          </button>
+          </Button>
         )}
       </div>
 

@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuizDto } from '@/types';
-import { Card, CardHeader, CardBody } from '@/components';
+import { Card, CardHeader, CardBody, Button } from '@/components';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
@@ -150,15 +150,18 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
         <CardBody>
           <div className="text-center">
             <p className="text-sm text-theme-text-secondary mb-4">Export your quiz to PDF, HTML, XLSX or JSON.</p>
-            <button
+            <Button
               onClick={() => setShowExportModal(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-theme-text-inverse bg-theme-interactive-primary hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary"
+              variant="primary"
+              size="md"
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
               Export Quiz
-            </button>
+            </Button>
           </div>
         </CardBody>
       </Card>

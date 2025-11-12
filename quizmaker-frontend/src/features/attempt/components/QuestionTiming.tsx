@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { QuestionTimingStatsDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
+import { Button } from '@/components';
 
 interface QuestionTimingProps {
   timings: QuestionTimingStatsDto[];
@@ -215,20 +216,17 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
       <div className="mb-4 flex flex-wrap gap-2">
         <span className="text-sm font-medium text-theme-text-secondary">Sort by:</span>
         {(['time', 'accuracy', 'difficulty', 'type'] as const).map((option) => (
-          <button
+          <Button
             key={option}
             onClick={() => handleSort(option)}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
-              sortBy === option
-                ? 'bg-theme-interactive-primary text-theme-text-primary'
-                : 'bg-theme-bg-tertiary text-theme-text-secondary hover:bg-theme-bg-tertiary'
-            }`}
+            variant={sortBy === option ? 'primary' : 'secondary'}
+            size="sm"
           >
             {option.charAt(0).toUpperCase() + option.slice(1)}
             {sortBy === option && (
               <span className="ml-1">{sortOrder === 'asc' ? '↑' : '↓'}</span>
             )}
-          </button>
+          </Button>
         ))}
       </div>
 

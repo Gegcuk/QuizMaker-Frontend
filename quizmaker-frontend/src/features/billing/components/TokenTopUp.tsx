@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
 import type { BillingConfigResponse, TokenPackDto } from '@/types';
-import { Button } from '@/components';
+import { Button, Alert } from '@/components';
 
 interface TokenTopUpProps {
   className?: string;
@@ -132,8 +132,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-theme-border-danger bg-theme-bg-danger px-3 py-2 text-sm text-theme-interactive-danger">
-          {error}
+        <div className="mb-4">
+          <Alert type="error" className="text-sm">
+            {error}
+          </Alert>
         </div>
       )}
 
