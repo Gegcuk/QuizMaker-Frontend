@@ -8,6 +8,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentDto, DocumentStatus } from '@/types';
 import { api } from '@/services';
+import { 
+  ArrowUpTrayIcon, 
+  CogIcon, 
+  CheckCircleIcon, 
+  XCircleIcon, 
+  QuestionMarkCircleIcon,
+  DocumentTextIcon 
+} from '@heroicons/react/24/outline';
 
 interface DocumentProcessorProps {
   documentId: string;
@@ -134,18 +142,19 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
     onProcessingError?.(errorMessage);
   };
 
-  const getStatusIcon = (status: DocumentStatus): string => {
+  const getStatusIcon = (status: DocumentStatus) => {
+    const iconClass = "w-5 h-5";
     switch (status) {
       case 'UPLOADED':
-        return '📤';
+        return <ArrowUpTrayIcon className={iconClass} />;
       case 'PROCESSING':
-        return '⚙️';
+        return <CogIcon className={`${iconClass} animate-spin`} />;
       case 'PROCESSED':
-        return '✅';
+        return <CheckCircleIcon className={iconClass} />;
       case 'FAILED':
-        return '❌';
+        return <XCircleIcon className={iconClass} />;
       default:
-        return '❓';
+        return <QuestionMarkCircleIcon className={iconClass} />;
     }
   };
 
@@ -199,7 +208,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
       <div className="mb-6 p-4 bg-theme-bg-secondary rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <span className="text-2xl">📄</span>
+            <DocumentTextIcon className="w-8 h-8 text-theme-text-tertiary" />
             <div>
               <h3 className="text-lg font-semibold text-theme-text-primary">{document.originalFilename}</h3>
               <p className="text-sm text-theme-text-secondary">
@@ -207,8 +216,9 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
               </p>
             </div>
           </div>
-          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(document.status)}`}>
-            {getStatusIcon(document.status)} {document.status}
+          <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(document.status)}`}>
+            {getStatusIcon(document.status)}
+            <span>{document.status}</span>
           </div>
         </div>
         
@@ -282,7 +292,7 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
               : 'bg-theme-bg-secondary border border-theme-border-primary'
           }`}>
             <span className={['PROCESSING', 'PROCESSED'].includes(document.status) ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}>
-              {document.status === 'PROCESSING' ? '⚙️' : '✅'}
+              {document.status === 'PROCESSING' ? <CogIcon className="w-5 h-5 animate-spin" /> : <CheckCircleIcon className="w-5 h-5" />}
             </span>
             <div>
               <div className="font-medium text-theme-text-primary">Content Processing</div>

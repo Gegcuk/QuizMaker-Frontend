@@ -9,6 +9,14 @@ import { Button, useToast } from '@/components';
 import { QuizService } from '../services/quiz.service';
 import { QuizGenerationStatus as ApiGenerationStatus } from '@/types';
 import { api } from '@/services';
+import { 
+  ClockIcon, 
+  CogIcon, 
+  CheckCircleIcon, 
+  XCircleIcon, 
+  NoSymbolIcon, 
+  QuestionMarkCircleIcon 
+} from '@heroicons/react/24/outline';
 
 interface QuizGenerationStatusProps {
   jobId: string;
@@ -141,13 +149,20 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
   };
 
   const getStatusIcon = (status: string) => {
+    const iconClass = "w-16 h-16 mx-auto";
     switch (status) {
-      case 'PENDING': return '⏳';
-      case 'PROCESSING': return '⚙️';
-      case 'COMPLETED': return '✅';
-      case 'FAILED': return '❌';
-      case 'CANCELLED': return '🚫';
-      default: return '❓';
+      case 'PENDING': 
+        return <ClockIcon className={`${iconClass} text-theme-text-tertiary`} />;
+      case 'PROCESSING': 
+        return <CogIcon className={`${iconClass} text-theme-interactive-primary animate-spin`} />;
+      case 'COMPLETED': 
+        return <CheckCircleIcon className={`${iconClass} text-theme-interactive-success`} />;
+      case 'FAILED': 
+        return <XCircleIcon className={`${iconClass} text-theme-interactive-danger`} />;
+      case 'CANCELLED': 
+        return <NoSymbolIcon className={`${iconClass} text-theme-text-tertiary`} />;
+      default: 
+        return <QuestionMarkCircleIcon className={`${iconClass} text-theme-text-tertiary`} />;
     }
   };
 
@@ -161,7 +176,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
     <div className="max-w-2xl mx-auto">
       <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-8 bg-theme-bg-primary text-theme-text-primary">
         <div className="text-center mb-6">
-          <div className="text-4xl mb-4">{getStatusIcon(status.status)}</div>
+          <div className="mb-4">{getStatusIcon(status.status)}</div>
           <h3 className="text-xl font-semibold text-theme-text-primary mb-2">
             Generating Your Quiz
           </h3>
@@ -196,7 +211,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
           <div className="font-medium text-theme-text-primary">Elapsed Time</div>
           <div className="text-theme-text-secondary">{formatTime(localElapsedSeconds)}</div>
           </div>
-          {status.estimatedTimeRemainingSeconds && (
+          {status.estimatedTimeRemainingSeconds !== undefined && status.estimatedTimeRemainingSeconds !== null && (
             <div className="text-center p-3 bg-theme-bg-secondary rounded-lg">
               <div className="font-medium text-theme-text-primary">Estimated Remaining</div>
               <div className="text-theme-text-secondary">{formatTime(status.estimatedTimeRemainingSeconds)}</div>

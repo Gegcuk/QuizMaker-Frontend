@@ -400,16 +400,18 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           <h4 className="text-md font-medium text-theme-text-primary mb-4">Question Details</h4>
           <div>
             <div className="space-y-6">
-                {/* Question Type */}
-                <div>
-                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Question Type
-                  </label>
-                  <QuestionTypeSelector
-                    selectedType={formData.type}
-                    onTypeChange={handleTypeChange}
-                  />
-                </div>
+                {/* Question Type - Only shown when creating */}
+                {!questionId && (
+                  <div>
+                    <label className="block text-sm font-medium text-theme-text-secondary mb-2">
+                      Question Type
+                    </label>
+                    <QuestionTypeSelector
+                      selectedType={formData.type}
+                      onTypeChange={handleTypeChange}
+                    />
+                  </div>
+                )}
 
                              {/* Question Text - Hidden for FILL_GAP as it's part of the content */}
                {formData.type !== 'FILL_GAP' && (
