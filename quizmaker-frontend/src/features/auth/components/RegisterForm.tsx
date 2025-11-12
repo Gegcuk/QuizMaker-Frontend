@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { RegisterRequest } from '@/types';
-import { Form, FormField, Button } from '@/components';
+import { Form, FormField, Button, Checkbox } from '@/components';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
 
@@ -230,19 +230,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         />
 
         {/* Terms and conditions */}
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary transition-colors duration-200"
-              checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-            />
-          </div>
-          <div className="ml-3 text-sm">
-            <label htmlFor="terms" className="text-theme-text-secondary">
+        <Checkbox
+          id="terms"
+          name="terms"
+          checked={acceptTerms}
+          onChange={setAcceptTerms}
+          label={
+            <span className="text-theme-text-secondary">
               I agree to the{' '}
               <Link
                 to="/terms"
@@ -259,9 +253,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               >
                 Privacy Policy
               </Link>
-            </label>
-          </div>
-        </div>
+            </span>
+          }
+        />
 
         {/* Submit button */}
         <div>

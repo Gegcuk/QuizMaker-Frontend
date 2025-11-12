@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { AttemptService } from '@/services';
 import { AttemptStatus } from '@/types';
 import { api } from '@/services';
+import { Button, Alert } from '@/components';
 
 interface AttemptPauseProps {
   attemptId: string;
@@ -108,23 +109,27 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
 
           <div className="flex space-x-2">
             {canPause && (
-              <button
+              <Button
                 onClick={() => openConfirmDialog('pause')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-theme-bg-warning text-theme-interactive-warning rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-warning disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="secondary"
+                size="sm"
+                className="!bg-theme-bg-warning !text-theme-interactive-warning hover:!bg-theme-bg-tertiary"
               >
                 ⏸️ Pause
-              </button>
+              </Button>
             )}
             
             {canResume && (
-              <button
+              <Button
                 onClick={() => openConfirmDialog('resume')}
                 disabled={isLoading}
-                className="px-4 py-2 bg-theme-bg-success text-theme-interactive-success rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-success disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="secondary"
+                size="sm"
+                className="!bg-theme-bg-success !text-theme-interactive-success hover:!bg-theme-bg-tertiary"
               >
                 ▶️ Resume
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -156,38 +161,32 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
               </div>
 
               {error && (
-                <div className="mb-4 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
-                  <p className="text-sm text-theme-interactive-danger">{error}</p>
+                <div className="mb-4">
+                  <Alert type="error" className="text-sm">
+                    {error}
+                  </Alert>
                 </div>
               )}
 
               <div className="flex space-x-3 justify-center">
-                <button
+                <Button
                   onClick={closeConfirmDialog}
                   disabled={isLoading}
-                  className="px-4 py-2 bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  variant="secondary"
+                  size="md"
                 >
                   Cancel
-                </button>
+                </Button>
                 
-                <button
+                <Button
                   onClick={action === 'pause' ? handlePause : handleResume}
                   disabled={isLoading}
-                  className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
-                    action === 'pause'
-                      ? 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay focus:ring-theme-interactive-warning'
-                      : 'bg-theme-bg-overlay text-theme-text-primary hover:bg-theme-bg-overlay focus:ring-theme-interactive-success'
-                  }`}
+                  loading={isLoading}
+                  variant="primary"
+                  size="md"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-border-primary mr-2 bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary" />
-                      {action === 'pause' ? 'Pausing...' : 'Resuming...'}
-                    </div>
-                  ) : (
-                    action === 'pause' ? 'Pause' : 'Resume'
-                  )}
-                </button>
+                  {action === 'pause' ? 'Pause' : 'Resume'}
+                </Button>
               </div>
             </div>
           </div>

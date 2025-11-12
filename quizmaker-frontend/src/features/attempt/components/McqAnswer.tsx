@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto } from '@/types';
+import { Button } from '@/components';
 
 interface McqAnswerProps {
   question: QuestionForAttemptDto;
@@ -101,22 +102,26 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
           <div className="flex items-center justify-between">
             <span>Select all that apply:</span>
             <div className="flex space-x-2">
-              <button
+              <Button
                 type="button"
                 onClick={handleSelectAll}
                 disabled={disabled}
-                className="text-xs text-theme-interactive-primary hover:text-theme-interactive-primary-hover disabled:opacity-50"
+                variant="ghost"
+                size="sm"
+                className="!text-xs !p-1 !min-w-0"
               >
                 Select All
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleClearAll}
                 disabled={disabled}
-                className="text-xs text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50"
+                variant="ghost"
+                size="sm"
+                className="!text-xs !p-1 !min-w-0"
               >
                 Clear All
-              </button>
+              </Button>
             </div>
           </div>
         ) : (

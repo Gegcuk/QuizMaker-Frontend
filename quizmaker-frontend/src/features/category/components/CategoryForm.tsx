@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '@/types';
 import { categoryService } from '@/services';
-import { Button, Input } from '@/components';
+import { Button, Input, Textarea, Alert } from '@/components';
 
 interface CategoryFormProps {
   category?: CategoryDto;
@@ -180,32 +180,23 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                 {characterCount.description}/1000
               </span>
             </div>
-            <textarea
+            <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary ${
-                errors.description ? 'border-theme-border-danger' : 'border-theme-border-primary'
-              }`}
               placeholder="Enter category description (optional, max 1000 characters)"
               maxLength={1000}
+              error={errors.description}
+              fullWidth
             />
-            {errors.description && (
-              <p className="mt-1 text-sm text-theme-interactive-danger">{errors.description}</p>
-            )}
           </div>
 
           {/* Submit Error */}
           {errors.submit && (
-            <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-3">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-theme-interactive-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <span className="text-theme-interactive-danger text-sm">{errors.submit}</span>
-              </div>
-            </div>
+            <Alert type="error" className="text-sm">
+              {errors.submit}
+            </Alert>
           )}
 
           {/* Form Actions */}
