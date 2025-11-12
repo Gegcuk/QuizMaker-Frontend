@@ -54,7 +54,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
               id="model-answer"
               value={modelAnswer}
               onChange={(e) => setModelAnswer(e.target.value)}
-              placeholder="Enter the model answer that students should provide..."
+              placeholder="Enter the model answer..."
               className="block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary"
               rows={6}
               required
@@ -84,7 +84,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
           <li>Provide a comprehensive model answer</li>
-          <li>Include all key points students should mention</li>
+          <li>Include all key points that should be mentioned</li>
           <li>Consider different acceptable variations</li>
           <li>Use clear and specific language</li>
         </ul>
@@ -94,7 +94,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
         <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
-            <p>Students will see:</p>
+            <p>How it will appear:</p>
             <div className="mt-2">
               <textarea
                 placeholder="Enter your answer here..."
@@ -104,7 +104,7 @@ const OpenQuestionEditor: React.FC<OpenQuestionEditorProps> = ({
               />
             </div>
             <p className="mt-2 text-xs text-theme-text-tertiary">
-              Students will provide free-text answers that can be compared against your model answer.
+              Free-text answers will be compared against your model answer.
             </p>
           </div>
         </div>

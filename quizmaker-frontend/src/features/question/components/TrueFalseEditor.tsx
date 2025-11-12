@@ -96,7 +96,7 @@ const TrueFalseEditor: React.FC<TrueFalseEditorProps> = ({
         <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
-            <p>Students will see:</p>
+            <p>How it will appear:</p>
             <div className="mt-2 space-y-2">
               <div className="flex items-center space-x-2">
                 <input type="radio" disabled className="h-4 w-4 text-theme-text-tertiary" />

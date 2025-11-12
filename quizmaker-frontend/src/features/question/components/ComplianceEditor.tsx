@@ -147,15 +147,15 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
-          <li>Write statements that students need to evaluate</li>
+          <li>Write statements to evaluate</li>
           <li>Mark each statement as Compliant or Non-compliant</li>
-          <li>Students will identify which statements are compliant</li>
+          <li>Identify which statements are compliant</li>
           <li>Minimum 2 statements required</li>
         </ul>
       </InstructionsModal>
 
       <QuestionPreviewSection showPreview={showPreview}>
-        <p>Students will see:</p>
+        <p>How it will appear:</p>
         <div className="mt-2 space-y-2">
           {statements.map((statement) => (
             <div key={statement.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
@@ -171,7 +171,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
           ))}
         </div>
         <p className="mt-2 text-xs text-theme-text-tertiary">
-          Students will check the statements they believe are compliant.
+          Check the statements that are compliant.
         </p>
       </QuestionPreviewSection>
 

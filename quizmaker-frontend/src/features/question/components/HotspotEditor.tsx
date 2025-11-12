@@ -97,7 +97,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
               required
             />
             <p className="mt-1 text-sm text-theme-text-tertiary">
-              Provide a URL to the image that students will interact with.
+              Provide a URL to the image for interaction.
             </p>
           </div>
 
@@ -260,11 +260,11 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
-          <li>Upload an image that students will interact with</li>
+          <li>Upload an image for interaction</li>
           <li>Add regions to mark clickable areas</li>
           <li>Mark regions as correct or incorrect</li>
           <li>Adjust region position and size as needed</li>
-          <li>Students will click on areas they believe are correct</li>
+          <li>Clicking on areas will provide the answer</li>
         </ul>
       </InstructionsModal>
 
@@ -273,7 +273,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
         <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-lg p-4 bg-theme-bg-primary text-theme-text-primary">
           <h5 className="text-sm font-medium text-theme-text-secondary mb-2">Preview</h5>
           <div className="text-sm text-theme-text-secondary">
-            <p>Students will see:</p>
+            <p>How it will appear:</p>
             <div className="mt-2">
               {imageUrl ? (
                 <div className="relative inline-block">
@@ -304,7 +304,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
               )}
             </div>
             <p className="mt-2 text-xs text-theme-text-tertiary">
-              Students will click on the marked areas to answer the question.
+              Click on the marked areas to answer the question.
             </p>
           </div>
         </div>

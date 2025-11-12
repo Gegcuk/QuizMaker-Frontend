@@ -503,7 +503,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                        onChange={(e) => handleInputChange('hint', e.target.value)}
                        rows={2}
                        className="mt-1 block w-full border border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm"
-                       placeholder="Provide a hint for students..."
+                       placeholder="Provide a hint..."
                      />
                    </div>
                  )}

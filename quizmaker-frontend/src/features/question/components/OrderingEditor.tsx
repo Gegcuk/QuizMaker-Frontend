@@ -156,15 +156,15 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
-          <li>Enter the items that students need to order</li>
+          <li>Enter the items to be ordered</li>
           <li>Arrange them in the correct order using drag handles or arrow buttons</li>
-          <li>Students will drag items to arrange them in the correct sequence</li>
+          <li>Items will be dragged to arrange them in the correct sequence</li>
           <li>Minimum 2 items required</li>
         </ul>
       </InstructionsModal>
 
       <QuestionPreviewSection showPreview={showPreview}>
-        <p>Students will see:</p>
+        <p>How it will appear:</p>
         <div className="mt-2 space-y-2">
           {items.map((item, index) => (
             <div key={item.id} className="flex items-center space-x-3 p-3 border border-theme-border-primary rounded bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
@@ -187,7 +187,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
           ))}
         </div>
         <p className="mt-2 text-xs text-theme-text-tertiary">
-          Students will drag items to arrange them in the correct order.
+          Drag items to arrange them in the correct order.
         </p>
       </QuestionPreviewSection>
 
