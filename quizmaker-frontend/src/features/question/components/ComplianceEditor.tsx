@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ComplianceContent, ComplianceStatement } from '@/types';
-import { InstructionsModal, QuestionEditorHeader, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
+import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
 
 interface ComplianceEditorProps {
   content: ComplianceContent;
@@ -31,6 +31,16 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   useEffect(() => {
     onChange({ statements });
   }, [statements, onChange]);
+
+  // Auto-resize all textareas on mount and when statements change
+  useEffect(() => {
+    const textareas = document.querySelectorAll('textarea[data-compliance-statement]');
+    textareas.forEach((textarea) => {
+      const element = textarea as HTMLTextAreaElement;
+      element.style.height = 'auto';
+      element.style.height = element.scrollHeight + 'px';
+    });
+  }, [statements]);
 
   const addStatement = () => {
     const newId = statements.length + 1;
@@ -61,13 +71,19 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
-      <QuestionEditorHeader
-        title="Compliance Question"
-        description="Identify compliant and non-compliant statements"
-        itemCount={statements.length}
-        itemType="statement"
-        emptyCount={getEmptyStatements().length}
-      />
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-theme-text-tertiary">Identify compliant and non-compliant statements</p>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-theme-text-tertiary">
+            {statements.length} statement{statements.length !== 1 ? 's' : ''}
+          </span>
+          {getEmptyStatements().length > 0 && (
+            <span className="text-xs text-theme-text-danger">
+              {getEmptyStatements().length} empty statement{getEmptyStatements().length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Statements */}
       <ItemManagementContainer
@@ -75,57 +91,57 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         helperText={`${getCompliantCount()} Compliant • ${getNonCompliantCount()} Non-compliant`}
       >
         {statements.map((statement) => (
-          <div key={statement.id} className="flex items-start space-x-3 p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
-            {/* Statement Number */}
-            <div className="flex-shrink-0 mt-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full">
-                {statement.id}
-              </span>
-            </div>
-
-            {/* Compliance Toggle */}
-            <div className="flex-shrink-0 mt-2">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  name={`compliance-${statement.id}`}
-                  id={`compliant-${statement.id}`}
-                  checked={statement.compliant}
-                  onChange={() => updateStatementCompliance(statement.id, true)}
-                  className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                />
-                <label htmlFor={`compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium">
-                  Compliant
-                </label>
-              </div>
-              <div className="flex items-center space-x-2 mt-1">
-                <input
-                  type="radio"
-                  name={`compliance-${statement.id}`}
-                  id={`non-compliant-${statement.id}`}
-                  checked={!statement.compliant}
-                  onChange={() => updateStatementCompliance(statement.id, false)}
-                  className="h-4 w-4 text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                />
-                <label htmlFor={`non-compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium">
-                  Non-compliant
-                </label>
-              </div>
-            </div>
-
+          <div key={statement.id} className="p-4 border border-theme-border-primary rounded-lg bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary space-y-3">
             {/* Statement Text */}
             <div className="flex-1">
               <textarea
+                data-compliance-statement
                 value={statement.text}
-                onChange={(e) => updateStatementText(statement.id, e.target.value)}
-                placeholder={`Statement ${statement.id}...`}
-                className="block w-full border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                rows={3}
+                onChange={(e) => {
+                  updateStatementText(statement.id, e.target.value);
+                  // Auto-resize textarea
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                placeholder="Enter statement text..."
+                className="block w-full border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary sm:text-sm resize-none overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                rows={1}
+                style={{ minHeight: '38px' }}
               />
             </div>
 
-            {/* Remove Button */}
-            <div className="flex-shrink-0 mt-2">
+            {/* Compliance Toggle + Delete Button */}
+            <div className="flex items-center justify-between pl-1">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`compliance-${statement.id}`}
+                    id={`compliant-${statement.id}`}
+                    checked={statement.compliant}
+                    onChange={() => updateStatementCompliance(statement.id, true)}
+                    className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  />
+                  <label htmlFor={`compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium cursor-pointer">
+                    Compliant
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`compliance-${statement.id}`}
+                    id={`non-compliant-${statement.id}`}
+                    checked={!statement.compliant}
+                    onChange={() => updateStatementCompliance(statement.id, false)}
+                    className="h-4 w-4 text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  />
+                  <label htmlFor={`non-compliant-${statement.id}`} className="text-sm text-theme-text-secondary font-medium cursor-pointer">
+                    Non-compliant
+                  </label>
+                </div>
+              </div>
+
+              {/* Remove Button */}
               <button
                 type="button"
                 onClick={() => removeStatement(statement.id)}
@@ -149,7 +165,6 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         <ul className="list-disc list-inside space-y-1">
           <li>Write statements to evaluate</li>
           <li>Mark each statement as Compliant or Non-compliant</li>
-          <li>Identify which statements are compliant</li>
           <li>Minimum 2 statements required</li>
         </ul>
       </InstructionsModal>

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OrderingContent, OrderingItem } from '@/types';
-import { InstructionsModal, QuestionEditorHeader, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
+import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer } from '@/components';
 
 interface OrderingEditorProps {
   content: OrderingContent;
@@ -61,13 +61,19 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
-      <QuestionEditorHeader
-        title="Ordering Question"
-        description="Arrange items in the correct order"
-        itemCount={items.length}
-        itemType="item"
-        emptyCount={getEmptyItems().length}
-      />
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-theme-text-tertiary">Arrange items in the correct order</p>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-theme-text-tertiary">
+            {items.length} item{items.length !== 1 ? 's' : ''}
+          </span>
+          {getEmptyItems().length > 0 && (
+            <span className="text-xs text-theme-text-danger">
+              {getEmptyItems().length} empty item{getEmptyItems().length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Items */}
       <ItemManagementContainer
