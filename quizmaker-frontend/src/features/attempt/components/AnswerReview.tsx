@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { AnswerSubmissionDto, QuestionForAttemptDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 import { getAnswerStatusText, getAnswerStatusColor, getAnswerStatusIcon } from '@/utils/statusHelpers';
+import { Button } from '@/components';
 
 interface AnswerReviewProps {
   answers: AnswerSubmissionDto[];
@@ -61,12 +62,13 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
           <p className="text-theme-text-secondary">Review your answers and see where you went wrong</p>
         </div>
         {onBack && (
-          <button
+          <Button
             onClick={onBack}
-            className="px-4 py-2 text-theme-text-secondary hover:text-theme-text-primary transition-colors"
+            variant="ghost"
+            size="sm"
           >
             ← Back
-          </button>
+          </Button>
         )}
       </div>
 
@@ -122,12 +124,14 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                   <span className="text-sm text-theme-text-secondary">
                     Score: {answer.score}
                   </span>
-                  <button
+                  <Button
                     onClick={() => toggleAnswerExpansion(answer.answerId)}
-                    className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors"
+                    variant="ghost"
+                    size="sm"
+                    className="!p-1 !min-w-0"
                   >
                     {isExpanded ? '▼' : '▶'}
-                  </button>
+                  </Button>
                 </div>
               </div>
 

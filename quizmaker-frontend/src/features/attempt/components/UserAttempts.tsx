@@ -10,7 +10,7 @@ import { useAuth } from '../../../features/auth';
 import { AttemptService } from '@/services';
 import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, CurrentQuestionDto, QuizDto } from '@/types';
-import { ConfirmationModal, Spinner } from '@/components';
+import { ConfirmationModal, Spinner, Alert, Button } from '@/components';
 import AttemptCard, { AttemptWithDetails } from './AttemptCard';
 
 interface UserAttemptsProps {
@@ -160,17 +160,10 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
 
   if (error) {
     return (
-      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-md p-4 ${className}`}>
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-theme-interactive-danger">{error}</p>
-          </div>
-        </div>
+      <div className={className}>
+        <Alert type="error">
+          {error}
+        </Alert>
       </div>
     );
   }
@@ -213,29 +206,35 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
           </div>
           {hasMoreAttempts && (
             <div className="flex justify-center pt-2">
-              <button
+              <Button
                 onClick={() => setDisplayedCount(prev => prev + 3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-interactive-primary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
+                variant="outline"
+                size="sm"
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                }
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
                 Show 3 More
-              </button>
+              </Button>
             </div>
           )}
           
           {displayedCount > 3 && (
             <div className="flex justify-center pt-2">
-              <button
+              <Button
                 onClick={() => setDisplayedCount(3)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-theme-text-secondary bg-theme-bg-primary border border-theme-border-primary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-border-primary transition-colors bg-theme-bg-primary text-theme-text-primary"
+                variant="outline"
+                size="sm"
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                }
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
                 Hide
-              </button>
+              </Button>
             </div>
           )}
         </div>

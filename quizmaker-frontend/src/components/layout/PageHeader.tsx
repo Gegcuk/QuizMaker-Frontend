@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Breadcrumb } from './';
 import { ActionType } from './types';
+import { Button } from '@/components';
 
 // Simple icons (no external dependencies)
 const ArrowLeftIcon = () => (
@@ -187,13 +188,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           <div className="flex items-center mb-4 sm:mb-0">
             {/* Back Button */}
             {showBackButton && (
-              <button
+              <Button
                 onClick={handleBack}
-                className="mr-4 p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded-md transition-colors duration-200"
+                variant="ghost"
+                size="sm"
+                className="mr-4 !p-2 !min-w-0"
                 aria-label="Go back"
               >
                 <ArrowLeftIcon />
-              </button>
+              </Button>
             )}
 
             {/* Icon */}

@@ -10,6 +10,7 @@ import { QuestionForAttemptDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 import { api } from '@/services';
 import { HintDisplay } from './';
+import { Button } from '@/components';
 
 interface AttemptShuffledQuestionsProps {
   quizId: string;
@@ -121,12 +122,13 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
         <div className="text-center">
           <div className="text-theme-interactive-danger mb-4">❌</div>
           <p className="text-theme-interactive-danger mb-4">{error}</p>
-          <button
+          <Button
             onClick={loadShuffledQuestions}
-            className="px-4 py-2 bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary transition-colors"
+            variant="primary"
+            size="md"
           >
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -167,14 +169,16 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
           if (!question) return null;
 
           return (
-            <button
+            <Button
               key={questionIndex}
               onClick={() => handleQuestionClick(questionIndex)}
-              className={getQuestionButtonClass(questionIndex)}
+              variant="ghost"
+              size="sm"
+              className={`!w-10 !h-10 !p-0 !rounded-full !min-w-0 ${getQuestionButtonClass(questionIndex)}`}
               title={`Question ${questionIndex + 1}: ${question.questionText.substring(0, 50)}...`}
             >
               {questionIndex + 1}
-            </button>
+            </Button>
           );
         })}
       </div>

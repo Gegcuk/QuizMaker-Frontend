@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -101,32 +102,27 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </div>
           </div>
           <div className="bg-theme-bg-secondary px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
+            <Button
               type="button"
-              className={`w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary sm:ml-3 sm:w-auto ${styles.confirmButton} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={onConfirm}
               disabled={isLoading}
+              loading={isLoading}
+              variant={variant === 'danger' ? 'danger' : variant === 'warning' ? 'primary' : 'primary'}
+              size="md"
+              className="w-full sm:ml-3 sm:w-auto"
             >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-theme-text-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Deleting...
-                </>
-              ) : (
-                confirmText
-              )}
-            </button>
-            <button
+              {confirmText}
+            </Button>
+            <Button
               type="button"
-              className="mt-3 w-full inline-flex justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-theme-bg-primary focus:ring-theme-interactive-primary sm:mt-0 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={onClose}
               disabled={isLoading}
+              variant="secondary"
+              size="md"
+              className="mt-3 w-full sm:mt-0 sm:w-auto"
             >
               {cancelText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

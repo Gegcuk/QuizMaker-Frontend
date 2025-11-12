@@ -8,6 +8,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AttemptService } from '@/services';
 import { AnswerSubmissionRequest } from '@/types';
 import { api } from '@/services';
+import { Button, Alert } from '@/components';
 
 interface AttemptSaveProgressProps {
   attemptId: string;
@@ -163,28 +164,32 @@ const AttemptSaveProgress: React.FC<AttemptSaveProgressProps> = ({
             </div>
           )}
           
-          <button
+          <Button
             onClick={handleManualSave}
             disabled={isSaving || Object.keys(answers).length === 0}
-            className="px-3 py-1 bg-theme-bg-tertiary text-theme-interactive-primary rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            loading={isSaving}
+            variant="secondary"
+            size="sm"
           >
-            {isSaving ? 'Saving...' : 'Save Now'}
-          </button>
+            Save Now
+          </Button>
         </div>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="mt-3 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
-          <div className="text-sm text-theme-interactive-danger">
+        <div className="mt-3">
+          <Alert type="error" className="text-sm">
             <strong>Save Error:</strong> {error}
-          </div>
-          <button
-            onClick={handleManualSave}
-            className="mt-2 text-xs text-theme-interactive-danger underline hover:no-underline"
-          >
-            Try again
-          </button>
+            <Button
+              onClick={handleManualSave}
+              variant="ghost"
+              size="sm"
+              className="!text-xs !p-0 hover:underline mt-2"
+            >
+              Try again
+            </Button>
+          </Alert>
         </div>
       )}
 

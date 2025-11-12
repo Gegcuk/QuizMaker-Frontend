@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { AttemptService } from '@/services';
 import { QuizService, api } from '@/services';
 import { AttemptDto, AttemptStatsDto, QuizDto } from '@/types';
-import { Spinner, Button } from '@/components';
+import { Spinner, Button, Alert } from '@/components';
 import AttemptCard, { AttemptWithDetails } from './AttemptCard';
 
 interface AttemptContinuationProps {
@@ -134,18 +134,9 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
   if (error) {
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-theme p-6 ${className}`}>
-        <div className="bg-theme-bg-tertiary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-theme-interactive-danger" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-theme-interactive-danger">{error}</p>
-            </div>
-          </div>
-        </div>
+        <Alert type="error">
+          {error}
+        </Alert>
       </div>
     );
   }
@@ -162,12 +153,13 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
             You don't have any paused or in-progress attempts for this quiz.
           </p>
           <div className="mt-6">
-            <button
+            <Button
               onClick={handleStartFresh}
-              className="px-4 py-2 bg-theme-interactive-primary text-theme-bg-primary font-medium rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2"
+              variant="primary"
+              size="md"
             >
               Start New Attempt
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -213,12 +205,13 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
         <p className="text-sm text-theme-text-secondary mb-4">
           Want to start a completely new attempt?
         </p>
-        <button
+        <Button
           onClick={handleStartFresh}
-          className="px-6 py-2 bg-theme-bg-tertiary text-theme-text-secondary font-medium rounded-md hover:bg-theme-bg-secondary focus:outline-none focus:ring-2 focus:ring-theme-border-primary focus:ring-offset-2 transition-colors"
+          variant="secondary"
+          size="md"
         >
           Start Fresh Attempt
-        </button>
+        </Button>
       </div>
 
       {/* Important Notes */}

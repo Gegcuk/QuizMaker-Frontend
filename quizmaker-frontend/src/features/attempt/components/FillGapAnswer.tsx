@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto } from '@/types';
+import { Button } from '@/components';
 
 interface FillGapAnswerProps {
   question: QuestionForAttemptDto;
@@ -162,14 +163,15 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
         </div>
 
         {gapAnswers && Object.keys(gapAnswers).length > 0 && (
-          <button
+          <Button
             type="button"
             onClick={handleClearAll}
             disabled={disabled}
-            className="text-sm text-theme-text-secondary hover:text-theme-text-primary disabled:opacity-50 px-3 py-1 rounded border border-theme-border-primary hover:bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary"
+            variant="outline"
+            size="sm"
           >
             Clear All
-          </button>
+          </Button>
         )}
       </div>
 

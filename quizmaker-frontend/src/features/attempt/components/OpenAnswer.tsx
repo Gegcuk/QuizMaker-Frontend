@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto } from '@/types';
+import { Textarea, Button } from '@/components';
 
 interface OpenAnswerProps {
   question: QuestionForAttemptDto;
@@ -80,22 +81,17 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
 
       {/* Text Area */}
       <div className="relative">
-        <textarea
+        <Textarea
           value={safeAnswer}
           onChange={(e) => handleAnswerChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
           disabled={disabled}
           placeholder="Type your answer here..."
           rows={8}
           maxLength={maxLength}
-          className={getTextareaClass()}
+          showCharCount
+          fullWidth
+          error={isOverLimit ? 'Exceeds maximum length' : undefined}
         />
-        
-        {/* Character Counter */}
-        <div className="absolute bottom-2 right-2 text-xs text-theme-text-tertiary">
-          {characterCount}/{maxLength}
-        </div>
       </div>
 
       {/* Character Count and Validation */}
@@ -126,14 +122,16 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
 
         {/* Clear Button */}
         {safeAnswer.length > 0 && (
-          <button
+          <Button
             type="button"
             onClick={handleClear}
             disabled={disabled}
-            className="text-sm text-theme-text-tertiary hover:text-theme-text-secondary disabled:opacity-50"
+            variant="ghost"
+            size="sm"
+            className="!text-sm !p-0 hover:underline"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 

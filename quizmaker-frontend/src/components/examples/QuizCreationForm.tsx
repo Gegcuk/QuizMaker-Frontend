@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormField } from '@/components';
+import { Form, FormField, Button } from '@/components';
 import { commonRules } from '@/utils';
 
 interface QuizFormData {
@@ -94,19 +94,23 @@ const QuizCreationForm: React.FC = () => {
         />
         
         <div className="flex space-x-4">
-          <button
+          <Button
             type="submit"
-            className="flex-1 bg-theme-interactive-primary text-theme-text-primary py-2 px-4 rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
+            variant="primary"
+            size="md"
+            className="flex-1"
           >
             Create Quiz
-          </button>
+          </Button>
           
-          <button
+          <Button
             type="button"
-            className="flex-1 bg-theme-bg-tertiary text-theme-text-secondary py-2 px-4 rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
+            variant="secondary"
+            size="md"
+            className="flex-1"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </Form>
     </div>

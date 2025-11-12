@@ -5,6 +5,7 @@ import { categoryService } from '@/services';
 import { QuizService } from '@/services';
 import { api } from '@/services';
 import { useTheme } from '@/context/ThemeContext';
+import { Spinner, Dropdown, Alert } from '@/components';
 
 interface CategoryAnalyticsProps {
   category: CategoryDto;
@@ -287,10 +288,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-theme border p-6 ${className}`}>
         <div className="flex items-center justify-center">
-          <svg className="animate-spin h-6 w-6 text-theme-interactive-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          <Spinner />
           <span className="ml-2 text-theme-text-secondary">Loading analytics...</span>
         </div>
       </div>
@@ -299,13 +297,10 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-theme-status-danger-bg border border-theme-border-danger rounded-lg p-4 ${className}`}>
-        <div className="flex items-center">
-          <svg className="w-5 h-5 text-theme-interactive-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-          </svg>
-          <span className="text-theme-interactive-danger">{error}</span>
-        </div>
+      <div className={className}>
+        <Alert type="error">
+          {error}
+        </Alert>
       </div>
     );
   }
@@ -342,16 +337,17 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
-            <select
+            <Dropdown
               value={selectedTimeRange}
-              onChange={(e) => setSelectedTimeRange(e.target.value as any)}
-              className="px-3 py-1 border border-theme-border-primary rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-theme-focus-ring bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="week" className="bg-theme-bg-primary text-theme-text-primary">Week</option>
-              <option value="month" className="bg-theme-bg-primary text-theme-text-primary">Month</option>
-              <option value="quarter" className="bg-theme-bg-primary text-theme-text-primary">Quarter</option>
-              <option value="year" className="bg-theme-bg-primary text-theme-text-primary">Year</option>
-            </select>
+              onChange={(value) => setSelectedTimeRange((Array.isArray(value) ? value[0] : value) as any)}
+              options={[
+                { label: 'Week', value: 'week' },
+                { label: 'Month', value: 'month' },
+                { label: 'Quarter', value: 'quarter' },
+                { label: 'Year', value: 'year' }
+              ]}
+              size="sm"
+            />
           </div>
         </div>
       </div>
