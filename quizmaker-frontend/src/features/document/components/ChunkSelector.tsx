@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { DocumentChunkDto, ChunkType } from '@/types';
 import { api } from '@/services';
+import { Button, Input, Dropdown, Checkbox, Alert } from '@/components';
 
 interface ChunkSelectorProps {
   documentId: string;
@@ -153,10 +154,9 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   if (error) {
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
-        <div className="text-center">
-          <div className="text-theme-interactive-danger text-2xl mb-2">❌</div>
-          <p className="text-theme-interactive-danger">{error}</p>
-        </div>
+        <Alert type="error" className="text-center">
+          {error}
+        </Alert>
       </div>
     );
   }
@@ -199,58 +199,62 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
           {/* Search */}
           <div className="flex-1">
-            <input
+            <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search chunks by title or content..."
-              className="w-full px-4 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              fullWidth
             />
           </div>
 
           {/* Filter */}
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-theme-text-secondary">Filter by type:</label>
-            <select
+            <Dropdown
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as ChunkType | 'ALL')}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="ALL" className="bg-theme-bg-primary text-theme-text-primary">All Types</option>
-              <option value="CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Chapters</option>
-              <option value="SECTION" className="bg-theme-bg-primary text-theme-text-primary">Sections</option>
-              <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
-              <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
-            </select>
+              onChange={(value) => setFilterType(value as ChunkType | 'ALL')}
+              options={[
+                { label: 'All Types', value: 'ALL' },
+                { label: 'Chapters', value: 'CHAPTER' },
+                { label: 'Sections', value: 'SECTION' },
+                { label: 'Page Based', value: 'PAGE_BASED' },
+                { label: 'Size Based', value: 'SIZE_BASED' }
+              ]}
+            />
           </div>
         </div>
 
         {/* Selection Actions */}
         <div className="mt-4 flex flex-wrap gap-2">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={selectAllChunks}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select All
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={deselectAllChunks}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-danger"
           >
             Deselect All
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => selectChunksByType('CHAPTER')}
-            className="px-3 py-1 text-sm bg-theme-interactive-primary text-theme-text-primary rounded-md hover:bg-theme-interactive-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary"
           >
             Select Chapters
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => selectChunksByType('SECTION')}
-            className="px-3 py-1 text-sm bg-theme-bg-overlay text-theme-text-primary rounded-md hover:bg-theme-bg-overlay focus:outline-none focus:ring-2 focus:ring-theme-interactive-success"
           >
             Select Sections
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -275,11 +279,11 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
               >
                 <div className="flex items-start space-x-3">
                   {/* Checkbox */}
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedChunks.has(chunk.id)}
                     onChange={() => toggleChunkSelection(chunk.id)}
-                    className="mt-1 h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                    className="mt-1"
+                    label=""
                   />
                   
                   {/* Chunk Info */}
@@ -317,15 +321,16 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
                   </div>
                   
                   {/* Preview Button */}
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       setPreviewChunk(chunk);
                     }}
-                    className="px-3 py-1 text-sm bg-theme-bg-tertiary text-theme-text-secondary rounded-md hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring"
                   >
                     Preview
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -337,15 +342,17 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
       {previewChunk && (
         <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-theme-bg-primary rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+            <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-theme-text-primary">{previewChunk.title}</h3>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setPreviewChunk(null)}
                   className="text-theme-text-tertiary hover:text-theme-text-secondary"
                 >
                   ✕
-                </button>
+                </Button>
               </div>
             </div>
             <div className="p-6 overflow-y-auto max-h-[60vh]">

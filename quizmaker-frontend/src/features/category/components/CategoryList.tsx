@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CategoryDto } from '@/types';
 import { categoryService } from '@/services';
-import { Spinner } from '@/components';
+import { Spinner, Button, Input, Dropdown, Alert } from '@/components';
 
 interface CategoryListProps {
   onEditCategory: (category: CategoryDto) => void;
@@ -101,19 +101,15 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
   if (error) {
     return (
-      <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 ${className}`}>
-        <div className="flex items-center">
-          <svg className="w-5 h-5 text-theme-interactive-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-          </svg>
-          <span className="text-theme-interactive-danger">{error}</span>
-        </div>
-        <button
-          onClick={loadCategories}
-          className="mt-2 text-sm text-theme-interactive-danger hover:text-theme-interactive-danger underline"
-        >
-          Try again
-        </button>
+      <div className={className}>
+        <Alert type="error" dismissible onDismiss={() => setError(null)}>
+          {error}
+          <div className="mt-2">
+            <Button variant="ghost" size="sm" onClick={loadCategories}>
+              Try again
+            </Button>
+          </div>
+        </Alert>
       </div>
     );
   }
@@ -124,25 +120,25 @@ export const CategoryList: React.FC<CategoryListProps> = ({
       <div className="p-4 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex-1 max-w-md">
-            <input
+            <Input
               type="text"
               placeholder="Search categories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-transparent bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+              fullWidth
             />
           </div>
           <div className="flex items-center gap-2">
-            <select
-              value={pageSize}
-              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-              <option value={50}>50 per page</option>
-            </select>
+            <Dropdown
+              value={String(pageSize)}
+              onChange={(value) => handlePageSizeChange(Number(value))}
+              options={[
+                { label: '5 per page', value: '5' },
+                { label: '10 per page', value: '10' },
+                { label: '20 per page', value: '20' },
+                { label: '50 per page', value: '50' }
+              ]}
+            />
           </div>
         </div>
       </div>
@@ -193,24 +189,26 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                 {showActions && (
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEditCategory(category);
                         }}
-                        className="text-theme-interactive-primary hover:text-theme-text-primary px-2 py-1 rounded hover:bg-theme-bg-info"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(category.id);
                         }}
-                        className="text-theme-interactive-danger hover:text-theme-text-primary px-2 py-1 rounded hover:bg-theme-bg-danger"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 )}
@@ -235,22 +233,24 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6 bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-primary px-4 py-3 flex items-center justify-between border-t border-theme-border-primary sm:px-6">
           <div className="flex-1 flex justify-between sm:hidden">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0}
-              className="relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Previous
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages - 1}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-theme-border-primary text-sm font-medium rounded-md text-theme-text-secondary bg-theme-bg-primary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
             >
               Next
-            </button>
+            </Button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
@@ -268,44 +268,50 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             </div>
             <div>
               <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
+                  className="rounded-l-md rounded-r-none"
+                  leftIcon={
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  }
                 >
                   <span className="sr-only">Previous</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                </Button>
                 
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   const page = Math.max(0, Math.min(totalPages - 5, currentPage - 2)) + i;
                   return (
-                    <button
+                    <Button
                       key={page}
+                      variant={page === currentPage ? 'primary' : 'secondary'}
+                      size="sm"
                       onClick={() => handlePageChange(page)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        page === currentPage
-                          ? 'z-10 bg-theme-bg-info border-theme-border-info text-theme-interactive-primary'
-                          : 'bg-theme-bg-primary border-theme-border-primary text-theme-text-tertiary hover:bg-theme-bg-secondary'
-                      }`}
+                      className="rounded-none"
                     >
                       {page + 1}
-                    </button>
+                    </Button>
                   );
                 })}
                 
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-theme-border-primary bg-theme-bg-primary text-sm font-medium text-theme-text-tertiary hover:bg-theme-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-primary text-theme-text-primary"
+                  className="rounded-r-md rounded-l-none"
+                  rightIcon={
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  }
                 >
                   <span className="sr-only">Next</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                </Button>
               </nav>
             </div>
           </div>
