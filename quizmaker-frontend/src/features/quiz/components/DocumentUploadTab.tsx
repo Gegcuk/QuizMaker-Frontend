@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizQuestionType, Difficulty, QuizScope } from '@/types';
 import { GenerationProgress } from '@/features/ai';
-import { Button, Alert } from '@/components';
+import { Button, Alert, Input, Dropdown, Hint } from '@/components';
 
 export const DocumentUploadTab: React.FC = () => {
   const navigate = useNavigate();
@@ -289,34 +289,56 @@ export const DocumentUploadTab: React.FC = () => {
                 
                 {/* Chunking Strategy */}
                 <div>
-                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Chunking Strategy
-                  </label>
-                  <select
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="block text-sm font-medium text-theme-text-secondary">
+                      Chunking Strategy
+                    </label>
+                    <Hint
+                      position="right"
+                      size="sm"
+                      content={
+                        <div className="space-y-2">
+                          <p className="font-medium">How to split your document:</p>
+                          <ul className="text-xs space-y-1">
+                            <li><strong>Auto:</strong> Automatically selects the best strategy</li>
+                            <li><strong>Chapter:</strong> Splits by chapter headings</li>
+                            <li><strong>Section:</strong> Splits by section headings</li>
+                            <li><strong>Size:</strong> Splits by character count</li>
+                            <li><strong>Page:</strong> Splits by page breaks</li>
+                          </ul>
+                        </div>
+                      }
+                    />
+                  </div>
+                  <Dropdown
                     value={quizConfig.chunkingStrategy}
-                    onChange={(e) => setQuizConfig(prev => ({
+                    onChange={(value) => setQuizConfig(prev => ({
                       ...prev,
-                      chunkingStrategy: e.target.value
+                      chunkingStrategy: value
                     }))}
-                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                  >
-                    <option value="AUTO" className="bg-theme-bg-primary text-theme-text-primary">Auto - Best Strategy</option>
-                    <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
-                    <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section Based</option>
-                    <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
-                    <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
-                  </select>
-                  <p className="mt-1 text-xs text-theme-text-secondary">
-                    {getChunkingStrategyDescription(quizConfig.chunkingStrategy)}
-                  </p>
+                    options={[
+                      { label: 'Auto - Best Strategy', value: 'AUTO' },
+                      { label: 'Chapter Based', value: 'CHAPTER_BASED' },
+                      { label: 'Section Based', value: 'SECTION_BASED' },
+                      { label: 'Size Based', value: 'SIZE_BASED' },
+                      { label: 'Page Based', value: 'PAGE_BASED' }
+                    ]}
+                  />
                 </div>
 
                 {/* Max Chunk Size */}
                 <div>
-                  <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                    Maximum Chunk Size (characters)
-                  </label>
-                  <input
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="block text-sm font-medium text-theme-text-secondary">
+                      Maximum Chunk Size (characters)
+                    </label>
+                    <Hint
+                      position="right"
+                      size="sm"
+                      content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-100,000."
+                    />
+                  </div>
+                  <Input
                     type="number"
                     value={quizConfig.maxChunkSize}
                     onChange={(e) => setQuizConfig(prev => ({
@@ -325,11 +347,7 @@ export const DocumentUploadTab: React.FC = () => {
                     }))}
                     min="1000"
                     max="100000"
-                    className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                   />
-                  <p className="mt-1 text-xs text-theme-text-secondary">
-                    Recommended: 30,000-50,000 characters for optimal quiz generation
-                  </p>
                 </div>
               </div>
             )}
@@ -347,7 +365,7 @@ export const DocumentUploadTab: React.FC = () => {
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Title <span className="text-theme-interactive-danger">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={quizConfig.quizTitle}
                   onChange={(e) => setQuizConfig(prev => ({
@@ -355,7 +373,6 @@ export const DocumentUploadTab: React.FC = () => {
                     quizTitle: e.target.value
                   }))}
                   placeholder="Enter quiz title..."
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -372,28 +389,42 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz description..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary sm:text-sm"
                 />
               </div>
 
               {/* Quiz Scope */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Scope
-                </label>
-                <select
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Quiz Scope
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content={
+                      <div className="space-y-1 text-xs">
+                        <p><strong>Entire Document:</strong> Generate from all content</p>
+                        <p><strong>Specific Chunks:</strong> Select specific chunks to use</p>
+                        <p><strong>Specific Chapter:</strong> Target one chapter by title/number</p>
+                        <p><strong>Specific Section:</strong> Target a specific section</p>
+                      </div>
+                    }
+                  />
+                </div>
+                <Dropdown
                   value={quizConfig.quizScope}
-                  onChange={(e) => setQuizConfig(prev => ({
+                  onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    quizScope: e.target.value as QuizScope
+                    quizScope: value as QuizScope
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>
-                  <option value="SPECIFIC_CHUNKS" className="bg-theme-bg-primary text-theme-text-primary">Specific Chunks</option>
-                  <option value="SPECIFIC_CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Specific Chapter</option>
-                  <option value="SPECIFIC_SECTION" className="bg-theme-bg-primary text-theme-text-primary">Specific Section</option>
-                </select>
+                  options={[
+                    { label: 'Entire Document', value: 'ENTIRE_DOCUMENT' },
+                    { label: 'Specific Chunks', value: 'SPECIFIC_CHUNKS' },
+                    { label: 'Specific Chapter', value: 'SPECIFIC_CHAPTER' },
+                    { label: 'Specific Section', value: 'SPECIFIC_SECTION' }
+                  ]}
+                />
               </div>
 
               {/* Difficulty */}
@@ -401,29 +432,36 @@ export const DocumentUploadTab: React.FC = () => {
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Difficulty Level
                 </label>
-                <select
+                <Dropdown
                   value={quizConfig.difficulty}
-                  onChange={(e) => setQuizConfig(prev => ({
+                  onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    difficulty: e.target.value as Difficulty
+                    difficulty: value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                  <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                  <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-                </select>
+                  options={[
+                    { label: 'Easy', value: 'EASY' },
+                    { label: 'Medium', value: 'MEDIUM' },
+                    { label: 'Hard', value: 'HARD' }
+                  ]}
+                />
               </div>
 
               {/* Questions Per Type */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Questions Per Type (per chunk) <span className="text-theme-interactive-danger">*</span>
-                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Questions Per Type (per chunk) <span className="text-theme-interactive-danger">*</span>
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Specify how many questions of each type to generate per document chunk. At least one type must have a value ≥ 1."
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Single)</label>
-                    <input
+                    <label className="block text-xs text-theme-text-secondary mb-1">Single Choice</label>
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_SINGLE}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -435,12 +473,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice (Multi)</label>
-                    <input
+                    <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_MULTI}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -452,12 +489,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.TRUE_FALSE}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -469,12 +505,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.OPEN}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -486,12 +521,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Fill in the Gap</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.FILL_GAP}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -503,12 +537,11 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Ordering</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.ORDERING}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -520,7 +553,6 @@ export const DocumentUploadTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                 </div>
@@ -531,10 +563,17 @@ export const DocumentUploadTab: React.FC = () => {
 
               {/* Estimated Time Per Question */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Estimated Time Per Question (minutes)
-                </label>
-                <input
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Estimated Time Per Question (minutes)
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Average time a quiz taker should spend on each question. Used to calculate total quiz duration. Range: 1-10 minutes."
+                  />
+                </div>
+                <Input
                   type="number"
                   value={quizConfig.estimatedTimePerQuestion}
                   onChange={(e) => setQuizConfig(prev => ({
@@ -543,7 +582,6 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
               </div>
             </div>

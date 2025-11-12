@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '@/types';
 import { GenerationProgress } from '@/features/ai';
-import { Button, Alert } from '@/components';
+import { Button, Alert, Input, Dropdown, Hint } from '@/components';
 
 export const TextGenerationTab: React.FC = () => {
   const navigate = useNavigate();
@@ -154,7 +154,7 @@ export const TextGenerationTab: React.FC = () => {
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type your text content here... (1-300,000 characters)"
                 rows={12}
-                className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary resize-vertical bg-theme-bg-primary text-theme-text-primary sm:text-sm"
               />
               <div className="mt-2 flex justify-between text-xs text-theme-text-tertiary">
                 <span>Minimum: 10 characters</span>
@@ -168,55 +168,83 @@ export const TextGenerationTab: React.FC = () => {
               
               {/* Language */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Language
-                </label>
-                <select
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Language
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Language for generated quiz content. AI will generate questions and answers in the selected language (ISO 639-1 code)."
+                  />
+                </div>
+                <Dropdown
                   value={quizConfig.language}
-                  onChange={(e) => setQuizConfig(prev => ({
+                  onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    language: e.target.value
+                    language: value
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="en" className="bg-theme-bg-primary text-theme-text-primary">English</option>
-                  <option value="es" className="bg-theme-bg-primary text-theme-text-primary">Spanish</option>
-                  <option value="fr" className="bg-theme-bg-primary text-theme-text-primary">French</option>
-                  <option value="de" className="bg-theme-bg-primary text-theme-text-primary">German</option>
-                  <option value="it" className="bg-theme-bg-primary text-theme-text-primary">Italian</option>
-                  <option value="pt" className="bg-theme-bg-primary text-theme-text-primary">Portuguese</option>
-                </select>
+                  options={[
+                    { label: 'English', value: 'en' },
+                    { label: 'Spanish', value: 'es' },
+                    { label: 'French', value: 'fr' },
+                    { label: 'German', value: 'de' },
+                    { label: 'Italian', value: 'it' },
+                    { label: 'Portuguese', value: 'pt' }
+                  ]}
+                />
               </div>
 
               {/* Chunking Strategy */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Chunking Strategy
-                </label>
-                <select
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Chunking Strategy
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">How to split your text:</p>
+                        <ul className="text-xs space-y-1">
+                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
+                          <li><strong>Section:</strong> Splits by section headings</li>
+                          <li><strong>Size:</strong> Splits by character count</li>
+                          <li><strong>Page:</strong> Splits by page breaks</li>
+                        </ul>
+                      </div>
+                    }
+                  />
+                </div>
+                <Dropdown
                   value={quizConfig.chunkingStrategy}
-                  onChange={(e) => setQuizConfig(prev => ({
+                  onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    chunkingStrategy: e.target.value as any
+                    chunkingStrategy: value as any
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="CHAPTER_BASED" className="bg-theme-bg-primary text-theme-text-primary">Chapter Based</option>
-                  <option value="SECTION_BASED" className="bg-theme-bg-primary text-theme-text-primary">Section Based</option>
-                  <option value="SIZE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Size Based</option>
-                  <option value="PAGE_BASED" className="bg-theme-bg-primary text-theme-text-primary">Page Based</option>
-                </select>
-                <p className="mt-1 text-xs text-theme-text-secondary">
-                  {getChunkingStrategyDescription(quizConfig.chunkingStrategy)}
-                </p>
+                  options={[
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
+                    { label: 'Section Based', value: 'SECTION_BASED' },
+                    { label: 'Size Based', value: 'SIZE_BASED' },
+                    { label: 'Page Based', value: 'PAGE_BASED' }
+                  ]}
+                />
               </div>
 
               {/* Max Chunk Size */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Maximum Chunk Size (characters)
-                </label>
-                <input
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Maximum Chunk Size (characters)
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-300,000."
+                  />
+                </div>
+                <Input
                   type="number"
                   value={quizConfig.maxChunkSize}
                   onChange={(e) => setQuizConfig(prev => ({
@@ -225,11 +253,7 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1000"
                   max="300000"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
-                <p className="mt-1 text-xs text-theme-text-secondary">
-                  Recommended: 30,000-50,000 characters for optimal quiz generation
-                </p>
               </div>
             </div>
           </div>
@@ -246,7 +270,7 @@ export const TextGenerationTab: React.FC = () => {
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Quiz Title
                 </label>
-                <input
+                <Input
                   type="text"
                   value={quizConfig.quizTitle}
                   onChange={(e) => setQuizConfig(prev => ({
@@ -255,7 +279,6 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   placeholder="Enter quiz title (optional - AI will generate if empty)"
                   maxLength={100}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                 />
               </div>
 
@@ -273,7 +296,7 @@ export const TextGenerationTab: React.FC = () => {
                   placeholder="Enter quiz description (optional - AI will generate if empty)"
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
+                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary sm:text-sm"
                 />
               </div>
 
@@ -282,29 +305,36 @@ export const TextGenerationTab: React.FC = () => {
                 <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                   Difficulty Level
                 </label>
-                <select
+                <Dropdown
                   value={quizConfig.difficulty}
-                  onChange={(e) => setQuizConfig(prev => ({
+                  onChange={(value) => setQuizConfig(prev => ({
                     ...prev,
-                    difficulty: e.target.value as Difficulty
+                    difficulty: value as Difficulty
                   }))}
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-                >
-                  <option value="EASY" className="bg-theme-bg-primary text-theme-text-primary">Easy</option>
-                  <option value="MEDIUM" className="bg-theme-bg-primary text-theme-text-primary">Medium</option>
-                  <option value="HARD" className="bg-theme-bg-primary text-theme-text-primary">Hard</option>
-                </select>
+                  options={[
+                    { label: 'Easy', value: 'EASY' },
+                    { label: 'Medium', value: 'MEDIUM' },
+                    { label: 'Hard', value: 'HARD' }
+                  ]}
+                />
               </div>
 
               {/* Questions Per Type */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Questions Per Type <span className="text-theme-interactive-danger">*</span>
-                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Questions Per Type <span className="text-theme-interactive-danger">*</span>
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Specify how many questions of each type to generate. At least one type must have a value ≥ 1."
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Single Choice</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_SINGLE}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -316,12 +346,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.MCQ_MULTI}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -333,12 +362,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.TRUE_FALSE}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -350,12 +378,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="10"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.OPEN}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -367,12 +394,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Fill in the Gap</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.FILL_GAP}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -384,12 +410,11 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="5"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs text-theme-text-secondary mb-1">Ordering</label>
-                    <input
+                    <Input
                       type="number"
                       value={quizConfig.questionTypes.ORDERING}
                       onChange={(e) => setQuizConfig(prev => ({
@@ -401,7 +426,6 @@ export const TextGenerationTab: React.FC = () => {
                       }))}
                       min="0"
                       max="3"
-                      className="w-full px-2 py-1 text-sm border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                     />
                   </div>
                 </div>
@@ -412,10 +436,17 @@ export const TextGenerationTab: React.FC = () => {
 
               {/* Estimated Time Per Question */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Estimated Time Per Question (minutes)
-                </label>
-                <input
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Estimated Time Per Question (minutes)
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Average time a quiz taker should spend on each question. Used to calculate total quiz duration. Range: 1-10 minutes."
+                  />
+                </div>
+                <Input
                   type="number"
                   value={quizConfig.estimatedTimePerQuestion}
                   onChange={(e) => setQuizConfig(prev => ({
@@ -424,7 +455,6 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
-                  className="w-full px-3 py-2 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 />
               </div>
             </div>

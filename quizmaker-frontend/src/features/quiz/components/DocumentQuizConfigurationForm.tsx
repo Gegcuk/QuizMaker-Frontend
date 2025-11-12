@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
-import { Button, Input, useToast, Dropdown } from '@/components';
+import { Button, Input, useToast, Dropdown, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 
 interface DocumentQuizConfigurationFormProps {
@@ -24,6 +24,8 @@ interface DocumentGenerationConfig {
   chunkIndices?: number[];
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
+  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED';
+  maxChunkSize?: number;
 }
 
 export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFormProps> = ({
@@ -53,7 +55,9 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       ORDERING: 0,
       MATCHING: 0
     },
-    difficulty: 'MEDIUM'
+    difficulty: 'MEDIUM',
+    chunkingStrategy: 'AUTO',
+    maxChunkSize: 50000
   });
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
@@ -149,6 +153,15 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     const formData = new FormData();
     formData.append('file', generationConfig.file!);
     formData.append('quizScope', generationConfig.quizScope);
+    
+    // Document processing parameters
+    if (generationConfig.chunkingStrategy) {
+      formData.append('chunkingStrategy', generationConfig.chunkingStrategy);
+    }
+    if (generationConfig.maxChunkSize) {
+      formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
+    }
+    
     if (generationConfig.chapterTitle) {
       formData.append('chapterTitle', generationConfig.chapterTitle);
     }
@@ -302,52 +315,70 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             )}
           </div>
 
-          {/* Quiz Scope */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-              Quiz Scope
-            </label>
-            <select
-              value={generationConfig.quizScope}
-              onChange={(e) => handleGenerationConfigChange('quizScope', e.target.value as 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS')}
-              className="w-full px-3 py-2 border border-theme-border-primary rounded-md shadow-sm focus:ring-theme-interactive-primary focus:border-theme-interactive-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
-            >
-              <option value="ENTIRE_DOCUMENT" className="bg-theme-bg-primary text-theme-text-primary">Entire Document</option>
-              <option value="SPECIFIC_CHAPTER" className="bg-theme-bg-primary text-theme-text-primary">Specific Chapter</option>
-              <option value="SPECIFIC_CHUNKS" className="bg-theme-bg-primary text-theme-text-primary">Specific Chunks</option>
-            </select>
-          </div>
-
-          {/* Chapter-specific settings */}
-          {generationConfig.quizScope === 'SPECIFIC_CHAPTER' && (
+          {/* Document Processing Configuration */}
+          <div className="mt-6">
+            <h5 className="font-medium text-theme-text-primary mb-4">Document Processing</h5>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Chunking Strategy */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Chapter Title
-                </label>
-                <Input
-                  type="text"
-                  value={generationConfig.chapterTitle || ''}
-                  onChange={(e) => handleGenerationConfigChange('chapterTitle', e.target.value)}
-                  placeholder="Enter chapter title..."
-                  className="w-full"
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Chunking Strategy
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">How to split your document:</p>
+                        <ul className="text-xs space-y-1">
+                          <li><strong>Auto:</strong> Automatically selects the best strategy</li>
+                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
+                          <li><strong>Section:</strong> Splits by section headings</li>
+                          <li><strong>Size:</strong> Splits by character count</li>
+                          <li><strong>Page:</strong> Splits by page breaks</li>
+                        </ul>
+                      </div>
+                    }
+                  />
+                </div>
+                <Dropdown
+                  value={generationConfig.chunkingStrategy || 'AUTO'}
+                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED')}
+                  options={[
+                    { label: 'Auto - Best Strategy', value: 'AUTO' },
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
+                    { label: 'Section Based', value: 'SECTION_BASED' },
+                    { label: 'Size Based', value: 'SIZE_BASED' },
+                    { label: 'Page Based', value: 'PAGE_BASED' }
+                  ]}
                 />
               </div>
+
+              {/* Max Chunk Size */}
               <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Chapter Number
-                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Maximum Chunk Size (characters)
+                  </label>
+                  <Hint
+                    position="right"
+                    size="sm"
+                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-100,000."
+                  />
+                </div>
                 <Input
                   type="number"
-                  value={generationConfig.chapterNumber || ''}
-                  onChange={(e) => handleGenerationConfigChange('chapterNumber', parseInt(e.target.value) || undefined)}
-                  placeholder="Chapter number..."
-                  min="1"
-                  className="w-full"
+                  value={generationConfig.maxChunkSize || 50000}
+                  onChange={(e) => handleGenerationConfigChange('maxChunkSize', parseInt(e.target.value) || 50000)}
+                  min="1000"
+                  max="100000"
                 />
               </div>
             </div>
-          )}
+          </div>
+
         </div>
 
         {/* Questions per type */}

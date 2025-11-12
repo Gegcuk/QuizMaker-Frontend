@@ -431,6 +431,20 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
+      {/* Back button at top */}
+      {canGoBack && (
+        <div className="mb-4">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={goBack}
+            disabled={isCreatingQuiz}
+          >
+            ← Back
+          </Button>
+        </div>
+      )}
+
       {/* Progress indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
