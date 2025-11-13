@@ -1,7 +1,7 @@
 // src/features/document/components/FastDocumentPreviewModal.tsx
 // Fast document preview using direct HTML/iframe rendering instead of canvas conversion
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DOMPurify from 'dompurify';
 import { Button, Input, Badge, Spinner, useToast } from '@/components';
 import { 
@@ -37,6 +37,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   onCancel
 }) => {
   const { addToast } = useToast();
+  const imageUrlRef = useRef<string | null>(null);
   
   const [pages, setPages] = useState<DocumentPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +51,14 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     if (file) {
       loadDocument();
     }
+    
+    // Cleanup: revoke blob URLs when component unmounts or file changes
+    return () => {
+      if (imageUrlRef.current) {
+        URL.revokeObjectURL(imageUrlRef.current);
+        imageUrlRef.current = null;
+      }
+    };
   }, [file]);
 
   const loadDocument = async () => {
@@ -118,7 +127,14 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   };
 
   const loadImage = async () => {
+    // Revoke previous URL if it exists
+    if (imageUrlRef.current) {
+      URL.revokeObjectURL(imageUrlRef.current);
+    }
+    
     const imageUrl = URL.createObjectURL(file);
+    imageUrlRef.current = imageUrl; // Store for cleanup
+    
     setPages([{ 
       pageNum: 1, 
       content: imageUrl, 
@@ -494,7 +510,9 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    
+    // Clean up the blob URL after download (delay to ensure download starts)
+    setTimeout(() => URL.revokeObjectURL(url), 100);
 
     addToast({ type: 'success', message: `Saved selection: ${sortedPages.length} pages` });
   };
