@@ -482,10 +482,17 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 </Button>
               </>
             ) : (
-              <div className="p-4 bg-theme-bg-warning border border-theme-border-warning rounded-lg text-center">
-                <p className="text-sm text-theme-text-secondary">
-                  Please select pages from the preview popup to continue
-                </p>
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  onClick={handleOpenPageSelector}
+                  className="w-full"
+                >
+                  <RectangleStackIcon className="h-5 w-5 mr-2" />
+                  Open Preview & Select Pages
+                </Button>
               </div>
             )}
           </div>
