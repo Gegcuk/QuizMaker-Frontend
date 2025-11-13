@@ -58,6 +58,8 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         await loadPDF();
       } else if (file.type.startsWith('image/')) {
         await loadImage();
+      } else if (file.type === 'application/epub+zip' || file.name.endsWith('.epub')) {
+        await loadEPUB();
       } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file.name.endsWith('.docx')) {
         await loadDOCX();
       } else {
@@ -162,6 +164,117 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     addToast({ type: 'success', message: `DOCX loaded: ${htmlPages.length} sections` });
   };
 
+  const loadEPUB = async () => {
+    if (typeof window === 'undefined' || !(window as any).JSZip) {
+      throw new Error('JSZip not loaded - EPUB preview requires JSZip library');
+    }
+
+    const JSZip = (window as any).JSZip;
+    const zip = new JSZip();
+    const arrayBuffer = await file.arrayBuffer();
+    const unzipped = await zip.loadAsync(arrayBuffer);
+    
+    // Find content.opf to get proper reading order
+    let contentOpfFile = null;
+    let contentOpfPath = '';
+    for (const [path, file] of Object.entries(unzipped.files)) {
+      if (path.endsWith('.opf') || path.includes('content.opf') || path.includes('package.opf')) {
+        contentOpfFile = file as any;
+        contentOpfPath = path;
+        break;
+      }
+    }
+    
+    let htmlFiles = [];
+    
+    if (contentOpfFile) {
+      // Parse content.opf to get reading order
+      const opfContent = await contentOpfFile.async('text');
+      const parser = new DOMParser();
+      const opfDoc = parser.parseFromString(opfContent, 'text/xml');
+      
+      // Get base path for resolving relative paths
+      const basePath = contentOpfPath.substring(0, contentOpfPath.lastIndexOf('/') + 1);
+      
+      // Get spine items (reading order)
+      const spineItems = opfDoc.querySelectorAll('spine itemref');
+      const manifest = opfDoc.querySelectorAll('manifest item');
+      
+      // Build manifest map
+      const manifestMap = new Map();
+      manifest.forEach((item) => {
+        const id = item.getAttribute('id');
+        const href = item.getAttribute('href');
+        if (id && href) {
+          manifestMap.set(id, basePath + href);
+        }
+      });
+      
+      // Get files in spine order
+      for (const spineItem of Array.from(spineItems)) {
+        const idref = spineItem.getAttribute('idref');
+        if (idref && manifestMap.has(idref)) {
+          const filePath = manifestMap.get(idref);
+          const zipFile = unzipped.files[filePath];
+          if (zipFile && !zipFile.dir) {
+            htmlFiles.push({ path: filePath, file: zipFile });
+          }
+        }
+      }
+    }
+    
+    // Fallback: if no spine found or empty, get all HTML files
+    if (htmlFiles.length === 0) {
+      for (const [path, file] of Object.entries(unzipped.files)) {
+        const zipFile = file as any;
+        if (!zipFile.dir && (path.endsWith('.html') || path.endsWith('.xhtml') || path.endsWith('.htm'))) {
+          htmlFiles.push({ path, file: zipFile });
+        }
+      }
+      htmlFiles.sort((a, b) => a.path.localeCompare(b.path));
+    }
+    
+    // Extract and combine all HTML content
+    let combinedHtml = '';
+    let combinedText = '';
+    
+    console.log(`EPUB: Found ${htmlFiles.length} HTML files to process`);
+    
+    for (const { file: zipFile, path } of htmlFiles) {
+      const content = await zipFile.async('text');
+      // Extract text from HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      const pageText = tempDiv.textContent || tempDiv.innerText || '';
+      combinedText += pageText + '\n\n';
+      combinedHtml += content + '<hr class="my-4"/>';
+      console.log(`EPUB chapter: ${path} - ${pageText.length} characters`);
+    }
+    
+    console.log(`EPUB: Total combined text: ${combinedText.length} characters`);
+    console.log(`EPUB: Total combined HTML: ${combinedHtml.length} characters`);
+    
+    // Split by text content to get ~827 pages (like PDF)
+    // Using 1150 chars per page (accounts for paragraph boundaries keeping pages together)
+    const textPages = splitTextByContent(combinedText, 1150);
+    
+    // Convert text pages to HTML type (content will show as text but preserve selection)
+    const allPages = textPages.map((page, idx) => ({
+      pageNum: idx + 1,
+      content: page.content,
+      textContent: page.textContent,
+      type: 'text' as const
+    }));
+    
+    console.log(`EPUB: After splitting: ${allPages.length} preview pages`);
+    
+    setPages(allPages);
+    if (initialSelection.length === 0) {
+      setSelectedPageNumbers(new Set(Array.from({ length: allPages.length }, (_, i) => i + 1)));
+    }
+    addToast({ type: 'success', message: `EPUB loaded: ${allPages.length} pages from ${htmlFiles.length} chapters (${Math.round(combinedText.length / 1000)}K chars)` });
+  };
+
   const loadTextFile = async () => {
     const text = await file.text();
     const textPages = splitTextByContent(text);
@@ -173,14 +286,14 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     addToast({ type: 'success', message: `Text loaded: ${textPages.length} sections` });
   };
 
-  const splitHtmlByContent = (html: string, rawText: string): DocumentPage[] => {
+  const splitHtmlByContent = (html: string, rawText: string, charsPerPage: number = 1400): DocumentPage[] => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
     const elements = Array.from(tempDiv.children);
     const pages: DocumentPage[] = [];
     
-    const CHARS_PER_PAGE = 1400;
+    const CHARS_PER_PAGE = charsPerPage;
     let currentPageElements: Element[] = [];
     let currentPageChars = 0;
     let textOffset = 0;
@@ -229,8 +342,53 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     return pages.length > 0 ? pages : [{ pageNum: 1, content: html, textContent: rawText, type: 'html' }];
   };
 
-  const splitTextByContent = (text: string): DocumentPage[] => {
-    const CHARS_PER_PAGE = 1400;
+  const splitHtmlIntoPages = (html: string, text: string, charsPerPage: number = 2800): DocumentPage[] => {
+    const CHARS_PER_PAGE = charsPerPage;
+    const pages: DocumentPage[] = [];
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    // Use only top-level children for better performance (like DOCX does)
+    const elements = Array.from(tempDiv.children);
+    
+    let currentHtml = '';
+    let currentText = '';
+    
+    for (const element of elements) {
+      const elementHtml = element.outerHTML;
+      const elementText = element.textContent || '';
+      
+      // If adding this element would exceed page size, save current page
+      if (currentText.length + elementText.length > CHARS_PER_PAGE && currentText) {
+        pages.push({
+          pageNum: pages.length + 1,
+          content: `<div class="epub-page">${currentHtml}</div>`,
+          textContent: currentText,
+          type: 'html'
+        });
+        currentHtml = elementHtml;
+        currentText = elementText;
+      } else {
+        currentHtml += elementHtml;
+        currentText += elementText;
+      }
+    }
+    
+    // Add last page
+    if (currentText) {
+      pages.push({
+        pageNum: pages.length + 1,
+        content: `<div class="epub-page">${currentHtml}</div>`,
+        textContent: currentText,
+        type: 'html'
+      });
+    }
+    
+    return pages.length > 0 ? pages : [{ pageNum: 1, content: html, textContent: text, type: 'html' }];
+  };
+
+  const splitTextByContent = (text: string, charsPerPage: number = 1400): DocumentPage[] => {
+    const CHARS_PER_PAGE = charsPerPage;
     const pages: DocumentPage[] = [];
     const paragraphs = text.split(/\n\n+/);
     
@@ -463,15 +621,15 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                     ) : page.type === 'html' ? (
                       <div 
                         className="w-full h-full overflow-hidden p-4 bg-white"
-                        style={{ fontSize: `${12 * cardScale}px`, color: '#000' }}
+                        style={{ fontSize: `${9 * cardScale}px`, color: '#000' }}
                         dangerouslySetInnerHTML={{ __html: page.content }}
                       />
                     ) : (
                       <div 
-                        className="w-full h-full p-4 font-mono text-xs overflow-hidden whitespace-pre-wrap bg-white"
-                        style={{ fontSize: `${11 * cardScale}px`, color: '#333' }}
+                        className="w-full h-full p-3 text-xs overflow-hidden whitespace-pre-wrap bg-white leading-tight"
+                        style={{ fontSize: `${8 * cardScale}px`, color: '#333' }}
                       >
-                        {page.content.substring(0, 800)}
+                        {page.content.substring(0, 1000)}...
                       </div>
                     )}
                   </div>

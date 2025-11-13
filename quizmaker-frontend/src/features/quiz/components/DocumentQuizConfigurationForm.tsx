@@ -23,7 +23,7 @@ interface DocumentGenerationConfig {
   quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS';
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
-  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED';
+  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED';
   maxChunkSize?: number;
 }
 
@@ -60,7 +60,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       MATCHING: 0
     },
     difficulty: 'MEDIUM',
-    chunkingStrategy: 'SIZE_BASED',
+    chunkingStrategy: 'AUTO',
     maxChunkSize: 50000
   });
 
@@ -117,16 +117,14 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       // Validate file type
       const allowedTypes = [
         'application/pdf',
+        'application/epub+zip',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-        'image/png',
-        'image/jpeg',
-        'image/jpg'
+        'text/plain'
       ];
       
       if (!allowedTypes.includes(file.type)) {
-        addToast({ message: 'Please upload a PDF, Word document, text file, or image' });
+        addToast({ message: 'Please upload a PDF, EPUB, Word document, or text file' });
         return;
       }
 
@@ -141,7 +139,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       setSelectedContent('');
       setGenerationConfig(prev => ({ ...prev, file }));
       
-      // Open preview modal immediately
+      // Open preview modal for all file types
       setShowPreviewModal(true);
     }
   };
@@ -202,16 +200,22 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     // Prepare the generation request as FormData
     const formData = new FormData();
     
-    // Create a new text file with ONLY the selected content
-    const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
-    const selectedFile = new File(
-      [selectedBlob], 
-      `selected-${generationConfig.file!.name}.txt`,
-      { type: 'text/plain' }
-    );
-    
-    formData.append('file', selectedFile);
-    formData.append('quizScope', 'ENTIRE_DOCUMENT'); // It's the entire selected content now
+    // For EPUB files, send the original file (entire document)
+    if (generationConfig.file?.type === 'application/epub+zip') {
+      formData.append('file', generationConfig.file);
+      formData.append('quizScope', 'ENTIRE_DOCUMENT');
+    } else {
+      // For PDF/DOCX/TXT, create a text file with selected content
+      const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
+      const selectedFile = new File(
+        [selectedBlob], 
+        `selected-${generationConfig.file!.name}.txt`,
+        { type: 'text/plain' }
+      );
+      
+      formData.append('file', selectedFile);
+      formData.append('quizScope', 'ENTIRE_DOCUMENT');
+    }
     
     // Document title (for the document itself, not the quiz)
     const documentTitle = generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Selected Content';
@@ -340,7 +344,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
               <input
                 type="file"
                 onChange={handleFileUpload}
-                accept=".pdf,.doc,.docx,.txt"
+                accept=".pdf,.epub,.doc,.docx,.txt"
                 className="hidden"
                 id="document-upload"
               />
@@ -355,8 +359,8 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                     </span> or drag and drop
                   </p>
                   <p className="text-xs text-theme-text-tertiary">
-                    PDF, DOC, DOCX, TXT, Images up to 150MB
-                    <span className="block mt-1 text-theme-interactive-primary font-medium">📄 Preview will open immediately - select pages visually!</span>
+                    PDF, EPUB, DOC, DOCX, TXT up to 150MB
+                    <span className="block mt-1 text-theme-interactive-primary font-medium">Preview will open immediately - select pages visually!</span>
                   </p>
                 </div>
               </label>
@@ -396,9 +400,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                         <ul className="text-xs space-y-1">
                           <li><strong>Auto:</strong> Automatically selects the best strategy</li>
                           <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                          <li><strong>Section:</strong> Splits by section headings</li>
-                          <li><strong>Size:</strong> Splits by character count</li>
-                          <li><strong>Page:</strong> Splits by page breaks</li>
                         </ul>
                       </div>
                     }
@@ -406,13 +407,10 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 </div>
                 <Dropdown
                   value={generationConfig.chunkingStrategy || 'AUTO'}
-                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED')}
+                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED')}
                   options={[
                     { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                    { label: 'Section Based', value: 'SECTION_BASED' },
-                    { label: 'Size Based', value: 'SIZE_BASED' },
-                    { label: 'Page Based', value: 'PAGE_BASED' }
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
                   ]}
                 />
               </div>

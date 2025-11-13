@@ -39,13 +39,13 @@ export const DocumentUploadTab: React.FC = () => {
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'SIZE_BASED',
+    chunkingStrategy: 'AUTO',
     maxChunkSize: 50000
   });
 
   const validateFile = (file: File): string | null => {
     const maxFileSize = 150 * 1024 * 1024; // 150MB limit
-    const supportedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const supportedTypes = ['application/pdf', 'application/epub+zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
     
     // Check file size
     if (file.size > maxFileSize) {
@@ -54,7 +54,7 @@ export const DocumentUploadTab: React.FC = () => {
     
     // Check file type
     if (!supportedTypes.includes(file.type)) {
-      return `File type not supported. Supported types: PDF, DOCX, TXT`;
+      return `File type not supported. Supported types: PDF, EPUB, DOCX, TXT`;
     }
     
     return null;
@@ -271,7 +271,7 @@ export const DocumentUploadTab: React.FC = () => {
                   ref={fileInputRef}
                   type="file"
                   onChange={handleFileInputChange}
-                  accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                  accept=".pdf,.epub,.docx,.txt,application/pdf,application/epub+zip,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                   className="hidden"
                 />
                 
@@ -300,20 +300,17 @@ export const DocumentUploadTab: React.FC = () => {
                     <Hint
                       position="right"
                       size="sm"
-                      content={
-                        <div className="space-y-2">
-                          <p className="font-medium">How to split your document:</p>
-                          <ul className="text-xs space-y-1">
-                            <li><strong>Auto:</strong> Automatically selects the best strategy</li>
-                            <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                            <li><strong>Section:</strong> Splits by section headings</li>
-                            <li><strong>Size:</strong> Splits by character count</li>
-                            <li><strong>Page:</strong> Splits by page breaks</li>
-                          </ul>
-                        </div>
-                      }
-                    />
-                  </div>
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">How to split your document:</p>
+                        <ul className="text-xs space-y-1">
+                          <li><strong>Auto:</strong> Automatically selects the best strategy</li>
+                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
+                        </ul>
+                      </div>
+                    }
+                  />
+                </div>
                 <Dropdown
                   value={quizConfig.chunkingStrategy}
                   onChange={(value) => setQuizConfig(prev => ({
@@ -322,10 +319,7 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   options={[
                     { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                    { label: 'Section Based', value: 'SECTION_BASED' },
-                    { label: 'Size Based', value: 'SIZE_BASED' },
-                    { label: 'Page Based', value: 'PAGE_BASED' }
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
                   ]}
                 />
                 </div>
@@ -590,7 +584,7 @@ export const DocumentUploadTab: React.FC = () => {
             disabled={!selectedFile}
             className="px-8 py-3 text-lg"
           >
-            🚀 Upload Document & Start Quiz Generation
+            Upload Document & Start Quiz Generation
           </Button>
         </div>
       )}
