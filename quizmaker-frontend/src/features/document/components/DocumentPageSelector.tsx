@@ -92,11 +92,12 @@ export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
     setUploadError(null);
     setUploadProgress(0);
 
+    let progressInterval: NodeJS.Timeout | null = null;
+    
     try {
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
-            clearInterval(progressInterval);
             return 90;
           }
           return prev + 10;
@@ -109,7 +110,6 @@ export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
         maxChunkSize: 50000
       });
 
-      clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadedDocument(document);
       
@@ -124,6 +124,9 @@ export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
       setUploadError(errorMessage);
       addToast({ type: 'error', message: errorMessage });
     } finally {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
       setIsUploading(false);
     }
   };
