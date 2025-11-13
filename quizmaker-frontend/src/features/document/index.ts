@@ -41,6 +41,7 @@ export { default as DocumentPageSelector } from './components/DocumentPageSelect
 export { default as DocumentPageSelectorModal } from './components/DocumentPageSelectorModal';
 export { default as RawDocumentPageSelector } from './components/RawDocumentPageSelector';
 export { default as DocumentPreviewModal } from './components/DocumentPreviewModal';
+export { default as FastDocumentPreviewModal } from './components/FastDocumentPreviewModal';
 export { default as DocumentProcessor } from './components/DocumentProcessor';
 export { default as DocumentProcessList } from './components/DocumentProcessList';
 export { default as DocumentProcessUpload } from './components/DocumentProcessUpload';

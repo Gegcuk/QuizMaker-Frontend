@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
-import { DocumentPreviewModal } from '@/features/document';
+import { FastDocumentPreviewModal } from '@/features/document';
 import { RectangleStackIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface DocumentQuizConfigurationFormProps {
@@ -466,7 +466,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
         {/* Document Preview Modal - Opens immediately when file is selected */}
         {generationConfig.file && showPreviewModal && (
-          <DocumentPreviewModal
+          <FastDocumentPreviewModal
             file={generationConfig.file}
             initialSelection={selectedPageNumbers}
             onConfirm={handlePageSelectionConfirm}

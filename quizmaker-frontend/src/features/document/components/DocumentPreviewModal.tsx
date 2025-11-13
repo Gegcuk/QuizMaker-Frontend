@@ -29,6 +29,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   
   const [pages, setPages] = useState<string[]>([]); // Array of page image URLs
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [selectedPageNumbers, setSelectedPageNumbers] = useState<Set<number>>(
     initialSelection.length > 0 ? new Set(initialSelection) : new Set()
   );
@@ -126,11 +127,22 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
     const mammoth = (window as any).mammoth;
     const arrayBuffer = await file.arrayBuffer();
     
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    const text = result.value;
+    // Convert to HTML with images as base64
+    const result = await mammoth.convertToHtml({ 
+      arrayBuffer,
+      convertImage: mammoth.images.imgElement((image: any) => {
+        return image.read("base64").then((imageBuffer: string) => {
+          return {
+            src: "data:" + image.contentType + ";base64," + imageBuffer
+          };
+        });
+      })
+    });
     
-    // Split into pages (approximately 2000 characters per page)
-    const pageImages = await splitTextIntoPages(text);
+    const html = result.value;
+    
+    // Split HTML into pages and convert to images
+    const pageImages = await splitHtmlIntoPages(html);
     
     setPages(pageImages);
     setTotalPages(pageImages.length);
@@ -216,6 +228,171 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
     }
     
     return pages.length > 0 ? pages : [await createTextPageImage(text.substring(0, 2000), 1)];
+  };
+
+  const splitHtmlIntoPages = async (html: string): Promise<string[]> => {
+    // Split HTML content into manageable chunks
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    const allElements = Array.from(tempDiv.children);
+    const pages: string[] = [];
+    
+    let currentPageElements: HTMLElement[] = [];
+    let currentPageHeight = 0;
+    const MAX_PAGE_HEIGHT = 3500; // Increased for more content per page
+    
+    // First pass: group elements into pages
+    const pageGroups: HTMLElement[][] = [];
+    
+    for (const element of allElements) {
+      const elementHeight = estimateElementHeight(element as HTMLElement);
+      
+      if (currentPageHeight + elementHeight > MAX_PAGE_HEIGHT && currentPageElements.length > 0) {
+        pageGroups.push([...currentPageElements]);
+        currentPageElements = [element as HTMLElement];
+        currentPageHeight = elementHeight;
+      } else {
+        currentPageElements.push(element as HTMLElement);
+        currentPageHeight += elementHeight;
+      }
+    }
+    
+    // Add last group
+    if (currentPageElements.length > 0) {
+      pageGroups.push(currentPageElements);
+    }
+    
+    // Second pass: render pages with progress
+    const totalToRender = pageGroups.length;
+    setLoadingProgress(0);
+    
+    for (let i = 0; i < pageGroups.length; i++) {
+      const pageHtml = pageGroups[i].map(el => el.outerHTML).join('');
+      const pageImage = await renderHtmlToCanvas(pageHtml, i + 1);
+      pages.push(pageImage);
+      
+      // Update progress
+      setLoadingProgress(Math.round(((i + 1) / totalToRender) * 100));
+    }
+    
+    return pages.length > 0 ? pages : [await renderHtmlToCanvas(html, 1)];
+  };
+
+  const estimateElementHeight = (element: HTMLElement): number => {
+    const text = element.textContent || '';
+    const imageCount = element.getElementsByTagName('img').length;
+    
+    // More accurate estimate: 1.5px per character + 300px per image
+    const textHeight = Math.ceil(text.length * 1.5);
+    const imageHeight = imageCount * 300;
+    
+    return textHeight + imageHeight;
+  };
+
+  const renderHtmlToCanvas = async (html: string, pageNum: number): Promise<string> => {
+    return new Promise((resolve) => {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      div.style.cssText = `
+        width: 750px;
+        padding: 25px;
+        background: white;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: black;
+        position: absolute;
+        left: -9999px;
+      `;
+      
+      // Style images
+      div.querySelectorAll('img').forEach(img => {
+        (img as HTMLImageElement).style.maxWidth = '100%';
+        (img as HTMLImageElement).style.height = 'auto';
+      });
+      
+      document.body.appendChild(div);
+      
+      // Wait for images to load
+      const images = Array.from(div.getElementsByTagName('img'));
+      const imagePromises = images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = () => resolve(null);
+          img.onerror = () => resolve(null);
+        });
+      });
+      
+      Promise.all(imagePromises).then(async () => {
+        // Use html2canvas if available
+        if ((window as any).html2canvas) {
+          try {
+            const canvas = await (window as any).html2canvas(div, {
+              backgroundColor: 'white',
+              scale: 2
+            });
+            document.body.removeChild(div);
+            resolve(canvas.toDataURL());
+            return;
+          } catch (e) {
+            console.error('html2canvas failed:', e);
+          }
+        }
+        
+        // Fallback: manual canvas rendering
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 1100;
+        const ctx = canvas.getContext('2d')!;
+        
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Page number
+        ctx.fillStyle = '#999';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(`Page ${pageNum}`, 780, 20);
+        
+        // Draw text content
+        ctx.fillStyle = 'black';
+        ctx.font = '13px Arial';
+        ctx.textAlign = 'left';
+        
+        const text = div.textContent || '';
+        const lines = text.split('\n');
+        let yPos = 50;
+        
+        for (let i = 0; i < lines.length && yPos < 1080; i++) {
+          const wrappedLines = wrapText(ctx, lines[i], 760);
+          wrappedLines.forEach(line => {
+            if (yPos < 1080) {
+              ctx.fillText(line, 20, yPos);
+              yPos += 18;
+            }
+          });
+        }
+        
+        // Draw images manually
+        let imgYPos = 100;
+        for (const img of images) {
+          if (img.complete && img.naturalWidth > 0) {
+            const aspectRatio = img.naturalHeight / img.naturalWidth;
+            const drawWidth = Math.min(760, img.naturalWidth);
+            const drawHeight = drawWidth * aspectRatio;
+            
+            if (imgYPos + drawHeight < 1100) {
+              ctx.drawImage(img, 20, imgYPos, drawWidth, drawHeight);
+              imgYPos += drawHeight + 20;
+            }
+          }
+        }
+        
+        document.body.removeChild(div);
+        resolve(canvas.toDataURL());
+      });
+    });
   };
 
   const createTextPageImage = async (text: string, pageNum: number): Promise<string> => {
@@ -441,7 +618,18 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-theme-interactive-primary mx-auto mb-4"></div>
-                <p className="text-theme-text-secondary text-lg">Loading document...</p>
+                <p className="text-theme-text-secondary text-lg mb-2">Loading document...</p>
+                {loadingProgress > 0 && (
+                  <div className="max-w-md mx-auto">
+                    <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-2">
+                      <div 
+                        className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${loadingProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-sm text-theme-text-tertiary">Processing: {loadingProgress}%</p>
+                  </div>
+                )}
               </div>
             </div>
           ) : filteredPageNumbers.length === 0 ? (
