@@ -39,7 +39,12 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>({
     title: '',
     description: '',
-    difficulty: 'MEDIUM'
+    difficulty: 'MEDIUM',
+    estimatedTime: 30,
+    timerDuration: 30,
+    timerEnabled: false,
+    isRepetitionEnabled: false,
+    visibility: 'PRIVATE'
   });
   
   const [generationConfig, setGenerationConfig] = useState<DocumentGenerationConfig>({
@@ -55,7 +60,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       MATCHING: 0
     },
     difficulty: 'MEDIUM',
-    chunkingStrategy: 'AUTO',
+    chunkingStrategy: 'SIZE_BASED',
     maxChunkSize: 50000
   });
 
@@ -149,6 +154,15 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     setSelectedContent(data.selectedContent);
     setShowPreviewModal(false);
     
+    // Auto-populate title from filename if not set (max 100 chars)
+    if (!localData.title && generationConfig.file) {
+      let fileName = generationConfig.file.name.replace(/\.[^/.]+$/, '');
+      if (fileName.length > 100) {
+        fileName = fileName.substring(0, 100);
+      }
+      setLocalData(prev => ({ ...prev, title: fileName }));
+    }
+    
     addToast({
       type: 'success',
       message: `${data.selectedPageNumbers.length} pages selected (${data.selectedContent.length} characters)`
@@ -167,11 +181,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     e.preventDefault();
     
     // Validation - check all required fields before submission
-    if (!localData.title?.trim()) {
-      addToast({ message: 'Please enter a quiz title' });
-      return;
-    }
-    
     if (!generationConfig.file) {
       addToast({ message: 'Please upload a document' });
       return;
@@ -203,6 +212,10 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     
     formData.append('file', selectedFile);
     formData.append('quizScope', 'ENTIRE_DOCUMENT'); // It's the entire selected content now
+    
+    // Document title (for the document itself, not the quiz)
+    const documentTitle = generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Selected Content';
+    formData.append('title', documentTitle);
     
     // Document processing parameters
     if (generationConfig.chunkingStrategy) {
@@ -237,11 +250,18 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     const generationRequest = formData;
 
     // NOW send all data to parent - only at submission time
+    // Use the quiz title or auto-generate from filename (max 100 chars for validation)
+    let finalTitle = localData.title?.trim() || generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Generated Quiz';
+    if (finalTitle.length > 100) {
+      finalTitle = finalTitle.substring(0, 100);
+    }
     const dataWithConfig: QuizWizardDraft = {
       ...localData,
+      title: finalTitle,
       generationConfig,
       generationRequest,
     };
+    
     onDataChange(dataWithConfig);
     onCreateQuiz(dataWithConfig);
   };
@@ -257,27 +277,24 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </p>
       </div>
 
+      {/* Display validation errors from parent */}
+      {Object.keys(errors).length > 0 && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-red-800 mb-2">Validation Errors:</h4>
+          <ul className="list-disc list-inside text-sm text-red-700">
+            {Object.entries(errors).map(([key, value]) => (
+              <li key={key}>{key}: {value}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Quiz Settings */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Quiz Title */}
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Quiz Title *
-              </label>
-              <Input
-                type="text"
-                value={localData.title || ''}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="Enter quiz title..."
-                className="w-full"
-                error={errors.title}
-              />
-            </div>
-
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
@@ -523,7 +540,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           <Button
             type="submit"
             variant="primary"
-            disabled={isCreating || !localData.title?.trim() || !generationConfig.file}
+            disabled={isCreating || !generationConfig.file || selectedPageNumbers.length === 0}
             className="px-8"
           >
             {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}

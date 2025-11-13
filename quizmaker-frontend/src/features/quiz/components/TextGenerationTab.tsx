@@ -34,7 +34,7 @@ export const TextGenerationTab: React.FC = () => {
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'CHAPTER_BASED' as 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED',
+    chunkingStrategy: 'SIZE_BASED' as 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED',
     maxChunkSize: 50000,
     language: 'en'
   });

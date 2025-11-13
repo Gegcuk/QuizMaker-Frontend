@@ -26,7 +26,6 @@ export const DocumentUploadTab: React.FC = () => {
   // Quiz generation configuration
   const [quizConfig, setQuizConfig] = useState({
     quizScope: 'ENTIRE_DOCUMENT' as QuizScope,
-    quizTitle: '',
     quizDescription: '',
     questionTypes: {
       MCQ_SINGLE: 3,
@@ -40,7 +39,7 @@ export const DocumentUploadTab: React.FC = () => {
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'CHAPTER_BASED',
+    chunkingStrategy: 'SIZE_BASED',
     maxChunkSize: 50000
   });
 
@@ -79,11 +78,10 @@ export const DocumentUploadTab: React.FC = () => {
     }
     
     setSelectedFile(file);
-    // Auto-generate quiz title from filename
+    // Auto-generate quiz description from filename
     const fileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
     setQuizConfig(prev => ({
       ...prev,
-      quizTitle: `${fileName} Quiz`,
       quizDescription: `Quiz generated from ${fileName} document`
     }));
   };
@@ -121,6 +119,14 @@ export const DocumentUploadTab: React.FC = () => {
       const formData = new FormData();
       formData.append('file', selectedFile);
       
+      // Document title (for the document itself, not the quiz)
+      const documentTitle = selectedFile.name.replace(/\.[^/.]+$/, '');
+      formData.append('title', documentTitle);
+      
+      // Auto-generate quiz title from document title (first 200 chars)
+      const quizTitle = documentTitle.substring(0, 200);
+      formData.append('quizTitle', quizTitle);
+      
       // Filter out question types with 0 questions
       const filteredQuestionTypes = Object.entries(quizConfig.questionTypes)
         .filter(([_, count]) => count > 0)
@@ -136,9 +142,6 @@ export const DocumentUploadTab: React.FC = () => {
       formData.append('maxChunkSize', quizConfig.maxChunkSize.toString());
       formData.append('estimatedTimePerQuestion', quizConfig.estimatedTimePerQuestion.toString());
       
-      if (quizConfig.quizTitle) {
-        formData.append('quizTitle', quizConfig.quizTitle);
-      }
       if (quizConfig.quizDescription) {
         formData.append('quizDescription', quizConfig.quizDescription);
       }
@@ -361,22 +364,6 @@ export const DocumentUploadTab: React.FC = () => {
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
-              {/* Quiz Title */}
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Title <span className="text-theme-interactive-danger">*</span>
-                </label>
-                <Input
-                  type="text"
-                  value={quizConfig.quizTitle}
-                  onChange={(e) => setQuizConfig(prev => ({
-                    ...prev,
-                    quizTitle: e.target.value
-                  }))}
-                  placeholder="Enter quiz title..."
-                />
-              </div>
-
               {/* Quiz Description */}
               <Textarea
                 label="Quiz Description"
@@ -600,7 +587,7 @@ export const DocumentUploadTab: React.FC = () => {
           <Button
             variant="primary"
             onClick={handleUploadAndGenerate}
-            disabled={!quizConfig.quizTitle?.trim()}
+            disabled={!selectedFile}
             className="px-8 py-3 text-lg"
           >
             🚀 Upload Document & Start Quiz Generation
