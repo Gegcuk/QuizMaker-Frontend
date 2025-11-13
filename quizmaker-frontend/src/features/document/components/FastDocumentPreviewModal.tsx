@@ -2,7 +2,7 @@
 // Fast document preview using direct HTML/iframe rendering instead of canvas conversion
 
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Badge, useToast } from '@/components';
+import { Button, Input, Badge, Spinner, useToast } from '@/components';
 import { 
   XMarkIcon,
   MagnifyingGlassMinusIcon,
@@ -308,8 +308,8 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   const cardScale = zoomLevel / 100;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div className="bg-theme-bg-primary rounded-xl w-full max-w-[95vw] h-[95vh] flex flex-col shadow-2xl">
+    <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-75 flex items-center justify-center z-50">
+      <div className="bg-theme-bg-primary rounded-xl w-full max-w-[95vw] h-[95vh] flex flex-col shadow-2xl border border-theme-border-primary">
         {/* Header */}
         <div className="p-4 border-b border-theme-border-primary flex items-center justify-between bg-theme-bg-secondary rounded-t-xl">
           <div>
@@ -360,7 +360,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-theme-interactive-primary mx-auto mb-4"></div>
+                <Spinner size="lg" className="mx-auto mb-4" />
                 <p className="text-theme-text-secondary text-lg">Loading document...</p>
               </div>
             </div>
@@ -390,7 +390,9 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                   {/* Selection Indicator */}
                   {selectedPageNumbers.has(page.pageNum) && (
                     <div className="absolute top-2 right-2 z-10">
-                      <CheckCircleIcon className="h-8 w-8 text-white bg-theme-interactive-success rounded-full p-1 shadow-lg" />
+                      <div className="bg-theme-bg-primary rounded-full p-0.5 shadow-lg">
+                        <CheckCircleIcon className="h-7 w-7 text-theme-interactive-success" />
+                      </div>
                     </div>
                   )}
 
@@ -402,19 +404,19 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                   </div>
 
                   {/* Content Preview */}
-                  <div className="bg-white aspect-[8.5/11] overflow-hidden">
+                  <div className="bg-theme-bg-primary aspect-[8.5/11] overflow-hidden">
                     {page.type === 'image' ? (
-                      <img src={page.content} alt={`Page ${page.pageNum}`} className="w-full h-full object-contain" />
+                      <img src={page.content} alt={`Page ${page.pageNum}`} className="w-full h-full object-contain bg-white" />
                     ) : page.type === 'html' ? (
                       <div 
-                        className="w-full h-full overflow-hidden p-4"
-                        style={{ fontSize: `${12 * cardScale}px` }}
+                        className="w-full h-full overflow-hidden p-4 bg-white"
+                        style={{ fontSize: `${12 * cardScale}px`, color: '#000' }}
                         dangerouslySetInnerHTML={{ __html: page.content }}
                       />
                     ) : (
                       <div 
-                        className="w-full h-full p-4 font-mono text-xs overflow-hidden whitespace-pre-wrap text-gray-800"
-                        style={{ fontSize: `${11 * cardScale}px` }}
+                        className="w-full h-full p-4 font-mono text-xs overflow-hidden whitespace-pre-wrap bg-white"
+                        style={{ fontSize: `${11 * cardScale}px`, color: '#333' }}
                       >
                         {page.content.substring(0, 800)}
                       </div>
