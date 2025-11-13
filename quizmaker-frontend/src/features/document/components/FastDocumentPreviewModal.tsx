@@ -2,6 +2,7 @@
 // Fast document preview using direct HTML/iframe rendering instead of canvas conversion
 
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { Button, Input, Badge, Spinner, useToast } from '@/components';
 import { 
   XMarkIcon,
@@ -614,7 +615,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                       <div 
                         className="w-full h-full overflow-hidden p-4 bg-white"
                         style={{ fontSize: `${9 * cardScale}px`, color: '#000' }}
-                        dangerouslySetInnerHTML={{ __html: page.content }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content) }}
                       />
                     ) : (
                       <div 
