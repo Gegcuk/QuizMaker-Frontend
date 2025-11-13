@@ -130,6 +130,8 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         return;
       }
 
+      // Reset previous selection when new file is uploaded
+      setSelectedPageNumbers([]);
       setGenerationConfig(prev => ({ ...prev, file }));
       
       // Open preview modal immediately

@@ -34,7 +34,6 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [zoomLevel, setZoomLevel] = useState(100);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [totalPages, setTotalPages] = useState(0);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
 
@@ -51,13 +50,17 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
         await loadPDF();
       } else if (file.type.startsWith('image/')) {
         await loadImage();
+      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file.name.endsWith('.docx')) {
+        await loadDOCX();
+      } else if (file.type === 'application/msword' || file.name.endsWith('.doc')) {
+        await loadDOC();
       } else {
         // For text files, show as single "page"
         await loadTextFile();
       }
     } catch (err: any) {
       console.error('Error loading document:', err);
-      addToast({ type: 'error', message: 'Failed to load document. Install PDF.js for PDF support.' });
+      addToast({ type: 'error', message: err.message || 'Failed to load document' });
       // Show fallback text view
       await loadTextFile();
     } finally {
@@ -115,31 +118,169 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
     addToast({ type: 'success', message: 'Image loaded' });
   };
 
-  const loadTextFile = async () => {
-    const text = await file.text();
+  const loadDOCX = async () => {
+    if (typeof window === 'undefined' || !(window as any).mammoth) {
+      throw new Error('Mammoth.js not loaded');
+    }
+
+    const mammoth = (window as any).mammoth;
+    const arrayBuffer = await file.arrayBuffer();
     
-    // Create a simple text preview image
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const text = result.value;
+    
+    // Split into pages (approximately 2000 characters per page)
+    const pageImages = await splitTextIntoPages(text);
+    
+    setPages(pageImages);
+    setTotalPages(pageImages.length);
+    if (initialSelection.length === 0) {
+      const allPages = new Set(Array.from({ length: pageImages.length }, (_, i) => i + 1));
+      setSelectedPageNumbers(allPages);
+    }
+    addToast({ type: 'success', message: `DOCX document loaded: ${pageImages.length} pages` });
+  };
+
+  const loadDOC = async () => {
+    // Old .doc format is not easily parseable in browser
+    // Show a message instead
     const canvas = document.createElement('canvas');
     canvas.width = 800;
-    canvas.height = 1000;
+    canvas.height = 600;
     const ctx = canvas.getContext('2d')!;
     
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'black';
-    ctx.font = '14px monospace';
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Legacy .DOC Format', 400, 200);
     
-    const lines = text.split('\n').slice(0, 50); // First 50 lines
-    lines.forEach((line, i) => {
-      ctx.fillText(line.substring(0, 80), 20, 30 + i * 18);
-    });
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#666';
+    ctx.fillText('Preview not available for .doc files', 400, 250);
+    ctx.fillText('Document will be processed on server', 400, 280);
+    ctx.fillText('Click to include this document', 400, 310);
     
     setPages([canvas.toDataURL()]);
     setTotalPages(1);
     if (initialSelection.length === 0) {
       setSelectedPageNumbers(new Set([1]));
     }
-    addToast({ type: 'success', message: 'Text file loaded' });
+    addToast({ type: 'info', message: 'DOC file loaded - preview not available, but will work for quiz generation' });
+  };
+
+  const loadTextFile = async () => {
+    const text = await file.text();
+    
+    // Split into pages
+    const pageImages = await splitTextIntoPages(text);
+    
+    setPages(pageImages);
+    setTotalPages(pageImages.length);
+    if (initialSelection.length === 0) {
+      const allPages = new Set(Array.from({ length: pageImages.length }, (_, i) => i + 1));
+      setSelectedPageNumbers(allPages);
+    }
+    addToast({ type: 'success', message: `Text file loaded: ${pageImages.length} pages` });
+  };
+
+  const splitTextIntoPages = async (text: string): Promise<string[]> => {
+    const CHARS_PER_PAGE = 2000;
+    const LINES_PER_PAGE = 45;
+    
+    const pages: string[] = [];
+    const paragraphs = text.split(/\n\n+/);
+    
+    let currentPageText = '';
+    let currentPageLines = 0;
+    
+    for (const para of paragraphs) {
+      const paraLines = Math.ceil(para.length / 80);
+      
+      // If adding this paragraph would exceed page size, create new page
+      if ((currentPageText.length + para.length > CHARS_PER_PAGE || currentPageLines + paraLines > LINES_PER_PAGE) 
+          && currentPageText.length > 0) {
+        pages.push(await createTextPageImage(currentPageText, pages.length + 1));
+        currentPageText = para;
+        currentPageLines = paraLines;
+      } else {
+        currentPageText += (currentPageText ? '\n\n' : '') + para;
+        currentPageLines += paraLines;
+      }
+    }
+    
+    // Add last page
+    if (currentPageText) {
+      pages.push(await createTextPageImage(currentPageText, pages.length + 1));
+    }
+    
+    return pages.length > 0 ? pages : [await createTextPageImage(text.substring(0, 2000), 1)];
+  };
+
+  const createTextPageImage = async (text: string, pageNum: number): Promise<string> => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 1100;
+    const ctx = canvas.getContext('2d')!;
+    
+    // White background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Page number at top
+    ctx.fillStyle = '#999';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Page ${pageNum}`, 780, 20);
+    
+    // Content
+    ctx.fillStyle = 'black';
+    ctx.font = '13px Arial';
+    ctx.textAlign = 'left';
+    
+    const lines = text.split('\n');
+    let yPos = 50;
+    
+    for (let i = 0; i < lines.length && yPos < 1080; i++) {
+      const line = lines[i];
+      const wrappedLines = wrapText(ctx, line, 760);
+      
+      wrappedLines.forEach(wrappedLine => {
+        if (yPos < 1080) {
+          ctx.fillText(wrappedLine, 20, yPos);
+          yPos += 18;
+        }
+      });
+      
+      yPos += 4; // Extra space between paragraphs
+    }
+    
+    return canvas.toDataURL();
+  };
+
+  const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const metrics = ctx.measureText(testLine);
+      
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    return lines;
   };
 
   const togglePageSelection = (pageNum: number) => {
@@ -273,26 +414,6 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             </Button>
           </div>
 
-          {/* View Mode */}
-          <div className="flex gap-1">
-            <Button
-              type="button"
-              variant={viewMode === 'grid' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              Grid
-            </Button>
-            <Button
-              type="button"
-              variant={viewMode === 'list' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </Button>
-          </div>
-
           {/* Selection Buttons */}
           <Button type="button" variant="secondary" size="sm" onClick={selectAllPages}>
             All
@@ -327,11 +448,11 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <div className="flex items-center justify-center h-full">
               <p className="text-theme-text-secondary">No pages match your search</p>
             </div>
-          ) : viewMode === 'grid' ? (
+          ) : (
             <div 
-              className="grid gap-3"
+              className="grid gap-4 justify-items-center"
               style={{
-                gridTemplateColumns: `repeat(auto-fill, minmax(${180 * cardScale}px, 1fr))`
+                gridTemplateColumns: `repeat(auto-fill, minmax(${Math.floor(180 * cardScale)}px, 1fr))`
               }}
             >
               {filteredPageNumbers.map((pageNum) => (
@@ -339,16 +460,12 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                   key={pageNum}
                   onClick={() => togglePageSelection(pageNum)}
                   className={`
-                    relative cursor-pointer rounded-lg border-2 transition-all duration-200 overflow-hidden
+                    relative cursor-pointer rounded-lg border-2 transition-all duration-200 overflow-hidden w-full max-w-full
                     ${selectedPageNumbers.has(pageNum)
                       ? 'border-theme-interactive-primary shadow-lg ring-2 ring-theme-interactive-primary'
                       : 'border-theme-border-primary hover:border-theme-interactive-primary hover:shadow-md'
                     }
                   `}
-                  style={{
-                    transform: `scale(${cardScale})`,
-                    transformOrigin: 'center'
-                  }}
                 >
                   {/* Selection Indicator */}
                   {selectedPageNumbers.has(pageNum) && (
@@ -365,60 +482,12 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                   </div>
 
                   {/* Page Image */}
-                  <div className="bg-white">
+                  <div className="bg-white w-full">
                     <img
                       src={pages[pageNum - 1]}
                       alt={`Page ${pageNum}`}
-                      className="w-full h-auto"
-                      style={{ display: 'block' }}
+                      className="w-full h-auto block"
                     />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            /* List View */
-            <div className="space-y-2">
-              {filteredPageNumbers.map((pageNum) => (
-                <div
-                  key={pageNum}
-                  onClick={() => togglePageSelection(pageNum)}
-                  className={`
-                    p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3
-                    ${selectedPageNumbers.has(pageNum)
-                      ? 'border-theme-interactive-primary bg-theme-bg-info'
-                      : 'border-theme-border-primary hover:border-theme-interactive-primary hover:bg-theme-bg-secondary'
-                    }
-                  `}
-                >
-                  {/* Selection indicator */}
-                  <div className="flex-shrink-0">
-                    <CheckCircleIcon 
-                      className={`h-6 w-6 ${
-                        selectedPageNumbers.has(pageNum) 
-                          ? 'text-theme-interactive-success' 
-                          : 'text-theme-text-tertiary'
-                      }`}
-                    />
-                  </div>
-
-                  {/* Page thumbnail */}
-                  <div className="w-20 h-24 bg-white rounded border border-gray-300 flex-shrink-0 overflow-hidden">
-                    <img
-                      src={pages[pageNum - 1]}
-                      alt={`Page ${pageNum}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1">
-                    <h4 className="font-medium text-theme-text-primary">
-                      Page {pageNum}
-                    </h4>
-                    <p className="text-xs text-theme-text-secondary">
-                      Click to {selectedPageNumbers.has(pageNum) ? 'deselect' : 'select'}
-                    </p>
                   </div>
                 </div>
               ))}
