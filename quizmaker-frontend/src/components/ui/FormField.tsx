@@ -98,6 +98,7 @@ const FormField: React.FC<FormFieldProps> = ({
         autoComplete={autoComplete}
         rightIcon={rightIcon}
         rightIconClickable={rightIconClickable}
+        pattern={validation.pattern?.source}
         onBlur={handleBlur}
         required={required}
       />

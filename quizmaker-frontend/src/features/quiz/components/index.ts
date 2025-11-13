@@ -19,6 +19,7 @@ export { QuizCreationMethodSelector } from './QuizCreationMethodSelector';
 export { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
 export { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
 export { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
+export { default as DocumentQuizConfigurationFormWithPageSelector } from './DocumentQuizConfigurationFormWithPageSelector';
 export { QuizAIGenerationStep } from './QuizAIGenerationStep';
 // QuizGenerationStatus component is exported with explicit name in main index.ts to avoid conflict
 
