@@ -2,7 +2,7 @@
 // Enhanced document-based quiz configuration with page selection support
 
 import React, { useState } from 'react';
-import { CreateQuizRequest, Difficulty, DocumentChunkDto } from '@/types';
+import { CreateQuizRequest, Difficulty, DocumentChunkDto, GenerateQuizFromDocumentRequest, QuizQuestionType } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint, Alert } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { DocumentPageSelector } from '@/features/document';
@@ -22,9 +22,6 @@ interface DocumentGenerationConfig {
   selectedChunks?: DocumentChunkDto[];
   quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHUNKS';
   questionsPerType: Record<string, number>;
-  difficulty: Difficulty;
-  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED';
-  maxChunkSize?: number;
 }
 
 export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQuizConfigurationFormWithPageSelectorProps> = ({
@@ -54,9 +51,6 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
       ORDERING: 0,
       MATCHING: 0
     },
-    difficulty: 'MEDIUM',
-    chunkingStrategy: 'AUTO',
-    maxChunkSize: 50000
   });
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
@@ -148,40 +142,24 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
       return;
     }
 
-    const formData = new FormData();
-    formData.append('documentId', generationConfig.documentId);
-    formData.append('quizScope', 'SPECIFIC_CHUNKS');
-    formData.append('chunkIndices', JSON.stringify(generationConfig.selectedChunkIndices));
-    
-    if (generationConfig.chunkingStrategy) {
-      formData.append('chunkingStrategy', generationConfig.chunkingStrategy);
-    }
-    if (generationConfig.maxChunkSize) {
-      formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
-    }
-    
-    formData.append('quizTitle', localData.title!);
-    if (localData.description) {
-      formData.append('quizDescription', localData.description);
-    }
-    
     const filteredQuestionsPerType = Object.entries(generationConfig.questionsPerType)
       .filter(([, count]) => count > 0)
       .reduce((acc, [type, count]) => {
-        acc[type] = count;
+        acc[type as QuizQuestionType] = count;
         return acc;
-      }, {} as Record<string, number>);
-    
-    formData.append('questionsPerType', JSON.stringify(filteredQuestionsPerType));
-    formData.append('difficulty', localData.difficulty || 'MEDIUM');
-    if (localData.categoryId) {
-      formData.append('categoryId', localData.categoryId);
-    }
-    if (localData.tagIds && localData.tagIds.length > 0) {
-      formData.append('tagIds', JSON.stringify(localData.tagIds));
-    }
+      }, {} as Record<QuizQuestionType, number>);
 
-    const generationRequest = formData;
+    const generationRequest: GenerateQuizFromDocumentRequest = {
+      documentId: generationConfig.documentId!,
+      quizScope: 'SPECIFIC_CHUNKS',
+      chunkIndices: generationConfig.selectedChunkIndices ?? [],
+      questionsPerType: filteredQuestionsPerType,
+      difficulty: (localData.difficulty || 'MEDIUM') as Difficulty,
+      quizTitle: localData.title!,
+      quizDescription: localData.description,
+      categoryId: localData.categoryId,
+      tagIds: localData.tagIds
+    };
 
     const dataWithConfig: QuizWizardDraft = {
       ...localData,
@@ -340,7 +318,7 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
 
           <Alert type="info" className="text-sm">
             <strong>Note:</strong> The total number of questions will be multiplied by the number of selected pages. 
-            For example, 3 questions per type × 5 pages = 15 questions of that type.
+            For example, 3 questions per type x 5 pages = 15 questions of that type.
           </Alert>
         </div>
 
@@ -350,7 +328,7 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
             variant="secondary"
             onClick={() => setStep('select-pages')}
           >
-            ← Back to Page Selection
+            {'< Back to Page Selection'}
           </Button>
           <Button
             type="submit"

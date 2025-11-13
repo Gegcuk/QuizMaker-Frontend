@@ -40,7 +40,6 @@ export { default as ChunkSelector } from './components/ChunkSelector';
 export { default as DocumentPageSelector } from './components/DocumentPageSelector';
 export { default as DocumentPageSelectorModal } from './components/DocumentPageSelectorModal';
 export { default as RawDocumentPageSelector } from './components/RawDocumentPageSelector';
-export { default as DocumentPreviewModal } from './components/DocumentPreviewModal';
 export { default as FastDocumentPreviewModal } from './components/FastDocumentPreviewModal';
 export { default as DocumentProcessor } from './components/DocumentProcessor';
 export { default as DocumentProcessList } from './components/DocumentProcessList';

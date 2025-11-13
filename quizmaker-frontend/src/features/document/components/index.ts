@@ -9,7 +9,6 @@ export { default as ChunkSelector } from './ChunkSelector';
 export { default as DocumentPageSelector } from './DocumentPageSelector';
 export { default as DocumentPageSelectorModal } from './DocumentPageSelectorModal';
 export { default as RawDocumentPageSelector } from './RawDocumentPageSelector';
-export { default as DocumentPreviewModal } from './DocumentPreviewModal';
 export { default as FastDocumentPreviewModal } from './FastDocumentPreviewModal';
 export { default as DocumentAnalytics } from './DocumentAnalytics';
 export { default as DocumentConfig } from './DocumentConfig';

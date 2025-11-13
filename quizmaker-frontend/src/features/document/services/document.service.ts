@@ -7,7 +7,6 @@ import {
   DocumentConfigDto,
   Page
 } from '@/types';
-import { BaseService } from '@/services';
 
 /**
  * Document service for handling document operations
@@ -32,17 +31,17 @@ export class DocumentService {
     try {
       const formData = new FormData();
       formData.append('file', data.file);
-      
+      const params: Record<string, string | number> = {};
       if (data.chunkingStrategy) {
-        formData.append('chunkingStrategy', data.chunkingStrategy);
+        params.chunkingStrategy = data.chunkingStrategy;
       }
-      
-      if (data.maxChunkSize) {
-        formData.append('maxChunkSize', data.maxChunkSize.toString());
+      if (typeof data.maxChunkSize === 'number') {
+        params.maxChunkSize = data.maxChunkSize;
       }
 
       const response = await this.axiosInstance.post<DocumentDto>(DOCUMENT_ENDPOINTS.UPLOAD, formData, {
         _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
+        params: Object.keys(params).length ? params : undefined,
       } as any);
       return response.data;
     } catch (error) {

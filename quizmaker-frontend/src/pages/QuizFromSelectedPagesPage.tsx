@@ -9,6 +9,17 @@ import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { QuizService, api } from '@/services';
 import { useToast } from '@/components';
 import { GenerationProgress } from '@/features/ai';
+import { GenerateQuizFromDocumentRequest } from '@/types';
+
+const isGenerateQuizFromDocumentRequest = (
+  value: unknown
+): value is GenerateQuizFromDocumentRequest => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.documentId === 'string' && typeof candidate.quizScope === 'string' && !!candidate.questionsPerType;
+};
 
 const QuizFromSelectedPagesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -51,12 +62,12 @@ const QuizFromSelectedPagesPage: React.FC = () => {
         return;
       }
       
-      if (!(generationRequest instanceof FormData)) {
+      if (!isGenerateQuizFromDocumentRequest(generationRequest)) {
         addToast({ type: 'error', message: 'Document generation request is invalid. Please re-upload your file.' });
         return;
       }
 
-      const response = await quizService.generateQuizFromUpload(generationRequest);
+      const response = await quizService.generateQuizFromDocument(generationRequest);
 
       addToast({ 
         type: 'success', 
