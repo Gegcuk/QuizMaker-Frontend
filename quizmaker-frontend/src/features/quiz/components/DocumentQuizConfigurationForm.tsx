@@ -1,12 +1,14 @@
 // ---------------------------------------------------------------------------
 // DocumentQuizConfigurationForm.tsx - Configuration form for document-based quiz generation
-// Includes document upload and AI generation parameters
+// Includes document upload, page selection, and AI generation parameters
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
 import { CreateQuizRequest, Difficulty } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
+import { FastDocumentPreviewModal } from '@/features/document';
+import { RectangleStackIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface DocumentQuizConfigurationFormProps {
   quizData: QuizWizardDraft;
@@ -19,12 +21,9 @@ interface DocumentQuizConfigurationFormProps {
 interface DocumentGenerationConfig {
   file: File | null;
   quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS';
-  chapterTitle?: string;
-  chapterNumber?: number;
-  chunkIndices?: number[];
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
-  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED';
+  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED';
   maxChunkSize?: number;
 }
 
@@ -40,7 +39,12 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>({
     title: '',
     description: '',
-    difficulty: 'MEDIUM'
+    difficulty: 'MEDIUM',
+    estimatedTime: 30,
+    timerDuration: 30,
+    timerEnabled: false,
+    isRepetitionEnabled: false,
+    visibility: 'PRIVATE'
   });
   
   const [generationConfig, setGenerationConfig] = useState<DocumentGenerationConfig>({
@@ -59,6 +63,11 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     chunkingStrategy: 'AUTO',
     maxChunkSize: 50000
   });
+
+  // Page selection state
+  const [selectedPageNumbers, setSelectedPageNumbers] = useState<number[]>([]);
+  const [selectedContent, setSelectedContent] = useState<string>('');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
     setLocalData(prev => ({ ...prev, [field]: value }));
@@ -108,37 +117,76 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       // Validate file type
       const allowedTypes = [
         'application/pdf',
+        'application/epub+zip',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'text/plain'
       ];
       
       if (!allowedTypes.includes(file.type)) {
-        addToast({ message: 'Please upload a PDF, Word document, or text file' });
+        addToast({ message: 'Please upload a PDF, EPUB, Word document, or text file' });
         return;
       }
 
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        addToast({ message: 'File size must be less than 10MB' });
+      // Validate file size (150MB max)
+      if (file.size > 150 * 1024 * 1024) {
+        addToast({ message: 'File size must be less than 150MB' });
         return;
       }
 
+      // Reset previous selection when new file is uploaded
+      setSelectedPageNumbers([]);
+      setSelectedContent('');
       setGenerationConfig(prev => ({ ...prev, file }));
+      
+      // Open preview modal for all file types
+      setShowPreviewModal(true);
     }
+  };
+
+  const handlePageSelectionConfirm = (data: {
+    selectedPageNumbers: number[];
+    selectedContent: string;
+  }) => {
+    setSelectedPageNumbers(data.selectedPageNumbers);
+    setSelectedContent(data.selectedContent);
+    setShowPreviewModal(false);
+    
+    // Auto-populate title from filename if not set (max 100 chars)
+    if (!localData.title && generationConfig.file) {
+      let fileName = generationConfig.file.name.replace(/\.[^/.]+$/, '');
+      if (fileName.length > 100) {
+        fileName = fileName.substring(0, 100);
+      }
+      setLocalData(prev => ({ ...prev, title: fileName }));
+    }
+    
+    addToast({
+      type: 'success',
+      message: `${data.selectedPageNumbers.length} pages selected (${data.selectedContent.length} characters)`
+    });
+  };
+
+  const handleOpenPageSelector = () => {
+    if (!generationConfig.file) {
+      addToast({ type: 'error', message: 'Please upload a document first' });
+      return;
+    }
+    setShowPreviewModal(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation - check all required fields before submission
-    if (!localData.title?.trim()) {
-      addToast({ message: 'Please enter a quiz title' });
-      return;
-    }
-    
     if (!generationConfig.file) {
       addToast({ message: 'Please upload a document' });
+      return;
+    }
+
+    // Validate page selection
+    if (selectedPageNumbers.length === 0 || !selectedContent) {
+      addToast({ type: 'error', message: 'Please select pages from the document' });
       return;
     }
 
@@ -151,8 +199,21 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
     // Prepare the generation request as FormData
     const formData = new FormData();
-    formData.append('file', generationConfig.file!);
-    formData.append('quizScope', generationConfig.quizScope);
+    
+    // For ALL file types, create a text file with selected content
+    const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
+    const selectedFile = new File(
+      [selectedBlob], 
+      `selected-${generationConfig.file!.name}.txt`,
+      { type: 'text/plain' }
+    );
+    
+    formData.append('file', selectedFile);
+    formData.append('quizScope', 'ENTIRE_DOCUMENT');
+    
+    // Document title (for the document itself, not the quiz)
+    const documentTitle = generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Selected Content';
+    formData.append('title', documentTitle);
     
     // Document processing parameters
     if (generationConfig.chunkingStrategy) {
@@ -162,15 +223,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
     }
     
-    if (generationConfig.chapterTitle) {
-      formData.append('chapterTitle', generationConfig.chapterTitle);
-    }
-    if (typeof generationConfig.chapterNumber === 'number') {
-      formData.append('chapterNumber', generationConfig.chapterNumber.toString());
-    }
-    if (generationConfig.chunkIndices && generationConfig.chunkIndices.length > 0) {
-      formData.append('chunkIndices', JSON.stringify(generationConfig.chunkIndices));
-    }
     formData.append('quizTitle', localData.title!);
     if (localData.description) {
       formData.append('quizDescription', localData.description);
@@ -196,11 +248,18 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     const generationRequest = formData;
 
     // NOW send all data to parent - only at submission time
+    // Use the quiz title or auto-generate from filename (max 100 chars for validation)
+    let finalTitle = localData.title?.trim() || generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Generated Quiz';
+    if (finalTitle.length > 100) {
+      finalTitle = finalTitle.substring(0, 100);
+    }
     const dataWithConfig: QuizWizardDraft = {
       ...localData,
+      title: finalTitle,
       generationConfig,
       generationRequest,
     };
+    
     onDataChange(dataWithConfig);
     onCreateQuiz(dataWithConfig);
   };
@@ -216,27 +275,24 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </p>
       </div>
 
+      {/* Display validation errors from parent */}
+      {Object.keys(errors).length > 0 && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-red-800 mb-2">Validation Errors:</h4>
+          <ul className="list-disc list-inside text-sm text-red-700">
+            {Object.entries(errors).map(([key, value]) => (
+              <li key={key}>{key}: {value}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Quiz Settings */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Quiz Title */}
-            <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Quiz Title *
-              </label>
-              <Input
-                type="text"
-                value={localData.title || ''}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="Enter quiz title..."
-                className="w-full"
-                error={errors.title}
-              />
-            </div>
-
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
@@ -282,7 +338,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
               <input
                 type="file"
                 onChange={handleFileUpload}
-                accept=".pdf,.doc,.docx,.txt"
+                accept=".pdf,.epub,.doc,.docx,.txt"
                 className="hidden"
                 id="document-upload"
               />
@@ -296,7 +352,10 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                       Click to upload
                     </span> or drag and drop
                   </p>
-                  <p className="text-xs text-theme-text-tertiary">PDF, DOC, DOCX, TXT up to 10MB</p>
+                  <p className="text-xs text-theme-text-tertiary">
+                    PDF, EPUB, DOC, DOCX, TXT up to 150MB
+                    <span className="block mt-1 text-theme-interactive-primary font-medium">Preview will open immediately - select pages visually!</span>
+                  </p>
                 </div>
               </label>
             </div>
@@ -335,9 +394,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                         <ul className="text-xs space-y-1">
                           <li><strong>Auto:</strong> Automatically selects the best strategy</li>
                           <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                          <li><strong>Section:</strong> Splits by section headings</li>
-                          <li><strong>Size:</strong> Splits by character count</li>
-                          <li><strong>Page:</strong> Splits by page breaks</li>
                         </ul>
                       </div>
                     }
@@ -345,13 +401,10 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 </div>
                 <Dropdown
                   value={generationConfig.chunkingStrategy || 'AUTO'}
-                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED')}
+                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED')}
                   options={[
                     { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                    { label: 'Section Based', value: 'SECTION_BASED' },
-                    { label: 'Size Based', value: 'SIZE_BASED' },
-                    { label: 'Page Based', value: 'PAGE_BASED' }
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
                   ]}
                 />
               </div>
@@ -380,6 +433,74 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           </div>
 
         </div>
+
+        {/* Page Selection Summary */}
+        {generationConfig.file && (
+          <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h4 className="text-lg font-medium text-theme-text-primary mb-1">Page Selection</h4>
+                <p className="text-sm text-theme-text-secondary">
+                  {selectedPageNumbers.length > 0 
+                    ? `${selectedPageNumbers.length} pages selected` 
+                    : 'Click to preview and select pages'}
+                </p>
+              </div>
+            </div>
+
+            {selectedPageNumbers.length > 0 ? (
+              <>
+                <div className="mb-4 p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <CheckCircleIcon className="h-5 w-5 text-theme-interactive-success mr-2" />
+                    <span className="font-medium text-theme-text-primary">
+                      {selectedPageNumbers.length} pages selected
+                    </span>
+                  </div>
+                  <div className="text-sm text-theme-text-secondary">
+                    <strong>Pages:</strong>{' '}
+                    {selectedPageNumbers.slice(0, 15).join(', ')}
+                    {selectedPageNumbers.length > 15 && ` and ${selectedPageNumbers.length - 15} more...`}
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  onClick={handleOpenPageSelector}
+                  className="w-full"
+                >
+                  <RectangleStackIcon className="h-5 w-5 mr-2" />
+                  Change Page Selection
+                </Button>
+              </>
+            ) : (
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  onClick={handleOpenPageSelector}
+                  className="w-full"
+                >
+                  <RectangleStackIcon className="h-5 w-5 mr-2" />
+                  Open Preview & Select Pages
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Document Preview Modal - Opens immediately when file is selected */}
+        {generationConfig.file && showPreviewModal && (
+          <FastDocumentPreviewModal
+            file={generationConfig.file}
+            initialSelection={selectedPageNumbers}
+            onConfirm={handlePageSelectionConfirm}
+            onCancel={() => setShowPreviewModal(false)}
+          />
+        )}
 
         {/* Questions per type */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
@@ -418,7 +539,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           <Button
             type="submit"
             variant="primary"
-            disabled={isCreating || !localData.title?.trim() || !generationConfig.file}
+            disabled={isCreating || !generationConfig.file || selectedPageNumbers.length === 0}
             className="px-8"
           >
             {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}

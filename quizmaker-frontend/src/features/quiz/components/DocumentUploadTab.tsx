@@ -26,7 +26,6 @@ export const DocumentUploadTab: React.FC = () => {
   // Quiz generation configuration
   const [quizConfig, setQuizConfig] = useState({
     quizScope: 'ENTIRE_DOCUMENT' as QuizScope,
-    quizTitle: '',
     quizDescription: '',
     questionTypes: {
       MCQ_SINGLE: 3,
@@ -40,13 +39,13 @@ export const DocumentUploadTab: React.FC = () => {
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'CHAPTER_BASED',
+    chunkingStrategy: 'AUTO',
     maxChunkSize: 50000
   });
 
   const validateFile = (file: File): string | null => {
     const maxFileSize = 150 * 1024 * 1024; // 150MB limit
-    const supportedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const supportedTypes = ['application/pdf', 'application/epub+zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
     
     // Check file size
     if (file.size > maxFileSize) {
@@ -55,7 +54,7 @@ export const DocumentUploadTab: React.FC = () => {
     
     // Check file type
     if (!supportedTypes.includes(file.type)) {
-      return `File type not supported. Supported types: PDF, DOCX, TXT`;
+      return `File type not supported. Supported types: PDF, EPUB, DOCX, TXT`;
     }
     
     return null;
@@ -79,11 +78,10 @@ export const DocumentUploadTab: React.FC = () => {
     }
     
     setSelectedFile(file);
-    // Auto-generate quiz title from filename
+    // Auto-generate quiz description from filename
     const fileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
     setQuizConfig(prev => ({
       ...prev,
-      quizTitle: `${fileName} Quiz`,
       quizDescription: `Quiz generated from ${fileName} document`
     }));
   };
@@ -121,6 +119,14 @@ export const DocumentUploadTab: React.FC = () => {
       const formData = new FormData();
       formData.append('file', selectedFile);
       
+      // Document title (for the document itself, not the quiz)
+      const documentTitle = selectedFile.name.replace(/\.[^/.]+$/, '');
+      formData.append('title', documentTitle);
+      
+      // Auto-generate quiz title from document title (first 200 chars)
+      const quizTitle = documentTitle.substring(0, 200);
+      formData.append('quizTitle', quizTitle);
+      
       // Filter out question types with 0 questions
       const filteredQuestionTypes = Object.entries(quizConfig.questionTypes)
         .filter(([_, count]) => count > 0)
@@ -136,9 +142,6 @@ export const DocumentUploadTab: React.FC = () => {
       formData.append('maxChunkSize', quizConfig.maxChunkSize.toString());
       formData.append('estimatedTimePerQuestion', quizConfig.estimatedTimePerQuestion.toString());
       
-      if (quizConfig.quizTitle) {
-        formData.append('quizTitle', quizConfig.quizTitle);
-      }
       if (quizConfig.quizDescription) {
         formData.append('quizDescription', quizConfig.quizDescription);
       }
@@ -268,7 +271,7 @@ export const DocumentUploadTab: React.FC = () => {
                   ref={fileInputRef}
                   type="file"
                   onChange={handleFileInputChange}
-                  accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                  accept=".pdf,.epub,.docx,.txt,application/pdf,application/epub+zip,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                   className="hidden"
                 />
                 
@@ -297,20 +300,17 @@ export const DocumentUploadTab: React.FC = () => {
                     <Hint
                       position="right"
                       size="sm"
-                      content={
-                        <div className="space-y-2">
-                          <p className="font-medium">How to split your document:</p>
-                          <ul className="text-xs space-y-1">
-                            <li><strong>Auto:</strong> Automatically selects the best strategy</li>
-                            <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                            <li><strong>Section:</strong> Splits by section headings</li>
-                            <li><strong>Size:</strong> Splits by character count</li>
-                            <li><strong>Page:</strong> Splits by page breaks</li>
-                          </ul>
-                        </div>
-                      }
-                    />
-                  </div>
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">How to split your document:</p>
+                        <ul className="text-xs space-y-1">
+                          <li><strong>Auto:</strong> Automatically selects the best strategy</li>
+                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
+                        </ul>
+                      </div>
+                    }
+                  />
+                </div>
                 <Dropdown
                   value={quizConfig.chunkingStrategy}
                   onChange={(value) => setQuizConfig(prev => ({
@@ -319,10 +319,7 @@ export const DocumentUploadTab: React.FC = () => {
                   }))}
                   options={[
                     { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                    { label: 'Section Based', value: 'SECTION_BASED' },
-                    { label: 'Size Based', value: 'SIZE_BASED' },
-                    { label: 'Page Based', value: 'PAGE_BASED' }
+                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
                   ]}
                 />
                 </div>
@@ -361,22 +358,6 @@ export const DocumentUploadTab: React.FC = () => {
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
-              {/* Quiz Title */}
-              <div>
-                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                  Quiz Title <span className="text-theme-interactive-danger">*</span>
-                </label>
-                <Input
-                  type="text"
-                  value={quizConfig.quizTitle}
-                  onChange={(e) => setQuizConfig(prev => ({
-                    ...prev,
-                    quizTitle: e.target.value
-                  }))}
-                  placeholder="Enter quiz title..."
-                />
-              </div>
-
               {/* Quiz Description */}
               <Textarea
                 label="Quiz Description"
@@ -600,10 +581,10 @@ export const DocumentUploadTab: React.FC = () => {
           <Button
             variant="primary"
             onClick={handleUploadAndGenerate}
-            disabled={!quizConfig.quizTitle?.trim()}
+            disabled={!selectedFile}
             className="px-8 py-3 text-lg"
           >
-            🚀 Upload Document & Start Quiz Generation
+            Upload Document & Start Quiz Generation
           </Button>
         </div>
       )}

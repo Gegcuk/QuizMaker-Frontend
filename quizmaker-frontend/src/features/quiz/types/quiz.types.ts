@@ -111,15 +111,19 @@ export interface QuizSearchCriteria {
  * Matches GenerateQuizFromDocumentRequest from backend API
  */
 export interface GenerateQuizFromDocumentRequest {
-  documentId: string;               // Required: Document ID
-  quizScope: QuizScope;             // Required: Quiz scope as string enum
-  questionTypes: Record<QuizQuestionType, number>; // Required: Questions per type per chunk
+  documentId: string;               // Required: Document ID returned from /api/documents/upload
+  quizScope: QuizScope;             // Required: Determines whether entire doc or specific chunks are used
+  questionsPerType: Record<QuizQuestionType, number>; // Required: Questions per type per chunk
   difficulty: Difficulty;           // Required: Question difficulty
+  chunkIndices?: number[];          // Optional: Specific chunk indices when quizScope is SPECIFIC_CHUNKS
+  chapterTitle?: string;            // Optional: Chapter title when targeting chapter scope
+  chapterNumber?: number;           // Optional: Chapter number when targeting chapter scope
   quizTitle?: string;               // Optional: Custom title (max 100 chars)
   quizDescription?: string;         // Optional: Custom description (max 500 chars)
-  estimatedTimePerQuestion?: number; // 1-10 minutes, default: 2
+  estimatedTimePerQuestion?: number; // Optional: Minutes per question (1-10, default 2)
   categoryId?: string;              // Optional: Category ID
   tagIds?: string[];                // Optional: Tag IDs
+  language?: string;                // Optional: ISO 639-1 code for localization
 }
 
 /**

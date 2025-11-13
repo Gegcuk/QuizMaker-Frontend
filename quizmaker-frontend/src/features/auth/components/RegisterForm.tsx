@@ -166,10 +166,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           label="Password"
           type={showPassword ? "text" : "password"}
           placeholder="Create a strong password"
+          helperText="Must contain: uppercase, lowercase, number, and special character (!@#$%^&* etc.)"
           validation={{
             required: true,
             minLength: 8,
             maxLength: 100,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
             custom: validatePasswordStrength
           }}
           autoComplete="new-password"
