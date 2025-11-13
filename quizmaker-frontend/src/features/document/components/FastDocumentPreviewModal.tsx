@@ -238,8 +238,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     let combinedHtml = '';
     let combinedText = '';
     
-    console.log(`EPUB: Found ${htmlFiles.length} HTML files to process`);
-    
     for (const { file: zipFile, path } of htmlFiles) {
       const content = await zipFile.async('text');
       // Extract text from HTML
@@ -248,11 +246,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       const pageText = tempDiv.textContent || tempDiv.innerText || '';
       combinedText += pageText + '\n\n';
       combinedHtml += content + '<hr class="my-4"/>';
-      console.log(`EPUB chapter: ${path} - ${pageText.length} characters`);
     }
-    
-    console.log(`EPUB: Total combined text: ${combinedText.length} characters`);
-    console.log(`EPUB: Total combined HTML: ${combinedHtml.length} characters`);
     
     // Split by text content to get ~827 pages (like PDF)
     // Using 1150 chars per page (accounts for paragraph boundaries keeping pages together)
@@ -265,8 +259,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       textContent: page.textContent,
       type: 'text' as const
     }));
-    
-    console.log(`EPUB: After splitting: ${allPages.length} preview pages`);
     
     setPages(allPages);
     if (initialSelection.length === 0) {

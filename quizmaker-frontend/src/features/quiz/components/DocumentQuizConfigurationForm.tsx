@@ -200,22 +200,16 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     // Prepare the generation request as FormData
     const formData = new FormData();
     
-    // For EPUB files, send the original file (entire document)
-    if (generationConfig.file?.type === 'application/epub+zip') {
-      formData.append('file', generationConfig.file);
-      formData.append('quizScope', 'ENTIRE_DOCUMENT');
-    } else {
-      // For PDF/DOCX/TXT, create a text file with selected content
-      const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
-      const selectedFile = new File(
-        [selectedBlob], 
-        `selected-${generationConfig.file!.name}.txt`,
-        { type: 'text/plain' }
-      );
-      
-      formData.append('file', selectedFile);
-      formData.append('quizScope', 'ENTIRE_DOCUMENT');
-    }
+    // For ALL file types, create a text file with selected content
+    const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
+    const selectedFile = new File(
+      [selectedBlob], 
+      `selected-${generationConfig.file!.name}.txt`,
+      { type: 'text/plain' }
+    );
+    
+    formData.append('file', selectedFile);
+    formData.append('quizScope', 'ENTIRE_DOCUMENT');
     
     // Document title (for the document itself, not the quiz)
     const documentTitle = generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Selected Content';
