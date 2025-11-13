@@ -14,13 +14,18 @@ import {
 interface FastDocumentPreviewModalProps {
   file: File;
   initialSelection?: number[];
-  onConfirm: (selectedPageNumbers: number[]) => void;
+  onConfirm: (data: {
+    selectedPageNumbers: number[];
+    selectedContent: string;
+    pages: DocumentPage[];
+  }) => void;
   onCancel: () => void;
 }
 
 interface DocumentPage {
   pageNum: number;
-  content: string; // HTML or text content
+  content: string; // HTML or text content (for display)
+  textContent?: string; // Extracted text (for sending to server)
   type: 'html' | 'image' | 'text';
 }
 
@@ -83,16 +88,21 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale: 1.5 });
       
+      // Render page to canvas for visual preview
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;
-
       await page.render({ canvasContext: context!, viewport }).promise;
+      
+      // Extract text content from PDF page
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item: any) => item.str).join(' ');
       
       pdfPages.push({
         pageNum,
         content: canvas.toDataURL(),
+        textContent: pageText,
         type: 'image'
       });
     }
@@ -106,7 +116,12 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 
   const loadImage = async () => {
     const imageUrl = URL.createObjectURL(file);
-    setPages([{ pageNum: 1, content: imageUrl, type: 'image' }]);
+    setPages([{ 
+      pageNum: 1, 
+      content: imageUrl, 
+      textContent: '[Image file - no text content]',
+      type: 'image' 
+    }]);
     if (initialSelection.length === 0) {
       setSelectedPageNumbers(new Set([1]));
     }
@@ -121,7 +136,8 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     const mammoth = (window as any).mammoth;
     const arrayBuffer = await file.arrayBuffer();
     
-    const result = await mammoth.convertToHtml({ 
+    // Extract HTML for display
+    const htmlResult = await mammoth.convertToHtml({ 
       arrayBuffer,
       convertImage: mammoth.images.imgElement((image: any) => {
         return image.read("base64").then((imageBuffer: string) => {
@@ -132,8 +148,12 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       })
     });
     
-    const html = result.value;
-    const htmlPages = splitHtmlByContent(html);
+    // Extract raw text for sending to server
+    const textResult = await mammoth.extractRawText({ arrayBuffer });
+    
+    const html = htmlResult.value;
+    const fullText = textResult.value;
+    const htmlPages = splitHtmlByContent(html, fullText);
     
     setPages(htmlPages);
     if (initialSelection.length === 0) {
@@ -153,36 +173,38 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     addToast({ type: 'success', message: `Text loaded: ${textPages.length} sections` });
   };
 
-  const splitHtmlByContent = (html: string): DocumentPage[] => {
+  const splitHtmlByContent = (html: string, rawText: string): DocumentPage[] => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
     const elements = Array.from(tempDiv.children);
     const pages: DocumentPage[] = [];
     
-    // Microsoft Word A4 page with 12pt font, normal margins: ~250-300 words = ~1500-1800 chars
-    // Adjusted based on your data: 558 real pages showing as 137 = 4x too few pages
-    // 5500 / 4 ≈ 1375, so let's use 1400
     const CHARS_PER_PAGE = 1400;
     let currentPageElements: Element[] = [];
     let currentPageChars = 0;
+    let textOffset = 0;
     
     for (const element of elements) {
       const elementText = element.textContent || '';
       const elementChars = elementText.length;
       const imageCount = element.getElementsByTagName('img').length;
       
-      // Images take significant space: count each as ~300 characters (about 1/5 of a page)
       const effectiveChars = elementChars + (imageCount * 300);
       
-      // Start new page if we exceed limit
       if (currentPageChars + effectiveChars > CHARS_PER_PAGE && currentPageElements.length > 0) {
         const pageHtml = currentPageElements.map(el => el.outerHTML).join('');
+        const pageTextLength = currentPageElements.reduce((sum, el) => sum + (el.textContent?.length || 0), 0);
+        const pageText = rawText.substring(textOffset, textOffset + pageTextLength);
+        
         pages.push({
           pageNum: pages.length + 1,
           content: pageHtml,
+          textContent: pageText,
           type: 'html'
         });
+        
+        textOffset += pageTextLength;
         currentPageElements = [element];
         currentPageChars = effectiveChars;
       } else {
@@ -194,14 +216,17 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     // Add last page
     if (currentPageElements.length > 0) {
       const pageHtml = currentPageElements.map(el => el.outerHTML).join('');
+      const pageText = rawText.substring(textOffset);
+      
       pages.push({
         pageNum: pages.length + 1,
         content: pageHtml,
+        textContent: pageText,
         type: 'html'
       });
     }
     
-    return pages.length > 0 ? pages : [{ pageNum: 1, content: html, type: 'html' }];
+    return pages.length > 0 ? pages : [{ pageNum: 1, content: html, textContent: rawText, type: 'html' }];
   };
 
   const splitTextByContent = (text: string): DocumentPage[] => {
@@ -216,6 +241,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         pages.push({
           pageNum: pages.length + 1,
           content: currentText,
+          textContent: currentText, // Same for text files
           type: 'text'
         });
         currentText = para;
@@ -228,6 +254,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       pages.push({
         pageNum: pages.length + 1,
         content: currentText,
+        textContent: currentText,
         type: 'text'
       });
     }
@@ -267,8 +294,34 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       return;
     }
 
-    const sortedPages = Array.from(selectedPageNumbers).sort((a, b) => a - b);
-    onConfirm(sortedPages);
+    const sortedPageNumbers = Array.from(selectedPageNumbers).sort((a, b) => a - b);
+    const selectedPages = pages.filter(p => selectedPageNumbers.has(p.pageNum));
+    
+    // Extract actual text content from selected pages
+    const selectedContent = selectedPages.map(page => {
+      // Use pre-extracted text content if available
+      if (page.textContent) {
+        return page.textContent;
+      }
+      
+      if (page.type === 'html') {
+        // Remove HTML tags to get clean text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = page.content;
+        return tempDiv.textContent || tempDiv.innerText || '';
+      } else if (page.type === 'text') {
+        return page.content;
+      } else {
+        // For images without text, return a placeholder
+        return `[Image: Page ${page.pageNum}]`;
+      }
+    }).join('\n\n');
+
+    onConfirm({
+      selectedPageNumbers: sortedPageNumbers,
+      selectedContent,
+      pages: selectedPages
+    });
   };
 
   const handleSaveSelection = () => {

@@ -61,6 +61,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
   // Page selection state
   const [selectedPageNumbers, setSelectedPageNumbers] = useState<number[]>([]);
+  const [selectedContent, setSelectedContent] = useState<string>('');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
@@ -132,6 +133,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
       // Reset previous selection when new file is uploaded
       setSelectedPageNumbers([]);
+      setSelectedContent('');
       setGenerationConfig(prev => ({ ...prev, file }));
       
       // Open preview modal immediately
@@ -139,13 +141,17 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     }
   };
 
-  const handlePageSelectionConfirm = (pageNumbers: number[]) => {
-    setSelectedPageNumbers(pageNumbers);
+  const handlePageSelectionConfirm = (data: {
+    selectedPageNumbers: number[];
+    selectedContent: string;
+  }) => {
+    setSelectedPageNumbers(data.selectedPageNumbers);
+    setSelectedContent(data.selectedContent);
     setShowPreviewModal(false);
     
     addToast({
       type: 'success',
-      message: `${pageNumbers.length} pages selected for quiz generation`
+      message: `${data.selectedPageNumbers.length} pages selected (${data.selectedContent.length} characters)`
     });
   };
 
@@ -172,7 +178,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     }
 
     // Validate page selection
-    if (selectedPageNumbers.length === 0) {
+    if (selectedPageNumbers.length === 0 || !selectedContent) {
       addToast({ type: 'error', message: 'Please select pages from the document' });
       return;
     }
@@ -186,11 +192,17 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
     // Prepare the generation request as FormData
     const formData = new FormData();
-    formData.append('file', generationConfig.file!);
     
-    // Send selected page numbers
-    formData.append('quizScope', 'SPECIFIC_PAGES');
-    formData.append('selectedPages', JSON.stringify(selectedPageNumbers));
+    // Create a new text file with ONLY the selected content
+    const selectedBlob = new Blob([selectedContent], { type: 'text/plain' });
+    const selectedFile = new File(
+      [selectedBlob], 
+      `selected-${generationConfig.file!.name}.txt`,
+      { type: 'text/plain' }
+    );
+    
+    formData.append('file', selectedFile);
+    formData.append('quizScope', 'ENTIRE_DOCUMENT'); // It's the entire selected content now
     
     // Document processing parameters
     if (generationConfig.chunkingStrategy) {
