@@ -92,7 +92,7 @@ export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
     setUploadError(null);
     setUploadProgress(0);
 
-    let progressInterval: NodeJS.Timeout | null = null;
+    let progressInterval: number | null = null;
     
     try {
       progressInterval = setInterval(() => {
