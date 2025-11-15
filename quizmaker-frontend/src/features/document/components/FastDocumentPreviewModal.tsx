@@ -37,6 +37,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 }) => {
   const { addToast } = useToast();
   const imageUrlRef = useRef<string | null>(null);
+  const isCancelledRef = useRef(false);
   
   const [pages, setPages] = useState<DocumentPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,11 +49,13 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 
   useEffect(() => {
     if (file) {
+      isCancelledRef.current = false;
       loadDocument();
     }
     
     // Cleanup: revoke blob URLs when component unmounts or file changes
     return () => {
+      isCancelledRef.current = true;
       if (imageUrlRef.current) {
         URL.revokeObjectURL(imageUrlRef.current);
         imageUrlRef.current = null;
@@ -79,7 +82,9 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       addToast({ type: 'error', message: err.message || 'Failed to load document' });
       await loadTextFile();
     } finally {
-      setIsLoading(false);
+      if (!isCancelledRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -96,6 +101,9 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     const pdfPages: DocumentPage[] = [];
 
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      if (isCancelledRef.current) {
+        break;
+      }
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale: 1.5 });
       
@@ -118,11 +126,13 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       });
     }
 
-    setPages(pdfPages);
-    if (initialSelection.length === 0) {
-      setSelectedPageNumbers(new Set(Array.from({ length: numPages }, (_, i) => i + 1)));
+    if (!isCancelledRef.current) {
+      setPages(pdfPages);
+      if (initialSelection.length === 0) {
+        setSelectedPageNumbers(new Set(Array.from({ length: numPages }, (_, i) => i + 1)));
+      }
+      addToast({ type: 'success', message: `PDF loaded: ${numPages} pages` });
     }
-    addToast({ type: 'success', message: `PDF loaded: ${numPages} pages` });
   };
 
   const loadImage = async () => {
@@ -134,16 +144,18 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     const imageUrl = URL.createObjectURL(file);
     imageUrlRef.current = imageUrl; // Store for cleanup
     
-    setPages([{ 
-      pageNum: 1, 
-      content: imageUrl, 
-      textContent: '[Image file - no text content]',
-      type: 'image' 
-    }]);
-    if (initialSelection.length === 0) {
-      setSelectedPageNumbers(new Set([1]));
+    if (!isCancelledRef.current) {
+      setPages([{ 
+        pageNum: 1, 
+        content: imageUrl, 
+        textContent: '[Image file - no text content]',
+        type: 'image' 
+      }]);
+      if (initialSelection.length === 0) {
+        setSelectedPageNumbers(new Set([1]));
+      }
+      addToast({ type: 'success', message: 'Image loaded' });
     }
-    addToast({ type: 'success', message: 'Image loaded' });
   };
 
   const loadDOCX = async () => {
@@ -173,11 +185,13 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     const fullText = textResult.value;
     const htmlPages = splitHtmlByContent(html, fullText);
     
-    setPages(htmlPages);
-    if (initialSelection.length === 0) {
-      setSelectedPageNumbers(new Set(Array.from({ length: htmlPages.length }, (_, i) => i + 1)));
+    if (!isCancelledRef.current) {
+      setPages(htmlPages);
+      if (initialSelection.length === 0) {
+        setSelectedPageNumbers(new Set(Array.from({ length: htmlPages.length }, (_, i) => i + 1)));
+      }
+      addToast({ type: 'success', message: `DOCX loaded: ${htmlPages.length} sections` });
     }
-    addToast({ type: 'success', message: `DOCX loaded: ${htmlPages.length} sections` });
   };
 
   const loadEPUB = async () => {
@@ -276,22 +290,26 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       type: 'text' as const
     }));
     
-    setPages(allPages);
-    if (initialSelection.length === 0) {
-      setSelectedPageNumbers(new Set(Array.from({ length: allPages.length }, (_, i) => i + 1)));
+    if (!isCancelledRef.current) {
+      setPages(allPages);
+      if (initialSelection.length === 0) {
+        setSelectedPageNumbers(new Set(Array.from({ length: allPages.length }, (_, i) => i + 1)));
+      }
+      addToast({ type: 'success', message: `EPUB loaded: ${allPages.length} pages from ${htmlFiles.length} chapters (${Math.round(combinedText.length / 1000)}K chars)` });
     }
-    addToast({ type: 'success', message: `EPUB loaded: ${allPages.length} pages from ${htmlFiles.length} chapters (${Math.round(combinedText.length / 1000)}K chars)` });
   };
 
   const loadTextFile = async () => {
     const text = await file.text();
     const textPages = splitTextByContent(text);
     
-    setPages(textPages);
-    if (initialSelection.length === 0) {
-      setSelectedPageNumbers(new Set(Array.from({ length: textPages.length }, (_, i) => i + 1)));
+    if (!isCancelledRef.current) {
+      setPages(textPages);
+      if (initialSelection.length === 0) {
+        setSelectedPageNumbers(new Set(Array.from({ length: textPages.length }, (_, i) => i + 1)));
+      }
+      addToast({ type: 'success', message: `Text loaded: ${textPages.length} sections` });
     }
-    addToast({ type: 'success', message: `Text loaded: ${textPages.length} sections` });
   };
 
   const splitHtmlByContent = (html: string, rawText: string, charsPerPage: number = 1400): DocumentPage[] => {
@@ -629,7 +647,10 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
             <span className="font-semibold text-theme-text-primary">{pages.length}</span> selected
           </div>
           <div className="flex gap-3">
-            <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+          <Button variant="secondary" onClick={() => {
+            isCancelledRef.current = true;
+            onCancel();
+          }}>Cancel</Button>
             <Button variant="primary" onClick={handleConfirm} disabled={selectedPageNumbers.size === 0}>
               Confirm Selection ({selectedPageNumbers.size})
             </Button>
