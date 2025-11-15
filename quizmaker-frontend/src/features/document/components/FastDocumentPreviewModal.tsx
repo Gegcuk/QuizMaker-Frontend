@@ -8,8 +8,7 @@ import {
   XMarkIcon,
   MagnifyingGlassMinusIcon,
   MagnifyingGlassPlusIcon,
-  CheckCircleIcon,
-  DocumentArrowDownIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface FastDocumentPreviewModalProps {
@@ -491,32 +490,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     });
   };
 
-  const handleSaveSelection = () => {
-    const sortedPages = Array.from(selectedPageNumbers).sort((a, b) => a - b);
-    
-    const metadata = {
-      fileName: file.name,
-      fileType: file.type,
-      totalPages: pages.length,
-      selectedPages: sortedPages,
-      timestamp: new Date().toISOString()
-    };
-
-    const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `selected-pages-${file.name}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    // Clean up the blob URL after download (delay to ensure download starts)
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-
-    addToast({ type: 'success', message: `Saved selection: ${sortedPages.length} pages` });
-  };
-
   const getFilteredPages = () => {
     if (!searchTerm) return pages;
     const term = searchTerm.toLowerCase();
@@ -571,10 +544,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 
           <Button type="button" variant="secondary" size="sm" onClick={selectAllPages}>All</Button>
           <Button type="button" variant="secondary" size="sm" onClick={deselectAllPages}>None</Button>
-          <Button type="button" variant="secondary" size="sm" onClick={handleSaveSelection} disabled={selectedPageNumbers.size === 0}>
-            <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
-            Save ({selectedPageNumbers.size})
-          </Button>
         </div>
 
         {/* Content */}
@@ -584,6 +553,9 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
               <div className="text-center">
                 <Spinner size="lg" className="mx-auto mb-4" />
                 <p className="text-theme-text-secondary text-lg">Loading document...</p>
+                <p className="text-theme-text-tertiary text-sm mt-2">
+                  Large PDFs or EPUBs can take up to 2 minutes to fully load.
+                </p>
               </div>
             </div>
           ) : filteredPages.length === 0 ? (
