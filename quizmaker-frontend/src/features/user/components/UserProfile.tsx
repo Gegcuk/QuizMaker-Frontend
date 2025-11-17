@@ -6,9 +6,9 @@
 import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useAuth, LinkedAccounts } from '@/features/auth';
 import { UserDto, UserProfileResponse } from '@/types';
-import { userService } from '@/services';
+import { userService, authService } from '@/services';
 import type { AxiosError } from 'axios';
-import { Button, Input } from '@/components';
+import { Button, Input, Alert } from '@/components';
 
 interface UserProfileProps {
   userId?: string; // If provided, shows admin view for specific user
@@ -36,6 +36,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   // Form state for editing
   const [formData, setFormData] = useState<Partial<UserProfileResponse>>({});
@@ -150,6 +153,44 @@ const UserProfile: React.FC<UserProfileProps> = ({
     // TODO: Implement when backend endpoints are available
     console.warn('Admin user management not yet implemented');
   };
+
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    if (!user || resendCountdown > 0) return;
+
+    setIsResendingVerification(true);
+    setVerificationMessage(null);
+
+    try {
+      await authService.resendVerification({ email: user.email });
+      setResendCountdown(60); // 60 second countdown
+      setVerificationMessage({
+        type: 'success',
+        text: 'Verification email sent! Please check your inbox.'
+      });
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string; error?: string }>;
+      const errorMessage = 
+        axiosError.response?.data?.message || 
+        axiosError.response?.data?.error || 
+        'Failed to resend verification email. Please try again.';
+      
+      setVerificationMessage({
+        type: 'error',
+        text: errorMessage
+      });
+    } finally {
+      setIsResendingVerification(false);
+    }
+  };
+
+  // Handle resend countdown
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   if (isLoading) {
     return (
@@ -322,7 +363,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary">Account Status</label>
-              <p className="mt-1 text-sm text-theme-text-primary">
+              <div className="mt-1">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   displayUser.verified 
                     ? 'bg-theme-bg-success text-theme-interactive-success' 
@@ -330,7 +371,51 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 }`}>
                   {displayUser.verified ? 'Email Verified' : 'Email Not Verified'}
                 </span>
-              </p>
+              </div>
+              
+              {/* Email Verification Section - Only show if not verified and not admin view */}
+              {!displayUser.verified && !isAdminView && (
+                <div className="mt-4 p-4 bg-theme-bg-warning/10 border border-theme-border-warning rounded-md">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-theme-interactive-warning" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <h4 className="text-sm font-medium text-theme-text-primary">
+                        Verify your email address
+                      </h4>
+                      <p className="mt-1 text-sm text-theme-text-secondary">
+                        Please verify your email address to access all features. Check your inbox for a verification link.
+                      </p>
+                      
+                      {verificationMessage && (
+                        <div className="mt-3">
+                          <Alert type={verificationMessage.type} className="text-sm">
+                            {verificationMessage.text}
+                          </Alert>
+                        </div>
+                      )}
+                      
+                      <div className="mt-3">
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          onClick={handleResendVerification}
+                          disabled={isResendingVerification || resendCountdown > 0}
+                          loading={isResendingVerification}
+                        >
+                          {resendCountdown > 0 
+                            ? `Resend in ${resendCountdown}s` 
+                            : 'Resend verification email'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

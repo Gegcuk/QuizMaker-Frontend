@@ -7,6 +7,7 @@ import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { Button, Input, Alert } from '@/components';
+import { authService } from '@/services';
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
@@ -135,15 +136,10 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // TODO: Implement actual password reset API call
-      // This would typically call an API endpoint like:
-      // await authService.resetPassword({ 
-      //   token: token!, 
-      //   newPassword: password 
-      // });
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the reset password API
+      await authService.resetPassword(token!, { 
+        newPassword: password 
+      });
       
       // Call success callback if provided
       if (onSuccess) {
