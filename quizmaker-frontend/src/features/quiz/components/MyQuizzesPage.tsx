@@ -43,6 +43,9 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  // Mobile: Track how many quizzes to display (start with 10, increment by 10)
+  const [mobileDisplayedCount, setMobileDisplayedCount] = useState(10);
 
   // Bulk selection
   const [selectedQuizzes, setSelectedQuizzes] = useState<string[]>([]);
@@ -74,10 +77,21 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const filteredAndSortedQuizzes = useQuizFiltering(quizzes, filters, sortBy);
   const { paginatedQuizzes, pagination } = useQuizPagination(filteredAndSortedQuizzes, currentPage, pageSize);
 
+  // For mobile: Get quizzes up to displayedCount
+  const mobileQuizzes = React.useMemo(() => {
+    return filteredAndSortedQuizzes.slice(0, mobileDisplayedCount);
+  }, [filteredAndSortedQuizzes, mobileDisplayedCount]);
+
+  // Determine which quizzes to display based on screen size
+  const displayedQuizzes = isMobile ? mobileQuizzes : paginatedQuizzes;
+  const hasMoreQuizzes = isMobile ? mobileDisplayedCount < filteredAndSortedQuizzes.length : false;
+
   // Update pagination state when filters/sorting change
   React.useEffect(() => {
     // Reset to first page when filters/sorting change
     setCurrentPage(1);
+    // Reset mobile displayed count when filters/sorting change
+    setMobileDisplayedCount(10);
   }, [filteredAndSortedQuizzes.length, pageSize]);
 
   // Load quizzes
@@ -162,10 +176,11 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   };
 
   const handleSelectAll = (selected: boolean) => {
+    const quizzesToSelect = isMobile ? mobileQuizzes : paginatedQuizzes;
     if (selected) {
-      setSelectedQuizzes(prev => [...new Set([...prev, ...paginatedQuizzes.map(quiz => quiz.id)])]);
+      setSelectedQuizzes(prev => [...new Set([...prev, ...quizzesToSelect.map(quiz => quiz.id)])]);
     } else {
-      setSelectedQuizzes(prev => prev.filter(id => !paginatedQuizzes.some(quiz => quiz.id === id)));
+      setSelectedQuizzes(prev => prev.filter(id => !quizzesToSelect.some(quiz => quiz.id === id)));
     }
   };
 
@@ -258,6 +273,10 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1);
+  };
+
+  const handleLoadMore = () => {
+    setMobileDisplayedCount(prev => prev + 10);
   };
 
   const handleAttemptsLoaded = (hasAttempts: boolean) => {
@@ -438,7 +457,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
               {/* Quiz Display */}
               {viewMode === 'grid' ? (
                 <QuizGrid
-                  quizzes={paginatedQuizzes}
+                  quizzes={displayedQuizzes}
                   isLoading={isLoading}
                   selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
@@ -450,7 +469,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 />
               ) : (
                 <QuizList
-                  quizzes={paginatedQuizzes}
+                  quizzes={displayedQuizzes}
                   isLoading={isLoading}
                   selectedQuizzes={selectedQuizzes}
                   onEdit={handleEditQuiz}
@@ -462,13 +481,29 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 />
               )}
 
-              {/* Pagination */}
-              <QuizPagination
-                pagination={pagination}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                className="mt-6"
-              />
+              {/* Mobile: Load More Button */}
+              {isMobile && hasMoreQuizzes && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    onClick={handleLoadMore}
+                  >
+                    Load 10 more
+                  </Button>
+                </div>
+              )}
+
+              {/* Desktop: Pagination */}
+              {!isMobile && (
+                <QuizPagination
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  className="mt-6"
+                />
+              )}
             </div>
           )}
         </div>
