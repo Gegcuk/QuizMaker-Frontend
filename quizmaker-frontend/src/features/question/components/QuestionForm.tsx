@@ -54,6 +54,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const [editorKey, setEditorKey] = useState(0); // Key to force editor remount on reset
   // Live preview is rendered alongside the form; no toggle needed
 
+  // Step management for CREATE flow (2-step process)
+  // EDIT flow skips step 1 (type selection) and goes directly to form
+  const [step, setStep] = useState<'typeSelection' | 'formCreation'>(questionId ? 'formCreation' : 'typeSelection');
+
   // Form state
   const [formData, setFormData] = useState<CreateQuestionRequest>({
     type: 'MCQ_SINGLE',
@@ -230,6 +234,18 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setShowExplanation(false);
   }, []);
 
+  // Handle type selection in step 1 and proceed to step 2
+  const handleTypeSelect = useCallback((type: QuestionType) => {
+    handleTypeChange(type);
+    setStep('formCreation');
+  }, [handleTypeChange]);
+
+  // Handle back button to return to type selection
+  const handleBackToTypeSelection = useCallback(() => {
+    setStep('typeSelection');
+    setError(null);
+  }, []);
+
   // Build attempt-like question with safeContent (no correct answers)
   const toAttemptQuestion = (): QuestionForAttemptDto => {
     const { type, difficulty, questionText, content } = formData as any;
@@ -368,6 +384,65 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     );
   }
 
+  // Step 1: Type Selection (only for CREATE flow)
+  if (step === 'typeSelection' && !questionId) {
+    return (
+      <div className={`max-w-4xl mx-auto ${className}`}>
+        {/* Header */}
+        {!compact && (
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-theme-text-primary">
+              Create New Question
+            </h1>
+            <p className="mt-2 text-theme-text-secondary">
+              Choose the type of question you want to create.
+            </p>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <Alert 
+            type="error" 
+            dismissible 
+            onDismiss={() => setError(null)}
+            className="mb-6"
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/* Type Selection */}
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
+          <h4 className="text-md font-medium text-theme-text-primary mb-4">Select Question Type</h4>
+          <QuestionTypeSelector
+            selectedType={formData.type}
+            onTypeChange={handleTypeChange}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between mt-8">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => handleTypeSelect(formData.type)}
+          >
+            Continue
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 2: Form Creation (or Edit mode - which skips step 1)
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
       {/* Header */}
@@ -394,22 +469,42 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         </Alert>
       )}
 
-      {/* Edit Mode with Live Preview */}
+      {/* Form with Live Preview */}
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
           <h4 className="text-md font-medium text-theme-text-primary mb-4">Question Details</h4>
           <div>
             <div className="space-y-6">
-                {/* Question Type - Only shown when creating */}
+                {/* Question Type Display - Show selected type in CREATE mode, hidden in EDIT mode */}
                 {!questionId && (
                   <div>
                     <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                       Question Type
                     </label>
-                    <QuestionTypeSelector
-                      selectedType={formData.type}
-                      onTypeChange={handleTypeChange}
-                    />
+                    <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-theme-text-primary">
+                          {formData.type === 'MCQ_SINGLE' ? 'Single Choice' : 
+                           formData.type === 'MCQ_MULTI' ? 'Multiple Choice' :
+                           formData.type === 'TRUE_FALSE' ? 'True/False' :
+                           formData.type === 'OPEN' ? 'Open Ended' :
+                           formData.type === 'FILL_GAP' ? 'Fill in the Blank' :
+                           formData.type === 'COMPLIANCE' ? 'Compliance' :
+                           formData.type === 'ORDERING' ? 'Ordering' :
+                           formData.type === 'HOTSPOT' ? 'Hotspot' :
+                           formData.type === 'MATCHING' ? 'Matching' : formData.type}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleBackToTypeSelection}
+                          className="text-xs"
+                        >
+                          Change Type
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
 

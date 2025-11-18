@@ -9,7 +9,6 @@ import {
   TableCellsIcon,
   GlobeAltIcon,
   WrenchScrewdriverIcon,
-  CheckIcon,
 } from '@heroicons/react/24/outline';
 import { Modal, Button, Checkbox } from '@/components';
 import { QuizDto, QuizExportFormat } from '@/types';
@@ -97,15 +96,8 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
                       : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary hover:shadow-sm'
                   }`}
                 >
-                  {/* Selected Checkmark - Top Right */}
-                  {isSelected && (
-                    <div className="absolute top-2 right-2">
-                      <CheckIcon className="w-5 h-5 text-theme-interactive-primary" strokeWidth={2.5} />
-                    </div>
-                  )}
-
                   {/* Content */}
-                  <div className="flex-1 pr-6">
+                  <div className="flex-1">
                     <div className="flex items-start">
                       {(() => { const I = Icon; return <I className={`w-5 h-5 mr-2 flex-shrink-0 ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}`} />; })()}
                       <div className="flex-1">
