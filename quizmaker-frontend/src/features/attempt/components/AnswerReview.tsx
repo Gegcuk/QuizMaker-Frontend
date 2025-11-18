@@ -49,7 +49,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
 
 
 
-  const correctAnswers = answers.filter(answer => answer.isCorrect).length;
+  const correctAnswers = answers.filter(answer => answer.isCorrect === true).length;
   const totalAnswers = answers.length;
   const accuracy = totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0;
 

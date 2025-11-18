@@ -73,6 +73,8 @@ export interface AttemptDetailsDto {
 export interface AnswerSubmissionRequest {
   questionId: string; // UUID
   response: any;      // JsonNode in Java, see Answer JSON per Type
+  includeCorrectness?: boolean;  // Include whether the answer is correct (isCorrect field) in the response. Defaults to false.
+  includeCorrectAnswer?: boolean; // Include the correct answer information (correctAnswer field) in the response. Defaults to false.
 }
 
 /**
@@ -90,9 +92,10 @@ export interface BatchAnswerSubmissionRequest {
 export interface AnswerSubmissionDto {
   answerId: string;            // UUID
   questionId: string;          // UUID
-  isCorrect: boolean | null;   // null if not yet graded
+  isCorrect?: boolean;         // Whether the submitted answer was correct (only included when includeCorrectness=true)
   score: number | null;        // null if not yet graded
   answeredAt: string;          // ISO (Instant in Java)
+  correctAnswer?: any;         // Correct answer information (only included when includeCorrectAnswer=true). JsonNode in Java.
   nextQuestion?: QuestionForAttemptDto | null; // ONE_BY_ONE mode only
 }
 
