@@ -197,6 +197,9 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           tagIds: submissionData.tagIds || []
         } as QuizDto);
 
+        // Clear all errors on successful submission
+        setErrors({});
+
         addToast({ 
           type: 'info', 
           message: response.message || 'Quiz generation started! Please wait while AI creates your quiz.' 
@@ -228,6 +231,9 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           creatorId: '',
           tagIds: submissionData.tagIds || []
         } as QuizDto);
+
+        // Clear all errors on successful submission
+        setErrors({});
 
         addToast({ 
           type: 'info', 
