@@ -14,6 +14,9 @@ interface OrderingAnswerProps {
   onAnswerChange: (answer: number[]) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface OrderingItem {
@@ -26,7 +29,10 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   currentAnswer = [],
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [orderedItems, setOrderedItems] = useState<OrderingItem[]>([]);
   const [draggedItem, setDraggedItem] = useState<OrderingItem | null>(null);
@@ -163,24 +169,58 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
 
       {/* Ordering List */}
       <div className="space-y-2">
-        {orderedItems.map((item, index) => (
-          <div
-            key={item.id}
-            draggable={!disabled}
-            onDragStart={(e) => handleDragStart(e, item)}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, item)}
-            onDragEnd={handleDragEnd}
-            className={`flex items-center p-4 border rounded-lg transition-all duration-200 ${
-              draggedItem?.id === item.id
-                ? 'border-theme-interactive-primary bg-theme-bg-tertiary opacity-50 shadow-lg'
-                : 'border-theme-border-primary hover:border-theme-border-secondary bg-theme-bg-primary'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-move'}`}
-          >
-            {/* Position Number */}
-            <div className="flex items-center justify-center w-8 h-8 bg-theme-bg-tertiary text-theme-interactive-primary rounded-full text-sm font-medium mr-3 flex-shrink-0">
-              {index + 1}
-            </div>
+        {orderedItems.map((item, index) => {
+          // Determine if this item is in the correct position
+          let isInCorrectPosition = false;
+          let correctPosition = -1;
+          if (showFeedback && correctAnswer && Array.isArray(correctAnswer.order)) {
+            correctPosition = correctAnswer.order.findIndex((id: number) => id === item.id);
+            isInCorrectPosition = correctPosition === index;
+          }
+
+          // Get styling based on feedback
+          let borderColor = 'border-theme-border-primary';
+          let bgColor = 'bg-theme-bg-primary';
+          if (showFeedback && isCorrect !== undefined) {
+            if (isInCorrectPosition) {
+              // Item is in correct position
+              borderColor = 'border-theme-interactive-success';
+              bgColor = 'bg-theme-bg-success';
+            } else {
+              // Item is in wrong position
+              borderColor = 'border-theme-interactive-danger';
+              bgColor = 'bg-theme-bg-danger';
+            }
+          } else if (draggedItem?.id === item.id) {
+            borderColor = 'border-theme-interactive-primary';
+            bgColor = 'bg-theme-bg-tertiary opacity-50 shadow-lg';
+          }
+
+          return (
+            <div
+              key={item.id}
+              draggable={!disabled}
+              onDragStart={(e) => handleDragStart(e, item)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, item)}
+              onDragEnd={handleDragEnd}
+              className={`flex items-center p-4 border-2 rounded-lg transition-all duration-200 ${
+                disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-move'
+              } ${borderColor} ${bgColor}`}
+            >
+              {/* Position Number */}
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium mr-3 flex-shrink-0 ${
+                showFeedback && isInCorrectPosition
+                  ? 'bg-theme-bg-info text-theme-text-primary'
+                  : 'bg-theme-bg-tertiary text-theme-interactive-primary'
+              }`}>
+                {index + 1}
+                {showFeedback && !isInCorrectPosition && correctPosition >= 0 && (
+                  <span className="ml-1 text-xs text-theme-interactive-primary">
+                    (→{correctPosition + 1})
+                  </span>
+                )}
+              </div>
 
             {/* Drag Handle */}
             <div className="mr-3 text-theme-text-tertiary flex-shrink-0">
@@ -189,10 +229,16 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
               </svg>
             </div>
 
-            {/* Item Text */}
-            <div className="flex-1 text-theme-text-primary">
-              {item.text}
-            </div>
+              {/* Item Text */}
+              <div className="flex-1 text-theme-text-primary">
+                {item.text}
+                {showFeedback && isInCorrectPosition && (
+                  <span className="ml-2 text-theme-interactive-success">✓</span>
+                )}
+                {showFeedback && !isInCorrectPosition && (
+                  <span className="ml-2 text-theme-interactive-danger">✗</span>
+                )}
+              </div>
 
             {/* Move Controls */}
             <div className="flex space-x-1 ml-3 flex-shrink-0">
@@ -224,7 +270,8 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
               </Button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Progress Indicator */}

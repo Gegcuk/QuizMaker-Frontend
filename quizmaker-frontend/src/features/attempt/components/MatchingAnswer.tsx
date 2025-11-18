@@ -12,6 +12,9 @@ interface MatchingAnswerProps {
   onAnswerChange: (answer: { matches: Array<{ leftId: number; rightId: number }> }) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
@@ -19,7 +22,10 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
   currentAnswer = { matches: [] },
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   const [selectedRight, setSelectedRight] = useState<number | null>(null);
@@ -89,6 +95,23 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     return match?.leftId || null;
   };
 
+  const isMatchCorrect = (leftId: number, rightId: number): boolean => {
+    if (!showFeedback || !correctAnswer || !Array.isArray(correctAnswer.pairs)) return false;
+    return correctAnswer.pairs.some((pair: any) => pair.leftId === leftId && pair.rightId === rightId);
+  };
+
+  const getCorrectRightId = (leftId: number): number | null => {
+    if (!showFeedback || !correctAnswer || !Array.isArray(correctAnswer.pairs)) return null;
+    const correctPair = correctAnswer.pairs.find((pair: any) => pair.leftId === leftId);
+    return correctPair?.rightId || null;
+  };
+
+  const getCorrectLeftId = (rightId: number): number | null => {
+    if (!showFeedback || !correctAnswer || !Array.isArray(correctAnswer.pairs)) return null;
+    const correctPair = correctAnswer.pairs.find((pair: any) => pair.rightId === rightId);
+    return correctPair?.leftId || null;
+  };
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="text-sm text-theme-text-secondary mb-4">
@@ -104,6 +127,27 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
               const matchedRightId = getMatchedRightId(item.id);
               const isSelected = selectedLeft === item.id;
               const isMatched = matchedRightId !== null;
+              const matchIsCorrect = isMatched && matchedRightId !== null ? isMatchCorrect(item.id, matchedRightId) : false;
+              const correctRightId = getCorrectRightId(item.id);
+              
+              // Get styling based on feedback
+              let borderColor = 'border-theme-border-primary';
+              let bgColor = 'bg-theme-bg-primary';
+              if (showFeedback && isCorrect !== undefined) {
+                if (matchIsCorrect) {
+                  borderColor = 'border-theme-interactive-success';
+                  bgColor = 'bg-theme-bg-success';
+                } else if (isMatched && !matchIsCorrect) {
+                  borderColor = 'border-theme-interactive-danger';
+                  bgColor = 'bg-theme-bg-danger';
+                } else if (!isCorrect && correctRightId !== null) {
+                  borderColor = 'border-theme-interactive-primary';
+                  bgColor = 'bg-theme-bg-info';
+                }
+              } else if (isSelected || isMatched) {
+                borderColor = 'border-theme-interactive-primary';
+                bgColor = 'bg-theme-bg-tertiary';
+              }
               
               return (
                 <button
@@ -111,22 +155,27 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                   type="button"
                   onClick={() => handleLeftItemClick(item.id)}
                   disabled={disabled}
-                  className={`w-full p-3 text-left border rounded-lg transition-colors ${
-                    isSelected
-                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
-                      : isMatched
-                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
-                      : 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary'
-                  } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                  className={`w-full p-3 text-left border-2 rounded-lg transition-colors ${
+                    disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
+                  } ${borderColor} ${bgColor} ${!isSelected && !isMatched && !showFeedback ? 'hover:bg-theme-bg-secondary' : ''}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">{item.text}</span>
-                    {isMatched && (
+                    <span className="text-sm text-theme-text-primary">{item.text}</span>
+                    {showFeedback && matchIsCorrect && (
+                      <span className="text-theme-interactive-success">✓</span>
+                    )}
+                    {showFeedback && isMatched && !matchIsCorrect && (
+                      <span className="text-theme-interactive-danger">✗</span>
+                    )}
+                    {showFeedback && !isCorrect && correctRightId !== null && !isMatched && (
+                      <span className="text-xs text-theme-interactive-primary">→</span>
+                    )}
+                    {!showFeedback && isMatched && (
                       <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
                         Matched
                       </span>
                     )}
-                    {isSelected && (
+                    {!showFeedback && isSelected && (
                       <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
                         Selected
                       </span>
@@ -142,31 +191,78 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         <div>
           <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Right Column</h4>
           <div className="space-y-2">
-            {rightItems.map((item: any) => {
+            {rightItems.map((item: any, rightIndex: number) => {
               const matchedLeftId = getMatchedLeftId(item.id);
               const isMatched = matchedLeftId !== null;
+              const matchIsCorrect = isMatched && matchedLeftId !== null ? isMatchCorrect(matchedLeftId, item.id) : false;
+              
+              // Check if this is a correct match for any left item (shown when user was wrong)
+              const isCorrectMatch = showFeedback && !isCorrect && correctAnswer && Array.isArray(correctAnswer.pairs) 
+                ? correctAnswer.pairs.some((pair: any) => pair.rightId === item.id)
+                : false;
+              
+              // Get the correct left item ID if this right item was matched incorrectly
+              const correctLeftId = !matchIsCorrect && isMatched ? getCorrectLeftId(item.id) : null;
+              const correctLeftIndex = correctLeftId !== null 
+                ? leftItems.findIndex((leftItem: any) => leftItem.id === correctLeftId) + 1
+                : null;
+              
+              // Get styling based on feedback
+              let borderColor = 'border-theme-border-primary';
+              let bgColor = 'bg-theme-bg-primary';
+              if (showFeedback && isCorrect !== undefined) {
+                if (matchIsCorrect) {
+                  borderColor = 'border-theme-interactive-success';
+                  bgColor = 'bg-theme-bg-success';
+                } else if (isMatched && !matchIsCorrect) {
+                  borderColor = 'border-theme-interactive-danger';
+                  bgColor = 'bg-theme-bg-danger';
+                } else if (!isCorrect && isCorrectMatch) {
+                  borderColor = 'border-theme-interactive-primary';
+                  bgColor = 'bg-theme-bg-info';
+                }
+              } else if (isMatched) {
+                borderColor = 'border-theme-interactive-primary';
+                bgColor = 'bg-theme-bg-tertiary';
+              } else if (selectedLeft !== null) {
+                bgColor = 'bg-theme-bg-primary';
+              } else {
+                bgColor = 'bg-theme-bg-secondary';
+              }
               
               return (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => handleRightItemClick(item.id)}
-                  disabled={disabled}
-                  className={`w-full p-3 text-left border rounded-lg transition-colors ${
-                    isMatched
-                      ? 'border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary'
-                      : selectedLeft !== null
-                      ? 'border-theme-border-primary bg-theme-bg-primary hover:bg-theme-bg-secondary cursor-pointer'
-                      : 'border-theme-border-primary bg-theme-bg-secondary cursor-not-allowed opacity-50'
-                  } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+                  disabled={disabled || (!showFeedback && selectedLeft === null)}
+                  className={`w-full p-3 text-left border-2 rounded-lg transition-colors ${
+                    disabled || (!showFeedback && selectedLeft === null) ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
+                  } ${borderColor} ${bgColor} ${!isMatched && selectedLeft !== null && !showFeedback ? 'hover:bg-theme-bg-secondary' : ''}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">{item.text}</span>
-                    {isMatched && (
-                      <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
-                        Matched
-                      </span>
-                    )}
+                    <span className="text-sm text-theme-text-primary">{item.text}</span>
+                    <div className="flex items-center gap-1">
+                      {showFeedback && matchIsCorrect && (
+                        <span className="text-theme-interactive-success">✓</span>
+                      )}
+                      {showFeedback && isMatched && !matchIsCorrect && (
+                        <>
+                          {correctLeftIndex !== null && (
+                            <span className="text-xs text-theme-interactive-primary">(←{correctLeftIndex})</span>
+                          )}
+                          <span className="text-theme-interactive-danger">✗</span>
+                        </>
+                      )}
+                      {showFeedback && !isCorrect && isCorrectMatch && !isMatched && (
+                        <span className="text-xs text-theme-interactive-primary">←</span>
+                      )}
+                      {!showFeedback && isMatched && (
+                        <span className="text-xs bg-theme-bg-tertiary text-theme-interactive-primary px-2 py-1 rounded">
+                          Matched
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );

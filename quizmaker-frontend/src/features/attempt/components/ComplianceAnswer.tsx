@@ -14,6 +14,9 @@ interface ComplianceAnswerProps {
   onAnswerChange: (answer: number[]) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface ComplianceStatement {
@@ -26,7 +29,10 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   currentAnswer = [],
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const normalize = (val: any): number[] => Array.isArray(val) ? val : [];
   const [selectedStatements, setSelectedStatements] = useState<number[]>(normalize(currentAnswer));
@@ -108,14 +114,41 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
           const isSelected = selectedStatements.includes(statement.id);
           const statementNumber = index + 1;
 
+          // Determine if this statement should be selected (correct answer)
+          let isCorrectStatement = false;
+          if (showFeedback && correctAnswer && Array.isArray(correctAnswer.compliantIds)) {
+            isCorrectStatement = correctAnswer.compliantIds.includes(statement.id);
+          }
+
+          // Get styling based on feedback
+          let borderColor = 'border-theme-border-primary';
+          let bgColor = 'bg-transparent';
+          if (showFeedback && isCorrect !== undefined) {
+            if (isCorrect && isSelected) {
+              // User selected correct statement
+              borderColor = 'border-theme-interactive-success';
+              bgColor = 'bg-theme-bg-success';
+            } else if (!isCorrect && isSelected && !isCorrectStatement) {
+              // User selected incorrect statement
+              borderColor = 'border-theme-interactive-danger';
+              bgColor = 'bg-theme-bg-danger';
+            } else if (!isCorrect && isCorrectStatement) {
+              // Correct statement (shown when user was wrong)
+              borderColor = 'border-theme-interactive-primary';
+              bgColor = 'bg-theme-bg-info';
+            }
+          } else if (isSelected) {
+            // Normal selection (no feedback yet)
+            borderColor = 'border-theme-interactive-primary';
+            bgColor = 'bg-theme-bg-tertiary';
+          }
+
           return (
             <label
               key={statement.id}
-              className={`flex items-start p-4 border rounded-lg cursor-pointer transition-colors ${
-                isSelected
-                  ? 'border-theme-interactive-primary bg-theme-bg-tertiary'
-                  : 'border-theme-border-primary hover:border-theme-border-secondary hover:bg-theme-bg-secondary'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex items-start p-4 border-2 rounded-lg transition-colors ${
+                disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:border-theme-border-secondary'
+              } ${borderColor} ${bgColor}`}
             >
               <input
                 type="checkbox"
@@ -127,23 +160,24 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
               
               <div className="ml-3 flex-1">
                 <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-theme-text-secondary bg-theme-bg-tertiary rounded-full mr-3 flex-shrink-0">
+                  <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full mr-3 flex-shrink-0 ${
+                    showFeedback && isCorrectStatement 
+                      ? 'text-theme-text-primary bg-theme-bg-info' 
+                      : 'text-theme-text-secondary bg-theme-bg-tertiary'
+                  }`}>
                     {statementNumber}
                   </span>
                   <div className="text-theme-text-primary">
                     {statement.text}
                   </div>
+                  {showFeedback && isCorrectStatement && (
+                    <span className="ml-2 text-theme-interactive-success">✓</span>
+                  )}
+                  {showFeedback && !isCorrect && isSelected && !isCorrectStatement && (
+                    <span className="ml-2 text-theme-interactive-danger">✗</span>
+                  )}
                 </div>
               </div>
-
-              {/* Selection Indicator */}
-              {isSelected && (
-                <div className="ml-2 text-theme-interactive-primary">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
             </label>
           );
         })}
@@ -163,3 +197,4 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 };
 
 export default ComplianceAnswer; 
+

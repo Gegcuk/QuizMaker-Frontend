@@ -16,6 +16,9 @@ interface OpenAnswerProps {
   maxLength?: number;
   minLength?: number;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 const OpenAnswer: React.FC<OpenAnswerProps> = ({
@@ -25,7 +28,10 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   disabled = false,
   maxLength = 1000,
   minLength = 3,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   // Ensure currentAnswer is always a string, not null
   const safeCurrentAnswer = currentAnswer || '';
@@ -61,7 +67,16 @@ const OpenAnswer: React.FC<OpenAnswerProps> = ({
   };
 
   const getTextareaClass = (): string => {
-    const baseClass = 'w-full p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary transition-colors';
+    const baseClass = 'w-full p-4 border-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary transition-colors';
+    
+    // Apply feedback colors
+    if (showFeedback && isCorrect !== undefined) {
+      if (isCorrect) {
+        return `${baseClass} border-theme-interactive-success bg-theme-bg-success`;
+      } else {
+        return `${baseClass} border-theme-interactive-danger bg-theme-bg-danger`;
+      }
+    }
     
     if (isOverLimit) {
       return `${baseClass} border-theme-border-danger focus:border-theme-border-danger`;
