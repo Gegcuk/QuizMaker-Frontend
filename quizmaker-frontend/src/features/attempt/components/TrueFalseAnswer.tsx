@@ -92,10 +92,10 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
             <span className="text-3xl font-bold">{getAnswerIcon(true)}</span>
             <span className="font-semibold">True</span>
             {showFeedback && correctAnswer && correctAnswer.answer === true && (
-              <span className="text-sm">✓ Correct</span>
+              <span className="text-sm text-theme-interactive-success">✓ Correct</span>
             )}
             {showFeedback && !isCorrect && selectedAnswer === true && (
-              <span className="text-sm">✗ Your answer</span>
+              <span className="text-sm text-theme-interactive-danger">✗ Your answer</span>
             )}
           </div>
         </button>
@@ -111,10 +111,10 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
             <span className="text-3xl font-bold">{getAnswerIcon(false)}</span>
             <span className="font-semibold">False</span>
             {showFeedback && correctAnswer && correctAnswer.answer === false && (
-              <span className="text-sm">✓ Correct</span>
+              <span className="text-sm text-theme-interactive-success">✓ Correct</span>
             )}
             {showFeedback && !isCorrect && selectedAnswer === false && (
-              <span className="text-sm">✗ Your answer</span>
+              <span className="text-sm text-theme-interactive-danger">✗ Your answer</span>
             )}
           </div>
         </button>
