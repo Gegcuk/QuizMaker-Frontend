@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionDifficulty } from '@/types';
 import { Button, useToast } from '@/components';
-import { QuestionService } from '@/services';
+import { QuestionService, updateQuizStatus } from '@/services';
 import { api } from '@/services';
 import QuizQuestionInline from './QuizQuestionInline';
 import QuizPreview from './QuizPreview';
@@ -31,6 +31,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
   
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [activeView, setActiveView] = useState<'questions' | 'preview'>('questions');
 
   // Load existing questions for this quiz
@@ -55,7 +56,7 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
     setSelectedQuestionIds(questionIds);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (selectedQuestionIds.length === 0) {
       addToast({
         type: 'warning',
@@ -64,12 +65,26 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
       return;
     }
 
-    addToast({
-      type: 'success',
-      message: `Quiz "${quizTitle}" created successfully with ${selectedQuestionIds.length} questions!`
-    });
-    
-    onComplete();
+    setIsCompleting(true);
+    try {
+      // Update quiz status to PUBLISHED when completing quiz creation
+      await updateQuizStatus(quizId, { status: 'PUBLISHED' });
+      
+      addToast({
+        type: 'success',
+        message: `Quiz "${quizTitle}" created and published successfully with ${selectedQuestionIds.length} questions!`
+      });
+      
+      onComplete();
+    } catch (error: any) {
+      console.error('Failed to publish quiz:', error);
+      addToast({
+        type: 'error',
+        message: error?.response?.data?.message || 'Failed to publish quiz. Please try again.'
+      });
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -174,7 +189,8 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   type="button"
                   variant="primary"
                   onClick={handleComplete}
-                  disabled={selectedQuestionIds.length === 0}
+                  disabled={selectedQuestionIds.length === 0 || isCompleting}
+                  loading={isCompleting}
                   className="w-full sm:w-auto"
                 >
                   Complete Quiz Creation
@@ -231,7 +247,8 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
                   type="button"
                   variant="primary"
                   onClick={handleComplete}
-                  disabled={selectedQuestionIds.length === 0}
+                  disabled={selectedQuestionIds.length === 0 || isCompleting}
+                  loading={isCompleting}
                   className="w-full sm:w-auto"
                 >
                   Complete Quiz Creation
