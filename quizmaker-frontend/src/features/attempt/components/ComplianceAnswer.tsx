@@ -14,6 +14,9 @@ interface ComplianceAnswerProps {
   onAnswerChange: (answer: number[]) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface ComplianceStatement {
@@ -26,7 +29,10 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   currentAnswer = [],
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const normalize = (val: any): number[] => Array.isArray(val) ? val : [];
   const [selectedStatements, setSelectedStatements] = useState<number[]>(normalize(currentAnswer));

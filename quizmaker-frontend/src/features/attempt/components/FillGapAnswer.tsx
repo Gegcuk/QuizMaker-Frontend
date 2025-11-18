@@ -14,6 +14,9 @@ interface FillGapAnswerProps {
   onAnswerChange: (answer: Record<number, string>) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface GapAnswer {
@@ -26,7 +29,10 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   currentAnswer = {},
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [gapAnswers, setGapAnswers] = useState<Record<number, string>>(currentAnswer || {});
 

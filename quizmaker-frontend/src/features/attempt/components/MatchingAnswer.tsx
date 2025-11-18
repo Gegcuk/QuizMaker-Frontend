@@ -12,6 +12,9 @@ interface MatchingAnswerProps {
   onAnswerChange: (answer: { matches: Array<{ leftId: number; rightId: number }> }) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
@@ -19,7 +22,10 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
   currentAnswer = { matches: [] },
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   const [selectedRight, setSelectedRight] = useState<number | null>(null);

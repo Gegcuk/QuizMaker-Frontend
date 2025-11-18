@@ -13,6 +13,9 @@ interface TrueFalseAnswerProps {
   onAnswerChange: (answer: boolean) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
@@ -20,7 +23,10 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
   currentAnswer,
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(currentAnswer ?? null);
 
@@ -36,7 +42,24 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
   const getAnswerButtonClass = (isTrue: boolean): string => {
     const baseClass = 'flex-1 p-6 border-2 rounded-lg text-center transition-all duration-200 font-medium text-lg';
     
-    if (selectedAnswer === isTrue) {
+    // Determine if this is the correct answer
+    const isCorrectAnswer = showFeedback && correctAnswer && correctAnswer.answer === isTrue;
+    const isUserAnswer = selectedAnswer === isTrue;
+    
+    if (showFeedback && isCorrect !== undefined) {
+      if (isCorrect && isUserAnswer) {
+        // User selected correct answer
+        return `${baseClass} border-theme-interactive-success bg-theme-bg-success text-theme-interactive-success`;
+      } else if (!isCorrect && isUserAnswer) {
+        // User selected incorrect answer
+        return `${baseClass} border-theme-interactive-danger bg-theme-bg-danger text-theme-interactive-danger`;
+      } else if (!isCorrect && isCorrectAnswer) {
+        // Correct answer (shown when user was wrong)
+        return `${baseClass} border-theme-interactive-primary bg-theme-bg-info text-theme-interactive-primary`;
+      }
+    }
+    
+    if (isUserAnswer) {
       return `${baseClass} border-theme-interactive-primary bg-theme-bg-tertiary text-theme-interactive-primary`;
     }
     
@@ -68,6 +91,12 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
           <div className="flex flex-col items-center space-y-2">
             <span className="text-3xl font-bold">{getAnswerIcon(true)}</span>
             <span className="font-semibold">True</span>
+            {showFeedback && correctAnswer && correctAnswer.answer === true && (
+              <span className="text-sm">✓ Correct</span>
+            )}
+            {showFeedback && !isCorrect && selectedAnswer === true && (
+              <span className="text-sm">✗ Your answer</span>
+            )}
           </div>
         </button>
 
@@ -81,6 +110,12 @@ const TrueFalseAnswer: React.FC<TrueFalseAnswerProps> = ({
           <div className="flex flex-col items-center space-y-2">
             <span className="text-3xl font-bold">{getAnswerIcon(false)}</span>
             <span className="font-semibold">False</span>
+            {showFeedback && correctAnswer && correctAnswer.answer === false && (
+              <span className="text-sm">✓ Correct</span>
+            )}
+            {showFeedback && !isCorrect && selectedAnswer === false && (
+              <span className="text-sm">✗ Your answer</span>
+            )}
           </div>
         </button>
       </div>

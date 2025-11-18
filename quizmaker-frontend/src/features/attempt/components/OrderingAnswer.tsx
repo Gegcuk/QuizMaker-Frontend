@@ -14,6 +14,9 @@ interface OrderingAnswerProps {
   onAnswerChange: (answer: number[]) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface OrderingItem {
@@ -26,7 +29,10 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   currentAnswer = [],
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [orderedItems, setOrderedItems] = useState<OrderingItem[]>([]);
   const [draggedItem, setDraggedItem] = useState<OrderingItem | null>(null);

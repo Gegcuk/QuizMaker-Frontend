@@ -58,6 +58,15 @@ const QuizAttemptPage: React.FC = () => {
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [questionsAnswered, setQuestionsAnswered] = useState<number>(0);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState<number>(1);
+  
+  // Answer result state (for showing result after submission)
+  const [answerResult, setAnswerResult] = useState<{
+    isCorrect: boolean;
+    correctAnswer?: any;
+    userAnswer: any;
+    score: number | null;
+    nextQuestion?: any | null;
+  } | null>(null);
 
   // Check for existing attempts
   const checkExistingAttempts = async (): Promise<string | null> => {
@@ -326,6 +335,8 @@ const QuizAttemptPage: React.FC = () => {
     const payload: AnswerSubmissionRequest = {
       questionId: currentQuestion.id,
       response: buildResponse(),
+      includeCorrectness: true,  // Always include correctness to show result
+      includeCorrectAnswer: true, // Always include correct answer to show if incorrect
     };
 
     try {
@@ -337,20 +348,53 @@ const QuizAttemptPage: React.FC = () => {
         [currentQuestion.id]: buildResponse()
       }));
 
-      if (data.nextQuestion) {
-        setCurrentQuestion(data.nextQuestion);
-        setAnswerInput(null);
-        updateProgress();
-      } else {
+      // Store the result to display to the user
+      if (data.isCorrect !== undefined) {
+        setAnswerResult({
+          isCorrect: data.isCorrect,
+          correctAnswer: data.correctAnswer,
+          userAnswer: buildResponse(),
+          score: data.score,
+          nextQuestion: data.nextQuestion,
+        });
+      } else if (!data.nextQuestion) {
+        // If no result but also no next question, we need to complete the attempt
         await attemptService.completeAttempt(attemptId);
         navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
       }
+
+      // Don't proceed to next question automatically - wait for user to click "Next Question"
     } catch (e: any) {
       console.error('Submission error:', e.response);
       const backendMessage = e?.response?.data?.details?.[0] || e?.response?.data?.error;
       setError(backendMessage || 'Failed to submit answer. Please retry.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  /* -------------------------------------------------------------------- */
+  /*  Handle proceeding to next question after viewing result             */
+  /* -------------------------------------------------------------------- */
+  const handleNextQuestion = async () => {
+    if (!attemptId || !answerResult) return;
+
+    // Check if there's a next question from the stored result
+    if (answerResult.nextQuestion) {
+      // Move to next question
+      setCurrentQuestion(answerResult.nextQuestion);
+      setAnswerInput(null);
+      setAnswerResult(null); // Clear result
+      updateProgress();
+    } else {
+      // No more questions - complete attempt
+      try {
+        await attemptService.completeAttempt(attemptId);
+        navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
+      } catch (e: any) {
+        console.error('Error completing attempt:', e);
+        setError('Failed to complete attempt. Please try again.');
+      }
     }
   };
 
@@ -420,6 +464,127 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Rendering helpers                                                   */
   /* -------------------------------------------------------------------- */
+  
+  // Format correct answer for display
+  const formatCorrectAnswer = (answer: any, type: string, safeContent: any): React.ReactNode => {
+    if (!answer) return <span className="text-theme-text-tertiary italic">N/A</span>;
+    
+    switch (type) {
+      case 'MCQ_SINGLE':
+        if (answer.correctOptionId !== undefined && safeContent?.options) {
+          const option = safeContent.options.find((opt: any) => opt.id === answer.correctOptionId || String(opt.id) === String(answer.correctOptionId));
+          return option?.text || `Option ${answer.correctOptionId}`;
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'MCQ_MULTI':
+        if (Array.isArray(answer.correctOptionIds) && answer.correctOptionIds.length > 0 && safeContent?.options) {
+          return (
+            <ul className="list-disc list-inside space-y-1">
+              {answer.correctOptionIds.map((optId: any, idx: number) => {
+                const option = safeContent.options.find((opt: any) => opt.id === optId || String(opt.id) === String(optId));
+                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'TRUE_FALSE':
+        return answer.answer !== undefined ? (answer.answer ? 'True' : 'False') : <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'OPEN':
+        return answer.answer ? (
+          <div className="whitespace-pre-wrap">{answer.answer}</div>
+        ) : <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'FILL_GAP':
+        if (Array.isArray(answer.answers) && answer.answers.length > 0) {
+          return (
+            <div className="space-y-1">
+              {answer.answers.map((gap: any) => (
+                <div key={gap.id || gap.gapId} className="text-sm">
+                  Gap {gap.id || gap.gapId}: <span className="font-medium">{gap.text || gap.answer}</span>
+                </div>
+              ))}
+            </div>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'ORDERING':
+        if (Array.isArray(answer.order) && answer.order.length > 0 && safeContent?.items) {
+          return (
+            <div className="flex items-center gap-2 flex-wrap">
+              {answer.order.map((itemId: number, idx: number) => {
+                const item = safeContent.items.find((i: any) => i.id === itemId);
+                return (
+                  <React.Fragment key={itemId}>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
+                      {item?.text || `Item ${itemId}`}
+                    </span>
+                    {idx < answer.order.length - 1 && <span className="text-theme-text-tertiary">→</span>}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'COMPLIANCE':
+        if (Array.isArray(answer.compliantIds) && answer.compliantIds.length > 0 && safeContent?.statements) {
+          return (
+            <ul className="space-y-1">
+              {answer.compliantIds.map((stmtId: number) => {
+                const statement = safeContent.statements.find((s: any) => s.id === stmtId);
+                return (
+                  <li key={stmtId} className="flex items-center gap-2">
+                    <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
+                      Compliant
+                    </span>
+                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'HOTSPOT':
+        if (answer.correctRegionId !== undefined && safeContent?.regions) {
+          const region = safeContent.regions.find((r: any) => r.id === answer.correctRegionId);
+          return region?.label || `Region ${answer.correctRegionId}`;
+        }
+        if (answer.correctRegionId !== undefined) return `Region ${answer.correctRegionId}`;
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      case 'MATCHING':
+        if (Array.isArray(answer.pairs) && answer.pairs.length > 0 && safeContent?.left && safeContent?.right) {
+          return (
+            <ul className="space-y-1">
+              {answer.pairs.map((pair: any, idx: number) => {
+                const leftItem = safeContent.left.find((l: any) => l.id === pair.leftId);
+                const rightItem = safeContent.right.find((r: any) => r.id === pair.rightId);
+                return (
+                  <li key={idx} className="flex items-center gap-2 text-sm">
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || pair.leftId}</span>
+                    <span className="text-theme-text-tertiary">→</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || pair.rightId}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return <span className="text-theme-text-tertiary">N/A</span>;
+      
+      default:
+        return <span className="text-theme-text-tertiary">Unknown question type</span>;
+    }
+  };
+
   const renderQuestion = (question: any, isCurrent: boolean = false) => {
     // For ONE_BY_ONE and TIMED modes, use answerInput; for ALL_AT_ONCE mode, use answers state
     let currentAnswer;
@@ -456,7 +621,11 @@ const QuizAttemptPage: React.FC = () => {
       onAnswerChange = (answer: any) => setAnswerInput(answer);
     }
     
-    const isDisabled = submitting || !isCurrent;
+    // Disable input if submitted (show feedback mode)
+    const isDisabled = submitting || !isCurrent || answerResult !== null;
+    
+    // Determine if we should show feedback (answer was submitted for this question)
+    const showFeedback = answerResult !== null && answerResult.userAnswer !== undefined;
 
     switch (question.type) {
       case "MCQ_SINGLE":
@@ -467,6 +636,9 @@ const QuizAttemptPage: React.FC = () => {
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             singleChoice={true}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "MCQ_MULTI":
@@ -477,6 +649,9 @@ const QuizAttemptPage: React.FC = () => {
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             singleChoice={false}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "TRUE_FALSE":
@@ -486,6 +661,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "OPEN":
@@ -495,6 +673,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "COMPLIANCE":
@@ -504,6 +685,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "FILL_GAP":
@@ -513,6 +697,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "HOTSPOT":
@@ -522,6 +709,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "ORDERING":
@@ -531,6 +721,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       case "MATCHING":
@@ -540,6 +733,9 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer={currentAnswer}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
+            showFeedback={showFeedback}
+            isCorrect={answerResult?.isCorrect}
+            correctAnswer={answerResult?.correctAnswer}
           />
         );
       default:
@@ -589,14 +785,17 @@ const QuizAttemptPage: React.FC = () => {
         {error && <p className="text-theme-interactive-danger mt-4">{error}</p>}
 
         <Button
-          onClick={handleSubmitAnswer}
-          disabled={submitting || !isAnswerProvided()}
-          loading={submitting}
+          onClick={answerResult ? handleNextQuestion : handleSubmitAnswer}
+          disabled={answerResult ? false : (submitting || !isAnswerProvided())}
+          loading={submitting && !answerResult}
           variant="primary"
           size="md"
-          className="mt-4"
+          className="mt-4 w-full"
         >
-          {submitting ? "Submitting..." : "Submit Answer"}
+          {answerResult 
+            ? (answerResult.nextQuestion ? "Next Question →" : "View Results")
+            : (submitting ? "Submitting..." : "Submit Answer")
+          }
         </Button>
       </div>
     );

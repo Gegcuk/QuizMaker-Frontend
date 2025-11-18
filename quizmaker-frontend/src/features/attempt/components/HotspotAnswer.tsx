@@ -15,6 +15,9 @@ interface HotspotAnswerProps {
   onAnswerChange: (answer: { x: number; y: number; width: number; height: number }) => void;
   disabled?: boolean;
   className?: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: any;
 }
 
 interface HotspotRegion {
@@ -30,7 +33,10 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
   currentAnswer,
   onAnswerChange,
   disabled = false,
-  className = ''
+  className = '',
+  showFeedback = false,
+  isCorrect,
+  correctAnswer
 }) => {
   const [selectedRegion, setSelectedRegion] = useState<{ x: number; y: number; width: number; height: number } | null>(currentAnswer || null);
   const [isDrawing, setIsDrawing] = useState(false);
