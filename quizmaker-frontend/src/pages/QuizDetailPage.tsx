@@ -223,7 +223,7 @@ const QuizDetailPage: React.FC = () => {
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
             {/* Tabs header attached to content */}
-            <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary">
+            <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary overflow-x-auto">
               <TabsList>
                 <TabsTrigger value="overview" icon={<ChartBarIcon className="w-4 h-4" />}>
                   Overview

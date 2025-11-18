@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbar but keep functionality */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
+
 /* Theme CSS Custom Properties Fallbacks */
 :root {
   /* Light theme defaults */

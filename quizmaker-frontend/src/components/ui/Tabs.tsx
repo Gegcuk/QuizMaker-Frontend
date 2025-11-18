@@ -57,8 +57,13 @@ interface TabsListProps {
 
 export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
   return (
-    <nav className={`flex space-x-4 sm:space-x-8 ${className}`}>
-      {children}
+    <nav 
+      className={`flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide ${className}`}
+      style={{ WebkitOverflowScrolling: 'touch' }}
+    >
+      <div className="flex space-x-4 sm:space-x-8 min-w-max">
+        {children}
+      </div>
     </nav>
   );
 };
@@ -79,7 +84,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, children, icon,
       type="button"
       onClick={() => setActiveTab(value)}
       className={`
-        inline-flex items-center py-4 px-0.5 sm:px-1 border-b-2 rounded-none text-sm font-medium transition-colors
+        inline-flex items-center py-4 px-0.5 sm:px-1 border-b-2 rounded-none text-sm font-medium transition-colors flex-shrink-0
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary
         ${isActive 
           ? 'border-theme-interactive-primary text-theme-interactive-primary' 

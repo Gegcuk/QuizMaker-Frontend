@@ -87,14 +87,14 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
   ];
 
   return (
-    <div className={`grid grid-cols-2 gap-3 ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${className}`}>
       {questionTypes.map((questionType) => {
         const isSelected = selectedType === questionType.type;
         return (
           <button
             type="button"
             key={questionType.type}
-            className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+            className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all min-w-0 ${
               isSelected
                 ? 'bg-theme-bg-secondary border-theme-interactive-primary shadow-md'
                 : 'bg-theme-bg-primary border-theme-border-primary hover:border-theme-border-secondary hover:shadow-sm'
@@ -102,14 +102,14 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
             onClick={() => onTypeChange(questionType.type)}
           >
             {/* Content */}
-            <div className="flex-1">
-              <div className="flex items-start">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start min-w-0">
                 {(() => { const Icon = questionType.icon; return <Icon className={`w-5 h-5 mr-2 flex-shrink-0 ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-tertiary'}`} />; })()}
-                <div className="flex-1">
-                  <label className={`text-sm font-medium cursor-pointer block ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-primary'}`}>
+                <div className="flex-1 min-w-0">
+                  <label className={`text-sm font-medium cursor-pointer block break-words ${isSelected ? 'text-theme-interactive-primary' : 'text-theme-text-primary'}`}>
                     {questionType.label}
                   </label>
-                  <p className="mt-1 text-sm text-theme-text-tertiary hidden sm:block">
+                  <p className="mt-1 text-sm text-theme-text-tertiary hidden sm:block break-words">
                     {questionType.description}
                   </p>
                 </div>
