@@ -93,6 +93,31 @@ const QuizResultsSummaryPage: React.FC = () => {
     );
 
   /* ------------------------- happy path ----------------------------- */
+  // Calculate total number of questions from questionStats
+  const totalQuestions = results.questionStats?.length || 0;
+
+  // Calculate percentages from raw scores
+  // Backend returns:
+  // - averageScore: total sum of correct answers across all attempts (need to divide by attemptsCount to get average per attempt)
+  // - bestScore: best number of correct answers in a single attempt
+  // - worstScore: worst number of correct answers in a single attempt
+  // For averageScore: (totalCorrect / attemptsCount) / totalQuestions * 100
+  // For bestScore/worstScore: correctAnswers / totalQuestions * 100
+  const calculateAveragePercentage = (totalCorrect: number): number => {
+    if (totalQuestions === 0 || results.attemptsCount === 0) return 0;
+    const averageCorrectPerAttempt = totalCorrect / results.attemptsCount;
+    return (averageCorrectPerAttempt / totalQuestions) * 100;
+  };
+
+  const calculateSingleAttemptPercentage = (correctAnswers: number): number => {
+    if (totalQuestions === 0) return 0;
+    return (correctAnswers / totalQuestions) * 100;
+  };
+
+  const averageScorePercentage = calculateAveragePercentage(results.averageScore);
+  const bestScorePercentage = calculateSingleAttemptPercentage(results.bestScore);
+  const worstScorePercentage = calculateSingleAttemptPercentage(results.worstScore);
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
       <h2 className="text-2xl font-semibold">Quiz Results Summary</h2>
@@ -104,13 +129,13 @@ const QuizResultsSummaryPage: React.FC = () => {
             <strong>Attempts Count:</strong> {results.attemptsCount}
           </p>
           <p>
-            <strong>Average Score:</strong> {results.averageScore.toFixed(2)}
+            <strong>Average Score:</strong> {averageScorePercentage.toFixed(1)}%
           </p>
           <p>
-            <strong>Best Score:</strong> {results.bestScore}
+            <strong>Best Score:</strong> {bestScorePercentage.toFixed(1)}%
           </p>
           <p>
-            <strong>Worst Score:</strong> {results.worstScore}
+            <strong>Worst Score:</strong> {worstScorePercentage.toFixed(1)}%
           </p>
           <p>
             <strong>Pass Rate:</strong> {results.passRate.toFixed(1)}%
