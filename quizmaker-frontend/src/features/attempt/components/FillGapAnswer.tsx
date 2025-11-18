@@ -113,17 +113,47 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
       // Calculate dynamic width: minimum 60px, grows with content (roughly 8px per character)
       const inputWidth = Math.max(60, Math.min(currentValue.length * 8 + 20, 400));
       
+      // Determine if this gap answer is correct
+      let gapIsCorrect = false;
+      let correctAnswerText = '';
+      if (showFeedback && correctAnswer && Array.isArray(correctAnswer.answers)) {
+        const correctGap = correctAnswer.answers.find((a: any) => a.id === gap.id || a.gapId === gap.id);
+        if (correctGap) {
+          correctAnswerText = correctGap.text || correctGap.answer || '';
+          gapIsCorrect = currentValue.trim().toLowerCase() === correctAnswerText.trim().toLowerCase();
+        }
+      }
+
+      // Get styling based on feedback
+      let borderColor = 'border-theme-border-primary';
+      let bgColor = 'bg-theme-bg-primary';
+      if (showFeedback && isCorrect !== undefined) {
+        if (gapIsCorrect) {
+          borderColor = 'border-theme-interactive-success';
+          bgColor = 'bg-theme-bg-success';
+        } else if (currentValue.trim()) {
+          borderColor = 'border-theme-interactive-danger';
+          bgColor = 'bg-theme-bg-danger';
+        }
+      }
+      
       parts.push(
-        <input
-          key={`gap-${gap.id}`}
-          type="text"
-          value={currentValue}
-          onChange={(e) => handleGapChange(gap.id, e.target.value)}
-          disabled={disabled}
-          placeholder=""
-          style={{ width: `${inputWidth}px` }}
-          className="mx-1 px-2 py-1 my-1 border border-theme-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:opacity-50 text-center bg-theme-bg-primary text-theme-text-primary transition-all duration-150"
-        />
+        <span key={`gap-${gap.id}`} className="inline-block">
+          <input
+            type="text"
+            value={currentValue}
+            onChange={(e) => handleGapChange(gap.id, e.target.value)}
+            disabled={disabled}
+            placeholder=""
+            style={{ width: `${inputWidth}px` }}
+            className={`mx-1 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
+          />
+          {showFeedback && !gapIsCorrect && correctAnswerText && (
+            <span className="ml-1 text-xs text-theme-interactive-primary" title={`Correct: ${correctAnswerText}`}>
+              (✓ {correctAnswerText})
+            </span>
+          )}
+        </span>
       );
 
       lastIndex = match.index + match[0].length;

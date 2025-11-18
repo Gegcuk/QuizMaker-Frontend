@@ -57,7 +57,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
 
   useEffect(() => {
     drawCanvas();
-  }, [selectedRegion, mousePosition, isDrawing, startPoint]);
+  }, [selectedRegion, mousePosition, isDrawing, startPoint, showFeedback, isCorrect, correctAnswer]);
 
   // Ensure canvas is drawn on mount and when image changes
   useEffect(() => {
@@ -136,16 +136,49 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
       ctx.setLineDash([]);
     });
 
-    // Draw current selection
-    if (selectedRegion) {
+    // Draw correct region if showing feedback and user was wrong
+    if (showFeedback && !isCorrect && correctAnswer && correctAnswer.correctRegionId !== undefined) {
+      const correctRegion = regions.find((r: HotspotRegion) => r.id === correctAnswer.correctRegionId);
+      if (correctRegion) {
+        const x = (correctRegion.x / 100) * canvas.width;
+        const y = (correctRegion.y / 100) * canvas.height;
+        const width = (correctRegion.width / 100) * canvas.width;
+        const height = (correctRegion.height / 100) * canvas.height;
+
+        ctx.fillStyle = `${currentPalette.colors.interactive.primary}30`; // Info color for correct answer
+        ctx.fillRect(x, y, width, height);
+        ctx.strokeStyle = currentPalette.colors.interactive.primary;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(x, y, width, height);
+        ctx.setLineDash([]);
+      }
+    }
+
+    // Draw current selection with feedback colors
+    if (selectedRegion && selectedRegion.width > 0 && selectedRegion.height > 0) {
       const x = (selectedRegion.x / 100) * canvas.width;
       const y = (selectedRegion.y / 100) * canvas.height;
       const width = (selectedRegion.width / 100) * canvas.width;
       const height = (selectedRegion.height / 100) * canvas.height;
 
-      ctx.fillStyle = `${currentPalette.colors.interactive.primary}20`; // 20 = 0.2 opacity
+      if (showFeedback && isCorrect !== undefined) {
+        if (isCorrect) {
+          // Green for correct
+          ctx.fillStyle = `${currentPalette.colors.interactive.success}30`;
+          ctx.strokeStyle = currentPalette.colors.interactive.success;
+        } else {
+          // Red for incorrect
+          ctx.fillStyle = `${currentPalette.colors.interactive.danger}30`;
+          ctx.strokeStyle = currentPalette.colors.interactive.danger;
+        }
+      } else {
+        // Normal selection color
+        ctx.fillStyle = `${currentPalette.colors.interactive.primary}20`;
+        ctx.strokeStyle = currentPalette.colors.interactive.primary;
+      }
+      
       ctx.fillRect(x, y, width, height);
-      ctx.strokeStyle = currentPalette.colors.interactive.primary;
       ctx.lineWidth = 3;
       ctx.strokeRect(x, y, width, height);
     }
