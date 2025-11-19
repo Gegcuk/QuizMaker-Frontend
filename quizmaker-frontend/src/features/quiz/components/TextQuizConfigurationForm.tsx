@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
-import { Button, Input, useToast, Dropdown, Textarea } from '@/components';
+import { Button, Input, useToast, Dropdown, Textarea, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { tokenEstimationService } from '@/services';
 import { TokenEstimationDisplay } from '@/features/ai';
@@ -270,8 +270,24 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
         {/* Questions per type */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-          <h4 className="text-lg font-medium text-theme-text-primary mb-1">Number of Questions per Type</h4>
-          <p className="text-sm text-theme-text-secondary mb-4">Set how many questions to generate for each type.</p>
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-lg font-medium text-theme-text-primary">Number of Questions per Type</h4>
+            <Hint
+              position="bottom"
+              size="sm"
+              content={
+                <div className="space-y-2">
+                  <p className="font-medium">Set how many questions to generate for each type.</p>
+                  <p className="text-xs text-theme-text-tertiary">
+                    <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                  </p>
+                  <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                    <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally.
+                  </p>
+                </div>
+              }
+            />
+          </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (

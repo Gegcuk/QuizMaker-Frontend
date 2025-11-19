@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { TokenEstimationResult } from '@/services';
-import { Badge } from '@/components';
 
 export interface TokenEstimationDisplayProps {
   /** Token estimation result */
