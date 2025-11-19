@@ -4,11 +4,11 @@
 // Allows users to input plain text and generate quizzes using AI
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService, api } from '@/services';
-import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope } from '@/types';
-import { GenerationProgress } from '@/features/ai';
+import { QuizService, api, tokenEstimationService } from '@/services';
+import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope, QuestionType } from '@/types';
+import { GenerationProgress, TokenEstimationDisplay } from '@/features/ai';
 import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 
 export const TextGenerationTab: React.FC = () => {
@@ -135,6 +135,39 @@ export const TextGenerationTab: React.FC = () => {
         return '';
     }
   };
+
+  // Calculate token estimation
+  const tokenEstimation = useMemo(() => {
+    if (!text.trim() || text.length < 10) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions and convert to QuestionType format
+    const filteredQuestionTypes = Object.entries(quizConfig.questionTypes)
+      .filter(([_, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        // Map QuizQuestionType to QuestionType (they're mostly compatible)
+        const questionType = type as QuestionType;
+        acc[questionType] = count;
+        return acc;
+      }, {} as Partial<Record<QuestionType, number>>);
+
+    // Check if at least one question type has count > 0
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      return tokenEstimationService.estimateFromText(
+        text.trim(),
+        filteredQuestionTypes,
+        quizConfig.difficulty
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [text, quizConfig.questionTypes, quizConfig.difficulty]);
 
   return (
     <div className="space-y-6">
@@ -449,6 +482,15 @@ export const TextGenerationTab: React.FC = () => {
                   }))}
                   min="1"
                   max="10"
+                />
+              </div>
+
+              {/* Token Estimation */}
+              <div className="mt-6" data-testid="token-estimation-section">
+                <h4 className="text-sm font-medium text-theme-text-secondary mb-3">Token Usage Estimation</h4>
+                <TokenEstimationDisplay 
+                  estimation={tokenEstimation} 
+                  key="token-estimation"
                 />
               </div>
             </div>
