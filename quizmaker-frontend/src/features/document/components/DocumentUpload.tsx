@@ -17,7 +17,7 @@ import {
 import { DocumentService } from '@/services';
 import { QuizService, api } from '@/services';
 import { DocumentDto, DocumentConfigDto, ChunkingStrategy, GenerateQuizFromDocumentRequest, QuizGenerationResponse, QuizScope } from '@/types';
-import { Button, Modal, Alert, Badge, Input, Dropdown, Card } from '@/components';
+import { Button, Modal, Alert, Badge, Input, Dropdown, Card, Hint } from '@/components';
 import { GenerationProgress } from '../../ai';
 
 interface DocumentUploadProps {
@@ -609,9 +609,26 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             {/* Questions Per Type */}
             <div>
-              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-                Questions Per Type (per chunk)
-              </label>
+              <div className="flex items-center gap-2 mb-4">
+                <label className="block text-sm font-medium text-theme-text-secondary">
+                  Questions Per Type (per chunk)
+                </label>
+                <Hint
+                  position="bottom"
+                  size="sm"
+                  content={
+                    <div className="space-y-2">
+                      <p className="font-medium">Specify how many questions of each type to generate per document chunk.</p>
+                      <p className="text-xs text-theme-text-tertiary">
+                        <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                      </p>
+                      <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                        <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally.
+                      </p>
+                    </div>
+                  }
+                />
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>

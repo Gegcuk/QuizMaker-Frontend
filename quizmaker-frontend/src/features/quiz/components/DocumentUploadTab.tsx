@@ -468,14 +468,24 @@ export const DocumentUploadTab: React.FC = () => {
 
               {/* Questions Per Type */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-4">
                   <label className="block text-sm font-medium text-theme-text-secondary">
                     Questions Per Type (per chunk) <span className="text-theme-interactive-danger">*</span>
                   </label>
                   <Hint
-                    position="right"
+                    position="bottom"
                     size="sm"
-                    content="Specify how many questions of each type to generate per document chunk. At least one type must have a value ≥ 1."
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">Specify how many questions of each type to generate per document chunk.</p>
+                        <p className="text-xs text-theme-text-tertiary">
+                          <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                        </p>
+                        <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                          <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally. At least one type must have a value ≥ 1.
+                        </p>
+                      </div>
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -576,9 +586,6 @@ export const DocumentUploadTab: React.FC = () => {
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-theme-text-secondary">
-                  Select at least one question type with at least 1 question per type
-                </p>
               </div>
 
               {/* Estimated Time Per Question */}

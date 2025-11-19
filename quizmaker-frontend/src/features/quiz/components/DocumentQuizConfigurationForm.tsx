@@ -3,12 +3,14 @@
 // Includes document upload, page selection, and AI generation parameters
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
-import { CreateQuizRequest, Difficulty } from '@/types';
+import React, { useState, useMemo } from 'react';
+import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { FastDocumentPreviewModal } from '@/features/document';
 import { RectangleStackIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { tokenEstimationService } from '@/services';
+import { TokenEstimationDisplay } from '@/features/ai';
 
 interface DocumentQuizConfigurationFormProps {
   quizData: QuizWizardDraft;
@@ -174,6 +176,51 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     }
     setShowPreviewModal(true);
   };
+
+  // Calculate token estimation based on selected pages
+  const tokenEstimation = useMemo(() => {
+    // Need file and at least one page selected
+    if (!generationConfig.file || selectedPageNumbers.length === 0) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions and convert to QuestionType format
+    const filteredQuestionTypes = Object.entries(generationConfig.questionsPerType)
+      .filter(([_, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        const questionType = type as QuestionType;
+        acc[questionType] = count;
+        return acc;
+      }, {} as Partial<Record<QuestionType, number>>);
+
+    // Check if at least one question type has count > 0
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      // Estimate character count based on number of selected pages
+      // Average page typically has ~2000-3000 characters
+      // We'll use a conservative estimate of 5000 characters per page
+      const AVERAGE_CHARS_PER_PAGE = 5000;
+      const estimatedCharCount = selectedPageNumbers.length * AVERAGE_CHARS_PER_PAGE;
+      
+      // Create a placeholder content string for estimation (use actual characters, not just spaces)
+      // Use a repeating pattern that won't be trimmed
+      const placeholderPattern = 'Lorem ipsum dolor sit amet consectetur adipiscing elit. ';
+      const repeatCount = Math.ceil(estimatedCharCount / placeholderPattern.length);
+      const placeholderContent = placeholderPattern.repeat(Math.max(1, repeatCount)).substring(0, estimatedCharCount);
+      
+      return tokenEstimationService.estimateFromText(
+        placeholderContent,
+        filteredQuestionTypes as Record<QuestionType, number>,
+        generationConfig.difficulty || localData.difficulty || 'MEDIUM'
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [generationConfig.file, selectedPageNumbers.length, generationConfig.questionsPerType, generationConfig.difficulty, localData.difficulty]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -373,6 +420,19 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
               </div>
             )}
           </div>
+
+          {/* Token Estimation */}
+          {generationConfig.file && selectedPageNumbers.length > 0 && tokenEstimation && (
+            <div className="mt-4">
+              <TokenEstimationDisplay 
+                estimation={tokenEstimation} 
+                showBreakdown={false}
+              />
+              <p className="text-xs text-theme-text-tertiary mt-2">
+                * Estimation based on {selectedPageNumbers.length} selected page{selectedPageNumbers.length !== 1 ? 's' : ''} (~{selectedPageNumbers.length * 5000} characters). Actual usage may vary.
+              </p>
+            </div>
+          )}
 
           {/* Document Processing Configuration */}
           <div className="mt-6">
