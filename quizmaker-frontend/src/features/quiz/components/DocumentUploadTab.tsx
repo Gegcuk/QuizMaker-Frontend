@@ -4,11 +4,11 @@
 // Extracted from DocumentUploadWithQuizPage for integration into the new tabbed interface
 // ---------------------------------------------------------------------------
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService, api } from '@/services';
-import { QuizQuestionType, Difficulty, QuizScope } from '@/types';
-import { GenerationProgress } from '@/features/ai';
+import { QuizService, api, tokenEstimationService } from '@/services';
+import { QuizQuestionType, Difficulty, QuizScope, QuestionType } from '@/types';
+import { GenerationProgress, TokenEstimationDisplay } from '@/features/ai';
 import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 
 export const DocumentUploadTab: React.FC = () => {
@@ -215,6 +215,49 @@ export const DocumentUploadTab: React.FC = () => {
         return '';
     }
   };
+
+  // Calculate token estimation based on file size (rough estimate)
+  // This is a simplified estimation - actual estimation would require chunk data
+  const tokenEstimation = useMemo(() => {
+    if (!selectedFile) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions and convert to QuestionType format
+    const filteredQuestionTypes = Object.entries(quizConfig.questionTypes)
+      .filter(([_, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        // Map QuizQuestionType to QuestionType (they're mostly compatible)
+        const questionType = type as QuestionType;
+        acc[questionType] = count;
+        return acc;
+      }, {} as Partial<Record<QuestionType, number>>);
+
+    // Check if at least one question type has count > 0
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      // Estimate character count from file size
+      // Rough approximation: PDF/DOCX files typically have ~2000-3000 chars per KB
+      // We'll use a conservative estimate of 2500 chars per KB
+      const estimatedCharCount = Math.floor(selectedFile.size / 1024 * 2500);
+      
+      // Create a placeholder content string for estimation
+      // The actual estimation will be more accurate once chunks are processed
+      const placeholderContent = ' '.repeat(Math.max(0, estimatedCharCount));
+      
+      return tokenEstimationService.estimateFromText(
+        placeholderContent,
+        filteredQuestionTypes,
+        quizConfig.difficulty
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [selectedFile, quizConfig.questionTypes, quizConfig.difficulty]);
 
   return (
     <div className="space-y-6">
@@ -425,14 +468,24 @@ export const DocumentUploadTab: React.FC = () => {
 
               {/* Questions Per Type */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-4">
                   <label className="block text-sm font-medium text-theme-text-secondary">
                     Questions Per Type (per chunk) <span className="text-theme-interactive-danger">*</span>
                   </label>
                   <Hint
-                    position="right"
+                    position="bottom"
                     size="sm"
-                    content="Specify how many questions of each type to generate per document chunk. At least one type must have a value ≥ 1."
+                    content={
+                      <div className="space-y-2">
+                        <p className="font-medium">Specify how many questions of each type to generate per document chunk.</p>
+                        <p className="text-xs text-theme-text-tertiary">
+                          <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                        </p>
+                        <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                          <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally. At least one type must have a value ≥ 1.
+                        </p>
+                      </div>
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -533,9 +586,6 @@ export const DocumentUploadTab: React.FC = () => {
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-theme-text-secondary">
-                  Select at least one question type with at least 1 question per type
-                </p>
               </div>
 
               {/* Estimated Time Per Question */}
@@ -561,6 +611,19 @@ export const DocumentUploadTab: React.FC = () => {
                   max="10"
                 />
               </div>
+
+              {/* Token Estimation */}
+              {selectedFile && (
+                <div className="mt-6">
+                  <TokenEstimationDisplay 
+                    estimation={tokenEstimation} 
+                    showBreakdown={false}
+                  />
+                  <p className="text-xs text-theme-text-tertiary mt-2">
+                    * Estimation is approximate based on file size. Actual usage may vary after document processing.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

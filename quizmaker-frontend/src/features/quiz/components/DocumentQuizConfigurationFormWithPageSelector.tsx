@@ -1,12 +1,14 @@
 // DocumentQuizConfigurationFormWithPageSelector.tsx
 // Enhanced document-based quiz configuration with page selection support
 
-import React, { useState } from 'react';
-import { CreateQuizRequest, Difficulty, DocumentChunkDto, GenerateQuizFromDocumentRequest, QuizQuestionType } from '@/types';
+import React, { useState, useMemo } from 'react';
+import { CreateQuizRequest, Difficulty, DocumentChunkDto, GenerateQuizFromDocumentRequest, QuizQuestionType, QuestionType } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint, Alert } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { DocumentPageSelector } from '@/features/document';
 import { SparklesIcon } from '@heroicons/react/24/outline';
+import { tokenEstimationService } from '@/services';
+import { TokenEstimationDisplay } from '@/features/ai';
 
 interface DocumentQuizConfigurationFormWithPageSelectorProps {
   quizData: QuizWizardDraft;
@@ -115,6 +117,51 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
 
     setStep('configure');
   };
+
+  // Calculate token estimation based on number of selected pages
+  const tokenEstimation = useMemo(() => {
+    if (!generationConfig.selectedChunks || generationConfig.selectedChunks.length === 0) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions and convert to QuestionType format
+    const filteredQuestionTypes = Object.entries(generationConfig.questionsPerType)
+      .filter(([_, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        const questionType = type as QuestionType;
+        acc[questionType] = count;
+        return acc;
+      }, {} as Partial<Record<QuestionType, number>>);
+
+    // Check if at least one question type has count > 0
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      // Estimate character count based on number of selected pages
+      // Average page typically has ~2000-3000 characters
+      // We'll use a conservative estimate of 5000 characters per page
+      const AVERAGE_CHARS_PER_PAGE = 5000;
+      const numberOfPages = generationConfig.selectedChunks.length;
+      const estimatedCharCount = numberOfPages * AVERAGE_CHARS_PER_PAGE;
+      
+      // Create a placeholder content string for estimation (use actual characters, not just spaces)
+      // Use a repeating pattern that won't be trimmed
+      const placeholderPattern = 'Lorem ipsum dolor sit amet consectetur adipiscing elit. ';
+      const repeatCount = Math.ceil(estimatedCharCount / placeholderPattern.length);
+      const placeholderContent = placeholderPattern.repeat(Math.max(1, repeatCount)).substring(0, estimatedCharCount);
+      
+      return tokenEstimationService.estimateFromText(
+        placeholderContent,
+        filteredQuestionTypes as Record<QuestionType, number>,
+        localData.difficulty || 'MEDIUM'
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [generationConfig.selectedChunks, generationConfig.questionsPerType, localData.difficulty]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -225,6 +272,19 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
               Change Selection
             </Button>
           </div>
+
+          {/* Token Estimation */}
+          {tokenEstimation && (
+            <div className="mt-4">
+              <TokenEstimationDisplay 
+                estimation={tokenEstimation} 
+                showBreakdown={false}
+              />
+              <p className="text-xs text-theme-text-tertiary mt-2">
+                * Estimation based on {generationConfig.selectedChunks.length} selected page{generationConfig.selectedChunks.length !== 1 ? 's' : ''} (~{generationConfig.selectedChunks.length * 5000} characters). Actual usage may vary.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -278,17 +338,24 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
         </div>
 
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-4">
             <h4 className="text-lg font-medium text-theme-text-primary">Number of Questions per Type</h4>
             <Hint
-              position="right"
+              position="bottom"
               size="sm"
-              content="Set how many questions of each type to generate per selected page/chunk. The AI will attempt to create the specified number of questions based on the content."
+              content={
+                <div className="space-y-2">
+                  <p className="font-medium">Questions will be generated for each selected page/chunk.</p>
+                  <p className="text-xs text-theme-text-tertiary">
+                    <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                  </p>
+                  <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                    <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally.
+                  </p>
+                </div>
+              }
             />
           </div>
-          <p className="text-sm text-theme-text-secondary mb-4">
-            Questions will be generated for each selected page/chunk
-          </p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (

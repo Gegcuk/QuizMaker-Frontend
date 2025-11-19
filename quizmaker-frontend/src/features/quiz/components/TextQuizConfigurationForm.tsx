@@ -3,10 +3,12 @@
 // Includes text input and AI generation parameters
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
-import { CreateQuizRequest, Difficulty } from '@/types';
-import { Button, Input, useToast, Dropdown, Textarea } from '@/components';
+import React, { useState, useMemo } from 'react';
+import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
+import { Button, Input, useToast, Dropdown, Textarea, Hint } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
+import { tokenEstimationService } from '@/services';
+import { TokenEstimationDisplay } from '@/features/ai';
 
 interface TextQuizConfigurationFormProps {
   quizData: QuizWizardDraft;
@@ -144,6 +146,39 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
     onCreateQuiz(dataWithConfig);
   };
 
+  // Calculate token estimation
+  const tokenEstimation = useMemo(() => {
+    if (!generationConfig.text.trim() || generationConfig.text.length < 10) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions and convert to QuestionType format
+    const filteredQuestionTypes = Object.entries(generationConfig.questionsPerType)
+      .filter(([_, count]) => count > 0)
+      .reduce((acc, [type, count]) => {
+        // Map string type to QuestionType
+        const questionType = type as QuestionType;
+        acc[questionType] = count;
+        return acc;
+      }, {} as Partial<Record<QuestionType, number>>);
+
+    // Check if at least one question type has count > 0
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      return tokenEstimationService.estimateFromText(
+        generationConfig.text.trim(),
+        filteredQuestionTypes,
+        localData.difficulty || generationConfig.difficulty || 'MEDIUM'
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [generationConfig.text, generationConfig.questionsPerType, localData.difficulty, generationConfig.difficulty]);
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
@@ -227,12 +262,32 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
             />
           </div>
 
+          {/* Token Estimation */}
+          <div className="mt-4">
+            <TokenEstimationDisplay estimation={tokenEstimation} />
+          </div>
         </div>
 
         {/* Questions per type */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
-          <h4 className="text-lg font-medium text-theme-text-primary mb-1">Number of Questions per Type</h4>
-          <p className="text-sm text-theme-text-secondary mb-4">Set how many questions to generate for each type.</p>
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-lg font-medium text-theme-text-primary">Number of Questions per Type</h4>
+            <Hint
+              position="bottom"
+              size="sm"
+              content={
+                <div className="space-y-2">
+                  <p className="font-medium">Set how many questions to generate for each type.</p>
+                  <p className="text-xs text-theme-text-tertiary">
+                    <strong>Tip:</strong> Using multiple question types <strong className="italic text-theme-interactive-primary">significantly improves</strong> understanding and memorization by engaging different cognitive processes.
+                  </p>
+                  <p className="text-xs text-theme-text-tertiary border-t border-theme-border-primary pt-2">
+                    <strong>Note:</strong> Each question type requires a separate API call, which increases token usage proportionally.
+                  </p>
+                </div>
+              }
+            />
+          </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {Object.entries(generationConfig.questionsPerType).map(([type, count]) => (

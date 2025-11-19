@@ -4,24 +4,31 @@
 // Provides multi-select interface with chunk preview and filtering
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
-import { DocumentService } from '@/services';
-import { DocumentChunkDto, ChunkType } from '@/types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { DocumentService, tokenEstimationService } from '@/services';
+import { DocumentChunkDto, ChunkType, QuestionType, Difficulty } from '@/types';
 import { api } from '@/services';
 import { Button, Input, Dropdown, Checkbox, Alert } from '@/components';
+import { TokenEstimationDisplay } from '@/features/ai';
 
 interface ChunkSelectorProps {
   documentId: string;
   onSelectionChange?: (selectedChunkIds: string[]) => void;
   initialSelection?: string[];
   className?: string;
+  /** Optional: Question types for token estimation */
+  questionsPerType?: Partial<Record<QuestionType, number>>;
+  /** Optional: Difficulty level for token estimation */
+  difficulty?: Difficulty;
 }
 
 const ChunkSelector: React.FC<ChunkSelectorProps> = ({
   documentId,
   onSelectionChange,
   initialSelection = [],
-  className = ''
+  className = '',
+  questionsPerType,
+  difficulty = 'MEDIUM'
 }) => {
   const [chunks, setChunks] = useState<DocumentChunkDto[]>([]);
   const [selectedChunks, setSelectedChunks] = useState<Set<string>>(new Set(initialSelection));
@@ -140,6 +147,43 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
     };
   };
 
+  // Calculate token estimation based on selected chunks
+  const tokenEstimation = useMemo(() => {
+    if (!questionsPerType || Object.keys(questionsPerType).length === 0) {
+      return null;
+    }
+
+    // Get selected chunk objects
+    const selectedChunkObjects = chunks.filter(chunk => selectedChunks.has(chunk.id));
+    
+    if (selectedChunkObjects.length === 0) {
+      return null;
+    }
+
+    // Filter out question types with 0 questions
+    const filteredQuestionTypes = Object.entries(questionsPerType)
+      .filter(([_, count]) => count && count > 0)
+      .reduce((acc, [type, count]) => {
+        acc[type as QuestionType] = count!;
+        return acc;
+      }, {} as Record<QuestionType, number>);
+
+    if (Object.keys(filteredQuestionTypes).length === 0) {
+      return null;
+    }
+
+    try {
+      return tokenEstimationService.estimateFromChunks(
+        selectedChunkObjects,
+        filteredQuestionTypes,
+        difficulty
+      );
+    } catch (error) {
+      console.error('Token estimation error:', error);
+      return null;
+    }
+  }, [chunks, selectedChunks, questionsPerType, difficulty]);
+
   if (loading) {
     return (
       <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
@@ -192,6 +236,13 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Token Estimation */}
+        {questionsPerType && tokenEstimation && (
+          <div className="mt-4">
+            <TokenEstimationDisplay estimation={tokenEstimation} />
+          </div>
+        )}
       </div>
 
       {/* Controls */}
