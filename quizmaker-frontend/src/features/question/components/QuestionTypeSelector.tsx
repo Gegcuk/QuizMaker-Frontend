@@ -12,7 +12,6 @@ import {
   PencilSquareIcon,
   ClipboardDocumentCheckIcon,
   ArrowsUpDownIcon,
-  PhotoIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
 
@@ -68,13 +67,6 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       label: 'Ordering',
       description: 'Arrange items in correct order',
       icon: ArrowsUpDownIcon,
-      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
-    },
-    {
-      type: 'HOTSPOT' as QuestionType,
-      label: 'Hotspot',
-      description: 'Click on correct areas in an image',
-      icon: PhotoIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
