@@ -43,11 +43,12 @@ export const TextGenerationTab: React.FC = () => {
     if (!text.trim()) {
       return 'Text content is required';
     }
-    if (text.length < 10) {
-      return 'Text content must be at least 10 characters long';
+    if (text.trim().length < 300) {
+      const currentLength = text.trim().length;
+      return `Text content must be at least 300 characters long (currently ${currentLength} characters, missing ${300 - currentLength} characters)`;
     }
-    if (text.length > 300000) {
-      return 'Text content must not exceed 300,000 characters';
+    if (text.length > 250000) {
+      return 'Text content must not exceed 250,000 characters';
     }
     return null;
   };
@@ -138,7 +139,7 @@ export const TextGenerationTab: React.FC = () => {
 
   // Calculate token estimation
   const tokenEstimation = useMemo(() => {
-    if (!text.trim() || text.length < 10) {
+    if (!text.trim() || text.trim().length < 300) {
       return null;
     }
 
@@ -186,9 +187,9 @@ export const TextGenerationTab: React.FC = () => {
               }
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Paste or type your text content here... (1-300,000 characters)"
+              placeholder="Paste or type your text content here... (300-250,000 characters)"
               rows={12}
-              maxLength={300000}
+              maxLength={250000}
               showCharCount
               helperText="Minimum: 10 characters"
             />
@@ -272,7 +273,7 @@ export const TextGenerationTab: React.FC = () => {
                   <Hint
                     position="right"
                     size="sm"
-                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-300,000."
+                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-250,000."
                   />
                 </div>
                 <Input
@@ -283,7 +284,7 @@ export const TextGenerationTab: React.FC = () => {
                     maxChunkSize: parseInt(e.target.value) || 50000
                   }))}
                   min="1000"
-                  max="300000"
+                  max="250000"
                 />
               </div>
             </div>

@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
-import { Button, Input, useToast, Dropdown, Textarea, Hint } from '@/components';
+import { Button, Input, useToast, Dropdown, Textarea, Hint, Alert } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { tokenEstimationService } from '@/services';
 import { TokenEstimationDisplay } from '@/features/ai';
@@ -32,6 +32,9 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 }) => {
   const { addToast } = useToast();
   
+  // Local validation errors state
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  
   // Keep all state completely local - no syncing with parent until submission
   const [localData, setLocalData] = useState<Partial<CreateQuizRequest>>({
     title: '',
@@ -55,11 +58,53 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
     setLocalData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (localErrors[field]) {
+      setLocalErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleGenerationConfigChange = <K extends keyof TextGenerationConfig>(field: K, value: TextGenerationConfig[K]) => {
     setGenerationConfig(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (localErrors[field]) {
+      setLocalErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
+
+  // Get missing requirements for disabled button tooltip
+  const getMissingRequirements = (): string[] => {
+    const missing: string[] = [];
+    
+    if (!localData.title?.trim()) {
+      missing.push('Quiz title is required');
+    }
+    
+    if (!generationConfig.text.trim()) {
+      missing.push('Text content is required');
+    } else if (generationConfig.text.trim().length < 300) {
+      const currentLength = generationConfig.text.trim().length;
+      missing.push(`Text content must be at least 300 characters (currently ${currentLength}, missing ${300 - currentLength})`);
+    }
+    
+    const totalQuestions = Object.values(generationConfig.questionsPerType).reduce((sum, count) => sum + count, 0);
+    if (totalQuestions === 0) {
+      missing.push('At least one question type must have a count greater than 0');
+    }
+    
+    return missing;
+  };
+
+  const missingRequirements = getMissingRequirements();
+  const isButtonDisabled = isCreating || missingRequirements.length > 0;
 
   const handleQuestionTypeChange = (type: string, count: number) => {
     const getMaxForType = (t: string) => {
@@ -98,23 +143,46 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear previous errors
+    const validationErrors: Record<string, string> = {};
+    
     // Validation - check all required fields before submission
     if (!localData.title?.trim()) {
-      addToast({ message: 'Please enter a quiz title' });
-      return;
+      validationErrors.title = 'Quiz title is required';
     }
     
     if (!generationConfig.text.trim()) {
-      addToast({ message: 'Please enter text content for generation' });
-      return;
+      validationErrors.text = 'Text content is required';
+    } else if (generationConfig.text.trim().length < 300) {
+      const currentLength = generationConfig.text.trim().length;
+      validationErrors.text = `Text content must be at least 300 characters long (currently ${currentLength} characters, missing ${300 - currentLength} characters)`;
+    } else if (generationConfig.text.length > 250000) {
+      validationErrors.text = 'Text content must not exceed 250,000 characters';
     }
 
     // Check if at least one question type is selected
     const totalQuestions = Object.values(generationConfig.questionsPerType).reduce((sum, count) => sum + count, 0);
     if (totalQuestions === 0) {
-      addToast({ message: 'Please select at least one question type with a count greater than 0' });
+      validationErrors.questionTypes = 'Please select at least one question type with a count greater than 0';
+    }
+
+    // Set errors and return if validation failed
+    if (Object.keys(validationErrors).length > 0) {
+      setLocalErrors(validationErrors);
+      // Scroll to first error
+      const firstErrorField = Object.keys(validationErrors)[0];
+      const errorElement = document.querySelector(`[data-field="${firstErrorField}"]`);
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      // Show toast with all errors
+      const errorMessages = Object.values(validationErrors).join(', ');
+      addToast({ type: 'error', message: errorMessages });
       return;
     }
+
+    // Clear errors if validation passed
+    setLocalErrors({});
 
     // Filter out question types with 0 counts (API expects only types with actual counts)
     const filteredQuestionsPerType = Object.entries(generationConfig.questionsPerType)
@@ -148,7 +216,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
   // Calculate token estimation
   const tokenEstimation = useMemo(() => {
-    if (!generationConfig.text.trim() || generationConfig.text.length < 10) {
+    if (!generationConfig.text.trim() || generationConfig.text.trim().length < 300) {
       return null;
     }
 
@@ -197,7 +265,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Quiz Title */}
-            <div>
+            <div data-field="title">
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
                 Quiz Title *
               </label>
@@ -207,7 +275,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="Enter quiz title..."
                 className="w-full"
-                error={errors.title}
+                error={localErrors.title || errors.title}
               />
             </div>
 
@@ -248,7 +316,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Text Content</h4>
           
-          <div className="mb-4">
+          <div className="mb-4" data-field="text">
             <Textarea
               label="Text Content *"
               value={generationConfig.text}
@@ -256,8 +324,9 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
               rows={8}
               placeholder="Paste your text content here. The AI will analyze it and generate relevant questions..."
               showCharCount
-              maxLength={300000}
-              helperText="The AI will analyze your text and generate relevant questions"
+              maxLength={250000}
+              helperText={localErrors.text || "The AI will analyze your text and generate relevant questions"}
+              error={localErrors.text}
               fullWidth
             />
           </div>
@@ -269,7 +338,12 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         </div>
 
         {/* Questions per type */}
-        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
+        <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary" data-field="questionTypes">
+          {localErrors.questionTypes && (
+            <Alert type="error" className="mb-4">
+              {localErrors.questionTypes}
+            </Alert>
+          )}
           <div className="flex items-center gap-2 mb-4">
             <h4 className="text-lg font-medium text-theme-text-primary">Number of Questions per Type</h4>
             <Hint
@@ -319,14 +393,33 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
 
         {/* Action Button */}
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={isCreating || !localData.title?.trim() || !generationConfig.text.trim()}
-            className="px-8"
-          >
-            {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Text'}
-          </Button>
+          <div className="relative group inline-block">
+            {/* Tooltip for disabled button */}
+            {isButtonDisabled && missingRequirements.length > 0 && (
+              <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
+                <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
+                  <div className="text-sm font-medium text-theme-text-primary mb-2">
+                    Please complete the following:
+                  </div>
+                  <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
+                    {missingRequirements.map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                  {/* Arrow pointing down */}
+                  <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
+                </div>
+              </div>
+            )}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isButtonDisabled}
+              className="px-8"
+            >
+              {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Text'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>
