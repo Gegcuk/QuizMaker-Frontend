@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface QuestionTypeSelectorProps {
-  selectedType: QuestionType;
+  selectedType?: QuestionType | null;
   onTypeChange: (type: QuestionType) => void;
   className?: string;
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader, Textarea, Dropdown } from '@/components';
+import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader, Textarea, Dropdown, ButtonWithValidationTooltip } from '@/components';
 import {
   QuestionDto,
   QuizDto,
@@ -619,31 +619,15 @@ const QuizQuestionsPage: React.FC = () => {
                 >
                   Cancel
                 </Button>
-                <div className="relative group inline-block">
-                  {/* Tooltip for disabled button */}
-                  {!formSubmitting && !questionText.trim() && (
-                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                      <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
-                        <div className="text-sm font-medium text-theme-text-primary mb-2">
-                          Please complete the following:
-                        </div>
-                        <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
-                          <li>Question text is required (at least 3 characters)</li>
-                        </ul>
-                        {/* Arrow pointing down */}
-                        <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
-                      </div>
-                    </div>
-                  )}
-                  <Button
-                    variant="primary"
-                    onClick={handleSubmit}
-                    disabled={formSubmitting || !questionText.trim()}
-                    loading={formSubmitting}
-                  >
-                    {formSubmitting ? 'Creating...' : 'Create Question'}
-                  </Button>
-                </div>
+                <ButtonWithValidationTooltip
+                  variant="primary"
+                  onClick={handleSubmit}
+                  disabled={formSubmitting || !questionText.trim()}
+                  loading={formSubmitting}
+                  validationErrors={!questionText.trim() ? ['Question text is required (at least 3 characters)'] : []}
+                >
+                  {formSubmitting ? 'Creating...' : 'Create Question'}
+                </ButtonWithValidationTooltip>
               </div>
             </div>
           </div>

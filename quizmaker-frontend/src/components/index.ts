@@ -5,6 +5,7 @@
 export { default as Badge } from './ui/Badge';
 export { default as Chip } from './ui/Chip';
 export { default as Button } from './ui/Button';
+export { default as ButtonWithValidationTooltip } from './ui/ButtonWithValidationTooltip';
 export { default as Input } from './ui/Input';
 export { default as Checkbox } from './ui/Checkbox';
 export { default as Radio } from './ui/Radio';
@@ -25,6 +26,7 @@ export { default as Hint } from './ui/Hint';
 export type { GroupedListGroup, GroupedListProps } from './ui/GroupedList';
 export type { SortOption } from './ui/SortDropdown';
 export type { HintProps } from './ui/Hint';
+export type { ButtonWithValidationTooltipProps } from './ui/ButtonWithValidationTooltip';
 export type { CheckboxProps } from './ui/Checkbox';
 export type { RadioProps } from './ui/Radio';
 export type { TextareaProps } from './ui/Textarea';

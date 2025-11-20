@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
-import { Button, Input, useToast, Dropdown, Hint } from '@/components';
+import { Button, Input, useToast, Dropdown, Hint, ButtonWithValidationTooltip } from '@/components';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { FastDocumentPreviewModal } from '@/features/document';
 import { RectangleStackIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
@@ -635,33 +635,15 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
         {/* Action Button */}
         <div className="flex justify-end">
-          <div className="relative group inline-block">
-            {/* Tooltip for disabled button */}
-            {isButtonDisabled && missingRequirements.length > 0 && (
-              <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
-                  <div className="text-sm font-medium text-theme-text-primary mb-2">
-                    Please complete the following:
-                  </div>
-                  <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
-                    {missingRequirements.map((req, index) => (
-                      <li key={index}>{req}</li>
-                    ))}
-                  </ul>
-                  {/* Arrow pointing down */}
-                  <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
-                </div>
-              </div>
-            )}
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isButtonDisabled}
-              className="px-8"
-            >
-              {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
-            </Button>
-          </div>
+          <ButtonWithValidationTooltip
+            type="submit"
+            variant="primary"
+            disabled={isButtonDisabled}
+            className="px-8"
+            validationErrors={missingRequirements}
+          >
+            {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
+          </ButtonWithValidationTooltip>
         </div>
       </form>
     </div>

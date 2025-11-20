@@ -19,7 +19,7 @@ import ComplianceEditor from './ComplianceEditor';
 import OrderingEditor from './OrderingEditor';
 import HotspotEditor from './HotspotEditor';
 import { MatchingQuestionForm } from './MatchingQuestionForm';
-import { Spinner, Alert, Dropdown, Button, Textarea } from '@/components';
+import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 
 interface QuestionFormProps {
@@ -58,9 +58,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   // EDIT flow skips step 1 (type selection) and goes directly to form
   const [step, setStep] = useState<'typeSelection' | 'formCreation'>(questionId ? 'formCreation' : 'typeSelection');
 
-  // Form state
-  const [formData, setFormData] = useState<CreateQuestionRequest>({
-    type: 'MCQ_SINGLE',
+  // Form state - type is undefined for new questions until user selects one
+  const [formData, setFormData] = useState<Partial<CreateQuestionRequest> & { questionText: string; content: any; difficulty: QuestionDifficulty; explanation: string; tagIds: string[] }>({
+    type: undefined,
     questionText: '',
     content: {
       options: [
@@ -115,6 +115,144 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     }));
   };
 
+  // Validate question form data - returns array of all validation errors
+  const validateQuestion = (): string[] => {
+    const errors: string[] = [];
+    
+    // Validate question type is selected
+    if (!formData.type) {
+      errors.push('Question type must be selected.');
+      return errors; // Return early if type is not selected
+    }
+    
+    // Validate question text
+    if (formData.type === 'FILL_GAP') {
+      // For FILL_GAP, validate content.text
+      const fillGapText = (formData.content as any)?.text || '';
+      if (!fillGapText || fillGapText.trim().length < 3) {
+        errors.push('Question text must be at least 3 characters long.');
+      }
+    } else {
+      // For other types, validate questionText
+      if (!formData.questionText || formData.questionText.trim().length < 3) {
+        errors.push('Question text must be at least 3 characters long.');
+      }
+    }
+
+    // Type-specific content validation
+    switch (formData.type) {
+      case 'MCQ_SINGLE':
+      case 'MCQ_MULTI': {
+        const options = (formData.content as any)?.options || [];
+        // Filter out empty options (no text)
+        const validOptions = options.filter((opt: any) => opt.text && opt.text.trim().length >= 1);
+        
+        if (validOptions.length < 2) {
+          errors.push('At least 2 options with text are required.');
+        }
+        
+        // Check all options with text have at least 1 character
+        const emptyOptions = options.filter((opt: any) => opt.text && opt.text.trim().length < 1 && opt.text.length > 0);
+        if (emptyOptions.length > 0) {
+          errors.push('All options must have at least 1 character (not just spaces).');
+        }
+        
+        // Check correct answers
+        const correctOptions = validOptions.filter((opt: any) => opt.correct);
+        if (formData.type === 'MCQ_SINGLE') {
+          if (correctOptions.length !== 1) {
+            errors.push('Exactly one correct answer must be selected.');
+          }
+        } else {
+          if (correctOptions.length === 0) {
+            errors.push('At least one correct answer must be selected.');
+          }
+        }
+        break;
+      }
+      
+      case 'OPEN': {
+        const answer = (formData.content as any)?.answer || '';
+        if (!answer || answer.trim().length < 1) {
+          errors.push('Sample answer must be at least 1 character long.');
+        }
+        break;
+      }
+      
+      case 'COMPLIANCE': {
+        const statements = (formData.content as any)?.statements || [];
+        if (statements.length === 0) {
+          errors.push('At least one statement is required.');
+        } else {
+          // Check all statements have at least 1 character
+          const invalidStatements = statements.filter((stmt: any) => !stmt.text || stmt.text.trim().length < 1);
+          if (invalidStatements.length > 0) {
+            errors.push('All statements must have at least 1 character.');
+          }
+        }
+        break;
+      }
+      
+      case 'ORDERING': {
+        const items = (formData.content as any)?.items || [];
+        if (items.length < 2) {
+          errors.push('At least 2 items are required for ordering questions.');
+        } else {
+          // Check all items have at least 1 character
+          const invalidItems = items.filter((item: any) => !item.text || item.text.trim().length < 1);
+          if (invalidItems.length > 0) {
+            errors.push('All items must have at least 1 character.');
+          }
+        }
+        break;
+      }
+      
+      case 'MATCHING': {
+        const left = (formData.content as any)?.left || [];
+        const right = (formData.content as any)?.right || [];
+        
+        if (left.length === 0) {
+          errors.push('At least one left item is required.');
+        } else {
+          // Check all left items have at least 1 character
+          const invalidLeft = left.filter((item: any) => !item.text || item.text.trim().length < 1);
+          if (invalidLeft.length > 0) {
+            errors.push('All left items must have at least 1 character.');
+          }
+        }
+        
+        if (right.length === 0) {
+          errors.push('At least one right item is required.');
+        } else {
+          // Check all right items have at least 1 character
+          const invalidRight = right.filter((item: any) => !item.text || item.text.trim().length < 1);
+          if (invalidRight.length > 0) {
+            errors.push('All right items must have at least 1 character.');
+          }
+        }
+        break;
+      }
+      
+      case 'FILL_GAP': {
+        const gaps = (formData.content as any)?.gaps || [];
+        if (gaps.length === 0) {
+          errors.push('At least one gap is required for fill-in-the-gap questions.');
+        }
+        break;
+      }
+      
+      case 'TRUE_FALSE':
+      case 'HOTSPOT':
+        // TRUE_FALSE and HOTSPOT don't need additional validation beyond question text
+        break;
+      
+      default:
+        break;
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Prevent bubbling to parent forms (e.g., QuizForm) through React portals
@@ -122,29 +260,26 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setSaving(true);
     setError(null);
 
-    // Validate question text
-    if (formData.type === 'FILL_GAP') {
-      // For FILL_GAP, validate content.text
-      const fillGapText = (formData.content as any)?.text || '';
-      if (!fillGapText || fillGapText.trim().length < 3) {
-        setError('Question text must be at least 3 characters long.');
-        setSaving(false);
-        return;
-      }
-    } else {
-      // For other types, validate questionText
-      if (!formData.questionText || formData.questionText.trim().length < 3) {
-        setError('Question text must be at least 3 characters long.');
-        setSaving(false);
-        return;
-      }
+    // Validate question
+    const validationErrors = validateQuestion();
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join('. ')); // Show all errors in alert
+      setSaving(false);
+      return;
     }
 
     try {
+      // Ensure type is defined (validation should have caught this, but TypeScript needs it)
+      if (!formData.type) {
+        setError('Question type must be selected.');
+        setSaving(false);
+        return;
+      }
+      
       // For FILL_GAP, copy content.text to questionText before submitting
-      const submissionData = formData.type === 'FILL_GAP' 
-        ? { ...formData, questionText: (formData.content as any)?.text || '' }
-        : formData;
+      const submissionData: CreateQuestionRequest = formData.type === 'FILL_GAP' 
+        ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
+        : { ...formData, type: formData.type } as CreateQuestionRequest;
 
       if (questionId) {
         // Update existing question
@@ -158,7 +293,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         }
       } else {
         // Create new question
-        const questionData = {
+        const questionData: CreateQuestionRequest = {
           ...submissionData,
           quizIds: actualQuizId ? [actualQuizId] : []
         };
@@ -247,7 +382,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   }, []);
 
   // Build attempt-like question with safeContent (no correct answers)
-  const toAttemptQuestion = (): QuestionForAttemptDto => {
+  const toAttemptQuestion = (): QuestionForAttemptDto | null => {
+    if (!formData.type) return null;
     const { type, difficulty, questionText, content } = formData as any;
     let safeContent: any = {};
     switch (type) {
@@ -308,31 +444,28 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setSaving(true);
     setError(null);
     
-    // Validate question text
-    if (formData.type === 'FILL_GAP') {
-      // For FILL_GAP, validate content.text
-      const fillGapText = (formData.content as any)?.text || '';
-      if (!fillGapText || fillGapText.trim().length < 3) {
-        setError('Question text must be at least 3 characters long.');
-        setSaving(false);
-        return;
-      }
-    } else {
-      // For other types, validate questionText
-      if (!formData.questionText || formData.questionText.trim().length < 3) {
-        setError('Question text must be at least 3 characters long.');
-        setSaving(false);
-        return;
-      }
+    // Validate question
+    const validationErrors = validateQuestion();
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join('. ')); // Show all errors in alert
+      setSaving(false);
+      return;
     }
     
     try {
+      // Ensure type is defined
+      if (!formData.type) {
+        setError('Question type must be selected.');
+        setSaving(false);
+        return;
+      }
+      
       // For FILL_GAP, copy content.text to questionText before submitting
-      const submissionData = formData.type === 'FILL_GAP' 
-        ? { ...formData, questionText: (formData.content as any)?.text || '' }
-        : formData;
+      const submissionData: CreateQuestionRequest = formData.type === 'FILL_GAP' 
+        ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
+        : { ...formData, type: formData.type } as CreateQuestionRequest;
 
-      const questionData = {
+      const questionData: CreateQuestionRequest = {
         ...submissionData,
         quizIds: actualQuizId ? [actualQuizId] : []
       };
@@ -345,9 +478,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       const prevType = formData.type;
       const prevDifficulty = formData.difficulty;
       setFormData({
-        type: prevType,
+        type: prevType || undefined,
         questionText: '',
-        content: initContentForType(prevType),
+        content: prevType ? initContentForType(prevType) : {
+          options: [
+            { id: 'a', text: '', correct: false },
+            { id: 'b', text: '', correct: false },
+            { id: 'c', text: '', correct: false },
+            { id: 'd', text: '', correct: false }
+          ]
+        },
         difficulty: prevDifficulty,
         hint: '',
         explanation: '',
@@ -745,6 +885,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 <div className="space-y-2 mb-6">
                 {(() => {
                   const q = toAttemptQuestion();
+                  if (!q || !formData.type) return null;
                   switch (q.type) {
                     case 'MCQ_SINGLE':
                       return (
@@ -840,96 +981,26 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
             Cancel
           </Button>
           {!questionId && (
-            <div className="relative group inline-block">
-              {/* Tooltip for disabled button */}
-              {(() => {
-                const isFillGap = formData.type === 'FILL_GAP';
-                const hasContent = isFillGap 
-                  ? !!(formData.content as any)?.text?.trim()
-                  : !!formData.questionText.trim();
-                const isDisabled = saving || !hasContent;
-                const missing: string[] = [];
-                
-                if (!saving && !hasContent) {
-                  if (isFillGap) {
-                    missing.push('Question text is required (at least 3 characters)');
-                  } else {
-                    missing.push('Question text is required (at least 3 characters)');
-                  }
-                }
-                
-                return isDisabled && missing.length > 0 ? (
-                  <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                    <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
-                      <div className="text-sm font-medium text-theme-text-primary mb-2">
-                        Please complete the following:
-                      </div>
-                      <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
-                        {missing.map((req, index) => (
-                          <li key={index}>{req}</li>
-                        ))}
-                      </ul>
-                      {/* Arrow pointing down */}
-                      <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
-                    </div>
-                  </div>
-                ) : null;
-              })()}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleSaveAndAddAnother}
-                disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
-                loading={saving}
-              >
-                Save & Add Another
-              </Button>
-            </div>
-          )}
-          <div className="relative group inline-block">
-            {/* Tooltip for disabled button */}
-            {(() => {
-              const isFillGap = formData.type === 'FILL_GAP';
-              const hasContent = isFillGap 
-                ? !!(formData.content as any)?.text?.trim()
-                : !!formData.questionText.trim();
-              const isDisabled = saving || !hasContent;
-              const missing: string[] = [];
-              
-              if (!saving && !hasContent) {
-                if (isFillGap) {
-                  missing.push('Question text is required (at least 3 characters)');
-                } else {
-                  missing.push('Question text is required (at least 3 characters)');
-                }
-              }
-              
-              return isDisabled && missing.length > 0 ? (
-                <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                  <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
-                    <div className="text-sm font-medium text-theme-text-primary mb-2">
-                      Please complete the following:
-                    </div>
-                    <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
-                      {missing.map((req, index) => (
-                        <li key={index}>{req}</li>
-                      ))}
-                    </ul>
-                    {/* Arrow pointing down */}
-                    <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
-                  </div>
-                </div>
-              ) : null;
-            })()}
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
+            <ButtonWithValidationTooltip
+              type="button"
+              variant="secondary"
+              onClick={handleSaveAndAddAnother}
+              disabled={saving || validateQuestion().length > 0}
               loading={saving}
+              validationErrors={validateQuestion()}
             >
-              {questionId ? 'Update Question' : 'Create Question'}
-            </Button>
-          </div>
+              Save & Add Another
+            </ButtonWithValidationTooltip>
+          )}
+          <ButtonWithValidationTooltip
+            type="submit"
+            variant="primary"
+            disabled={saving || validateQuestion().length > 0}
+            loading={saving}
+            validationErrors={validateQuestion()}
+          >
+            {questionId ? 'Update Question' : 'Create Question'}
+          </ButtonWithValidationTooltip>
         </div>
       </form>
     </div>
