@@ -222,6 +222,29 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     }
   }, [generationConfig.file, selectedPageNumbers.length, generationConfig.questionsPerType, generationConfig.difficulty, localData.difficulty]);
 
+  // Get missing requirements for disabled button tooltip
+  const getMissingRequirements = (): string[] => {
+    const missing: string[] = [];
+    
+    if (!generationConfig.file) {
+      missing.push('Document file is required');
+    }
+    
+    if (selectedPageNumbers.length === 0) {
+      missing.push('Please select at least one page from the document');
+    }
+    
+    const totalQuestions = Object.values(generationConfig.questionsPerType).reduce((sum, count) => sum + count, 0);
+    if (totalQuestions === 0) {
+      missing.push('At least one question type must have a count greater than 0');
+    }
+    
+    return missing;
+  };
+
+  const missingRequirements = getMissingRequirements();
+  const isButtonDisabled = isCreating || missingRequirements.length > 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -612,14 +635,33 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
 
         {/* Action Button */}
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={isCreating || !generationConfig.file || selectedPageNumbers.length === 0}
-            className="px-8"
-          >
-            {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
-          </Button>
+          <div className="relative group inline-block">
+            {/* Tooltip for disabled button */}
+            {isButtonDisabled && missingRequirements.length > 0 && (
+              <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
+                <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
+                  <div className="text-sm font-medium text-theme-text-primary mb-2">
+                    Please complete the following:
+                  </div>
+                  <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
+                    {missingRequirements.map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                  {/* Arrow pointing down */}
+                  <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
+                </div>
+              </div>
+            )}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isButtonDisabled}
+              className="px-8"
+            >
+              {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

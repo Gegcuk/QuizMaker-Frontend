@@ -417,25 +417,18 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           <h4 className="text-md font-medium text-theme-text-primary mb-4">Select Question Type</h4>
           <QuestionTypeSelector
             selectedType={formData.type}
-            onTypeChange={handleTypeChange}
+            onTypeChange={handleTypeSelect}
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-start mt-8">
           <Button
             type="button"
             variant="secondary"
             onClick={handleCancel}
           >
             Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => handleTypeSelect(formData.type)}
-          >
-            Continue
           </Button>
         </div>
       </div>
@@ -847,24 +840,96 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
             Cancel
           </Button>
           {!questionId && (
+            <div className="relative group inline-block">
+              {/* Tooltip for disabled button */}
+              {(() => {
+                const isFillGap = formData.type === 'FILL_GAP';
+                const hasContent = isFillGap 
+                  ? !!(formData.content as any)?.text?.trim()
+                  : !!formData.questionText.trim();
+                const isDisabled = saving || !hasContent;
+                const missing: string[] = [];
+                
+                if (!saving && !hasContent) {
+                  if (isFillGap) {
+                    missing.push('Question text is required (at least 3 characters)');
+                  } else {
+                    missing.push('Question text is required (at least 3 characters)');
+                  }
+                }
+                
+                return isDisabled && missing.length > 0 ? (
+                  <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
+                    <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
+                      <div className="text-sm font-medium text-theme-text-primary mb-2">
+                        Please complete the following:
+                      </div>
+                      <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
+                        {missing.map((req, index) => (
+                          <li key={index}>{req}</li>
+                        ))}
+                      </ul>
+                      {/* Arrow pointing down */}
+                      <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSaveAndAddAnother}
+                disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
+                loading={saving}
+              >
+                Save & Add Another
+              </Button>
+            </div>
+          )}
+          <div className="relative group inline-block">
+            {/* Tooltip for disabled button */}
+            {(() => {
+              const isFillGap = formData.type === 'FILL_GAP';
+              const hasContent = isFillGap 
+                ? !!(formData.content as any)?.text?.trim()
+                : !!formData.questionText.trim();
+              const isDisabled = saving || !hasContent;
+              const missing: string[] = [];
+              
+              if (!saving && !hasContent) {
+                if (isFillGap) {
+                  missing.push('Question text is required (at least 3 characters)');
+                } else {
+                  missing.push('Question text is required (at least 3 characters)');
+                }
+              }
+              
+              return isDisabled && missing.length > 0 ? (
+                <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
+                  <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3 max-w-xs">
+                    <div className="text-sm font-medium text-theme-text-primary mb-2">
+                      Please complete the following:
+                    </div>
+                    <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
+                      {missing.map((req, index) => (
+                        <li key={index}>{req}</li>
+                      ))}
+                    </ul>
+                    {/* Arrow pointing down */}
+                    <div className="absolute bottom-0 right-8 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"></div>
+                  </div>
+                </div>
+              ) : null;
+            })()}
             <Button
-              type="button"
-              variant="secondary"
-              onClick={handleSaveAndAddAnother}
+              type="submit"
+              variant="primary"
               disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
               loading={saving}
             >
-              Save & Add Another
+              {questionId ? 'Update Question' : 'Create Question'}
             </Button>
-          )}
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={saving || (formData.type === 'FILL_GAP' ? !(formData.content as any)?.text?.trim() : !formData.questionText.trim())}
-            loading={saving}
-          >
-            {questionId ? 'Update Question' : 'Create Question'}
-          </Button>
+          </div>
         </div>
       </form>
     </div>
