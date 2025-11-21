@@ -10,7 +10,7 @@ import { QuizDto } from '@/types';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
-import { PageHeader, useToast, Button, Alert } from '@/components';
+import { PageHeader, useToast, Button, Alert, Modal } from '@/components';
 import type { GroupedListGroup } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
@@ -229,6 +229,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
   const [isDeletingGroup, setIsDeletingGroup] = useState(false);
+  const [showAddToGroupModal, setShowAddToGroupModal] = useState(false);
+  const [isAddingToGroup, setIsAddingToGroup] = useState(false);
   
   // Export modal
   const [showExportModal, setShowExportModal] = useState(false);
@@ -247,6 +249,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setShowBulkDeleteModal(false);
       setShowDeleteGroupModal(false);
       setShowExportModal(false);
+      setShowAddToGroupModal(false);
       setQuizToDelete(null);
       setGroupToDelete(null);
       setQuizToExport(null);
@@ -464,6 +467,49 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     } finally {
       setIsBulkDeleting(false);
       setShowBulkDeleteModal(false);
+    }
+  };
+
+  const handleBulkAddToGroup = async () => {
+    if (selectedQuizzes.length === 0) return;
+    // Load groups if not already loaded
+    if (quizGroups.length === 0) {
+      await loadGroups();
+    }
+    setShowAddToGroupModal(true);
+  };
+
+  const confirmBulkAddToGroup = async (groupId: string) => {
+    if (selectedQuizzes.length === 0 || !groupId) return;
+
+    setIsAddingToGroup(true);
+    try {
+      // Add all selected quizzes to the group in one API call
+      await quizGroupService.addQuizzesToGroup(groupId, {
+        quizIds: selectedQuizzes
+      });
+      
+      addToast({
+        type: 'success',
+        message: `${selectedQuizzes.length} quiz(zes) added to group successfully`
+      });
+      
+      // Refresh groups if in groups view
+      if (displayViewMode === 'groups') {
+        await loadGroups();
+      }
+      
+      // Clear selection
+      setSelectedQuizzes([]);
+      setShowAddToGroupModal(false);
+    } catch (error: any) {
+      console.error('Failed to add quizzes to group:', error);
+      addToast({
+        type: 'error',
+        message: error.message || 'Failed to add quizzes to group. Please try again.'
+      });
+    } finally {
+      setIsAddingToGroup(false);
     }
   };
 
@@ -809,6 +855,22 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     </Button>
                     <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleBulkAddToGroup}
+                      disabled={isAddingToGroup}
+                      leftIcon={
+                        !isAddingToGroup ? (
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        ) : undefined
+                      }
+                    >
+                      Add to Group
+                    </Button>
+                    <Button
+                      type="button"
                       variant="danger"
                       size="sm"
                       onClick={handleBulkDelete}
@@ -964,6 +1026,82 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
           onExport={handleExport}
         />
       )}
+
+      {/* Add to Group Modal */}
+      <Modal
+        isOpen={showAddToGroupModal}
+        onClose={() => setShowAddToGroupModal(false)}
+        title="Add Quizzes to Group"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-theme-text-secondary">
+            Select a group to add {selectedQuizzes.length} selected quiz(zes) to:
+          </p>
+
+          {isLoadingGroups ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto"></div>
+              <p className="mt-4 text-sm text-theme-text-secondary">Loading groups...</p>
+            </div>
+          ) : quizGroups.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-theme-text-secondary">No groups available. Create a group first.</p>
+            </div>
+          ) : (
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {quizGroups.map((group) => (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => confirmBulkAddToGroup(group.id)}
+                  disabled={isAddingToGroup}
+                  className="w-full text-left px-4 py-3 rounded-lg border border-theme-border-primary hover:bg-theme-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {group.color && (
+                      <div
+                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: group.color }}
+                      />
+                    )}
+                    {group.icon && (
+                      <span className="text-lg flex-shrink-0">{group.icon}</span>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-theme-text-primary truncate">{group.name}</div>
+                      {group.description && (
+                        <div className="text-sm text-theme-text-secondary truncate">{group.description}</div>
+                      )}
+                    </div>
+                    {group.quizCount > 0 && (
+                      <span className="text-xs text-theme-text-tertiary flex-shrink-0">
+                        {group.quizCount} quiz{group.quizCount !== 1 ? 'zes' : ''}
+                      </span>
+                    )}
+                  </div>
+                  {isAddingToGroup && (
+                    <div className="flex-shrink-0">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-interactive-primary"></div>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-theme-border-primary">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAddToGroupModal(false)}
+              disabled={isAddingToGroup}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

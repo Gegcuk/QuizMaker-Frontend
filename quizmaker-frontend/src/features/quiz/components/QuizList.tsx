@@ -3,11 +3,16 @@
 // List layout for quiz listings
 // ---------------------------------------------------------------------------
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
-import { Badge, Button, Checkbox } from '@/components';
+import { Badge, Button, Checkbox, useToast } from '@/components';
+import QuizGroupMenu from './QuizGroupMenu';
+import CreateGroupModal from './CreateGroupModal';
+import { QuizGroupService } from '../services/quiz-group.service';
+import { CreateQuizGroupRequest } from '../types/quiz.types';
+import { api } from '@/services';
 
 interface QuizListProps {
   quizzes: QuizDto[];
@@ -37,6 +42,14 @@ const QuizList: React.FC<QuizListProps> = ({
   className = ''
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
+  const [openMenuQuizId, setOpenMenuQuizId] = useState<string | null>(null);
+  const [menuPositions, setMenuPositions] = useState<Record<string, { top: number; right: number }>>({});
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [createGroupQuizId, setCreateGroupQuizId] = useState<string | null>(null);
+  const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const buttonRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { addToast } = useToast();
+  const groupService = new QuizGroupService(api);
   // Helper function to get difficulty badge variant
   const getDifficultyVariant = (difficulty: string): 'success' | 'warning' | 'danger' | 'neutral' => {
     switch (difficulty) {
@@ -74,6 +87,127 @@ const QuizList: React.FC<QuizListProps> = ({
     const mins = minutes % 60;
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
+
+  // Toggle menu for a specific quiz
+  const toggleMenu = (quizId: string, buttonElement?: HTMLElement | null) => {
+    if (openMenuQuizId === quizId) {
+      setOpenMenuQuizId(null);
+      setMenuPositions(prev => {
+        const next = { ...prev };
+        delete next[quizId];
+        return next;
+      });
+    } else {
+      // Close any other open menu
+      setOpenMenuQuizId(quizId);
+      
+      if (buttonElement) {
+        const rect = buttonElement.getBoundingClientRect();
+        setMenuPositions(prev => ({
+          ...prev,
+          [quizId]: {
+            top: rect.bottom + 4,
+            right: window.innerWidth - rect.right
+          }
+        }));
+      }
+    }
+  };
+
+  // Handle create group
+  const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
+    const groupId = await groupService.createQuizGroup(data);
+    
+    // Validate groupId before proceeding
+    if (!groupId || groupId === 'undefined') {
+      addToast({
+        type: 'error',
+        message: 'Failed to create group: Invalid group ID returned'
+      });
+      throw new Error('Invalid group ID returned from server');
+    }
+    
+    // If we have a quizId, add the quiz to the group
+    if (createGroupQuizId) {
+      try {
+        await groupService.addQuizzesToGroup(groupId, {
+          quizIds: [createGroupQuizId]
+        });
+        addToast({
+          type: 'success',
+          message: 'Group created and quiz added successfully'
+        });
+      } catch (error: any) {
+        addToast({
+          type: 'error',
+          message: 'Group created but failed to add quiz. You can add it manually.'
+        });
+      }
+    } else {
+      addToast({
+        type: 'success',
+        message: 'Group created successfully'
+      });
+    }
+    
+    return groupId;
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      
+      // Check if click is outside all menus and buttons
+      let clickedOutside = true;
+      
+      Object.keys(menuRefs.current).forEach(quizId => {
+        const menuRef = menuRefs.current[quizId];
+        const buttonRef = buttonRefs.current[quizId];
+        if (
+          (menuRef && menuRef.contains(target)) ||
+          (buttonRef && buttonRef.contains(target))
+        ) {
+          clickedOutside = false;
+        }
+      });
+      
+      if (clickedOutside && openMenuQuizId) {
+        setOpenMenuQuizId(null);
+        setMenuPositions(prev => {
+          const next = { ...prev };
+          delete next[openMenuQuizId];
+          return next;
+        });
+      }
+    };
+
+    if (openMenuQuizId) {
+      // Add a small delay to ensure menu is fully rendered
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('click', handleClickOutside, false);
+        document.addEventListener('touchend', handleClickOutside, false);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('click', handleClickOutside, false);
+        document.removeEventListener('touchend', handleClickOutside, false);
+      };
+    }
+  }, [openMenuQuizId]);
+
+  // Cleanup: Close menu if the open quiz is no longer in the list
+  useEffect(() => {
+    if (openMenuQuizId && !quizzes.find(q => q.id === openMenuQuizId)) {
+      setOpenMenuQuizId(null);
+      setMenuPositions(prev => {
+        const next = { ...prev };
+        delete next[openMenuQuizId];
+        return next;
+      });
+    }
+  }, [quizzes, openMenuQuizId]);
 
   if (isLoading) {
     return (
@@ -230,35 +364,133 @@ const QuizList: React.FC<QuizListProps> = ({
                     Created: {new Date(quiz.createdAt).toLocaleDateString()}
                   </div>
                   {showActions && (
-                    <div className="flex items-center space-x-1">
-                      {onEdit && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(quiz.id)}
-                          title="Edit quiz"
-                          aria-label="Edit quiz"
+                    <div className="flex items-center space-x-1 relative">
+                      {/* 3-dots Menu Button */}
+                      {(onEdit || onExport) && (
+                        <div
+                          ref={(el) => {
+                            buttonRefs.current[quiz.id] = el;
+                          }}
+                          className="relative"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const buttonEl = buttonRefs.current[quiz.id];
+                              toggleMenu(quiz.id, buttonEl || undefined);
+                            }}
+                            title="More options"
+                            aria-label="More options"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
+                          </Button>
+
+                          {/* Dropdown Menu */}
+                          {openMenuQuizId === quiz.id && menuPositions[quiz.id] && (
+                            <div
+                              ref={(el) => {
+                                menuRefs.current[quiz.id] = el;
+                              }}
+                              className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto"
+                              style={{
+                                top: `${menuPositions[quiz.id].top}px`,
+                                right: `${menuPositions[quiz.id].right}px`
+                              }}
+                            >
+                              <div className="py-1">
+                                {/* Edit Quiz */}
+                                {onEdit && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMenuQuizId(null);
+                                      setTimeout(() => {
+                                        onEdit(quiz.id);
+                                      }, 0);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                                    leftIcon={
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                    }
+                                  >
+                                    Edit Quiz
+                                  </Button>
+                                )}
+
+                                {/* Export Quiz */}
+                                {onExport && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMenuQuizId(null);
+                                      setTimeout(() => {
+                                        onExport(quiz.id);
+                                      }, 0);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                                    leftIcon={
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                      </svg>
+                                    }
+                                  >
+                                    Export Quiz
+                                  </Button>
+                                )}
+
+                                {/* Separator before Groups section */}
+                                {(onEdit || onExport) && (
+                                  <div className="border-t border-theme-border-primary my-1"></div>
+                                )}
+
+                                {/* Groups Menu */}
+                                <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+                                  <QuizGroupMenu 
+                                    quizId={quiz.id}
+                                    onGroupsChanged={() => {
+                                      // Optionally refresh quiz data or close menu
+                                    }}
+                                    onOpenModal={() => {
+                                      // Close dropdown menu first
+                                      setOpenMenuQuizId(null);
+                                      setMenuPositions(prev => {
+                                        const next = { ...prev };
+                                        delete next[quiz.id];
+                                        return next;
+                                      });
+                                      // Set the quiz ID for creating the group
+                                      setCreateGroupQuizId(quiz.id);
+                                      // Then open create group modal after a brief delay
+                                      setTimeout(() => {
+                                        setShowCreateGroupModal(true);
+                                      }, 50);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
-                      {onExport && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onExport(quiz.id)}
-                          title="Export quiz"
-                          aria-label="Export quiz"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </Button>
-                      )}
+
+                      {/* Delete Button (always visible if available) */}
                       {onDelete && (
                         <Button
                           type="button"
@@ -302,6 +534,20 @@ const QuizList: React.FC<QuizListProps> = ({
           </li>
         ))}
       </ul>
+
+      {/* Create Group Modal */}
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => {
+          setShowCreateGroupModal(false);
+          setCreateGroupQuizId(null);
+        }}
+        onCreate={handleCreateGroup}
+        onSuccess={(groupId) => {
+          setShowCreateGroupModal(false);
+          setCreateGroupQuizId(null);
+        }}
+      />
     </div>
   );
 };
