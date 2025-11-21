@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
 import { Button, Card, CardBody, Checkbox } from '@/components';
+import QuizGroupMenu from './QuizGroupMenu';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -35,13 +36,31 @@ const QuizCard: React.FC<QuizCardProps> = ({
 }) => {
   const { getTagName, getCategoryName } = useQuizMetadata();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [menuPosition, setMenuPosition] = React.useState<{ top: number; right: number } | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const buttonContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Calculate menu position when opening
+  const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!showMobileMenu) {
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4, // 4px spacing (mt-1 = 0.25rem = 4px)
+        right: window.innerWidth - rect.right
+      });
+    } else {
+      setMenuPosition(null);
+    }
+    setShowMobileMenu(!showMobileMenu);
+  };
 
   // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowMobileMenu(false);
+        setMenuPosition(null);
       }
     };
 
@@ -123,11 +142,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
             {/* 3-Dots Menu in Top Right */}
             {(onEdit || onExport) && (
-              <div className="relative" ref={menuRef}>
+              <div className="relative" ref={buttonContainerRef}>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  onClick={handleMenuToggle}
                   title="More options"
                   className="!p-1 !min-w-0"
                   leftIcon={
@@ -137,9 +156,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
                   }
                 />
 
-                {/* Dropdown Menu */}
-                {showMobileMenu && (
-                  <div className="absolute right-0 mt-1 w-44 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
+                {/* Dropdown Menu - Fixed positioning to escape card overflow */}
+                {showMobileMenu && menuPosition && (
+                  <div
+                    ref={menuRef}
+                    className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto"
+                    style={{
+                      top: `${menuPosition.top}px`,
+                      right: `${menuPosition.right}px`
+                    }}
+                  >
                     <div className="py-1">
                       {onEdit && (
                         <Button
@@ -148,6 +174,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           onClick={() => {
                             onEdit(quiz.id);
                             setShowMobileMenu(false);
+                            setMenuPosition(null);
                           }}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
@@ -166,6 +193,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           onClick={() => {
                             onExport(quiz.id);
                             setShowMobileMenu(false);
+                            setMenuPosition(null);
                           }}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
@@ -177,6 +205,19 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           Export Quiz
                         </Button>
                       )}
+
+                      {/* Separator before Groups section */}
+                      {(onEdit || onExport) && (
+                        <div className="border-t border-theme-border-primary my-1"></div>
+                      )}
+
+                      {/* Groups Menu */}
+                      <QuizGroupMenu 
+                        quizId={quiz.id}
+                        onGroupsChanged={() => {
+                          // Optionally refresh quiz data or close menu
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -253,11 +294,11 @@ const QuizCard: React.FC<QuizCardProps> = ({
             </div>
             {/* 3-Dots Menu in Top Right */}
             {(onEdit || onExport) && (
-              <div className="relative ml-2 flex-shrink-0" ref={menuRef}>
+              <div className="relative ml-2 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  onClick={handleMenuToggle}
                   title="More options"
                   className="!p-1 !min-w-0"
                   leftIcon={
@@ -267,9 +308,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
                   }
                 />
 
-                {/* Dropdown Menu */}
-                {showMobileMenu && (
-                  <div className="absolute right-0 mt-1 w-44 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-50">
+                {/* Dropdown Menu - Fixed positioning to escape card overflow */}
+                {showMobileMenu && menuPosition && (
+                  <div
+                    ref={menuRef}
+                    className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto"
+                    style={{
+                      top: `${menuPosition.top}px`,
+                      right: `${menuPosition.right}px`
+                    }}
+                  >
                     <div className="py-1">
                       {onEdit && (
                         <Button
@@ -278,6 +326,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           onClick={() => {
                             onEdit(quiz.id);
                             setShowMobileMenu(false);
+                            setMenuPosition(null);
                           }}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
@@ -296,6 +345,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           onClick={() => {
                             onExport(quiz.id);
                             setShowMobileMenu(false);
+                            setMenuPosition(null);
                           }}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
@@ -307,6 +357,19 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           Export Quiz
                         </Button>
                       )}
+
+                      {/* Separator before Groups section */}
+                      {(onEdit || onExport) && (
+                        <div className="border-t border-theme-border-primary my-1"></div>
+                      )}
+
+                      {/* Groups Menu */}
+                      <QuizGroupMenu 
+                        quizId={quiz.id}
+                        onGroupsChanged={() => {
+                          // Optionally refresh quiz data or close menu
+                        }}
+                      />
                     </div>
                   </div>
                 )}

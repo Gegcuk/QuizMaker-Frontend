@@ -11,10 +11,12 @@ import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
 import { PageHeader, useToast, Button, Alert } from '@/components';
+import type { GroupedListGroup } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
-import { QuizService } from '../services/quiz.service';
+import { QuizService, QuizGroupService } from '../services';
+import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
 import { api } from '@/services';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
@@ -23,6 +25,105 @@ import type { AxiosError } from 'axios';
 interface MyQuizzesPageProps {
   className?: string;
 }
+
+// Groups View Component
+interface GroupsViewProps {
+  groups: GroupedListGroup<QuizDto>[];
+  selectedQuizzes: string[];
+  onEdit?: (quizId: string) => void;
+  onDelete?: (quizId: string) => void;
+  onExport?: (quizId: string) => void;
+  onStart?: (quizId: string) => void;
+  onSelect?: (quizId: string, selected: boolean) => void;
+}
+
+const GroupsView: React.FC<GroupsViewProps> = ({
+  groups,
+  selectedQuizzes,
+  onEdit,
+  onDelete,
+  onExport,
+  onStart,
+  onSelect
+}) => {
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) {
+        next.delete(groupKey);
+      } else {
+        next.add(groupKey);
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      {groups.map((group) => {
+        const isExpanded = expandedGroups.has(group.key);
+        const groupColor = group.metadata?.color;
+        const groupIcon = group.metadata?.icon;
+
+        return (
+          <div key={group.key} className="border border-theme-border-primary rounded-lg overflow-hidden">
+            {/* Group Header */}
+            <button
+              type="button"
+              onClick={() => toggleGroup(group.key)}
+              className="w-full flex items-center justify-between p-4 bg-theme-bg-secondary hover:bg-theme-bg-tertiary transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <svg
+                  className={`h-5 w-5 text-theme-text-secondary flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {groupColor && (
+                    <div
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: groupColor }}
+                    />
+                  )}
+                  {groupIcon && (
+                    <span className="text-lg flex-shrink-0">{groupIcon}</span>
+                  )}
+                  <h3 className="font-medium text-theme-text-primary truncate">{group.label}</h3>
+                </div>
+              </div>
+              <span className="text-sm text-theme-text-tertiary flex-shrink-0 ml-2">
+                {group.count} {group.count === 1 ? 'quiz' : 'quizzes'}
+              </span>
+            </button>
+
+            {/* Group Items - Grid Layout */}
+            {isExpanded && (
+              <div className="p-4 bg-theme-bg-primary">
+                <QuizGrid
+                  quizzes={group.items}
+                  isLoading={false}
+                  selectedQuizzes={selectedQuizzes}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onExport={onExport}
+                  onStart={onStart}
+                  onSelect={onSelect}
+                  onSelectAll={undefined}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const navigate = useNavigate();
@@ -35,8 +136,42 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [error, setError] = useState<string | null>(null);
   const [hasActiveAttempts, setHasActiveAttempts] = useState(false);
   
-  // Responsive view mode - automatically switches to grid on mobile
-  const { viewMode, setViewMode, isMobile } = useResponsiveViewMode({ defaultDesktopView: 'list' });
+  // View mode - supports 'grid', 'list', and 'groups'
+  // Mobile: only 'grid' and 'groups' allowed
+  // Desktop: 'grid', 'list', and 'groups' allowed
+  type ViewModeType = 'grid' | 'list' | 'groups';
+  const { viewMode: responsiveViewMode, setViewMode: setResponsiveViewMode, isMobile } = useResponsiveViewMode({ defaultDesktopView: 'list' });
+  
+  // On mobile: default to grid (tiles only), can switch to groups
+  // On desktop: default to list, can switch to grid, list, or groups
+  const [displayViewMode, setDisplayViewMode] = useState<ViewModeType>(isMobile ? 'grid' : 'list');
+  
+  // On mobile: always enforce grid or groups (never list)
+  useEffect(() => {
+    if (isMobile && displayViewMode === 'list') {
+      setDisplayViewMode('grid');
+    }
+  }, [isMobile, displayViewMode]);
+  
+  // Ensure mobile always starts with grid view
+  useEffect(() => {
+    if (isMobile && displayViewMode !== 'grid' && displayViewMode !== 'groups') {
+      setDisplayViewMode('grid');
+    }
+  }, [isMobile, displayViewMode]);
+  
+  // Sync desktop view mode with responsive view mode (one-way: displayViewMode -> responsiveViewMode)
+  // Only sync when displayViewMode changes (not when responsiveViewMode changes)
+  // We track the last synced value to avoid unnecessary updates
+  const lastSyncedModeRef = React.useRef<ViewModeType | null>(null);
+  
+  useEffect(() => {
+    // Only sync if displayViewMode changed and it's not 'groups'
+    if (!isMobile && displayViewMode !== 'groups' && displayViewMode !== lastSyncedModeRef.current) {
+      lastSyncedModeRef.current = displayViewMode;
+      setResponsiveViewMode(displayViewMode);
+    }
+  }, [displayViewMode, isMobile, setResponsiveViewMode]);
 
   // Filters and pagination
   const [filters, setFilters] = useState<FilterOptions>({});
@@ -60,6 +195,11 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [quizToExport, setQuizToExport] = useState<QuizDto | null>(null);
   const { addToast } = useToast();
+
+  // Quiz Groups state
+  const [quizGroups, setQuizGroups] = useState<QuizGroupSummaryDto[]>([]);
+  const [isLoadingGroups, setIsLoadingGroups] = useState(false);
+  const quizGroupService = new QuizGroupService(api);
 
   // Cleanup: Reset modal states on route change
   useEffect(() => {
@@ -85,6 +225,79 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   // Determine which quizzes to display based on screen size
   const displayedQuizzes = isMobile ? mobileQuizzes : paginatedQuizzes;
   const hasMoreQuizzes = isMobile ? mobileDisplayedCount < filteredAndSortedQuizzes.length : false;
+
+  // Group quizzes by their groups (for groups view)
+  const groupedQuizzes: GroupedListGroup<QuizDto>[] = React.useMemo(() => {
+    if (displayViewMode !== 'groups') {
+      return [];
+    }
+
+    // If no groups loaded yet, return empty
+    if (quizGroups.length === 0 && !isLoadingGroups) {
+      return [];
+    }
+
+    const groupsMap = new Map<string, QuizDto[]>();
+    const quizzesInGroups = new Set<string>();
+    
+    // Map quiz IDs to QuizDto objects from filtered/sorted quizzes
+    const quizMap = new Map<string, QuizDto>();
+    filteredAndSortedQuizzes.forEach(quiz => {
+      quizMap.set(quiz.id, quiz);
+    });
+
+    // Populate groups with quizzes from previews
+    quizGroups.forEach(group => {
+      if (group.quizPreviews && group.quizPreviews.length > 0) {
+        const groupQuizzes: QuizDto[] = [];
+        group.quizPreviews.forEach(quizSummary => {
+          const quiz = quizMap.get(quizSummary.id);
+          if (quiz) {
+            groupQuizzes.push(quiz);
+            quizzesInGroups.add(quiz.id);
+          }
+        });
+        
+        if (groupQuizzes.length > 0) {
+          groupsMap.set(group.id, groupQuizzes);
+        }
+      }
+    });
+
+    // Create groups array - only include groups that have quizzes in the current filtered list
+    const groups: GroupedListGroup<QuizDto>[] = quizGroups
+      .filter(group => groupsMap.has(group.id) && groupsMap.get(group.id)!.length > 0)
+      .map(group => {
+        const groupQuizzes = groupsMap.get(group.id) || [];
+        return {
+          key: group.id,
+          label: group.name,
+          items: groupQuizzes,
+          count: groupQuizzes.length,
+          metadata: {
+            groupId: group.id,
+            description: group.description,
+            color: group.color,
+            icon: group.icon
+          }
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label)); // Sort groups alphabetically
+
+    // Add ungrouped section if there are quizzes not in any group
+    const ungroupedQuizzes = filteredAndSortedQuizzes.filter(quiz => !quizzesInGroups.has(quiz.id));
+    if (ungroupedQuizzes.length > 0) {
+      groups.push({
+        key: 'ungrouped',
+        label: 'Ungrouped',
+        items: ungroupedQuizzes,
+        count: ungroupedQuizzes.length,
+        metadata: {}
+      });
+    }
+
+    return groups;
+  }, [displayViewMode, quizGroups, filteredAndSortedQuizzes, isLoadingGroups]);
 
   // Update pagination state when filters/sorting change
   React.useEffect(() => {
@@ -115,6 +328,33 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
     loadQuizzes();
   }, []);
+
+  // Load quiz groups function
+  const loadGroups = React.useCallback(async () => {
+    if (!user?.id) return;
+
+    setIsLoadingGroups(true);
+    try {
+      const response = await quizGroupService.getQuizGroups({
+        includeQuizzes: true,
+        previewSize: 1000,
+        size: 1000
+      });
+      setQuizGroups(response.content || []);
+    } catch (error) {
+      console.error('Failed to load quiz groups:', error);
+      // Don't show error to user, just log it
+    } finally {
+      setIsLoadingGroups(false);
+    }
+  }, [user?.id]);
+
+  // Load quiz groups when groups view is selected or on mount
+  useEffect(() => {
+    if (displayViewMode === 'groups') {
+      loadGroups();
+    }
+  }, [displayViewMode, loadGroups]);
 
   // Handle quiz actions
   const handleEditQuiz = (quizId: string) => {
@@ -371,14 +611,14 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  {/* View Mode Toggle - Hidden on mobile since grid is enforced */}
+                  {/* Desktop: Full View Mode Toggle (Grid/List/Groups) */}
                   {!isMobile && (
                     <div className="inline-flex rounded-md shadow-sm" role="group">
                       <Button
                         type="button"
-                        variant={viewMode === 'grid' ? 'primary' : 'outline'}
+                        variant={displayViewMode === 'grid' ? 'primary' : 'outline'}
                         size="sm"
-                        onClick={() => setViewMode('grid')}
+                        onClick={() => setDisplayViewMode('grid')}
                         className="rounded-r-none"
                         title="Grid view"
                         aria-label="Switch to grid view"
@@ -389,15 +629,60 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                       </Button>
                       <Button
                         type="button"
-                        variant={viewMode === 'list' ? 'primary' : 'outline'}
+                        variant={displayViewMode === 'list' ? 'primary' : 'outline'}
                         size="sm"
-                        onClick={() => setViewMode('list')}
-                        className="rounded-l-none -ml-px"
+                        onClick={() => setDisplayViewMode('list')}
+                        className="rounded-none -ml-px"
                         title="List view"
                         aria-label="Switch to list view"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={displayViewMode === 'groups' ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => setDisplayViewMode('groups')}
+                        className="rounded-l-none -ml-px"
+                        title="Groups view"
+                        aria-label="Switch to groups view"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                        </svg>
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Mobile: Tiles/Groups Toggle Only */}
+                  {isMobile && (
+                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                      <Button
+                        type="button"
+                        variant={displayViewMode === 'grid' ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => setDisplayViewMode('grid')}
+                        className="rounded-r-none"
+                        title="Tiles view"
+                        aria-label="Switch to tiles view"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={displayViewMode === 'groups' ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => setDisplayViewMode('groups')}
+                        className="rounded-l-none -ml-px"
+                        title="Groups view"
+                        aria-label="Switch to groups view"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
                         </svg>
                       </Button>
                     </div>
@@ -455,7 +740,35 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
               )}
 
               {/* Quiz Display */}
-              {viewMode === 'grid' ? (
+              {displayViewMode === 'groups' ? (
+                /* Groups View */
+                isLoadingGroups ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-interactive-primary mx-auto"></div>
+                    <p className="mt-4 text-sm text-theme-text-secondary">Loading groups...</p>
+                  </div>
+                ) : groupedQuizzes.length > 0 ? (
+                  <GroupsView
+                    groups={groupedQuizzes}
+                    selectedQuizzes={selectedQuizzes}
+                    onEdit={handleEditQuiz}
+                    onDelete={handleDeleteQuiz}
+                    onExport={handleExportQuiz}
+                    onStart={handleStartQuiz}
+                    onSelect={handleSelectQuiz}
+                  />
+                ) : (
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No groups yet</h3>
+                    <p className="mt-1 text-sm text-theme-text-secondary">
+                      Create a group from the quiz menu to organize your quizzes.
+                    </p>
+                  </div>
+                )
+              ) : displayViewMode === 'grid' ? (
                 <QuizGrid
                   quizzes={displayedQuizzes}
                   isLoading={isLoading}
@@ -481,8 +794,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 />
               )}
 
-              {/* Mobile: Load More Button */}
-              {isMobile && hasMoreQuizzes && (
+              {/* Mobile: Load More Button - Only show for grid/list views */}
+              {displayViewMode !== 'groups' && isMobile && hasMoreQuizzes && (
                 <div className="mt-6 flex justify-center">
                   <Button
                     type="button"
@@ -495,8 +808,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                 </div>
               )}
 
-              {/* Desktop: Pagination */}
-              {!isMobile && (
+              {/* Desktop: Pagination - Only show for grid/list views */}
+              {displayViewMode !== 'groups' && !isMobile && (
                 <QuizPagination
                   pagination={pagination}
                   onPageChange={handlePageChange}
