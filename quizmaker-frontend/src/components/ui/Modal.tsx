@@ -59,10 +59,9 @@ const Modal: React.FC<ModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
-  const modalContent = (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+  // Always render modal in portal (it handles visibility internally via conditional)
+  const modalContent = !isOpen ? null : (
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         {/* Backdrop */}
         <div
@@ -122,7 +121,7 @@ const Modal: React.FC<ModalProps> = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return modalContent ? createPortal(modalContent, document.body) : null;
 };
 
 export default Modal; 

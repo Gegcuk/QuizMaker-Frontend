@@ -10,6 +10,11 @@ import { QuizDto } from '@/types';
 import { useQuizMetadata } from '../hooks/useQuizMetadata';
 import { Button, Card, CardBody, Checkbox } from '@/components';
 import QuizGroupMenu from './QuizGroupMenu';
+import CreateGroupModal from './CreateGroupModal';
+import { QuizGroupService } from '../services';
+import { CreateQuizGroupRequest } from '../types/quiz.types';
+import { api } from '@/services';
+import { useToast } from '@/components';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -37,8 +42,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
   const { getTagName, getCategoryName } = useQuizMetadata();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState<{ top: number; right: number } | null>(null);
+  const [showCreateGroupModal, setShowCreateGroupModal] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const buttonContainerRef = React.useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
+  const groupService = new QuizGroupService(api);
+
+  // Debug: Log when showCreateGroupModal changes
+  React.useEffect(() => {
+    console.log('showCreateGroupModal state changed to:', showCreateGroupModal);
+  }, [showCreateGroupModal]);
 
   // Calculate menu position when opening
   const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -53,6 +66,30 @@ const QuizCard: React.FC<QuizCardProps> = ({
       setMenuPosition(null);
     }
     setShowMobileMenu(!showMobileMenu);
+  };
+
+  // Handle create group
+  const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
+    const groupId = await groupService.createQuizGroup(data);
+    
+    // Automatically add current quiz to the new group
+    try {
+      await groupService.addQuizzesToGroup(groupId, {
+        quizIds: [quiz.id]
+      });
+      addToast({
+        type: 'success',
+        message: 'Group created and quiz added'
+      });
+    } catch (error) {
+      console.warn('Failed to add quiz to new group:', error);
+      addToast({
+        type: 'warning',
+        message: 'Group created but failed to add quiz. You can add it manually.'
+      });
+    }
+
+    return groupId;
   };
 
   // Close menu when clicking outside
@@ -116,6 +153,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   return (
+    <>
     <Card 
       variant="elevated" 
       padding="md" 
@@ -216,6 +254,17 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         quizId={quiz.id}
                         onGroupsChanged={() => {
                           // Optionally refresh quiz data or close menu
+                        }}
+                        onOpenModal={() => {
+                          console.log('onOpenModal callback called in QuizCard (MOBILE), current showCreateGroupModal:', showCreateGroupModal);
+                          // Close dropdown menu first on mobile to prevent blocking
+                          setShowMobileMenu(false);
+                          setMenuPosition(null);
+                          // Then open create group modal after a brief delay to ensure dropdown closes
+                          setTimeout(() => {
+                            setShowCreateGroupModal(true);
+                            console.log('After setting, showCreateGroupModal should be true (MOBILE)');
+                          }, 50);
                         }}
                       />
                     </div>
@@ -369,6 +418,17 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         onGroupsChanged={() => {
                           // Optionally refresh quiz data or close menu
                         }}
+                        onOpenModal={() => {
+                          console.log('onOpenModal callback called in QuizCard (MOBILE), current showCreateGroupModal:', showCreateGroupModal);
+                          // Open create group modal immediately (modal will overlay dropdown)
+                          setShowCreateGroupModal(true);
+                          console.log('After setting, showCreateGroupModal should be true');
+                          // Close dropdown menu after modal opens to avoid flicker
+                          setTimeout(() => {
+                            setShowMobileMenu(false);
+                            setMenuPosition(null);
+                          }, 150);
+                        }}
                       />
                     </div>
                   </div>
@@ -450,6 +510,25 @@ const QuizCard: React.FC<QuizCardProps> = ({
         </div>
       </CardBody>
     </Card>
+
+    {/* Create Group Modal - Rendered at QuizCard level to persist when dropdown closes */}
+    <CreateGroupModal
+      isOpen={showCreateGroupModal}
+      onClose={() => {
+        console.log('Closing CreateGroupModal, current state:', showCreateGroupModal);
+        setShowCreateGroupModal(false);
+      }}
+      onCreate={async (data) => {
+        try {
+          const groupId = await handleCreateGroup(data);
+          setShowCreateGroupModal(false);
+          return groupId;
+        } catch (error) {
+          throw error;
+        }
+      }}
+    />
+  </>
   );
 };
 

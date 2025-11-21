@@ -5,26 +5,26 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuizGroupSummaryDto, CreateQuizGroupRequest } from '../types/quiz.types';
+import { QuizGroupSummaryDto } from '../types/quiz.types';
 import { QuizGroupService } from '../services/quiz-group.service';
-import { useToast } from '@/components';
+import { useToast, Spinner, Checkbox } from '@/components';
 import { api } from '@/services';
-import CreateGroupModal from './CreateGroupModal';
 
 interface QuizGroupMenuProps {
   quizId: string;
   onGroupsChanged?: () => void;
+  onOpenModal?: () => void;
 }
 
 const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
   quizId,
-  onGroupsChanged
+  onGroupsChanged,
+  onOpenModal
 }) => {
   const [groups, setGroups] = useState<QuizGroupSummaryDto[]>([]);
   const [quizGroupIds, setQuizGroupIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isToggling, setIsToggling] = useState<Set<string>>(new Set());
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const { addToast } = useToast();
 
   const groupService = new QuizGroupService(api);
@@ -114,37 +114,6 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
     }
   };
 
-  const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
-    const groupId = await groupService.createQuizGroup(data);
-    
-    // Reload groups to get the new one
-    await loadGroups();
-
-    // Automatically add current quiz to the new group
-    try {
-      await groupService.addQuizzesToGroup(groupId, {
-        quizIds: [quizId]
-      });
-      setQuizGroupIds(prev => new Set(prev).add(groupId));
-      addToast({
-        type: 'success',
-        message: 'Group created and quiz added'
-      });
-      
-      if (onGroupsChanged) {
-        onGroupsChanged();
-      }
-    } catch (error) {
-      // Group was created but failed to add quiz - not critical
-      console.warn('Failed to add quiz to new group:', error);
-      addToast({
-        type: 'warning',
-        message: 'Group created but failed to add quiz. You can add it manually.'
-      });
-    }
-
-    return groupId;
-  };
 
   if (isLoading) {
     return (
@@ -180,15 +149,16 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
                 disabled={isTogglingThis}
                 className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
               >
-                {/* Checkbox Icon */}
-                <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
-                  {isInGroup ? (
-                    <svg className="w-4 h-4 text-theme-interactive-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <div className="w-4 h-4 border-2 border-theme-border-primary rounded"></div>
-                  )}
+                {/* Checkbox Indicator */}
+                <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={isInGroup}
+                    onChange={() => {}} // Controlled by button click
+                    label=""
+                    size="sm"
+                    disabled={true} // Always disabled, button handles interaction
+                    className="pointer-events-none !flex-row items-center"
+                  />
                 </div>
 
                 {/* Group Name with optional icon/color */}
@@ -212,10 +182,7 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
 
                 {isTogglingThis && (
                   <div className="flex-shrink-0">
-                    <svg className="animate-spin h-4 w-4 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Spinner size="sm" />
                   </div>
                 )}
               </button>
@@ -233,8 +200,22 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
         {/* Create New Group Button */}
         <button
           type="button"
-          onClick={() => setShowCreateModal(true)}
-          className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors flex items-center gap-3"
+          onClick={(e) => {
+            console.log('=== Create New Group button clicked ===');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Notify parent to open modal
+            console.log('onOpenModal exists?', typeof onOpenModal, !!onOpenModal);
+            if (onOpenModal) {
+              console.log('Calling onOpenModal callback');
+              onOpenModal();
+              console.log('onOpenModal callback completed');
+            } else {
+              console.error('ERROR: onOpenModal is not defined!');
+            }
+          }}
+          className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors flex items-center gap-3 cursor-pointer"
         >
           <svg className="w-4 h-4 text-theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -242,13 +223,6 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
           <span>Create New Group</span>
         </button>
       </div>
-
-      {/* Create Group Modal */}
-      <CreateGroupModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateGroup}
-      />
     </>
   );
 };

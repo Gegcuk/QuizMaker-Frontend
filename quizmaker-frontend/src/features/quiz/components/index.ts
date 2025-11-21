@@ -32,6 +32,8 @@ export { DocumentUploadTab } from './DocumentUploadTab';
 export { default as QuizCard } from './QuizCard';
 export { default as QuizGroupMenu } from './QuizGroupMenu';
 export { default as CreateGroupModal } from './CreateGroupModal';
+export { default as ColorPicker } from './ColorPicker';
+export { default as IconPicker } from './IconPicker';
 export { default as QuizGrid } from './QuizGrid';
 export { default as QuizList } from './QuizList';
 export { default as QuizListPage } from './QuizListPage';

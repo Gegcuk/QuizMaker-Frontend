@@ -4,8 +4,10 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { Modal, Button, Input } from '@/components';
+import { Modal, Button, Input, Textarea } from '@/components';
 import { CreateQuizGroupRequest } from '../types/quiz.types';
+import ColorPicker from './ColorPicker';
+import IconPicker from './IconPicker';
 
 interface CreateGroupModalProps {
   isOpen: boolean;
@@ -22,6 +24,8 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [color, setColor] = useState<string | undefined>(undefined);
+  const [icon, setIcon] = useState<string | undefined>(undefined);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +52,9 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
     try {
       const data: CreateQuizGroupRequest = {
         name: name.trim(),
-        description: description.trim() || undefined
+        description: description.trim() || undefined,
+        color: color || undefined,
+        icon: icon || undefined
       };
 
       const groupId = await onCreate(data);
@@ -66,6 +72,8 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   const handleClose = () => {
     setName('');
     setDescription('');
+    setColor(undefined);
+    setIcon(undefined);
     setError(null);
     onClose();
   };
@@ -105,22 +113,33 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
         </div>
 
         <div>
-          <label htmlFor="group-description" className="block text-sm font-medium text-theme-text-primary mb-1">
-            Description <span className="text-theme-text-secondary">(optional)</span>
-          </label>
-          <textarea
+          <Textarea
             id="group-description"
+            label={
+              <>
+                Description <span className="text-theme-text-secondary">(optional)</span>
+              </>
+            }
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Brief description of this group..."
             maxLength={500}
             rows={3}
             disabled={isCreating}
-            className="w-full px-3 py-2 border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary placeholder-theme-text-tertiary focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            showCharCount={true}
           />
-          <p className="mt-1 text-xs text-theme-text-secondary">
-            {description.length}/500 characters
-          </p>
+        </div>
+
+        {/* Color and Icon Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <ColorPicker
+            value={color}
+            onChange={setColor}
+          />
+          <IconPicker
+            value={icon}
+            onChange={setIcon}
+          />
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-theme-border-primary">
