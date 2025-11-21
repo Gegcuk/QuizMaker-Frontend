@@ -24,7 +24,7 @@ const ICON_CATEGORIES = [
   },
   {
     name: 'Organizational',
-    icons: ['📁', '📂', '🗂️', '📌', '📍', '🏷️', '🔖', '📎', '📎', '🔗']
+    icons: ['📁', '📂', '🗂️', '📌', '📍', '🏷️', '🔖', '📎', '📝', '🔗']
   },
   {
     name: 'Favorites',

@@ -76,7 +76,7 @@ const Modal: React.FC<ModalProps> = ({
         WebkitOverflowScrolling: 'touch'
       }}
     >
-      <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 py-4">
+      <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4 md:p-6">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 transition-opacity"

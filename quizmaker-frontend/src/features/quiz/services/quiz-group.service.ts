@@ -88,29 +88,16 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
         groupId = String(responseData.id);
       }
       else {
-        // Log the actual response for debugging
-        console.error('Unexpected createQuizGroup response format:', {
-          responseData,
-          type: typeof responseData,
-          keys: responseData ? Object.keys(responseData) : 'null/undefined',
-          fullResponse: response
-        });
         throw new Error(`Invalid response format from createQuizGroup API. Expected string or object with groupId/id, got: ${JSON.stringify(responseData)}`);
       }
       
       // Validate that we got a valid ID
       if (!groupId || groupId.trim() === '' || groupId === 'undefined' || groupId === 'null') {
-        console.error('Invalid or empty groupId extracted:', {
-          groupId,
-          responseData,
-          fullResponse: response
-        });
         throw new Error(`Invalid group ID returned from API: ${groupId}`);
       }
       
       return groupId;
     } catch (error) {
-      console.error('Error in createQuizGroup:', error);
       throw this.handleQuizGroupError(error);
     }
   }

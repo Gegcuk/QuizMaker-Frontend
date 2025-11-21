@@ -55,7 +55,6 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
       });
       setQuizGroupIds(groupsWithQuiz);
     } catch (error) {
-      console.error('Failed to load groups:', error);
       addToast({
         type: 'error',
         message: 'Failed to load groups'
@@ -100,7 +99,6 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
         onGroupsChanged();
       }
     } catch (error: any) {
-      console.error('Failed to toggle group membership:', error);
       addToast({
         type: 'error',
         message: error.message || 'Failed to update group membership'
@@ -201,18 +199,12 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
         <button
           type="button"
           onClick={(e) => {
-            console.log('=== Create New Group button clicked ===');
             e.preventDefault();
             e.stopPropagation();
             
             // Notify parent to open modal
-            console.log('onOpenModal exists?', typeof onOpenModal, !!onOpenModal);
             if (onOpenModal) {
-              console.log('Calling onOpenModal callback');
               onOpenModal();
-              console.log('onOpenModal callback completed');
-            } else {
-              console.error('ERROR: onOpenModal is not defined!');
             }
           }}
           className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors flex items-center gap-3 cursor-pointer"
