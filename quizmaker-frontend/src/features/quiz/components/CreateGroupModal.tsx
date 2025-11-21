@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { Modal, Button, Input, Textarea } from '@/components';
+import { Modal, Button, Input, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { CreateQuizGroupRequest } from '../types/quiz.types';
 import ColorPicker from './ColorPicker';
 import IconPicker from './IconPicker';
@@ -29,22 +29,27 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Validation function to check what's required
+  const validateGroup = (): string[] => {
+    const errors: string[] = [];
+    if (!name.trim()) {
+      errors.push('Group name is required');
+    } else if (name.length > 100) {
+      errors.push('Group name must be 100 characters or less');
+    }
+    if (description && description.length > 500) {
+      errors.push('Description must be 500 characters or less');
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!name.trim()) {
-      setError('Group name is required');
-      return;
-    }
-
-    if (name.length > 100) {
-      setError('Group name must be 100 characters or less');
-      return;
-    }
-
-    if (description && description.length > 500) {
-      setError('Description must be 500 characters or less');
+    const validationErrors = validateGroup();
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]);
       return;
     }
 
@@ -101,7 +106,7 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Chapter 1, Java Basics"
+            placeholder="e.g., Java Basics"
             maxLength={100}
             required
             disabled={isCreating}
@@ -131,7 +136,7 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
         </div>
 
         {/* Color and Icon Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        <div className="grid grid-cols-1 gap-4 pt-2">
           <ColorPicker
             value={color}
             onChange={setColor}
@@ -151,14 +156,15 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
           >
             Cancel
           </Button>
-          <Button
+          <ButtonWithValidationTooltip
             type="submit"
             variant="primary"
-            disabled={isCreating || !name.trim()}
+            disabled={isCreating || validateGroup().length > 0}
             loading={isCreating}
+            validationErrors={validateGroup()}
           >
             Create Group
-          </Button>
+          </ButtonWithValidationTooltip>
         </div>
       </form>
     </Modal>

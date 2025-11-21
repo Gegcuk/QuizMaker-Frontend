@@ -130,21 +130,6 @@ const IconPicker: React.FC<IconPickerProps> = ({
           </button>
         ))}
       </div>
-
-      {/* Selected Icon Preview & Remove */}
-      {value && (
-        <div className="mt-3 flex items-center gap-2 p-2 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
-          <span className="text-2xl">{value}</span>
-          <button
-            type="button"
-            onClick={handleRemoveIcon}
-            className="text-sm text-theme-text-secondary hover:text-theme-text-danger ml-auto"
-            title="Remove icon"
-          >
-            Clear
-          </button>
-        </div>
-      )}
     </div>
   );
 };
