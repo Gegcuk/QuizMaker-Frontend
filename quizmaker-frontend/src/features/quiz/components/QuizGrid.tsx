@@ -37,7 +37,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${className}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="bg-theme-bg-primary rounded-lg shadow-md animate-pulse">
             <div className="p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
@@ -86,7 +86,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quizzes.map((quiz) => (
           <QuizCard
             key={quiz.id}
