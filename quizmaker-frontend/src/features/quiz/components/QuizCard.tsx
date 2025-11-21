@@ -94,18 +94,39 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
   // Close menu when clicking outside
   React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowMobileMenu(false);
-        setMenuPosition(null);
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      // Don't close if clicking inside the menu
+      if (menuRef.current && menuRef.current.contains(target)) {
+        return;
       }
+      // Don't close if clicking the button that opened the menu (but only check on mousedown, not on click)
+      if (buttonContainerRef.current && buttonContainerRef.current.contains(target)) {
+        // Only prevent if it's the initial mousedown on the button, not if menu is already open
+        if (!showMobileMenu) {
+          return;
+        }
+      }
+      // Close the menu
+      setShowMobileMenu(false);
+      setMenuPosition(null);
     };
 
     if (showMobileMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+      // Use click event (bubble phase) so button onClick handlers fire first
+      // Add a small delay to ensure menu is fully rendered and button handlers are attached
+      const timeoutId = setTimeout(() => {
+        // Use bubble phase (false) so button clicks fire before this handler
+        document.addEventListener('click', handleClickOutside, false);
+        document.addEventListener('touchend', handleClickOutside, false);
+      }, 100);
 
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('click', handleClickOutside, false);
+        document.removeEventListener('touchend', handleClickOutside, false);
+      };
+    }
   }, [showMobileMenu]);
   
   // Helper function to get difficulty badge variant
@@ -209,11 +230,18 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            onEdit(quiz.id);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
+                            // Call onEdit after menu closes
+                            setTimeout(() => {
+                              onEdit(quiz.id);
+                            }, 0);
                           }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,11 +256,18 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            onExport(quiz.id);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
+                            // Call onExport after menu closes
+                            setTimeout(() => {
+                              onExport(quiz.id);
+                            }, 0);
                           }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
                           className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,23 +285,25 @@ const QuizCard: React.FC<QuizCardProps> = ({
                       )}
 
                       {/* Groups Menu */}
-                      <QuizGroupMenu 
-                        quizId={quiz.id}
-                        onGroupsChanged={() => {
-                          // Optionally refresh quiz data or close menu
-                        }}
-                        onOpenModal={() => {
-                          console.log('onOpenModal callback called in QuizCard (MOBILE), current showCreateGroupModal:', showCreateGroupModal);
-                          // Close dropdown menu first on mobile to prevent blocking
-                          setShowMobileMenu(false);
-                          setMenuPosition(null);
-                          // Then open create group modal after a brief delay to ensure dropdown closes
-                          setTimeout(() => {
-                            setShowCreateGroupModal(true);
-                            console.log('After setting, showCreateGroupModal should be true (MOBILE)');
-                          }, 50);
-                        }}
-                      />
+                      <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+                        <QuizGroupMenu 
+                          quizId={quiz.id}
+                          onGroupsChanged={() => {
+                            // Optionally refresh quiz data or close menu
+                          }}
+                          onOpenModal={() => {
+                            console.log('onOpenModal callback called in QuizCard (MOBILE), current showCreateGroupModal:', showCreateGroupModal);
+                            // Close dropdown menu first on mobile to prevent blocking
+                            setShowMobileMenu(false);
+                            setMenuPosition(null);
+                            // Then open create group modal after a brief delay to ensure dropdown closes
+                            setTimeout(() => {
+                              setShowCreateGroupModal(true);
+                              console.log('After setting, showCreateGroupModal should be true (MOBILE)');
+                            }, 50);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

@@ -60,19 +60,48 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   // Always render modal in portal (it handles visibility internally via conditional)
-  const modalContent = !isOpen ? null : (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+  // Ensure modal is always mounted but only visible when isOpen is true
+  if (!isOpen) return null;
+  
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[9999] overflow-y-auto" 
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0,
+        zIndex: 9999,
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
+      <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 py-4">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 transition-opacity"
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0
+          }}
           onClick={handleBackdropClick}
         />
         
         {/* Modal */}
         <div
           ref={modalRef}
-          className={`relative bg-theme-bg-primary rounded-lg shadow-theme w-full ${sizeClasses[size]} ${className}`}
+          className={`relative bg-theme-bg-primary rounded-lg shadow-theme w-full mx-2 sm:mx-4 ${sizeClasses[size]} ${className}`}
+          style={{ 
+            position: 'relative',
+            maxHeight: 'calc(100vh - 3rem)',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            marginTop: 'auto',
+            marginBottom: 'auto'
+          }}
           role="dialog"
           aria-modal="true"
           aria-labelledby={title ? 'modal-title' : undefined}
@@ -121,7 +150,8 @@ const Modal: React.FC<ModalProps> = ({
     </div>
   );
 
-  return modalContent ? createPortal(modalContent, document.body) : null;
+  // Always render modal via portal when isOpen is true
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal; 
