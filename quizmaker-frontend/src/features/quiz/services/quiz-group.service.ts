@@ -65,12 +65,52 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
    */
   async createQuizGroup(data: CreateQuizGroupRequest): Promise<string> {
     try {
-      const response = await this.axiosInstance.post<string>(
+      // According to OpenAPI spec, POST /v1/quiz-groups returns a string (the group ID)
+      // However, backend actually returns { groupId: string }, so we handle all cases
+      const response = await this.axiosInstance.post<any>(
         QUIZ_ENDPOINTS.QUIZ_GROUPS,
         data
       );
-      return response.data;
+      
+      const responseData = response.data;
+      let groupId: string;
+      
+      // Handle string response (as per OpenAPI spec)
+      if (typeof responseData === 'string') {
+        groupId = responseData;
+      }
+      // Handle object with groupId field (actual backend response)
+      else if (responseData && typeof responseData === 'object' && responseData.groupId) {
+        groupId = String(responseData.groupId);
+      }
+      // Handle object with id field (fallback)
+      else if (responseData && typeof responseData === 'object' && responseData.id) {
+        groupId = String(responseData.id);
+      }
+      else {
+        // Log the actual response for debugging
+        console.error('Unexpected createQuizGroup response format:', {
+          responseData,
+          type: typeof responseData,
+          keys: responseData ? Object.keys(responseData) : 'null/undefined',
+          fullResponse: response
+        });
+        throw new Error(`Invalid response format from createQuizGroup API. Expected string or object with groupId/id, got: ${JSON.stringify(responseData)}`);
+      }
+      
+      // Validate that we got a valid ID
+      if (!groupId || groupId.trim() === '' || groupId === 'undefined' || groupId === 'null') {
+        console.error('Invalid or empty groupId extracted:', {
+          groupId,
+          responseData,
+          fullResponse: response
+        });
+        throw new Error(`Invalid group ID returned from API: ${groupId}`);
+      }
+      
+      return groupId;
     } catch (error) {
+      console.error('Error in createQuizGroup:', error);
       throw this.handleQuizGroupError(error);
     }
   }

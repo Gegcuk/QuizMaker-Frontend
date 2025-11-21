@@ -72,6 +72,18 @@ const QuizCard: React.FC<QuizCardProps> = ({
   const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
     const groupId = await groupService.createQuizGroup(data);
     
+    // Validate groupId before proceeding
+    if (!groupId || groupId === 'undefined') {
+      console.error('Invalid groupId returned from createQuizGroup:', groupId);
+      addToast({
+        type: 'error',
+        message: 'Failed to create group: Invalid group ID returned'
+      });
+      throw new Error('Invalid group ID returned from API');
+    }
+    
+    console.log('Group created with ID:', groupId);
+    
     // Automatically add current quiz to the new group
     try {
       await groupService.addQuizzesToGroup(groupId, {
@@ -81,11 +93,21 @@ const QuizCard: React.FC<QuizCardProps> = ({
         type: 'success',
         message: 'Group created and quiz added'
       });
-    } catch (error) {
-      console.warn('Failed to add quiz to new group:', error);
+    } catch (error: any) {
+      console.error('Failed to add quiz to new group:', error);
+      console.error('Error details:', {
+        groupId,
+        quizId: quiz.id,
+        errorMessage: error?.message,
+        errorResponse: error?.response?.data,
+        errorStatus: error?.response?.status
+      });
+      
+      // Show more detailed error message if available
+      const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
       addToast({
         type: 'warning',
-        message: 'Group created but failed to add quiz. You can add it manually.'
+        message: `Group created but failed to add quiz: ${errorMessage}. You can add it manually.`
       });
     }
 
