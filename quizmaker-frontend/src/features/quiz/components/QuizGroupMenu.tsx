@@ -147,30 +147,30 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
                 type="button"
                 onClick={() => handleToggleGroup(group.id)}
                 disabled={isTogglingThis}
-                className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 cursor-pointer"
               >
                 {/* Checkbox Indicator */}
-                <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                <div className="flex-shrink-0">
                   <Checkbox
                     checked={isInGroup}
                     onChange={() => {}} // Controlled by button click
                     label=""
                     size="sm"
-                    disabled={true} // Always disabled, button handles interaction
-                    className="pointer-events-none !flex-row items-center"
+                    disabled={false} // Enabled but controlled by button
+                    className="!flex-row items-center cursor-pointer"
                   />
                 </div>
 
-                {/* Group Name with optional icon/color */}
+                {/* Group Name with color, icon */}
                 <div className="flex-1 min-w-0 flex items-center gap-2">
-                  {group.icon && (
-                    <span className="text-theme-text-secondary">{group.icon}</span>
-                  )}
                   {group.color && (
                     <div 
                       className="w-3 h-3 rounded-full flex-shrink-0" 
                       style={{ backgroundColor: group.color }}
                     />
+                  )}
+                  {group.icon && (
+                    <span className="text-theme-text-secondary">{group.icon}</span>
                   )}
                   <span className="truncate">{group.name}</span>
                   {group.quizCount > 0 && (
