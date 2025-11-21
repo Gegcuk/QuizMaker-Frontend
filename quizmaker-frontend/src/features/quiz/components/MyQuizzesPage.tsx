@@ -35,6 +35,7 @@ interface GroupsViewProps {
   onExport?: (quizId: string) => void;
   onStart?: (quizId: string) => void;
   onSelect?: (quizId: string, selected: boolean) => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 const GroupsView: React.FC<GroupsViewProps> = ({
@@ -44,7 +45,8 @@ const GroupsView: React.FC<GroupsViewProps> = ({
   onDelete,
   onExport,
   onStart,
-  onSelect
+  onSelect,
+  onDeleteGroup
 }) => {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
@@ -67,15 +69,18 @@ const GroupsView: React.FC<GroupsViewProps> = ({
         const groupColor = group.metadata?.color;
         const groupIcon = group.metadata?.icon;
 
+        const isUngrouped = group.key === 'ungrouped';
+        const groupId = group.metadata?.groupId;
+
         return (
           <div key={group.key} className="border border-theme-border-primary rounded-lg overflow-hidden">
             {/* Group Header */}
-            <button
-              type="button"
-              onClick={() => toggleGroup(group.key)}
-              className="w-full flex items-center justify-between p-4 bg-theme-bg-secondary hover:bg-theme-bg-tertiary transition-colors text-left"
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex items-center justify-between p-4 bg-theme-bg-secondary hover:bg-theme-bg-tertiary transition-colors">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.key)}
+                className="flex items-center gap-3 flex-1 min-w-0 text-left"
+              >
                 <svg
                   className={`h-5 w-5 text-theme-text-secondary flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                   fill="none"
@@ -96,26 +101,57 @@ const GroupsView: React.FC<GroupsViewProps> = ({
                   )}
                   <h3 className="font-medium text-theme-text-primary truncate">{group.label}</h3>
                 </div>
+              </button>
+              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                <span className="text-sm text-theme-text-tertiary">
+                  {group.count} {group.count === 1 ? 'quiz' : 'quizzes'}
+                </span>
+                {/* Delete Group Button - Only show for real groups (not ungrouped) */}
+                {!isUngrouped && onDeleteGroup && groupId && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteGroup(groupId);
+                    }}
+                    className="p-1 text-theme-text-tertiary hover:text-theme-text-danger transition-colors"
+                    title="Delete group"
+                    aria-label="Delete group"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
               </div>
-              <span className="text-sm text-theme-text-tertiary flex-shrink-0 ml-2">
-                {group.count} {group.count === 1 ? 'quiz' : 'quizzes'}
-              </span>
-            </button>
+            </div>
 
-            {/* Group Items - Grid Layout */}
+            {/* Group Items - Grid Layout or Empty State */}
             {isExpanded && (
               <div className="p-4 bg-theme-bg-primary">
-                <QuizGrid
-                  quizzes={group.items}
-                  isLoading={false}
-                  selectedQuizzes={selectedQuizzes}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onExport={onExport}
-                  onStart={onStart}
-                  onSelect={onSelect}
-                  onSelectAll={undefined}
-                />
+                {group.items.length > 0 ? (
+                  <QuizGrid
+                    quizzes={group.items}
+                    isLoading={false}
+                    selectedQuizzes={selectedQuizzes}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onExport={onExport}
+                    onStart={onStart}
+                    onSelect={onSelect}
+                    onSelectAll={undefined}
+                  />
+                ) : (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-theme-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No quizzes in this group</h3>
+                    <p className="mt-1 text-sm text-theme-text-secondary">
+                      Add quizzes to this group from the quiz menu.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -189,7 +225,10 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   // Confirmation modals
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showDeleteGroupModal, setShowDeleteGroupModal] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
   
   // Export modal
   const [showExportModal, setShowExportModal] = useState(false);
@@ -206,8 +245,10 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     return () => {
       setShowDeleteModal(false);
       setShowBulkDeleteModal(false);
+      setShowDeleteGroupModal(false);
       setShowExportModal(false);
       setQuizToDelete(null);
+      setGroupToDelete(null);
       setQuizToExport(null);
       setError(null);
     };
@@ -260,34 +301,52 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         
         if (groupQuizzes.length > 0) {
           groupsMap.set(group.id, groupQuizzes);
+        } else {
+          // Track empty groups (groups with 0 quizzes in the filtered list)
+          groupsMap.set(group.id, []);
         }
+      } else {
+        // Track empty groups (no previews at all)
+        groupsMap.set(group.id, []);
       }
     });
 
-    // Create groups array - only include groups that have quizzes in the current filtered list
-    const groups: GroupedListGroup<QuizDto>[] = quizGroups
-      .filter(group => groupsMap.has(group.id) && groupsMap.get(group.id)!.length > 0)
-      .map(group => {
-        const groupQuizzes = groupsMap.get(group.id) || [];
-        return {
-          key: group.id,
-          label: group.name,
-          items: groupQuizzes,
-          count: groupQuizzes.length,
-          metadata: {
-            groupId: group.id,
-            description: group.description,
-            color: group.color,
-            icon: group.icon
-          }
-        };
-      })
-      .sort((a, b) => a.label.localeCompare(b.label)); // Sort groups alphabetically
+    // Separate groups into those with quizzes and those without
+    const groupsWithQuizzes: GroupedListGroup<QuizDto>[] = [];
+    const emptyGroups: GroupedListGroup<QuizDto>[] = [];
+
+    quizGroups.forEach(group => {
+      const groupQuizzes = groupsMap.get(group.id) || [];
+      const groupData: GroupedListGroup<QuizDto> = {
+        key: group.id,
+        label: group.name,
+        items: groupQuizzes,
+        count: groupQuizzes.length,
+        metadata: {
+          groupId: group.id,
+          description: group.description,
+          color: group.color,
+          icon: group.icon
+        }
+      };
+
+      if (groupQuizzes.length > 0) {
+        groupsWithQuizzes.push(groupData);
+      } else {
+        emptyGroups.push(groupData);
+      }
+    });
+
+    // Sort groups with quizzes alphabetically
+    groupsWithQuizzes.sort((a, b) => a.label.localeCompare(b.label));
+    
+    // Sort empty groups alphabetically
+    emptyGroups.sort((a, b) => a.label.localeCompare(b.label));
 
     // Add ungrouped section if there are quizzes not in any group
     const ungroupedQuizzes = filteredAndSortedQuizzes.filter(quiz => !quizzesInGroups.has(quiz.id));
     if (ungroupedQuizzes.length > 0) {
-      groups.push({
+      groupsWithQuizzes.push({
         key: 'ungrouped',
         label: 'Ungrouped',
         items: ungroupedQuizzes,
@@ -296,7 +355,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       });
     }
 
-    return groups;
+    // Combine: groups with quizzes first, then empty groups at the bottom
+    return [...groupsWithQuizzes, ...emptyGroups];
   }, [displayViewMode, quizGroups, filteredAndSortedQuizzes, isLoadingGroups]);
 
   // Update pagination state when filters/sorting change
@@ -521,6 +581,35 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
   const handleAttemptsLoaded = (hasAttempts: boolean) => {
     setHasActiveAttempts(hasAttempts);
+  };
+
+  const handleDeleteGroup = (groupId: string) => {
+    setGroupToDelete(groupId);
+    setShowDeleteGroupModal(true);
+  };
+
+  const confirmDeleteGroup = async () => {
+    if (!groupToDelete) return;
+
+    setIsDeletingGroup(true);
+    try {
+      await quizGroupService.deleteQuizGroup(groupToDelete);
+      addToast({
+        type: 'success',
+        message: 'Group deleted successfully'
+      });
+      // Reload groups after deletion
+      await loadGroups();
+    } catch (error: any) {
+      addToast({
+        type: 'error',
+        message: error.message || 'Failed to delete group. Please try again.'
+      });
+    } finally {
+      setIsDeletingGroup(false);
+      setShowDeleteGroupModal(false);
+      setGroupToDelete(null);
+    }
   };
 
   return (
@@ -756,6 +845,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     onExport={handleExportQuiz}
                     onStart={handleStartQuiz}
                     onSelect={handleSelectQuiz}
+                    onDeleteGroup={handleDeleteGroup}
                   />
                 ) : (
                   <div className="text-center py-12">
@@ -845,6 +935,21 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         confirmText="Delete Selected"
         variant="danger"
         isLoading={isBulkDeleting}
+      />
+
+      {/* Delete Group Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteGroupModal}
+        onClose={() => {
+          setShowDeleteGroupModal(false);
+          setGroupToDelete(null);
+        }}
+        onConfirm={confirmDeleteGroup}
+        title="Delete Group"
+        message="Are you sure you want to delete this group? This will not delete the quizzes in the group, only the group itself. This action cannot be undone."
+        confirmText="Delete Group"
+        variant="danger"
+        isLoading={isDeletingGroup}
       />
 
       {/* Export Modal */}

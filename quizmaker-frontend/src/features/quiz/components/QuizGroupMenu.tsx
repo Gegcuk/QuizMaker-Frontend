@@ -44,11 +44,13 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
         size: 1000
       });
 
-      setGroups(response.content);
+      // Defensive check: ensure content is an array
+      const groupsList = response.content || [];
+      setGroups(groupsList);
 
       // Find which groups contain this quiz
       const groupsWithQuiz = new Set<string>();
-      response.content.forEach(group => {
+      groupsList.forEach(group => {
         if (group.quizPreviews?.some(q => q.id === quizId)) {
           groupsWithQuiz.add(group.id);
         }
