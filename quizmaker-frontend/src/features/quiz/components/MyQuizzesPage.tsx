@@ -185,9 +185,44 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   type ViewModeType = 'grid' | 'list' | 'groups';
   const { viewMode: responsiveViewMode, setViewMode: setResponsiveViewMode, isMobile } = useResponsiveViewMode({ defaultDesktopView: 'list' });
   
-  // On mobile: default to grid (tiles only), can switch to groups
-  // On desktop: default to list, can switch to grid, list, or groups
-  const [displayViewMode, setDisplayViewMode] = useState<ViewModeType>(isMobile ? 'grid' : 'list');
+  // Load view mode from localStorage on mount
+  // Use a function to check localStorage safely
+  const getInitialViewMode = (): ViewModeType => {
+    if (typeof window === 'undefined') {
+      return isMobile ? 'grid' : 'list';
+    }
+    
+    const saved = localStorage.getItem('quizmaker-my-quizzes-view-mode') as ViewModeType | null;
+    if (saved && ['grid', 'list', 'groups'].includes(saved)) {
+      // Respect mobile restrictions: mobile can't use 'list'
+      // Check window.innerWidth as fallback since isMobile might not be ready
+      const isMobileCheck = window.innerWidth < 768; // Tailwind's md breakpoint
+      if (isMobileCheck && saved === 'list') {
+        return 'grid';
+      }
+      return saved;
+    }
+    
+    // Default based on screen size
+    const isMobileCheck = window.innerWidth < 768;
+    return isMobileCheck ? 'grid' : 'list';
+  };
+  
+  const [displayViewMode, setDisplayViewMode] = useState<ViewModeType>(getInitialViewMode);
+  
+  // Persist view mode to localStorage whenever it changes (but not when enforcing mobile restrictions)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Only save if it's a valid, non-restricted view mode for current screen size
+      const isValidForScreen = isMobile 
+        ? (displayViewMode === 'grid' || displayViewMode === 'groups')
+        : true; // All modes valid for desktop
+      
+      if (isValidForScreen) {
+        localStorage.setItem('quizmaker-my-quizzes-view-mode', displayViewMode);
+      }
+    }
+  }, [displayViewMode, isMobile]);
   
   // On mobile: always enforce grid or groups (never list)
   useEffect(() => {
