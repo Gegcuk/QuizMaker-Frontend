@@ -111,24 +111,31 @@ const IconPicker: React.FC<IconPickerProps> = ({
 
       {/* Icon Grid */}
       <div className="grid grid-cols-8 gap-2 p-3 bg-theme-bg-secondary rounded-md border border-theme-border-primary max-h-48 overflow-y-auto">
-        {(showAll ? allIcons : ICON_CATEGORIES[selectedCategory].icons).map((icon, index) => (
-          <button
-            key={`${icon}-${index}`}
-            type="button"
-            onClick={() => handleIconClick(icon)}
-            className={`
-              w-10 h-10 text-2xl rounded-md border-2 transition-all duration-200 flex items-center justify-center
-              ${value === icon 
-                ? 'border-theme-interactive-primary ring-2 ring-offset-2 ring-offset-theme-bg-secondary ring-theme-interactive-primary bg-theme-bg-primary scale-110' 
-                : 'border-transparent hover:border-theme-border-primary hover:bg-theme-bg-primary hover:scale-105'
-              }
-            `}
-            title={icon}
-            aria-label={`Select icon ${icon}`}
-          >
-            {icon}
-          </button>
-        ))}
+        {(showAll ? allIcons : ICON_CATEGORIES[selectedCategory].icons).map((icon, index) => {
+          const categoryName = showAll ? '' : ICON_CATEGORIES[selectedCategory].name;
+          const ariaLabel = showAll 
+            ? `Select ${icon} icon` 
+            : `Select ${categoryName} icon ${icon}`;
+          
+          return (
+            <button
+              key={`${icon}-${index}`}
+              type="button"
+              onClick={() => handleIconClick(icon)}
+              className={`
+                w-10 h-10 text-2xl rounded-md border-2 transition-all duration-200 flex items-center justify-center
+                ${value === icon 
+                  ? 'border-theme-interactive-primary ring-2 ring-offset-2 ring-offset-theme-bg-secondary ring-theme-interactive-primary bg-theme-bg-primary scale-110' 
+                  : 'border-transparent hover:border-theme-border-primary hover:bg-theme-bg-primary hover:scale-105'
+                }
+              `}
+              title={icon}
+              aria-label={ariaLabel}
+            >
+              {icon}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

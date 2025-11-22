@@ -268,3 +268,7 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
     return new Error(error.message || 'Network error occurred');
   }
 }
+
+// Export default instance
+import api from '../../../api/axiosInstance';
+export const quizGroupService = new QuizGroupService(api);

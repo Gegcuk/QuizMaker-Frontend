@@ -15,9 +15,8 @@ import type { GroupedListGroup } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
-import { QuizService, QuizGroupService } from '../services';
+import { QuizService, quizGroupService } from '../services';
 import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
-import { api } from '@/services';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
@@ -240,7 +239,6 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   // Quiz Groups state
   const [quizGroups, setQuizGroups] = useState<QuizGroupSummaryDto[]>([]);
   const [isLoadingGroups, setIsLoadingGroups] = useState(false);
-  const quizGroupService = new QuizGroupService(api);
 
   // Cleanup: Reset modal states on route change
   useEffect(() => {

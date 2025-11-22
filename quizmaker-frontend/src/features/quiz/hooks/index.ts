@@ -3,3 +3,4 @@
 
 export { useQuizMetadata } from './useQuizMetadata';
 export { useQuizFiltering } from './useQuizFiltering';
+export { useCreateGroup } from './useCreateGroup';

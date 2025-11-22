@@ -68,7 +68,12 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
       }
       handleClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to create group. Please try again.');
+      // Detect network errors (no response from server)
+      if (err?.isAxiosError && !err.response) {
+        setError('Network error – check your connection');
+      } else {
+        setError(err.message || 'Failed to create group. Please try again.');
+      }
     } finally {
       setIsCreating(false);
     }

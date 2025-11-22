@@ -6,13 +6,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
-import { useQuizMetadata } from '../hooks/useQuizMetadata';
-import { Badge, Button, Checkbox, useToast } from '@/components';
+import { useQuizMetadata, useCreateGroup } from '../hooks';
+import { Badge, Button, Checkbox } from '@/components';
 import QuizGroupMenu from './QuizGroupMenu';
 import CreateGroupModal from './CreateGroupModal';
-import { QuizGroupService } from '../services/quiz-group.service';
-import { CreateQuizGroupRequest } from '../types/quiz.types';
-import { api } from '@/services';
 
 interface QuizListProps {
   quizzes: QuizDto[];
@@ -48,8 +45,16 @@ const QuizList: React.FC<QuizListProps> = ({
   const [createGroupQuizId, setCreateGroupQuizId] = useState<string | null>(null);
   const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const buttonRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { addToast } = useToast();
-  const groupService = new QuizGroupService(api);
+
+  // Use create group hook - quizId will be set when modal opens
+  const { handleCreateGroup } = useCreateGroup({
+    quizId: createGroupQuizId || undefined,
+    onSuccess: () => {
+      setShowCreateGroupModal(false);
+      setCreateGroupQuizId(null);
+    }
+  });
+
   // Helper function to get difficulty badge variant
   const getDifficultyVariant = (difficulty: string): 'success' | 'warning' | 'danger' | 'neutral' => {
     switch (difficulty) {
@@ -114,44 +119,6 @@ const QuizList: React.FC<QuizListProps> = ({
     }
   };
 
-  // Handle create group
-  const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
-    const groupId = await groupService.createQuizGroup(data);
-    
-    // Validate groupId before proceeding
-    if (!groupId || groupId === 'undefined') {
-      addToast({
-        type: 'error',
-        message: 'Failed to create group: Invalid group ID returned'
-      });
-      throw new Error('Invalid group ID returned from server');
-    }
-    
-    // If we have a quizId, add the quiz to the group
-    if (createGroupQuizId) {
-      try {
-        await groupService.addQuizzesToGroup(groupId, {
-          quizIds: [createGroupQuizId]
-        });
-        addToast({
-          type: 'success',
-          message: 'Group created and quiz added successfully'
-        });
-      } catch (error: any) {
-        addToast({
-          type: 'error',
-          message: 'Group created but failed to add quiz. You can add it manually.'
-        });
-      }
-    } else {
-      addToast({
-        type: 'success',
-        message: 'Group created successfully'
-      });
-    }
-    
-    return groupId;
-  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -543,10 +510,6 @@ const QuizList: React.FC<QuizListProps> = ({
           setCreateGroupQuizId(null);
         }}
         onCreate={handleCreateGroup}
-        onSuccess={(groupId) => {
-          setShowCreateGroupModal(false);
-          setCreateGroupQuizId(null);
-        }}
       />
     </div>
   );

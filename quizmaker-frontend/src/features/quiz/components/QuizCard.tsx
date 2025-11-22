@@ -7,14 +7,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
-import { useQuizMetadata } from '../hooks/useQuizMetadata';
+import { useQuizMetadata, useCreateGroup } from '../hooks';
 import { Button, Card, CardBody, Checkbox } from '@/components';
 import QuizGroupMenu from './QuizGroupMenu';
 import CreateGroupModal from './CreateGroupModal';
-import { QuizGroupService } from '../services';
-import { CreateQuizGroupRequest } from '../types/quiz.types';
-import { api } from '@/services';
-import { useToast } from '@/components';
 
 interface QuizCardProps {
   quiz: QuizDto;
@@ -45,9 +41,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
   const [showCreateGroupModal, setShowCreateGroupModal] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const buttonContainerRef = React.useRef<HTMLDivElement>(null);
-  const { addToast } = useToast();
-  const groupService = new QuizGroupService(api);
 
+  // Use create group hook
+  const { handleCreateGroup } = useCreateGroup({
+    quizId: quiz.id,
+    onSuccess: () => {
+      // Optionally refresh groups or close menu
+    }
+  });
 
   // Calculate menu position when opening
   const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,39 +65,6 @@ const QuizCard: React.FC<QuizCardProps> = ({
     setShowMobileMenu(!showMobileMenu);
   };
 
-  // Handle create group
-  const handleCreateGroup = async (data: CreateQuizGroupRequest): Promise<string> => {
-    const groupId = await groupService.createQuizGroup(data);
-    
-    // Validate groupId before proceeding
-    if (!groupId || groupId === 'undefined') {
-      addToast({
-        type: 'error',
-        message: 'Failed to create group: Invalid group ID returned'
-      });
-      throw new Error('Invalid group ID returned from API');
-    }
-    
-    // Automatically add current quiz to the new group
-    try {
-      await groupService.addQuizzesToGroup(groupId, {
-        quizIds: [quiz.id]
-      });
-      addToast({
-        type: 'success',
-        message: 'Group created and quiz added'
-      });
-    } catch (error: any) {
-      // Show more detailed error message if available
-      const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
-      addToast({
-        type: 'warning',
-        message: `Group created but failed to add quiz: ${errorMessage}. You can add it manually.`
-      });
-    }
-
-    return groupId;
-  };
 
   // Close menu when clicking outside
   React.useEffect(() => {

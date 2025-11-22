@@ -2,7 +2,7 @@
 // This allows importing quiz services from a single location
 
 export { QuizService } from './quiz.service';
-export { QuizGroupService } from './quiz-group.service';
+export { QuizGroupService, quizGroupService } from './quiz-group.service';
 export { 
   getAllQuizzes, 
   getMyQuizzes, 

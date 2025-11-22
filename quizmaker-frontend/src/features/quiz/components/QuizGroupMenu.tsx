@@ -6,9 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuizGroupSummaryDto } from '../types/quiz.types';
-import { QuizGroupService } from '../services/quiz-group.service';
+import { quizGroupService } from '../services';
 import { useToast, Spinner, Checkbox } from '@/components';
-import { api } from '@/services';
 
 interface QuizGroupMenuProps {
   quizId: string;
@@ -24,10 +23,9 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
   const [groups, setGroups] = useState<QuizGroupSummaryDto[]>([]);
   const [quizGroupIds, setQuizGroupIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isToggling, setIsToggling] = useState<Set<string>>(new Set());
   const { addToast } = useToast();
-
-  const groupService = new QuizGroupService(api);
 
   // Load groups and check which ones contain this quiz
   useEffect(() => {
@@ -36,9 +34,10 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
 
   const loadGroups = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       // Load all groups with quiz previews
-      const response = await groupService.getQuizGroups({
+      const response = await quizGroupService.getQuizGroups({
         includeQuizzes: true,
         previewSize: 1000,
         size: 1000
@@ -57,9 +56,11 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
       });
       setQuizGroupIds(groupsWithQuiz);
     } catch (error) {
+      const errorMessage = 'Failed to load groups';
+      setError(errorMessage);
       addToast({
         type: 'error',
-        message: 'Failed to load groups'
+        message: errorMessage
       });
     } finally {
       setIsLoading(false);
@@ -75,7 +76,7 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
     try {
       if (isInGroup) {
         // Remove from group
-        await groupService.removeQuizFromGroup(groupId, quizId);
+        await quizGroupService.removeQuizFromGroup(groupId, quizId);
         setQuizGroupIds(prev => {
           const next = new Set(prev);
           next.delete(groupId);
@@ -87,7 +88,7 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
         });
       } else {
         // Add to group
-        await groupService.addQuizzesToGroup(groupId, {
+        await quizGroupService.addQuizzesToGroup(groupId, {
           quizIds: [quizId]
         });
         setQuizGroupIds(prev => new Set(prev).add(groupId));
@@ -125,6 +126,29 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
     );
   }
 
+  // Show error state with retry button
+  if (error) {
+    return (
+      <div className="py-1">
+        <div className="px-4 py-2">
+          <div className="text-xs font-semibold uppercase tracking-wider text-theme-text-secondary mb-2">
+            Groups
+          </div>
+          <div className="text-sm text-theme-text-danger mb-2">
+            {error}
+          </div>
+          <button
+            type="button"
+            onClick={loadGroups}
+            className="text-sm text-theme-interactive-primary hover:underline"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="py-1">
@@ -152,15 +176,15 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
                   disabled={isTogglingThis}
                   className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 cursor-pointer"
                 >
-                  {/* Checkbox Indicator */}
-                  <div className="flex-shrink-0">
+                  {/* Checkbox Indicator - Non-interactive, visual only */}
+                  <div className="flex-shrink-0" tabIndex={-1} aria-hidden="true">
                     <Checkbox
                       checked={isInGroup}
                       onChange={() => {}} // Controlled by button click
                       label=""
                       size="sm"
-                      disabled={false} // Enabled but controlled by button
-                      className="!flex-row items-center cursor-pointer"
+                      disabled={true} // Disabled since button handles interaction
+                      className="!flex-row items-center pointer-events-none"
                     />
                   </div>
 

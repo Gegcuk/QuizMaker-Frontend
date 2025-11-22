@@ -52,7 +52,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     'bg-theme-bg-primary',
     'transition-colors',
     'duration-150',
-    disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+    disabled ? (checked ? 'opacity-100 cursor-not-allowed' : 'opacity-50 cursor-not-allowed') : 'cursor-pointer',
     error ? 'border-theme-border-danger focus:ring-theme-interactive-danger' : ''
   ].filter(Boolean).join(' ');
 
