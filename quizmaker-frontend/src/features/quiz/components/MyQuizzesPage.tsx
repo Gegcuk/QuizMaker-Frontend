@@ -98,7 +98,12 @@ const GroupsView: React.FC<GroupsViewProps> = ({
                   {groupIcon && (
                     <span className="text-lg flex-shrink-0">{groupIcon}</span>
                   )}
-                  <h3 className="font-medium text-theme-text-primary truncate">{group.label}</h3>
+                  <h3 
+                    className="font-medium text-theme-text-primary truncate"
+                    title={group.label}
+                  >
+                    {group.label}
+                  </h3>
                 </div>
               </button>
               <div className="flex items-center gap-2 flex-shrink-0 ml-2">
@@ -753,8 +758,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                         size="sm"
                         onClick={() => setDisplayViewMode('grid')}
                         className="rounded-r-none"
-                        title="Grid view"
-                        aria-label="Switch to grid view"
+                        title="Switch to tiles view"
+                        aria-label="Switch to tiles view"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -1067,9 +1072,19 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                       <span className="text-lg flex-shrink-0">{group.icon}</span>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-theme-text-primary truncate">{group.name}</div>
+                      <div 
+                        className="font-medium text-theme-text-primary truncate"
+                        title={group.name}
+                      >
+                        {group.name}
+                      </div>
                       {group.description && (
-                        <div className="text-sm text-theme-text-secondary truncate">{group.description}</div>
+                        <div 
+                          className="text-sm text-theme-text-secondary truncate"
+                          title={group.description}
+                        >
+                          {group.description}
+                        </div>
                       )}
                     </div>
                     {group.quizCount > 0 && (

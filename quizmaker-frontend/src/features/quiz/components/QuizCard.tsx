@@ -169,7 +169,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 className="mt-1"
               />
             )}
-            <h3 className="text-lg font-semibold text-theme-text-primary truncate flex-1">
+            <h3 
+              className="text-lg font-semibold text-theme-text-primary truncate flex-1"
+              title={quiz.title}
+            >
               {quiz.title}
             </h3>
 
@@ -345,7 +348,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 />
               )}
               <div className="flex-1 min-w-0 h-[3.75rem] flex items-start">
-                <h3 className="text-lg font-semibold text-theme-text-primary line-clamp-2">
+                <h3 
+                  className="text-lg font-semibold text-theme-text-primary line-clamp-2"
+                  title={quiz.title}
+                >
                   {quiz.title}
                 </h3>
               </div>

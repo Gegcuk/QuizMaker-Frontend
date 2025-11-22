@@ -246,7 +246,10 @@ const QuizList: React.FC<QuizListProps> = ({
                         onChange={(checked) => onSelect(quiz.id, checked)}
                       />
                     )}
-                    <h3 className="text-lg font-medium text-theme-text-primary truncate group-hover:text-theme-interactive-primary">
+                    <h3 
+                      className="text-lg font-medium text-theme-text-primary truncate group-hover:text-theme-interactive-primary"
+                      title={quiz.title}
+                    >
                       {quiz.title}
                     </h3>
                     <div className="flex items-center space-x-2">
@@ -265,7 +268,10 @@ const QuizList: React.FC<QuizListProps> = ({
                     </div>
                   </div>
                   {quiz.description && (
-                    <p className="mt-1 text-sm text-theme-text-secondary line-clamp-2">
+                    <p 
+                      className="mt-1 text-sm text-theme-text-secondary line-clamp-2"
+                      title={quiz.description}
+                    >
                       {quiz.description}
                     </p>
                   )}

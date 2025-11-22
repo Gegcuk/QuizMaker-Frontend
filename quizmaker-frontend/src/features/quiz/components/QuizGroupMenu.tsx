@@ -199,7 +199,12 @@ const QuizGroupMenu: React.FC<QuizGroupMenuProps> = ({
                     {group.icon && (
                       <span className="text-theme-text-secondary">{group.icon}</span>
                     )}
-                    <span className="truncate">{group.name}</span>
+                    <span 
+                      className="truncate"
+                      title={group.name}
+                    >
+                      {group.name}
+                    </span>
                     {group.quizCount > 0 && (
                       <span className="text-xs text-theme-text-tertiary">
                         ({group.quizCount})
