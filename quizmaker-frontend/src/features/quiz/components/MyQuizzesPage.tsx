@@ -16,6 +16,8 @@ import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService, quizGroupService } from '../services';
+import { useCreateGroup } from '../hooks';
+import CreateGroupModal from './CreateGroupModal';
 import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
@@ -237,6 +239,9 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const [showAddToGroupModal, setShowAddToGroupModal] = useState(false);
   const [isAddingToGroup, setIsAddingToGroup] = useState(false);
   
+  // Create group modal
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  
   // Export modal
   const [showExportModal, setShowExportModal] = useState(false);
   const [quizToExport, setQuizToExport] = useState<QuizDto | null>(null);
@@ -254,6 +259,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setShowDeleteGroupModal(false);
       setShowExportModal(false);
       setShowAddToGroupModal(false);
+      setShowCreateGroupModal(false);
       setQuizToDelete(null);
       setGroupToDelete(null);
       setQuizToExport(null);
@@ -415,6 +421,15 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setIsLoadingGroups(false);
     }
   }, [user?.id]);
+
+  // Create group hook - reload groups after creation
+  const { handleCreateGroup } = useCreateGroup({
+    onSuccess: () => {
+      // Reload groups after successful creation
+      loadGroups();
+      setShowCreateGroupModal(false);
+    }
+  });
 
   // Load quiz groups when groups view is selected or on mount
   useEffect(() => {
@@ -920,8 +935,22 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
                     </svg>
                     <h3 className="mt-2 text-sm font-medium text-theme-text-primary">No groups yet</h3>
                     <p className="mt-1 text-sm text-theme-text-secondary">
-                      Create a group from the quiz menu to organize your quizzes.
+                      Create a group to organize your quizzes.
                     </p>
+                    <div className="mt-6">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => setShowCreateGroupModal(true)}
+                        leftIcon={
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        }
+                      >
+                        Create Group
+                      </Button>
+                    </div>
                   </div>
                 )
               ) : displayViewMode === 'grid' ? (
@@ -1116,6 +1145,13 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
           </div>
         </div>
       </Modal>
+
+      {/* Create Group Modal */}
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => setShowCreateGroupModal(false)}
+        onCreate={handleCreateGroup}
+      />
     </>
   );
 };
