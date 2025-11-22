@@ -63,6 +63,11 @@ export const QUIZ_ENDPOINTS = {
   FORCE_CANCEL_JOB: (jobId: string) => `/v1/quizzes/generation-jobs/${jobId}/force-cancel`,
   CLEANUP_STALE_JOBS: '/v1/quizzes/generation-jobs/cleanup-stale',
   EXPORT: '/v1/quizzes/export',
+  // Quiz Groups endpoints
+  QUIZ_GROUPS: '/v1/quiz-groups',
+  QUIZ_GROUP_BY_ID: (id: string) => `/v1/quiz-groups/${id}`,
+  QUIZ_GROUP_QUIZZES: (groupId: string) => `/v1/quiz-groups/${groupId}/quizzes`,
+  QUIZ_GROUP_QUIZ: (groupId: string, quizId: string) => `/v1/quiz-groups/${groupId}/quizzes/${quizId}`,
 } as const;
 
 

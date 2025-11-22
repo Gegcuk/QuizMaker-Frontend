@@ -339,4 +339,95 @@ export interface ShareLinkDto {
   oneTime: boolean;                        // One-time use flag
   revokedAt?: string;                      // Revoked at (ISO date-time)
   createdAt: string;                       // Created at (ISO date-time)
-} 
+}
+
+/**
+ * Quiz Group Types
+ * Matches QuizGroupDto and related types from backend API
+ */
+
+/**
+ * Quiz Group DTO
+ * Matches QuizGroupDto from API documentation
+ */
+export interface QuizGroupDto {
+  id: string;                              // Group UUID
+  ownerId: string;                         // Owner user UUID
+  name: string;                            // Group name
+  description?: string;                    // Group description
+  color?: string;                          // Group color (hex or name)
+  icon?: string;                           // Icon identifier
+  documentId?: string;                     // Optional linked document UUID
+  quizCount: number;                       // Number of quizzes in group
+  createdAt: string;                       // Created at (ISO date-time)
+  updatedAt: string;                       // Updated at (ISO date-time)
+}
+
+/**
+ * Quiz Group Summary DTO
+ * Matches QuizGroupSummaryDto from API documentation
+ */
+export interface QuizGroupSummaryDto {
+  id: string;                              // Group UUID
+  name: string;                            // Group name
+  description?: string;                    // Group description
+  color?: string;                          // Group color
+  icon?: string;                           // Icon identifier
+  createdAt: string;                       // Created at (ISO date-time)
+  updatedAt: string;                       // Updated at (ISO date-time)
+  quizCount: number;                       // Number of quizzes in group
+  quizPreviews?: QuizSummaryDto[];         // Optional preview of quizzes
+}
+
+/**
+ * Quiz Summary DTO (simplified quiz info for previews)
+ * Matches QuizSummaryDto from API documentation
+ */
+export interface QuizSummaryDto {
+  id: string;                              // Quiz UUID
+  title: string;                           // Quiz title
+  description?: string;                    // Quiz description
+  createdAt: string;                       // Created at (ISO date-time)
+  updatedAt: string;                       // Updated at (ISO date-time)
+  status: QuizStatus;                      // Quiz status
+  visibility: Visibility;                  // Quiz visibility
+  creatorUsername?: string;                // Creator username
+  creatorId: string;                       // Creator UUID
+  categoryName?: string;                   // Category name
+  categoryId?: string;                     // Category UUID
+  questionCount: number;                   // Number of questions
+  tagCount: number;                        // Number of tags
+  estimatedTime: number;                   // Estimated time in minutes
+}
+
+/**
+ * Create Quiz Group Request
+ * Matches CreateQuizGroupRequest from API documentation
+ */
+export interface CreateQuizGroupRequest {
+  name: string;                            // Group name (required, 1-100 chars)
+  description?: string;                    // Group description (optional, max 500 chars)
+  color?: string;                          // Color (optional, hex or name, max 20 chars)
+  icon?: string;                           // Icon identifier (optional, max 50 chars)
+  documentId?: string;                     // Optional document UUID
+}
+
+/**
+ * Update Quiz Group Request
+ * Matches UpdateQuizGroupRequest from API documentation
+ */
+export interface UpdateQuizGroupRequest {
+  name?: string;                           // Group name (1-100 chars)
+  description?: string;                    // Group description (max 500 chars)
+  color?: string;                          // Color (hex or name, max 20 chars)
+  icon?: string;                           // Icon identifier (max 50 chars)
+}
+
+/**
+ * Add Quizzes to Group Request
+ * Matches AddQuizzesToGroupRequest from API documentation
+ */
+export interface AddQuizzesToGroupRequest {
+  quizIds: string[];                       // List of quiz UUIDs to add
+  position?: number;                       // Optional position to insert at
+}
