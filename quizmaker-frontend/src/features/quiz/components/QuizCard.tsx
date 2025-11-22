@@ -50,37 +50,83 @@ const QuizCard: React.FC<QuizCardProps> = ({
     }
   });
 
-  // Calculate menu position when opening
-  const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+  // Calculate menu position when opening (supports both mouse and touch events)
+  const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
+    // Only stop propagation to prevent click-outside handler from firing
+    // Don't prevent default - let the browser handle the click normally
+    event.stopPropagation();
+    
     if (!showMobileMenu) {
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
+      
+      // Get viewport dimensions - use visualViewport for mobile browser UI (address bar, etc.)
+      const visualViewport = window.visualViewport;
+      const viewportWidth = visualViewport?.width || window.innerWidth;
+      const viewportHeight = visualViewport?.height || window.innerHeight;
+      
+      // For fixed positioning, getBoundingClientRect() already gives viewport-relative coordinates
+      // rect values are already relative to the visual viewport on mobile
+      const menuWidth = 224; // w-56 = 14rem = 224px
+      const spacing = 4;
+      const estimatedMenuHeight = 200; // Approximate height
+      
+      // Calculate position - rect is already relative to viewport
+      // Position below button by default
+      let top = rect.bottom + spacing;
+      let right = viewportWidth - rect.right;
+      
+      // Ensure menu doesn't go off-screen to the right
+      if (right < 8) {
+        right = 8; // 8px from right edge
+      } else if (right + menuWidth > viewportWidth) {
+        right = Math.max(8, viewportWidth - menuWidth); // Keep menu visible
+      }
+      
+      // Ensure menu doesn't go off-screen to the bottom
+      if (top + estimatedMenuHeight > viewportHeight) {
+        // If menu would go off bottom, position above button
+        top = rect.top - estimatedMenuHeight - spacing;
+        if (top < 8) {
+          // If still off-screen at top, use minimum spacing
+          top = 8;
+        }
+      }
+      
+      // Final bounds check - ensure menu stays within viewport
+      const minTop = 8;
+      const maxTop = Math.max(minTop, viewportHeight - estimatedMenuHeight);
+      
       setMenuPosition({
-        top: rect.bottom + 4, // 4px spacing (mt-1 = 0.25rem = 4px)
-        right: window.innerWidth - rect.right
+        top: Math.max(minTop, Math.min(top, maxTop)),
+        right: Math.max(8, Math.min(right, viewportWidth - menuWidth))
       });
     } else {
       setMenuPosition(null);
     }
     setShowMobileMenu(!showMobileMenu);
   };
+  
+  // Note: No need for separate touch handler - onClick works on both mobile and desktop
+  // Mobile browsers automatically synthesize click events from touch events
 
 
   // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
+      
       // Don't close if clicking inside the menu
       if (menuRef.current && menuRef.current.contains(target)) {
         return;
       }
-      // Don't close if clicking the button that opened the menu (but only check on mousedown, not on click)
+      
+      // Don't close if clicking the button that opened the menu
+      // Always allow button clicks to handle menu toggle themselves
       if (buttonContainerRef.current && buttonContainerRef.current.contains(target)) {
-        // Only prevent if it's the initial mousedown on the button, not if menu is already open
-        if (!showMobileMenu) {
-          return;
-        }
+        return;
       }
+      
       // Close the menu
       setShowMobileMenu(false);
       setMenuPosition(null);
@@ -88,12 +134,17 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
     if (showMobileMenu) {
       // Use click event (bubble phase) so button onClick handlers fire first
-      // Add a small delay to ensure menu is fully rendered and button handlers are attached
+      // Add a longer delay on mobile to ensure touch events are processed first
+      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const delay = isMobileDevice ? 300 : 150; // Longer delay on mobile
+      
       const timeoutId = setTimeout(() => {
         // Use bubble phase (false) so button clicks fire before this handler
-        document.addEventListener('click', handleClickOutside, false);
-        document.addEventListener('touchend', handleClickOutside, false);
-      }, 100);
+        // Use passive: false on mobile to allow preventDefault
+        const options = isMobileDevice ? { passive: false, capture: false } : false;
+        document.addEventListener('click', handleClickOutside, options);
+        document.addEventListener('touchend', handleClickOutside, options);
+      }, delay);
 
       return () => {
         clearTimeout(timeoutId);
@@ -184,7 +235,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                   size="sm"
                   onClick={handleMenuToggle}
                   title="More options"
-                  className="!p-1 !min-w-0"
+                  className="!p-1 !min-w-0 touch-manipulation"
                   leftIcon={
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -194,14 +245,54 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
                 {/* Dropdown Menu - Fixed positioning to escape card overflow */}
                 {showMobileMenu && menuPosition && (
-                  <div
-                    ref={menuRef}
-                    className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto"
-                    style={{
-                      top: `${menuPosition.top}px`,
-                      right: `${menuPosition.right}px`
-                    }}
-                  >
+                  <>
+                    {/* Invisible backdrop to block clicks behind menu */}
+                    <div
+                      className="fixed inset-0 z-[999]"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                        pointerEvents: 'auto'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const target = e.target as HTMLElement;
+                        // Only close if clicking on the backdrop itself, not on menu
+                        if (!menuRef.current?.contains(target)) {
+                          setShowMobileMenu(false);
+                          setMenuPosition(null);
+                        }
+                      }}
+                      onTouchStart={(e) => {
+                        e.stopPropagation();
+                        const target = e.target as HTMLElement;
+                        if (!menuRef.current?.contains(target)) {
+                          setShowMobileMenu(false);
+                          setMenuPosition(null);
+                        }
+                      }}
+                    />
+                    {/* Menu itself - higher z-index than backdrop */}
+                    <div
+                      ref={menuRef}
+                      className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[1000] max-h-96 overflow-y-auto touch-manipulation"
+                      style={{
+                        top: `${menuPosition.top}px`,
+                        right: `${menuPosition.right}px`,
+                        pointerEvents: 'auto'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onTouchStart={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onTouchEnd={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
                     <div className="py-1">
                       {onEdit && (
                         <Button
@@ -209,17 +300,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            e.preventDefault();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
-                            // Call onEdit after menu closes
-                            setTimeout(() => {
-                              onEdit(quiz.id);
-                            }, 0);
+                            // Call onEdit immediately - no need for timeout
+                            onEdit(quiz.id);
                           }}
                           onMouseDown={(e) => e.stopPropagation()}
                           onTouchStart={(e) => e.stopPropagation()}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -235,17 +323,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            e.preventDefault();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
-                            // Call onExport after menu closes
-                            setTimeout(() => {
-                              onExport(quiz.id);
-                            }, 0);
+                            // Call onExport immediately - no need for timeout
+                            onExport(quiz.id);
                           }}
                           onMouseDown={(e) => e.stopPropagation()}
                           onTouchStart={(e) => e.stopPropagation()}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -262,7 +347,13 @@ const QuizCard: React.FC<QuizCardProps> = ({
                       )}
 
                       {/* Groups Menu */}
-                      <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+                      <div 
+                        onClick={(e) => e.stopPropagation()} 
+                        onMouseDown={(e) => e.stopPropagation()} 
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        className="touch-manipulation"
+                      >
                         <QuizGroupMenu 
                           quizId={quiz.id}
                           onGroupsChanged={() => {
@@ -281,6 +372,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                       </div>
                     </div>
                   </div>
+                  </>
                 )}
               </div>
             )}
@@ -364,7 +456,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
                   size="sm"
                   onClick={handleMenuToggle}
                   title="More options"
-                  className="!p-1 !min-w-0"
+                  className="!p-1 !min-w-0 touch-manipulation"
                   leftIcon={
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -376,23 +468,31 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 {showMobileMenu && menuPosition && (
                   <div
                     ref={menuRef}
-                    className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto"
+                    className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto touch-manipulation"
                     style={{
                       top: `${menuPosition.top}px`,
                       right: `${menuPosition.right}px`
                     }}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
                   >
                     <div className="py-1">
                       {onEdit && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            onEdit(quiz.id);
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
+                            // Call immediately - onClick works on both mobile and desktop
+                            onEdit(quiz.id);
                           }}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -406,12 +506,16 @@ const QuizCard: React.FC<QuizCardProps> = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            onExport(quiz.id);
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setShowMobileMenu(false);
                             setMenuPosition(null);
+                            // Call immediately - onClick works on both mobile and desktop
+                            onExport(quiz.id);
                           }}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
                           leftIcon={
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
