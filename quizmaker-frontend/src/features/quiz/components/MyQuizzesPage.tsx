@@ -20,6 +20,7 @@ import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
 import type { AxiosError } from 'axios';
+import api from '@/api/axiosInstance';
 
 interface MyQuizzesPageProps {
   className?: string;
