@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata, useCreateGroup } from '../hooks';
@@ -39,8 +40,43 @@ const QuizCard: React.FC<QuizCardProps> = ({
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState<{ top: number; right: number } | null>(null);
   const [showCreateGroupModal, setShowCreateGroupModal] = React.useState(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
-  const buttonContainerRef = React.useRef<HTMLDivElement>(null);
+  const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+  const desktopMenuRef = React.useRef<HTMLDivElement>(null);
+  const mobileButtonContainerRef = React.useRef<HTMLDivElement>(null);
+  const desktopButtonContainerRef = React.useRef<HTMLDivElement>(null);
+  const canUseDom = typeof window !== 'undefined';
+  const [isMobileViewport, setIsMobileViewport] = React.useState(() => {
+    if (!canUseDom) {
+      return false;
+    }
+    return window.matchMedia('(max-width: 767px)').matches;
+  });
+
+  const isTargetInsideMenu = (target: Node | null) => {
+    if (!target) {
+      return false;
+    }
+    if (mobileMenuRef.current && mobileMenuRef.current.contains(target)) {
+      return true;
+    }
+    if (desktopMenuRef.current && desktopMenuRef.current.contains(target)) {
+      return true;
+    }
+    return false;
+  };
+
+  const isTargetInsideMenuButton = (target: Node | null) => {
+    if (!target) {
+      return false;
+    }
+    if (mobileButtonContainerRef.current && mobileButtonContainerRef.current.contains(target)) {
+      return true;
+    }
+    if (desktopButtonContainerRef.current && desktopButtonContainerRef.current.contains(target)) {
+      return true;
+    }
+    return false;
+  };
 
   // Use create group hook
   const { handleCreateGroup } = useCreateGroup({
@@ -49,6 +85,29 @@ const QuizCard: React.FC<QuizCardProps> = ({
       // Optionally refresh groups or close menu
     }
   });
+
+  React.useEffect(() => {
+    if (!canUseDom) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobileViewport(event.matches);
+    };
+
+    // Sync the state with the current viewport width
+    setIsMobileViewport(mediaQuery.matches);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      // Safari <14 fallback
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
+  }, [canUseDom]);
 
   // Calculate menu position when opening (supports both mouse and touch events)
   const handleMenuToggle = (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
@@ -116,14 +175,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
       
-      // Don't close if clicking inside the menu
-      if (menuRef.current && menuRef.current.contains(target)) {
+      // Don't close if clicking inside any version of the menu
+      if (isTargetInsideMenu(target)) {
         return;
       }
       
       // Don't close if clicking the button that opened the menu
       // Always allow button clicks to handle menu toggle themselves
-      if (buttonContainerRef.current && buttonContainerRef.current.contains(target)) {
+      if (isTargetInsideMenuButton(target)) {
         return;
       }
       
@@ -133,18 +192,19 @@ const QuizCard: React.FC<QuizCardProps> = ({
     };
 
     if (showMobileMenu) {
+      // On small viewports we rely on the full-screen backdrop
+      // to handle outside clicks, so we skip global listeners.
+      if (isMobileViewport) {
+        return;
+      }
+
       // Use click event (bubble phase) so button onClick handlers fire first
-      // Add a longer delay on mobile to ensure touch events are processed first
-      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const delay = isMobileDevice ? 300 : 150; // Longer delay on mobile
-      
+      // Add a small delay to ensure menu is fully rendered and handlers attached
       const timeoutId = setTimeout(() => {
         // Use bubble phase (false) so button clicks fire before this handler
-        // Use passive: false on mobile to allow preventDefault
-        const options = isMobileDevice ? { passive: false, capture: false } : false;
-        document.addEventListener('click', handleClickOutside, options);
-        document.addEventListener('touchend', handleClickOutside, options);
-      }, delay);
+        document.addEventListener('click', handleClickOutside, false);
+        document.addEventListener('touchend', handleClickOutside, false);
+      }, 150);
 
       return () => {
         clearTimeout(timeoutId);
@@ -152,7 +212,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
         document.removeEventListener('touchend', handleClickOutside, false);
       };
     }
-  }, [showMobileMenu]);
+  }, [showMobileMenu, isMobileViewport]);
   
   // Helper function to get difficulty badge variant
   const getDifficultyVariant = (difficulty: string): 'success' | 'warning' | 'danger' | 'neutral' => {
@@ -229,7 +289,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
             {/* 3-Dots Menu in Top Right */}
             {(onEdit || onExport) && (
-              <div className="relative" ref={buttonContainerRef}>
+              <div
+                className="relative"
+                ref={mobileButtonContainerRef}
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -244,136 +307,139 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 />
 
                 {/* Dropdown Menu - Fixed positioning to escape card overflow */}
-                {showMobileMenu && menuPosition && (
-                  <>
-                    {/* Invisible backdrop to block clicks behind menu */}
-                    <div
-                      className="fixed inset-0 z-[999]"
-                      style={{ 
-                        backgroundColor: 'transparent',
-                        pointerEvents: 'auto'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const target = e.target as HTMLElement;
-                        // Only close if clicking on the backdrop itself, not on menu
-                        if (!menuRef.current?.contains(target)) {
-                          setShowMobileMenu(false);
-                          setMenuPosition(null);
-                        }
-                      }}
-                      onTouchStart={(e) => {
-                        e.stopPropagation();
-                        const target = e.target as HTMLElement;
-                        if (!menuRef.current?.contains(target)) {
-                          setShowMobileMenu(false);
-                          setMenuPosition(null);
-                        }
-                      }}
-                    />
-                    {/* Menu itself - higher z-index than backdrop */}
-                    <div
-                      ref={menuRef}
-                      className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[1000] max-h-96 overflow-y-auto touch-manipulation"
-                      style={{
-                        top: `${menuPosition.top}px`,
-                        right: `${menuPosition.right}px`,
-                        pointerEvents: 'auto'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onTouchStart={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onTouchEnd={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                    <div className="py-1">
-                      {onEdit && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                {showMobileMenu && menuPosition && isMobileViewport && canUseDom
+                  ? createPortal(
+                      <>
+                        {/* Invisible backdrop to block clicks behind menu */}
+                        <div
+                          className="fixed inset-0 z-[999]"
+                          style={{ 
+                            backgroundColor: 'transparent',
+                            pointerEvents: 'auto'
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setShowMobileMenu(false);
-                            setMenuPosition(null);
-                            // Call onEdit immediately - no need for timeout
-                            onEdit(quiz.id);
+                            const target = e.target as HTMLElement;
+                            // Only close if clicking on the backdrop itself, not on menu
+                            if (!isTargetInsideMenu(target)) {
+                              setShowMobileMenu(false);
+                              setMenuPosition(null);
+                            }
                           }}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
-                          leftIcon={
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          }
-                        >
-                          Edit Quiz
-                        </Button>
-                      )}
-                      {onExport && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
+                          onTouchStart={(e) => {
                             e.stopPropagation();
-                            setShowMobileMenu(false);
-                            setMenuPosition(null);
-                            // Call onExport immediately - no need for timeout
-                            onExport(quiz.id);
+                            const target = e.target as HTMLElement;
+                            if (!isTargetInsideMenu(target)) {
+                              setShowMobileMenu(false);
+                              setMenuPosition(null);
+                            }
                           }}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
-                          leftIcon={
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                          }
-                        >
-                          Export Quiz
-                        </Button>
-                      )}
-
-                      {/* Separator before Groups section */}
-                      {(onEdit || onExport) && (
-                        <div className="border-t border-theme-border-primary my-1"></div>
-                      )}
-
-                      {/* Groups Menu */}
-                      <div 
-                        onClick={(e) => e.stopPropagation()} 
-                        onMouseDown={(e) => e.stopPropagation()} 
-                        onTouchStart={(e) => e.stopPropagation()}
-                        onTouchEnd={(e) => e.stopPropagation()}
-                        className="touch-manipulation"
-                      >
-                        <QuizGroupMenu 
-                          quizId={quiz.id}
-                          onGroupsChanged={() => {
-                            // Optionally refresh quiz data or close menu
-                          }}
-                        onOpenModal={() => {
-                          // Close dropdown menu first on mobile to prevent blocking
-                          setShowMobileMenu(false);
-                          setMenuPosition(null);
-                          // Then open create group modal after a brief delay to ensure dropdown closes
-                          setTimeout(() => {
-                            setShowCreateGroupModal(true);
-                          }, 50);
-                        }}
                         />
+                        {/* Menu itself - higher z-index than backdrop */}
+                        <div
+                          ref={mobileMenuRef}
+                          className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[1000] max-h-96 overflow-y-auto touch-manipulation"
+                          style={{
+                            top: `${menuPosition.top}px`,
+                            right: `${menuPosition.right}px`,
+                            pointerEvents: 'auto'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onTouchEnd={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                        <div className="py-1">
+                          {onEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowMobileMenu(false);
+                                setMenuPosition(null);
+                                // Call onEdit immediately - no need for timeout
+                                onEdit(quiz.id);
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onTouchStart={(e) => e.stopPropagation()}
+                              className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
+                              leftIcon={
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              }
+                            >
+                              Edit Quiz
+                            </Button>
+                          )}
+                          {onExport && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowMobileMenu(false);
+                                setMenuPosition(null);
+                                // Call onExport immediately - no need for timeout
+                                onExport(quiz.id);
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onTouchStart={(e) => e.stopPropagation()}
+                              className="!w-full !text-left !justify-start !px-4 !py-2 !rounded-none touch-manipulation"
+                              leftIcon={
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                              }
+                            >
+                              Export Quiz
+                            </Button>
+                          )}
+
+                          {/* Separator before Groups section */}
+                          {(onEdit || onExport) && (
+                            <div className="border-t border-theme-border-primary my-1"></div>
+                          )}
+
+                          {/* Groups Menu */}
+                          <div 
+                            onClick={(e) => e.stopPropagation()} 
+                            onMouseDown={(e) => e.stopPropagation()} 
+                            onTouchStart={(e) => e.stopPropagation()}
+                            onTouchEnd={(e) => e.stopPropagation()}
+                            className="touch-manipulation"
+                          >
+                            <QuizGroupMenu 
+                              quizId={quiz.id}
+                              onGroupsChanged={() => {
+                                // Optionally refresh quiz data or close menu
+                              }}
+                            onOpenModal={() => {
+                              // Close dropdown menu first on mobile to prevent blocking
+                              setShowMobileMenu(false);
+                              setMenuPosition(null);
+                              // Then open create group modal after a brief delay to ensure dropdown closes
+                              setTimeout(() => {
+                                setShowCreateGroupModal(true);
+                              }, 50);
+                            }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  </>
-                )}
+                      </>,
+                      document.body
+                    )
+                  : null}
               </div>
             )}
           </div>
@@ -450,7 +516,10 @@ const QuizCard: React.FC<QuizCardProps> = ({
             </div>
             {/* 3-Dots Menu in Top Right */}
             {(onEdit || onExport) && (
-              <div className="relative ml-2 flex-shrink-0">
+              <div
+                className="relative ml-2 flex-shrink-0"
+                ref={desktopButtonContainerRef}
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -465,9 +534,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
                 />
 
                 {/* Dropdown Menu - Fixed positioning to escape card overflow */}
-                {showMobileMenu && menuPosition && (
+                {showMobileMenu && menuPosition && !isMobileViewport && (
                   <div
-                    ref={menuRef}
+                    ref={desktopMenuRef}
                     className="fixed w-56 bg-theme-bg-primary rounded-lg shadow-lg border border-theme-border-primary z-[100] max-h-96 overflow-y-auto touch-manipulation"
                     style={{
                       top: `${menuPosition.top}px`,

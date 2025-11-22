@@ -187,15 +187,19 @@ const QuizList: React.FC<QuizListProps> = ({
     };
 
     if (openMenuQuizId) {
-      // Add a longer delay on mobile to ensure touch events are processed first
+      // On real mobile devices we rely on the full-screen backdrop
+      // to handle outside clicks, so we skip global listeners to
+      // avoid any chance of events leaking through to underlying UI.
       const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const delay = isMobileDevice ? 300 : 150;
+      if (isMobileDevice) {
+        return;
+      }
       
+      // Add a small delay to ensure menu is fully rendered
       const timeoutId = setTimeout(() => {
-        const options = isMobileDevice ? { passive: false, capture: false } : false;
-        document.addEventListener('click', handleClickOutside, options);
-        document.addEventListener('touchend', handleClickOutside, options);
-      }, delay);
+        document.addEventListener('click', handleClickOutside, false);
+        document.addEventListener('touchend', handleClickOutside, false);
+      }, 150);
 
       return () => {
         clearTimeout(timeoutId);
