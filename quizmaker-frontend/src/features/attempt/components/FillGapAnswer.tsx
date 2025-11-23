@@ -108,7 +108,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
       const gapId = parseInt(match[1], 10);
       
       // Find the gap object with this ID
-      const gap = gaps.find(g => g.id === gapId);
+      const gap = gaps.find((g: GapAnswer) => g.id === gapId);
       
       if (gap) {
         // All instances of the same gap ID share the same value
