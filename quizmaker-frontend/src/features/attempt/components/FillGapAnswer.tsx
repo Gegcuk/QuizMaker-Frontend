@@ -81,83 +81,95 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     // Split text by gaps and render with input fields
     const parts: React.ReactNode[] = [];
     let currentText = text;
-    let gapIndex = 0;
 
     // Find all gaps marked with {N} and replace them with input fields
-    const gapRegex = /\{\d+\}/g;
+    const gapRegex = /\{(\d+)\}/g;
     let match;
     let lastIndex = 0;
-    const matches = currentText.match(gapRegex) || [];
+    let matchIndex = 0; // For unique keys when same gap ID appears multiple times
     
     console.log("FillGapAnswer parsing:", {
       textLength: currentText.length,
-      gapMatches: matches,
-      gapMatchesCount: matches.length,
-      gapsArrayLength: gaps.length,
-      gapIndex
+      gapMatches: currentText.match(/\{\d+\}/g) || [],
+      gapsArrayLength: gaps.length
     });
 
-    while ((match = gapRegex.exec(currentText)) !== null && gapIndex < gaps.length) {
+    while ((match = gapRegex.exec(currentText)) !== null) {
       // Add text before the gap
       if (match.index > lastIndex) {
         parts.push(
-          <span key={`text-${gapIndex}`} className="text-theme-text-primary">
+          <span key={`text-${matchIndex}`} className="text-theme-text-primary">
             {currentText.substring(lastIndex, match.index)}
           </span>
         );
       }
 
-      // Add gap input
-      const gap = gaps[gapIndex];
-      const currentValue = gapAnswers?.[gap.id] || '';
-      // Calculate dynamic width: minimum 60px, grows with content (roughly 8px per character)
-      const inputWidth = Math.max(60, Math.min(currentValue.length * 8 + 20, 400));
+      // Extract gap ID from the match (e.g., {1} -> 1)
+      const gapId = parseInt(match[1], 10);
       
-      // Determine if this gap answer is correct
-      let gapIsCorrect = false;
-      let correctAnswerText = '';
-      if (showFeedback && correctAnswer && Array.isArray(correctAnswer.answers)) {
-        const correctGap = correctAnswer.answers.find((a: any) => a.id === gap.id || a.gapId === gap.id);
-        if (correctGap) {
-          correctAnswerText = correctGap.text || correctGap.answer || '';
-          gapIsCorrect = currentValue.trim().toLowerCase() === correctAnswerText.trim().toLowerCase();
+      // Find the gap object with this ID
+      const gap = gaps.find(g => g.id === gapId);
+      
+      if (gap) {
+        // All instances of the same gap ID share the same value
+        const currentValue = gapAnswers?.[gapId] || '';
+        // Calculate dynamic width: minimum 60px, grows with content (roughly 8px per character)
+        const inputWidth = Math.max(60, Math.min(currentValue.length * 8 + 20, 400));
+        
+        // Determine if this gap answer is correct
+        let gapIsCorrect = false;
+        let correctAnswerText = '';
+        if (showFeedback && correctAnswer && Array.isArray(correctAnswer.answers)) {
+          const correctGap = correctAnswer.answers.find((a: any) => a.id === gapId || a.gapId === gapId);
+          if (correctGap) {
+            correctAnswerText = correctGap.text || correctGap.answer || '';
+            gapIsCorrect = currentValue.trim().toLowerCase() === correctAnswerText.trim().toLowerCase();
+          }
         }
-      }
 
-      // Get styling based on feedback
-      let borderColor = 'border-theme-border-primary';
-      let bgColor = 'bg-theme-bg-primary';
-      if (showFeedback && isCorrect !== undefined) {
-        if (gapIsCorrect) {
-          borderColor = 'border-theme-interactive-success';
-          bgColor = 'bg-theme-bg-success';
-        } else if (currentValue.trim()) {
-          borderColor = 'border-theme-interactive-danger';
-          bgColor = 'bg-theme-bg-danger';
+        // Get styling based on feedback
+        let borderColor = 'border-theme-border-primary';
+        let bgColor = 'bg-theme-bg-primary';
+        if (showFeedback && isCorrect !== undefined) {
+          if (gapIsCorrect) {
+            borderColor = 'border-theme-interactive-success';
+            bgColor = 'bg-theme-bg-success';
+          } else if (currentValue.trim()) {
+            borderColor = 'border-theme-interactive-danger';
+            bgColor = 'bg-theme-bg-danger';
+          }
         }
+        
+        // Use matchIndex for unique key when same gap ID appears multiple times
+        parts.push(
+          <span key={`gap-${gapId}-${matchIndex}`} className="inline-block">
+            <input
+              type="text"
+              value={currentValue}
+              onChange={(e) => handleGapChange(gapId, e.target.value)}
+              disabled={disabled}
+              placeholder=""
+              style={{ width: `${inputWidth}px` }}
+              className={`mx-1 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
+            />
+            {showFeedback && !gapIsCorrect && correctAnswerText && (
+              <span className="ml-1 text-xs text-theme-interactive-primary" title={`Correct: ${correctAnswerText}`}>
+                (✓ {correctAnswerText})
+              </span>
+            )}
+          </span>
+        );
+      } else {
+        // Gap ID not found in gaps array, just show the placeholder text
+        parts.push(
+          <span key={`gap-missing-${matchIndex}`} className="text-theme-text-tertiary">
+            {match[0]}
+          </span>
+        );
       }
-      
-      parts.push(
-        <span key={`gap-${gap.id}`} className="inline-block">
-          <input
-            type="text"
-            value={currentValue}
-            onChange={(e) => handleGapChange(gap.id, e.target.value)}
-            disabled={disabled}
-            placeholder=""
-            style={{ width: `${inputWidth}px` }}
-            className={`mx-1 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
-          />
-          {showFeedback && !gapIsCorrect && correctAnswerText && (
-            <span className="ml-1 text-xs text-theme-interactive-primary" title={`Correct: ${correctAnswerText}`}>
-              (✓ {correctAnswerText})
-            </span>
-          )}
-        </span>
-      );
 
       lastIndex = match.index + match[0].length;
-      gapIndex++;
+      matchIndex++;
     }
 
     // Add remaining text after the last gap
