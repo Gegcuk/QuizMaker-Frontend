@@ -461,6 +461,13 @@ const QuizAttemptPage: React.FC = () => {
     }
   }, [attemptId]);
 
+  // Scroll to top when a new question is loaded
+  useEffect(() => {
+    if (currentQuestion) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentQuestion]);
+
   /* -------------------------------------------------------------------- */
   /*  Rendering helpers                                                   */
   /* -------------------------------------------------------------------- */
