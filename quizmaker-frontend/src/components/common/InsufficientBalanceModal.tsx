@@ -26,7 +26,7 @@ const InsufficientBalanceModal: React.FC<InsufficientBalanceModalProps> = ({
 
   const handleTopUp = () => {
     onClose();
-    navigate('/profile');
+    navigate('/billing');
   };
 
   return (

@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { Button } from '@/components';
+import { authService } from '@/services';
 
 interface EmailVerificationProps {
   onSuccess?: () => void;
@@ -62,16 +63,11 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     });
 
     try {
-      // TODO: Implement actual email verification API call
-      // This would typically call an API endpoint like:
-      // await authService.verifyEmail({ token: verificationToken });
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await authService.verifyEmail({ token: verificationToken });
       
       setVerificationStatus({
         status: 'success',
-        message: 'Your email has been successfully verified! You can now log in to your account.'
+        message: response.message || 'Your email has been successfully verified! You can now log in to your account.'
       });
 
       // Call success callback if provided
@@ -113,12 +109,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     setIsResending(true);
 
     try {
-      // TODO: Implement actual resend verification API call
-      // This would typically call an API endpoint like:
-      // await authService.resendVerificationEmail({ email });
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await authService.resendVerification({ email: email.trim() });
       
       setResendCountdown(60); // 60 second countdown
       setVerificationStatus({
