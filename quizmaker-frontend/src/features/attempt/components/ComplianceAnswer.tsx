@@ -147,7 +147,9 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
             <label
               key={statement.id}
               className={`flex items-start p-4 border-2 rounded-lg transition-colors ${
-                disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:border-theme-border-secondary'
+                disabled 
+                  ? 'opacity-70 cursor-not-allowed' 
+                  : `cursor-pointer ${isSelected ? '' : 'hover:border-theme-border-secondary'}`
               } ${borderColor} ${bgColor}`}
             >
               <input
