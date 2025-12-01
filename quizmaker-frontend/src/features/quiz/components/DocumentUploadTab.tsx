@@ -38,9 +38,7 @@ export const DocumentUploadTab: React.FC = () => {
       HOTSPOT: 0
     },
     difficulty: 'MEDIUM' as Difficulty,
-    estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'AUTO',
-    maxChunkSize: 50000
+    estimatedTimePerQuestion: 2
   });
 
   const validateFile = (file: File): string | null => {
@@ -138,8 +136,8 @@ export const DocumentUploadTab: React.FC = () => {
       formData.append('questionsPerType', JSON.stringify(filteredQuestionTypes));
       formData.append('difficulty', quizConfig.difficulty);
       formData.append('quizScope', quizConfig.quizScope);
-      formData.append('chunkingStrategy', quizConfig.chunkingStrategy);
-      formData.append('maxChunkSize', quizConfig.maxChunkSize.toString());
+      formData.append('chunkingStrategy', 'SIZE_BASED');
+      formData.append('maxChunkSize', '100000');
       formData.append('estimatedTimePerQuestion', quizConfig.estimatedTimePerQuestion.toString());
       
       if (quizConfig.quizDescription) {
@@ -199,22 +197,6 @@ export const DocumentUploadTab: React.FC = () => {
     }
   };
 
-  const getChunkingStrategyDescription = (strategy: string): string => {
-    switch (strategy) {
-      case 'AUTO':
-        return 'Automatically determine the best chunking strategy based on document structure';
-      case 'CHAPTER_BASED':
-        return 'Split document by chapters for better topic organization';
-      case 'SECTION_BASED':
-        return 'Split document by sections for detailed content breakdown';
-      case 'SIZE_BASED':
-        return 'Split document by size limits for consistent chunk sizes';
-      case 'PAGE_BASED':
-        return 'Split document by page boundaries for page-based organization';
-      default:
-        return '';
-    }
-  };
 
   // Calculate token estimation based on file size (rough estimate)
   // This is a simplified estimation - actual estimation would require chunk data
@@ -329,69 +311,6 @@ export const DocumentUploadTab: React.FC = () => {
               </div>
             </div>
 
-            {/* Document Processing Configuration */}
-            {selectedFile && (
-              <div className="mt-6 space-y-4">
-                <h4 className="font-medium text-theme-text-primary">Document Processing</h4>
-                
-                {/* Chunking Strategy */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="block text-sm font-medium text-theme-text-secondary">
-                      Chunking Strategy
-                    </label>
-                    <Hint
-                      position="right"
-                      size="sm"
-                    content={
-                      <div className="space-y-2">
-                        <p className="font-medium">How to split your document:</p>
-                        <ul className="text-xs space-y-1">
-                          <li><strong>Auto:</strong> Automatically selects the best strategy</li>
-                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                        </ul>
-                      </div>
-                    }
-                  />
-                </div>
-                <Dropdown
-                  value={quizConfig.chunkingStrategy}
-                  onChange={(value) => setQuizConfig(prev => ({
-                    ...prev,
-                    chunkingStrategy: typeof value === 'string' ? value : value[0]
-                  }))}
-                  options={[
-                    { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
-                  ]}
-                />
-                </div>
-
-                {/* Max Chunk Size */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="block text-sm font-medium text-theme-text-secondary">
-                      Maximum Chunk Size (characters)
-                    </label>
-                    <Hint
-                      position="right"
-                      size="sm"
-                      content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-100,000."
-                    />
-                  </div>
-                  <Input
-                    type="number"
-                    value={quizConfig.maxChunkSize}
-                    onChange={(e) => setQuizConfig(prev => ({
-                      ...prev,
-                      maxChunkSize: parseInt(e.target.value) || 50000
-                    }))}
-                    min="1000"
-                    max="100000"
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

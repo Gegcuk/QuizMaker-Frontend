@@ -34,8 +34,6 @@ export const TextGenerationTab: React.FC = () => {
     },
     difficulty: 'MEDIUM' as Difficulty,
     estimatedTimePerQuestion: 2,
-    chunkingStrategy: 'CHAPTER_BASED' as 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED',
-    maxChunkSize: 50000,
     language: 'en'
   });
 
@@ -47,8 +45,8 @@ export const TextGenerationTab: React.FC = () => {
       const currentLength = text.trim().length;
       return `Text content must be at least 300 characters long (currently ${currentLength} characters, missing ${300 - currentLength} characters)`;
     }
-    if (text.length > 250000) {
-      return 'Text content must not exceed 250,000 characters';
+    if (text.length > 100000) {
+      return 'Text content must not exceed 100,000 characters';
     }
     return null;
   };
@@ -99,8 +97,8 @@ export const TextGenerationTab: React.FC = () => {
         questionsPerType: filteredQuestionTypes,
         difficulty: quizConfig.difficulty,
         language: quizConfig.language,
-        chunkingStrategy: quizConfig.chunkingStrategy,
-        maxChunkSize: quizConfig.maxChunkSize,
+        chunkingStrategy: 'SIZE_BASED',
+        maxChunkSize: 100000,
         quizScope: 'ENTIRE_DOCUMENT' as QuizScope,
         estimatedTimePerQuestion: quizConfig.estimatedTimePerQuestion
       };
@@ -122,20 +120,6 @@ export const TextGenerationTab: React.FC = () => {
     }
   };
 
-  const getChunkingStrategyDescription = (strategy: string): string => {
-    switch (strategy) {
-      case 'CHAPTER_BASED':
-        return 'Split text by chapters for better topic organization';
-      case 'SECTION_BASED':
-        return 'Split text by sections for detailed content breakdown';
-      case 'SIZE_BASED':
-        return 'Split text by size limits for consistent chunk sizes';
-      case 'PAGE_BASED':
-        return 'Split text by page boundaries for page-based organization';
-      default:
-        return '';
-    }
-  };
 
   // Calculate token estimation
   const tokenEstimation = useMemo(() => {
@@ -187,9 +171,9 @@ export const TextGenerationTab: React.FC = () => {
               }
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Paste or type your text content here... (300-250,000 characters)"
+              placeholder="Paste or type your text content here... (300-100,000 characters)"
               rows={12}
-              maxLength={250000}
+              maxLength={100000}
               showCharCount
               helperText="Minimum: 10 characters"
             />
@@ -224,67 +208,6 @@ export const TextGenerationTab: React.FC = () => {
                     { label: 'Italian', value: 'it' },
                     { label: 'Portuguese', value: 'pt' }
                   ]}
-                />
-              </div>
-
-              {/* Chunking Strategy */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="block text-sm font-medium text-theme-text-secondary">
-                    Chunking Strategy
-                  </label>
-                  <Hint
-                    position="right"
-                    size="sm"
-                    content={
-                      <div className="space-y-2">
-                        <p className="font-medium">How to split your text:</p>
-                        <ul className="text-xs space-y-1">
-                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                          <li><strong>Section:</strong> Splits by section headings</li>
-                          <li><strong>Size:</strong> Splits by character count</li>
-                          <li><strong>Page:</strong> Splits by page breaks</li>
-                        </ul>
-                      </div>
-                    }
-                  />
-                </div>
-                <Dropdown
-                  value={quizConfig.chunkingStrategy}
-                  onChange={(value) => setQuizConfig(prev => ({
-                    ...prev,
-                    chunkingStrategy: (typeof value === 'string' ? value : value[0]) as 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED'
-                  }))}
-                  options={[
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' },
-                    { label: 'Section Based', value: 'SECTION_BASED' },
-                    { label: 'Size Based', value: 'SIZE_BASED' },
-                    { label: 'Page Based', value: 'PAGE_BASED' }
-                  ]}
-                />
-              </div>
-
-              {/* Max Chunk Size */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="block text-sm font-medium text-theme-text-secondary">
-                    Maximum Chunk Size (characters)
-                  </label>
-                  <Hint
-                    position="right"
-                    size="sm"
-                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-250,000."
-                  />
-                </div>
-                <Input
-                  type="number"
-                  value={quizConfig.maxChunkSize}
-                  onChange={(e) => setQuizConfig(prev => ({
-                    ...prev,
-                    maxChunkSize: parseInt(e.target.value) || 50000
-                  }))}
-                  min="1000"
-                  max="250000"
                 />
               </div>
             </div>

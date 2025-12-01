@@ -25,8 +25,6 @@ interface DocumentGenerationConfig {
   quizScope: 'ENTIRE_DOCUMENT' | 'SPECIFIC_CHAPTER' | 'SPECIFIC_CHUNKS';
   questionsPerType: Record<string, number>;
   difficulty: Difficulty;
-  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED';
-  maxChunkSize?: number;
 }
 
 export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFormProps> = ({
@@ -61,9 +59,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       ORDERING: 0,
       MATCHING: 0
     },
-    difficulty: 'MEDIUM',
-    chunkingStrategy: 'AUTO',
-    maxChunkSize: 50000
+    difficulty: 'MEDIUM'
   });
 
   // Page selection state
@@ -285,13 +281,9 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     const documentTitle = generationConfig.file?.name.replace(/\.[^/.]+$/, '') || 'Selected Content';
     formData.append('title', documentTitle);
     
-    // Document processing parameters
-    if (generationConfig.chunkingStrategy) {
-      formData.append('chunkingStrategy', generationConfig.chunkingStrategy);
-    }
-    if (generationConfig.maxChunkSize) {
-      formData.append('maxChunkSize', generationConfig.maxChunkSize.toString());
-    }
+    // Document processing parameters - always use SIZE_BASED with 100000 chunk size (backend max limit)
+    formData.append('chunkingStrategy', 'SIZE_BASED');
+    formData.append('maxChunkSize', '100000');
     
     formData.append('quizTitle', localData.title!);
     if (localData.description) {
@@ -457,63 +449,6 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             </div>
           )}
 
-          {/* Document Processing Configuration */}
-          <div className="mt-6">
-            <h5 className="font-medium text-theme-text-primary mb-4">Document Processing</h5>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Chunking Strategy */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="block text-sm font-medium text-theme-text-secondary">
-                    Chunking Strategy
-                  </label>
-                  <Hint
-                    position="right"
-                    size="sm"
-                    content={
-                      <div className="space-y-2">
-                        <p className="font-medium">How to split your document:</p>
-                        <ul className="text-xs space-y-1">
-                          <li><strong>Auto:</strong> Automatically selects the best strategy</li>
-                          <li><strong>Chapter:</strong> Splits by chapter headings</li>
-                        </ul>
-                      </div>
-                    }
-                  />
-                </div>
-                <Dropdown
-                  value={generationConfig.chunkingStrategy || 'AUTO'}
-                  onChange={(value) => handleGenerationConfigChange('chunkingStrategy', value as 'AUTO' | 'CHAPTER_BASED')}
-                  options={[
-                    { label: 'Auto - Best Strategy', value: 'AUTO' },
-                    { label: 'Chapter Based', value: 'CHAPTER_BASED' }
-                  ]}
-                />
-              </div>
-
-              {/* Max Chunk Size */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="block text-sm font-medium text-theme-text-secondary">
-                    Maximum Chunk Size (characters)
-                  </label>
-                  <Hint
-                    position="right"
-                    size="sm"
-                    content="Maximum number of characters per chunk. Recommended: 30,000-50,000 for optimal quiz generation. Range: 1,000-100,000."
-                  />
-                </div>
-                <Input
-                  type="number"
-                  value={generationConfig.maxChunkSize || 50000}
-                  onChange={(e) => handleGenerationConfigChange('maxChunkSize', parseInt(e.target.value) || 50000)}
-                  min="1000"
-                  max="100000"
-                />
-              </div>
-            </div>
-          </div>
 
         </div>
 

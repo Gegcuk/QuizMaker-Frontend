@@ -156,8 +156,8 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
     } else if (generationConfig.text.trim().length < 300) {
       const currentLength = generationConfig.text.trim().length;
       validationErrors.text = `Text content must be at least 300 characters long (currently ${currentLength} characters, missing ${300 - currentLength} characters)`;
-    } else if (generationConfig.text.length > 250000) {
-      validationErrors.text = 'Text content must not exceed 250,000 characters';
+    } else if (generationConfig.text.length > 100000) {
+      validationErrors.text = 'Text content must not exceed 100,000 characters';
     }
 
     // Check if at least one question type is selected
@@ -199,6 +199,9 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       quizDescription: localData.description || '',
       questionsPerType: filteredQuestionsPerType,
       difficulty: localData.difficulty || 'MEDIUM',
+      // Always use SIZE_BASED with 100000 chunk size (backend max limit)
+      chunkingStrategy: 'SIZE_BASED' as const,
+      maxChunkSize: 100000,
       // Only include categoryId and tagIds if they have values
       ...(localData.categoryId && { categoryId: localData.categoryId }),
       ...(localData.tagIds && localData.tagIds.length > 0 && { tagIds: localData.tagIds })
@@ -324,7 +327,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
               rows={8}
               placeholder="Paste your text content here. The AI will analyze it and generate relevant questions..."
               showCharCount
-              maxLength={250000}
+              maxLength={100000}
               helperText={localErrors.text || "The AI will analyze your text and generate relevant questions"}
               error={localErrors.text}
               fullWidth

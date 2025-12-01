@@ -1,7 +1,7 @@
 // src/features/document/components/FastDocumentPreviewModal.tsx
 // Fast document preview using direct HTML/iframe rendering instead of canvas conversion
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { Button, Input, Badge, Spinner, useToast } from '@/components';
 import { 
@@ -29,6 +29,8 @@ interface DocumentPage {
   type: 'html' | 'image' | 'text';
 }
 
+const MAX_CHARACTERS = 100000;
+
 export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> = ({
   file,
   initialSelection = [],
@@ -47,6 +49,28 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   const [searchTerm, setSearchTerm] = useState('');
   const [zoomLevel, setZoomLevel] = useState(100);
 
+  // Calculate total character count of selected pages in real-time
+  const selectedCharacterCount = useMemo(() => {
+    return pages
+      .filter(page => selectedPageNumbers.has(page.pageNum))
+      .reduce((total, page) => {
+        // Use textContent if available, otherwise extract from content
+        if (page.textContent) {
+          return total + page.textContent.length;
+        }
+        if (page.type === 'html') {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = page.content;
+          return total + (tempDiv.textContent || tempDiv.innerText || '').length;
+        }
+        if (page.type === 'text') {
+          return total + page.content.length;
+        }
+        // For images without text, estimate minimal content
+        return total + 0;
+      }, 0);
+  }, [pages, selectedPageNumbers]);
+
   useEffect(() => {
     if (file) {
       isCancelledRef.current = false;
@@ -62,6 +86,13 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       }
     };
   }, [file]);
+
+  // Sync selectedPageNumbers with initialSelection when it changes
+  useEffect(() => {
+    setSelectedPageNumbers(
+      initialSelection.length > 0 ? new Set(initialSelection) : new Set()
+    );
+  }, [initialSelection]);
 
   const loadDocument = async () => {
     setIsLoading(true);
@@ -128,9 +159,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 
     if (!isCancelledRef.current) {
       setPages(pdfPages);
-      if (initialSelection.length === 0) {
-        setSelectedPageNumbers(new Set(Array.from({ length: numPages }, (_, i) => i + 1)));
-      }
       addToast({ type: 'success', message: `PDF loaded: ${numPages} pages` });
     }
   };
@@ -151,9 +179,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         textContent: '[Image file - no text content]',
         type: 'image' 
       }]);
-      if (initialSelection.length === 0) {
-        setSelectedPageNumbers(new Set([1]));
-      }
       addToast({ type: 'success', message: 'Image loaded' });
     }
   };
@@ -187,9 +212,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     
     if (!isCancelledRef.current) {
       setPages(htmlPages);
-      if (initialSelection.length === 0) {
-        setSelectedPageNumbers(new Set(Array.from({ length: htmlPages.length }, (_, i) => i + 1)));
-      }
       addToast({ type: 'success', message: `DOCX loaded: ${htmlPages.length} sections` });
     }
   };
@@ -292,9 +314,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     
     if (!isCancelledRef.current) {
       setPages(allPages);
-      if (initialSelection.length === 0) {
-        setSelectedPageNumbers(new Set(Array.from({ length: allPages.length }, (_, i) => i + 1)));
-      }
       addToast({ type: 'success', message: `EPUB loaded: ${allPages.length} pages from ${htmlFiles.length} chapters (${Math.round(combinedText.length / 1000)}K chars)` });
     }
   };
@@ -305,9 +324,6 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     
     if (!isCancelledRef.current) {
       setPages(textPages);
-      if (initialSelection.length === 0) {
-        setSelectedPageNumbers(new Set(Array.from({ length: textPages.length }, (_, i) => i + 1)));
-      }
       addToast({ type: 'success', message: `Text loaded: ${textPages.length} sections` });
     }
   };
@@ -446,18 +462,76 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     return pages;
   };
 
+  const getPageCharacterCount = (page: DocumentPage): number => {
+    if (page.textContent) {
+      return page.textContent.length;
+    }
+    if (page.type === 'html') {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = page.content;
+      return (tempDiv.textContent || tempDiv.innerText || '').length;
+    }
+    if (page.type === 'text') {
+      return page.content.length;
+    }
+    // For images without text, return 0
+    return 0;
+  };
+
   const togglePageSelection = (pageNum: number) => {
+    const page = pages.find(p => p.pageNum === pageNum);
+    if (!page) return;
+
     const newSelection = new Set(selectedPageNumbers);
     if (newSelection.has(pageNum)) {
+      // Deselecting - always allowed
       newSelection.delete(pageNum);
+      setSelectedPageNumbers(newSelection);
     } else {
+      // Selecting - check if it would exceed the limit
+      const pageCharCount = getPageCharacterCount(page);
+      const currentCharCount = selectedCharacterCount;
+      
+      if (currentCharCount + pageCharCount > MAX_CHARACTERS) {
+        addToast({ 
+          type: 'error', 
+          message: `Cannot select this page. It would exceed the ${MAX_CHARACTERS.toLocaleString()} character limit. Current: ${currentCharCount.toLocaleString()}, Adding: ${pageCharCount.toLocaleString()}` 
+        });
+        return;
+      }
+      
       newSelection.add(pageNum);
+      setSelectedPageNumbers(newSelection);
     }
-    setSelectedPageNumbers(newSelection);
   };
 
   const selectAllPages = () => {
-    setSelectedPageNumbers(new Set(pages.map(p => p.pageNum)));
+    // Calculate total characters if all pages were selected
+    const totalChars = pages.reduce((sum, page) => sum + getPageCharacterCount(page), 0);
+    
+    if (totalChars > MAX_CHARACTERS) {
+      // Select pages up to the limit
+      const newSelection = new Set<number>();
+      let currentCharCount = 0;
+      
+      for (const page of pages) {
+        const pageCharCount = getPageCharacterCount(page);
+        if (currentCharCount + pageCharCount <= MAX_CHARACTERS) {
+          newSelection.add(page.pageNum);
+          currentCharCount += pageCharCount;
+        } else {
+          break;
+        }
+      }
+      
+      setSelectedPageNumbers(newSelection);
+      addToast({ 
+        type: 'info', 
+        message: `Selected ${newSelection.size} pages (${currentCharCount.toLocaleString()} characters) - maximum allowed` 
+      });
+    } else {
+      setSelectedPageNumbers(new Set(pages.map(p => p.pageNum)));
+    }
   };
 
   const deselectAllPages = () => {
@@ -475,6 +549,14 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   const handleConfirm = () => {
     if (selectedPageNumbers.size === 0) {
       addToast({ type: 'error', message: 'Please select at least one page' });
+      return;
+    }
+
+    if (selectedCharacterCount > MAX_CHARACTERS) {
+      addToast({ 
+        type: 'error', 
+        message: `Selected content exceeds the ${MAX_CHARACTERS.toLocaleString()} character limit. Please deselect some pages.` 
+      });
       return;
     }
 
@@ -527,9 +609,20 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         <div className="p-4 border-b border-theme-border-primary flex items-center justify-between bg-theme-bg-secondary rounded-t-xl">
           <div>
             <h2 className="text-xl font-bold text-theme-text-primary">{file.name}</h2>
-            <p className="text-sm text-theme-text-secondary mt-1">
-              {selectedPageNumbers.size} of {pages.length} selected
-            </p>
+            <div className="flex items-center gap-4 mt-1">
+              <p className="text-sm text-theme-text-secondary">
+                {selectedPageNumbers.size} of {pages.length} pages selected
+              </p>
+              <p className={`text-sm font-medium ${
+                selectedCharacterCount > MAX_CHARACTERS 
+                  ? 'text-theme-interactive-danger' 
+                  : selectedCharacterCount > MAX_CHARACTERS * 0.9 
+                    ? 'text-theme-interactive-warning'
+                    : 'text-theme-text-secondary'
+              }`}>
+                {selectedCharacterCount.toLocaleString()} / {MAX_CHARACTERS.toLocaleString()} characters
+              </p>
+            </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <XMarkIcon className="h-6 w-6" />
@@ -587,17 +680,28 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                 gridTemplateColumns: `repeat(auto-fill, minmax(${Math.floor(250 * cardScale)}px, 1fr))`
               }}
             >
-              {filteredPages.map((page) => (
+              {filteredPages.map((page) => {
+                const pageCharCount = getPageCharacterCount(page);
+                const wouldExceedLimit = !selectedPageNumbers.has(page.pageNum) && 
+                                        selectedCharacterCount + pageCharCount > MAX_CHARACTERS;
+                const isDisabled = wouldExceedLimit;
+                
+                return (
                 <div
                   key={page.pageNum}
-                  onClick={() => togglePageSelection(page.pageNum)}
+                  onClick={() => !isDisabled && togglePageSelection(page.pageNum)}
                   className={`
-                    relative cursor-pointer rounded-lg border-2 transition-all duration-200 overflow-hidden
+                    relative rounded-lg border-2 transition-all duration-200 overflow-hidden
+                    ${isDisabled 
+                      ? 'cursor-not-allowed opacity-50 border-theme-border-secondary'
+                      : 'cursor-pointer'
+                    }
                     ${selectedPageNumbers.has(page.pageNum)
                       ? 'border-theme-interactive-primary shadow-lg ring-2 ring-theme-interactive-primary'
                       : 'border-theme-border-primary hover:border-theme-interactive-primary hover:shadow-md'
                     }
                   `}
+                  title={isDisabled ? `Cannot select: would exceed ${MAX_CHARACTERS.toLocaleString()} character limit` : ''}
                 >
                   {/* Selection Indicator */}
                   {selectedPageNumbers.has(page.pageNum) && (
@@ -634,8 +738,17 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
                       </div>
                     )}
                   </div>
+                  
+                  {/* Character count badge for each page */}
+                  {pageCharCount > 0 && (
+                    <div className="absolute bottom-2 left-2 z-10">
+                      <Badge variant={isDisabled ? "danger" : "info"} size="sm">
+                        {pageCharCount.toLocaleString()} chars
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>
@@ -643,15 +756,33 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         {/* Footer */}
         <div className="p-4 border-t border-theme-border-primary bg-theme-bg-secondary rounded-b-xl flex items-center justify-between">
           <div className="text-sm text-theme-text-secondary">
-            <span className="font-semibold text-theme-text-primary">{selectedPageNumbers.size}</span> of{' '}
-            <span className="font-semibold text-theme-text-primary">{pages.length}</span> selected
+            <div>
+              <span className="font-semibold text-theme-text-primary">{selectedPageNumbers.size}</span> of{' '}
+              <span className="font-semibold text-theme-text-primary">{pages.length}</span> pages selected
+            </div>
+            <div className={`mt-1 font-medium ${
+              selectedCharacterCount > MAX_CHARACTERS 
+                ? 'text-theme-interactive-danger' 
+                : selectedCharacterCount > MAX_CHARACTERS * 0.9 
+                  ? 'text-theme-interactive-warning'
+                  : 'text-theme-text-primary'
+            }`}>
+              {selectedCharacterCount.toLocaleString()} / {MAX_CHARACTERS.toLocaleString()} characters
+              {selectedCharacterCount > MAX_CHARACTERS && (
+                <span className="ml-2 text-xs">(Exceeds limit!)</span>
+              )}
+            </div>
           </div>
           <div className="flex gap-3">
           <Button variant="secondary" onClick={() => {
             isCancelledRef.current = true;
             onCancel();
           }}>Cancel</Button>
-            <Button variant="primary" onClick={handleConfirm} disabled={selectedPageNumbers.size === 0}>
+            <Button 
+              variant="primary" 
+              onClick={handleConfirm} 
+              disabled={selectedPageNumbers.size === 0 || selectedCharacterCount > MAX_CHARACTERS}
+            >
               Confirm Selection ({selectedPageNumbers.size})
             </Button>
           </div>
