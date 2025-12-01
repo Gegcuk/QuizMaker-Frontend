@@ -195,7 +195,19 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     }
 
     try {
-      // Estimate character count based on number of selected pages
+      // Use actual character count from selected content if available
+      const actualCharCount = selectedContent ? selectedContent.length : 0;
+      
+      // If we have actual content, use it directly for estimation
+      if (actualCharCount > 0) {
+        return tokenEstimationService.estimateFromText(
+          selectedContent,
+          filteredQuestionTypes as Record<QuestionType, number>,
+          generationConfig.difficulty || localData.difficulty || 'MEDIUM'
+        );
+      }
+      
+      // Fallback: Estimate character count based on number of selected pages
       // Average page typically has ~2000-3000 characters
       // We'll use a conservative estimate of 5000 characters per page
       const AVERAGE_CHARS_PER_PAGE = 5000;
@@ -216,7 +228,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
       console.error('Token estimation error:', error);
       return null;
     }
-  }, [generationConfig.file, selectedPageNumbers.length, generationConfig.questionsPerType, generationConfig.difficulty, localData.difficulty]);
+  }, [generationConfig.file, selectedPageNumbers.length, selectedContent, generationConfig.questionsPerType, generationConfig.difficulty, localData.difficulty]);
 
   // Get missing requirements for disabled button tooltip
   const getMissingRequirements = (): string[] => {
@@ -444,7 +456,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 showBreakdown={false}
               />
               <p className="text-xs text-theme-text-tertiary mt-2">
-                * Estimation based on {selectedPageNumbers.length} selected page{selectedPageNumbers.length !== 1 ? 's' : ''} (~{selectedPageNumbers.length * 5000} characters). Actual usage may vary.
+                * Estimation based on {selectedPageNumbers.length} selected page{selectedPageNumbers.length !== 1 ? 's' : ''} ({selectedContent ? selectedContent.length.toLocaleString() : (selectedPageNumbers.length * 5000).toLocaleString()} characters). Actual usage may vary.
               </p>
             </div>
           )}

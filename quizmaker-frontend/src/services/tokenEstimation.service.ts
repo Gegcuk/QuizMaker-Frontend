@@ -151,11 +151,12 @@ function llmTokensToBillingTokens(
 
 /**
  * Estimates token usage for quiz generation from text
+ * Simplified formula: 0.35 tokens per 1,000 characters (rounded up) * number of question types
  * 
  * @param text - The text content to generate quiz from
  * @param questionsPerType - Distribution of questions per type
- * @param difficulty - Question difficulty level
- * @param config - Optional configuration overrides
+ * @param difficulty - Question difficulty level (not used in simplified calculation)
+ * @param config - Optional configuration overrides (not used in simplified calculation)
  * @returns Token estimation result
  */
 export function estimateQuizGenerationFromText(
@@ -166,81 +167,55 @@ export function estimateQuizGenerationFromText(
 ): TokenEstimationResult {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
 
-  // If no content, return minimal estimate
+  // If no content, return minimal estimate (0 + 3 = 3 tokens)
   if (!text || text.trim().length === 0) {
-    const minLlmTokens = 1000;
-    const minBillingTokens = Math.max(
-      1,
-      llmTokensToBillingTokens(minLlmTokens, fullConfig.tokenToLlmRatio)
-    );
+    const minBillingTokens = 3;
     return {
-      estimatedLlmTokens: minLlmTokens,
+      estimatedLlmTokens: minBillingTokens * fullConfig.tokenToLlmRatio,
       estimatedBillingTokens: minBillingTokens,
       inputTokens: 0,
       completionTokens: 0,
     };
   }
 
-  // Calculate overhead tokens (system prompt + context template)
-  const systemTokens = fullConfig.systemPromptTokens;
-  const contextTokens = fullConfig.contextTemplateTokens;
+  // Count number of question types with count > 0
+  const numberOfQuestionTypes = Object.values(questionsPerType).filter(count => count && count > 0).length;
 
-  // Calculate content tokens (same for all question types)
-  const contentTokens = estimateTokens(text, fullConfig.charsPerToken);
-
-  // Calculate input and completion tokens separately for each question type
-  // Each question type makes a separate API call, so input tokens are multiplied
-  let totalInputTokens = 0;
-  let totalCompletionTokens = 0;
-
-  for (const [questionType, count] of Object.entries(questionsPerType)) {
-    if (!count || count <= 0) continue;
-
-    const type = questionType as QuestionType;
-    const templateTokens = fullConfig.questionTemplateTokens[type] || 80;
-
-    // Input tokens for this question type: system + context + template + content
-    // This is calculated separately for each question type since each makes a separate API call
-    const inputTokensForType = systemTokens + contextTokens + templateTokens + contentTokens;
-    totalInputTokens += inputTokensForType;
-
-    // Completion tokens for this question type
-    const baseTokens = COMPLETION_TOKENS_PER_QUESTION[type] || 120;
-    const multiplier = DIFFICULTY_MULTIPLIER[difficulty] || 1.0;
-    const completionTokensForType = Math.ceil(count * baseTokens * multiplier);
-    totalCompletionTokens += completionTokensForType;
+  // If no question types selected, return minimal estimate (0 + 3 = 3 tokens)
+  if (numberOfQuestionTypes === 0) {
+    const minBillingTokens = 3;
+    return {
+      estimatedLlmTokens: minBillingTokens * fullConfig.tokenToLlmRatio,
+      estimatedBillingTokens: minBillingTokens,
+      inputTokens: 0,
+      completionTokens: 0,
+    };
   }
 
-  // Total LLM tokens before safety factor
-  const totalLlmTokens = totalInputTokens + totalCompletionTokens;
+  // Simplified calculation: 0.35 tokens per 1,000 characters, rounded up, multiplied by number of question types
+  const charCount = text.trim().length;
+  const tokensPerThousand = 0.35;
+  const calculatedTokens = Math.ceil((charCount / 1000) * tokensPerThousand) * numberOfQuestionTypes;
+  const billingTokens = calculatedTokens + 3;
 
-  // Apply safety factor
-  const adjustedLlm = Math.ceil(totalLlmTokens * fullConfig.safetyFactor);
-
-  // Apply estimation coefficient to account for calculation inaccuracies
-  const finalLlmTokens = Math.ceil(adjustedLlm * ESTIMATION_COEFFICIENT);
-
-  // Convert to billing tokens (enforce minimum of 1 for fallback path)
-  const rawBillingTokens = llmTokensToBillingTokens(
-    finalLlmTokens,
-    fullConfig.tokenToLlmRatio
-  );
-  const billingTokens = Math.max(1, rawBillingTokens);
+  // Convert to LLM tokens
+  const estimatedLlmTokens = billingTokens * fullConfig.tokenToLlmRatio;
 
   return {
-    estimatedLlmTokens: finalLlmTokens,
+    estimatedLlmTokens,
     estimatedBillingTokens: billingTokens,
-    inputTokens: totalInputTokens,
-    completionTokens: totalCompletionTokens,
+    inputTokens: 0,
+    completionTokens: 0,
   };
 }
 
 /**
  * Estimates token usage for quiz generation from document chunks
+ * Simplified formula: 0.35 tokens per 1,000 characters (rounded up) * number of question types
  * 
  * @param chunks - Document chunks to generate quiz from
  * @param questionsPerType - Distribution of questions per type
- * @param difficulty - Question difficulty level
+ * @param difficulty - Question difficulty level (not used in simplified calculation)
  * @param config - Optional configuration overrides
  * @returns Token estimation result
  */
@@ -252,93 +227,49 @@ export function estimateQuizGenerationFromChunks(
 ): TokenEstimationResult {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
 
-  // If no chunks, return minimal estimate
+  // If no chunks, return minimal estimate (0 + 3 = 3 tokens)
   if (!chunks || chunks.length === 0) {
-    const minLlmTokens = 1000;
-    const minBillingTokens = Math.max(
-      1,
-      llmTokensToBillingTokens(minLlmTokens, fullConfig.tokenToLlmRatio)
-    );
+    const minBillingTokens = 3;
     return {
-      estimatedLlmTokens: minLlmTokens,
+      estimatedLlmTokens: minBillingTokens * fullConfig.tokenToLlmRatio,
       estimatedBillingTokens: minBillingTokens,
       inputTokens: 0,
       completionTokens: 0,
     };
   }
 
-  // Calculate overhead tokens (system prompt + context template)
-  const systemTokens = fullConfig.systemPromptTokens;
-  const contextTokens = fullConfig.contextTemplateTokens;
+  // Count number of question types with count > 0
+  const numberOfQuestionTypes = Object.values(questionsPerType).filter(count => count && count > 0).length;
 
-  // Pre-calculate template tokens for each question type
-  const templateTokensByType: Record<QuestionType, number> = {} as Record<
-    QuestionType,
-    number
-  >;
-  for (const questionType of Object.keys(questionsPerType) as QuestionType[]) {
-    const count = questionsPerType[questionType];
-    if (count && count > 0) {
-      templateTokensByType[questionType] =
-        fullConfig.questionTemplateTokens[questionType] || 80;
-    }
+  // If no question types selected, return minimal estimate (0 + 3 = 3 tokens)
+  if (numberOfQuestionTypes === 0) {
+    const minBillingTokens = 3;
+    return {
+      estimatedLlmTokens: minBillingTokens * fullConfig.tokenToLlmRatio,
+      estimatedBillingTokens: minBillingTokens,
+      inputTokens: 0,
+      completionTokens: 0,
+    };
   }
 
-  const difficultyMultiplier = DIFFICULTY_MULTIPLIER[difficulty] || 1.0;
-  let totalInputTokens = 0;
-  let totalCompletionTokens = 0;
+  // Calculate total character count from all chunks
+  const totalCharCount = chunks.reduce((sum, chunk) => {
+    return sum + (chunk.content?.length || chunk.characterCount || 0);
+  }, 0);
 
-  // For each chunk
-  for (const chunk of chunks) {
-    // Prefer content length; fall back to characterCount if content not available
-    const charCount =
-      chunk.content?.length || chunk.characterCount || 0;
-    const contentTokens = estimateTokensFromCharCount(
-      charCount,
-      fullConfig.charsPerToken
-    );
+  // Simplified calculation: 0.35 tokens per 1,000 characters, rounded up, multiplied by number of question types
+  const tokensPerThousand = 0.35;
+  const calculatedTokens = Math.ceil((totalCharCount / 1000) * tokensPerThousand) * numberOfQuestionTypes;
+  const billingTokens = calculatedTokens + 3;
 
-    // For each question type with count > 0
-    for (const [questionType, count] of Object.entries(questionsPerType)) {
-      if (!count || count <= 0) continue;
-
-      const type = questionType as QuestionType;
-      const templateTokens = templateTokensByType[type] || 0;
-
-      // Input tokens for this chunk + question type combination
-      const inputTokens = systemTokens + contextTokens + templateTokens + contentTokens;
-      totalInputTokens += inputTokens;
-
-      // Completion tokens for this question type
-      const baseTokens = COMPLETION_TOKENS_PER_QUESTION[type] || 120;
-      const completionTokens = Math.ceil(
-        count * baseTokens * difficultyMultiplier
-      );
-      totalCompletionTokens += completionTokens;
-    }
-  }
-
-  // Total LLM tokens before safety factor
-  const totalLlmTokens = totalInputTokens + totalCompletionTokens;
-
-  // Apply safety factor
-  const adjustedLlm = Math.ceil(totalLlmTokens * fullConfig.safetyFactor);
-
-  // Apply estimation coefficient to account for calculation inaccuracies
-  const finalLlmTokens = Math.ceil(adjustedLlm * ESTIMATION_COEFFICIENT);
-
-  // Convert to billing tokens
-  // Note: Can return 0 if no questions are requested (matches backend behavior)
-  const billingTokens = llmTokensToBillingTokens(
-    finalLlmTokens,
-    fullConfig.tokenToLlmRatio
-  );
+  // Convert to LLM tokens
+  const estimatedLlmTokens = billingTokens * fullConfig.tokenToLlmRatio;
 
   return {
-    estimatedLlmTokens: finalLlmTokens,
+    estimatedLlmTokens,
     estimatedBillingTokens: billingTokens,
-    inputTokens: totalInputTokens,
-    completionTokens: totalCompletionTokens,
+    inputTokens: 0,
+    completionTokens: 0,
   };
 }
 
@@ -392,15 +323,11 @@ export function estimateQuizGenerationFromDocument(
     // This is a fallback - ideally we'd have the actual content
     content = ' '.repeat(totalCharCount);
   } else {
-    // No content available - return minimal estimate
+    // No content available - return minimal estimate (0 + 3 = 3 tokens)
     const fullConfig = { ...DEFAULT_CONFIG, ...config };
-    const minLlmTokens = 1000;
-    const minBillingTokens = Math.max(
-      1,
-      llmTokensToBillingTokens(minLlmTokens, fullConfig.tokenToLlmRatio)
-    );
+    const minBillingTokens = 3;
     return {
-      estimatedLlmTokens: minLlmTokens,
+      estimatedLlmTokens: minBillingTokens * fullConfig.tokenToLlmRatio,
       estimatedBillingTokens: minBillingTokens,
       inputTokens: 0,
       completionTokens: 0,
