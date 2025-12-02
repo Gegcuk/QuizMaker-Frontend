@@ -95,8 +95,9 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
 
   // Handle link account
   const handleLinkAccount = (provider: OAuthProvider) => {
-    const authUrl = authService.getOAuthAuthorizationUrl(provider, 'link');
-    window.location.href = authUrl;
+    // OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
+    // The action=link parameter tells the backend this is an account linking operation
+    window.location.href = `/oauth2/authorization/${provider.toLowerCase()}?action=link`;
   };
 
   // Handle unlink account
