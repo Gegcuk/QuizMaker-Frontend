@@ -1,7 +1,9 @@
 import React from 'react';
 
+export type ChecklistItemId = string | number;
+
 export interface ChecklistItem {
-  id?: string | number;
+  id: ChecklistItemId;
   content: React.ReactNode;
 }
 
@@ -29,7 +31,7 @@ const Checklist: React.FC<ChecklistProps> = ({ items, className = '' }) => {
   return (
     <ul className={`checklist ${className}`.trim()}>
       {items.map(item => (
-        <li key={item.id ?? String(item.content)} className="flex items-start gap-3">
+        <li key={item.id} className="flex items-start gap-3">
           <CheckIcon />
           <span className="text-theme-text-secondary leading-relaxed">{item.content}</span>
         </li>
