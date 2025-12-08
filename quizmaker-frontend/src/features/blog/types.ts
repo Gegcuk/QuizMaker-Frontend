@@ -11,6 +11,7 @@ export interface ArticleStat {
   label: string;
   value: string;
   detail: string;
+  link?: string;
 }
 
 export interface ArticleSection {
@@ -23,6 +24,12 @@ export interface ArticleSection {
 export interface ArticleFAQ {
   question: string;
   answer: string;
+}
+
+export interface ArticleReference {
+  title: string;
+  url: string;
+  sourceType?: string;
 }
 
 export interface ArticleData {
@@ -42,4 +49,5 @@ export interface ArticleData {
   checklist?: string[];
   primaryCta?: ArticleCTA;
   secondaryCta?: ArticleCTA;
+  references?: ArticleReference[];
 }

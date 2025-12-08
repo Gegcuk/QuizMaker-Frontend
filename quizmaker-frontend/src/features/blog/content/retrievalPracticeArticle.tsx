@@ -24,23 +24,36 @@ export const retrievalPracticeArticle: ArticleData = {
   stats: [
     {
       label: 'Retention lift',
-      value: '30%+',
-      detail: 'Students who quiz after studying score ~30% higher than those who reread the same material.',
+      value: '+10–14 pp',
+      detail:
+        'Classroom quizzing with feedback: short-answer exam 81% vs 68% (Δ +13 pp). Lab free-recall after 1 week: 56% vs 42% (Δ +14 pp).',
+      link: 'https://pdf.retrievalpractice.org/guide/McDermott_etal_2014_JEPA.pdf',
     },
     {
-      label: 'Effect size',
-      value: '~0.7',
-      detail: 'Meta-analyses show the testing effect delivers a large effect size (~0.5–0.7) across subjects.',
+      label: 'Effect size (meta)',
+      value: 'g = 0.50–0.67',
+      detail:
+        'Overall across studies g≈0.50; in classroom studies g≈0.67. With corrective feedback, effects climb to ~0.73 SD.',
+      link: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6288371/',
     },
     {
       label: 'Pre-test boost',
-      value: '+8–10%',
-      detail: 'Short pre-quizzes raise final scores on target and related items by ~8–10% when followed by feedback.',
+      value: '+7–9 pp',
+      detail:
+        'Single prequestion at the start of lectures: +7 pp on immediate posttest; across a 10-week course: +8–9 pp on the final exam (no feedback).',
+      link: 'https://link.springer.com/article/10.1007/s10648-023-09814-5',
+    },
+    {
+      label: 'Spacing rule',
+      value: '10–20%',
+      detail:
+        'Optimal gap ≈10–20% of the desired retention interval (e.g., learn → test in 30 days ⇒ review after ~3–6 days).',
+      link: 'https://files.eric.ed.gov/fulltext/ED536925.pdf',
     },
   ],
   keyPoints: [
-    'Pair a 2–3 item pre-quiz with a slightly longer post-quiz; both stay low-stakes.',
-    'Deliver immediate feedback so errors get corrected (hypercorrection effect) instead of memorised.',
+    'Use a 1–3 item pre-quiz and a 4–6 item post-quiz; both low-stakes and fast (<5 min).',
+    'Show corrective feedback; testing with feedback roughly doubles benefits vs no feedback in several syntheses.',
     'Reuse the same CTA twice: mid-article (contextual sample quiz) and at the end (assign/import flow).',
   ],
   checklist: [
@@ -58,20 +71,82 @@ export const retrievalPracticeArticle: ArticleData = {
       content: (
         <>
           <p>
-            More than a century of studies show that active recall beats re-reading. When learners take a quick quiz
-            after studying, their final performance jumps (often 30%+). Meta-analyses report large effect sizes (~0.7),
-            meaning retrieval practice moves a typical student from the 50th to roughly the 76th percentile.
+            Retrieval beats re-reading. In middle/high-school classes, quizzed content outperformed restudied or
+            non-quizzed content on end-unit exams by <strong>10–13 percentage points</strong> (e.g., 81% vs 68%){' '}
+            <a href="https://pdf.retrievalpractice.org/guide/McDermott_etal_2014_JEPA.pdf" target="_blank" rel="noopener">
+              McDermott et&nbsp;al., 2014
+            </a>
+            . In lab free-recall a week later, tested items hit <strong>56%</strong> vs <strong>42%</strong> after
+            restudy{' '}
+            <a
+              href="https://doi.org/10.1037/0033-295X.114.2.193"
+              target="_blank"
+              rel="noopener"
+            >
+              Roediger &amp; Karpicke, 2006
+            </a>
+            .
           </p>
           <p>
-            Pre-testing is newer but promising: short, low-stakes pre-questions raise final scores on the same items and
-            related concepts by ~8–10%. The mechanism is simple: prediction primes attention, exposes knowledge gaps,
-            and sparks curiosity so the subsequent lesson “sticks”.
+            Meta-analyses converge on large impacts: overall <strong>g≈0.50</strong>{' '}
+            <a
+              href="https://courseware.epfl.ch/assets/courseware/v1/fdde2f0aa590bf3b1324077a6bf1540c/asset-v1%3AEPFL%2BDEMO%2B2020%2Btype%40asset%2Bblock/Rowland2014-meta-analysis.pdf"
+              target="_blank"
+              rel="noopener"
+            >
+              Rowland, 2014
+            </a>
+            ; classroom studies <strong>g≈0.67</strong>{' '}
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6288371/" target="_blank" rel="noopener">
+              Greving et&nbsp;al., 2018 (summarising Adesope et&nbsp;al., 2017)
+            </a>
+            . With corrective feedback, effects rise toward <strong>~0.73 SD</strong>{' '}
+            <a
+              href="https://journals.sagepub.com/doi/10.1177/1475725717695149"
+              target="_blank"
+              rel="noopener"
+            >
+              Schwieren et&nbsp;al., 2017
+            </a>
+            .
           </p>
           <ul className="list-disc list-inside space-y-2">
-            <li>Immediate feedback matters: it corrects errors and improves transfer, not just fact recall.</li>
-            <li>Multiple-choice works when feedback is present; it is not inferior to short-answer for learning.</li>
-            <li>Spacing retrieval attempts across days/weeks outperforms a single cram session.</li>
+            <li>
+              <strong>Feedback matters.</strong> Correct-answer feedback boosts gains vs. no feedback (multiple meta-analyses).
+            </li>
+            <li>
+              <strong>MCQ works.</strong> With feedback, multiple-choice quizzing performs on par with short-answer for later exams{' '}
+              <a href="https://pdf.retrievalpractice.org/guide/McDermott_etal_2014_JEPA.pdf" target="_blank" rel="noopener">
+                McDermott et&nbsp;al., 2014
+              </a>
+              .
+            </li>
+            <li>
+              <strong>Spacing rules.</strong> For durable memory, set review gaps ≈<strong>10–20%</strong> of your target retention
+              interval{' '}
+              <a href="https://files.eric.ed.gov/fulltext/ED536925.pdf" target="_blank" rel="noopener">
+                Carpenter et&nbsp;al., 2012
+              </a>
+              .
+            </li>
           </ul>
+          <p className="mt-2">
+            Pre-testing (a quick quiz <em>before</em> the lesson) adds modest but real gains: +<strong>7 pp</strong> on immediate
+            post-tests and <strong>+8–9 pp</strong> on high-stakes finals even without feedback{' '}
+            <a href="https://link.springer.com/article/10.1007/s10648-023-09814-5" target="_blank" rel="noopener">
+              Pan &amp; colleagues, 2023 review
+            </a>
+            . In-class end-of-lesson questions were remembered <strong>~30% better</strong> on later weekly quizzes than material that
+            wasn’t quizzed{' '}
+            <a
+              href="https://cognitiveresearchjournal.springeropen.com/articles/10.1186/s41235-017-0078-z"
+              target="_blank"
+              rel="noopener"
+            >
+              Geller et&nbsp;al., 2017
+            </a>
+            .
+          </p>
         </>
       ),
     },
@@ -82,18 +157,23 @@ export const retrievalPracticeArticle: ArticleData = {
       content: (
         <>
           <ol className="list-decimal list-inside space-y-2">
-            <li>Hook + TL;DR (why retrieval beats re-reading; show the 30% lift stat).</li>
-            <li>What it is (testing effect + pre-testing) in plain language with 1–2 short analogies.</li>
-            <li>How to apply it this week: a 2–3 question pre-quiz + 5 question post-quiz + feedback toggle.</li>
-            <li>Timing guide: same-day quiz, then 72-hour revisit; include a simple schedule table.</li>
+            <li>Hook + TL;DR with one headline number (e.g., “+10–13 pp on exams when quizzed with feedback”).</li>
+            <li>Define testing effect + pre-testing in plain language with 1–2 quick analogies.</li>
+            <li>How to apply this week: 1–3 pre-items → lesson → 4–6 post-items with feedback.</li>
+            <li>
+              Timing: immediate post-quiz; then space reviews using the <strong>10–20%</strong> rule (e.g., 2 days → 2–4 hr gap; 30 days → 3–6 day gap){' '}
+              <a href="https://files.eric.ed.gov/fulltext/ED536925.pdf" target="_blank" rel="noopener">
+                source
+              </a>
+              .
+            </li>
             <li>CTA: “Try a sample quiz on this topic (2 minutes)” with UTM to GA4.</li>
-            <li>References: 2–4 outbound citations to journals/universities.</li>
-            <li>FAQ block that answers “Does multiple choice work?”, “How many questions?”, “Is this graded?”</li>
+            <li>References: 2–4 outbound citations to journals/university pages (avoid blogs).</li>
+            <li>FAQ: “How many questions?”, “Does MCQ work?”, “Is this graded?”, “How to schedule repeats?”</li>
           </ol>
           <p className="text-theme-text-secondary">
-            Keep the tone plain-language (grade 8–10) and show exactly how to run the sequence in your product:
-            pre-quiz → lesson → post-quiz with feedback → spaced follow-up. The clearer the workflow, the better the
-            conversion to a first attempt.
+            Keep the tone grade-8–10 and show exactly how to run the sequence in your product: pre-quiz → lesson → post-quiz
+            with feedback → spaced follow-up. Clear workflow = higher first-quiz starts.
           </p>
         </>
       ),
@@ -106,23 +186,14 @@ export const retrievalPracticeArticle: ArticleData = {
         <>
           <ul className="list-disc list-inside space-y-2">
             <li>
-              Mid-article CTA: contextual “Try a sample quiz on retrieval practice (2 minutes)” that fires
+              Mid-article CTA: contextual “Try a sample quiz (2 minutes)” that fires{' '}
               <code className="ml-1 rounded bg-theme-bg-tertiary px-1 py-0.5 text-xs">cta_try_sample_quiz</code>.
             </li>
-            <li>
-              End-of-article CTA: “Assign this to your class” linking to login/assignment flow; add a UTM so GA4 can
-              segment by content.
-            </li>
+            <li>End CTA: “Assign this to your class” → login/assignment flow; tag with UTM for content segmentation.</li>
             <li>Track page views with content_group=blog to separate from app traffic.</li>
-            <li>
-              Treat the sample quiz start as a conversion; add scroll-depth or engaged-time if you want a micro KPI while
-              traffic is small.
-            </li>
+            <li>Treat <code>quiz_started</code> as the primary conversion; add engaged-time/scroll as micro KPIs early on.</li>
           </ul>
-          <p>
-            Keep CTAs aligned with intent: informational readers get the sample quiz; teachers ready to act get the
-            assign/import option. Both should link to the same canonical article to avoid splitting signals.
-          </p>
+          <p>Match CTAs to intent: information-seekers → sample quiz; ready-to-act teachers → assign/import.</p>
         </>
       ),
     },
@@ -134,21 +205,15 @@ export const retrievalPracticeArticle: ArticleData = {
         <>
           <ul className="list-disc list-inside space-y-2">
             <li>
-              Add <strong>Article</strong> + <strong>FAQPage</strong> schema; include breadcrumbs to expose the blog
-              hierarchy.
+              Add <strong>Article</strong> + <strong>FAQPage</strong> schema; include breadcrumbs to expose the blog hierarchy.
             </li>
             <li>
-              Internal links: pillar ↔ clusters ↔ research hub. Every post should link to the sample quiz and at least
-              two related articles.
+              Internal links: pillar ↔ clusters ↔ research hub. Every post links to the sample quiz + ≥2 related posts.
             </li>
             <li>
-              Outbound links: cite journals or university sites to reinforce E-E-A-T; keep them relevant to the claims
-              you make.
+              Outbound links: cite journals/university domains to reinforce E-E-A-T (see links above).
             </li>
-            <li>
-              Accessibility: heading order, descriptive alt text, and high-contrast buttons for CTAs so keyboard users
-              can reach them easily.
-            </li>
+            <li>Accessibility: correct heading order, descriptive alt text, high-contrast buttons, focus states on CTAs.</li>
           </ul>
         </>
       ),
@@ -156,23 +221,61 @@ export const retrievalPracticeArticle: ArticleData = {
   ],
   faqs: [
     {
-      question: 'How long should the quizzes be?',
-      answer: 'Use 2–3 questions for pre-testing and 4–6 for post-lesson retrieval. Keep them low-stakes and quick (<5 minutes).',
+      question: 'How many questions should I use?',
+      answer:
+        'Pre-test: 1–3 items. Post-lesson: 4–6 items with corrective feedback. Classroom studies show gains with as little as one in-class question and weekly 10–20 item reviews.',
     },
     {
-      question: 'Do multiple-choice questions still help with learning?',
+      question: 'Do multiple-choice questions help real learning?',
       answer:
-        'Yes. With feedback, MCQ performs on par with short-answer for retention. The key is requiring an initial retrieval attempt before showing options.',
+        'Yes. With feedback, MCQ quizzing matched short-answer on later exams in secondary classrooms; format-matching is not required for the benefit.',
     },
     {
       question: 'How often should I repeat questions?',
       answer:
-        'Quiz immediately after learning, then again ~72 hours later. Revisit core items weekly for the first month to reinforce long-term memory.',
+        'Right after learning (same-day), then schedule reviews using the 10–20% rule of your desired retention window (e.g., for a 30-day goal, review after ~3–6 days, then again at ~2–3 weeks).',
     },
     {
       question: 'What should I track in GA4?',
       answer:
-        'Track page_view with content_group=blog, CTA clicks (cta_try_sample_quiz), and quiz_started / quiz_completed so you can attribute activations back to content.',
+        'Track page_view (content_group=blog), CTA clicks (cta_try_sample_quiz), and quiz_started/quiz_completed. Attribute downstream activations to content using UTMs.',
+    },
+  ],
+  references: [
+    {
+      title: 'McDermott, Agarwal, D\'Antonio et al. (2014) Classroom retrieval practice boosts exam scores',
+      url: 'https://pdf.retrievalpractice.org/guide/McDermott_etal_2014_JEPA.pdf',
+      sourceType: 'journal',
+    },
+    {
+      title: 'Roediger & Karpicke (2006) Test-enhanced learning',
+      url: 'https://doi.org/10.1037/0033-295X.114.2.193',
+      sourceType: 'journal',
+    },
+    {
+      title: 'Rowland (2014) The effect of testing versus restudy: A meta-analysis',
+      url: 'https://courseware.epfl.ch/assets/courseware/v1/fdde2f0aa590bf3b1324077a6bf1540c/asset-v1%3AEPFL%2BDEMO%2B2020%2Btype%40asset%2Bblock/Rowland2014-meta-analysis.pdf',
+      sourceType: 'meta-analysis',
+    },
+    {
+      title: 'Greving et al. (2018) Retrieval practice in classrooms: A synthesis',
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6288371/',
+      sourceType: 'journal',
+    },
+    {
+      title: 'Carpenter, Cepeda, Rohrer et al. (2012) Spacing instruction improves retention',
+      url: 'https://files.eric.ed.gov/fulltext/ED536925.pdf',
+      sourceType: 'report',
+    },
+    {
+      title: 'Pan et al. (2023) Prequestioning and pretesting: A review',
+      url: 'https://link.springer.com/article/10.1007/s10648-023-09814-5',
+      sourceType: 'journal',
+    },
+    {
+      title: 'Geller et al. (2017) Retrieval practice in live classrooms',
+      url: 'https://cognitiveresearchjournal.springeropen.com/articles/10.1186/s41235-017-0078-z',
+      sourceType: 'journal',
     },
   ],
 };

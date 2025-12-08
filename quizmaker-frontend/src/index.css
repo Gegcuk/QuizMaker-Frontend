@@ -20,6 +20,32 @@
   }
 }
 
+/* Article content list styling for consistent bullets and alignment */
+.article-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.article-content ul li {
+  position: relative;
+  padding-left: 1.1rem;
+  line-height: 1.6;
+}
+
+.article-content ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.60em;
+  width: 0.4em;
+  height: 0.4em;
+  margin-top: 0;
+  border-radius: 9999px;
+  background: var(--color-interactive-primary);
+  flex-shrink: 0;
+}
+
 /* Theme CSS Custom Properties Fallbacks */
 :root {
   /* Light theme defaults */

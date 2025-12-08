@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge, Button, Card, CardBody, CardHeader, PageContainer } from '@/components';
 import { trackEvent } from '@/features/analytics';
 import type { ArticleCTA, ArticleData } from '../types';
@@ -19,12 +19,29 @@ const StatCard: React.FC<{ stat: ArticleData['stats'][number] }> = ({ stat }) =>
     <CardBody className="space-y-1">
       <p className="text-3xl font-bold text-theme-text-primary">{stat.value}</p>
       <p className="text-sm text-theme-text-secondary leading-relaxed">{stat.detail}</p>
+      {stat.link && (
+        <a
+          href={stat.link}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-theme-interactive-primary hover:text-theme-interactive-primary-hover"
+        >
+          Source
+        </a>
+      )}
     </CardBody>
   </Card>
 );
 
+const CheckBadge = () => (
+  <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-md border border-theme-border-primary bg-theme-bg-primary text-xs font-semibold text-theme-interactive-success">
+    ✓
+  </span>
+);
+
 const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
   const navigate = useNavigate();
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   const handleCta = (cta?: ArticleCTA) => {
     if (!cta) return;
@@ -92,7 +109,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
           </header>
 
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {article.stats.map((stat) => (
+            {article.stats.slice(0, 3).map((stat) => (
               <StatCard key={stat.label} stat={stat} />
             ))}
           </section>
@@ -102,7 +119,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
               <CardHeader>
                 <h2 className="text-2xl font-bold text-theme-text-primary">Why this matters</h2>
               </CardHeader>
-              <CardBody className="space-y-3">
+              <CardBody className="space-y-3 article-content">
                 <p className="text-theme-text-secondary">
                   Retrieval practice and pre-testing consistently outperform re-reading and passive review.
                   This template turns those findings into a publish-ready article format that also nudges readers
@@ -110,10 +127,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                 </p>
                 <ul className="space-y-2">
                   {article.keyPoints.map((point) => (
-                    <li key={point} className="flex items-start gap-2">
-                      <span className="mt-1 h-2 w-2 rounded-full bg-theme-interactive-primary" aria-hidden="true" />
-                      <span className="text-theme-text-secondary">{point}</span>
-                    </li>
+                    <li key={point} className="text-theme-text-secondary">{point}</li>
                   ))}
                 </ul>
               </CardBody>
@@ -147,9 +161,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                 <CardBody className="grid gap-3 sm:grid-cols-2">
                   {article.checklist.map((item) => (
                     <div key={item} className="flex items-start gap-3 p-3 rounded-lg bg-theme-bg-tertiary">
-                      <span className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-theme-interactive-success text-white text-xs">
-                        ✓
-                      </span>
+                      <CheckBadge />
                       <p className="text-theme-text-secondary">{item}</p>
                     </div>
                   ))}
@@ -162,15 +174,44 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
             {article.sections.map((section) => (
               <Card key={section.id} padding="lg" className="anchor-target" id={section.id}>
                 <CardHeader>
-                  <h3 className="text-2xl font-semibold text-theme-text-primary">{section.title}</h3>
+                  <h3 id={section.id} className="text-2xl font-semibold text-theme-text-primary">
+                    {section.title}
+                  </h3>
                   {section.summary && (
                     <p className="mt-2 text-theme-text-secondary">{section.summary}</p>
                   )}
                 </CardHeader>
-                <CardBody className="space-y-4 text-theme-text-secondary">{section.content}</CardBody>
+                <CardBody className="space-y-4 text-theme-text-secondary article-content">{section.content}</CardBody>
               </Card>
             ))}
           </section>
+
+          {article.references && article.references.length > 0 && (
+            <section>
+              <Card padding="lg">
+                <CardHeader>
+                  <h3 className="text-xl font-semibold text-theme-text-primary">References</h3>
+                </CardHeader>
+                <CardBody className="space-y-3 article-content">
+                  <ul className="space-y-2 text-theme-text-secondary">
+                    {article.references.map((ref) => (
+                      <li key={ref.url}>
+                        <a
+                          href={ref.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-theme-interactive-primary hover:text-theme-interactive-primary-hover"
+                        >
+                          {ref.title}
+                        </a>
+                        {ref.sourceType && <span className="ml-2 text-theme-text-tertiary text-sm">({ref.sourceType})</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </CardBody>
+              </Card>
+            </section>
+          )}
 
           <section>
             <Card padding="lg">
@@ -178,12 +219,28 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                 <h3 className="text-xl font-semibold text-theme-text-primary">FAQs</h3>
               </CardHeader>
               <CardBody className="divide-y divide-theme-border-primary">
-                {article.faqs.map((faq) => (
-                  <div key={faq.question} className="py-4">
-                    <p className="font-semibold text-theme-text-primary">{faq.question}</p>
-                    <p className="mt-2 text-theme-text-secondary">{faq.answer}</p>
-                  </div>
-                ))}
+                {article.faqs.map((faq) => {
+                  const isOpen = openFaq === faq.question;
+                  return (
+                    <div key={faq.question} className="py-3">
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(isOpen ? null : faq.question)}
+                        className="flex w-full items-center justify-between text-left"
+                      >
+                        <span className="font-semibold text-theme-text-primary">{faq.question}</span>
+                        <span
+                          className={`h-6 w-6 rounded-full border border-theme-border-primary flex items-center justify-center text-sm transition-transform ${
+                            isOpen ? 'rotate-45' : ''
+                          }`}
+                        >
+                          +
+                        </span>
+                      </button>
+                      {isOpen && <p className="mt-2 text-theme-text-secondary">{faq.answer}</p>}
+                    </div>
+                  );
+                })}
               </CardBody>
             </Card>
           </section>
