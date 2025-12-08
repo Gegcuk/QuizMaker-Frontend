@@ -14,6 +14,7 @@ export interface CardProps {
   selected?: boolean;
   className?: string;
   onClick?: () => void;
+  id?: string;
 }
 
 export interface CardHeaderProps {
@@ -45,7 +46,8 @@ const Card: React.FC<CardProps> = ({
   hoverable = false,
   selected = false,
   className = '',
-  onClick
+  onClick,
+  id
 }) => {
   const baseClasses = 'bg-theme-bg-primary rounded-lg overflow-hidden transition-all duration-200';
 
@@ -78,7 +80,7 @@ const Card: React.FC<CardProps> = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <div className={classes} onClick={onClick}>
+    <div id={id} className={classes} onClick={onClick}>
       {children}
     </div>
   );

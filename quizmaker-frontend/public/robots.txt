@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /quizzes
+Disallow: /my-quizzes
+Disallow: /my-attempts
+Disallow: /categories
+Disallow: /tags
+Disallow: /questions
+Disallow: /documents
+Disallow: /profile
+Disallow: /settings
+Disallow: /billing
+Disallow: /ai-analysis
+Disallow: /oauth
+Disallow: /oauth2
+
+Sitemap: https://www.quizzence.com/sitemap.xml

@@ -20,6 +20,8 @@ import RegisterPage from '../pages/RegisterPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import EmailVerificationPage from '../pages/EmailVerificationPage';
+import BlogIndexPage from '../pages/BlogIndexPage';
+import BlogArticleTemplatePage from '../pages/BlogArticleTemplatePage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
 import TermsPage from '../pages/TermsPage';
@@ -92,6 +94,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />
