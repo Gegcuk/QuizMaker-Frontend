@@ -125,14 +125,14 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
               </CardHeader>
               <CardBody className="space-y-2">
                 {article.sections.map((section, index) => (
-                  <Link
+                  <a
                     key={section.id}
-                    to={`#${section.id}`}
+                    href={`#${section.id}`}
                     className="flex items-start gap-2 text-theme-text-secondary hover:text-theme-text-primary"
                   >
                     <span className="text-sm text-theme-text-tertiary">{index + 1}.</span>
                     <span>{section.title}</span>
-                  </Link>
+                  </a>
                 ))}
               </CardBody>
             </Card>

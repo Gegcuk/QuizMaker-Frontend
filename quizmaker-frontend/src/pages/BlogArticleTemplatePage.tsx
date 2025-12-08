@@ -7,6 +7,8 @@ const BlogArticleTemplatePage: React.FC = () => {
   const canonicalPath = `/blog/${article.slug}`;
   const canonicalUrl = `${SITE_URL.replace(/\/$/, '')}${canonicalPath}`;
 
+  const baseSiteUrl = SITE_URL.replace(/\/$/, '');
+
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -26,7 +28,7 @@ const BlogArticleTemplatePage: React.FC = () => {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Blog', item: `${SITE_URL}/blog` },
+      { '@type': 'ListItem', position: 1, name: 'Blog', item: `${baseSiteUrl}/blog` },
       { '@type': 'ListItem', position: 2, name: article.title, item: canonicalUrl },
     ],
   };
