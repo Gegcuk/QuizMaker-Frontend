@@ -62,6 +62,9 @@ const Navbar: React.FC = () => {
   
   const guestLinks = (
     <>
+      <Link to="/blog" className={linkClasses}>
+        Blog
+      </Link>
       <Link to="/login" className={linkClasses}>
         Login
       </Link>
@@ -73,6 +76,9 @@ const Navbar: React.FC = () => {
 
   const guestMobileLinks = (
     <>
+      <Link to="/blog" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
+        Blog
+      </Link>
       <Link to="/login" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         Login
       </Link>
@@ -89,6 +95,9 @@ const Navbar: React.FC = () => {
       </Link>
       <Link to="/my-attempts" className={linkClasses}>
         My Attempts
+      </Link>
+      <Link to="/blog" className={linkClasses}>
+        Blog
       </Link>
       <Link to="/billing" className={linkClasses}>
         Billing
@@ -109,6 +118,9 @@ const Navbar: React.FC = () => {
       </Link>
       <Link to="/my-attempts" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         My Attempts
+      </Link>
+      <Link to="/blog" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
+        Blog
       </Link>
       <Link to="/billing" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
         Billing
