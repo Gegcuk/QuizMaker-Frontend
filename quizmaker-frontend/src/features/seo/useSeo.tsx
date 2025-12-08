@@ -4,7 +4,7 @@
 // Avoids external deps while keeping SPA pages SEO-friendly.
 // ---------------------------------------------------------------------------
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { DEFAULT_LOCALE, GOOGLE_SITE_VERIFICATION, SITE_URL } from './siteMetadata';
 
 export type StructuredData = Record<string, unknown>;
@@ -56,6 +56,9 @@ export const useSeo = ({
   noindex = false,
   structuredData = [],
 }: SeoConfig) => {
+  // Memoize to prevent re-injecting identical structured data on every render when callers pass inline arrays.
+  const structuredDataKey = useMemo(() => JSON.stringify(structuredData), [structuredData]);
+
   useEffect(() => {
     if (title) {
       document.title = title;
@@ -113,5 +116,5 @@ export const useSeo = ({
         }
       });
     };
-  }, [title, description, canonicalPath, canonicalUrl, ogImage, ogType, noindex, structuredData]);
+  }, [title, description, canonicalPath, canonicalUrl, ogImage, ogType, noindex, structuredDataKey]);
 };
