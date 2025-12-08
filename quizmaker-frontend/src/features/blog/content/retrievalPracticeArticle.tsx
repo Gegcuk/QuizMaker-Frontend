@@ -156,7 +156,7 @@ export const retrievalPracticeArticle: ArticleData = {
       summary: 'A reusable outline that satisfies intent and nudges readers into the product.',
       content: (
         <>
-          <ol className="list-decimal list-inside space-y-2">
+          <ol>
             <li>Hook + TL;DR with one headline number (e.g., “+10–13 pp on exams when quizzed with feedback”).</li>
             <li>Define testing effect + pre-testing in plain language with 1–2 quick analogies.</li>
             <li>How to apply this week: 1–3 pre-items → lesson → 4–6 post-items with feedback.</li>

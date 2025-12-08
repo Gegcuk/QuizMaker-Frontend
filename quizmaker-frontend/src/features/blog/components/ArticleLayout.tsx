@@ -16,7 +16,7 @@ const StatCard: React.FC<{ stat: ArticleData['stats'][number] }> = ({ stat }) =>
     <CardHeader className="border-none pb-2 mb-0">
       <p className="text-sm font-semibold uppercase tracking-wide text-theme-text-tertiary">{stat.label}</p>
     </CardHeader>
-    <CardBody className="space-y-1">
+    <CardBody className="space-y-1 article-content">
       <p className="text-3xl font-bold text-theme-text-primary">{stat.value}</p>
       <p className="text-sm text-theme-text-secondary leading-relaxed">{stat.detail}</p>
       {stat.link && (
@@ -132,17 +132,19 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
               <CardHeader>
                 <h3 className="text-xl font-semibold text-theme-text-primary">Table of contents</h3>
               </CardHeader>
-              <CardBody className="space-y-2">
-                {article.sections.map((section, index) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    className="flex items-start gap-2 text-theme-text-secondary hover:text-theme-text-primary"
-                  >
-                    <span className="text-sm text-theme-text-tertiary">{index + 1}.</span>
-                    <span>{section.title}</span>
-                  </a>
-                ))}
+              <CardBody className="space-y-2 article-content">
+                <ol>
+                  {article.sections.map((section) => (
+                    <li key={section.id}>
+                      <a
+                        href={`#${section.id}`}
+                        className="text-theme-text-secondary hover:text-theme-text-primary"
+                      >
+                        {section.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
               </CardBody>
             </Card>
           </section>

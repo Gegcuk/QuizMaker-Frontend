@@ -37,13 +37,22 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 0.0em;
+  top: 0.60em;
   width: 0.4em;
   height: 0.4em;
   margin-top: 0;
   border-radius: 9999px;
   background: var(--color-interactive-primary);
   flex-shrink: 0;
+}
+
+.article-content a {
+  color: var(--color-interactive-primary);
+  text-decoration: none;
+}
+
+.article-content a:hover {
+  color: var(--color-interactive-primary-hover);
 }
 
 .article-content ol {
@@ -64,8 +73,8 @@
   content: counter(article-ordered) ".";
   position: absolute;
   left: 0;
-  top: 0.35em;
-  width: 1rem;
+  top: 0.2em;
+  width: 1.1rem;
   text-align: right;
   color: var(--color-text-tertiary);
   font-weight: 600;
