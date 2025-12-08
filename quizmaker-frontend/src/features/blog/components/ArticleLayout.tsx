@@ -119,7 +119,12 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                   This template turns those findings into a publish-ready article format that also nudges readers
                   toward trying a sample quiz or importing their own content.
                 </p>
-                <BulletList items={article.keyPoints.map(point => <span className="text-theme-text-secondary">{point}</span>)} />
+                <BulletList
+                  items={article.keyPoints.map(point => ({
+                    id: point,
+                    content: <span className="text-theme-text-secondary">{point}</span>,
+                  }))}
+                />
               </CardBody>
             </Card>
 
