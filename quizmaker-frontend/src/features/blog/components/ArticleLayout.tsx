@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge, Button, Card, CardBody, CardHeader, PageContainer } from '@/components';
+import { Badge, Button, Card, CardBody, CardHeader, PageContainer, BulletList, Checklist } from '@/components';
 import { trackEvent } from '@/features/analytics';
 import type { ArticleCTA, ArticleData } from '../types';
 
@@ -31,12 +31,6 @@ const StatCard: React.FC<{ stat: ArticleData['stats'][number] }> = ({ stat }) =>
       )}
     </CardBody>
   </Card>
-);
-
-const CheckBadge = () => (
-  <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-md border border-theme-border-primary bg-theme-bg-primary text-xs font-semibold text-theme-interactive-success">
-    ✓
-  </span>
 );
 
 const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
@@ -125,11 +119,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                   This template turns those findings into a publish-ready article format that also nudges readers
                   toward trying a sample quiz or importing their own content.
                 </p>
-                <ul className="space-y-2">
-                  {article.keyPoints.map((point) => (
-                    <li key={point} className="text-theme-text-secondary">{point}</li>
-                  ))}
-                </ul>
+                <BulletList items={article.keyPoints.map(point => <span className="text-theme-text-secondary">{point}</span>)} />
               </CardBody>
             </Card>
 
@@ -158,13 +148,13 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
                 <CardHeader>
                   <h3 className="text-xl font-semibold text-theme-text-primary">Publishing checklist</h3>
                 </CardHeader>
-                <CardBody className="grid gap-3 sm:grid-cols-2">
-                  {article.checklist.map((item) => (
-                    <div key={item} className="flex items-start gap-3 p-3 rounded-lg bg-theme-bg-tertiary">
-                      <CheckBadge />
-                      <p className="text-theme-text-secondary">{item}</p>
-                    </div>
-                  ))}
+                <CardBody>
+                  <Checklist
+                    items={article.checklist.map(item => ({
+                      id: item,
+                      content: <span className="text-theme-text-secondary">{item}</span>,
+                    }))}
+                  />
                 </CardBody>
               </Card>
             </section>
