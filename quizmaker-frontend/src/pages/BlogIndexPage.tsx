@@ -38,13 +38,19 @@ const BlogIndexPage: React.FC = () => {
                   ))}
                 </div>
               </CardHeader>
-              <CardBody className="flex flex-wrap items-center gap-3">
-                <Link to={`/blog/${post.slug}`}>
-                  <Button>Read article</Button>
+            <CardBody className="flex flex-wrap items-center gap-3">
+                <Link
+                  to={`/blog/${post.slug}`}
+                  className="inline-flex items-center justify-center rounded-lg bg-theme-interactive-primary px-4 py-2 text-sm font-medium text-theme-text-inverse transition-colors duration-200 hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
+                >
+                  Read article
                 </Link>
                 {post.secondaryCta && (
-                  <Link to={post.secondaryCta.href}>
-                    <Button variant="ghost">{post.secondaryCta.label}</Button>
+                  <Link
+                    to={post.secondaryCta.href}
+                    className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-theme-interactive-primary hover:bg-theme-bg-tertiary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
+                  >
+                    {post.secondaryCta.label}
                   </Link>
                 )}
               </CardBody>

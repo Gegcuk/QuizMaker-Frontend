@@ -58,6 +58,7 @@ export const useSeo = ({
 }: SeoConfig) => {
   // Memoize to prevent re-injecting identical structured data on every render when callers pass inline arrays.
   const structuredDataKey = useMemo(() => JSON.stringify(structuredData), [structuredData]);
+  const stableStructuredData = useMemo(() => structuredData, [structuredDataKey]);
 
   useEffect(() => {
     if (title) {
@@ -99,7 +100,7 @@ export const useSeo = ({
     }
 
     const injectedScripts: HTMLScriptElement[] = [];
-    structuredData.forEach((entry, index) => {
+    stableStructuredData.forEach((entry, index) => {
       const script = document.createElement('script');
       script.type = 'application/ld+json';
       script.dataset.seo = 'structured-data';
