@@ -174,7 +174,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
             {article.sections.map((section) => (
               <Card key={section.id} padding="lg" className="anchor-target" id={section.id}>
                 <CardHeader>
-                  <h3 id={section.id} className="text-2xl font-semibold text-theme-text-primary">
+                  <h3 className="text-2xl font-semibold text-theme-text-primary">
                     {section.title}
                   </h3>
                   {section.summary && (
