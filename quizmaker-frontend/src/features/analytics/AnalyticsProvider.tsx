@@ -16,19 +16,24 @@ const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const path = `${location.pathname}${location.search}`;
-    const title = document.title || 'Quizzence';
-    const contentGroup = getContentGroup(location.pathname);
+    // Defer until the next animation frame so <Seo /> has time to update document.title.
+    const frame = requestAnimationFrame(() => {
+      const path = `${location.pathname}${location.search}`;
+      const title = document.title || 'Quizzence';
+      const contentGroup = getContentGroup(location.pathname);
 
-    trackPageView({
-      path,
-      title,
-      contentGroup,
+      trackPageView({
+        path,
+        title,
+        contentGroup,
+      });
+
+      if (location.pathname === '/') {
+        trackEvent('view_home', { page_path: path });
+      }
     });
 
-    if (location.pathname === '/') {
-      trackEvent('view_home', { page_path: path });
-    }
+    return () => cancelAnimationFrame(frame);
   }, [location]);
 
   return <>{children}</>;
