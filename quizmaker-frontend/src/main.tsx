@@ -9,20 +9,23 @@ import { AuthProvider } from './features/auth';
 import { QueryProvider } from './providers/QueryProvider';
 import { FeatureFlagProvider } from './utils';
 import { ThemeProvider } from './context/ThemeContext';
+import { AnalyticsProvider } from './features/analytics';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <ThemeProvider>
-      <FeatureFlagProvider>
-        <QueryProvider>
-          <AuthProvider>
-            <ToastProvider>
-              <AppRoutes />
-            </ToastProvider>
-          </AuthProvider>
-        </QueryProvider>
-      </FeatureFlagProvider>
-    </ThemeProvider>
+    <AnalyticsProvider>
+      <ThemeProvider>
+        <FeatureFlagProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <ToastProvider>
+                <AppRoutes />
+              </ToastProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </FeatureFlagProvider>
+      </ThemeProvider>
+    </AnalyticsProvider>
   </BrowserRouter>
 );
