@@ -22,7 +22,7 @@ const HomePage: React.FC = () => {
     <>
       <Seo
         title="AI Quiz Generator & Quiz Maker for Teachers & Learners | Quizzence"
-        description="Create quizzes in seconds from text, PDFs or links. Quizzence uses AI to build engaging quizzes for classrooms, self-study and training – free to start."
+        description="Create quizzes in seconds from text, PDFs or links. Quizzence uses AI to build engaging quizzes for university courses, school classes and self-study – free to start."
         canonicalPath="/"
         ogType="website"
       />
@@ -32,7 +32,7 @@ const HomePage: React.FC = () => {
             Welcome to Quizzence
           </h1>
         <p className="max-w-2xl text-lg md:text-xl text-theme-text-secondary mb-8">
-          <strong>Research-based quizzes</strong> that help you learn faster, understand deeper and remember longer:{' '}
+          <strong>Research-based quizzes</strong> that help students in universities and schools learn faster, understand deeper and remember longer:{' '}
           <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-theme-border-primary bg-theme-bg-primary px-2 py-1 text-sm font-semibold text-theme-interactive-primary align-middle">
             +10–13 pp better exam scores
           </span>{' '}  

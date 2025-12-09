@@ -5,7 +5,7 @@ export const retrievalPracticeArticle: ArticleData = {
   slug: 'retrieval-practice-template',
   title: 'Retrieval Practice Article Template that Drives Quiz Starts',
   description:
-    'Use this research-backed outline to explain the testing effect, show how to apply it, and nudge readers into a sample quiz or their first class assignment.',
+    'Use this research-backed outline to explain the testing effect, show how to apply it in university courses or school classes, and nudge readers into a sample quiz or their first assignment.',
   heroKicker: 'Evidence-backed',
   author: { name: 'Quizzence Team', title: 'Learning science & product' },
   publishedAt: '2024-12-10',

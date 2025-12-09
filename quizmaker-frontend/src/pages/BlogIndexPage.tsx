@@ -11,13 +11,13 @@ const BlogIndexPage: React.FC = () => {
     <>
       <Seo
         title="Learning Science Blog | Quizzence"
-        description="Research-backed articles on retrieval practice, pre-testing, and quiz design that convert readers into engaged learners."
+        description="Research-backed articles on retrieval practice, pre-testing, and quiz design for university students, school pupils and their teachers."
         canonicalPath="/blog"
         ogType="website"
       />
       <PageContainer
         title="Learning science blog"
-        subtitle="Evidence-based playbooks for quizzes, teaching, and student engagement."
+        subtitle="Evidence-based playbooks for quizzes, teaching, and student engagement in universities and schools."
         showHeader
       >
         <div className="grid gap-6 lg:grid-cols-2">

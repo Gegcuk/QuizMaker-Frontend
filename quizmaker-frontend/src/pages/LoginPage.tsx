@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
     <>
       <Seo
         title="Log In | Quizzence"
-        description="Log in to Quizzence to access your quizzes, track progress and continue learning."
+        description="Log in to Quizzence to access your quizzes, review your progress and continue learning in your university courses or school classes."
         canonicalPath="/login"
         ogType="website"
       />

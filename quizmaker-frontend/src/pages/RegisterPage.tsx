@@ -12,7 +12,7 @@ const RegisterPage: React.FC = () => {
     <>
       <Seo
         title="Sign Up | Quizzence"
-        description="Sign up for a free Quizzence account to create AI-powered quizzes and use them for teaching or self-study."
+        description="Sign up for a free Quizzence account to create AI-powered quizzes for university teaching, school classes and self-study."
         canonicalPath="/register"
         ogType="website"
       />
