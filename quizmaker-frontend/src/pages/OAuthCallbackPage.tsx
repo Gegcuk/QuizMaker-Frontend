@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { setTokens } from '@/utils';
+import { Seo } from '@/features/seo';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -66,11 +67,19 @@ const OAuthCallbackPage: React.FC = () => {
   }, [searchParams, navigate, checkAuthStatus]);
 
   return (
-    <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <div className="text-center">
-            {status === 'processing' && (
+    <>
+      <Seo
+        title="Completing sign in… | Quizzence"
+        description="Completing OAuth sign-in and redirecting you to your Quizzence account."
+        canonicalPath="/oauth/callback"
+        ogType="website"
+        noindex
+      />
+      <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              {status === 'processing' && (
               <>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-theme-interactive-primary bg-opacity-10 mb-4">
                   <svg
@@ -103,7 +112,7 @@ const OAuthCallbackPage: React.FC = () => {
               </>
             )}
 
-            {status === 'success' && (
+              {status === 'success' && (
               <>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-theme-bg-success mb-4">
                   <svg
@@ -130,7 +139,7 @@ const OAuthCallbackPage: React.FC = () => {
               </>
             )}
 
-            {status === 'error' && (
+              {status === 'error' && (
               <>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-theme-bg-danger mb-4">
                   <svg
@@ -158,13 +167,13 @@ const OAuthCallbackPage: React.FC = () => {
                   Redirecting to login page...
                 </p>
               </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 export default OAuthCallbackPage;
-
