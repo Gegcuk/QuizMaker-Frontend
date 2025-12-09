@@ -7,18 +7,27 @@ import React from 'react';
 import { PageContainer } from '@/components';
 import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
+import { Seo } from '@/features/seo';
 
 const ThemeDemoPage: React.FC = () => {
   const { currentPalette, colorScheme } = useTheme();
 
   return (
-    <PageContainer
-      title="Theme System Demo"
-      subtitle="Explore different color schemes and see how they affect the interface"
-      showBreadcrumb={true}
-      showBackButton={true}
-      backTo="/"
-    >
+    <>
+      <Seo
+        title="Theme Demo | Quizzence"
+        description="Internal theme playground for testing Quizzence color schemes and UI components."
+        canonicalPath="/theme-demo"
+        ogType="website"
+        noindex
+      />
+      <PageContainer
+        title="Theme System Demo"
+        subtitle="Explore different color schemes and see how they affect the interface"
+        showBreadcrumb={true}
+        showBackButton={true}
+        backTo="/"
+      >
       <div className="space-y-8">
         {/* Color Scheme Selector */}
         <Card>
@@ -236,7 +245,8 @@ const ThemeDemoPage: React.FC = () => {
           </CardBody>
         </Card>
       </div>
-    </PageContainer>
+      </PageContainer>
+    </>
   );
 };
 
