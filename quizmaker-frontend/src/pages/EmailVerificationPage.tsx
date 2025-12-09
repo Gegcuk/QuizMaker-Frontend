@@ -15,6 +15,7 @@ const EmailVerificationPage: React.FC = () => {
         description="Verify your email address to activate your Quizzence account and start creating AI-powered quizzes."
         canonicalPath="/verify-email"
         ogType="website"
+        noindex
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

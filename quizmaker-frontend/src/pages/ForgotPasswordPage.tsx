@@ -15,6 +15,7 @@ const ForgotPasswordPage: React.FC = () => {
         description="Reset your Quizzence account password and regain access to your quizzes and learning analytics."
         canonicalPath="/forgot-password"
         ogType="website"
+        noindex
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
