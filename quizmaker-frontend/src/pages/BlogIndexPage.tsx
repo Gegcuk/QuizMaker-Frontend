@@ -12,7 +12,7 @@ const BlogIndexPage: React.FC = () => {
       <Seo
         title="Learning Science Blog | Quizzence"
         description="Research-backed articles on retrieval practice, pre-testing, and quiz design for university students, school pupils and their teachers."
-        canonicalPath="/blog"
+        canonicalPath="/blog/"
         ogType="website"
       />
       <PageContainer

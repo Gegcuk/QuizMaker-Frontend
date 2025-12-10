@@ -8,7 +8,7 @@ const TermsPage: React.FC = () => {
       <Seo
         title="Terms of Service | Quizzence"
         description="Read the terms of service for using Quizzence, our AI-powered quiz and learning platform."
-        canonicalPath="/terms"
+        canonicalPath="/terms/"
         ogType="website"
       />
       <PageContainer

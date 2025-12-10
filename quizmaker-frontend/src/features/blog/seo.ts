@@ -5,7 +5,7 @@ import type { SeoConfig, StructuredData } from '@/features/seo';
 const getBaseSiteUrl = (): string => SITE_URL.replace(/\/$/, '');
 
 export const getArticleCanonicalPath = (article: ArticleData): string =>
-  `/blog/${article.slug}`;
+  `/blog/${article.slug}/`;
 
 export const getArticleCanonicalUrl = (article: ArticleData): string => {
   const baseUrl = getBaseSiteUrl();
@@ -63,4 +63,3 @@ export const buildArticleSeoConfig = (article: ArticleData): SeoConfig => ({
   ogType: 'article',
   structuredData: buildArticleStructuredData(article),
 });
-

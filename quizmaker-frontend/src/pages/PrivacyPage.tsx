@@ -8,7 +8,7 @@ const PrivacyPage: React.FC = () => {
       <Seo
         title="Privacy Policy | Quizzence"
         description="Learn how Quizzence handles your account data, quiz results and learning analytics in our privacy policy."
-        canonicalPath="/privacy"
+        canonicalPath="/privacy/"
         ogType="website"
       />
       <PageContainer title="Privacy Policy" showHeader>

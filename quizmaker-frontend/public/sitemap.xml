@@ -6,22 +6,22 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.quizzence.com/blog</loc>
+    <loc>https://www.quizzence.com/blog/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.quizzence.com/blog/retrieval-practice-template</loc>
+    <loc>https://www.quizzence.com/blog/retrieval-practice-template/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.quizzence.com/terms</loc>
+    <loc>https://www.quizzence.com/terms/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.quizzence.com/privacy</loc>
+    <loc>https://www.quizzence.com/privacy/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
