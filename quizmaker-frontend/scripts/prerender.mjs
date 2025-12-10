@@ -67,6 +67,9 @@ const startPreviewServer = () =>
         },
       },
     );
+    const closed = new Promise((resolveClose) => {
+      preview.on('close', () => resolveClose());
+    });
 
     let ready = false;
     let settled = false;
@@ -87,7 +90,7 @@ const startPreviewServer = () =>
       }
       ready = true;
       settled = true;
-      resolve({ preview });
+      resolve({ preview, closed });
     };
 
     preview.on('error', (err) => {
@@ -124,11 +127,13 @@ const prerender = async () => {
   }
 
   let preview;
+  let previewClosed;
   let browser;
 
   try {
     const server = await startPreviewServer();
     preview = server.preview;
+    previewClosed = server.closed;
 
     browser = await chromium.launch();
     const page = await browser.newPage();
@@ -158,6 +163,13 @@ const prerender = async () => {
     }
     if (preview) {
       preview.kill('SIGINT');
+    }
+    if (previewClosed) {
+      try {
+        await previewClosed;
+      } catch {
+        // ignore close errors
+      }
     }
   }
 };
