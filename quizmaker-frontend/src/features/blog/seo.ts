@@ -35,7 +35,7 @@ export const buildArticleStructuredData = (article: ArticleData): StructuredData
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Blog', item: `${baseSiteUrl}/blog` },
+      { '@type': 'ListItem', position: 1, name: 'Blog', item: `${baseSiteUrl}/blog/` },
       { '@type': 'ListItem', position: 2, name: article.title, item: canonicalUrl },
     ],
   };
