@@ -92,6 +92,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
         <Route path="/oauth2/redirect" element={<OAuthCallbackPage />} />
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
+        <Route path="/theme-demo/" element={<ThemeDemoPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/terms/" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
