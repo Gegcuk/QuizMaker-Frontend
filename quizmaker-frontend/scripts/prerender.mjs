@@ -68,6 +68,7 @@ const startPreviewServer = () =>
       },
     );
 
+    let ready = false;
     let settled = false;
 
     const handleFailure = (error) => {
@@ -80,19 +81,36 @@ const startPreviewServer = () =>
       reject(error);
     };
 
+    const handleReady = () => {
+      if (settled) {
+        return;
+      }
+      ready = true;
+      settled = true;
+      resolve({ preview });
+    };
+
     preview.on('error', (err) => {
       handleFailure(err);
     });
 
     preview.on('exit', (code) => {
-      if (code === 0) {
+      if (code === 0 && ready) {
         return;
       }
       handleFailure(new Error(`Vite preview exited early with code ${code}`));
     });
 
-    settled = true;
-    resolve({ preview });
+    const checkReady = async () => {
+      try {
+        await waitForPreviewServer();
+        handleReady();
+      } catch (error) {
+        handleFailure(error);
+      }
+    };
+
+    void checkReady();
   });
 
 const prerender = async () => {
@@ -111,8 +129,6 @@ const prerender = async () => {
   try {
     const server = await startPreviewServer();
     preview = server.preview;
-
-    await waitForPreviewServer();
 
     browser = await chromium.launch();
     const page = await browser.newPage();
