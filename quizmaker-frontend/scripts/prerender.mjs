@@ -85,7 +85,7 @@ const startPreviewServer = () =>
     });
 
     preview.on('exit', (code) => {
-      if (code === 0 && settled) {
+      if (code === 0) {
         return;
       }
       handleFailure(new Error(`Vite preview exited early with code ${code}`));
