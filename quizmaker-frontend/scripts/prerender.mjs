@@ -67,11 +67,7 @@ const startPreviewServer = () =>
         },
       },
     );
-    const closed = new Promise((resolveClose) => {
-      preview.on('close', () => resolveClose());
-    });
 
-    let ready = false;
     let settled = false;
 
     const handleFailure = (error) => {
@@ -88,20 +84,19 @@ const startPreviewServer = () =>
       if (settled) {
         return;
       }
-      ready = true;
       settled = true;
-      resolve({ preview, closed });
+      resolve(preview);
     };
 
     preview.on('error', (err) => {
       handleFailure(err);
     });
 
+    // If preview dies before we're ready, fail fast. If it dies after ready, ignore.
     preview.on('exit', (code) => {
-      if (code === 0 && ready) {
-        return;
+      if (!settled) {
+        handleFailure(new Error(`Vite preview exited early with code ${code}`));
       }
-      handleFailure(new Error(`Vite preview exited early with code ${code}`));
     });
 
     const checkReady = async () => {
@@ -127,13 +122,10 @@ const prerender = async () => {
   }
 
   let preview;
-  let previewClosed;
   let browser;
 
   try {
-    const server = await startPreviewServer();
-    preview = server.preview;
-    previewClosed = server.closed;
+    preview = await startPreviewServer();
 
     browser = await chromium.launch();
     const page = await browser.newPage();
@@ -161,15 +153,9 @@ const prerender = async () => {
         // ignore close errors
       }
     }
-    if (preview) {
+    if (preview && !preview.killed) {
       preview.kill('SIGINT');
-    }
-    if (previewClosed) {
-      try {
-        await previewClosed;
-      } catch {
-        // ignore close errors
-      }
+      // Do not await child exit; allow process to exit once main work is done.
     }
   }
 };
