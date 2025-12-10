@@ -40,7 +40,7 @@ const BlogIndexPage: React.FC = () => {
               </CardHeader>
             <CardBody className="flex flex-wrap items-center gap-3">
                 <Link
-                  to={`/blog/${post.slug}`}
+                  to={`/blog/${post.slug}/`}
                   className="inline-flex items-center justify-center rounded-lg bg-theme-interactive-primary px-4 py-2 text-sm font-medium text-theme-text-inverse transition-colors duration-200 hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
                 >
                   Read article
