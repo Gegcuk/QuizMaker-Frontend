@@ -16,11 +16,11 @@ const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
 // Keep this list small and focused on key marketing / blog / legal pages.
 const ROUTES_TO_PRERENDER = [
   '/',
-  '/blog',
-  '/blog/retrieval-practice-template',
-  '/terms',
-  '/privacy',
-  '/theme-demo',
+  '/blog/',
+  '/blog/retrieval-practice-template/',
+  '/terms/',
+  '/privacy/',
+  '/theme-demo/',
 ];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
