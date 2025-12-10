@@ -98,11 +98,12 @@ const prerender = async () => {
   }
 
   const { preview } = await startPreviewServer();
+  let browser;
 
   try {
     await waitForPreviewServer();
 
-    const browser = await chromium.launch();
+    browser = await chromium.launch();
     const page = await browser.newPage();
 
     for (const route of ROUTES_TO_PRERENDER) {
@@ -119,10 +120,15 @@ const prerender = async () => {
       // eslint-disable-next-line no-console
       console.log(`✔ Prerendered ${route} -> ${path.relative(rootDir, outputPath)}`);
     }
-
-    await browser.close();
   } finally {
-    // Ensure the preview server is stopped.
+    // Ensure the browser and preview server are stopped even on failure.
+    if (browser) {
+      try {
+        await browser.close();
+      } catch {
+        // ignore close errors
+      }
+    }
     preview.kill('SIGINT');
   }
 };
@@ -132,4 +138,3 @@ prerender().catch((err) => {
   console.error('Prerender failed:', err);
   process.exit(1);
 });
-

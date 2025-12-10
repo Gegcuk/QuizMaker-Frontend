@@ -18,9 +18,13 @@ cd quizmaker-frontend
 echo "📦 Installing dependencies..."
 npm ci
 
-# Build the application
-echo "🔨 Building application..."
-npm run build
+# Install Playwright browser for prerendering (idempotent)
+echo "🌐 Installing Playwright Chromium for prerender..."
+npx playwright install chromium
+
+# Build the application with prerendered HTML for key routes
+echo "🔨 Building application with prerender..."
+npm run build:prerender
 
 # Check if build was successful
 if [ ! -d "dist" ]; then
