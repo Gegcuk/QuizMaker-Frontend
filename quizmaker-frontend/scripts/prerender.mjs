@@ -174,8 +174,12 @@ const prerender = async () => {
   }
 };
 
-prerender().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error('Prerender failed:', err);
-  process.exit(1);
-});
+prerender()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('Prerender failed:', err);
+    process.exit(1);
+  });
