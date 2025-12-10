@@ -105,10 +105,13 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
-  const { preview } = await startPreviewServer();
+  let preview;
   let browser;
 
   try {
+    const server = await startPreviewServer();
+    preview = server.preview;
+
     await waitForPreviewServer();
 
     browser = await chromium.launch();
@@ -137,7 +140,9 @@ const prerender = async () => {
         // ignore close errors
       }
     }
-    preview.kill('SIGINT');
+    if (preview) {
+      preview.kill('SIGINT');
+    }
   }
 };
 
