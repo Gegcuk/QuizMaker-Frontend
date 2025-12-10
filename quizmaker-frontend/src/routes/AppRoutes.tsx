@@ -93,9 +93,13 @@ const AppRoutes: React.FC = () => {
         <Route path="/oauth2/redirect" element={<OAuthCallbackPage />} />
         <Route path="/theme-demo" element={<ThemeDemoPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/terms/" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/privacy/" element={<PrivacyPage />} />
         <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/blog/" element={<BlogIndexPage />} />
         <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />
+        <Route path="/blog/retrieval-practice-template/" element={<BlogArticleTemplatePage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />
