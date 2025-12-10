@@ -23,9 +23,13 @@ jobs:
         working-directory: quizmaker-frontend
         run: npm ci
 
-      - name: Build
+      - name: Install Playwright Chromium
         working-directory: quizmaker-frontend
-        run: npm run build
+        run: npx playwright install chromium
+
+      - name: Build (with prerender)
+        working-directory: quizmaker-frontend
+        run: npm run build:prerender
 
       - name: Prepare deployment bundle
         run: |
@@ -95,4 +99,3 @@ jobs:
             echo ""
             echo "=== Container status ==="
             docker compose ps || docker-compose ps
-
