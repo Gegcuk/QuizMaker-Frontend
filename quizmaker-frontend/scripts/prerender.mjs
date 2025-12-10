@@ -68,22 +68,30 @@ const startPreviewServer = () =>
       },
     );
 
-    let resolved = false;
+    let settled = false;
+
+    const handleFailure = (error) => {
+      if (settled) {
+        // eslint-disable-next-line no-console
+        console.error('Vite preview process error after start:', error);
+        return;
+      }
+      settled = true;
+      reject(error);
+    };
 
     preview.on('error', (err) => {
-      if (!resolved) {
-        resolved = true;
-        reject(err);
-      }
+      handleFailure(err);
     });
 
     preview.on('exit', (code) => {
-      if (!resolved) {
-        resolved = true;
-        reject(new Error(`Vite preview exited early with code ${code}`));
+      if (code === 0 && settled) {
+        return;
       }
+      handleFailure(new Error(`Vite preview exited early with code ${code}`));
     });
 
+    settled = true;
     resolve({ preview });
   });
 
