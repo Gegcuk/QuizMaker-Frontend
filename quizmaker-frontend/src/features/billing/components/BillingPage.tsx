@@ -15,6 +15,7 @@ import {
   ClockIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { Seo } from '@/features/seo';
 
 const BillingPage: React.FC = () => {
   const [balance, setBalance] = useState<BalanceDto | null>(null);
@@ -62,6 +63,12 @@ const BillingPage: React.FC = () => {
 
   return (
     <>
+      <Seo
+        title="Billing & Tokens | Quizzence"
+        description="Check your token balance, purchase additional tokens and review your Quizzence billing history."
+        canonicalPath="/billing"
+        ogType="website"
+      />
       <PageHeader
         title="Billing & Tokens"
         subtitle="Manage your token balance and view transaction history"
@@ -219,4 +226,3 @@ const BillingPage: React.FC = () => {
 };
 
 export default BillingPage;
-

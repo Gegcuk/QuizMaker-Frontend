@@ -21,6 +21,7 @@ import {
   Alert,
   Chip
 } from '@/components';
+import { Seo } from '@/features/seo';
 import type { GroupedListGroup, SortOption as SortOptionType } from '@/components';
 import { 
   AttemptSummaryDto
@@ -469,6 +470,12 @@ const MyAttemptsPage: React.FC = () => {
 
   return (
     <>
+      <Seo
+        title="My Quiz Attempts | Quizzence"
+        description="Review your quiz attempts, track progress and revisit results across all your Quizzence quizzes."
+        canonicalPath="/my-attempts"
+        ogType="website"
+      />
       <PageHeader
         title="My Attempts"
         subtitle="View and manage all your quiz attempts"

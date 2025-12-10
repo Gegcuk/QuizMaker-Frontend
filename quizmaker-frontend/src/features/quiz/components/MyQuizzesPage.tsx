@@ -14,6 +14,7 @@ import { PageHeader, useToast, Button, Alert, Modal } from '@/components';
 import type { GroupedListGroup } from '@/components';
 import { ConfirmationModal } from '@/components';
 import { useQuizFiltering, useQuizPagination, useResponsiveViewMode } from '@/hooks';
+import { Seo } from '@/features/seo';
 import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService, quizGroupService } from '../services';
 import { useCreateGroup } from '../hooks';
@@ -714,6 +715,12 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
   return (
     <>
+      <Seo
+        title="My Quizzes | Quizzence"
+        description="Manage your created quizzes, view active attempts and organize quizzes into groups."
+        canonicalPath="/my-quizzes"
+        ogType="website"
+      />
       <div className={className}>
         {/* Page Header */}
         <PageHeader
