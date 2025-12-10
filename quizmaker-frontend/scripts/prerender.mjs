@@ -1,0 +1,135 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawn } from 'node:child_process';
+import { chromium } from 'playwright';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
+const distDir = path.join(rootDir, 'dist');
+
+const PREVIEW_PORT = 4173;
+const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
+
+// Routes whose HTML should be fully prerendered with correct <title>/<meta>.
+// Keep this list small and focused on key marketing / blog / legal pages.
+const ROUTES_TO_PRERENDER = [
+  '/',
+  '/blog',
+  '/blog/retrieval-practice-template',
+  '/terms',
+  '/privacy',
+  '/theme-demo',
+];
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const resolveOutputPath = (route) => {
+  if (route === '/' || route === '') {
+    return path.join(distDir, 'index.html');
+  }
+
+  const cleaned = route.replace(/^\//, '').replace(/\/$/, '');
+  return path.join(distDir, cleaned, 'index.html');
+};
+
+const waitForPreviewServer = async () => {
+  const maxAttempts = 30;
+  const url = `${PREVIEW_ORIGIN}/`;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        return;
+      }
+    } catch {
+      // Ignore and retry.
+    }
+    await delay(1000);
+  }
+
+  throw new Error('Vite preview server did not start in time.');
+};
+
+const startPreviewServer = () =>
+  new Promise((resolve, reject) => {
+    const preview = spawn(
+      'npm',
+      ['run', 'preview', '--', '--port', String(PREVIEW_PORT), '--host', '127.0.0.1'],
+      {
+        cwd: rootDir,
+        stdio: 'ignore',
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+        },
+      },
+    );
+
+    let resolved = false;
+
+    preview.on('error', (err) => {
+      if (!resolved) {
+        resolved = true;
+        reject(err);
+      }
+    });
+
+    preview.on('exit', (code) => {
+      if (!resolved) {
+        resolved = true;
+        reject(new Error(`Vite preview exited early with code ${code}`));
+      }
+    });
+
+    resolve({ preview });
+  });
+
+const prerender = async () => {
+  const distExists = await fs
+    .access(distDir)
+    .then(() => true)
+    .catch(() => false);
+
+  if (!distExists) {
+    throw new Error('dist directory not found. Run `npm run build` first.');
+  }
+
+  const { preview } = await startPreviewServer();
+
+  try {
+    await waitForPreviewServer();
+
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+
+    for (const route of ROUTES_TO_PRERENDER) {
+      const url = `${PREVIEW_ORIGIN}${route}`;
+      // Load the page and wait long enough for React + useSeo to update <head>.
+      await page.goto(url, { waitUntil: 'load' });
+      await delay(1500);
+
+      const html = await page.content();
+      const outputPath = resolveOutputPath(route);
+
+      await fs.mkdir(path.dirname(outputPath), { recursive: true });
+      await fs.writeFile(outputPath, html, 'utf8');
+      // eslint-disable-next-line no-console
+      console.log(`✔ Prerendered ${route} -> ${path.relative(rootDir, outputPath)}`);
+    }
+
+    await browser.close();
+  } finally {
+    // Ensure the preview server is stopped.
+    preview.kill('SIGINT');
+  }
+};
+
+prerender().catch((err) => {
+  // eslint-disable-next-line no-console
+  console.error('Prerender failed:', err);
+  process.exit(1);
+});
+
