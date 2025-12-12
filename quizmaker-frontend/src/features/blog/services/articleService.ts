@@ -18,18 +18,20 @@ export interface ArticleListParams {
   pageSize?: number;
 }
 
-const BASE_PATH = '/v1/content/articles';
-const TAGS_PATH = '/v1/content/tags';
-const SITEMAP_PATH = '/v1/content/sitemap';
+// Public article endpoints (no auth required)
+const PUBLIC_LIST_PATH = '/v1/articles/public';
+const PUBLIC_SLUG_PATH = (slug: string) => `/v1/articles/public/slug/${slug}`;
+const TAGS_PATH = '/v1/articles/tags';
+const SITEMAP_PATH = '/v1/articles/sitemap';
 
 export const articleService = {
   async list(params?: ArticleListParams): Promise<ArticleListResponse> {
-    const { data } = await api.get<ArticleListResponse>(BASE_PATH, { params });
+    const { data } = await api.get<ArticleListResponse>(PUBLIC_LIST_PATH, { params });
     return data;
   },
 
   async getBySlug(slug: string): Promise<ArticleDto> {
-    const { data } = await api.get<ArticleResponse>(`${BASE_PATH}/${slug}`);
+    const { data } = await api.get<ArticleResponse>(PUBLIC_SLUG_PATH(slug));
     return data.article;
   },
 
