@@ -10,7 +10,7 @@ The QuizMaker API uses a **modular documentation structure** optimized for token
 GET https://quizzence.com/api/v1/api-summary
 ```
 
-This returns a **2KB summary** of all 8 API groups with their sizes and descriptions. Use this to decide which groups you need.
+This returns a **2KB summary** of all 9 API groups with their sizes and descriptions. Use this to decide which groups you need.
 
 ### Step 2: Fetch Only Relevant Group Specs
 
@@ -19,12 +19,13 @@ This returns a **2KB summary** of all 8 API groups with their sizes and descript
 GET https://quizzence.com/v3/api-docs/{GROUP_NAME}
 
 # Examples:
-GET https://quizzence.com/v3/api-docs/questions  # 18KB
-GET https://quizzence.com/v3/api-docs/auth       # 24KB
-GET https://quizzence.com/v3/api-docs/ai         # 4KB
+GET https://quizzence.com/v3/api-docs/questions  # ~18KB
+GET https://quizzence.com/v3/api-docs/auth       # ~24KB
+GET https://quizzence.com/v3/api-docs/ai         # ~4KB
+GET https://quizzence.com/v3/api-docs/articles   # Articles (public + admin)
 ```
 
-Available groups: `auth`, `quizzes`, `questions`, `attempts`, `documents`, `billing`, `ai`, `admin`
+Available groups: `auth`, `quizzes`, `questions`, `attempts`, `documents`, `billing`, `articles`, `ai`, `admin`
 
 ### Step 3: Get Question Type Schemas (If Creating Questions)
 
@@ -84,6 +85,9 @@ Authorization: Bearer {token}
 - `/api/v1/questions/schemas**`
 - `/v3/api-docs**`
 - `/swagger-ui/**`
+- `/api/v1/articles/public` (search published articles; rate-limited)
+- `/api/v1/articles/public/slug/{slug}` (get a published article by slug; rate-limited)
+- `/api/v1/articles/sitemap`
 
 ---
 
@@ -122,4 +126,3 @@ Use a JSON Schema validator on question `content` before creating questions. Pre
 - **Swagger UI**: https://quizzence.com/swagger-ui/index.html
 
 All API details (endpoints, parameters, responses) are in the OpenAPI specs. This guide only explains **how to navigate** them efficiently.
-

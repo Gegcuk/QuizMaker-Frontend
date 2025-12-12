@@ -51,3 +51,96 @@ export interface ArticleData {
   secondaryCta?: ArticleCTA;
   references?: ArticleReference[];
 }
+
+/* ---------------------------------------------------------------------- */
+/*  API-facing article types (no React nodes)                             */
+/* ---------------------------------------------------------------------- */
+
+export type ArticleStatus = 'draft' | 'published';
+
+export interface ArticleAuthorDto {
+  name: string;
+  title: string;
+}
+
+export interface ArticleCtaDto {
+  label: string;
+  href: string;
+  eventName?: string;
+}
+
+export interface ArticleStatDto {
+  label: string;
+  value: string;
+  detail: string;
+  link?: string;
+}
+
+export interface ArticleSectionDto {
+  id: string;
+  title: string;
+  summary?: string;
+  content?: string; // HTML or Markdown rendered to HTML server-side
+}
+
+export interface ArticleFaqDto {
+  question: string;
+  answer: string;
+}
+
+export interface ArticleReferenceDto {
+  title: string;
+  url: string;
+  sourceType?: string;
+}
+
+export interface ArticleDto {
+  id?: string;
+  revision?: number;
+  slug: string;
+  title: string;
+  description: string;
+  excerpt: string;
+  heroKicker?: string;
+  tags: string[];
+  author: ArticleAuthorDto;
+  readingTime: string;
+  publishedAt: string;
+  updatedAt?: string;
+  status: ArticleStatus;
+  canonicalUrl?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  contentGroup?: string;
+  primaryCta?: ArticleCtaDto;
+  secondaryCta?: ArticleCtaDto;
+  stats?: ArticleStatDto[];
+  keyPoints?: string[];
+  checklist?: string[];
+  sections?: ArticleSectionDto[];
+  faqs?: ArticleFaqDto[];
+  references?: ArticleReferenceDto[];
+}
+
+export interface ArticleListResponse {
+  items: ArticleDto[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ArticleResponse {
+  article: ArticleDto;
+}
+
+export interface ArticleSitemapEntry {
+  url: string;
+  updatedAt?: string;
+  changefreq?: string;
+  priority?: number;
+}
+
+export interface ArticleTagSummary {
+  tag: string;
+  count: number;
+}
