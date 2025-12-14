@@ -56,7 +56,8 @@ export interface ArticleData {
 /*  API-facing article types (no React nodes)                             */
 /* ---------------------------------------------------------------------- */
 
-export type ArticleStatus = 'draft' | 'published';
+// Backend enum is serialized as uppercase strings.
+export type ArticleStatus = 'DRAFT' | 'PUBLISHED';
 
 export interface ArticleAuthorDto {
   name: string;
@@ -77,7 +78,7 @@ export interface ArticleStatDto {
 }
 
 export interface ArticleSectionDto {
-  id: string;
+  sectionId: string;
   title: string;
   summary?: string;
   content?: string; // HTML or Markdown rendered to HTML server-side
@@ -122,6 +123,33 @@ export interface ArticleDto {
   references?: ArticleReferenceDto[];
 }
 
+// Payloads for create/update (admin)
+export interface ArticleUpsertPayload {
+  slug: string;
+  title: string;
+  description: string;
+  excerpt: string;
+  heroKicker?: string;
+  tags: string[];
+  author: ArticleAuthorDto;
+  readingTime: string;
+  publishedAt: string;
+  updatedAt?: string;
+  status: ArticleStatus;
+  canonicalUrl?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  contentGroup?: string;
+  primaryCta?: ArticleCtaDto;
+  secondaryCta?: ArticleCtaDto;
+  stats?: ArticleStatDto[];
+  keyPoints?: string[];
+  checklist?: string[];
+  sections?: ArticleSectionDto[];
+  faqs?: ArticleFaqDto[];
+  references?: ArticleReferenceDto[];
+}
+
 export interface ArticleListResponse {
   items: ArticleDto[];
   total: number;
@@ -129,9 +157,8 @@ export interface ArticleListResponse {
   offset: number;
 }
 
-export interface ArticleResponse {
-  article: ArticleDto;
-}
+// Article endpoints return the DTO directly (not wrapped).
+export type ArticleResponse = ArticleDto;
 
 export interface ArticleSitemapEntry {
   url: string;

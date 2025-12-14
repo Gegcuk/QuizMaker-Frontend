@@ -237,7 +237,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       }
     }
     
-    let htmlFiles = [];
+    const htmlFiles = [];
     
     if (contentOpfFile) {
       // Parse content.opf to get reading order

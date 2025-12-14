@@ -92,7 +92,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       let p = 0;
       const size = Math.max(qSize, 50);
       // Fetch until a page returns fewer than size items (or safety cap)
-      // eslint-disable-next-line no-constant-condition
+       
       while (true) {
         const res = await questionService.getQuestions({ quizId: id, pageNumber: p, size });
         const batch = res?.content || [];

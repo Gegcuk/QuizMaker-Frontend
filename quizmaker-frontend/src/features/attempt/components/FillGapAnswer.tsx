@@ -80,7 +80,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
 
     // Split text by gaps and render with input fields
     const parts: React.ReactNode[] = [];
-    let currentText = text;
+    const currentText = text;
 
     // Find all gaps marked with {N} and replace them with input fields
     const gapRegex = /\{(\d+)\}/g;

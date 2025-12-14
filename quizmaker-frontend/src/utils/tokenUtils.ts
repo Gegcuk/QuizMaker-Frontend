@@ -6,7 +6,7 @@ const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 
 // In-memory token storage as fallback when localStorage is not available
-let inMemoryTokens: { accessToken: string | null; refreshToken: string | null } = {
+const inMemoryTokens: { accessToken: string | null; refreshToken: string | null } = {
   accessToken: null,
   refreshToken: null
 };

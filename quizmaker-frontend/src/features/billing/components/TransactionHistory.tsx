@@ -67,7 +67,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ className = '' 
 
   // Client-side sorting
   const sortedTransactions = useMemo(() => {
-    let result = [...filteredTransactions];
+    const result = [...filteredTransactions];
 
     switch (sortBy) {
       case 'newest':

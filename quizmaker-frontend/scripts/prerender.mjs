@@ -72,7 +72,7 @@ const startPreviewServer = () =>
 
     const handleFailure = (error) => {
       if (settled) {
-        // eslint-disable-next-line no-console
+         
         console.error('Vite preview process error after start:', error);
         return;
       }
@@ -141,7 +141,7 @@ const prerender = async () => {
 
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, html, 'utf8');
-      // eslint-disable-next-line no-console
+       
       console.log(`✔ Prerendered ${route} -> ${path.relative(rootDir, outputPath)}`);
     }
   } finally {
@@ -165,7 +165,7 @@ prerender()
     process.exit(0);
   })
   .catch((err) => {
-    // eslint-disable-next-line no-console
+     
     console.error('Prerender failed:', err);
     process.exit(1);
   });
