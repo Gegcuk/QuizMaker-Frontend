@@ -65,6 +65,11 @@ const normalizeLines = (lines: string[]): string[] =>
     .map((line) => line.trim())
     .filter(Boolean);
 
+const isExternalUrl = (href: string): boolean => {
+  const trimmed = href.trim();
+  return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+};
+
 const BlogIndexPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = useMemo(
@@ -462,10 +467,8 @@ const BlogIndexPage: React.FC = () => {
       return;
     }
 
-    const normalizedKeyPoints =
-      draftPayload.keyPoints !== undefined ? normalizeLines(draftPayload.keyPoints) : undefined;
-    const normalizedChecklist =
-      draftPayload.checklist !== undefined ? normalizeLines(draftPayload.checklist) : undefined;
+    const normalizedKeyPoints = normalizeLines(draftPayload.keyPoints ?? []);
+    const normalizedChecklist = normalizeLines(draftPayload.checklist ?? []);
 
     const payload: ArticleUpsertPayload = {
       ...draftPayload,
@@ -477,8 +480,8 @@ const BlogIndexPage: React.FC = () => {
       tags,
       author: { name: authorName, title: authorTitle },
       stats: normalizedStats.length ? normalizedStats : undefined,
-      ...(normalizedKeyPoints !== undefined ? { keyPoints: normalizedKeyPoints } : {}),
-      ...(normalizedChecklist !== undefined ? { checklist: normalizedChecklist } : {}),
+      keyPoints: normalizedKeyPoints.length ? normalizedKeyPoints : undefined,
+      checklist: normalizedChecklist.length ? normalizedChecklist : undefined,
       sections: normalizedSections.length ? normalizedSections : undefined,
       faqs: normalizedFaqs.length ? normalizedFaqs : undefined,
       references: normalizedReferences.length ? normalizedReferences : undefined,
@@ -600,13 +603,24 @@ const BlogIndexPage: React.FC = () => {
                   >
                     Read article
                   </Link>
-                  {post.secondaryCta && (
-                    <Link
-                      to={post.secondaryCta.href}
-                      className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-theme-interactive-primary hover:bg-theme-bg-tertiary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
-                    >
-                      {post.secondaryCta.label}
-                    </Link>
+                  {post.secondaryCta && hasText(post.secondaryCta.href) && (
+                    isExternalUrl(post.secondaryCta.href) ? (
+                      <a
+                        href={post.secondaryCta.href.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-theme-interactive-primary hover:bg-theme-bg-tertiary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
+                      >
+                        {post.secondaryCta.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={post.secondaryCta.href.trim()}
+                        className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-theme-interactive-primary hover:bg-theme-bg-tertiary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary"
+                      >
+                        {post.secondaryCta.label}
+                      </Link>
+                    )
                   )}
                 </CardBody>
               </Card>
