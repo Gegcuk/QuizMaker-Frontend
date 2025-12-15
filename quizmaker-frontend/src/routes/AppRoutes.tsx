@@ -21,6 +21,7 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import EmailVerificationPage from '../pages/EmailVerificationPage';
 import BlogIndexPage from '../pages/BlogIndexPage';
+import BlogArticlePage from '../pages/BlogArticlePage';
 import BlogArticleTemplatePage from '../pages/BlogArticleTemplatePage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
@@ -101,6 +102,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/blog/" element={<BlogIndexPage />} />
         <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />
         <Route path="/blog/retrieval-practice-template/" element={<BlogArticleTemplatePage />} />
+        <Route path="/blog/:slug" element={<BlogArticlePage />} />
+        <Route path="/blog/:slug/" element={<BlogArticlePage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />

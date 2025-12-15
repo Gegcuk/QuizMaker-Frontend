@@ -36,7 +36,7 @@ const statusOptions: Array<{ value: ArticleStatus | 'all'; label: string }> = [
   { value: 'DRAFT', label: 'Drafts' },
 ];
 
-const emptyPayload: ArticleUpsertPayload = {
+const createEmptyPayload = (): ArticleUpsertPayload => ({
   slug: '',
   title: '',
   description: '',
@@ -46,7 +46,7 @@ const emptyPayload: ArticleUpsertPayload = {
   readingTime: '',
   publishedAt: new Date().toISOString(),
   status: 'DRAFT',
-};
+});
 
 const slugify = (value: string) =>
   value
@@ -68,7 +68,8 @@ const BlogIndexPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | 'all'>('PUBLISHED');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [draftPayload, setDraftPayload] = useState<ArticleUpsertPayload>(emptyPayload);
+  const [draftPayload, setDraftPayload] = useState<ArticleUpsertPayload>(() => createEmptyPayload());
+  const [tagsInput, setTagsInput] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [articleIdToDelete, setArticleIdToDelete] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,7 +83,6 @@ const BlogIndexPage: React.FC = () => {
         page: 0,
         size: 50,
         sort: 'publishedAt,desc',
-        contentGroup: 'blog',
       };
       if (isAdmin) {
         return articleService.listAdmin({
@@ -99,7 +99,8 @@ const BlogIndexPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
       setIsModalOpen(false);
-      setDraftPayload(emptyPayload);
+      setDraftPayload(createEmptyPayload());
+      setTagsInput('');
       setEditingId(null);
       setErrors({});
     },
@@ -111,7 +112,8 @@ const BlogIndexPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
       setIsModalOpen(false);
-      setDraftPayload(emptyPayload);
+      setDraftPayload(createEmptyPayload());
+      setTagsInput('');
       setEditingId(null);
       setErrors({});
     },
@@ -267,6 +269,7 @@ const BlogIndexPage: React.FC = () => {
       faqs: article.faqs,
       references: article.references,
     });
+    setTagsInput((article.tags || []).join(', '));
     setEditingId(article.id);
     setErrors({});
     setIsModalOpen(true);
@@ -282,7 +285,10 @@ const BlogIndexPage: React.FC = () => {
     const readingTime = (draftPayload.readingTime || '').trim();
     const authorName = (draftPayload.author?.name || '').trim();
     const authorTitle = (draftPayload.author?.title || '').trim();
-    const tags = (draftPayload.tags || []).map((t) => t.trim()).filter(Boolean);
+    const tags = (tagsInput || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     if (!title) nextErrors.title = 'Title is required';
     if (!slug) {
@@ -467,7 +473,8 @@ const BlogIndexPage: React.FC = () => {
             <Button
               variant="primary"
               onClick={() => {
-                setDraftPayload(emptyPayload);
+                setDraftPayload(createEmptyPayload());
+                setTagsInput('');
                 setEditingId(null);
                 setErrors({});
                 setIsModalOpen(true);
@@ -537,6 +544,7 @@ const BlogIndexPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
+          setTagsInput('');
           setEditingId(null);
           setErrors({});
         }}
@@ -624,12 +632,17 @@ const BlogIndexPage: React.FC = () => {
                   Tags (comma-separated) <span className="text-theme-interactive-danger">*</span>
                 </>
               }
-              value={draftPayload.tags.join(', ')}
+              value={tagsInput}
               onChange={(e) => {
-                setDraftPayload({
-                  ...draftPayload,
-                  tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean),
-                });
+                const nextValue = e.target.value;
+                setTagsInput(nextValue);
+                setDraftPayload((prev) => ({
+                  ...prev,
+                  tags: nextValue
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                }));
                 clearError('tags');
               }}
               error={errors.tags}
@@ -1030,6 +1043,7 @@ const BlogIndexPage: React.FC = () => {
               type="button"
               onClick={() => {
                 setIsModalOpen(false);
+                setTagsInput('');
                 setEditingId(null);
                 setErrors({});
               }}

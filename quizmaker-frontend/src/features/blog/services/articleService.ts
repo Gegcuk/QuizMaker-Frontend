@@ -23,6 +23,7 @@ export interface ArticleAdminListParams extends ArticleListParams {
 // Public article endpoints (no auth required)
 const PUBLIC_LIST_PATH = '/v1/articles/public';
 const PUBLIC_SLUG_PATH = (slug: string) => `/v1/articles/public/slug/${slug}`;
+const ADMIN_SLUG_PATH = (slug: string) => `/v1/articles/slug/${slug}`;
 const TAGS_PATH = '/v1/articles/tags';
 const SITEMAP_PATH = '/v1/articles/sitemap';
 
@@ -88,6 +89,12 @@ export const articleService = {
 
   async getBySlug(slug: string): Promise<ArticleDto> {
     const { data } = await api.get<ArticleDto>(PUBLIC_SLUG_PATH(slug));
+    return data;
+  },
+
+  // Admin (auth required) — supports drafts via includeDrafts=true
+  async getAdminBySlug(slug: string, includeDrafts: boolean = true): Promise<ArticleDto> {
+    const { data } = await api.get<ArticleDto>(ADMIN_SLUG_PATH(slug), { params: { includeDrafts } });
     return data;
   },
 
