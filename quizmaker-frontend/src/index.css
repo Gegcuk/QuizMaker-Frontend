@@ -80,6 +80,11 @@
   font-weight: 600;
 }
 
+/* Offset in-page anchors for sticky navbar (h-16). */
+.anchor-target {
+  scroll-margin-top: 5rem;
+}
+
 /* Theme CSS Custom Properties Fallbacks */
 :root {
   /* Light theme defaults */

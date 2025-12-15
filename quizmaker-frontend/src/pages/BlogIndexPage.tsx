@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -58,6 +58,13 @@ const slugify = (value: string) =>
 const hasText = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
+const splitLines = (value: string): string[] => value.split(/\r\n|\n|\r/);
+
+const normalizeLines = (lines: string[]): string[] =>
+  lines
+    .map((line) => line.trim())
+    .filter(Boolean);
+
 const BlogIndexPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = useMemo(
@@ -73,6 +80,9 @@ const BlogIndexPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [articleIdToDelete, setArticleIdToDelete] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [editLoadError, setEditLoadError] = useState<unknown>(null);
+  const editRequestIdRef = useRef(0);
 
   const queryClient = useQueryClient();
 
@@ -242,15 +252,29 @@ const BlogIndexPage: React.FC = () => {
     }));
   };
 
-  const handleEdit = (article: ArticleDto) => {
+  const closeEditor = () => {
+    editRequestIdRef.current += 1;
+    setIsEditLoading(false);
+    setEditLoadError(null);
+    setIsModalOpen(false);
+    setTagsInput('');
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const handleEdit = async (article: ArticleDto) => {
     if (!article.id) {
       return;
     }
+
+    const requestId = (editRequestIdRef.current += 1);
+
     setDraftPayload({
       slug: article.slug,
       title: article.title,
       description: article.description,
       excerpt: article.excerpt,
+      heroKicker: article.heroKicker,
       tags: article.tags,
       author: article.author,
       readingTime: article.readingTime,
@@ -272,7 +296,48 @@ const BlogIndexPage: React.FC = () => {
     setTagsInput((article.tags || []).join(', '));
     setEditingId(article.id);
     setErrors({});
+    setEditLoadError(null);
+    setIsEditLoading(true);
     setIsModalOpen(true);
+
+    try {
+      const fullArticle = await articleService.getAdminBySlug(article.slug, true);
+      if (editRequestIdRef.current !== requestId) return;
+
+      setDraftPayload({
+        slug: fullArticle.slug,
+        title: fullArticle.title,
+        description: fullArticle.description,
+        excerpt: fullArticle.excerpt,
+        heroKicker: fullArticle.heroKicker,
+        tags: fullArticle.tags,
+        author: fullArticle.author,
+        readingTime: fullArticle.readingTime,
+        publishedAt: fullArticle.publishedAt,
+        status: fullArticle.status,
+        canonicalUrl: fullArticle.canonicalUrl,
+        ogImage: fullArticle.ogImage,
+        noindex: fullArticle.noindex,
+        contentGroup: fullArticle.contentGroup,
+        primaryCta: fullArticle.primaryCta,
+        secondaryCta: fullArticle.secondaryCta,
+        stats: fullArticle.stats,
+        keyPoints: fullArticle.keyPoints,
+        checklist: fullArticle.checklist,
+        sections: fullArticle.sections,
+        faqs: fullArticle.faqs,
+        references: fullArticle.references,
+      });
+      setTagsInput((fullArticle.tags || []).join(', '));
+      setEditingId(fullArticle.id ?? article.id);
+    } catch (err) {
+      if (editRequestIdRef.current !== requestId) return;
+      setEditLoadError(err);
+    } finally {
+      if (editRequestIdRef.current === requestId) {
+        setIsEditLoading(false);
+      }
+    }
   };
 
   const handleSave = () => {
@@ -397,6 +462,11 @@ const BlogIndexPage: React.FC = () => {
       return;
     }
 
+    const normalizedKeyPoints =
+      draftPayload.keyPoints !== undefined ? normalizeLines(draftPayload.keyPoints) : undefined;
+    const normalizedChecklist =
+      draftPayload.checklist !== undefined ? normalizeLines(draftPayload.checklist) : undefined;
+
     const payload: ArticleUpsertPayload = {
       ...draftPayload,
       slug,
@@ -407,6 +477,8 @@ const BlogIndexPage: React.FC = () => {
       tags,
       author: { name: authorName, title: authorTitle },
       stats: normalizedStats.length ? normalizedStats : undefined,
+      ...(normalizedKeyPoints !== undefined ? { keyPoints: normalizedKeyPoints } : {}),
+      ...(normalizedChecklist !== undefined ? { checklist: normalizedChecklist } : {}),
       sections: normalizedSections.length ? normalizedSections : undefined,
       faqs: normalizedFaqs.length ? normalizedFaqs : undefined,
       references: normalizedReferences.length ? normalizedReferences : undefined,
@@ -473,6 +545,9 @@ const BlogIndexPage: React.FC = () => {
             <Button
               variant="primary"
               onClick={() => {
+                editRequestIdRef.current += 1;
+                setIsEditLoading(false);
+                setEditLoadError(null);
                 setDraftPayload(createEmptyPayload());
                 setTagsInput('');
                 setEditingId(null);
@@ -542,12 +617,7 @@ const BlogIndexPage: React.FC = () => {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setTagsInput('');
-          setEditingId(null);
-          setErrors({});
-        }}
+        onClose={closeEditor}
         title={editingId ? 'Edit article' : 'Create article'}
         size="lg"
       >
@@ -559,15 +629,20 @@ const BlogIndexPage: React.FC = () => {
             handleSave();
           }}
         >
-          {(createMutation.error || updateMutation.error) && (
-            <Alert
-              type="error"
-              error={createMutation.error || updateMutation.error}
-              className="text-sm"
-            />
+          {editLoadError != null && (
+            <Alert type="error" error={editLoadError} className="text-sm" />
           )}
-          <p className="text-sm text-theme-text-secondary">Fields marked * are required. Others are optional.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(createMutation.error || updateMutation.error) && (
+            <Alert type="error" error={createMutation.error || updateMutation.error} className="text-sm" />
+          )}
+          {isEditLoading && (
+            <div className="flex justify-center py-6">
+              <Spinner />
+            </div>
+          )}
+          <fieldset disabled={isEditLoading} className="space-y-4">
+            <p className="text-sm text-theme-text-secondary">Fields marked * are required. Others are optional.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label={
                 <>
@@ -801,13 +876,13 @@ const BlogIndexPage: React.FC = () => {
           <Textarea
             label="Key points (one per line)"
             value={(draftPayload.keyPoints || []).join('\n')}
-            onChange={(e) => setDraftPayload({ ...draftPayload, keyPoints: e.target.value.split('\n').map(p => p.trim()).filter(Boolean) })}
+            onChange={(e) => setDraftPayload({ ...draftPayload, keyPoints: splitLines(e.target.value) })}
             rows={3}
           />
           <Textarea
             label="Checklist (one per line)"
             value={(draftPayload.checklist || []).join('\n')}
-            onChange={(e) => setDraftPayload({ ...draftPayload, checklist: e.target.value.split('\n').map(p => p.trim()).filter(Boolean) })}
+            onChange={(e) => setDraftPayload({ ...draftPayload, checklist: splitLines(e.target.value) })}
             rows={3}
           />
 
@@ -1035,29 +1110,26 @@ const BlogIndexPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
+            </div>
 
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => {
-                setIsModalOpen(false);
-                setTagsInput('');
-                setEditingId(null);
-                setErrors({});
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              loading={createMutation.isPending || updateMutation.isPending}
-            >
-              {editingId ? 'Save changes' : 'Create'}
-            </Button>
-          </div>
+            </fieldset>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={closeEditor}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                loading={isEditLoading || createMutation.isPending || updateMutation.isPending}
+                disabled={isEditLoading}
+              >
+                {editingId ? 'Save changes' : 'Create'}
+              </Button>
+            </div>
         </form>
       </Modal>
 
