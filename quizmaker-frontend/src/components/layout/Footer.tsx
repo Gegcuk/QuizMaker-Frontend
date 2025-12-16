@@ -156,7 +156,7 @@ const Footer: React.FC = () => {
                   rel="noreferrer"
                   className="font-medium text-theme-interactive-primary hover:text-theme-interactive-info transition-colors duration-200"
                 >
-                  Aleksey Lazunin
+                  Aleksei Lazunin
                 </a>
               </p>
             </div>
