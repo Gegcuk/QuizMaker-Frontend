@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Textarea } from '@/components';
 import { CategoryDto } from '../features/category';
 import {
@@ -26,7 +26,7 @@ const CategoryManagementPage: React.FC = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,12 +37,11 @@ const CategoryManagementPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-     
-  }, []);
+  }, [fetchCategories]);
 
   const openCreate = () => {
     setEditing(null);
