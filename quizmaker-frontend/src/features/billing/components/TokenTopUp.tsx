@@ -15,12 +15,12 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
   const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
-  const loadConfig = useCallback(async () => {
+  const loadConfig = useCallback(async (options: { forceRefresh?: boolean } = {}) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const configResponse = await billingService.getConfig();
+      const configResponse = await billingService.getConfig({ forceRefresh: options.forceRefresh });
       setConfig(configResponse);
 
       if (configResponse.prices.length > 0) {
@@ -75,26 +75,60 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
   }, [config, selectedPackId]);
 
   const handleCheckout = useCallback(async () => {
-    if (!selectedPack) return;
+    if (!selectedPackId) return;
 
     setIsProcessingCheckout(true);
     setError(null);
 
+    let refreshSucceeded = false;
+
     try {
+      const refreshedConfig = await billingService.getConfig({ forceRefresh: true });
+      refreshSucceeded = true;
+      setConfig(refreshedConfig);
+
+      if (refreshedConfig.prices.length > 0) {
+        setSelectedPackId(prevSelected => {
+          if (prevSelected && refreshedConfig.prices.some(pack => pack.id === prevSelected)) {
+            return prevSelected;
+          }
+          return refreshedConfig.prices[0].id;
+        });
+      } else {
+        setSelectedPackId(null);
+      }
+
+      const packToCheckout = refreshedConfig.prices.find(pack => pack.id === selectedPackId) ?? null;
+      if (!packToCheckout) {
+        setError('The selected token pack is no longer available. Please select another one.');
+        return;
+      }
+
       const response = await billingService.createCheckoutSession({
-        packId: selectedPack.id,
-        priceId: selectedPack.stripePriceId,
+        packId: packToCheckout.id,
+        priceId: packToCheckout.stripePriceId,
       });
+
       window.location.assign(response.url);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;
 
+      if (!refreshSucceeded) {
+        if (status === 404) {
+          setError('Token purchases are not yet available in this environment.');
+        } else {
+          const message = axiosError.response?.data?.message || 'Failed to refresh token packs. Please try again later.';
+          setError(message);
+        }
+        return;
+      }
+
       if (status === 403) {
         setError('You do not have permission to purchase tokens.');
       } else if (status === 404) {
         setError('The selected token pack is no longer available. Please try again.');
-        void loadConfig();
+        void loadConfig({ forceRefresh: true });
       } else if (status === 429) {
         setError('You are making requests too quickly. Please wait a moment and try again.');
       } else {
@@ -104,10 +138,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
     } finally {
       setIsProcessingCheckout(false);
     }
-  }, [loadConfig, selectedPack]);
+  }, [loadConfig, selectedPackId]);
 
   const handleRetry = useCallback(() => {
-    void loadConfig();
+    void loadConfig({ forceRefresh: true });
   }, [loadConfig]);
 
   return (

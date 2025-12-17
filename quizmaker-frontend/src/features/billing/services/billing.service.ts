@@ -16,8 +16,17 @@ import type {
   UpdateSubscriptionRequest,
   CancelSubscriptionRequest,
 } from '@/types';
+
+const DEFAULT_BILLING_CONFIG_MAX_AGE_MS = 60 * 60 * 1000;
+
+type BillingConfigCacheEntry = {
+  data: BillingConfigResponse;
+  fetchedAt: number;
+};
 export class BillingService {
   private axiosInstance: AxiosInstance;
+  private configCache: BillingConfigCacheEntry | null = null;
+  private configRequest: Promise<BillingConfigResponse> | null = null;
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
@@ -27,9 +36,30 @@ export class BillingService {
    * GET /api/v1/billing/config
    * Returns Stripe publishable key and available token packs
    */
-  async getConfig(): Promise<BillingConfigResponse> {
-    const response = await this.axiosInstance.get<BillingConfigResponse>(BILLING_ENDPOINTS.CONFIG);
-    return response.data;
+  async getConfig(options: { forceRefresh?: boolean; maxAgeMs?: number } = {}): Promise<BillingConfigResponse> {
+    const { forceRefresh = false, maxAgeMs = DEFAULT_BILLING_CONFIG_MAX_AGE_MS } = options;
+    const now = Date.now();
+
+    if (!forceRefresh && this.configCache && now - this.configCache.fetchedAt < maxAgeMs) {
+      return this.configCache.data;
+    }
+
+    if (this.configRequest) {
+      return this.configRequest;
+    }
+
+    const request = this.axiosInstance
+      .get<BillingConfigResponse>(BILLING_ENDPOINTS.CONFIG)
+      .then(response => {
+        this.configCache = { data: response.data, fetchedAt: Date.now() };
+        return response.data;
+      })
+      .finally(() => {
+        this.configRequest = null;
+      });
+
+    this.configRequest = request;
+    return request;
   }
 
   /**
