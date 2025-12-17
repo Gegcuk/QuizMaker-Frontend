@@ -81,26 +81,23 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
     setError(null);
 
     let refreshSucceeded = false;
+    const requestedPackId = selectedPackId;
 
     try {
       const refreshedConfig = await billingService.getConfig({ forceRefresh: true });
       refreshSucceeded = true;
       setConfig(refreshedConfig);
 
-      if (refreshedConfig.prices.length > 0) {
-        setSelectedPackId(prevSelected => {
-          if (prevSelected && refreshedConfig.prices.some(pack => pack.id === prevSelected)) {
-            return prevSelected;
-          }
-          return refreshedConfig.prices[0].id;
-        });
-      } else {
-        setSelectedPackId(null);
-      }
-
-      const packToCheckout = refreshedConfig.prices.find(pack => pack.id === selectedPackId) ?? null;
+      const packToCheckout = refreshedConfig.prices.find(pack => pack.id === requestedPackId) ?? null;
       if (!packToCheckout) {
-        setError('The selected token pack is no longer available. Please select another one.');
+        const fallbackPackId = refreshedConfig.prices[0]?.id ?? null;
+        setSelectedPackId(fallbackPackId);
+
+        if (fallbackPackId) {
+          setError('The selected token pack is no longer available. Please select another one.');
+        } else {
+          setError('Token packs are not configured yet. Please check back later.');
+        }
         return;
       }
 

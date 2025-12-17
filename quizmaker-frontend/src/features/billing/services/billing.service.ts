@@ -27,6 +27,8 @@ export class BillingService {
   private axiosInstance: AxiosInstance;
   private configCache: BillingConfigCacheEntry | null = null;
   private configRequest: Promise<BillingConfigResponse> | null = null;
+  private configRequestId = 0;
+  private configRequestMeta: { id: number } | null = null;
 
   constructor(axiosInstance: AxiosInstance) {
     this.axiosInstance = axiosInstance;
@@ -44,18 +46,26 @@ export class BillingService {
       return this.configCache.data;
     }
 
-    if (this.configRequest) {
+    if (this.configRequest && !forceRefresh) {
       return this.configRequest;
     }
+
+    const requestId = ++this.configRequestId;
+    this.configRequestMeta = { id: requestId };
 
     const request = this.axiosInstance
       .get<BillingConfigResponse>(BILLING_ENDPOINTS.CONFIG)
       .then(response => {
-        this.configCache = { data: response.data, fetchedAt: Date.now() };
+        if (this.configRequestMeta?.id === requestId) {
+          this.configCache = { data: response.data, fetchedAt: Date.now() };
+        }
         return response.data;
       })
       .finally(() => {
-        this.configRequest = null;
+        if (this.configRequestMeta?.id === requestId) {
+          this.configRequest = null;
+          this.configRequestMeta = null;
+        }
       });
 
     this.configRequest = request;
