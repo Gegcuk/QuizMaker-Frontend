@@ -171,8 +171,8 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       )}
 
       {isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, index) => (
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
               className="animate-pulse rounded-md border border-theme-border-primary bg-theme-bg-primary/60 p-4 text-theme-text-primary"
@@ -187,7 +187,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
 
       {!isLoading && config && config.prices.length > 0 ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {config.prices.map(pack => {
               const isSelected = pack.id === selectedPackId;
               return (
