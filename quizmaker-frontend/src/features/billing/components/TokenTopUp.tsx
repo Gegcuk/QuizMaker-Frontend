@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
 import type { BillingConfigResponse, TokenPackDto } from '@/types';
@@ -68,11 +68,6 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
       return `${amount.toFixed(2)} ${normalizedCurrency}`;
     }
   }, []);
-
-  const selectedPack = useMemo(() => {
-    if (!config || !selectedPackId) return null;
-    return config.prices.find(pack => pack.id === selectedPackId) ?? null;
-  }, [config, selectedPackId]);
 
   const handleCheckout = useCallback(async () => {
     if (!selectedPackId) return;
@@ -223,7 +218,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
               variant="primary"
               size="md"
               onClick={handleCheckout}
-              disabled={!selectedPack || isProcessingCheckout}
+              disabled={!selectedPackId || isProcessingCheckout}
               loading={isProcessingCheckout}
             >
               {isProcessingCheckout ? 'Redirecting…' : 'Top up tokens'}
