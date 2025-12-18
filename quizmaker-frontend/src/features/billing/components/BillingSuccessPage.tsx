@@ -49,6 +49,8 @@ const BillingSuccessPage: React.FC = () => {
     normalizedStatus === 'FAILED' ||
     normalizedStatus === 'REFUNDED' ||
     normalizedStatus === 'PARTIALLY_REFUNDED';
+  const creditedTokens = checkoutStatus?.creditedTokens;
+  const hasCreditedTokens = creditedTokens !== null && creditedTokens !== undefined;
 
   const loadBalance = useCallback(async () => {
     try {
@@ -230,7 +232,7 @@ const BillingSuccessPage: React.FC = () => {
                       <p className="font-semibold text-theme-text-primary mb-1">Credited</p>
                       <p>
                         {checkoutStatus?.credited
-                          ? `Yes${checkoutStatus?.creditedTokens ? ` (${checkoutStatus.creditedTokens.toLocaleString()} tokens)` : ''}`
+                          ? `Yes${hasCreditedTokens ? ` (${creditedTokens!.toLocaleString()} tokens)` : ''}`
                           : 'Not yet'}
                       </p>
                     </div>
