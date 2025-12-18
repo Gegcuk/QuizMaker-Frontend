@@ -22,14 +22,15 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
 
     try {
       const packResponse = await billingService.getPacks();
-      setPacks(packResponse);
+      const sortedPacks = [...packResponse].sort((a, b) => a.priceCents - b.priceCents);
+      setPacks(sortedPacks);
 
-      if (packResponse.length > 0) {
+      if (sortedPacks.length > 0) {
         setSelectedPackId(prevSelected => {
-          if (prevSelected && packResponse.some(pack => pack.id === prevSelected)) {
+          if (prevSelected && sortedPacks.some(pack => pack.id === prevSelected)) {
             return prevSelected;
           }
-          return packResponse[0].id;
+          return sortedPacks[0].id;
         });
       } else {
         setSelectedPackId(null);
@@ -84,12 +85,13 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
 
     try {
       const refreshedPacks = await billingService.getPacks();
-      setPacks(refreshedPacks);
+      const sortedPacks = [...refreshedPacks].sort((a, b) => a.priceCents - b.priceCents);
+      setPacks(sortedPacks);
       packsRefreshed = true;
 
-      const packToCheckout = refreshedPacks.find(pack => pack.id === requestedPackId) ?? null;
+      const packToCheckout = sortedPacks.find(pack => pack.id === requestedPackId) ?? null;
       if (!packToCheckout) {
-        const fallbackPackId = refreshedPacks[0]?.id ?? null;
+        const fallbackPackId = sortedPacks[0]?.id ?? null;
         setSelectedPackId(fallbackPackId);
 
         if (fallbackPackId) {
@@ -208,16 +210,20 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
                   aria-pressed={isSelected}
                   aria-label={`Select ${pack.name} pack with ${pack.tokens} tokens for ${formatPrice(pack)}`}
                 >
-                  <p className="text-sm font-semibold text-theme-text-primary">{pack.name}</p>
-                  <p className="mt-1 text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
-                  <p className="mt-2 text-xs uppercase tracking-wide text-theme-interactive-primary">
-                    {pack.tokens.toLocaleString()} tokens
-                  </p>
-                  {pack.description ? (
-                    <p className="mt-2 text-xs text-theme-text-tertiary line-clamp-3">
-                      {pack.description}
-                    </p>
-                  ) : null}
+                  <div className="flex h-full flex-col gap-2">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-theme-text-primary">{pack.name}</p>
+                      <p className="text-2xl font-semibold text-theme-interactive-primary">{formatPrice(pack)}</p>
+                      <p className="text-xs uppercase tracking-wide text-theme-interactive-primary">
+                        {pack.tokens.toLocaleString()} tokens
+                      </p>
+                    </div>
+                    {pack.description ? (
+                      <p className="mt-2 text-xs text-theme-text-tertiary line-clamp-3">
+                        {pack.description}
+                      </p>
+                    ) : null}
+                  </div>
                 </button>
               );
             })}
