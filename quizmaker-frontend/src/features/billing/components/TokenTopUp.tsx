@@ -36,7 +36,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       }
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      const status = axiosError.response?.status;
+      const status = (err as any)?.status ?? axiosError.response?.status;
 
       setPacks([]);
       setSelectedPackId(null);
@@ -44,8 +44,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       if (status === 404) {
         setError('Token purchases are not yet available in this environment.');
       } else {
-        const message = axiosError.response?.data?.message || 'Failed to load token packs.';
-        setError(message);
+        const message =
+          axiosError.response?.data?.message ||
+          (err as Error)?.message ||
+          'Failed to load token packs.';
+        setError(message || 'Failed to load token packs.');
       }
     } finally {
       setIsLoading(false);
@@ -105,13 +108,16 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       window.location.assign(response.url);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      const status = axiosError.response?.status;
+      const status = (err as any)?.status ?? axiosError.response?.status;
 
       if (!packsRefreshed) {
         if (status === 404) {
           setError('Token purchases are not yet available in this environment.');
         } else {
-          const message = axiosError.response?.data?.message || 'Failed to refresh token packs. Please try again later.';
+          const message =
+            axiosError.response?.data?.message ||
+            (err as Error)?.message ||
+            'Failed to refresh token packs. Please try again later.';
           setError(message);
         }
         return;
@@ -125,7 +131,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       } else if (status === 429) {
         setError('You are making requests too quickly. Please wait a moment and try again.');
       } else {
-        const message = axiosError.response?.data?.message || 'Failed to start checkout session. Please try again later.';
+        const message =
+          axiosError.response?.data?.message ||
+          (err as Error)?.message ||
+          'Failed to start checkout session. Please try again later.';
         setError(message);
       }
     } finally {

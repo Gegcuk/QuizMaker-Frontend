@@ -269,29 +269,40 @@ export class BillingService {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
       const message = error.response?.data?.message || error.message;
+      const buildError = (msg: string) => {
+        const err = new Error(msg);
+        if (status) {
+          (err as any).status = status;
+        }
+        return err;
+      };
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          return buildError(`Validation error: ${message}`);
         case 401:
-          return new Error('Authentication failed');
+          return buildError('Authentication failed');
         case 403:
-          return new Error('Insufficient permissions to access this resource');
+          return buildError('Insufficient permissions to access this resource');
         case 404:
-          return new Error('Billing feature is not available');
+          return buildError('Billing feature is not available');
         case 429:
-          return new Error('Too many requests. Please try again later.');
+          return buildError('Too many requests. Please try again later.');
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          return buildError('Server error occurred');
         default:
-          return new Error(message || 'Billing operation failed');
+          return buildError(message || 'Billing operation failed');
       }
     }
 
-    return new Error(error.message || 'Network error occurred');
+    const fallbackError = new Error(error?.message || 'Network error occurred');
+    if (error?.status) {
+      (fallbackError as any).status = error.status;
+    }
+    return fallbackError;
   }
 }
 
