@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
-import type { BillingConfigResponse, PackDto } from '@/types';
+import type { PackDto } from '@/types';
 import { Button, Alert } from '@/components';
 
 interface TokenTopUpProps {
@@ -10,26 +10,26 @@ interface TokenTopUpProps {
 }
 
 const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 }) => {
-  const [config, setConfig] = useState<BillingConfigResponse | null>(null);
+  const [packs, setPacks] = useState<PackDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
-  const loadConfig = useCallback(async (options: { forceRefresh?: boolean } = {}) => {
+  const loadPacks = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const configResponse = await billingService.getConfig({ forceRefresh: options.forceRefresh });
-      setConfig(configResponse);
+      const packResponse = await billingService.getPacks();
+      setPacks(packResponse);
 
-      if (configResponse.prices.length > 0) {
+      if (packResponse.length > 0) {
         setSelectedPackId(prevSelected => {
-          if (prevSelected && configResponse.prices.some(pack => pack.id === prevSelected)) {
+          if (prevSelected && packResponse.some(pack => pack.id === prevSelected)) {
             return prevSelected;
           }
-          return configResponse.prices[0].id;
+          return packResponse[0].id;
         });
       } else {
         setSelectedPackId(null);
@@ -38,7 +38,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       const axiosError = err as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;
 
-      setConfig(null);
+      setPacks([]);
       setSelectedPackId(null);
 
       if (status === 404) {
@@ -53,8 +53,8 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
   }, []);
 
   useEffect(() => {
-    void loadConfig({ forceRefresh: refreshKey > 0 });
-  }, [loadConfig, refreshKey]);
+    void loadPacks();
+  }, [loadPacks, refreshKey]);
 
   const formatPrice = useCallback((pack: PackDto) => {
     const normalizedCurrency = pack.currency?.toUpperCase?.() ?? 'USD';
@@ -76,17 +76,15 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
     setIsProcessingCheckout(true);
     setError(null);
 
-    let refreshSucceeded = false;
     const requestedPackId = selectedPackId;
 
     try {
-      const refreshedConfig = await billingService.getConfig({ forceRefresh: true });
-      refreshSucceeded = true;
-      setConfig(refreshedConfig);
+      const refreshedPacks = await billingService.getPacks();
+      setPacks(refreshedPacks);
 
-      const packToCheckout = refreshedConfig.prices.find(pack => pack.id === requestedPackId) ?? null;
+      const packToCheckout = refreshedPacks.find(pack => pack.id === requestedPackId) ?? null;
       if (!packToCheckout) {
-        const fallbackPackId = refreshedConfig.prices[0]?.id ?? null;
+        const fallbackPackId = refreshedPacks[0]?.id ?? null;
         setSelectedPackId(fallbackPackId);
 
         if (fallbackPackId) {
@@ -107,21 +105,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
       const axiosError = err as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;
 
-      if (!refreshSucceeded) {
-        if (status === 404) {
-          setError('Token purchases are not yet available in this environment.');
-        } else {
-          const message = axiosError.response?.data?.message || 'Failed to refresh token packs. Please try again later.';
-          setError(message);
-        }
-        return;
-      }
-
       if (status === 403) {
         setError('You do not have permission to purchase tokens.');
       } else if (status === 404) {
         setError('The selected token pack is no longer available. Please try again.');
-        void loadConfig({ forceRefresh: true });
+        void loadPacks();
       } else if (status === 429) {
         setError('You are making requests too quickly. Please wait a moment and try again.');
       } else {
@@ -131,11 +119,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
     } finally {
       setIsProcessingCheckout(false);
     }
-  }, [loadConfig, selectedPackId]);
+  }, [loadPacks, selectedPackId]);
 
   const handleRetry = useCallback(() => {
-    void loadConfig({ forceRefresh: true });
-  }, [loadConfig]);
+    void loadPacks();
+  }, [loadPacks]);
 
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
@@ -181,10 +169,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
         </div>
       ) : null}
 
-      {!isLoading && config && config.prices.length > 0 ? (
+      {!isLoading && packs.length > 0 ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {config.prices.map(pack => {
+            {packs.map(pack => {
               const isSelected = pack.id === selectedPackId;
               return (
                 <button
@@ -204,6 +192,11 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
                   <p className="mt-2 text-xs uppercase tracking-wide text-theme-interactive-primary">
                     {pack.tokens.toLocaleString()} tokens
                   </p>
+                  {pack.description ? (
+                    <p className="mt-2 text-xs text-theme-text-tertiary line-clamp-3">
+                      {pack.description}
+                    </p>
+                  ) : null}
                 </button>
               );
             })}
@@ -228,7 +221,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
         </>
       ) : null}
 
-      {!isLoading && config && config.prices.length === 0 && !error ? (
+      {!isLoading && packs.length === 0 && !error ? (
         <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary px-3 py-2 text-sm text-theme-interactive-primary">
           Token packs are not configured yet. Please check back later.
         </div>
