@@ -77,10 +77,12 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
     setError(null);
 
     const requestedPackId = selectedPackId;
+    let packsRefreshed = false;
 
     try {
       const refreshedPacks = await billingService.getPacks();
       setPacks(refreshedPacks);
+      packsRefreshed = true;
 
       const packToCheckout = refreshedPacks.find(pack => pack.id === requestedPackId) ?? null;
       if (!packToCheckout) {
@@ -104,6 +106,16 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;
+
+      if (!packsRefreshed) {
+        if (status === 404) {
+          setError('Token purchases are not yet available in this environment.');
+        } else {
+          const message = axiosError.response?.data?.message || 'Failed to refresh token packs. Please try again later.';
+          setError(message);
+        }
+        return;
+      }
 
       if (status === 403) {
         setError('You do not have permission to purchase tokens.');
