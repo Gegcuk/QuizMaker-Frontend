@@ -72,7 +72,6 @@ const BillingPage: React.FC = () => {
 
     try {
       const packs = await adminService.syncBillingPacks();
-      await billingService.getConfig({ forceRefresh: true });
       setPacksRefreshKey(previous => previous + 1);
       setSyncMessage(`Synced ${packs.length} token ${packs.length === 1 ? 'pack' : 'packs'} from Stripe.`);
     } catch (error) {
