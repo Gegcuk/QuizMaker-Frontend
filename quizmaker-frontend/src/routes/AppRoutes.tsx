@@ -56,6 +56,8 @@ import { ProfilePage, SettingsPage } from '@/features/user';
 
 /* ----------  Billing pages  ---------------------------------------------- */
 import { BillingPage } from '@/features/billing';
+import BillingSuccessPage from '../features/billing/components/BillingSuccessPage';
+import BillingCancelPage from '../features/billing/components/BillingCancelPage';
 
 /* ----------  Attempt pages  ---------------------------------------------- */
 import MyAttemptsPage from '../pages/MyAttemptsPage';
@@ -288,6 +290,22 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <BillingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing/success"
+          element={
+            <ProtectedRoute>
+              <BillingSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing/cancel"
+          element={
+            <ProtectedRoute>
+              <BillingCancelPage />
             </ProtectedRoute>
           }
         />
