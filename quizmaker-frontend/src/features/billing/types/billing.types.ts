@@ -22,23 +22,27 @@ export type TokenTransactionSource =
   | "STRIPE";          // Stripe payment
 
 /**
- * Token pack DTO
+ * Token pack DTO (PackDto in OpenAPI)
  */
-export interface TokenPackDto {
+export interface PackDto {
   id: string;                          // UUID
   name: string;                        // Pack name
+  description?: string | null;         // Optional description
   tokens: number;                      // Token amount
   priceCents: number;                  // Price in cents
   currency: string;                    // Currency code
   stripePriceId: string;               // Stripe Price ID
 }
 
+// Backward compatibility alias
+export type TokenPackDto = PackDto;
+
 /**
  * Billing configuration response
  */
 export interface BillingConfigResponse {
   publishableKey: string;              // Stripe publishable key
-  prices: TokenPackDto[];              // Available token packs
+  prices: PackDto[];                   // Available token packs
 }
 
 /**
@@ -194,3 +198,8 @@ export interface UpdateSubscriptionRequest {
 export interface CancelSubscriptionRequest {
   subscriptionId: string;              // Stripe subscription ID
 }
+
+/**
+ * Stripe pack sync response
+ */
+export type PackSyncResponse = PackDto[];

@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
-import type { BillingConfigResponse, TokenPackDto } from '@/types';
+import type { BillingConfigResponse, PackDto } from '@/types';
 import { Button, Alert } from '@/components';
 
 interface TokenTopUpProps {
   className?: string;
+  refreshKey?: number;
 }
 
-const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
+const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 }) => {
   const [config, setConfig] = useState<BillingConfigResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +53,10 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '' }) => {
   }, []);
 
   useEffect(() => {
-    void loadConfig();
-  }, [loadConfig]);
+    void loadConfig({ forceRefresh: refreshKey > 0 });
+  }, [loadConfig, refreshKey]);
 
-  const formatPrice = useCallback((pack: TokenPackDto) => {
+  const formatPrice = useCallback((pack: PackDto) => {
     const normalizedCurrency = pack.currency?.toUpperCase?.() ?? 'USD';
     const amount = pack.priceCents / 100;
 

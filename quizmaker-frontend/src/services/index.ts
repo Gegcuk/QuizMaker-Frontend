@@ -5,7 +5,7 @@
 export { AuthService, authService } from '../features/auth/services/auth.service';
 
 // Admin services
-export { AdminService } from '../features/admin/services/admin.service';
+export { AdminService, adminService } from '../features/admin/services/admin.service';
 
 // Billing services
 export { billingService } from '../features/billing/services/billing.service';

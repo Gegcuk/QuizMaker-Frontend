@@ -1,5 +1,5 @@
 // Admin feature exports
-export { AdminService } from './services/admin.service';
+export { AdminService, adminService } from './services/admin.service';
 export { ADMIN_ENDPOINTS, SUPER_ADMIN_ENDPOINTS } from './services/admin.endpoints';
 export type {
   RoleDto,

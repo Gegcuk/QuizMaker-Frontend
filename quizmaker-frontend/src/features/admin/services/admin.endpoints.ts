@@ -18,6 +18,7 @@ export const ADMIN_ENDPOINTS = {
   // System management
   SYSTEM_INITIALIZE: '/v1/admin/system/initialize',
   SYSTEM_STATUS: '/v1/admin/system/status',
+  BILLING_PACKS_SYNC: '/v1/admin/billing/packs/sync',
   
   // Policy reconciliation
   POLICY_RECONCILE: '/v1/admin/policy/reconcile',

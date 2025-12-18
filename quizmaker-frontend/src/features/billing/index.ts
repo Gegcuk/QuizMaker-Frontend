@@ -4,6 +4,7 @@ export { BILLING_ENDPOINTS } from './services/billing.endpoints';
 export type {
   TokenTransactionType,
   TokenTransactionSource,
+  PackDto,
   TokenPackDto,
   BillingConfigResponse,
   BalanceDto,
@@ -21,6 +22,7 @@ export type {
   SubscriptionResponse,
   UpdateSubscriptionRequest,
   CancelSubscriptionRequest,
+  PackSyncResponse,
 } from './types/billing.types';
 
 // Billing components

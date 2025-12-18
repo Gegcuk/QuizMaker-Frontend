@@ -9,7 +9,8 @@ import {
   UpdatePermissionRequest,
   ReconciliationResult,
   PolicyDiff,
-  Page
+  Page,
+  PackDto
 } from '@/types';
 
 /**
@@ -158,6 +159,19 @@ export class AdminService {
   async getSystemStatus(): Promise<string> {
     try {
       const response = await this.axiosInstance.get<string>(ADMIN_ENDPOINTS.SYSTEM_STATUS);
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Sync billing packs from Stripe and return active packs
+   * POST /api/v1/admin/billing/packs/sync
+   */
+  async syncBillingPacks(): Promise<PackDto[]> {
+    try {
+      const response = await this.axiosInstance.post<PackDto[]>(ADMIN_ENDPOINTS.BILLING_PACKS_SYNC);
       return response.data;
     } catch (error) {
       throw this.handleAdminError(error);
@@ -364,3 +378,7 @@ export class AdminService {
     return new Error(error.message || 'Network error occurred');
   }
 } 
+
+// Export default instance
+import api from '../../../api/axiosInstance';
+export const adminService = new AdminService(api);

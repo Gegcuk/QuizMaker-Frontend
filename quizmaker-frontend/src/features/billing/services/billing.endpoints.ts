@@ -5,6 +5,7 @@
 export const BILLING_ENDPOINTS = {
   // Configuration
   CONFIG: '/v1/billing/config',
+  PACKS: '/v1/billing/packs',
   
   // Balance and transactions
   BALANCE: '/v1/billing/balance',

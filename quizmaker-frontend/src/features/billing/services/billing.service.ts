@@ -15,6 +15,7 @@ import type {
   SubscriptionResponse,
   UpdateSubscriptionRequest,
   CancelSubscriptionRequest,
+  PackDto,
 } from '@/types';
 
 const DEFAULT_BILLING_CONFIG_MAX_AGE_MS = 60 * 60 * 1000;
@@ -70,6 +71,21 @@ export class BillingService {
 
     this.configRequest = request;
     return request;
+  }
+
+  /**
+   * GET /api/v1/billing/packs
+   * Returns active token packs (optionally filtered by currency)
+   */
+  async getPacks(params?: { currency?: string }): Promise<PackDto[]> {
+    try {
+      const response = await this.axiosInstance.get<PackDto[]>(BILLING_ENDPOINTS.PACKS, {
+        params,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleBillingError(error);
+    }
   }
 
   /**

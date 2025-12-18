@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { PageHeader, Card, CardHeader, CardBody, Button, Spinner } from '@/components';
-import { billingService } from '@/services';
+import { PageHeader, Card, CardBody, Button, Spinner, Alert } from '@/components';
+import { adminService, billingService } from '@/services';
 import type { BalanceDto } from '@/types';
 import type { AxiosError } from 'axios';
 import TokenTopUp from './TokenTopUp';
@@ -16,12 +16,19 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { Seo } from '@/features/seo';
+import { useAuth } from '@/features/auth';
 
 const BillingPage: React.FC = () => {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.roles?.includes('ROLE_SUPER_ADMIN');
   const [balance, setBalance] = useState<BalanceDto | null>(null);
   const [isBalanceLoading, setIsBalanceLoading] = useState(true);
   const [balanceError, setBalanceError] = useState<string | null>(null);
   const [billingDisabled, setBillingDisabled] = useState(false);
+  const [isSyncingPacks, setIsSyncingPacks] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [packsRefreshKey, setPacksRefreshKey] = useState(0);
 
   const fetchBalance = useCallback(async () => {
     setIsBalanceLoading(true);
@@ -57,6 +64,24 @@ const BillingPage: React.FC = () => {
   const handleRefreshBalance = () => {
     void fetchBalance();
   };
+
+  const handleSyncPacks = useCallback(async () => {
+    setIsSyncingPacks(true);
+    setSyncError(null);
+    setSyncMessage(null);
+
+    try {
+      const packs = await adminService.syncBillingPacks();
+      await billingService.getConfig({ forceRefresh: true });
+      setPacksRefreshKey(previous => previous + 1);
+      setSyncMessage(`Synced ${packs.length} token ${packs.length === 1 ? 'pack' : 'packs'} from Stripe.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to sync token packs.';
+      setSyncError(message);
+    } finally {
+      setIsSyncingPacks(false);
+    }
+  }, []);
 
   // Calculate total tokens
   const totalTokens = balance ? balance.availableTokens + balance.reservedTokens : 0;
@@ -208,7 +233,43 @@ const BillingPage: React.FC = () => {
           {!billingDisabled && !balanceError && (
             <div>
               <h2 className="text-lg font-semibold text-theme-text-primary mb-4">Purchase Tokens</h2>
-              <TokenTopUp />
+              {isSuperAdmin && (
+                <div className="mb-3 flex flex-col gap-2 rounded-lg border border-theme-border-primary bg-theme-bg-primary/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-xs text-theme-text-tertiary">
+                    Superadmin: sync token packs from Stripe when prices or products change.
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isSyncingPacks && <Spinner size="sm" />}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void handleSyncPacks()}
+                      disabled={isSyncingPacks}
+                    >
+                      {isSyncingPacks ? 'Syncing…' : 'Sync Stripe packs'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {syncError && (
+                <div className="mb-3">
+                  <Alert type="error" className="text-sm">
+                    {syncError}
+                  </Alert>
+                </div>
+              )}
+
+              {syncMessage && (
+                <div className="mb-3">
+                  <Alert type="success" className="text-sm">
+                    {syncMessage}
+                  </Alert>
+                </div>
+              )}
+
+              <TokenTopUp refreshKey={packsRefreshKey} />
             </div>
           )}
 
