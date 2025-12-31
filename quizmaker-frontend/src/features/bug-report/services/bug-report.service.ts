@@ -47,7 +47,7 @@ export class BugReportService {
         params: {
           page: params.page ?? 0,
           size: params.size ?? 20,
-          sort: params.sort ?? 'createdAt,DESC',
+          sort: params.sort ?? ['createdAt,DESC'],
           ...(params.status ? { status: params.status } : {}),
           ...(params.severity ? { severity: params.severity } : {}),
         },

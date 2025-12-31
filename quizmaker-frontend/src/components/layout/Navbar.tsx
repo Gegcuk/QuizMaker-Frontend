@@ -171,9 +171,9 @@ const Navbar: React.FC = () => {
               onClick={() => setIsBugModalOpen(true)}
               variant="outline"
               size="sm"
-              className="hidden md:inline-flex bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-amber-400/40 border-transparent hover:shadow-amber-500/60 hover:-translate-y-0.5 transition-transform"
+              className="hidden md:inline-flex border-theme-border-secondary text-theme-text-secondary hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 dark:hover:border-rose-700 transition-colors"
               leftIcon={
-                <span aria-hidden className="inline-block animate-pulse">
+                <span aria-hidden className="inline-block">
                   🐞
                 </span>
               }
@@ -242,7 +242,13 @@ const Navbar: React.FC = () => {
                   setIsBugModalOpen(true);
                   setIsOpen(false);
                 }}
-                className="w-full bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-amber-400/40 border-transparent"
+                variant="outline"
+                className="w-full border-theme-border-secondary text-theme-text-secondary hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 dark:hover:border-rose-700"
+                leftIcon={
+                  <span aria-hidden className="inline-block">
+                    🐞
+                  </span>
+                }
               >
                 Found a bug?
               </Button>
