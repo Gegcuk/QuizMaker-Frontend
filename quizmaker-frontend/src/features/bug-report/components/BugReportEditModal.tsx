@@ -65,7 +65,7 @@ const FormTextarea: React.FC<{
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       originalOnChange(syntheticEvent);
     },
-    onBlur: skipBlurValidation
+    onBlur: skipBlurValidation || !required
       ? undefined
       : (e: React.FocusEvent<HTMLTextAreaElement>) => {
           // Create a synthetic event that matches HTMLInputElement for the form handler
@@ -79,6 +79,7 @@ const FormTextarea: React.FC<{
             currentTarget: e.currentTarget as unknown as HTMLInputElement,
           } as unknown as React.FocusEvent<HTMLInputElement>;
           // Pass synthetic event to form's onBlur for consistency with React's event system
+          // Only validate on blur if field is required (prevents false "required" errors on optional fields)
           originalOnBlur(syntheticEvent);
         },
   };

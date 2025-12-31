@@ -70,8 +70,9 @@ const BugReportManagementPage: React.FC = () => {
       const params: BugReportListParams = {
         page,
         size: 20,
-        ...(statusFilters.length === 1 ? { status: statusFilters[0] } : {}),
-        ...(severityFilters.length === 1 ? { severity: severityFilters[0] } : {}),
+        // API only supports single filter values, so use the first selected filter if any
+        ...(statusFilters.length > 0 ? { status: statusFilters[0] } : {}),
+        ...(severityFilters.length > 0 ? { severity: severityFilters[0] } : {}),
       };
 
       const response = await bugReportService.listBugReports(params);
@@ -123,9 +124,8 @@ const BugReportManagementPage: React.FC = () => {
 
   const handleStatusToggle = (status: BugReportStatus) => {
     setStatusFilters(prev => {
-      const newFilters = prev.includes(status)
-        ? prev.filter(s => s !== status)
-        : [...prev, status];
+      // API only supports single status filter, so toggle selection (select/deselect)
+      const newFilters = prev.includes(status) ? [] : [status];
       setPage(0);
       return newFilters;
     });
@@ -133,9 +133,8 @@ const BugReportManagementPage: React.FC = () => {
 
   const handleSeverityToggle = (severity: BugSeverity) => {
     setSeverityFilters(prev => {
-      const newFilters = prev.includes(severity)
-        ? prev.filter(s => s !== severity)
-        : [...prev, severity];
+      // API only supports single severity filter, so toggle selection (select/deselect)
+      const newFilters = prev.includes(severity) ? [] : [severity];
       setPage(0);
       return newFilters;
     });
