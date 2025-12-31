@@ -49,8 +49,28 @@ const FormTextarea: React.FC<{
   const { form } = useFormContext();
   const { register, formState: { errors } } = form;
   const registered = register(name);
-  const { onBlur, ...fieldBase } = registered;
-  const fieldProps = skipBlurValidation ? fieldBase : required ? registered : fieldBase;
+  const { onChange: originalOnChange, onBlur: originalOnBlur, ...restRegistered } = registered;
+  const fieldProps = {
+    ...restRegistered,
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      // Create a synthetic event that matches HTMLInputElement for the form handler
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          type: 'text',
+          value: e.target.value,
+        } as unknown as HTMLInputElement,
+        currentTarget: e.currentTarget as unknown as HTMLInputElement,
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      originalOnChange(syntheticEvent);
+    },
+    onBlur: skipBlurValidation
+      ? undefined
+      : (e: React.FocusEvent<HTMLTextAreaElement>) => {
+          originalOnBlur();
+        },
+  };
   const fieldError = errors[name as string]?.message;
 
   return (

@@ -107,13 +107,15 @@ const BugReportManagementPage: React.FC = () => {
     loadBugReports();
   };
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value as BugReportStatus | 'ALL');
+  const handleStatusFilterChange = (value: string | string[]) => {
+    const next = Array.isArray(value) ? value[0] : value;
+    setStatusFilter(next as BugReportStatus | 'ALL');
     setPage(0);
   };
 
-  const handleSeverityFilterChange = (value: string) => {
-    setSeverityFilter(value as BugSeverity | 'ALL');
+  const handleSeverityFilterChange = (value: string | string[]) => {
+    const next = Array.isArray(value) ? value[0] : value;
+    setSeverityFilter(next as BugSeverity | 'ALL');
     setPage(0);
   };
 
@@ -133,12 +135,12 @@ const BugReportManagementPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader
           title="Bug Reports Management"
-          description="Review and manage bug reports submitted by users"
+          subtitle="Review and manage bug reports submitted by users"
           actions={[]}
         />
 
         {error && (
-          <Alert variant="error" className="mt-4" onClose={() => setError(null)}>
+          <Alert type="error" className="mt-4" onDismiss={() => setError(null)}>
             {error}
           </Alert>
         )}
