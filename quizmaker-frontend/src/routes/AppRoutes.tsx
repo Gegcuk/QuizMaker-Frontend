@@ -43,6 +43,7 @@ import QuizFormPage from '../pages/QuizFormPage';
 import { TagManagementPage } from '@/features/tag';
 import CategoryManagementPage from '../pages/CategoryManagementPage';
 import QuestionManagementPage from '../pages/QuestionManagementPage';
+import { BugReportManagementPage } from '@/features/bug-report';
 import QuizQuestionsPage from '../pages/QuizQuestionPage';
 import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
 
@@ -209,6 +210,14 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <QuestionManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bug-reports"
+          element={
+            <ProtectedRoute requiredRoles={['ROLE_SUPER_ADMIN']}>
+              <BugReportManagementPage />
             </ProtectedRoute>
           }
         />
