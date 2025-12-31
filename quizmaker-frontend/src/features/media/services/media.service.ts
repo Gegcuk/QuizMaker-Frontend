@@ -98,13 +98,9 @@ export class MediaService {
     if (data && typeof data === 'object') {
       const candidate = data as Record<string, any>;
       const items =
-        Array.isArray(candidate.items) && candidate.items.length
-          ? candidate.items
-          : Array.isArray(candidate.content) && candidate.content.length
-            ? candidate.content
-            : (data as MediaAssetResponse | undefined)
-              ? [data as MediaAssetResponse]
-              : [];
+        (Array.isArray(candidate.items) ? candidate.items : undefined) ??
+        (Array.isArray(candidate.content) ? candidate.content : undefined) ??
+        (this.isMediaAssetResponse(candidate) ? [candidate as MediaAssetResponse] : []);
 
       const total =
         typeof candidate.total === 'number'
@@ -131,6 +127,18 @@ export class MediaService {
     }
 
     return { items: [] };
+  }
+
+  private isMediaAssetResponse(value: unknown): value is MediaAssetResponse {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+    const candidate = value as Record<string, unknown>;
+    return (
+      typeof candidate.assetId === 'string' &&
+      typeof candidate.type === 'string' &&
+      typeof candidate.status === 'string'
+    );
   }
 
   /**
