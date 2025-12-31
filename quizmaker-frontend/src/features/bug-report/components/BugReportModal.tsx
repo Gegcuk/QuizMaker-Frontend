@@ -35,11 +35,13 @@ const FormTextarea: React.FC<{
   required?: boolean;
   rows?: number;
   helperText?: string;
-}> = ({ name, label, placeholder, required, rows = 4, helperText }) => {
+  skipBlurValidation?: boolean;
+}> = ({ name, label, placeholder, required, rows = 4, helperText, skipBlurValidation = false }) => {
   const { form } = useFormContext();
   const { register, formState: { errors } } = form;
-  const { onBlur, ...fieldBase } = register(name);
-  const fieldProps = name === 'message' ? fieldBase : { ...fieldBase, onBlur };
+  const registered = register(name);
+  const { onBlur, ...fieldBase } = registered;
+  const fieldProps = skipBlurValidation ? fieldBase : required ? registered : fieldBase;
   const fieldError = errors[name as string]?.message;
 
   return (
@@ -178,6 +180,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ isOpen, onClose }) => {
             placeholder="Example: Quiz page crashed when I clicked save after adding an image."
             required
             helperText="Required"
+            skipBlurValidation
           />
 
           <div className="grid sm:grid-cols-2 gap-3">

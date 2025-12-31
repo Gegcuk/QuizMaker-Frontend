@@ -168,9 +168,6 @@ const BillingPage: React.FC = () => {
                         <p className="text-3xl font-bold text-theme-interactive-primary">
                           {balance.availableTokens.toLocaleString()}
                         </p>
-                        <p className="text-xs text-theme-text-tertiary mt-1">
-                          Ready to use
-                        </p>
                       </div>
                       <div className="w-10 h-10 bg-theme-bg-success rounded-lg flex items-center justify-center">
                         <CurrencyDollarIcon className="w-6 h-6 text-theme-interactive-success" />
@@ -189,9 +186,6 @@ const BillingPage: React.FC = () => {
                         </p>
                         <p className="text-3xl font-bold text-theme-text-primary">
                           {balance.reservedTokens.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-theme-text-tertiary mt-1">
-                          Pending operations
                         </p>
                       </div>
                       <div className="w-10 h-10 bg-theme-bg-warning rounded-lg flex items-center justify-center">
@@ -212,9 +206,7 @@ const BillingPage: React.FC = () => {
                         <p className="text-3xl font-bold text-theme-text-primary">
                           {totalTokens.toLocaleString()}
                         </p>
-                        <p className="text-xs text-theme-text-tertiary mt-1">
-                          {balance.updatedAt ? `Updated ${new Date(balance.updatedAt).toLocaleDateString()}` : 'No updates yet'}
-                        </p>
+
                       </div>
                       <div className="w-10 h-10 bg-theme-bg-info rounded-lg flex items-center justify-center">
                         <svg className="w-6 h-6 text-theme-interactive-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
