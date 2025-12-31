@@ -23,9 +23,10 @@ GET https://quizzence.com/v3/api-docs/questions  # ~18KB
 GET https://quizzence.com/v3/api-docs/auth       # ~24KB
 GET https://quizzence.com/v3/api-docs/ai         # ~4KB
 GET https://quizzence.com/v3/api-docs/articles   # Articles (public + admin)
+GET https://quizzence.com/v3/api-docs/media      # Media uploads/library
 ```
 
-Available groups: `auth`, `quizzes`, `questions`, `attempts`, `documents`, `billing`, `articles`, `ai`, `admin`
+Available groups: `auth`, `quizzes`, `questions`, `attempts`, `documents`, `billing`, `articles`, `seo`, `ai`, `bug-reports`, `admin`, `media`
 
 ### Step 3: Get Question Type Schemas (If Creating Questions)
 

@@ -13,6 +13,30 @@ export * from '../features/auth/types/auth.types';
 export * from '../features/category/types/category.types';
 export * from '../features/admin/types/admin.types';
 export * from '../features/billing/types/billing.types';
+export type {
+  BugReportDto,
+  BugReportListParams,
+  BugReportPage,
+  BugReportStatus,
+  BugSeverity,
+  CreateBugReportRequest,
+  UpdateBugReportRequest,
+  BugReportSubmissionResponse,
+  PageableObject,
+  SortObject,
+} from '../features/bug-report/types/bug-report.types';
+export type {
+  MediaAssetListResponse,
+  MediaAssetResponse,
+  MediaAssetStatus,
+  MediaAssetType,
+  MediaSearchParams,
+  MediaSearchResponse,
+  MediaUploadCompleteRequest,
+  MediaUploadRequest,
+  MediaUploadResponse,
+  UploadTargetDto,
+} from '../features/media/types/media.types';
 
 // Question types (explicit exports to avoid conflicts)
 // Note: QuestionType and Difficulty are now in common.types and exported from there
