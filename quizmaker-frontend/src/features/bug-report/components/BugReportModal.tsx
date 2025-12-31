@@ -96,7 +96,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ isOpen, onClose }) => {
     stepsToReproduce: '',
     clientVersion: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     severity: 'UNSPECIFIED' as BugSeverity,
-  }), [user?.username, user?.email]);
+  }), [user?.username, user?.email, isOpen]);
 
   const formKey = useMemo(() => `${user?.id || 'guest'}-${isOpen ? 'open' : 'closed'}`, [user?.id, isOpen]);
 
@@ -147,7 +147,6 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ isOpen, onClose }) => {
         message,
         type: 'error',
       });
-      throw error;
     } finally {
       setSubmitting(false);
     }
