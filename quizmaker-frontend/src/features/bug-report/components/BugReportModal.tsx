@@ -58,7 +58,8 @@ const FormTextarea: React.FC<{
     },
     onBlur: skipBlurValidation
       ? undefined
-      : (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      : (_e: React.FocusEvent<HTMLTextAreaElement>) => {
+          // Form's onBlur doesn't accept parameters, just triggers validation
           originalOnBlur();
         },
   };

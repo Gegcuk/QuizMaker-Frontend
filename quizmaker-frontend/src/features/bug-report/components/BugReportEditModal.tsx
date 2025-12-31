@@ -67,7 +67,8 @@ const FormTextarea: React.FC<{
     },
     onBlur: skipBlurValidation
       ? undefined
-      : (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      : (_e: React.FocusEvent<HTMLTextAreaElement>) => {
+          // Form's onBlur doesn't accept parameters, just triggers validation
           originalOnBlur();
         },
   };
@@ -292,6 +293,7 @@ const BugReportEditModal: React.FC<BugReportEditModalProps> = ({
             placeholder="Internal notes for administrators (not visible to reporter)"
             rows={3}
             helperText="This note is only visible to administrators"
+            skipBlurValidation
           />
 
           {formError && (
