@@ -15,7 +15,7 @@ export interface UseFormReturn<T extends FieldValues> {
   register: (name: string) => {
     name: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onBlur: () => void;
+    onBlur: (e?: React.FocusEvent<HTMLInputElement>) => void;
   };
   handleSubmit: (onSubmit: (data: T) => void) => (e: React.FormEvent) => void;
   formState: FormState;
@@ -90,8 +90,9 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
         });
       }
     },
-    onBlur: () => {
+    onBlur: (e?: React.FocusEvent<HTMLInputElement>) => {
       // Trigger validation on blur
+      // Event parameter is optional for compatibility with React's event system
       validateField(name, values[name]);
     }
   });

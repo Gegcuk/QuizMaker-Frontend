@@ -58,9 +58,19 @@ const FormTextarea: React.FC<{
     },
     onBlur: skipBlurValidation
       ? undefined
-      : (_e: React.FocusEvent<HTMLTextAreaElement>) => {
-          // Form's onBlur doesn't accept parameters, just triggers validation
-          originalOnBlur();
+      : (e: React.FocusEvent<HTMLTextAreaElement>) => {
+          // Create a synthetic event that matches HTMLInputElement for the form handler
+          const syntheticEvent = {
+            ...e,
+            target: {
+              ...e.target,
+              name: registered.name,
+              type: 'text',
+            } as unknown as HTMLInputElement,
+            currentTarget: e.currentTarget as unknown as HTMLInputElement,
+          } as unknown as React.FocusEvent<HTMLInputElement>;
+          // Pass synthetic event to form's onBlur for consistency with React's event system
+          originalOnBlur(syntheticEvent);
         },
   };
   const fieldError = errors[name as string]?.message;
