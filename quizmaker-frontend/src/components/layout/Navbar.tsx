@@ -1,25 +1,25 @@
 // src/components/Navbar.tsx
 // ---------------------------------------------------------------------------
-// Responsive site header.  Renders two different link sets depending on
-// whether the user is logged in (from AuthContext).
-//  • Desktop (≥ md): logo on the left, links inline on the right.
-//  • Mobile  (< md): hamburger "☰" toggles a vertical dropdown.
+// Responsive site header with desktop and mobile navigation. Surfaces a
+// prominent “Found a bug?” entry point that opens the dedicated bug report
+// modal component (logic lives in the feature, not here).
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../features/auth';
 import { ThemeToggle } from '../ui';
 import ColorSchemeDropdown from '../ui/ColorSchemeDropdown';
 import { billingService } from '@/services';
 import type { BalanceDto } from '@/types';
 import { Button } from '@/components';
+import { BugReportModal } from '@/features/bug-report';
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu
-  const [isOpen, setIsOpen] = useState<boolean>(false); // ← mobile toggle
+  const [isOpen, setIsOpen] = useState<boolean>(false);    // ← mobile toggle
   const [balance, setBalance] = useState<BalanceDto | null>(null);
-  const navigate = useNavigate();
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
   /** Handles the logout click: AuthProvider already handles navigation */
   const handleLogout = async () => {
@@ -166,6 +166,20 @@ const Navbar: React.FC = () => {
 
           {/* ----- Right side controls ------------------------------------ */}
           <div className="flex items-center space-x-3">
+            {/* Bug report quick access */}
+            <Button
+              onClick={() => setIsBugModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="hidden md:inline-flex bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-amber-400/40 border-transparent hover:shadow-amber-500/60 hover:-translate-y-0.5 transition-transform"
+              leftIcon={
+                <span aria-hidden className="inline-block animate-pulse">
+                  🐞
+                </span>
+              }
+            >
+              Found a bug?
+            </Button>
             {/* Color Scheme Dropdown */}
             <ColorSchemeDropdown />
             
@@ -199,7 +213,7 @@ const Navbar: React.FC = () => {
                 aria-label="Logout"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 013-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </Button>
             )}
@@ -223,11 +237,26 @@ const Navbar: React.FC = () => {
         {isOpen && (
           <div className="md:hidden border-t border-theme-border-primary bg-theme-bg-primary bg-theme-bg-primary text-theme-text-primary">
             <div className="px-2 pt-2 pb-3 space-y-1">
+              <Button
+                onClick={() => {
+                  setIsBugModalOpen(true);
+                  setIsOpen(false);
+                }}
+                className="w-full bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-amber-400/40 border-transparent"
+              >
+                Found a bug?
+              </Button>
               {isLoggedIn ? authMobileLinks : guestMobileLinks}
             </div>
           </div>
         )}
       </nav>
+
+      {/* Bug report modal (feature-owned logic) */}
+      <BugReportModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
     </header>
   );
 };

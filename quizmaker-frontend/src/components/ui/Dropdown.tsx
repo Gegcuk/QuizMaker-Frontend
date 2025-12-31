@@ -20,6 +20,7 @@ export interface DropdownProps {
   searchable?: boolean;
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
+  placement?: 'bottom' | 'top';
   className?: string;
 }
 
@@ -36,6 +37,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   searchable = false,
   size = 'md',
   fullWidth = false,
+  placement = 'bottom',
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -152,7 +154,11 @@ const Dropdown: React.FC<DropdownProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-theme-lg max-h-60 overflow-auto bg-theme-bg-primary text-theme-text-primary">
+          <div
+            className={`absolute z-50 w-full bg-theme-bg-primary border border-theme-border-primary rounded-md shadow-theme-lg max-h-60 overflow-auto bg-theme-bg-primary text-theme-text-primary ${
+              placement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
+            }`}
+          >
             {searchable && (
               <div className="p-2 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                 <input
