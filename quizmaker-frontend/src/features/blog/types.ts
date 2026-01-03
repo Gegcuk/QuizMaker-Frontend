@@ -64,6 +64,13 @@ export interface ArticleAuthorDto {
   title: string;
 }
 
+export interface ArticleImageDto {
+  assetId: string;
+  alt: string;
+  caption?: string;
+  url?: string; // CDN URL - may be included by backend when serializing
+}
+
 export interface ArticleCtaDto {
   label: string;
   href: string;
@@ -103,6 +110,7 @@ export interface ArticleDto {
   description: string;
   excerpt: string;
   heroKicker?: string;
+  heroImage?: ArticleImageDto;
   tags: string[];
   author: ArticleAuthorDto;
   readingTime: string;
@@ -130,6 +138,7 @@ export interface ArticleUpsertPayload {
   description: string;
   excerpt: string;
   heroKicker?: string;
+  heroImage?: ArticleImageDto;
   tags: string[];
   author: ArticleAuthorDto;
   readingTime: string;

@@ -15,6 +15,7 @@ import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
 import { useAuth } from '@/features/auth';
 import { articleService } from '@/features/blog';
+import { mediaService } from '@/features/media';
 import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 
 const formatDate = (value: string) =>
@@ -36,10 +37,28 @@ const BlogArticlePage: React.FC = () => {
     queryKey: ['articles', 'public', 'slug', normalizedSlug, isAdmin],
     enabled: !!normalizedSlug,
     queryFn: async () => {
-      if (isAdmin) {
-        return articleService.getAdminBySlug(normalizedSlug, true);
+      const articleData = isAdmin
+        ? await articleService.getAdminBySlug(normalizedSlug, true)
+        : await articleService.getBySlug(normalizedSlug);
+      
+      // If article has heroImage with assetId but no URL, fetch the media asset to get the CDN URL
+      if (articleData.heroImage?.assetId && !articleData.heroImage.url) {
+        try {
+          // Search for the asset by ID (we'll need to search and find it)
+          const mediaAssets = await mediaService.searchAssets({ limit: 100 });
+          const asset = mediaAssets.items.find(a => a.assetId === articleData.heroImage?.assetId);
+          if (asset) {
+            articleData.heroImage = {
+              ...articleData.heroImage,
+              url: asset.cdnUrl,
+            };
+          }
+        } catch (err) {
+          console.warn('Failed to fetch media asset URL:', err);
+        }
       }
-      return articleService.getBySlug(normalizedSlug);
+      
+      return articleData;
     },
   });
 
@@ -118,6 +137,23 @@ const BlogArticlePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
+                    {article.heroImage && (
+                      <div className="w-full">
+                        <img
+                          src={article.heroImage.url || `/api/v1/media/${article.heroImage.assetId}`}
+                          alt={article.heroImage.alt}
+                          className="w-full h-auto rounded-lg border border-theme-border-primary"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        {article.heroImage.caption && (
+                          <p className="mt-2 text-sm text-theme-text-tertiary italic text-center">
+                            {article.heroImage.caption}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <h1 className="text-4xl md:text-5xl font-extrabold text-theme-text-primary leading-tight">
                       {article.title}
                     </h1>

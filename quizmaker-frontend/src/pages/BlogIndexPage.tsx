@@ -21,6 +21,7 @@ import { articleService } from '@/features/blog';
 import {
   ArticleDto,
   ArticleFaqDto,
+  ArticleImageDto,
   ArticleReferenceDto,
   ArticleSectionDto,
   ArticleStatDto,
@@ -28,6 +29,7 @@ import {
   ArticleUpsertPayload,
 } from '@/features/blog/types';
 import { useAuth } from '@/features/auth';
+import { mediaService } from '@/features/media';
 import Spinner from '@/components/ui/Spinner';
 
 const statusOptions: Array<{ value: ArticleStatus | 'all'; label: string }> = [
@@ -70,6 +72,70 @@ const isExternalUrl = (href: string): boolean => {
   return trimmed.startsWith('http://') || trimmed.startsWith('https://');
 };
 
+// Helper function to get image dimensions
+const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.width, height: img.height });
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
+
+// Helper function to upload an image using the media service
+const uploadImage = async (file: File, articleId?: string): Promise<{ assetId: string; cdnUrl: string }> => {
+  // Step 1: Get image dimensions (required by backend)
+  let width: number | undefined;
+  let height: number | undefined;
+  
+  try {
+    const dimensions = await getImageDimensions(file);
+    width = dimensions.width;
+    height = dimensions.height;
+  } catch (error) {
+    throw new Error('Failed to read image dimensions. Please ensure the file is a valid image.');
+  }
+
+  // Step 2: Create upload intent
+  const uploadIntent = await mediaService.createUploadIntent({
+    type: 'IMAGE',
+    originalFilename: file.name,
+    mimeType: file.type,
+    sizeBytes: file.size,
+    articleId,
+  });
+
+  // Step 3: PUT file to presigned URL
+  const response = await fetch(uploadIntent.upload.url, {
+    method: uploadIntent.upload.method,
+    headers: uploadIntent.upload.headers || {},
+    body: file,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to upload file: ${response.statusText}`);
+  }
+
+  // Step 4: Finalize upload with width and height
+  const asset = await mediaService.finalizeUpload(uploadIntent.assetId, {
+    width,
+    height,
+  });
+
+  // Return asset ID and CDN URL
+  return { assetId: asset.assetId, cdnUrl: asset.cdnUrl };
+};
+
 const BlogIndexPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = useMemo(
@@ -88,6 +154,10 @@ const BlogIndexPage: React.FC = () => {
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [editLoadError, setEditLoadError] = useState<unknown>(null);
   const editRequestIdRef = useRef(0);
+  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
+  const heroImageInputRef = useRef<HTMLInputElement>(null);
+  const [heroImageAlt, setHeroImageAlt] = useState('');
+  const [heroImageCaption, setHeroImageCaption] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -265,6 +335,8 @@ const BlogIndexPage: React.FC = () => {
     setTagsInput('');
     setEditingId(null);
     setErrors({});
+    setHeroImageAlt('');
+    setHeroImageCaption('');
   };
 
   const handleEdit = async (article: ArticleDto) => {
@@ -280,6 +352,7 @@ const BlogIndexPage: React.FC = () => {
       description: article.description,
       excerpt: article.excerpt,
       heroKicker: article.heroKicker,
+      heroImage: article.heroImage,
       tags: article.tags,
       author: article.author,
       readingTime: article.readingTime,
@@ -298,6 +371,8 @@ const BlogIndexPage: React.FC = () => {
       faqs: article.faqs,
       references: article.references,
     });
+    setHeroImageAlt(article.heroImage?.alt || '');
+    setHeroImageCaption(article.heroImage?.caption || '');
     setTagsInput((article.tags || []).join(', '));
     setEditingId(article.id);
     setErrors({});
@@ -315,6 +390,7 @@ const BlogIndexPage: React.FC = () => {
         description: fullArticle.description,
         excerpt: fullArticle.excerpt,
         heroKicker: fullArticle.heroKicker,
+        heroImage: fullArticle.heroImage,
         tags: fullArticle.tags,
         author: fullArticle.author,
         readingTime: fullArticle.readingTime,
@@ -333,6 +409,8 @@ const BlogIndexPage: React.FC = () => {
         faqs: fullArticle.faqs,
         references: fullArticle.references,
       });
+      setHeroImageAlt(fullArticle.heroImage?.alt || '');
+      setHeroImageCaption(fullArticle.heroImage?.caption || '');
       setTagsInput((fullArticle.tags || []).join(', '));
       setEditingId(fullArticle.id ?? article.id);
     } catch (err) {
@@ -763,18 +841,123 @@ const BlogIndexPage: React.FC = () => {
               onChange={(e) => setDraftPayload({ ...draftPayload, canonicalUrl: e.target.value })}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="OG image URL (optional)"
-              value={draftPayload.ogImage || ''}
-              onChange={(e) => setDraftPayload({ ...draftPayload, ogImage: e.target.value })}
-            />
-            <Input
-              label="Content group (optional)"
-              value={draftPayload.contentGroup || ''}
-              onChange={(e) => setDraftPayload({ ...draftPayload, contentGroup: e.target.value })}
-              placeholder="blog / research / marketing"
-            />
+          <div className="space-y-3">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-theme-text-secondary">
+                  Hero Image (optional)
+                </label>
+                <input
+                  ref={heroImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    setIsUploadingHeroImage(true);
+                    try {
+                      const { assetId } = await uploadImage(file, editingId || undefined);
+                      const alt = prompt('Enter alt text for the image (required):') || '';
+                      if (!alt) {
+                        alert('Alt text is required');
+                        return;
+                      }
+                      const caption = prompt('Enter caption (optional, press Cancel to skip):') || undefined;
+                      setDraftPayload({ 
+                        ...draftPayload, 
+                        heroImage: { assetId, alt, ...(caption ? { caption } : {}) }
+                      });
+                      setHeroImageAlt(alt);
+                      setHeroImageCaption(caption || '');
+                    } catch (error: any) {
+                      setErrors((prev) => ({ ...prev, heroImage: error.message || 'Failed to upload image' }));
+                    } finally {
+                      setIsUploadingHeroImage(false);
+                      if (heroImageInputRef.current) {
+                        heroImageInputRef.current.value = '';
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => heroImageInputRef.current?.click()}
+                  disabled={isUploadingHeroImage}
+                  loading={isUploadingHeroImage}
+                >
+                  {isUploadingHeroImage ? 'Uploading...' : 'Upload Image'}
+                </Button>
+              </div>
+              {draftPayload.heroImage && (
+                <div className="mt-2 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-secondary">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm text-theme-text-secondary">Hero image set</span>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => {
+                        setDraftPayload({ ...draftPayload, heroImage: undefined });
+                        setHeroImageAlt('');
+                        setHeroImageCaption('');
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                  <Input
+                    label="Alt text *"
+                    value={heroImageAlt}
+                    onChange={(e) => {
+                      const newAlt = e.target.value;
+                      setHeroImageAlt(newAlt);
+                      setDraftPayload({ 
+                        ...draftPayload, 
+                        heroImage: draftPayload.heroImage ? { ...draftPayload.heroImage, alt: newAlt } : undefined
+                      });
+                    }}
+                    placeholder="Describe the image"
+                  />
+                  <div className="mt-2">
+                    <Input
+                      label="Caption (optional)"
+                      value={heroImageCaption}
+                      onChange={(e) => {
+                        const newCaption = e.target.value;
+                        setHeroImageCaption(newCaption);
+                        setDraftPayload({ 
+                          ...draftPayload, 
+                          heroImage: draftPayload.heroImage ? { ...draftPayload.heroImage, caption: newCaption || undefined } : undefined
+                        });
+                      }}
+                      placeholder="Optional caption text"
+                    />
+                  </div>
+                </div>
+              )}
+              {errors.heroImage && (
+                <p className="mt-1 text-sm text-theme-interactive-danger">{errors.heroImage}</p>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="OG Image URL (optional)"
+                value={draftPayload.ogImage || ''}
+                onChange={(e) => setDraftPayload({ ...draftPayload, ogImage: e.target.value })}
+                helperText="Open Graph image URL for social sharing (separate from hero image)"
+                placeholder="https://example.com/image.jpg"
+              />
+              <Input
+                label="Content group (optional)"
+                value={draftPayload.contentGroup || ''}
+                onChange={(e) => setDraftPayload({ ...draftPayload, contentGroup: e.target.value })}
+                placeholder="blog / research / marketing"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
@@ -834,7 +1017,7 @@ const BlogIndexPage: React.FC = () => {
               error={errors.status}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div>
             <Switch
               checked={!!draftPayload.noindex}
               onChange={(checked) => setDraftPayload({ ...draftPayload, noindex: checked })}
@@ -1015,12 +1198,66 @@ const BlogIndexPage: React.FC = () => {
                       onChange={(e) => updateSection(idx, { summary: e.target.value })}
                       rows={2}
                     />
-                    <Textarea
-                      label="Content (HTML or Markdown)"
-                      value={section.content || ''}
-                      onChange={(e) => updateSection(idx, { content: e.target.value })}
-                      rows={3}
-                    />
+                    <div className="md:col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-theme-text-secondary">
+                          Content (HTML or Markdown)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id={`section-image-${idx}`}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              try {
+                                const { cdnUrl } = await uploadImage(file, editingId || undefined);
+                                const alt = prompt('Enter alt text for the image (required):') || 'Image';
+                                const currentContent = section.content || '';
+                                const imageHtml = `<img src="${cdnUrl}" alt="${alt}" />`;
+                                updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
+                              } catch (error: any) {
+                                alert(error.message || 'Failed to upload image');
+                              } finally {
+                                e.target.value = '';
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => document.getElementById(`section-image-${idx}`)?.click()}
+                          >
+                            Upload Image
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              const imageUrl = prompt('Enter image URL:');
+                              if (imageUrl && imageUrl.trim()) {
+                                const currentContent = section.content || '';
+                                const imageHtml = `<img src="${imageUrl.trim()}" alt="" />`;
+                                updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
+                              }
+                            }}
+                          >
+                            Insert URL
+                          </Button>
+                        </div>
+                      </div>
+                      <Textarea
+                        value={section.content || ''}
+                        onChange={(e) => updateSection(idx, { content: e.target.value })}
+                        rows={5}
+                        placeholder="Enter section content. Use HTML for formatting. Upload or insert images using the buttons above."
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
