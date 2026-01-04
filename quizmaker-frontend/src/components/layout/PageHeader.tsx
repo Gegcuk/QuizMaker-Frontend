@@ -174,6 +174,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     );
   };
 
+  const shouldShowTitle = !hideTitle;
+  const shouldShowIcon = !!Icon && !hideTitle;
+  const hasLeftContent = showBackButton || shouldShowIcon || shouldShowTitle;
+
   return (
     <div className={`bg-theme-bg-primary border-b border-theme-border-primary ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -185,9 +189,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         )}
 
         {/* Header Content */}
-        {!hideTitle && (
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            {/* Title Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          {/* Title Section */}
+          {hasLeftContent && (
             <div className="flex items-center mb-4 sm:mb-0">
               {/* Back Button */}
               {showBackButton && (
@@ -203,33 +207,35 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               )}
 
               {/* Icon */}
-              {Icon && (
+              {shouldShowIcon && (
                 <div className="mr-3 p-2 bg-theme-bg-tertiary text-theme-interactive-primary rounded-lg">
                   <Icon className="w-6 h-6" />
                 </div>
               )}
 
               {/* Title and Subtitle */}
-              <div>
-                <h1 className="text-2xl font-bold text-theme-text-primary sm:text-3xl">
-                  {title}
-                </h1>
-                {subtitle && (
-                  <p className="mt-1 text-sm text-theme-text-secondary sm:text-base">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
+              {shouldShowTitle && (
+                <div>
+                  <h1 className="text-2xl font-bold text-theme-text-primary sm:text-3xl">
+                    {title}
+                  </h1>
+                  {subtitle && (
+                    <p className="mt-1 text-sm text-theme-text-secondary sm:text-base">
+                      {subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
+          )}
 
-            {/* Action Buttons */}
-            {actions.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                {actions.map((action, index) => renderActionButton(action, index))}
-              </div>
-            )}
-          </div>
-        )}
+          {/* Action Buttons */}
+          {actions.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {actions.map((action, index) => renderActionButton(action, index))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
