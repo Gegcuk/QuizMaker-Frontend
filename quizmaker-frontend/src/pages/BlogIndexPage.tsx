@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -64,7 +64,8 @@ const hasText = (value: unknown): value is string =>
 const getUniqueSectionId = (
   baseId: string,
   sections: ArticleSectionDto[],
-  excludeIndex?: number
+  excludeIndex?: number,
+  reservedIds: string[] = []
 ): string => {
   const normalized = baseId.trim();
   if (!normalized) return '';
@@ -74,6 +75,7 @@ const getUniqueSectionId = (
       .map((section, idx) => (idx === excludeIndex ? null : section.sectionId))
       .filter(hasText)
   );
+  reservedIds.filter(hasText).forEach((id) => existingIds.add(id));
 
   if (!existingIds.has(normalized)) {
     return normalized;
@@ -186,8 +188,30 @@ const BlogIndexPage: React.FC = () => {
   const heroImageInputRef = useRef<HTMLInputElement>(null);
   const [heroImageAlt, setHeroImageAlt] = useState('');
   const [heroImageCaption, setHeroImageCaption] = useState('');
+  const sectionsRef = useRef<ArticleSectionDto[]>([]);
+  const pendingSectionIdsRef = useRef<Record<number, string>>({});
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const sections = draftPayload.sections ?? [];
+    sectionsRef.current = sections;
+
+    const pending = pendingSectionIdsRef.current;
+    const hasPending = Object.keys(pending).length > 0;
+    if (!hasPending) {
+      return;
+    }
+
+    const validIds = new Set(sections.map((section) => section.sectionId));
+    const nextPending: Record<number, string> = {};
+    for (const [idx, id] of Object.entries(pending)) {
+      if (validIds.has(id)) {
+        nextPending[Number(idx)] = id;
+      }
+    }
+    pendingSectionIdsRef.current = nextPending;
+  }, [draftPayload.sections]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['articles', statusFilter, isAdmin],
@@ -1286,21 +1310,23 @@ const BlogIndexPage: React.FC = () => {
                               const file = e.target.files?.[0];
                               if (!file) return;
 
-                              const sections = draftPayload.sections ?? [];
                               const baseSectionId = hasText(section.sectionId)
                                 ? section.sectionId
                                 : hasText(section.title)
                                 ? slugify(section.title)
                                 : '';
+                              const reservedIds = Object.entries(pendingSectionIdsRef.current)
+                                .filter(([reservedIdx]) => Number(reservedIdx) !== idx)
+                                .map(([, id]) => id);
                               const targetSectionId = baseSectionId
-                                ? getUniqueSectionId(baseSectionId, sections, idx)
+                                ? getUniqueSectionId(baseSectionId, sectionsRef.current, idx, reservedIds)
                                 : '';
                               if (!targetSectionId) {
                                 alert('Please add a section title or ID before uploading an image.');
                                 e.target.value = '';
                                 return;
                               }
-                              
+                               
                               const alt = (prompt('Enter alt text for the image (required):') ?? '').trim();
                               if (!alt) {
                                 alert('Alt text is required');
@@ -1308,7 +1334,16 @@ const BlogIndexPage: React.FC = () => {
                                 return;
                               }
 
-                              if (targetSectionId !== section.sectionId) {
+                              pendingSectionIdsRef.current = {
+                                ...pendingSectionIdsRef.current,
+                                [idx]: targetSectionId,
+                              };
+                              sectionsRef.current = (sectionsRef.current ?? []).map((current, currentIdx) =>
+                                currentIdx === idx ? { ...current, sectionId: targetSectionId } : current
+                              );
+
+                              const currentSectionId = sectionsRef.current[idx]?.sectionId ?? section.sectionId;
+                              if (targetSectionId !== currentSectionId) {
                                 updateSection(idx, { sectionId: targetSectionId });
                                 clearError(`sections.${idx}.sectionId`);
                               }
