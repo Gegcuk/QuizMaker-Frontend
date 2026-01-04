@@ -280,6 +280,29 @@ const BlogIndexPage: React.FC = () => {
     }));
   };
 
+  const updateSectionById = (
+    sectionId: string,
+    patch: Partial<ArticleSectionDto> | ((section: ArticleSectionDto) => Partial<ArticleSectionDto>)
+  ) => {
+    setDraftPayload((prev) => {
+      const sections = prev.sections ?? [];
+      let didUpdate = false;
+
+      const nextSections = sections.map((section) => {
+        if (didUpdate || section.sectionId !== sectionId) return section;
+        const patchValue = typeof patch === 'function' ? patch(section) : patch;
+        didUpdate = true;
+        return { ...section, ...patchValue };
+      });
+
+      if (!didUpdate) {
+        return prev;
+      }
+
+      return { ...prev, sections: nextSections };
+    });
+  };
+
   const removeSection = (index: number) => {
     clearErrorsByPrefix('sections.');
     setDraftPayload((prev) => ({
@@ -865,22 +888,28 @@ const BlogIndexPage: React.FC = () => {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    
+
+                    const alt = (prompt('Enter alt text for the image (required):') ?? '').trim();
+                    if (!alt) {
+                      alert('Alt text is required');
+                      if (heroImageInputRef.current) {
+                        heroImageInputRef.current.value = '';
+                      }
+                      return;
+                    }
+
+                    const captionInput = prompt('Enter caption (optional, press Cancel to skip):');
+                    const caption = (captionInput ?? '').trim();
+
                     setIsUploadingHeroImage(true);
                     try {
                       const { assetId } = await uploadImage(file, editingId || undefined);
-                      const alt = prompt('Enter alt text for the image (required):') || '';
-                      if (!alt) {
-                        alert('Alt text is required');
-                        return;
-                      }
-                      const caption = prompt('Enter caption (optional, press Cancel to skip):') || undefined;
                       setDraftPayload((prev) => ({ 
                         ...prev, 
                         heroImage: { assetId, alt, ...(caption ? { caption } : {}) }
                       }));
                       setHeroImageAlt(alt);
-                      setHeroImageCaption(caption || '');
+                      setHeroImageCaption(caption);
                     } catch (error: any) {
                       setErrors((prev) => ({ ...prev, heroImage: error.message || 'Failed to upload image' }));
                     } finally {
@@ -1227,7 +1256,21 @@ const BlogIndexPage: React.FC = () => {
                             onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (!file) return;
-                              
+
+                              const targetSectionId = hasText(section.sectionId)
+                                ? section.sectionId
+                                : hasText(section.title)
+                                ? slugify(section.title)
+                                : '';
+                              if (!targetSectionId) {
+                                alert('Please add a section title or ID before uploading an image.');
+                                e.target.value = '';
+                                return;
+                              }
+                              if (!hasText(section.sectionId) && hasText(section.title)) {
+                                updateSection(idx, { sectionId: targetSectionId });
+                              }
+
                               try {
                                 const { cdnUrl } = await uploadImage(file, editingId || undefined);
                                 const alt = prompt('Enter alt text for the image (required):') || '';
@@ -1241,7 +1284,7 @@ const BlogIndexPage: React.FC = () => {
                                 const escapedAlt = escapeHtmlAttribute(alt);
                                 const imageHtml = `<img src="${escapedUrl}" alt="${escapedAlt}" />`;
                                 // Use functional update to read current section content from state
-                                updateSection(idx, (currentSection) => {
+                                updateSectionById(targetSectionId, (currentSection) => {
                                   const currentContent = currentSection.content || '';
                                   return { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml };
                                 });

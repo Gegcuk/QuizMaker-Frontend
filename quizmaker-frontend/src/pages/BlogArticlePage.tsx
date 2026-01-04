@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -15,6 +15,7 @@ import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
 import { useAuth } from '@/features/auth';
 import { articleService } from '@/features/blog';
+import { mediaService } from '@/features/media';
 import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 
 const formatDate = (value: string) =>
@@ -24,6 +25,7 @@ const BlogArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [heroImageSrc, setHeroImageSrc] = useState<string | null>(null);
 
   const isAdmin = useMemo(
     () => user?.roles?.some(role => ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATOR'].includes(role)),
@@ -39,14 +41,60 @@ const BlogArticlePage: React.FC = () => {
       const articleData = isAdmin
         ? await articleService.getAdminBySlug(normalizedSlug, true)
         : await articleService.getBySlug(normalizedSlug);
-      
-      // Note: ArticleImageDto from backend doesn't include URL, so we use assetId to construct the URL
-      // The backend should ideally include the CDN URL in the response, but for now we use the assetId
-      // If URL is provided by backend, use it; otherwise construct from assetId
-      
       return articleData;
     },
   });
+
+  useEffect(() => {
+    let isActive = true;
+
+    const heroImage = article?.heroImage;
+    const directUrl = (heroImage?.url || '').trim();
+
+    if (!heroImage) {
+      setHeroImageSrc(null);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    if (directUrl) {
+      setHeroImageSrc(directUrl);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    if (!heroImage.assetId || !user) {
+      setHeroImageSrc(null);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    setHeroImageSrc(null);
+    const loadHeroImage = async () => {
+      try {
+        const { items } = await mediaService.searchAssets({
+          type: 'IMAGE',
+          query: heroImage.assetId,
+          limit: 5,
+        });
+        if (!isActive) return;
+        const match = items.find((item) => item.assetId === heroImage.assetId);
+        setHeroImageSrc(match?.cdnUrl ?? null);
+      } catch {
+        if (!isActive) return;
+        setHeroImageSrc(null);
+      }
+    };
+
+    loadHeroImage();
+
+    return () => {
+      isActive = false;
+    };
+  }, [article?.heroImage?.assetId, article?.heroImage?.url, user]);
 
   const handleCta = (cta?: ArticleCtaDto) => {
     if (!cta?.href) return;
@@ -123,10 +171,10 @@ const BlogArticlePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    {article.heroImage && (
+                    {article.heroImage && heroImageSrc && (
                       <div className="w-full">
                         <img
-                          src={article.heroImage.url || `/api/v1/media/${article.heroImage.assetId}`}
+                          src={heroImageSrc}
                           alt={article.heroImage.alt}
                           className="w-full h-auto rounded-lg border border-theme-border-primary"
                           onError={(e) => {
