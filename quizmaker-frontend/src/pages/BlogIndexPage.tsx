@@ -1274,9 +1274,17 @@ const BlogIndexPage: React.FC = () => {
                                   return;
                                 }
                                 
+                                // Prompt for alt text (required for accessibility)
+                                const alt = prompt('Enter alt text for the image (required):') || '';
+                                if (!alt.trim()) {
+                                  alert('Alt text is required');
+                                  return;
+                                }
+                                
                                 // Escape HTML attributes to prevent XSS
                                 const escapedUrl = escapeHtmlAttribute(sanitizedUrl);
-                                const imageHtml = `<img src="${escapedUrl}" alt="" />`;
+                                const escapedAlt = escapeHtmlAttribute(alt);
+                                const imageHtml = `<img src="${escapedUrl}" alt="${escapedAlt}" />`;
                                 // Use functional update to read current section content from state
                                 updateSection(idx, (currentSection) => {
                                   const currentContent = currentSection.content || '';
