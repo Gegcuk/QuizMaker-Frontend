@@ -966,6 +966,7 @@ const BlogIndexPage: React.FC = () => {
                       }));
                       setHeroImageAlt(alt);
                       setHeroImageCaption(caption);
+                      clearError('heroImage');
                     } catch (error: any) {
                       setErrors((prev) => ({ ...prev, heroImage: error.message || 'Failed to upload image' }));
                     } finally {
