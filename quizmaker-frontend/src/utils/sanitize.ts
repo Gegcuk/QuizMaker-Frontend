@@ -3,6 +3,24 @@
 // ---------------------------------------------------------------------------
 
 /**
+ * Escapes HTML attribute values to prevent XSS
+ * @param value - The attribute value to escape
+ * @returns Escaped attribute value safe for use in HTML attributes
+ */
+export const escapeHtmlAttribute = (value: string): string => {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
+
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+};
+
+/**
  * Sanitizes HTML content by removing potentially dangerous tags and attributes
  * @param html - The HTML string to sanitize
  * @returns Sanitized HTML string
@@ -18,11 +36,13 @@ export const sanitizeHtml = (html: string): string => {
   // Remove javascript: protocols
   sanitized = sanitized.replace(/javascript:/gi, '');
   
-  // Remove on* event handlers
+  // Remove on* event handlers (both quoted and unquoted)
   sanitized = sanitized.replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '');
+  sanitized = sanitized.replace(/\son\w+\s*=\s*[^\s>]*/gi, '');
   
-  // Remove potentially dangerous attributes
+  // Remove potentially dangerous attributes (both quoted and unquoted)
   sanitized = sanitized.replace(/\s(style|onload|onerror|onclick|onmouseover)\s*=\s*["'][^"']*["']/gi, '');
+  sanitized = sanitized.replace(/\s(style|onload|onerror|onclick|onmouseover)\s*=\s*[^\s>]*/gi, '');
   
   return sanitized;
 };

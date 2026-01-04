@@ -15,7 +15,6 @@ import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
 import { useAuth } from '@/features/auth';
 import { articleService } from '@/features/blog';
-import { mediaService } from '@/features/media';
 import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 
 const formatDate = (value: string) =>
@@ -41,22 +40,9 @@ const BlogArticlePage: React.FC = () => {
         ? await articleService.getAdminBySlug(normalizedSlug, true)
         : await articleService.getBySlug(normalizedSlug);
       
-      // If article has heroImage with assetId but no URL, fetch the media asset to get the CDN URL
-      if (articleData.heroImage?.assetId && !articleData.heroImage.url) {
-        try {
-          // Search for the asset by ID (we'll need to search and find it)
-          const mediaAssets = await mediaService.searchAssets({ limit: 100 });
-          const asset = mediaAssets.items.find(a => a.assetId === articleData.heroImage?.assetId);
-          if (asset) {
-            articleData.heroImage = {
-              ...articleData.heroImage,
-              url: asset.cdnUrl,
-            };
-          }
-        } catch (err) {
-          console.warn('Failed to fetch media asset URL:', err);
-        }
-      }
+      // Note: ArticleImageDto from backend doesn't include URL, so we use assetId to construct the URL
+      // The backend should ideally include the CDN URL in the response, but for now we use the assetId
+      // If URL is provided by backend, use it; otherwise construct from assetId
       
       return articleData;
     },

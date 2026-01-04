@@ -30,6 +30,7 @@ import {
 } from '@/features/blog/types';
 import { useAuth } from '@/features/auth';
 import { mediaService } from '@/features/media';
+import { escapeHtmlAttribute, sanitizeUrl } from '@/utils/sanitize';
 import Spinner from '@/components/ui/Spinner';
 
 const statusOptions: Array<{ value: ArticleStatus | 'all'; label: string }> = [
@@ -844,9 +845,14 @@ const BlogIndexPage: React.FC = () => {
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-theme-text-secondary">
-                  Hero Image (optional)
-                </label>
+                <div>
+                  <label className="block text-sm font-medium text-theme-text-secondary">
+                    Hero Image (optional)
+                  </label>
+                  <p className="text-xs text-theme-text-tertiary mt-0.5">
+                    Recommended: 1920 × 1080px (16:9), max 500 KB. Will be displayed at the top of the article.
+                  </p>
+                </div>
                 <input
                   ref={heroImageInputRef}
                   type="file"
@@ -1200,9 +1206,14 @@ const BlogIndexPage: React.FC = () => {
                     />
                     <div className="md:col-span-2">
                       <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-theme-text-secondary">
-                          Content (HTML or Markdown)
-                        </label>
+                        <div>
+                          <label className="block text-sm font-medium text-theme-text-secondary">
+                            Content (HTML or Markdown)
+                          </label>
+                          <p className="text-xs text-theme-text-tertiary mt-0.5">
+                            Inline images: Recommended 600-800px wide, max 200 KB
+                          </p>
+                        </div>
                         <div className="flex gap-2">
                           <input
                             type="file"
@@ -1216,8 +1227,16 @@ const BlogIndexPage: React.FC = () => {
                               try {
                                 const { cdnUrl } = await uploadImage(file, editingId || undefined);
                                 const alt = prompt('Enter alt text for the image (required):') || 'Image';
+                                if (!alt.trim()) {
+                                  alert('Alt text is required');
+                                  return;
+                                }
+                                
+                                // Escape HTML attributes to prevent XSS
+                                const escapedUrl = escapeHtmlAttribute(cdnUrl);
+                                const escapedAlt = escapeHtmlAttribute(alt);
                                 const currentContent = section.content || '';
-                                const imageHtml = `<img src="${cdnUrl}" alt="${alt}" />`;
+                                const imageHtml = `<img src="${escapedUrl}" alt="${escapedAlt}" />`;
                                 updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
                               } catch (error: any) {
                                 alert(error.message || 'Failed to upload image');
@@ -1241,8 +1260,17 @@ const BlogIndexPage: React.FC = () => {
                             onClick={() => {
                               const imageUrl = prompt('Enter image URL:');
                               if (imageUrl && imageUrl.trim()) {
+                                // Sanitize URL to prevent javascript: and data: protocols
+                                const sanitizedUrl = sanitizeUrl(imageUrl.trim());
+                                if (!sanitizedUrl) {
+                                  alert('Invalid URL. Please enter a valid http:// or https:// URL.');
+                                  return;
+                                }
+                                
+                                // Escape HTML attributes to prevent XSS
+                                const escapedUrl = escapeHtmlAttribute(sanitizedUrl);
                                 const currentContent = section.content || '';
-                                const imageHtml = `<img src="${imageUrl.trim()}" alt="" />`;
+                                const imageHtml = `<img src="${escapedUrl}" alt="" />`;
                                 updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
                               }
                             }}

@@ -80,6 +80,22 @@
   font-weight: 600;
 }
 
+/* Responsive images in article content - ensures images scale properly on mobile */
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-primary);
+}
+
+/* Center images that are smaller than container */
+.article-content img[style*="width"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Offset in-page anchors for sticky navbar (h-16). */
 .anchor-target {
   scroll-margin-top: 5rem;
