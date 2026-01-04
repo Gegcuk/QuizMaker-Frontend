@@ -61,6 +61,33 @@ const slugify = (value: string) =>
 const hasText = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
+const getUniqueSectionId = (
+  baseId: string,
+  sections: ArticleSectionDto[],
+  excludeIndex?: number
+): string => {
+  const normalized = baseId.trim();
+  if (!normalized) return '';
+
+  const existingIds = new Set(
+    sections
+      .map((section, idx) => (idx === excludeIndex ? null : section.sectionId))
+      .filter(hasText)
+  );
+
+  if (!existingIds.has(normalized)) {
+    return normalized;
+  }
+
+  let suffix = 2;
+  let candidate = `${normalized}-${suffix}`;
+  while (existingIds.has(candidate)) {
+    suffix += 1;
+    candidate = `${normalized}-${suffix}`;
+  }
+  return candidate;
+};
+
 const splitLines = (value: string): string[] => value.split(/\r\n|\n|\r/);
 
 const normalizeLines = (lines: string[]): string[] =>
@@ -1215,7 +1242,9 @@ const BlogIndexPage: React.FC = () => {
                         const nextTitle = e.target.value;
                         const nextPatch: Partial<ArticleSectionDto> = { title: nextTitle };
                         if (!hasText(section.sectionId) && hasText(nextTitle)) {
-                          nextPatch.sectionId = slugify(nextTitle);
+                          const baseId = slugify(nextTitle);
+                          const uniqueId = getUniqueSectionId(baseId, draftPayload.sections ?? [], idx);
+                          nextPatch.sectionId = uniqueId;
                         }
                         updateSection(idx, nextPatch);
                         clearError(`sections.${idx}.title`);
@@ -1257,27 +1286,35 @@ const BlogIndexPage: React.FC = () => {
                               const file = e.target.files?.[0];
                               if (!file) return;
 
-                              const targetSectionId = hasText(section.sectionId)
+                              const sections = draftPayload.sections ?? [];
+                              const baseSectionId = hasText(section.sectionId)
                                 ? section.sectionId
                                 : hasText(section.title)
                                 ? slugify(section.title)
+                                : '';
+                              const targetSectionId = baseSectionId
+                                ? getUniqueSectionId(baseSectionId, sections, idx)
                                 : '';
                               if (!targetSectionId) {
                                 alert('Please add a section title or ID before uploading an image.');
                                 e.target.value = '';
                                 return;
                               }
-                              if (!hasText(section.sectionId) && hasText(section.title)) {
+                              
+                              const alt = (prompt('Enter alt text for the image (required):') ?? '').trim();
+                              if (!alt) {
+                                alert('Alt text is required');
+                                e.target.value = '';
+                                return;
+                              }
+
+                              if (targetSectionId !== section.sectionId) {
                                 updateSection(idx, { sectionId: targetSectionId });
+                                clearError(`sections.${idx}.sectionId`);
                               }
 
                               try {
                                 const { cdnUrl } = await uploadImage(file, editingId || undefined);
-                                const alt = prompt('Enter alt text for the image (required):') || '';
-                                if (!alt.trim()) {
-                                  alert('Alt text is required');
-                                  return;
-                                }
                                 
                                 // Escape HTML attributes to prevent XSS
                                 const escapedUrl = escapeHtmlAttribute(cdnUrl);
