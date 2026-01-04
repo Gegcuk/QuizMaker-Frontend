@@ -269,10 +269,14 @@ const BlogIndexPage: React.FC = () => {
     }));
   };
 
-  const updateSection = (index: number, patch: Partial<ArticleSectionDto>) => {
+  const updateSection = (index: number, patch: Partial<ArticleSectionDto> | ((section: ArticleSectionDto) => Partial<ArticleSectionDto>)) => {
     setDraftPayload((prev) => ({
       ...prev,
-      sections: (prev.sections ?? []).map((section, idx) => (idx === index ? { ...section, ...patch } : section)),
+      sections: (prev.sections ?? []).map((section, idx) => {
+        if (idx !== index) return section;
+        const patchValue = typeof patch === 'function' ? patch(section) : patch;
+        return { ...section, ...patchValue };
+      }),
     }));
   };
 
@@ -871,10 +875,10 @@ const BlogIndexPage: React.FC = () => {
                         return;
                       }
                       const caption = prompt('Enter caption (optional, press Cancel to skip):') || undefined;
-                      setDraftPayload({ 
-                        ...draftPayload, 
+                      setDraftPayload((prev) => ({ 
+                        ...prev, 
                         heroImage: { assetId, alt, ...(caption ? { caption } : {}) }
-                      });
+                      }));
                       setHeroImageAlt(alt);
                       setHeroImageCaption(caption || '');
                     } catch (error: any) {
@@ -1226,7 +1230,7 @@ const BlogIndexPage: React.FC = () => {
                               
                               try {
                                 const { cdnUrl } = await uploadImage(file, editingId || undefined);
-                                const alt = prompt('Enter alt text for the image (required):') || 'Image';
+                                const alt = prompt('Enter alt text for the image (required):') || '';
                                 if (!alt.trim()) {
                                   alert('Alt text is required');
                                   return;
@@ -1235,9 +1239,12 @@ const BlogIndexPage: React.FC = () => {
                                 // Escape HTML attributes to prevent XSS
                                 const escapedUrl = escapeHtmlAttribute(cdnUrl);
                                 const escapedAlt = escapeHtmlAttribute(alt);
-                                const currentContent = section.content || '';
                                 const imageHtml = `<img src="${escapedUrl}" alt="${escapedAlt}" />`;
-                                updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
+                                // Use functional update to read current section content from state
+                                updateSection(idx, (currentSection) => {
+                                  const currentContent = currentSection.content || '';
+                                  return { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml };
+                                });
                               } catch (error: any) {
                                 alert(error.message || 'Failed to upload image');
                               } finally {
@@ -1269,9 +1276,12 @@ const BlogIndexPage: React.FC = () => {
                                 
                                 // Escape HTML attributes to prevent XSS
                                 const escapedUrl = escapeHtmlAttribute(sanitizedUrl);
-                                const currentContent = section.content || '';
                                 const imageHtml = `<img src="${escapedUrl}" alt="" />`;
-                                updateSection(idx, { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml });
+                                // Use functional update to read current section content from state
+                                updateSection(idx, (currentSection) => {
+                                  const currentContent = currentSection.content || '';
+                                  return { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml };
+                                });
                               }
                             }}
                           >
