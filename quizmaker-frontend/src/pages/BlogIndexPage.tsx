@@ -689,6 +689,11 @@ const BlogIndexPage: React.FC = () => {
         title="Learning science blog"
         subtitle="Evidence-based playbooks for quizzes, teaching, and student engagement in universities and schools."
         showHeader
+        showBreadcrumb
+        customBreadcrumbItems={[
+          { label: 'Home', path: '/' },
+          { label: 'Blog', path: '/blog/', isCurrent: true },
+        ]}
       >
         <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
           {isAdmin && (
@@ -1334,6 +1339,8 @@ const BlogIndexPage: React.FC = () => {
                                 return;
                               }
 
+                              const previousSectionId = sectionsRef.current[idx]?.sectionId ?? section.sectionId;
+
                               pendingSectionIdsRef.current = {
                                 ...pendingSectionIdsRef.current,
                                 [idx]: targetSectionId,
@@ -1342,8 +1349,7 @@ const BlogIndexPage: React.FC = () => {
                                 currentIdx === idx ? { ...current, sectionId: targetSectionId } : current
                               );
 
-                              const currentSectionId = sectionsRef.current[idx]?.sectionId ?? section.sectionId;
-                              if (targetSectionId !== currentSectionId) {
+                              if (targetSectionId !== previousSectionId) {
                                 updateSection(idx, { sectionId: targetSectionId });
                                 clearError(`sections.${idx}.sectionId`);
                               }

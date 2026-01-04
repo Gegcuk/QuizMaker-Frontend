@@ -119,6 +119,21 @@ const BlogArticlePage: React.FC = () => {
   const heroImageSrc =
     heroImageCandidateIndex >= 0 ? heroImageCandidates[heroImageCandidateIndex] ?? null : null;
 
+  const breadcrumbItems = useMemo(() => {
+    const items = [
+      { label: 'Home', path: '/' },
+      { label: 'Blog', path: '/blog/' },
+    ];
+    if (article?.title && article?.slug) {
+      items.push({ label: article.title, path: `/blog/${article.slug}/`, isCurrent: true });
+      return items;
+    }
+    if (normalizedSlug) {
+      items.push({ label: 'Article', path: `/blog/${normalizedSlug}/`, isCurrent: true });
+    }
+    return items;
+  }, [article?.slug, article?.title, normalizedSlug]);
+
   const handleCta = (cta?: ArticleCtaDto) => {
     if (!cta?.href) return;
     const href = cta.href.trim();
@@ -156,7 +171,14 @@ const BlogArticlePage: React.FC = () => {
     <>
       {seoConfig && <Seo {...seoConfig} />}
       <div className="bg-theme-bg-secondary min-h-screen">
-        <PageContainer title={article?.title || 'Blog'} showHeader={false} containerClassName="py-10">
+        <PageContainer
+          title={article?.title || 'Blog'}
+          showHeader
+          showBreadcrumb
+          hideTitle
+          customBreadcrumbItems={breadcrumbItems}
+          containerClassName="py-10"
+        >
           <div className="max-w-5xl mx-auto space-y-10">
             <div className="text-sm text-theme-text-tertiary">
               <Link to="/blog/" className="hover:text-theme-text-primary">

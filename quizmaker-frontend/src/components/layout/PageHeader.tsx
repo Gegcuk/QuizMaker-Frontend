@@ -87,6 +87,7 @@ export interface PageHeaderProps {
   showBackButton?: boolean;
   backTo?: string;
   onBack?: () => void;
+  hideTitle?: boolean;
   className?: string;
 }
 
@@ -100,6 +101,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   showBackButton = false,
   backTo,
   onBack,
+  hideTitle = false,
   className = '',
 }) => {
   const navigate = useNavigate();
@@ -183,49 +185,51 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         )}
 
         {/* Header Content */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          {/* Title Section */}
-          <div className="flex items-center mb-4 sm:mb-0">
-            {/* Back Button */}
-            {showBackButton && (
-              <Button
-                onClick={handleBack}
-                variant="ghost"
-                size="sm"
-                className="mr-4 !p-2 !min-w-0"
-                aria-label="Go back"
-              >
-                <ArrowLeftIcon />
-              </Button>
-            )}
+        {!hideTitle && (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            {/* Title Section */}
+            <div className="flex items-center mb-4 sm:mb-0">
+              {/* Back Button */}
+              {showBackButton && (
+                <Button
+                  onClick={handleBack}
+                  variant="ghost"
+                  size="sm"
+                  className="mr-4 !p-2 !min-w-0"
+                  aria-label="Go back"
+                >
+                  <ArrowLeftIcon />
+                </Button>
+              )}
 
-            {/* Icon */}
-            {Icon && (
-              <div className="mr-3 p-2 bg-theme-bg-tertiary text-theme-interactive-primary rounded-lg">
-                <Icon className="w-6 h-6" />
+              {/* Icon */}
+              {Icon && (
+                <div className="mr-3 p-2 bg-theme-bg-tertiary text-theme-interactive-primary rounded-lg">
+                  <Icon className="w-6 h-6" />
+                </div>
+              )}
+
+              {/* Title and Subtitle */}
+              <div>
+                <h1 className="text-2xl font-bold text-theme-text-primary sm:text-3xl">
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="mt-1 text-sm text-theme-text-secondary sm:text-base">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            {actions.length > 0 && (
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {actions.map((action, index) => renderActionButton(action, index))}
               </div>
             )}
-
-            {/* Title and Subtitle */}
-            <div>
-              <h1 className="text-2xl font-bold text-theme-text-primary sm:text-3xl">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="mt-1 text-sm text-theme-text-secondary sm:text-base">
-                  {subtitle}
-                </p>
-              )}
-            </div>
           </div>
-
-          {/* Action Buttons */}
-          {actions.length > 0 && (
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              {actions.map((action, index) => renderActionButton(action, index))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
