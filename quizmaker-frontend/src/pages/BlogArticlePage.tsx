@@ -21,11 +21,20 @@ import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
+const HERO_IMAGE_CDN_BASE = 'https://cdn.quizzence.com/articles';
+
+const buildHeroImageCandidates = (articleId?: string, assetId?: string): string[] => {
+  if (!articleId || !assetId) return [];
+  const base = `${HERO_IMAGE_CDN_BASE}/${articleId}/${assetId}`;
+  return [`${base}.jpg`, `${base}.jpeg`, `${base}.png`, `${base}.webp`];
+};
+
 const BlogArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [heroImageSrc, setHeroImageSrc] = useState<string | null>(null);
+  const [heroImageCandidates, setHeroImageCandidates] = useState<string[]>([]);
+  const [heroImageCandidateIndex, setHeroImageCandidateIndex] = useState<number>(-1);
 
   const isAdmin = useMemo(
     () => user?.roles?.some(role => ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATOR'].includes(role)),
@@ -52,27 +61,31 @@ const BlogArticlePage: React.FC = () => {
     const directUrl = (heroImage?.url || '').trim();
 
     if (!heroImage) {
-      setHeroImageSrc(null);
+      setHeroImageCandidates([]);
+      setHeroImageCandidateIndex(-1);
       return () => {
         isActive = false;
       };
     }
 
     if (directUrl) {
-      setHeroImageSrc(directUrl);
+      setHeroImageCandidates([directUrl]);
+      setHeroImageCandidateIndex(0);
       return () => {
         isActive = false;
       };
     }
+
+    const fallbackCandidates = buildHeroImageCandidates(article?.id, heroImage.assetId);
+    setHeroImageCandidates(fallbackCandidates);
+    setHeroImageCandidateIndex(fallbackCandidates.length ? 0 : -1);
 
     if (!heroImage.assetId || !user) {
-      setHeroImageSrc(null);
       return () => {
         isActive = false;
       };
     }
 
-    setHeroImageSrc(null);
     const loadHeroImage = async () => {
       try {
         const { items } = await mediaService.searchAssets({
@@ -82,10 +95,17 @@ const BlogArticlePage: React.FC = () => {
         });
         if (!isActive) return;
         const match = items.find((item) => item.assetId === heroImage.assetId);
-        setHeroImageSrc(match?.cdnUrl ?? null);
+        if (!match?.cdnUrl) {
+          return;
+        }
+        setHeroImageCandidates((prev) => {
+          if (prev[0] === match.cdnUrl) return prev;
+          const next = [match.cdnUrl, ...prev.filter((url) => url !== match.cdnUrl)];
+          return next;
+        });
+        setHeroImageCandidateIndex(0);
       } catch {
         if (!isActive) return;
-        setHeroImageSrc(null);
       }
     };
 
@@ -94,7 +114,10 @@ const BlogArticlePage: React.FC = () => {
     return () => {
       isActive = false;
     };
-  }, [article?.heroImage?.assetId, article?.heroImage?.url, user]);
+  }, [article?.id, article?.heroImage?.assetId, article?.heroImage?.url, user]);
+
+  const heroImageSrc =
+    heroImageCandidateIndex >= 0 ? heroImageCandidates[heroImageCandidateIndex] ?? null : null;
 
   const handleCta = (cta?: ArticleCtaDto) => {
     if (!cta?.href) return;
@@ -177,8 +200,11 @@ const BlogArticlePage: React.FC = () => {
                           src={heroImageSrc}
                           alt={article.heroImage.alt}
                           className="w-full h-auto rounded-lg border border-theme-border-primary"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
+                          onError={() => {
+                            setHeroImageCandidateIndex((prev) => {
+                              const nextIndex = prev + 1;
+                              return nextIndex < heroImageCandidates.length ? nextIndex : -1;
+                            });
                           }}
                         />
                         {article.heroImage.caption && (
