@@ -55,6 +55,20 @@
   color: var(--color-interactive-primary-hover);
 }
 
+/* Paragraph spacing in article content */
+.article-content p {
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+.article-content p:first-child {
+  margin-top: 0;
+}
+
+.article-content p:last-child {
+  margin-bottom: 0;
+}
+
 .article-content ol {
   list-style: none;
   padding: 0;
