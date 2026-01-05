@@ -75,6 +75,7 @@ export interface AnswerSubmissionRequest {
   response: any;      // JsonNode in Java, see Answer JSON per Type
   includeCorrectness?: boolean;  // Include whether the answer is correct (isCorrect field) in the response. Defaults to false.
   includeCorrectAnswer?: boolean; // Include the correct answer information (correctAnswer field) in the response. Defaults to false.
+  includeExplanation?: boolean;   // Include the answer explanation (explanation field) in the response. Defaults to false.
 }
 
 /**
@@ -96,6 +97,7 @@ export interface AnswerSubmissionDto {
   score: number | null;        // null if not yet graded
   answeredAt: string;          // ISO (Instant in Java)
   correctAnswer?: any;         // Correct answer information (only included when includeCorrectAnswer=true). JsonNode in Java.
+  explanation?: string | null; // Explanation of the correct answer (only included when includeExplanation=true)
   nextQuestion?: QuestionForAttemptDto | null; // ONE_BY_ONE mode only
 }
 

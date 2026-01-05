@@ -124,6 +124,7 @@ export class AttemptService {
    * @param data - Answer submission request. Can include optional flags:
    *   - includeCorrectness: include whether the answer is correct (isCorrect field) in the response
    *   - includeCorrectAnswer: include the correct answer information (correctAnswer field) in the response
+   *   - includeExplanation: include the answer explanation (explanation field) in the response
    */
   async submitAnswer(attemptId: string, data: AnswerSubmissionRequest): Promise<AnswerSubmissionDto> {
     try {
@@ -140,11 +141,12 @@ export class AttemptService {
   /**
    * Submit multiple answers at once (ALL_AT_ONCE mode)
    * POST /api/v1/attempts/{attemptId}/answers/batch
-   * Each answer in the batch can have its own includeCorrectness and includeCorrectAnswer flags.
+   * Each answer in the batch can have its own includeCorrectness, includeCorrectAnswer, and includeExplanation flags.
    * @param attemptId - UUID of the attempt
    * @param data - Batch answer submission request. Each answer can include optional flags:
    *   - includeCorrectness: include whether the answer is correct (isCorrect field) in the response
    *   - includeCorrectAnswer: include the correct answer information (correctAnswer field) in the response
+   *   - includeExplanation: include the answer explanation (explanation field) in the response
    */
   async submitBatchAnswers(attemptId: string, data: BatchAnswerSubmissionRequest): Promise<AnswerSubmissionDto[]> {
     try {

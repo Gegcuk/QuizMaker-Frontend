@@ -25,6 +25,7 @@ import {
   AttemptTimer,
   HintDisplay
 } from '@/features/attempt';
+import SafeContent from '@/components/common/SafeContent';
 
 // Shape of user answer input; varies by question type
 type AnswerInput = any;
@@ -65,6 +66,7 @@ const QuizAttemptPage: React.FC = () => {
     correctAnswer?: any;
     userAnswer: any;
     score: number | null;
+    explanation?: string | null;
     nextQuestion?: any | null;
   } | null>(null);
 
@@ -337,6 +339,7 @@ const QuizAttemptPage: React.FC = () => {
       response: buildResponse(),
       includeCorrectness: true,  // Always include correctness to show result
       includeCorrectAnswer: true, // Always include correct answer to show if incorrect
+      includeExplanation: true,   // Always include explanation to display after submission
     };
 
     try {
@@ -355,6 +358,7 @@ const QuizAttemptPage: React.FC = () => {
           correctAnswer: data.correctAnswer,
           userAnswer: buildResponse(),
           score: data.score,
+          explanation: data.explanation || null,
           nextQuestion: data.nextQuestion,
         });
       } else if (!data.nextQuestion) {
@@ -790,6 +794,25 @@ const QuizAttemptPage: React.FC = () => {
         </div>
 
         {error && <p className="text-theme-interactive-danger mt-4">{error}</p>}
+
+        {/* Explanation (shown when answer result is available) */}
+        {answerResult && answerResult.explanation && (
+          <div className="mt-4 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
+            <div className="flex items-start space-x-2">
+              <svg className="w-5 h-5 text-theme-interactive-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-theme-text-primary mb-1">Explanation</p>
+                <SafeContent 
+                  content={answerResult.explanation} 
+                  allowHtml={true}
+                  className="text-sm text-theme-text-secondary prose prose-sm max-w-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <Button
           onClick={answerResult ? handleNextQuestion : handleSubmitAnswer}
