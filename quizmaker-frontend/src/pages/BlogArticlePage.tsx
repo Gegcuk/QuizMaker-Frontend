@@ -10,6 +10,7 @@ import {
   CardHeader,
   PageContainer,
 } from '@/components';
+import type { BreadcrumbItem } from '@/components/layout/PageHeader';
 import Spinner from '@/components/ui/Spinner';
 import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
@@ -124,17 +125,17 @@ const BlogArticlePage: React.FC = () => {
   const heroImageSrc =
     heroImageCandidateIndex >= 0 ? heroImageCandidates[heroImageCandidateIndex] ?? null : null;
 
-  const breadcrumbItems = useMemo(() => {
-    const items = [
+  const breadcrumbItems = useMemo((): BreadcrumbItem[] => {
+    const items: BreadcrumbItem[] = [
       { label: 'Home', path: '/' },
       { label: 'Blog', path: '/blog/' },
     ];
     if (article?.title && article?.slug) {
-      items.push({ label: article.title, path: `/blog/${article.slug}/`, isCurrent: true });
+      items.push({ label: article.title, path: `/blog/${article.slug}/`, isCurrent: true } as BreadcrumbItem);
       return items;
     }
     if (normalizedSlug) {
-      items.push({ label: 'Article', path: `/blog/${normalizedSlug}/`, isCurrent: true });
+      items.push({ label: 'Article', path: `/blog/${normalizedSlug}/`, isCurrent: true } as BreadcrumbItem);
     }
     return items;
   }, [article?.slug, article?.title, normalizedSlug]);
