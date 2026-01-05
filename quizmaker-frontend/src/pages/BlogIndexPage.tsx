@@ -1317,16 +1317,7 @@ const BlogIndexPage: React.FC = () => {
           />
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-theme-text-primary">Stats</h4>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={addStat}
-              >
-                Add
-              </Button>
-            </div>
+            <h4 className="text-sm font-semibold text-theme-text-primary">Stats</h4>
             {(draftPayload.stats ?? []).length === 0 && (
               <p className="text-sm text-theme-text-tertiary">No stats yet.</p>
             )}
@@ -1371,19 +1362,17 @@ const BlogIndexPage: React.FC = () => {
                 </div>
               ))}
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={addStat}
+            >
+              Add Stat
+            </Button>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-theme-text-primary">Sections</h4>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={addSection}
-              >
-                Add
-              </Button>
-            </div>
+            <h4 className="text-sm font-semibold text-theme-text-primary">Sections</h4>
             {(draftPayload.sections ?? []).length === 0 && (
               <p className="text-sm text-theme-text-tertiary">No sections yet.</p>
             )}
@@ -1568,19 +1557,17 @@ const BlogIndexPage: React.FC = () => {
                 </div>
               ))}
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={addSection}
+            >
+              Add Section
+            </Button>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-theme-text-primary">FAQs</h4>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={addFaq}
-              >
-                Add
-              </Button>
-            </div>
+            <h4 className="text-sm font-semibold text-theme-text-primary">FAQs</h4>
             {(draftPayload.faqs ?? []).length === 0 && (
               <p className="text-sm text-theme-text-tertiary">No FAQs yet.</p>
             )}
@@ -1616,19 +1603,17 @@ const BlogIndexPage: React.FC = () => {
                 </div>
               ))}
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={addFaq}
+            >
+              Add FAQ
+            </Button>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-theme-text-primary">References</h4>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={addReference}
-              >
-                Add
-              </Button>
-            </div>
+            <h4 className="text-sm font-semibold text-theme-text-primary">References</h4>
             {(draftPayload.references ?? []).length === 0 && (
               <p className="text-sm text-theme-text-tertiary">No references yet.</p>
             )}
@@ -1667,7 +1652,14 @@ const BlogIndexPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={addReference}
+            >
+              Add Reference
+            </Button>
+          </div>
 
             </fieldset>
             <div className="flex justify-end gap-3">
