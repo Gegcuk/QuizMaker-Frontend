@@ -37,6 +37,7 @@ const BlogArticlePage: React.FC = () => {
   const [heroImageCandidates, setHeroImageCandidates] = useState<string[]>([]);
   const [heroImageCandidateIndex, setHeroImageCandidateIndex] = useState<number>(-1);
   const heroImageCandidatesRef = useRef<string[]>([]);
+  const [expandedFaqs, setExpandedFaqs] = useState<Set<string>>(new Set());
 
   const isAdmin = useMemo(
     () => user?.roles?.some(role => ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATOR'].includes(role)),
@@ -149,6 +150,18 @@ const BlogArticlePage: React.FC = () => {
       return;
     }
     navigate(href);
+  };
+
+  const toggleFaq = (faqQuestion: string) => {
+    setExpandedFaqs(prev => {
+      const next = new Set(prev);
+      if (next.has(faqQuestion)) {
+        next.delete(faqQuestion);
+      } else {
+        next.add(faqQuestion);
+      }
+      return next;
+    });
   };
 
   if (!normalizedSlug) {
@@ -430,14 +443,39 @@ const BlogArticlePage: React.FC = () => {
                       <CardHeader>
                         <h3 className="text-xl font-semibold text-theme-text-primary">FAQs</h3>
                       </CardHeader>
-                      <CardBody className="space-y-3 article-content">
+                      <CardBody className="space-y-0 article-content">
                         <div className="divide-y divide-theme-border-primary">
-                          {(article.faqs || []).map((faq) => (
-                            <div key={faq.question} className="py-3">
-                              <p className="font-semibold text-theme-text-primary">{faq.question}</p>
-                              {faq.answer && <p className="mt-2 text-theme-text-secondary">{faq.answer}</p>}
-                            </div>
-                          ))}
+                          {(article.faqs || []).map((faq) => {
+                            const isExpanded = expandedFaqs.has(faq.question);
+                            return (
+                              <div key={faq.question} className="py-0">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleFaq(faq.question)}
+                                  className="w-full flex items-center justify-between py-3 text-left hover:bg-theme-bg-secondary transition-colors rounded-md px-2 -mx-2"
+                                >
+                                  <p className="font-semibold text-theme-text-primary pr-4">{faq.question}</p>
+                                  <svg
+                                    className={`h-5 w-5 text-theme-text-secondary flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                </button>
+                                {isExpanded && faq.answer && (
+                                  <div className="pb-3 px-2">
+                                    <SafeContent
+                                      content={faq.answer}
+                                      allowHtml={true}
+                                      className="text-theme-text-secondary article-content"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </CardBody>
                     </Card>
