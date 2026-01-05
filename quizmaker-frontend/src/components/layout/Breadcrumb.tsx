@@ -151,37 +151,37 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   }
 
   return (
-    <nav className={`flex items-center space-x-1 text-sm text-theme-text-primary ${className}`} aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-1">
+    <nav className={`flex items-center space-x-1 text-sm text-theme-text-primary overflow-x-auto ${className}`} aria-label="Breadcrumb">
+      <ol className="flex items-center space-x-1 min-w-0 flex-shrink-0">
                  {visibleItems.map((item, index) => {
            const isLast = index === visibleItems.length - 1;
            const isCollapsed = 'isCollapsed' in item && item.isCollapsed;
            const isCurrent = 'isCurrent' in item && item.isCurrent;
 
            return (
-            <li key={index} className="flex items-center">
+            <li key={index} className="flex items-center flex-shrink-0">
               {/* Separator */}
               {index > 0 && !isCollapsed && (
                 <ChevronRightIcon />
               )}
 
               {/* Breadcrumb Item */}
-              <div className="flex items-center">
+              <div className="flex items-center min-w-0">
                 {isCollapsed ? (
                   // Collapsed items (ellipsis)
-                  <span className="px-2 py-1 text-theme-text-tertiary">
+                  <span className="px-2 py-1 text-theme-text-tertiary flex-shrink-0">
                     <EllipsisIcon />
                   </span>
                                  ) : isCurrent ? (
                    // Current page (non-clickable, highlighted)
-                   <span className="px-2 py-1 text-theme-text-primary font-medium truncate max-w-xs sm:max-w-md">
+                   <span className="px-2 py-1 text-theme-text-primary font-medium truncate max-w-[120px] sm:max-w-[200px] md:max-w-md" title={item.label}>
                      {item.label}
                    </span>
                 ) : (
                   // Clickable breadcrumb item
                   <Link
                     to={item.path}
-                    className="px-2 py-1 text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded transition-colors duration-200 truncate max-w-xs sm:max-w-md"
+                    className="px-2 py-1 text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary rounded transition-colors duration-200 truncate max-w-[120px] sm:max-w-[200px] md:max-w-md flex-shrink-0"
                     title={item.label}
                   >
                     {item.label}

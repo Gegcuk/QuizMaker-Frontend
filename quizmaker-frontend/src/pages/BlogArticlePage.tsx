@@ -75,6 +75,7 @@ const BlogArticlePage: React.FC = () => {
       };
     }
 
+    // Priority 1: Use direct URL from backend if available (best option for logged-out users)
     if (directUrl) {
       setHeroImageCandidates([directUrl]);
       setHeroImageCandidateIndex(0);
@@ -83,40 +84,52 @@ const BlogArticlePage: React.FC = () => {
       };
     }
 
-    const fallbackCandidates = buildHeroImageCandidates(article?.id, heroImage.assetId);
-    setHeroImageCandidates(fallbackCandidates);
-    setHeroImageCandidateIndex(fallbackCandidates.length ? 0 : -1);
-
-    if (!heroImage.assetId || !user) {
-      return () => {
-        isActive = false;
-      };
+    // Priority 2: Build fallback CDN URLs if we have both article ID and asset ID
+    // Note: article.id might not be available in public API responses for logged-out users
+    const fallbackCandidates = article?.id && heroImage.assetId 
+      ? buildHeroImageCandidates(article.id, heroImage.assetId)
+      : [];
+    
+    if (fallbackCandidates.length > 0) {
+      setHeroImageCandidates(fallbackCandidates);
+      setHeroImageCandidateIndex(0);
+    } else if (heroImage.assetId) {
+      // If we have assetId but no article.id, we can't build CDN URLs
+      // This is expected for logged-out users - backend should provide heroImage.url
+      console.warn('Hero image has assetId but article.id is missing. Backend should provide heroImage.url for public articles.');
+      setHeroImageCandidates([]);
+      setHeroImageCandidateIndex(-1);
     }
 
-    const loadHeroImage = async () => {
-      try {
-        const { items } = await mediaService.searchAssets({
-          type: 'IMAGE',
-          query: heroImage.assetId,
-          limit: 5,
-        });
-        if (!isActive) return;
-        const match = items.find((item) => item.assetId === heroImage.assetId);
-        if (!match?.cdnUrl) {
-          return;
+    // Priority 3: Try to fetch CDN URL via searchAssets if user is logged in (requires auth)
+    // This is only for authenticated users as a fallback
+    if (heroImage.assetId && user) {
+      const loadHeroImage = async () => {
+        try {
+          const { items } = await mediaService.searchAssets({
+            type: 'IMAGE',
+            query: heroImage.assetId,
+            limit: 5,
+          });
+          if (!isActive) return;
+          const match = items.find((item) => item.assetId === heroImage.assetId);
+          if (!match?.cdnUrl) {
+            return;
+          }
+          setHeroImageCandidates((prev) => {
+            if (prev[0] === match.cdnUrl) return prev;
+            const next = [match.cdnUrl, ...prev.filter((url) => url !== match.cdnUrl)];
+            return next;
+          });
+          setHeroImageCandidateIndex(0);
+        } catch (err) {
+          if (!isActive) return;
+          console.warn('Failed to fetch hero image CDN URL via searchAssets:', err);
         }
-        setHeroImageCandidates((prev) => {
-          if (prev[0] === match.cdnUrl) return prev;
-          const next = [match.cdnUrl, ...prev.filter((url) => url !== match.cdnUrl)];
-          return next;
-        });
-        setHeroImageCandidateIndex(0);
-      } catch {
-        if (!isActive) return;
-      }
-    };
+      };
 
-    loadHeroImage();
+      loadHeroImage();
+    }
 
     return () => {
       isActive = false;
