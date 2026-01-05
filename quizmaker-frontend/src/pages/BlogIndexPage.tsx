@@ -456,7 +456,7 @@ const BlogIndexPage: React.FC = () => {
       excerpt: article.excerpt,
       heroKicker: article.heroKicker,
       heroImage: article.heroImage,
-      tags: article.tags,
+      tags: article.tags ?? [],
       author: article.author,
       readingTime: article.readingTime,
       publishedAt: article.publishedAt,
@@ -467,12 +467,12 @@ const BlogIndexPage: React.FC = () => {
       contentGroup: article.contentGroup,
       primaryCta: article.primaryCta,
       secondaryCta: article.secondaryCta,
-      stats: article.stats,
-      keyPoints: article.keyPoints,
-      checklist: article.checklist,
+      stats: article.stats ?? [],
+      keyPoints: article.keyPoints ?? [],
+      checklist: article.checklist ?? [],
       sections: (article.sections ?? []).map((section) => toSectionDraft(section)),
-      faqs: article.faqs,
-      references: article.references,
+      faqs: article.faqs ?? [],
+      references: article.references ?? [],
     });
     setHeroImageAlt(article.heroImage?.alt || '');
     setHeroImageCaption(article.heroImage?.caption || '');
@@ -494,7 +494,7 @@ const BlogIndexPage: React.FC = () => {
         excerpt: fullArticle.excerpt,
         heroKicker: fullArticle.heroKicker,
         heroImage: fullArticle.heroImage,
-        tags: fullArticle.tags,
+        tags: fullArticle.tags ?? [],
         author: fullArticle.author,
         readingTime: fullArticle.readingTime,
         publishedAt: fullArticle.publishedAt,
@@ -505,12 +505,12 @@ const BlogIndexPage: React.FC = () => {
         contentGroup: fullArticle.contentGroup,
         primaryCta: fullArticle.primaryCta,
         secondaryCta: fullArticle.secondaryCta,
-        stats: fullArticle.stats,
-        keyPoints: fullArticle.keyPoints,
-        checklist: fullArticle.checklist,
+        stats: fullArticle.stats ?? [],
+        keyPoints: fullArticle.keyPoints ?? [],
+        checklist: fullArticle.checklist ?? [],
         sections: (fullArticle.sections ?? []).map((section) => toSectionDraft(section)),
-        faqs: fullArticle.faqs,
-        references: fullArticle.references,
+        faqs: fullArticle.faqs ?? [],
+        references: fullArticle.references ?? [],
       });
       setHeroImageAlt(fullArticle.heroImage?.alt || '');
       setHeroImageCaption(fullArticle.heroImage?.caption || '');
