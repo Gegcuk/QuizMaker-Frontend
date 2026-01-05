@@ -39,7 +39,7 @@ const statusOptions: Array<{ value: ArticleStatus | 'all'; label: string }> = [
   { value: 'DRAFT', label: 'Drafts' },
 ];
 
-const createEmptyPayload = (): ArticleUpsertPayload => ({
+const createEmptyPayload = (): ArticleUpsertDraftPayload => ({
   slug: '',
   title: '',
   description: '',
@@ -60,6 +60,26 @@ const slugify = (value: string) =>
 
 const hasText = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
+
+type ArticleSectionDraft = ArticleSectionDto & { _clientId: string };
+type ArticleUpsertDraftPayload = Omit<ArticleUpsertPayload, 'sections'> & {
+  sections?: ArticleSectionDraft[];
+};
+
+const createClientId = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+  return `section-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+const toSectionDraft = (section?: ArticleSectionDto | ArticleSectionDraft): ArticleSectionDraft => ({
+  sectionId: section?.sectionId ?? '',
+  title: section?.title ?? '',
+  summary: section?.summary,
+  content: section?.content,
+  _clientId: (section as ArticleSectionDraft | undefined)?._clientId ?? createClientId(),
+});
 
 const getUniqueSectionId = (
   baseId: string,
@@ -176,7 +196,7 @@ const BlogIndexPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | 'all'>('PUBLISHED');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [draftPayload, setDraftPayload] = useState<ArticleUpsertPayload>(() => createEmptyPayload());
+  const [draftPayload, setDraftPayload] = useState<ArticleUpsertDraftPayload>(() => createEmptyPayload());
   const [tagsInput, setTagsInput] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [articleIdToDelete, setArticleIdToDelete] = useState<string | null>(null);
@@ -188,13 +208,13 @@ const BlogIndexPage: React.FC = () => {
   const heroImageInputRef = useRef<HTMLInputElement>(null);
   const [heroImageAlt, setHeroImageAlt] = useState('');
   const [heroImageCaption, setHeroImageCaption] = useState('');
-  const sectionsRef = useRef<ArticleSectionDto[]>([]);
-  const pendingSectionIdsRef = useRef<Record<number, string>>({});
+  const sectionsRef = useRef<ArticleSectionDraft[]>([]);
+  const pendingSectionIdsRef = useRef<Record<string, string>>({});
 
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const sections = draftPayload.sections ?? [];
+    const sections = (draftPayload.sections ?? []) as ArticleSectionDraft[];
     sectionsRef.current = sections;
 
     const pending = pendingSectionIdsRef.current;
@@ -203,12 +223,12 @@ const BlogIndexPage: React.FC = () => {
       return;
     }
 
-    const validIds = new Set(sections.map((section) => section.sectionId));
-    const nextPending: Record<number, string> = {};
-    for (const [idx, id] of Object.entries(pending)) {
-      if (validIds.has(id)) {
-        nextPending[Number(idx)] = id;
-      }
+    const nextPending: Record<string, string> = {};
+    for (const section of sections) {
+      const pendingId = pending[section._clientId];
+      if (!pendingId) continue;
+      const currentId = section.sectionId;
+      nextPending[section._clientId] = hasText(currentId) ? currentId : pendingId;
     }
     pendingSectionIdsRef.current = nextPending;
   }, [draftPayload.sections]);
@@ -316,7 +336,7 @@ const BlogIndexPage: React.FC = () => {
   const addSection = () => {
     setDraftPayload((prev) => ({
       ...prev,
-      sections: [...(prev.sections ?? []), { sectionId: '', title: '', summary: '', content: '' }],
+      sections: [...(prev.sections ?? []), toSectionDraft()],
     }));
   };
 
@@ -331,8 +351,8 @@ const BlogIndexPage: React.FC = () => {
     }));
   };
 
-  const updateSectionById = (
-    sectionId: string,
+  const updateSectionByClientId = (
+    clientId: string,
     patch: Partial<ArticleSectionDto> | ((section: ArticleSectionDto) => Partial<ArticleSectionDto>)
   ) => {
     setDraftPayload((prev) => {
@@ -340,10 +360,11 @@ const BlogIndexPage: React.FC = () => {
       let didUpdate = false;
 
       const nextSections = sections.map((section) => {
-        if (didUpdate || section.sectionId !== sectionId) return section;
+        const draftSection = section as ArticleSectionDraft;
+        if (didUpdate || draftSection._clientId !== clientId) return section;
         const patchValue = typeof patch === 'function' ? patch(section) : patch;
         didUpdate = true;
-        return { ...section, ...patchValue };
+        return { ...draftSection, ...patchValue };
       });
 
       if (!didUpdate) {
@@ -410,6 +431,7 @@ const BlogIndexPage: React.FC = () => {
     editRequestIdRef.current += 1;
     setIsEditLoading(false);
     setEditLoadError(null);
+    setIsUploadingHeroImage(false);
     setIsModalOpen(false);
     setTagsInput('');
     setEditingId(null);
@@ -446,7 +468,7 @@ const BlogIndexPage: React.FC = () => {
       stats: article.stats,
       keyPoints: article.keyPoints,
       checklist: article.checklist,
-      sections: article.sections,
+      sections: (article.sections ?? []).map((section) => toSectionDraft(section)),
       faqs: article.faqs,
       references: article.references,
     });
@@ -484,7 +506,7 @@ const BlogIndexPage: React.FC = () => {
         stats: fullArticle.stats,
         keyPoints: fullArticle.keyPoints,
         checklist: fullArticle.checklist,
-        sections: fullArticle.sections,
+        sections: (fullArticle.sections ?? []).map((section) => toSectionDraft(section)),
         faqs: fullArticle.faqs,
         references: fullArticle.references,
       });
@@ -562,6 +584,7 @@ const BlogIndexPage: React.FC = () => {
       const section = (draftPayload.sections ?? [])[i];
       if (!section) continue;
 
+      const { _clientId, ...sectionRest } = section as ArticleSectionDraft;
       const titleValue = (section.title || '').trim();
       const summary = (section.summary || '').trim();
       const content = (section.content || '').trim();
@@ -578,7 +601,7 @@ const BlogIndexPage: React.FC = () => {
       if (!sectionIdValue) nextErrors[`sections.${i}.sectionId`] = 'ID is required';
 
       normalizedSections.push({
-        ...section,
+        ...sectionRest,
         sectionId: sectionIdValue,
         title: titleValue,
         summary: hasText(summary) ? summary : undefined,
@@ -713,6 +736,7 @@ const BlogIndexPage: React.FC = () => {
                 editRequestIdRef.current += 1;
                 setIsEditLoading(false);
                 setEditLoadError(null);
+                setIsUploadingHeroImage(false);
                 setDraftPayload(createEmptyPayload());
                 setTagsInput('');
                 setEditingId(null);
@@ -933,7 +957,7 @@ const BlogIndexPage: React.FC = () => {
                     Hero Image (optional)
                   </label>
                   <p className="text-xs text-theme-text-tertiary mt-0.5">
-                    Recommended: 1920 × 1080px (16:9), max 500 KB. Will be displayed at the top of the article.
+                    Recommended: 1920px wide × 500-600px tall (width is mandatory), max 500 KB. Will be displayed at the top of the article.
                   </p>
                 </div>
                 <input
@@ -1316,13 +1340,14 @@ const BlogIndexPage: React.FC = () => {
                               const file = e.target.files?.[0];
                               if (!file) return;
 
+                              const sectionClientId = (section as ArticleSectionDraft)._clientId;
                               const baseSectionId = hasText(section.sectionId)
                                 ? section.sectionId
                                 : hasText(section.title)
                                 ? slugify(section.title)
                                 : '';
                               const reservedIds = Object.entries(pendingSectionIdsRef.current)
-                                .filter(([reservedIdx]) => Number(reservedIdx) !== idx)
+                                .filter(([clientId]) => clientId !== sectionClientId)
                                 .map(([, id]) => id);
                               const targetSectionId = baseSectionId
                                 ? getUniqueSectionId(baseSectionId, sectionsRef.current, idx, reservedIds)
@@ -1344,7 +1369,7 @@ const BlogIndexPage: React.FC = () => {
 
                               pendingSectionIdsRef.current = {
                                 ...pendingSectionIdsRef.current,
-                                [idx]: targetSectionId,
+                                [sectionClientId]: targetSectionId,
                               };
                               sectionsRef.current = (sectionsRef.current ?? []).map((current, currentIdx) =>
                                 currentIdx === idx ? { ...current, sectionId: targetSectionId } : current
@@ -1363,7 +1388,7 @@ const BlogIndexPage: React.FC = () => {
                                 const escapedAlt = escapeHtmlAttribute(alt);
                                 const imageHtml = `<img src="${escapedUrl}" alt="${escapedAlt}" />`;
                                 // Use functional update to read current section content from state
-                                updateSectionById(targetSectionId, (currentSection) => {
+                                updateSectionByClientId(sectionClientId, (currentSection) => {
                                   const currentContent = currentSection.content || '';
                                   return { content: currentContent + (currentContent ? '\n\n' : '') + imageHtml };
                                 });
