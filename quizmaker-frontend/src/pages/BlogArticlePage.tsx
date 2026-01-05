@@ -23,20 +23,40 @@ const formatDate = (value: string) =>
   new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
 const HERO_IMAGE_CDN_BASE = 'https://cdn.quizzence.com/articles';
+const LIBRARY_CDN_BASE = 'https://cdn.quizzence.com/library';
+
+// Common image extensions in order of likelihood
+const IMAGE_EXTENSIONS = ['jpg', 'png', 'jpeg', 'webp'];
 
 const buildHeroImageCandidates = (articleId?: string, assetId?: string): string[] => {
-  if (!articleId || !assetId) return [];
-  const base = `${HERO_IMAGE_CDN_BASE}/${articleId}/${assetId}`;
-  return [`${base}.jpg`, `${base}.jpeg`, `${base}.png`, `${base}.webp`];
+  if (!assetId) return [];
+  
+  const candidates: string[] = [];
+  
+  // Priority 1: Library CDN URLs (work in production for logged-out users)
+  // Format: https://cdn.quizzence.com/library/{assetId}.{ext}
+  // Try most common extensions first to reduce flickering
+  for (const ext of IMAGE_EXTENSIONS) {
+    candidates.push(`${LIBRARY_CDN_BASE}/${assetId}.${ext}`);
+  }
+  
+  // Priority 2: Article-specific CDN URLs (may work in some environments)
+  // Format: https://cdn.quizzence.com/articles/{articleId}/{assetId}.{ext}
+  if (articleId) {
+    const base = `${HERO_IMAGE_CDN_BASE}/${articleId}/${assetId}`;
+    for (const ext of IMAGE_EXTENSIONS) {
+      candidates.push(`${base}.${ext}`);
+    }
+  }
+  
+  return candidates;
 };
 
 const BlogArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [heroImageCandidates, setHeroImageCandidates] = useState<string[]>([]);
-  const [heroImageCandidateIndex, setHeroImageCandidateIndex] = useState<number>(-1);
-  const heroImageCandidatesRef = useRef<string[]>([]);
+  const [heroImageSrc, setHeroImageSrc] = useState<string | null>(null);
   const [expandedFaqs, setExpandedFaqs] = useState<Set<string>>(new Set());
 
   const isAdmin = useMemo(
@@ -57,82 +77,65 @@ const BlogArticlePage: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    heroImageCandidatesRef.current = heroImageCandidates;
-  }, [heroImageCandidates]);
-
+  // Preload image to find working URL without flickering
   useEffect(() => {
     let isActive = true;
+    let preloadImage: HTMLImageElement | null = null;
 
     const heroImage = article?.heroImage;
-    const directUrl = (heroImage?.url || '').trim();
 
-    // TEMPORARY DEBUG: Log hero image data for production debugging
-    console.log('[HERO IMAGE DEBUG]', {
-      hasHeroImage: !!heroImage,
-      heroImage: heroImage ? {
-        assetId: heroImage.assetId,
-        url: heroImage.url,
-        alt: heroImage.alt,
-        caption: heroImage.caption,
-      } : null,
-      articleId: article?.id,
-      articleSlug: article?.slug,
-      hasUser: !!user,
-      directUrl: directUrl || '(empty)',
-    });
+    if (!heroImage?.assetId) {
+      setHeroImageSrc(null);
+      return () => {
+        isActive = false;
+        if (preloadImage) {
+          preloadImage.onload = null;
+          preloadImage.onerror = null;
+        }
+      };
+    }
 
-    if (!heroImage) {
-      console.log('[HERO IMAGE DEBUG] No hero image found');
-      setHeroImageCandidates([]);
-      setHeroImageCandidateIndex(-1);
+    // Build CDN URL candidates and preload to find working one
+    // Note: Backend does NOT provide url field in ArticleImageDto, only assetId
+    const candidates = buildHeroImageCandidates(article?.id, heroImage.assetId);
+
+    if (candidates.length === 0) {
+      setHeroImageSrc(null);
       return () => {
         isActive = false;
       };
     }
 
-    // Priority 1: Use direct URL from backend if available (best option for logged-out users)
-    if (directUrl) {
-      console.log('[HERO IMAGE DEBUG] Using direct URL from backend:', directUrl);
-      setHeroImageCandidates([directUrl]);
-      setHeroImageCandidateIndex(0);
-      return () => {
-        isActive = false;
+    // Preload strategy: test candidates in order, set src only when one loads successfully
+    const testCandidate = (index: number): void => {
+      if (!isActive || index >= candidates.length) {
+        return;
+      }
+
+      const url = candidates[index];
+      preloadImage = new Image();
+      
+      preloadImage.onload = () => {
+        if (!isActive) return;
+        setHeroImageSrc(url);
+        preloadImage = null;
       };
-    }
 
-    // Priority 2: Build fallback CDN URLs if we have both article ID and asset ID
-    // Note: article.id might not be available in public API responses for logged-out users
-    const fallbackCandidates = article?.id && heroImage.assetId 
-      ? buildHeroImageCandidates(article.id, heroImage.assetId)
-      : [];
-    
-    console.log('[HERO IMAGE DEBUG] Fallback candidates:', {
-      hasArticleId: !!article?.id,
-      hasAssetId: !!heroImage.assetId,
-      candidates: fallbackCandidates,
-      count: fallbackCandidates.length,
-    });
-    
-    if (fallbackCandidates.length > 0) {
-      setHeroImageCandidates(fallbackCandidates);
-      setHeroImageCandidateIndex(0);
-    } else if (heroImage.assetId) {
-      // If we have assetId but no article.id, we can't build CDN URLs
-      // This is expected for logged-out users - backend should provide heroImage.url
-      console.warn('[HERO IMAGE DEBUG] Hero image has assetId but article.id is missing. Backend should provide heroImage.url for public articles.', {
-        assetId: heroImage.assetId,
-        articleId: article?.id,
-        articleSlug: article?.slug,
-      });
-      setHeroImageCandidates([]);
-      setHeroImageCandidateIndex(-1);
-    }
+      preloadImage.onerror = () => {
+        if (!isActive) return;
+        // Try next candidate
+        testCandidate(index + 1);
+      };
 
-    // Priority 3: Try to fetch CDN URL via searchAssets if user is logged in (requires auth)
-    // This is only for authenticated users as a fallback
-    if (heroImage.assetId && user) {
-      console.log('[HERO IMAGE DEBUG] Attempting to fetch CDN URL via searchAssets for authenticated user');
+      preloadImage.src = url;
+    };
+
+    // Start testing from first candidate
+    testCandidate(0);
+
+    // Priority: Try to fetch CDN URL via searchAssets if user is logged in (requires auth)
+    // This can override the preload if it finds a URL faster
+    if (user) {
       const loadHeroImage = async () => {
         try {
           const { items } = await mediaService.searchAssets({
@@ -142,23 +145,12 @@ const BlogArticlePage: React.FC = () => {
           });
           if (!isActive) return;
           const match = items.find((item) => item.assetId === heroImage.assetId);
-          console.log('[HERO IMAGE DEBUG] searchAssets result:', {
-            itemsFound: items.length,
-            match: match ? { assetId: match.assetId, cdnUrl: match.cdnUrl } : null,
-          });
-          if (!match?.cdnUrl) {
-            return;
+          if (match?.cdnUrl) {
+            // Use the authenticated URL immediately if found
+            setHeroImageSrc(match.cdnUrl);
           }
-          setHeroImageCandidates((prev) => {
-            if (prev[0] === match.cdnUrl) return prev;
-            const next = [match.cdnUrl, ...prev.filter((url) => url !== match.cdnUrl)];
-            console.log('[HERO IMAGE DEBUG] Updated candidates with CDN URL from searchAssets:', next);
-            return next;
-          });
-          setHeroImageCandidateIndex(0);
         } catch (err) {
-          if (!isActive) return;
-          console.warn('[HERO IMAGE DEBUG] Failed to fetch hero image CDN URL via searchAssets:', err);
+          // Silently fail - preload candidates should work
         }
       };
 
@@ -167,21 +159,13 @@ const BlogArticlePage: React.FC = () => {
 
     return () => {
       isActive = false;
+      if (preloadImage) {
+        preloadImage.onload = null;
+        preloadImage.onerror = null;
+        preloadImage = null;
+      }
     };
-  }, [article?.id, article?.heroImage?.assetId, article?.heroImage?.url, user]);
-
-  const heroImageSrc =
-    heroImageCandidateIndex >= 0 ? heroImageCandidates[heroImageCandidateIndex] ?? null : null;
-
-  // TEMPORARY DEBUG: Log final hero image source
-  useEffect(() => {
-    console.log('[HERO IMAGE DEBUG] Final hero image source:', {
-      heroImageSrc,
-      candidateIndex: heroImageCandidateIndex,
-      allCandidates: heroImageCandidates,
-      candidatesCount: heroImageCandidates.length,
-    });
-  }, [heroImageSrc, heroImageCandidateIndex, heroImageCandidates]);
+  }, [article?.id, article?.heroImage?.assetId, user]);
 
   const breadcrumbItems = useMemo((): BreadcrumbItem[] => {
     const items: BreadcrumbItem[] = [
@@ -306,37 +290,12 @@ const BlogArticlePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    {/* TEMPORARY DEBUG: Display hero image debug info */}
-                    {article.heroImage && (
-                      <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-600 rounded p-3 text-xs font-mono">
-                        <div className="font-bold mb-1">[DEBUG] Hero Image Info:</div>
-                        <div>Asset ID: {article.heroImage.assetId || '(none)'}</div>
-                        <div>Direct URL: {article.heroImage.url || '(none)'}</div>
-                        <div>Article ID: {article.id || '(none)'}</div>
-                        <div>Current Source: {heroImageSrc || '(none)'}</div>
-                        <div>Candidate Index: {heroImageCandidateIndex}</div>
-                        <div>All Candidates: {heroImageCandidates.length > 0 ? heroImageCandidates.join(', ') : '(none)'}</div>
-                        <div>Has User: {user ? 'Yes' : 'No'}</div>
-                      </div>
-                    )}
                     {article.heroImage && heroImageSrc && (
                       <div className="w-full">
                         <img
                           src={heroImageSrc}
                           alt={article.heroImage.alt}
                           className="w-full h-auto rounded-lg border border-theme-border-primary"
-                          onError={() => {
-                            console.log('[HERO IMAGE DEBUG] Image load error, trying next candidate');
-                            setHeroImageCandidateIndex((prev) => {
-                              const nextIndex = prev + 1;
-                              const hasNext = nextIndex < heroImageCandidatesRef.current.length;
-                              console.log('[HERO IMAGE DEBUG] Next candidate index:', nextIndex, 'hasNext:', hasNext);
-                              return hasNext ? nextIndex : -1;
-                            });
-                          }}
-                          onLoad={() => {
-                            console.log('[HERO IMAGE DEBUG] Image loaded successfully:', heroImageSrc);
-                          }}
                         />
                         {article.heroImage.caption && (
                           <p className="mt-2 text-sm text-theme-text-tertiary italic text-center">

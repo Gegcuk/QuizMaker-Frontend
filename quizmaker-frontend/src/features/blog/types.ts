@@ -68,7 +68,7 @@ export interface ArticleImageDto {
   assetId: string;
   alt: string;
   caption?: string;
-  url?: string; // CDN URL - may be included by backend when serializing
+  url?: string; // CDN URL - NOT provided by backend API, frontend must construct from assetId
 }
 
 export interface ArticleCtaDto {
