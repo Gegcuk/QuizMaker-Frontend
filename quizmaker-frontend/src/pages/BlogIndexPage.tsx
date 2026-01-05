@@ -819,7 +819,7 @@ const BlogIndexPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={closeEditor}
         title={editingId ? 'Edit article' : 'Create article'}
-        size="lg"
+        size="2xl"
       >
         <form
           className="space-y-4"
