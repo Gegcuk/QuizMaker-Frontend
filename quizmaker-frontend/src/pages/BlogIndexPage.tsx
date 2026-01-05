@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Alert,
@@ -232,6 +232,8 @@ const BlogIndexPage: React.FC = () => {
     }
     pendingSectionIdsRef.current = nextPending;
   }, [draftPayload.sections]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data, isLoading } = useQuery({
     queryKey: ['articles', statusFilter, isAdmin],
@@ -523,6 +525,22 @@ const BlogIndexPage: React.FC = () => {
       }
     }
   };
+
+  // Auto-open edit modal if editArticleId is in URL
+  useEffect(() => {
+    const editArticleId = searchParams.get('edit');
+    if (editArticleId && data?.items && !isModalOpen && !editingId) {
+      const articleToEdit = data.items.find((article) => article.id === editArticleId);
+      if (articleToEdit) {
+        handleEdit(articleToEdit);
+        // Remove the query parameter from URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('edit');
+        setSearchParams(newSearchParams, { replace: true });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, data?.items, isModalOpen, editingId]);
 
   const handleSave = () => {
     const nextErrors: Record<string, string> = {};
