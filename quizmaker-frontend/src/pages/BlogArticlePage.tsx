@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -35,6 +35,7 @@ const BlogArticlePage: React.FC = () => {
   const { user } = useAuth();
   const [heroImageCandidates, setHeroImageCandidates] = useState<string[]>([]);
   const [heroImageCandidateIndex, setHeroImageCandidateIndex] = useState<number>(-1);
+  const heroImageCandidatesRef = useRef<string[]>([]);
 
   const isAdmin = useMemo(
     () => user?.roles?.some(role => ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATOR'].includes(role)),
@@ -53,6 +54,10 @@ const BlogArticlePage: React.FC = () => {
       return articleData;
     },
   });
+
+  useEffect(() => {
+    heroImageCandidatesRef.current = heroImageCandidates;
+  }, [heroImageCandidates]);
 
   useEffect(() => {
     let isActive = true;
@@ -225,7 +230,7 @@ const BlogArticlePage: React.FC = () => {
                           onError={() => {
                             setHeroImageCandidateIndex((prev) => {
                               const nextIndex = prev + 1;
-                              return nextIndex < heroImageCandidates.length ? nextIndex : -1;
+                              return nextIndex < heroImageCandidatesRef.current.length ? nextIndex : -1;
                             });
                           }}
                         />
