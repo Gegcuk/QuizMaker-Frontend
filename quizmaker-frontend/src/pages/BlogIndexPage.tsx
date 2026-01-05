@@ -529,18 +529,113 @@ const BlogIndexPage: React.FC = () => {
   // Auto-open edit modal if editArticleId is in URL
   useEffect(() => {
     const editArticleId = searchParams.get('edit');
-    if (editArticleId && data?.items && !isModalOpen && !editingId) {
-      const articleToEdit = data.items.find((article) => article.id === editArticleId);
-      if (articleToEdit) {
-        handleEdit(articleToEdit);
-        // Remove the query parameter from URL
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.delete('edit');
-        setSearchParams(newSearchParams, { replace: true });
-      }
+    const editSlug = searchParams.get('slug');
+    if (!editArticleId || isModalOpen || editingId || !isAdmin || isLoading) {
+      return;
     }
+
+    let isMounted = true;
+    let searchCancelled = false;
+
+    const findAndEditArticle = async () => {
+      try {
+        // First, try to find the article in the current list
+        if (data?.items) {
+          const articleToEdit = data.items.find((article) => article.id === editArticleId);
+          if (articleToEdit) {
+            if (!isMounted || searchCancelled) return;
+            handleEdit(articleToEdit);
+            // Remove the query parameters from URL
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete('edit');
+            newSearchParams.delete('slug');
+            setSearchParams(newSearchParams, { replace: true });
+            return;
+          }
+        }
+
+        // If we have a slug, try to fetch the article directly by slug (much faster)
+        if (editSlug) {
+          try {
+            const articleBySlug = await articleService.getAdminBySlug(decodeURIComponent(editSlug), true);
+            if (!isMounted || searchCancelled) return;
+            
+            // Verify it's the same article by ID
+            if (articleBySlug.id === editArticleId) {
+              handleEdit(articleBySlug);
+              // Remove the query parameters from URL
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.delete('edit');
+              newSearchParams.delete('slug');
+              setSearchParams(newSearchParams, { replace: true });
+              return;
+            }
+          } catch (slugErr) {
+            console.warn('Failed to fetch article by slug, falling back to search:', slugErr);
+          }
+        }
+
+        // If not found and no slug, search through multiple pages
+        // Search through pages until we find the article or run out of results
+        let page = 0;
+        const pageSize = 100;
+        let found = false;
+
+        while (!found && !searchCancelled) {
+          if (!isMounted) return;
+          
+          const pageResult = await articleService.listAdmin({
+            page,
+            size: pageSize,
+            sort: 'publishedAt,desc',
+            // Don't filter by status - get all
+          });
+
+          if (!isMounted || searchCancelled) return;
+
+          const articleToEdit = pageResult.items.find((article) => article.id === editArticleId);
+          if (articleToEdit) {
+            found = true;
+            handleEdit(articleToEdit);
+            // Remove the query parameters from URL
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete('edit');
+            newSearchParams.delete('slug');
+            setSearchParams(newSearchParams, { replace: true });
+            return;
+          }
+
+          // If we got fewer items than requested, we've reached the end
+          if (pageResult.items.length < pageSize) {
+            break;
+          }
+
+          // Limit to first 10 pages (1000 articles max) to avoid infinite loops
+          if (page >= 9) {
+            break;
+          }
+
+          page++;
+        }
+
+        if (!found && !searchCancelled) {
+          console.warn(`Article with ID ${editArticleId} not found after searching ${page + 1} pages`);
+        }
+      } catch (err) {
+        if (!searchCancelled) {
+          console.error('Failed to fetch article for editing:', err);
+        }
+      }
+    };
+
+    findAndEditArticle();
+
+    return () => {
+      isMounted = false;
+      searchCancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, data?.items, isModalOpen, editingId]);
+  }, [searchParams, data?.items, isLoading, isModalOpen, editingId, isAdmin]);
 
   const handleSave = () => {
     const nextErrors: Record<string, string> = {};
