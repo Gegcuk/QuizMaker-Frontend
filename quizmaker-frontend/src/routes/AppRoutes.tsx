@@ -27,6 +27,7 @@ import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
 import TermsPage from '../pages/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage';
+import FaqPage from '../pages/FaqPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
 import { QuizListPage } from '../components';
@@ -101,6 +102,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/terms/" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/privacy/" element={<PrivacyPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/faq/" element={<FaqPage />} />
         <Route path="/blog" element={<BlogIndexPage />} />
         <Route path="/blog/" element={<BlogIndexPage />} />
         <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />

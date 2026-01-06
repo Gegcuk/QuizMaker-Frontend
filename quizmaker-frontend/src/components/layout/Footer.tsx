@@ -49,6 +49,7 @@ const Footer: React.FC = () => {
       heading: 'Resources',
       links: [
         { label: 'Blog', to: '/blog' },
+        { label: 'FAQ', to: '/faq' },
         { label: 'Terms & Conditions', to: '/terms' },
         { label: 'Privacy Policy', to: '/privacy' },
         { label: 'Reset Password', to: '/forgot-password' },
