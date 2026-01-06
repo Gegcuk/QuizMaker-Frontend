@@ -50,6 +50,9 @@ const ValuesSection: React.FC = () => {
             width={600}
             height={200}
             description="Left: jagged noise signal. Right: clean signal line. Middle: control knob. Small accent on meaning side."
+            className="w-full max-w-2xl h-auto rounded-lg border border-theme-border-primary"
+            src="/values_signal_graphic.png"
+            alt="Signal graphic showing noise reduced to a clean line."
           />
         </div>
 

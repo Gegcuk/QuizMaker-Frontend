@@ -39,7 +39,7 @@ const DocumentViewPage: React.FC = () => {
 
   // Always provide custom breadcrumb items to avoid showing UUID
   const breadcrumbItems = [
-    { label: 'Home', path: '/my-quizzes' },
+    { label: 'Home', path: '/' },
     { label: 'Documents', path: '/documents' },
     { label: documentTitle, path: `/documents/${documentId}`, isCurrent: true }
   ];
@@ -71,4 +71,3 @@ const DocumentViewPage: React.FC = () => {
 };
 
 export default DocumentViewPage;
-

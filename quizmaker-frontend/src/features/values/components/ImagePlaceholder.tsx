@@ -6,6 +6,9 @@ interface ImagePlaceholderProps {
   height: number;
   description: string;
   className?: string;
+  src?: string;
+  alt?: string;
+  loading?: 'eager' | 'lazy';
 }
 
 /**
@@ -20,7 +23,28 @@ export const ImagePlaceholder: React.FC<ImagePlaceholderProps> = ({
   height,
   description,
   className = '',
+  src,
+  alt,
+  loading = 'lazy',
 }) => {
+  if (src) {
+    const imageClassName = ['block', 'max-w-full', 'h-auto', className]
+      .filter(Boolean)
+      .join(' ');
+
+    return (
+      <img
+        src={src}
+        alt={alt || name}
+        width={width}
+        height={height}
+        loading={loading}
+        decoding="async"
+        className={imageClassName}
+      />
+    );
+  }
+
   return (
     <div
       className={`bg-theme-bg-secondary border-2 border-dashed border-theme-border-primary rounded-lg flex flex-col items-center justify-center p-8 ${className}`}

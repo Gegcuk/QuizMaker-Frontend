@@ -826,10 +826,6 @@ const BlogIndexPage: React.FC = () => {
         subtitle="Evidence-based playbooks for quizzes, teaching, and student engagement in universities and schools."
         showHeader
         showBreadcrumb
-        customBreadcrumbItems={[
-          { label: 'Home', path: '/' },
-          { label: 'Blog', path: '/blog/', isCurrent: true },
-        ]}
       >
         <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
           {isAdmin && (

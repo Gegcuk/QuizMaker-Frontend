@@ -20,6 +20,9 @@ const MissionSection: React.FC = () => {
             width={500}
             height={500}
             description="Circular loop with 4-5 nodes. Icons: book → checkbox → feedback → calendar → key. One node highlighted as lever (retrieval/attempt)."
+            className="w-full max-w-md h-auto rounded-xl border border-theme-border-primary"
+            src="/values_learning_loop.png"
+            alt="Learning loop diagram showing the cycle of study, testing, feedback, and review."
           />
         </div>
       </CardBody>

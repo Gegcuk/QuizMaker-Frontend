@@ -18,10 +18,6 @@ const ValuesPage: React.FC = () => {
         subtitle="Less noise — more meaning."
         showHeader
         showBreadcrumb
-        customBreadcrumbItems={[
-          { label: 'Home', path: '/' },
-          { label: 'Values', path: '/values/', isCurrent: true },
-        ]}
       >
         <div className="max-w-4xl mx-auto space-y-12">
           {/* Hero Image */}

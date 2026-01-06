@@ -17,10 +17,6 @@ const FaqPage: React.FC = () => {
         subtitle={faqPageMeta.subtitle}
         showHeader
         showBreadcrumb
-        customBreadcrumbItems={[
-          { label: 'Home', path: '/' },
-          { label: 'FAQ', path: '/faq/', isCurrent: true },
-        ]}
       >
         <FaqPageContent introNote={faqIntroNote} sections={faqSections} />
       </PageContainer>

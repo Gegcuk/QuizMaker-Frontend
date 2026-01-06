@@ -23,7 +23,10 @@ const HeroImagePlaceholder: React.FC = () => {
         width={1920}
         height={600}
         description="Left: chaotic content cloud (noise). Center: filter/funnel (processing). Right: structured cards/pages + quiz cards. Small accent dot (signal/meaning)."
-        className="w-full h-auto"
+        className="w-full h-auto rounded-2xl border border-theme-border-primary shadow-theme"
+        src="/values_hero.png"
+        alt="Illustration of information noise filtered into structured knowledge and quiz cards."
+        loading="eager"
       />
     </div>
   );
