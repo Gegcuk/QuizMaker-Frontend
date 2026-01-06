@@ -1,12 +1,33 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Alert, BulletList, Button, SafeContent } from '@/components';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import type { FaqAnswerBlock, FaqItem, FaqNote } from '../types/faq.types';
+import type { FaqAnswerBlock, FaqItem, FaqListItem, FaqNote } from '../types/faq.types';
 
 interface FaqAccordionProps {
   items: FaqItem[];
   defaultExpandedIds?: string[];
 }
+
+const renderListItem = (item: FaqListItem) => {
+  if (typeof item === 'string') {
+    return item;
+  }
+
+  const link = <Link to={item.to}>{item.label}</Link>;
+
+  if (item.description) {
+    return (
+      <>
+        {link}
+        {' - '}
+        {item.description}
+      </>
+    );
+  }
+
+  return link;
+};
 
 const FaqAnswerBlocks: React.FC<{ blocks: FaqAnswerBlock[] }> = ({ blocks }) => {
   return (
@@ -37,7 +58,7 @@ const FaqAnswerBlocks: React.FC<{ blocks: FaqAnswerBlock[] }> = ({ blocks }) => 
                 className="text-theme-text-secondary"
                 items={block.items.map((item, itemIndex) => ({
                   id: `${index}-${itemIndex}`,
-                  content: item,
+                  content: renderListItem(item),
                 }))}
               />
             );

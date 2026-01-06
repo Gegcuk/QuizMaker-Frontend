@@ -1,6 +1,15 @@
+export interface FaqLinkItem {
+  type: 'link';
+  label: string;
+  to: string;
+  description?: string;
+}
+
+export type FaqListItem = string | FaqLinkItem;
+
 export type FaqAnswerBlock =
   | { type: 'paragraph'; content: string }
-  | { type: 'list'; items: string[] }
+  | { type: 'list'; items: FaqListItem[] }
   | { type: 'subheading'; content: string };
 
 export interface FaqNote {

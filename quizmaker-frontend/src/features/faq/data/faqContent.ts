@@ -81,6 +81,13 @@ export const faqSections: FaqSection[] = [
             content:
               'You can browse public pages (home, blog, terms, privacy). Quiz details, attempts, creating quizzes, profile, and billing require an account.',
           },
+          {
+            type: 'list',
+            items: [
+              { type: 'link', label: 'Log in', to: '/login' },
+              { type: 'link', label: 'Create an account', to: '/register' },
+            ],
+          },
         ],
       },
       {
@@ -105,9 +112,24 @@ export const faqSections: FaqSection[] = [
           {
             type: 'list',
             items: [
-              'My Quizzes - see what you have created or own.',
-              'Create Quiz - make your first one quickly.',
-              'My Attempts - continue a paused attempt or review results.',
+              {
+                type: 'link',
+                label: 'My Quizzes',
+                to: '/my-quizzes',
+                description: 'See what you have created or own.',
+              },
+              {
+                type: 'link',
+                label: 'Create Quiz',
+                to: '/quizzes/create',
+                description: 'Make your first one quickly.',
+              },
+              {
+                type: 'link',
+                label: 'My Attempts',
+                to: '/my-attempts',
+                description: 'Continue a paused attempt or review results.',
+              },
             ],
           },
         ],
@@ -187,6 +209,10 @@ export const faqSections: FaqSection[] = [
             type: 'paragraph',
             content:
               'Use the quiz creation wizard: choose manual / from text / from document, set quiz details, add or generate questions, then finish.',
+          },
+          {
+            type: 'list',
+            items: [{ type: 'link', label: 'Create Quiz', to: '/quizzes/create' }],
           },
         ],
       },
@@ -281,6 +307,10 @@ export const faqSections: FaqSection[] = [
             type: 'paragraph',
             content:
               'Expand a group to see its quizzes. Empty groups still appear and show an empty state.',
+          },
+          {
+            type: 'list',
+            items: [{ type: 'link', label: 'My Quizzes', to: '/my-quizzes' }],
           },
         ],
       },
@@ -452,6 +482,17 @@ export const faqSections: FaqSection[] = [
             type: 'paragraph',
             content: 'Yes. Attempts support pausing and resuming.',
           },
+          {
+            type: 'list',
+            items: [
+              {
+                type: 'link',
+                label: 'My Attempts',
+                to: '/my-attempts',
+                description: 'Resume or review your attempts.',
+              },
+            ],
+          },
         ],
       },
       {
@@ -565,6 +606,10 @@ export const faqSections: FaqSection[] = [
             type: 'paragraph',
             content: 'You buy token packs via checkout (Stripe).',
           },
+          {
+            type: 'list',
+            items: [{ type: 'link', label: 'Billing', to: '/billing' }],
+          },
         ],
       },
       {
@@ -652,6 +697,13 @@ export const faqSections: FaqSection[] = [
           {
             type: 'paragraph',
             content: 'Basic account and profile details (like name or display info) and verification actions.',
+          },
+          {
+            type: 'list',
+            items: [
+              { type: 'link', label: 'Profile', to: '/profile' },
+              { type: 'link', label: 'Settings', to: '/settings' },
+            ],
           },
         ],
       },
