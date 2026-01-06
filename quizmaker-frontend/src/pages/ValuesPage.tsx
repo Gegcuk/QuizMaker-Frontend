@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
 import { ValuesPageContent, HeroImagePlaceholder } from '@/features/values';
@@ -28,6 +29,19 @@ const ValuesPage: React.FC = () => {
             <HeroImagePlaceholder />
           </div>
           <ValuesPageContent />
+          {/* Link to FAQ */}
+          <div className="text-center pt-8 border-t border-theme-border-primary">
+            <p className="text-sm text-theme-text-secondary">
+              Have questions? Check out our{' '}
+              <Link
+                to="/faq"
+                className="text-theme-interactive-primary hover:text-theme-interactive-primary-hover underline"
+              >
+                FAQ page
+              </Link>
+              {' '}for answers to common questions.
+            </p>
+          </div>
         </div>
       </PageContainer>
     </>

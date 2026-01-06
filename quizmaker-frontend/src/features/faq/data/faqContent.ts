@@ -20,7 +20,7 @@ export const faqSections: FaqSection[] = [
           {
             type: 'paragraph',
             content:
-              'Quizzence is a web app for creating, managing, and taking quizzes with optional AI quiz generation from text or documents.',
+              'Quizzence is a web app for creating, managing, and taking quizzes with optional AI quiz generation from text or documents. Learn more about our <a href="/values" class="text-theme-interactive-primary hover:text-theme-interactive-primary-hover underline">values, mission, and vision</a>.',
           },
         ],
       },

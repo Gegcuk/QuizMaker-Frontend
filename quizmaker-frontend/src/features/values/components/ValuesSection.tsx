@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components';
 import {
   WindowIcon,
@@ -14,7 +15,7 @@ const ValuesSection: React.FC = () => {
       icon: WindowIcon,
       title: 'Transparency and openness',
       description: 'I don\'t like black boxes, and I don\'t build them. Quizzence follows the same principle: I explain decisions, share plans, and invite discussion — especially when something is controversial or uncertain.',
-      practice: 'clear reasoning behind changes, an open product direction, honest communication about what works and what still doesn\'t.',
+      practice: 'clear reasoning behind changes, an open product direction, honest communication about what works and what still doesn\'t. See our FAQ for direct answers to common questions.',
     },
     {
       icon: BookOpenIcon,
@@ -26,7 +27,7 @@ const ValuesSection: React.FC = () => {
       icon: ChatBubbleLeftRightIcon,
       title: 'Flexibility and dialogue',
       description: 'I\'m ready to listen, change my mind, and improve the product alongside users. Quizzence isn\'t a monument — it\'s a tool that should get better through feedback and hypothesis testing.',
-      practice: 'feedback turns into real changes, hypotheses are tested, and decisions can be revisited without ego defense.',
+      practice: 'feedback turns into real changes, hypotheses are tested, and decisions can be revisited without ego defense. Check our FAQ for answers to questions and updates on features.',
     },
     {
       icon: ArrowTrendingUpIcon,
@@ -70,7 +71,21 @@ const ValuesSection: React.FC = () => {
                         {value.description}
                       </p>
                       <p className="text-sm text-theme-text-secondary">
-                        <strong className="text-theme-text-primary">In practice:</strong> {value.practice}
+                        <strong className="text-theme-text-primary">In practice:</strong>{' '}
+                        {value.practice.includes('FAQ') ? (
+                          <>
+                            {value.practice.split('FAQ')[0]}
+                            <Link
+                              to="/faq"
+                              className="text-theme-interactive-primary hover:text-theme-interactive-primary-hover underline font-medium"
+                            >
+                              FAQ
+                            </Link>
+                            {value.practice.split('FAQ')[1]}
+                          </>
+                        ) : (
+                          value.practice
+                        )}
                       </p>
                     </div>
                   </div>

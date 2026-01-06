@@ -18,6 +18,7 @@ const FaqAnswerBlocks: React.FC<{ blocks: FaqAnswerBlock[] }> = ({ blocks }) => 
               <SafeContent
                 key={`faq-paragraph-${index}`}
                 content={block.content}
+                allowHtml={true}
                 className="text-theme-text-secondary"
               />
             );

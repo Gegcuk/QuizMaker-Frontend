@@ -36,7 +36,12 @@ export const sanitizeUrl = (url: string): string => {
     return '';
   }
 
-  // Ensure URL starts with http or https
+  // Allow relative URLs (starting with /) and absolute URLs (http/https)
+  if (url.startsWith('/')) {
+    return url;
+  }
+
+  // Ensure absolute URL starts with http or https
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     return `https://${url}`;
   }
