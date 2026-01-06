@@ -43,6 +43,8 @@ const Footer: React.FC = () => {
         { label: 'Browse Quizzes', to: '/quizzes' },
         { label: 'Create Quiz', to: '/quizzes/create' },
         { label: 'Theme Demo', to: '/theme-demo' },
+        { label: 'Reset Password', to: '/forgot-password' },
+        { label: 'Contact Support', href: 'mailto:support@quizzence.com' },
       ],
     },
     {
@@ -50,10 +52,9 @@ const Footer: React.FC = () => {
       links: [
         { label: 'Blog', to: '/blog' },
         { label: 'FAQ', to: '/faq' },
+        { label: 'Values', to: '/values' },
         { label: 'Terms & Conditions', to: '/terms' },
         { label: 'Privacy Policy', to: '/privacy' },
-        { label: 'Reset Password', to: '/forgot-password' },
-        { label: 'Contact Support', href: 'mailto:support@quizzence.com' },
       ],
     },
   ];
