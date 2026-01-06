@@ -63,6 +63,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     '/privacy': 'Privacy Policy',
     '/terms': 'Terms of Service',
     '/faq': 'FAQ',
+    '/values': 'Values',
   };
 
   // Dynamic label generation for parameterized routes
