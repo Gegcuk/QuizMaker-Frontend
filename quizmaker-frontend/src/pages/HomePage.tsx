@@ -37,7 +37,7 @@ const HomePage: React.FC = () => {
             +10–13 pp better exam scores
           </span>{' '}  
           <Link
-            to="/blog/retrieval-practice-template"
+            to="/blog/retrieval-practice-fastest-way-to-make-learning-stick/"
             className="ml-1 text-theme-interactive-primary hover:text-theme-interactive-primary-hover"
           >
             See the research →
