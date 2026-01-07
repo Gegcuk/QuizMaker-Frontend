@@ -9,16 +9,6 @@ const ManipulationSection: React.FC = () => {
         <h2 className="text-2xl font-bold text-theme-text-primary">Why this also protects against manipulation</h2>
       </CardHeader>
       <CardBody className="space-y-6">
-        {/* Image E: Anti-manipulation shield */}
-        <div className="flex justify-center">
-          <ImagePlaceholder
-            name="Image E: Anti-Manipulation Shield"
-            width={600}
-            height={300}
-            description="Left: blurred arrows/distorted speech bubbles. Right/center: shield of layered cards/pages (knowledge). Small accent as verification point."
-          />
-        </div>
-
         <div className="space-y-4 text-theme-text-secondary leading-relaxed">
           <p>
             Knowledge matters — but what matters even more is <em>awareness of knowledge</em>: the ability to spot distortions, detect weak arguments, and separate facts from rhetoric. When you build that skill, empty content becomes boring — which is a good sign. It means you've developed standards for quality, and learning becomes more enjoyable because you can feel real progress.

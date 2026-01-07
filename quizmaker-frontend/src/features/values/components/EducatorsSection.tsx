@@ -16,6 +16,9 @@ const EducatorsSection: React.FC = () => {
             width={700}
             height={300}
             description="Left: messy stack of repetitive sheets/tasks. Center: clean tool/process. Right: neat quiz cards + clock icon (time saved). Small accent on done."
+            className="w-full max-w-xl h-auto rounded-xl border border-theme-border-primary"
+            src="/values_teachers_workflow.png"
+            alt="Workflow graphic showing quizzes simplifying teacher prep."
           />
         </div>
 
@@ -38,6 +41,9 @@ const EducatorsSection: React.FC = () => {
             width={300}
             height={150}
             description="Abstract emblem: clean signal line + small accent dot + minimal stack of cards/pages."
+            className="w-full max-w-xs h-auto rounded-lg border border-theme-border-primary"
+            src="/footer_emplem.png"
+            alt="Minimal emblem with signal line and cards."
           />
         </div>
       </CardBody>
