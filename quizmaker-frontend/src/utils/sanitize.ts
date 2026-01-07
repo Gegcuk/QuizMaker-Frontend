@@ -125,6 +125,77 @@ export const convertMarkdownLinks = (text: string): string => {
 };
 
 /**
+ * Converts markdown-style bold and italic formatting to HTML tags
+ * Supports: **bold**, __bold__, *italic*, _italic_, and nested ***bold italic***
+ * @param text - The text that may contain markdown formatting
+ * @returns Text with markdown formatting converted to HTML tags
+ */
+export const convertMarkdownFormatting = (text: string): string => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+
+  // Split text into parts that are inside HTML tags and parts that are not
+  // This prevents converting markdown inside HTML attributes
+  const parts: Array<{ isHtml: boolean; content: string }> = [];
+  let lastIndex = 0;
+  let inTag = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '<' && !inTag) {
+      // Start of HTML tag
+      if (i > lastIndex) {
+        parts.push({ isHtml: false, content: text.substring(lastIndex, i) });
+      }
+      inTag = true;
+      lastIndex = i;
+    } else if (text[i] === '>' && inTag) {
+      // End of HTML tag
+      parts.push({ isHtml: true, content: text.substring(lastIndex, i + 1) });
+      inTag = false;
+      lastIndex = i + 1;
+    }
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push({ isHtml: false, content: text.substring(lastIndex) });
+  }
+
+  // Process only non-HTML parts
+  const processedParts = parts.map(part => {
+    if (part.isHtml) {
+      return part.content;
+    }
+    
+    let result = part.content;
+    
+    // Process in order: triple (bold+italic) -> double (bold) -> single (italic)
+    // This ensures nested formatting works correctly
+    
+    // First, handle triple asterisks/underscores (bold + italic)
+    // Pattern: ***text*** or ___text___
+    result = result.replace(/\*\*\*([^*]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    result = result.replace(/___([^_]+?)___/g, '<strong><em>$1</em></strong>');
+
+    // Then handle bold: **text** or __text__
+    // Use non-greedy matching to handle multiple bold sections
+    result = result.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+    result = result.replace(/__([^_]+?)__/g, '<strong>$1</strong>');
+
+    // Finally handle italic: *text* or _text_
+    // Match single asterisk/underscore, ensuring it's not part of bold markers
+    // Pattern: *text* where * is not adjacent to another *
+    result = result.replace(/([^*]|^)\*([^*\n]+?)\*([^*]|$)/g, '$1<em>$2</em>$3');
+    result = result.replace(/([^_]|^)_([^_\n]+?)_([^_]|$)/g, '$1<em>$2</em>$3');
+
+    return result;
+  });
+
+  return processedParts.join('');
+};
+
+/**
  * Sanitizes HTML content by removing potentially dangerous tags and attributes
  * @param html - The HTML string to sanitize
  * @returns Sanitized HTML string
@@ -136,9 +207,11 @@ export const sanitizeHtml = (html: string): string => {
 
   // First, convert newlines to HTML formatting
   // Then convert markdown links to HTML links
-  // Order matters: newlines first, then links
+  // Finally convert markdown bold/italic formatting
+  // Order matters: newlines first, then links, then formatting
   let sanitized = convertNewlinesToHtml(html);
   sanitized = convertMarkdownLinks(sanitized);
+  sanitized = convertMarkdownFormatting(sanitized);
 
   // Remove script tags and their content
   sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
