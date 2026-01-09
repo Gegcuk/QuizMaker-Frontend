@@ -114,6 +114,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   return (
     <div className={`max-w-md mx-auto ${className}`}>
+      <p className="text-center text-sm text-theme-text-secondary mb-3">
+        Sign up with
+      </p>
       {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
       <div className="flex flex-wrap justify-center sm:flex-col gap-3">
         <OAuthButton provider="GOOGLE" fullWidth={false} actionText="Register with" />
