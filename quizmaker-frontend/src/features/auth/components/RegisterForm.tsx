@@ -12,6 +12,9 @@ import { Form, FormField, Button, Checkbox } from '@/components';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
 
+const SPECIAL_CHAR_PATTERN = /[!@#$%^&*(),.?":{}|<>]/;
+const PASSWORD_INPUT_PATTERN = new RegExp(`.*${SPECIAL_CHAR_PATTERN.source}.*`);
+
 interface RegisterFormProps {
   onSuccess?: () => void;
   onError?: (error: string) => void;
@@ -51,7 +54,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     if (!/\d/.test(password)) {
       issues.push('At least one number');
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (!SPECIAL_CHAR_PATTERN.test(password)) {
       issues.push('At least one special character');
     }
     
@@ -171,7 +174,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             required: true,
             minLength: 8,
             maxLength: 100,
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
+            pattern: PASSWORD_INPUT_PATTERN,
             custom: validatePasswordStrength
           }}
           autoComplete="new-password"

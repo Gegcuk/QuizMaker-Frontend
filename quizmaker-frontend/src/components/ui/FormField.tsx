@@ -61,13 +61,13 @@ const FormField: React.FC<FormFieldProps> = ({
     else if (validation.maxLength && value && value.length > validation.maxLength) {
       errorMessage = `${label || name} must be no more than ${validation.maxLength} characters`;
     }
-    // Pattern validation
-    else if (validation.pattern && value && !validation.pattern.test(value)) {
-      errorMessage = `${label || name} format is invalid`;
-    }
     // Custom validation
-    else if (validation.custom) {
+    if (!errorMessage && validation.custom) {
       errorMessage = validation.custom(value, form.getValues());
+    }
+    // Pattern validation
+    if (!errorMessage && validation.pattern && value && !validation.pattern.test(value)) {
+      errorMessage = `${label || name} format is invalid`;
     }
     
     if (errorMessage) {
@@ -98,6 +98,8 @@ const FormField: React.FC<FormFieldProps> = ({
         autoComplete={autoComplete}
         rightIcon={rightIcon}
         rightIconClickable={rightIconClickable}
+        minLength={validation.minLength}
+        maxLength={validation.maxLength}
         pattern={validation.pattern?.source}
         onBlur={handleBlur}
         required={required}
