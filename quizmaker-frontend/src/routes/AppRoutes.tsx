@@ -29,6 +29,7 @@ import TermsPage from '../pages/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage';
 import FaqPage from '../pages/FaqPage';
 import ValuesPage from '../pages/ValuesPage';
+import RoadmapPage from '../pages/RoadmapPage';
 
 /* ----------  Quiz browsing / attempt pages  ------------------------------ */
 import { QuizListPage } from '../components';
@@ -107,6 +108,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/faq/" element={<FaqPage />} />
         <Route path="/values" element={<ValuesPage />} />
         <Route path="/values/" element={<ValuesPage />} />
+        <Route path="/roadmap" element={<RoadmapPage />} />
+        <Route path="/roadmap/" element={<RoadmapPage />} />
         <Route path="/blog" element={<BlogIndexPage />} />
         <Route path="/blog/" element={<BlogIndexPage />} />
         <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />
