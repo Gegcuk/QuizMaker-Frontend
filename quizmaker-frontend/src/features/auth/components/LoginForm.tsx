@@ -68,6 +68,28 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   return (
     <div className={`max-w-md mx-auto ${className}`}>
+      <p className="text-center text-sm text-theme-text-secondary mb-3">
+        Sign in with
+      </p>
+
+      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
+      <div className="flex flex-wrap justify-center sm:flex-col gap-3">
+        <OAuthButton provider="GOOGLE" fullWidth={false} actionText="Sign in with" />
+        <OAuthButton provider="GITHUB" fullWidth={false} actionText="Sign in with" />
+      </div>
+
+      {/* OAuth Divider */}
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-theme-border-primary"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-theme-bg-primary text-theme-text-secondary">Or sign in with email and password</span>
+          </div>
+        </div>
+      </div>
+
       <Form<LoginRequest>
         name="login-form"
         onSubmit={handleSubmit}
@@ -75,7 +97,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           username: '',
           password: ''
         }}
-        className="space-y-6"
+        className="space-y-6 mt-6"
       >
         <FormField
           name="username"
@@ -167,24 +189,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
           </p>
         </div>
       </Form>
-
-      {/* OAuth Divider */}
-      <div className="mt-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-theme-border-primary"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-theme-bg-primary text-theme-text-secondary">Or continue with</span>
-          </div>
-        </div>
-      </div>
-
-      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
-      <div className="mt-6 flex flex-wrap justify-center sm:flex-col gap-3">
-        <OAuthButton provider="GOOGLE" fullWidth={false} />
-        <OAuthButton provider="GITHUB" fullWidth={false} />
-      </div>
     </div>
   );
 };
