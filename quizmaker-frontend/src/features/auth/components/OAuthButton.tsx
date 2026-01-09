@@ -13,6 +13,7 @@ interface OAuthButtonProps {
   provider: OAuthProvider;
   fullWidth?: boolean;
   disabled?: boolean;
+  actionText?: string; // Custom action text prefix (e.g., "Register with", "Continue with")
 }
 
 // Provider-specific configuration
@@ -86,6 +87,7 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
   provider,
   fullWidth = true,
   disabled = false,
+  actionText = 'Continue with', // Default to "Continue with" for backward compatibility
 }) => {
   const config = providerConfig[provider];
 
@@ -95,6 +97,8 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
     // Note: OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
     window.location.href = `/oauth2/authorization/${provider.toLowerCase()}`;
   };
+
+  const buttonText = `${actionText} ${config.name}`;
 
   return (
     <button
@@ -114,12 +118,12 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-interactive-primary
         disabled:opacity-50 disabled:cursor-not-allowed
       `}
-      aria-label={`Continue with ${config.name}`}
-      title={`Continue with ${config.name}`}
+      aria-label={buttonText}
+      title={buttonText}
     >
       {config.icon}
       {/* Show full text on tablet and up (sm breakpoint), hide on mobile */}
-      <span className="hidden sm:inline">Continue with {config.name}</span>
+      <span className="hidden sm:inline">{buttonText}</span>
     </button>
   );
 };

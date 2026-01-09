@@ -114,6 +114,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   return (
     <div className={`max-w-md mx-auto ${className}`}>
+      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
+      <div className="flex flex-wrap justify-center sm:flex-col gap-3">
+        <OAuthButton provider="GOOGLE" fullWidth={false} actionText="Register with" />
+        <OAuthButton provider="GITHUB" fullWidth={false} actionText="Register with" />
+      </div>
+
+      {/* OAuth Divider */}
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-theme-border-primary"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-theme-bg-primary text-theme-text-secondary">Or sign up with email and password</span>
+          </div>
+        </div>
+      </div>
+
       <Form<ExtendedRegisterRequest>
         name="register-form"
         onSubmit={handleSubmit}
@@ -123,7 +141,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           password: '',
           confirmPassword: ''
         }}
-        className="space-y-6"
+        className="space-y-6 mt-6"
       >
         <FormField
           name="username"
@@ -287,24 +305,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           </p>
         </div>
       </Form>
-
-      {/* OAuth Divider */}
-      <div className="mt-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-theme-border-primary"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-theme-bg-primary text-theme-text-secondary">Or sign up with</span>
-          </div>
-        </div>
-      </div>
-
-      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
-      <div className="mt-6 flex flex-wrap justify-center sm:flex-col gap-3">
-        <OAuthButton provider="GOOGLE" fullWidth={false} />
-        <OAuthButton provider="GITHUB" fullWidth={false} />
-      </div>
     </div>
   );
 };
