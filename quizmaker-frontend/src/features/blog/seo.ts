@@ -1,18 +1,21 @@
-import type { ArticleData } from './types';
+import type { ArticleData, ArticleDto } from './types';
 import { SITE_URL } from '@/features/seo';
 import type { SeoConfig, StructuredData } from '@/features/seo';
 
 const getBaseSiteUrl = (): string => SITE_URL.replace(/\/$/, '');
 
-export const getArticleCanonicalPath = (article: ArticleData): string =>
+// Type guard to check if article has required ArticleData fields
+type ArticleInput = ArticleData | ArticleDto;
+
+export const getArticleCanonicalPath = (article: { slug: string }): string =>
   `/blog/${article.slug}/`;
 
-export const getArticleCanonicalUrl = (article: ArticleData): string => {
+export const getArticleCanonicalUrl = (article: { slug: string }): string => {
   const baseUrl = getBaseSiteUrl();
   return `${baseUrl}${getArticleCanonicalPath(article)}`;
 };
 
-export const buildArticleStructuredData = (article: ArticleData): StructuredData[] => {
+export const buildArticleStructuredData = (article: ArticleInput): StructuredData[] => {
   const canonicalUrl = getArticleCanonicalUrl(article);
   const baseSiteUrl = getBaseSiteUrl();
 
@@ -40,29 +43,37 @@ export const buildArticleStructuredData = (article: ArticleData): StructuredData
     ],
   };
 
-  const faqSchema: StructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: article.faqs.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  };
+  // Handle optional faqs (ArticleDto) vs required faqs (ArticleData)
+  const faqs = 'faqs' in article ? (article.faqs || []) : [];
+  const schemas: StructuredData[] = [articleSchema, breadcrumbSchema];
+  
+  // Only add FAQ schema if there are FAQs
+  if (faqs.length > 0) {
+    const faqSchema: StructuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer,
+        },
+      })),
+    };
+    schemas.push(faqSchema);
+  }
 
-  return [articleSchema, breadcrumbSchema, faqSchema];
+  return schemas;
 };
 
-export const buildArticleSeoConfig = (article: ArticleData): SeoConfig => ({
+export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => ({
   title: `${article.title} | Quizzence`,
   description: article.description,
   canonicalPath: getArticleCanonicalPath(article),
-  canonicalUrl: article.canonicalUrl || undefined,
+  canonicalUrl: 'canonicalUrl' in article ? (article.canonicalUrl || undefined) : undefined,
   ogType: 'article',
-  ogImage: article.ogImage || undefined,
-  noindex: !!article.noindex,
+  ogImage: 'ogImage' in article ? (article.ogImage || undefined) : undefined,
+  noindex: 'noindex' in article ? !!article.noindex : false,
   structuredData: buildArticleStructuredData(article),
 });

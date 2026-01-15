@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageHeader, Spinner } from '@/components';
+import { Seo } from '@/features/seo';
 import { DocumentViewer } from '../features/document';
 import { DocumentService } from '@/services';
 import { api } from '@/services';
@@ -46,6 +47,7 @@ const DocumentViewPage: React.FC = () => {
 
   return (
     <>
+      <Seo title={`${documentTitle} | Quizzence`} noindex />
       {/* Page Header */}
       <PageHeader
         title={documentTitle}

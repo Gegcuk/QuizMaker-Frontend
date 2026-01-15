@@ -17,6 +17,7 @@ const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
 const STATIC_ROUTES = [
   '/',
   '/blog/',
+  '/blog/retrieval-practice-template/',
   '/terms/',
   '/privacy/',
   '/theme-demo/',

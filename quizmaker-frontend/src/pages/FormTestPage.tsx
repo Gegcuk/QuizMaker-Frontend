@@ -1,10 +1,13 @@
 import React from 'react';
 import { QuizCreationForm } from '@/components';
+import { Seo } from '@/features/seo';
 import { LoginForm } from '@/features/auth';
 
 const FormTestPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-theme-bg-secondary py-8">
+    <>
+      <Seo title="Form Test | Quizzence" noindex />
+      <div className="min-h-screen bg-theme-bg-secondary py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-theme-text-primary">Form Components Test</h1>
@@ -23,7 +26,8 @@ const FormTestPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

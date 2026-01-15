@@ -159,8 +159,12 @@ const runRefresh = async (): Promise<string> => {
     throw new Error('No refresh token present');
   }
 
+  // Use the same base URL as the main API instance
+  const refreshBaseUrl = apiBaseUrl;
+  const refreshUrl = `${refreshBaseUrl}/v1/auth/refresh`;
+
   const { data } = await axios.post<RefreshResponse>(
-    '/api/v1/auth/refresh',
+    refreshUrl,
     { refreshToken },
   );
 

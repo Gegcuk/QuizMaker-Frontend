@@ -24,6 +24,7 @@ const normalizeBlogUrl = (url) => {
 const STATIC_ROUTES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/blog/', priority: '0.8', changefreq: 'weekly' },
+  { path: '/blog/retrieval-practice-template/', priority: '0.8', changefreq: 'weekly' },
   { path: '/terms/', priority: '0.4', changefreq: 'monthly' },
   { path: '/privacy/', priority: '0.4', changefreq: 'monthly' },
   { path: '/faq/', priority: '0.5', changefreq: 'monthly' },

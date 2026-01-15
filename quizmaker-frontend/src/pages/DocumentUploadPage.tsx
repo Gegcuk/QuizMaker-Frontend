@@ -5,11 +5,13 @@
 
 import React from 'react';
 import { PageHeader } from '@/components';
+import { Seo } from '@/features/seo';
 import { DocumentUpload } from '../features/document';
 
 const DocumentUploadPage: React.FC = () => {
   return (
     <>
+      <Seo title="Upload Document | Quizzence" noindex />
       {/* Page Header */}
       <PageHeader
         title="Upload Document"
