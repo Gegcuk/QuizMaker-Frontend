@@ -5,11 +5,14 @@
 
 import React from 'react';
 import { PageContainer, UserProfile } from '@/components';
+import { Seo } from '@/features/seo';
 import { TokenTopUp } from '@/features/billing';
 
 const ProfilePage: React.FC = () => {
   return (
-    <PageContainer
+    <>
+      <Seo title="My Profile | Quizzence" noindex />
+      <PageContainer
       title="My Profile"
       subtitle="View and edit your account information"
       showBreadcrumb={true}
@@ -24,6 +27,7 @@ const ProfilePage: React.FC = () => {
         </section>
       </div>
     </PageContainer>
+    </>
   );
 };
 

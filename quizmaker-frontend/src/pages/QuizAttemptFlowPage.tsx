@@ -9,6 +9,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { QuizDto } from '@/types';
 import { Spinner, Button } from '@/components';
+import { Seo } from '@/features/seo';
 import { AttemptContinuation, AttemptStart } from '@/features/attempt';
 
 type AttemptFlowStep = 'checking' | 'continuation' | 'start' | 'attempting';
@@ -131,9 +132,11 @@ const QuizAttemptFlowPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-theme-bg-secondary py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Quiz Header */}
+    <>
+      <Seo title={quiz ? `Starting Quiz: ${quiz.title} | Quizzence` : 'Quiz Attempt | Quizzence'} noindex />
+      <div className="min-h-screen bg-theme-bg-secondary py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Quiz Header */}
         <div className="mb-8">
           <div className="bg-theme-bg-primary rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
@@ -189,7 +192,8 @@ const QuizAttemptFlowPage: React.FC = () => {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Alert, Textarea } from '@/components';
+import { Seo } from '@/features/seo';
 import { TagDto } from '@/types';
 import { TagService, api } from '@/services';
 
@@ -112,8 +113,10 @@ const TagManagementPage: React.FC = () => {
 
   /* ------------------------------ JSX -------------------------------- */
   return (
-    <PageContainer
-      title="Manage Tags"
+    <>
+      <Seo title="Manage Tags | Quizzence" noindex />
+      <PageContainer
+        title="Manage Tags"
       subtitle="Create, edit, and organize quiz tags"
       showBreadcrumb={true}
       actions={[
@@ -290,6 +293,7 @@ const TagManagementPage: React.FC = () => {
         isLoading={isDeleting}
       />
     </PageContainer>
+    </>
   );
 };
 

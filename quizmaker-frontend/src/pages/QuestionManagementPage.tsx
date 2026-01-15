@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Spinner, Button, Modal, PageContainer, ConfirmationModal, Alert } from '@/components';
+import { Seo } from '@/features/seo';
 import { QuestionDto, QuestionType, QuestionService } from '../features/question';
 import { api } from '@/services';
 import {
@@ -266,8 +267,10 @@ const QuestionManagementPage: React.FC = () => {
   ];
 
   return (
-    <PageContainer
-      title="Question Management"
+    <>
+      <Seo title="Question Management | Quizzence" noindex />
+      <PageContainer
+        title="Question Management"
       subtitle="Create, edit, and manage quiz questions"
       showBreadcrumb={true}
       actions={[
@@ -471,6 +474,7 @@ const QuestionManagementPage: React.FC = () => {
           isLoading={isDeleting}
         />
     </PageContainer>
+    </>
   );
 };
 

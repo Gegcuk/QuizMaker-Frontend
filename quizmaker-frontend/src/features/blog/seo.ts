@@ -60,6 +60,9 @@ export const buildArticleSeoConfig = (article: ArticleData): SeoConfig => ({
   title: `${article.title} | Quizzence`,
   description: article.description,
   canonicalPath: getArticleCanonicalPath(article),
+  canonicalUrl: article.canonicalUrl || undefined,
   ogType: 'article',
+  ogImage: article.ogImage || undefined,
+  noindex: !!article.noindex,
   structuredData: buildArticleStructuredData(article),
 });

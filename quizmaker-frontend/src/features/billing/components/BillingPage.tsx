@@ -92,6 +92,7 @@ const BillingPage: React.FC = () => {
         description="Check your token balance, purchase additional tokens and review your Quizzence billing history."
         canonicalPath="/billing"
         ogType="website"
+        noindex
       />
       <PageHeader
         title="Billing & Tokens"

@@ -19,6 +19,7 @@ const BillingCancelPage: React.FC = () => {
         description="Your Stripe checkout was canceled. Start a new purchase anytime."
         canonicalPath="/billing/cancel"
         ogType="website"
+        noindex
       />
 
       <PageHeader

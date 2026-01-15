@@ -5,13 +5,16 @@
 
 import React from 'react';
 import { PageContainer } from '@/components';
+import { Seo } from '@/features/seo';
 import { DocumentList } from '../features/document';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 const DocumentListPage: React.FC = () => {
   return (
-    <PageContainer
-      title="Document Management"
+    <>
+      <Seo title="Document Management | Quizzence" noindex />
+      <PageContainer
+        title="Document Management"
       subtitle="Upload, view, and manage your documents for quiz generation"
       showBreadcrumb={true}
       actions={[
@@ -27,6 +30,7 @@ const DocumentListPage: React.FC = () => {
     >
       <DocumentList />
     </PageContainer>
+    </>
   );
 };
 

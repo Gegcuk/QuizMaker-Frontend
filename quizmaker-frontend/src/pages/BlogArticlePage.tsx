@@ -15,7 +15,7 @@ import Spinner from '@/components/ui/Spinner';
 import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
 import { useAuth } from '@/features/auth';
-import { articleService } from '@/features/blog';
+import { articleService, buildArticleSeoConfig } from '@/features/blog';
 import { mediaService } from '@/features/media';
 import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 
@@ -215,17 +215,7 @@ const BlogArticlePage: React.FC = () => {
     );
   }
 
-  const seoConfig = article
-    ? {
-        title: `${article.title} | Quizzence`,
-        description: article.description,
-        canonicalPath: `/blog/${article.slug}/`,
-        canonicalUrl: article.canonicalUrl || undefined,
-        ogType: 'article' as const,
-        ogImage: article.ogImage || undefined,
-        noindex: !!article.noindex,
-      }
-    : null;
+  const seoConfig = article ? buildArticleSeoConfig(article) : null;
 
   return (
     <>

@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { Spinner, Button, Alert } from '@/components';
+import { Seo } from '@/features/seo';
 import { getQuizResults } from '@/services';
 
 import type { QuizResultSummaryDto } from '@/types';
@@ -119,8 +120,10 @@ const QuizResultsSummaryPage: React.FC = () => {
   const worstScorePercentage = calculateSingleAttemptPercentage(results.worstScore);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
-      <h2 className="text-2xl font-semibold">Quiz Results Summary</h2>
+    <>
+      <Seo title="Quiz Results Summary | Quizzence" noindex />
+      <div className="max-w-4xl mx-auto space-y-6 px-4 py-8">
+        <h2 className="text-2xl font-semibold">Quiz Results Summary</h2>
 
       {/* summary card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +185,8 @@ const QuizResultsSummaryPage: React.FC = () => {
           Back to My Quizzes
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

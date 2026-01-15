@@ -25,6 +25,7 @@ import {
   AttemptTimer,
   HintDisplay
 } from '@/features/attempt';
+import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
 
 // Shape of user answer input; varies by question type
@@ -972,8 +973,10 @@ const QuizAttemptPage: React.FC = () => {
   if (!attemptId) return <p className="text-center py-10">Failed to initialize attempt.</p>;
 
   return (
-    <div className="min-h-screen bg-theme-bg-secondary">
-      {/* Pause/Resume Controls */}
+    <>
+      <Seo title={quiz ? `Taking Quiz: ${quiz.title} | Quizzence` : 'Quiz Attempt | Quizzence'} noindex />
+      <div className="min-h-screen bg-theme-bg-secondary">
+        {/* Pause/Resume Controls */}
       {attemptId && (quiz?.timerEnabled || attemptMode === 'TIMED') && (
         <div className="max-w-4xl mx-auto pt-4 px-4">
           <AttemptPause
@@ -1000,7 +1003,8 @@ const QuizAttemptPage: React.FC = () => {
       {attemptMode === 'ONE_BY_ONE' && renderONE_BY_ONE_Mode()}
       {attemptMode === 'ALL_AT_ONCE' && renderALL_AT_ONCE_Mode()}
       {attemptMode === 'TIMED' && renderTIMED_Mode()}
-    </div>
+      </div>
+    </>
   );
 };
 

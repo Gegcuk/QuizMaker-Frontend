@@ -8,6 +8,7 @@
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { PageContainer, QuizForm } from '@/components';
+import { Seo } from '@/features/seo';
 import QuizCreationWizard from '@/features/quiz/components/QuizCreationWizard';
 
 const QuizFormPage: React.FC = () => {
@@ -19,7 +20,9 @@ const QuizFormPage: React.FC = () => {
   // If editing, show only the manual form
   if (isEditing) {
     return (
-      <PageContainer
+      <>
+        <Seo title="Edit Quiz | Quizzence" noindex />
+        <PageContainer
         title="Edit Quiz"
         subtitle="Modify your quiz settings and content"
         showBreadcrumb={true}
@@ -28,12 +31,15 @@ const QuizFormPage: React.FC = () => {
       >
         <QuizForm defaultTab={defaultTab} />
       </PageContainer>
+      </>
     );
   }
 
   // For new quiz creation, show the wizard interface
   return (
-    <PageContainer
+    <>
+      <Seo title="Create Quiz | Quizzence" noindex />
+      <PageContainer
       title="Create Quiz"
       subtitle="Follow the steps to create your new quiz"
       showBreadcrumb={true}
@@ -42,6 +48,7 @@ const QuizFormPage: React.FC = () => {
     >
       <QuizCreationWizard />
     </PageContainer>
+    </>
   );
 };
 

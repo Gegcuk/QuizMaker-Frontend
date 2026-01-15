@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Textarea } from '@/components';
+import { Seo } from '@/features/seo';
 import { CategoryDto } from '../features/category';
 import {
   getAllCategories,
@@ -107,8 +108,10 @@ const CategoryManagementPage: React.FC = () => {
   };
 
   return (
-    <PageContainer
-      title="Manage Categories"
+    <>
+      <Seo title="Manage Categories | Quizzence" noindex />
+      <PageContainer
+        title="Manage Categories"
       subtitle="Create, edit, and organize quiz categories"
       showBreadcrumb={true}
       actions={[
@@ -281,6 +284,7 @@ const CategoryManagementPage: React.FC = () => {
         isLoading={isDeleting}
       />
     </PageContainer>
+    </>
   );
 };
 

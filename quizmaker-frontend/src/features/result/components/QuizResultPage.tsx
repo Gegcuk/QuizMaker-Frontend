@@ -12,6 +12,7 @@ import {
 } from 'react-router-dom';
 import { AttemptService } from '@/services';
 import { Spinner, Button, Badge, PageHeader } from '@/components';
+import { Seo } from '@/features/seo';
 import type { AttemptReviewDto, AnswerReviewDto } from '@/types';
 import { api } from '@/services';
 import { 
@@ -471,6 +472,7 @@ const QuizResultPage: React.FC = () => {
   /* ------------------------------------------------------------------ */
   return (
     <>
+      <Seo title="Quiz Results | Quizzence" noindex />
       <PageHeader
         title="Quiz Results"
         subtitle={`Completed on ${new Date(review.completedAt).toLocaleDateString('en-GB', { 

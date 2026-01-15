@@ -158,6 +158,7 @@ const BugReportManagementPage: React.FC = () => {
       <Seo
         title="Bug Reports Management"
         description="Manage and review bug reports submitted by users"
+        noindex
       />
       <PageHeader
         title="Bug Reports Management"

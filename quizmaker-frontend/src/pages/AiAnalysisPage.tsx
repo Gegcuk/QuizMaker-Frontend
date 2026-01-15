@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
+import { Seo } from '@/features/seo';
 import { api } from '@/services';
 
 const AiAnalysisPage: React.FC = () => {
@@ -51,8 +52,10 @@ const AiAnalysisPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">AI Analysis Results</h1>
+    <>
+      <Seo title="AI Analysis | Quizzence" noindex />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">AI Analysis Results</h1>
       
       <div className="bg-theme-bg-tertiary p-6 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Response Data:</h2>
@@ -60,7 +63,8 @@ const AiAnalysisPage: React.FC = () => {
           {JSON.stringify(data, null, 2)}
         </pre>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

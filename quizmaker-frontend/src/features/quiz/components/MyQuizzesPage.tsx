@@ -720,6 +720,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         description="Manage your created quizzes, view active attempts and organize quizzes into groups."
         canonicalPath="/my-quizzes"
         ogType="website"
+        noindex
       />
       <div className={className}>
         {/* Page Header */}

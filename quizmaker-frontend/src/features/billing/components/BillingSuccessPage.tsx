@@ -143,6 +143,7 @@ const BillingSuccessPage: React.FC = () => {
         description="Confirm your Stripe checkout status and token crediting."
         canonicalPath="/billing/success"
         ogType="website"
+        noindex
       />
 
       <PageHeader

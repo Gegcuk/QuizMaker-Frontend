@@ -10,6 +10,7 @@ import { useAuth } from '../features/auth';
 import { getQuizById } from '@/services';
 import { QuizDto } from '@/types';
 import { Spinner, QuizGenerationJobs, PageHeader } from '@/components';
+import { Seo } from '@/features/seo';
 
 const QuizGenerationJobsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -70,9 +71,11 @@ const QuizGenerationJobsPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page Header */}
-      <PageHeader
+    <>
+      <Seo title={quiz ? `Quiz Generation Jobs: ${quiz.title} | Quizzence` : 'Quiz Generation Jobs | Quizzence'} noindex />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <PageHeader
         title="AI Quiz Generation Jobs"
         subtitle={`Manage AI generation jobs for "${quiz.title}"`}
         showBreadcrumb={true}
@@ -91,7 +94,8 @@ const QuizGenerationJobsPage: React.FC = () => {
       <div className="mt-8">
         <QuizGenerationJobs quizId={quizId!} />
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

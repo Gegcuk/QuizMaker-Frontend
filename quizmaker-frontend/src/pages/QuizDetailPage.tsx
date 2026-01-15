@@ -32,6 +32,7 @@ import {
   TabsTrigger,
   TabsContent
 } from '@/components';
+import { Seo } from '@/features/seo';
 import type { QuizStatus, QuestionDifficulty } from '@/types';
 
 const QuizDetailPage: React.FC = () => {
@@ -212,6 +213,11 @@ const QuizDetailPage: React.FC = () => {
 
   return (
     <>
+      <Seo
+        title={quiz ? `${quiz.title} | Quizzence` : 'Quiz Details | Quizzence'}
+        description={quiz?.description || 'View and manage quiz details'}
+        noindex
+      />
       {/* Quiz Detail Header */}
       <QuizDetailHeader
         quiz={quiz}

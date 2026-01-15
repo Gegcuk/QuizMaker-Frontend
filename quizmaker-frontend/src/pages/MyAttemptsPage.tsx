@@ -475,6 +475,7 @@ const MyAttemptsPage: React.FC = () => {
         description="Review your quiz attempts, track progress and revisit results across all your Quizzence quizzes."
         canonicalPath="/my-attempts"
         ogType="website"
+        noindex
       />
       <PageHeader
         title="My Attempts"

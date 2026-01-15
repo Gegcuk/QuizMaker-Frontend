@@ -37,8 +37,11 @@ const DEFAULT_TIMEOUT = 10000; // 10 seconds
 const FILE_UPLOAD_TIMEOUT = 300000; // 5 minutes
 const LONG_RUNNING_TIMEOUT = 600000; // 10 minutes
 
+// Support VITE_API_BASE_URL for prerender/build-time API access
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseUrl,
   timeout: DEFAULT_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',

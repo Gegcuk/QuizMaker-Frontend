@@ -14,16 +14,55 @@ const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
 
 // Routes whose HTML should be fully prerendered with correct <title>/<meta>.
 // Keep this list small and focused on key marketing / blog / legal pages.
-const ROUTES_TO_PRERENDER = [
+const STATIC_ROUTES = [
   '/',
   '/blog/',
-  '/blog/retrieval-practice-template/',
   '/terms/',
   '/privacy/',
   '/theme-demo/',
 ];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Normalize blog URLs to match canonical format (with trailing slash)
+const normalizeBlogUrl = (url) => {
+  // Extract slug from URL (handles both /blog/slug and /blog/slug/)
+  const match = url.match(/\/blog\/([^\/]+)/);
+  if (match) {
+    return `/blog/${match[1]}/`; // Always add trailing slash
+  }
+  return url; // Return as-is for non-blog URLs
+};
+
+// Fetch article sitemap from API
+const fetchArticleRoutes = async () => {
+  const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  const sitemapUrl = `${apiBaseUrl}/v1/articles/sitemap`;
+
+  try {
+    console.log(`Fetching article sitemap from ${sitemapUrl}...`);
+    const response = await fetch(sitemapUrl);
+    
+    if (!response.ok) {
+      console.warn(`Failed to fetch sitemap (${response.status}): ${response.statusText}`);
+      return [];
+    }
+
+    const entries = await response.json();
+    const routes = entries
+      .map((entry) => entry.url)
+      .filter((url) => url && url.includes('/blog/'))
+      .map(normalizeBlogUrl)
+      .filter((url, index, self) => self.indexOf(url) === index); // Remove duplicates
+
+    console.log(`Found ${routes.length} blog article routes`);
+    return routes;
+  } catch (error) {
+    console.warn(`Error fetching article sitemap: ${error.message}`);
+    console.warn('Continuing with static routes only...');
+    return [];
+  }
+};
 
 const resolveOutputPath = (route) => {
   if (route === '/' || route === '') {
@@ -121,6 +160,10 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
+  // Fetch dynamic blog routes from API
+  const articleRoutes = await fetchArticleRoutes();
+  const ROUTES_TO_PRERENDER = [...STATIC_ROUTES, ...articleRoutes];
+
   let preview;
   let browser;
 
@@ -132,9 +175,44 @@ const prerender = async () => {
 
     for (const route of ROUTES_TO_PRERENDER) {
       const url = `${PREVIEW_ORIGIN}${route}`;
-      // Load the page and wait long enough for React + useSeo to update <head>.
+      console.log(`Prerendering ${route}...`);
+      
+      // Load the page
       await page.goto(url, { waitUntil: 'load' });
-      await delay(1500);
+
+      // Wait for content to be ready based on route type
+      if (route.startsWith('/blog/') && route !== '/blog/') {
+        // Blog article page - wait for article header/title
+        try {
+          await page.waitForSelector('h1, [class*="article"], header', { timeout: 5000 });
+        } catch {
+          // Fallback: wait for any content
+          await delay(1000);
+        }
+        // Wait for JSON-LD structured data to be injected
+        try {
+          await page.waitForSelector('script[type="application/ld+json"]', { timeout: 3000 });
+        } catch {
+          // JSON-LD might not be present, continue anyway
+        }
+      } else if (route === '/blog/') {
+        // Blog index page - wait for article list
+        try {
+          await page.waitForSelector('[class*="card"], [class*="article"], a[href*="/blog/"]', { timeout: 5000 });
+        } catch {
+          await delay(1000);
+        }
+      } else {
+        // Other pages - wait for main content
+        try {
+          await page.waitForSelector('main, [class*="container"], h1', { timeout: 5000 });
+        } catch {
+          await delay(1000);
+        }
+      }
+
+      // Additional small delay to ensure all metadata is injected
+      await delay(500);
 
       const html = await page.content();
       const outputPath = resolveOutputPath(route);
