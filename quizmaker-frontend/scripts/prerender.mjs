@@ -12,6 +12,21 @@ const distDir = path.join(rootDir, 'dist');
 const PREVIEW_PORT = 4173;
 const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
 
+const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
+const rawApiBaseUrl = process.env.VITE_API_BASE_URL || '/api';
+const normalizeApiBaseUrl = (value) => {
+  if (!value) {
+    return `${SITE_URL.replace(/\/$/, '')}/api`;
+  }
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value.replace(/\/$/, '');
+  }
+  const base = SITE_URL.replace(/\/$/, '');
+  const path = value.startsWith('/') ? value : `/${value}`;
+  return `${base}${path}`.replace(/\/$/, '');
+};
+const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
+
 // Routes whose HTML should be fully prerendered with correct <title>/<meta>.
 // Keep this list small and focused on key marketing / blog / legal pages.
 const STATIC_ROUTES = [
@@ -37,7 +52,6 @@ const normalizeBlogUrl = (url) => {
 
 // Fetch article sitemap from API
 const fetchArticleRoutes = async () => {
-  const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
   const sitemapUrl = `${apiBaseUrl}/v1/articles/sitemap`;
 
   try {
@@ -63,6 +77,74 @@ const fetchArticleRoutes = async () => {
     console.warn('Continuing with static routes only...');
     return [];
   }
+};
+
+const setupApiProxy = async (page) => {
+  const isApiRequest = (requestUrl) => {
+    try {
+      const url = new URL(requestUrl);
+      return url.pathname.startsWith('/api/') || requestUrl.startsWith(apiBaseUrl);
+    } catch {
+      return false;
+    }
+  };
+
+  const resolveTargetUrl = (requestUrl) => {
+    if (requestUrl.startsWith(apiBaseUrl)) {
+      return requestUrl;
+    }
+
+    const url = new URL(requestUrl);
+    if (!url.pathname.startsWith('/api/')) {
+      return null;
+    }
+
+    const rewrittenPath = url.pathname.replace(/^\/api/, '');
+    return `${apiBaseUrl}${rewrittenPath}${url.search}`;
+  };
+
+  await page.route('**/*', async (route) => {
+    const request = route.request();
+    const requestUrl = request.url();
+
+    if (!isApiRequest(requestUrl)) {
+      await route.continue();
+      return;
+    }
+
+    const targetUrl = resolveTargetUrl(requestUrl);
+    if (!targetUrl) {
+      await route.continue();
+      return;
+    }
+
+    try {
+      const method = request.method();
+      const headers = request.headers();
+      delete headers.origin;
+      delete headers.host;
+
+      const response = await fetch(targetUrl, {
+        method,
+        headers,
+        body: method === 'GET' || method === 'HEAD' ? undefined : request.postData(),
+      });
+
+      const body = await response.text();
+      const contentType = response.headers.get('content-type') || 'application/json';
+
+      await route.fulfill({
+        status: response.status,
+        headers: {
+          'content-type': contentType,
+        },
+        body,
+      });
+    } catch (error) {
+      console.warn(`API proxy failed for ${requestUrl}: ${error.message}`);
+      await route.abort();
+    }
+  });
 };
 
 const resolveOutputPath = (route) => {
@@ -173,6 +255,7 @@ const prerender = async () => {
 
     browser = await chromium.launch();
     const page = await browser.newPage();
+    await setupApiProxy(page);
 
     for (const route of ROUTES_TO_PRERENDER) {
       const url = `${PREVIEW_ORIGIN}${route}`;
@@ -183,37 +266,29 @@ const prerender = async () => {
 
       // Wait for content to be ready based on route type
       if (route.startsWith('/blog/') && route !== '/blog/') {
-        // Blog article page - wait for article header/title
-        try {
-          await page.waitForSelector('h1, [class*="article"], header', { timeout: 5000 });
-        } catch {
-          // Fallback: wait for any content
-          await delay(1000);
-        }
-        // Wait for JSON-LD structured data to be injected
-        try {
-          await page.waitForSelector('script[type="application/ld+json"]', { timeout: 3000 });
-        } catch {
-          // JSON-LD might not be present, continue anyway
-        }
+        // Blog article page - wait for SEO meta + title to confirm data loaded.
+        await page.waitForSelector('meta[property="og:type"][content="article"]', { timeout: 15000 });
+        await page.waitForFunction(() => {
+          const heading = document.querySelector('h1');
+          return heading && heading.textContent && heading.textContent.trim().length > 0;
+        }, { timeout: 15000 });
       } else if (route === '/blog/') {
-        // Blog index page - wait for article list
-        try {
-          await page.waitForSelector('[class*="card"], [class*="article"], a[href*="/blog/"]', { timeout: 5000 });
-        } catch {
-          await delay(1000);
-        }
+        // Blog index page - wait for article links or empty state.
+        await page.waitForFunction(() => {
+          const hasArticleLink = Array.from(document.querySelectorAll('a')).some((link) => {
+            const href = link.getAttribute('href') || '';
+            return href.startsWith('/blog/') && href !== '/blog/' && href !== '/blog';
+          });
+          const emptyState = document.body?.textContent?.includes('No articles found.');
+          return hasArticleLink || emptyState;
+        }, { timeout: 15000 });
       } else {
-        // Other pages - wait for main content
-        try {
-          await page.waitForSelector('main, [class*="container"], h1', { timeout: 5000 });
-        } catch {
-          await delay(1000);
-        }
+        // Other pages - wait for main content to render.
+        await page.waitForSelector('main, h1', { timeout: 10000 });
       }
 
-      // Additional small delay to ensure all metadata is injected
-      await delay(500);
+      // Additional small delay to ensure all metadata is injected.
+      await delay(300);
 
       const html = await page.content();
       const outputPath = resolveOutputPath(route);
