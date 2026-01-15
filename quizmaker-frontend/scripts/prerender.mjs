@@ -267,7 +267,10 @@ const prerender = async () => {
       // Wait for content to be ready based on route type
       if (route.startsWith('/blog/') && route !== '/blog/') {
         // Blog article page - wait for SEO meta + title to confirm data loaded.
-        await page.waitForSelector('meta[property="og:type"][content="article"]', { timeout: 15000 });
+        await page.waitForFunction(() => {
+          const meta = document.querySelector('meta[property="og:type"]');
+          return meta?.getAttribute('content') === 'article';
+        }, { timeout: 15000 });
         await page.waitForFunction(() => {
           const heading = document.querySelector('h1');
           return heading && heading.textContent && heading.textContent.trim().length > 0;
