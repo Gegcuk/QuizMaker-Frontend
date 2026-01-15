@@ -29,7 +29,15 @@ jobs:
 
       - name: Build (with prerender)
         working-directory: quizmaker-frontend
-        run: npm run build:prerender
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+        run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "❌ Missing VITE_API_BASE_URL secret"
+            exit 1
+          fi
+          npm run build:prerender
 
       - name: Prepare deployment bundle
         run: |
