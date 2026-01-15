@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-sitemap": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/generate-sitemap.mjs",
-    "prerender": "node scripts/prerender.mjs",
-    "build:prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run build && npm run generate-sitemap && npm run prerender"
+    "prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/prerender.mjs",
+    "build:prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run build && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run generate-sitemap && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run prerender"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
