@@ -1,5 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /api
+Allow: /api/v1/articles/public/
+Allow: /api/v1/articles/public/slug/
+
+Disallow: /swagger-ui
+Disallow: /v3/api-docs
+
 Disallow: /quizzes
 Disallow: /my-quizzes
 Disallow: /my-attempts
@@ -15,3 +22,4 @@ Disallow: /oauth
 Disallow: /oauth2
 
 Sitemap: https://www.quizzence.com/sitemap.xml
+Sitemap: https://www.quizzence.com/sitemap_articles.xml
