@@ -32,6 +32,8 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   disabled = false,
   className = ''
 }) => {
+  const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
+
   const renderQuestionByType = () => {
     switch (question.type) {
       case 'MCQ_SINGLE':
@@ -184,6 +186,16 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             dangerouslySetInnerHTML={{ __html: question.questionText }}
           />
         </div>
+
+        {attachmentUrl && (
+          <div className="mb-4">
+            <img
+              src={attachmentUrl}
+              alt="Question attachment"
+              className="max-w-full h-auto rounded-md border border-theme-border-primary"
+            />
+          </div>
+        )}
 
         {/* Question Metadata */}
         {question.hint && (

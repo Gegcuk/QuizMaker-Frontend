@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionRequest, QuestionType, QuestionDifficulty } from '@/types';
+import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto } from '@/types';
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
@@ -21,6 +21,7 @@ import HotspotEditor from './HotspotEditor';
 import { MatchingQuestionForm } from './MatchingQuestionForm';
 import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { MediaPicker } from '@/features/media';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -52,6 +53,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const [showHint, setShowHint] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [editorKey, setEditorKey] = useState(0); // Key to force editor remount on reset
+  const [attachment, setAttachment] = useState<MediaRefDto | null>(null);
+  const [legacyAttachmentUrl, setLegacyAttachmentUrl] = useState<string | null>(null);
+  const [clearAttachment, setClearAttachment] = useState(false);
   // Live preview is rendered alongside the form; no toggle needed
 
   // Step management for CREATE flow (2-step process)
@@ -98,6 +102,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         hint: question.hint || '',
         tagIds: question.tagIds || []
       });
+      setAttachment(question.attachment || null);
+      setLegacyAttachmentUrl(question.attachmentUrl || null);
+      setClearAttachment(false);
       // Show hint/explanation sections if they have values
       if (question.hint) setShowHint(true);
       if (question.explanation) setShowExplanation(true);
@@ -277,13 +284,21 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       }
       
       // For FILL_GAP, copy content.text to questionText before submitting
-      const submissionData: CreateQuestionRequest = formData.type === 'FILL_GAP' 
+      const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
         ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
         : { ...formData, type: formData.type } as CreateQuestionRequest;
 
+      const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};
+      const clearPayload = clearAttachment ? { clearAttachment: true } : {};
+
       if (questionId) {
         // Update existing question
-        await questionService.updateQuestion(questionId, submissionData);
+        const updateData: UpdateQuestionRequest = {
+          ...submissionDataBase,
+          ...attachmentPayload,
+          ...clearPayload
+        };
+        await questionService.updateQuestion(questionId, updateData);
         if (onSuccess) {
           onSuccess();
         } else if (actualQuizId) {
@@ -294,7 +309,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       } else {
         // Create new question
         const questionData: CreateQuestionRequest = {
-          ...submissionData,
+          ...submissionDataBase,
+          ...attachmentPayload,
           quizIds: actualQuizId ? [actualQuizId] : []
         };
         const res = await questionService.createQuestion(questionData);
@@ -390,7 +406,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       case 'MCQ_SINGLE':
       case 'MCQ_MULTI':
         safeContent = {
-          options: (content?.options || []).map((opt: any) => ({ id: opt.id, text: opt.text }))
+          options: (content?.options || []).map((opt: any) => ({
+            id: opt.id,
+            text: opt.text,
+            ...(opt.media ? { media: opt.media } : {})
+          }))
         };
         break;
       case 'FILL_GAP':
@@ -433,7 +453,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       questionText: questionText || '',
       safeContent,
       hint: (formData as any).hint || undefined,
-      attachmentUrl: (formData as any).attachmentUrl || undefined,
+      attachment: attachment || undefined,
+      attachmentUrl: attachment?.cdnUrl || legacyAttachmentUrl || undefined,
     } as QuestionForAttemptDto;
   };
 
@@ -461,12 +482,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       }
       
       // For FILL_GAP, copy content.text to questionText before submitting
-      const submissionData: CreateQuestionRequest = formData.type === 'FILL_GAP' 
+      const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
         ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
         : { ...formData, type: formData.type } as CreateQuestionRequest;
 
+      const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};
       const questionData: CreateQuestionRequest = {
-        ...submissionData,
+        ...submissionDataBase,
+        ...attachmentPayload,
         quizIds: actualQuizId ? [actualQuizId] : []
       };
       const res = await questionService.createQuestion(questionData);
@@ -499,6 +522,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       setPreviewAnswer(null);
       setError(null);
       setEditorKey(prev => prev + 1);
+      setAttachment(null);
+      setLegacyAttachmentUrl(null);
+      setClearAttachment(false);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save question');
     } finally {
@@ -657,6 +683,48 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   error={formData.questionText.trim().length < 3 && formData.questionText.length > 0 ? 'Minimum 3 characters required' : undefined}
                 />
               )}
+
+              <div>
+                <MediaPicker
+                  value={attachment}
+                  onChange={(value) => {
+                    setAttachment(value);
+                    if (value) {
+                      setLegacyAttachmentUrl(null);
+                      setClearAttachment(false);
+                    } else {
+                      setClearAttachment(true);
+                    }
+                  }}
+                  label="Attachment (optional)"
+                  helperText="Images only. Max 10 MB."
+                  disabled={saving}
+                />
+                {!attachment && legacyAttachmentUrl && (
+                  <div className="mt-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-secondary">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-theme-text-secondary">Existing attachment</span>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => {
+                          setLegacyAttachmentUrl(null);
+                          setAttachment(null);
+                          setClearAttachment(true);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                    <img
+                      src={legacyAttachmentUrl}
+                      alt="Question attachment"
+                      className="max-w-full h-auto rounded-md border border-theme-border-primary"
+                    />
+                  </div>
+                )}
+              </div>
 
                {/* Difficulty */}
                <div>

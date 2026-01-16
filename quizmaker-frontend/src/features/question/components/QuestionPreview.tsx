@@ -5,11 +5,11 @@
 
 import React from 'react';
 import { Badge, Checkbox, Textarea, Input } from '@/components';
-import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer } from '@/types';
+import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer, MediaRefDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
 interface QuestionPreviewProps {
-  question: CreateQuestionRequest;
+  question: CreateQuestionRequest & { attachment?: MediaRefDto | null };
   className?: string;
 }
 
@@ -17,6 +17,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   question,
   className = ''
 }) => {
+  const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
 
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {
@@ -271,6 +272,17 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             dangerouslySetInnerHTML={{ __html: question.questionText || 'No question text provided' }}
           />
         </div>
+
+        {attachmentUrl && (
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Attachment:</h4>
+            <img
+              src={attachmentUrl}
+              alt="Question attachment"
+              className="max-w-full h-auto rounded-md border border-theme-border-primary"
+            />
+          </div>
+        )}
 
         {/* Question Type Specific Content */}
         <div className="mb-6">
