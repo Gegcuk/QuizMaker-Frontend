@@ -32,10 +32,11 @@ export { default as AnswerReview } from './AnswerReview';
 export { default as AttemptStats } from './AttemptStats';
 export { default as QuestionTiming } from './QuestionTiming';
 export { default as AttemptDetails } from './AttemptDetails';
+export { default as QuestionPrompt } from './QuestionPrompt';
 
 // User Attempts Management
 export { default as UserAttempts } from './UserAttempts';
 export { default as AttemptCard } from './AttemptCard';
 
 // Hint Display
-export { default as HintDisplay } from './HintDisplay'; 
+export { default as HintDisplay } from './HintDisplay';

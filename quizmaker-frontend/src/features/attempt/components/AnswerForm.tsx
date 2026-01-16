@@ -7,9 +7,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components';
 import { QuestionForAttemptDto, AnswerSubmissionRequest } from '@/types';
+import QuestionPrompt from './QuestionPrompt';
 import { AttemptService } from '@/services';
 import { api } from '@/services';
-import { HintDisplay } from './';
 
 interface AnswerFormProps {
   question: QuestionForAttemptDto;
@@ -213,27 +213,10 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
           </div>
         </div>
 
-        {/* Question Text */}
-        <div className="text-lg text-theme-text-primary mb-4">
-          {question.questionText}
-        </div>
-
-        {/* Hint */}
-        {question.hint && (
-          <HintDisplay hint={question.hint} />
-        )}
-
-        {/* Attachment */}
-        {question.attachmentUrl && (
-          <div className="mb-4">
-            <div className="text-sm text-theme-text-secondary mb-2">Attachment:</div>
-            <img
-              src={question.attachmentUrl}
-              alt="Question attachment"
-              className="max-w-full h-auto rounded-md border border-theme-border-primary"
-            />
-          </div>
-        )}
+        <QuestionPrompt
+          question={question}
+          questionTextClassName="text-lg text-theme-text-primary"
+        />
       </div>
 
       {/* Answer Input Area - To be overridden by specific answer components */}

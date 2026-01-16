@@ -101,6 +101,10 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
     );
   }
 
+  const hasOptionMedia = options.some(
+    (option) => option.media?.cdnUrl || option.media?.assetId
+  );
+
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
@@ -137,7 +141,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
       </div>
 
       {/* Options */}
-      <div className="space-y-3">
+      <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
         {options.map((option, index) => {
           const isSelected = selectedOptions.includes(option.id);
           const optionLabel = String.fromCharCode(65 + index); // A, B, C, D, etc.

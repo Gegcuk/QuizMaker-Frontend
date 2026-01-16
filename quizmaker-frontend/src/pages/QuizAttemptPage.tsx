@@ -23,7 +23,7 @@ import {
   AttemptPause,
   AttemptBatchAnswers,
   AttemptTimer,
-  HintDisplay
+  QuestionPrompt
 } from '@/features/attempt';
 import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
@@ -778,16 +778,7 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Question Text - Skip for FILL_GAP as it's embedded in the answer component */}
-        {currentQuestion.type !== 'FILL_GAP' && (
-          <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
-            {currentQuestion.questionText}
-          </h2>
-        )}
-
-        {currentQuestion.hint && (
-          <HintDisplay hint={currentQuestion.hint} />
-        )}
+        <QuestionPrompt question={currentQuestion} />
 
         {/* Question Options */}
         <div className="space-y-2 mb-6">
@@ -871,11 +862,11 @@ const QuizAttemptPage: React.FC = () => {
                 )}
               </div>
               
-              <p className="text-theme-text-secondary mb-4">{question.questionText}</p>
-              
-              {question.hint && (
-                <HintDisplay hint={question.hint} />
-              )}
+              <QuestionPrompt
+                question={question}
+                questionTextClassName="text-theme-text-secondary"
+                className="mb-4"
+              />
 
               {renderQuestion(question, true)}
             </div>
@@ -935,16 +926,7 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Question Text - Skip for FILL_GAP as it's embedded in the answer component */}
-        {currentQuestion.type !== 'FILL_GAP' && (
-          <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
-            {currentQuestion.questionText}
-          </h2>
-        )}
-
-        {currentQuestion.hint && (
-          <HintDisplay hint={currentQuestion.hint} />
-        )}
+        <QuestionPrompt question={currentQuestion} />
 
         {/* Render the current question */}
         {renderQuestion(currentQuestion, true)}

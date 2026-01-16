@@ -9,8 +9,7 @@ import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDif
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
-import { QuestionRenderer } from './';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto, HintDisplay } from '@/features/attempt';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto, QuestionPrompt } from '@/features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -467,6 +466,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   };
 
   const [previewAnswer, setPreviewAnswer] = useState<any>(null);
+  const previewQuestion = toAttemptQuestion();
 
   const handleSaveAndAddAnother = async () => {
     if (questionId) return; // Only for create flow
@@ -951,28 +951,19 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
               <div className="border border-theme-border-primary rounded-lg p-4 bg-theme-bg-secondary bg-theme-bg-primary text-theme-text-primary">
                 <h4 className="text-sm font-medium text-theme-text-secondary mb-4">Live Preview (Attempt-like)</h4>
                 
-                {/* Question Text - matches QuizAttemptPage */}
-                {formData.type !== 'FILL_GAP' && formData.questionText && (
-                  <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
-                    {formData.questionText}
-                  </h2>
-                )}
-                
-                {/* Hint Display - matches QuizAttemptPage */}
-                {formData.hint && (
-                  <HintDisplay hint={formData.hint} />
+                {previewQuestion && (
+                  <QuestionPrompt question={previewQuestion} />
                 )}
                 
                 {/* Question Options */}
                 <div className="space-y-2 mb-6">
                 {(() => {
-                  const q = toAttemptQuestion();
-                  if (!q || !formData.type) return null;
-                  switch (q.type) {
+                  if (!previewQuestion || !formData.type) return null;
+                  switch (previewQuestion.type) {
                     case 'MCQ_SINGLE':
                       return (
                         <McqAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as string}
                           onAnswerChange={setPreviewAnswer}
                           singleChoice
@@ -981,7 +972,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'MCQ_MULTI':
                       return (
                         <McqAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as string[]}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -989,7 +980,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'TRUE_FALSE':
                       return (
                         <TrueFalseAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as boolean}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -997,7 +988,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'OPEN':
                       return (
                         <OpenAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as string}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -1005,7 +996,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'FILL_GAP':
                       return (
                         <FillGapAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as Record<number, string>}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -1013,7 +1004,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'COMPLIANCE':
                       return (
                         <ComplianceAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={Array.isArray(previewAnswer) ? (previewAnswer as number[]) : []}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -1021,7 +1012,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'ORDERING':
                       return (
                         <OrderingAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as number[]}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -1029,7 +1020,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'HOTSPOT':
                       return (
                         <HotspotAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as any}
                           onAnswerChange={setPreviewAnswer}
                         />
@@ -1037,7 +1028,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                     case 'MATCHING':
                       return (
                         <MatchingAnswer
-                          question={q}
+                          question={previewQuestion}
                           currentAnswer={previewAnswer as { matches: Array<{ leftId: number; rightId: number }> }}
                           onAnswerChange={setPreviewAnswer}
                         />

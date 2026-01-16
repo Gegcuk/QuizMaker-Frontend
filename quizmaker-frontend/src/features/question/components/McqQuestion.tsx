@@ -60,9 +60,13 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
     return 'normal';
   };
 
+  const hasOptionMedia = options.some(
+    (option) => option.media?.cdnUrl || option.media?.assetId
+  );
+
   return (
     <div className="mcq-question">
-      <div className="space-y-3">
+      <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
         {options.map((option) => {
           const status = getOptionStatus(option);
           const isSelected = isOptionSelected(option.id);

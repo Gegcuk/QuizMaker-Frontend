@@ -77,10 +77,16 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
   const renderQuestionContent = () => {
     switch (question.type) {
-      case 'MCQ_SINGLE':
+      case 'MCQ_SINGLE': {
+        const options = question.content && 'options' in question.content
+          ? (question.content.options as McqOption[])
+          : [];
+        const hasOptionMedia = options.some(
+          (option) => option.media?.cdnUrl || option.media?.assetId
+        );
         return (
-          <div className="space-y-3">
-            {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
+          <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
+            {options.map((option) => (
               <div key={option.id} className="flex items-center justify-between">
                 <Checkbox
                   id={`option-${option.id}`}
@@ -96,11 +102,18 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             ))}
           </div>
         );
+      }
 
-      case 'MCQ_MULTI':
+      case 'MCQ_MULTI': {
+        const options = question.content && 'options' in question.content
+          ? (question.content.options as McqOption[])
+          : [];
+        const hasOptionMedia = options.some(
+          (option) => option.media?.cdnUrl || option.media?.assetId
+        );
         return (
-          <div className="space-y-3">
-            {question.content && 'options' in question.content && (question.content.options as McqOption[]).map((option) => (
+          <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
+            {options.map((option) => (
               <div key={option.id} className="flex items-center justify-between">
                 <Checkbox
                   id={`option-${option.id}`}
@@ -116,6 +129,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             ))}
           </div>
         );
+      }
 
       case 'TRUE_FALSE':
         return (
@@ -293,12 +307,22 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
         {attachmentUrl && (
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Attachment:</h4>
             <img
               src={attachmentUrl}
               alt="Question attachment"
               className="max-w-full h-auto rounded-md border border-theme-border-primary"
             />
+            <div className="mt-2 text-xs text-theme-text-tertiary">Attachment</div>
+          </div>
+        )}
+
+        {/* Hint */}
+        {question.hint && (
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
+              <p className="text-sm text-theme-text-primary">{question.hint}</p>
+            </div>
           </div>
         )}
 
@@ -314,16 +338,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Explanation:</h4>
             <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
               <p className="text-sm text-theme-text-primary">{question.explanation}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Hint */}
-        {question.hint && (
-          <div className="mb-6">
-            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
-              <p className="text-sm text-theme-text-primary">{question.hint}</p>
             </div>
           </div>
         )}

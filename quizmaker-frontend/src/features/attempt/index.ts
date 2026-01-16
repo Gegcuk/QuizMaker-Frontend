@@ -35,6 +35,7 @@ export { default as AttemptPause } from './components/AttemptPause';
 export { default as AttemptBatchAnswers } from './components/AttemptBatchAnswers';
 export { default as AttemptTimer } from './components/AttemptTimer';
 export { default as HintDisplay } from './components/HintDisplay';
+export { default as QuestionPrompt } from './components/QuestionPrompt';
 export { default as McqAnswer } from './components/McqAnswer';
 export { default as TrueFalseAnswer } from './components/TrueFalseAnswer';
 export { default as OpenAnswer } from './components/OpenAnswer';
