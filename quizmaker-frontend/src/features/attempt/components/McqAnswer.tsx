@@ -108,7 +108,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Instructions */}
-      <div className="text-sm text-theme-text-secondary mb-4">
+      <div className={`text-sm text-theme-text-secondary ${hasOptionMedia ? 'mb-5' : 'mb-4'}`}>
         {isMultiChoice ? (
           <div className="flex items-center justify-between">
             <span>Select all that apply:</span>

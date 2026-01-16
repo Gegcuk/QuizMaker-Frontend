@@ -1,11 +1,8 @@
 import React from 'react';
 import type { QuestionForAttemptDto } from '@/types';
-import HintDisplay from './HintDisplay';
-
 interface QuestionPromptProps {
   question: QuestionForAttemptDto;
   showQuestionText?: boolean;
-  showHint?: boolean;
   showAttachment?: boolean;
   questionTextClassName?: string;
   className?: string;
@@ -14,7 +11,6 @@ interface QuestionPromptProps {
 const QuestionPrompt: React.FC<QuestionPromptProps> = ({
   question,
   showQuestionText,
-  showHint = true,
   showAttachment = true,
   questionTextClassName = 'text-xl font-semibold text-theme-text-primary',
   className = ''
@@ -37,12 +33,7 @@ const QuestionPrompt: React.FC<QuestionPromptProps> = ({
             alt="Question attachment"
             className="max-w-full h-auto rounded-md border border-theme-border-primary"
           />
-          <div className="text-xs text-theme-text-tertiary">Attachment</div>
         </div>
-      )}
-
-      {showHint && question.hint && (
-        <HintDisplay hint={question.hint} />
       )}
     </div>
   );

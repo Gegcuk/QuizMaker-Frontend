@@ -312,17 +312,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
               alt="Question attachment"
               className="max-w-full h-auto rounded-md border border-theme-border-primary"
             />
-            <div className="mt-2 text-xs text-theme-text-tertiary">Attachment</div>
-          </div>
-        )}
-
-        {/* Hint */}
-        {question.hint && (
-          <div className="mb-6">
-            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
-            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
-              <p className="text-sm text-theme-text-primary">{question.hint}</p>
-            </div>
           </div>
         )}
 
@@ -338,6 +327,16 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Explanation:</h4>
             <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
               <p className="text-sm text-theme-text-primary">{question.explanation}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Hint */}
+        {question.hint && (
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Hint:</h4>
+            <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-3 bg-theme-bg-primary text-theme-text-primary">
+              <p className="text-sm text-theme-text-primary">{question.hint}</p>
             </div>
           </div>
         )}

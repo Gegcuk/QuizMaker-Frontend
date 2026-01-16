@@ -23,7 +23,8 @@ import {
   AttemptPause,
   AttemptBatchAnswers,
   AttemptTimer,
-  QuestionPrompt
+  QuestionPrompt,
+  HintDisplay
 } from '@/features/attempt';
 import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
@@ -778,7 +779,7 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <QuestionPrompt question={currentQuestion} />
+        <QuestionPrompt question={currentQuestion} className="mb-4" />
 
         {/* Question Options */}
         <div className="space-y-2 mb-6">
@@ -803,6 +804,12 @@ const QuizAttemptPage: React.FC = () => {
                 />
               </div>
             </div>
+          </div>
+        )}
+
+        {currentQuestion.hint && (
+          <div className="mt-4">
+            <HintDisplay hint={currentQuestion.hint} />
           </div>
         )}
 
@@ -869,6 +876,12 @@ const QuizAttemptPage: React.FC = () => {
               />
 
               {renderQuestion(question, true)}
+
+              {question.hint && (
+                <div className="mt-4">
+                  <HintDisplay hint={question.hint} />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -926,10 +939,16 @@ const QuizAttemptPage: React.FC = () => {
           </div>
         </div>
 
-        <QuestionPrompt question={currentQuestion} />
+        <QuestionPrompt question={currentQuestion} className="mb-4" />
 
         {/* Render the current question */}
         {renderQuestion(currentQuestion, true)}
+
+        {currentQuestion.hint && (
+          <div className="mt-4">
+            <HintDisplay hint={currentQuestion.hint} />
+          </div>
+        )}
 
         {/* Navigation buttons */}
         <div className="flex justify-between mt-8">

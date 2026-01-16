@@ -9,7 +9,7 @@ import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDif
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
-import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto, QuestionPrompt } from '@/features/attempt';
+import { McqAnswer, TrueFalseAnswer, OpenAnswer, FillGapAnswer, ComplianceAnswer, OrderingAnswer, HotspotAnswer, MatchingAnswer, QuestionForAttemptDto, QuestionPrompt, HintDisplay } from '@/features/attempt';
 import McqQuestionEditor from './McqQuestionEditor';
 import TrueFalseEditor from './TrueFalseEditor';
 import OpenQuestionEditor from './OpenQuestionEditor';
@@ -952,7 +952,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                 <h4 className="text-sm font-medium text-theme-text-secondary mb-4">Live Preview (Attempt-like)</h4>
                 
                 {previewQuestion && (
-                  <QuestionPrompt question={previewQuestion} />
+                  <QuestionPrompt question={previewQuestion} className="mb-4" />
                 )}
                 
                 {/* Question Options */}
@@ -1038,6 +1038,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                   }
                 })()}
                 </div>
+
+                {previewQuestion?.hint && (
+                  <div className="mt-4">
+                    <HintDisplay hint={previewQuestion.hint} />
+                  </div>
+                )}
               </div>
             </div>
           </div>

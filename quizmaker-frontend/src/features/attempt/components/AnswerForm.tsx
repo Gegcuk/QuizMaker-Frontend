@@ -10,6 +10,7 @@ import { QuestionForAttemptDto, AnswerSubmissionRequest } from '@/types';
 import QuestionPrompt from './QuestionPrompt';
 import { AttemptService } from '@/services';
 import { api } from '@/services';
+import HintDisplay from './HintDisplay';
 
 interface AnswerFormProps {
   question: QuestionForAttemptDto;
@@ -216,6 +217,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
         <QuestionPrompt
           question={question}
           questionTextClassName="text-lg text-theme-text-primary"
+          className="mb-4"
         />
       </div>
 
@@ -231,6 +233,12 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
       {validationError && (
         <div className="mb-4 p-3 bg-theme-bg-danger border border-theme-border-danger rounded-md">
           <div className="text-sm text-theme-interactive-danger">{validationError}</div>
+        </div>
+      )}
+
+      {question.hint && (
+        <div className="mb-4">
+          <HintDisplay hint={question.hint} />
         </div>
       )}
 
