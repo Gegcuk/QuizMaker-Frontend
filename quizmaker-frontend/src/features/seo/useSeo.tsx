@@ -99,6 +99,17 @@ export const useSeo = ({
       ensureMetaTag('google-site-verification', GOOGLE_SITE_VERIFICATION);
     }
 
+    // Remove all existing structured data scripts before adding new ones
+    // This prevents duplicate FAQPage schemas and other structured data
+    const existingScripts = document.head.querySelectorAll<HTMLScriptElement>(
+      'script[type="application/ld+json"][data-seo="structured-data"]'
+    );
+    existingScripts.forEach(script => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    });
+
     const injectedScripts: HTMLScriptElement[] = [];
     stableStructuredData.forEach((entry, index) => {
       const script = document.createElement('script');
