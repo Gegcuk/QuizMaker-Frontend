@@ -145,6 +145,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
         {options.map((option, index) => {
           const isSelected = selectedOptions.includes(option.id);
           const optionLabel = String.fromCharCode(65 + index); // A, B, C, D, etc.
+          const letterBaseClasses = 'inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full';
 
           // Determine if this option is correct (for feedback)
           let isCorrectOption = false;
@@ -180,34 +181,58 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
             bgColor = 'bg-theme-bg-tertiary';
           }
 
+          const letterClasses = isMultiChoice
+            ? `${letterBaseClasses} ${
+                showFeedback && isCorrectOption
+                  ? 'text-theme-text-primary bg-theme-bg-info'
+                  : 'text-theme-text-secondary bg-theme-bg-tertiary'
+              }`
+            : `${letterBaseClasses} bg-theme-bg-primary border ${
+                showFeedback && isCorrectOption
+                  ? 'border-theme-border-success text-theme-interactive-success'
+                  : showFeedback && !isCorrect && isSelected && !isCorrectOption
+                  ? 'border-theme-border-danger text-theme-interactive-danger'
+                  : isSelected
+                  ? 'border-theme-interactive-primary text-theme-interactive-primary'
+                  : 'border-theme-border-primary text-theme-text-primary'
+              }`;
+
           return (
             <label
               key={option.id}
-              className={`flex items-start p-4 border-2 rounded-lg transition-colors ${
+              className={`flex items-start py-4 pl-3 pr-4 border-2 rounded-lg transition-colors ${
                 disabled 
                   ? 'opacity-70 cursor-not-allowed' 
                   : `cursor-pointer ${isSelected ? '' : 'hover:border-theme-border-secondary'}`
               } ${borderColor} ${bgColor}`}
             >
-              <input
-                type={isMultiChoice ? 'checkbox' : 'radio'}
-                name={`question-${question.id}`}
-                value={option.id}
-                checked={isSelected}
-                onChange={() => handleOptionChange(option.id)}
-                disabled={disabled}
-                className={`mt-1 ${
-                  isMultiChoice ? 'rounded' : 'rounded-full'
-                } border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2`}
-              />
-              
-              <div className="ml-3 flex-1">
+              {isMultiChoice ? (
+                <input
+                  type="checkbox"
+                  name={`question-${question.id}`}
+                  value={option.id}
+                  checked={isSelected}
+                  onChange={() => handleOptionChange(option.id)}
+                  disabled={disabled}
+                  className="mt-1 rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2"
+                  aria-label={`Select option ${optionLabel}`}
+                />
+              ) : (
+                <input
+                  type="radio"
+                  name={`question-${question.id}`}
+                  value={option.id}
+                  checked={isSelected}
+                  onChange={() => handleOptionChange(option.id)}
+                  disabled={disabled}
+                  className="sr-only"
+                  aria-label={`Select option ${optionLabel}`}
+                />
+              )}
+
+              <div className={`${isMultiChoice ? 'ml-3' : 'ml-0'} flex-1`}>
                 <div className="flex items-start">
-                  <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full mr-3 flex-shrink-0 ${
-                    showFeedback && isCorrectOption 
-                      ? 'text-theme-text-primary bg-theme-bg-info' 
-                      : 'text-theme-text-secondary bg-theme-bg-tertiary'
-                  }`}>
+                  <span className={`${letterClasses} mr-3 flex-shrink-0`}>
                     {optionLabel}
                   </span>
                   <div className="flex-1 space-y-2">

@@ -70,11 +70,31 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
         {options.map((option) => {
           const status = getOptionStatus(option);
           const isSelected = isOptionSelected(option.id);
+          const letterBaseClasses = 'inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full';
+          const letterClasses = isMultiSelect
+            ? `${letterBaseClasses} ${
+                status === 'correct'
+                  ? 'bg-theme-bg-success text-theme-text-primary'
+                  : status === 'incorrect'
+                  ? 'bg-theme-bg-danger text-theme-text-primary'
+                  : isSelected
+                  ? 'bg-theme-bg-primary text-theme-text-primary'
+                  : 'bg-theme-bg-tertiary text-theme-text-secondary'
+              }`
+            : `${letterBaseClasses} bg-theme-bg-primary border ${
+                status === 'correct'
+                  ? 'border-theme-border-success text-theme-interactive-success'
+                  : status === 'incorrect'
+                  ? 'border-theme-border-danger text-theme-interactive-danger'
+                  : isSelected
+                  ? 'border-theme-interactive-primary text-theme-interactive-primary'
+                  : 'border-theme-border-primary text-theme-text-primary'
+              }`;
           
           return (
             <div
               key={option.id}
-              className={`flex items-start space-x-3 p-4 border rounded-lg transition-colors ${
+              className={`flex items-start space-x-3 py-4 pl-3 pr-4 border rounded-lg transition-colors ${
                 status === 'correct' 
                   ? 'border-theme-border-success bg-theme-bg-success' 
                   : status === 'incorrect'
@@ -87,38 +107,42 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
             >
               {/* Option Letter */}
               <div className="flex-shrink-0 mt-1">
-                <span className={`inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full ${
-                  status === 'correct'
-                    ? 'bg-theme-bg-success text-theme-text-primary'
-                    : status === 'incorrect'
-                    ? 'bg-theme-bg-danger text-theme-text-primary'
-                    : isSelected
-                    ? 'bg-theme-bg-primary text-theme-text-primary'
-                    : 'bg-theme-bg-tertiary text-theme-text-secondary'
-                }`}>
+                {!isMultiSelect && (
+                  <input
+                    type="radio"
+                    name="mcq-single"
+                    checked={isSelected}
+                    onChange={(e) => handleOptionChange(option.id, e.target.checked)}
+                    disabled={disabled}
+                    className="sr-only"
+                    aria-label={`Select option ${option.id.toUpperCase()}`}
+                  />
+                )}
+                <span className={letterClasses}>
                   {option.id.toUpperCase()}
                 </span>
               </div>
 
               {/* Checkbox/Radio */}
-              <div className="flex-shrink-0 mt-1">
-                <input
-                  type={isMultiSelect ? 'checkbox' : 'radio'}
-                  name={isMultiSelect ? 'mcq-multi' : 'mcq-single'}
-                  checked={isSelected}
-                  onChange={(e) => handleOptionChange(option.id, e.target.checked)}
-                  disabled={disabled}
-                  className={`h-4 w-4 ${
-                    isMultiSelect ? 'rounded' : ''
-                  } ${
-                    status === 'correct'
-                      ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
-                      : status === 'incorrect'
-                      ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
-                      : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
-                  }`}
-                />
-              </div>
+              {isMultiSelect ? (
+                <div className="flex-shrink-0 mt-1">
+                  <input
+                    type="checkbox"
+                    name="mcq-multi"
+                    checked={isSelected}
+                    onChange={(e) => handleOptionChange(option.id, e.target.checked)}
+                    disabled={disabled}
+                    className={`h-4 w-4 rounded ${
+                      status === 'correct'
+                        ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
+                        : status === 'incorrect'
+                        ? 'text-theme-interactive-danger focus:ring-theme-interactive-danger border-theme-border-primary'
+                        : 'text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary'
+                    }`}
+                    aria-label={`Select option ${option.id.toUpperCase()}`}
+                  />
+                </div>
+              ) : null}
 
               {/* Option Text + Media */}
               <div className="flex-1 space-y-2">
