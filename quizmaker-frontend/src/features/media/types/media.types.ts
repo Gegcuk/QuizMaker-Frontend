@@ -81,6 +81,17 @@ export interface MediaAssetResponse {
 }
 
 /**
+ * Lightweight media reference returned inside other DTOs (questions, articles, etc.)
+ */
+export interface MediaRefDto {
+  assetId: string;
+  cdnUrl?: string;
+  width?: number;
+  height?: number;
+  mimeType?: string;
+}
+
+/**
  * Search parameters for the media library
  */
 export interface MediaSearchParams {

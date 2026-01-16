@@ -3,6 +3,7 @@
 
 // Import shared types from common to avoid duplication
 import type { QuestionType, Difficulty } from '../../../types/common.types';
+import type { MediaRefDto } from '../../media/types/media.types';
 
 // Re-export for convenience
 export type { QuestionType, Difficulty };
@@ -123,6 +124,7 @@ export interface QuestionForAttemptDto {
   questionText: string;
   safeContent: any;             // safe content (no solution fields)
   hint?: string | null;
+  attachment?: MediaRefDto;
   attachmentUrl?: string | null;
 }
 
@@ -183,6 +185,7 @@ export interface AnswerReviewDto {
   type: QuestionType;
   questionText: string;
   hint?: string | null;
+  attachment?: MediaRefDto;
   attachmentUrl?: string | null;
   questionSafeContent: any;          // Safe question content for rendering (without correct answers)
   userResponse: any;                 // User's submitted response (JSON structure depends on question type)

@@ -3,6 +3,7 @@
 
 // Import shared types from common to avoid duplication
 import type { QuestionType, Difficulty } from '../../../types/common.types';
+import type { MediaRefDto } from '../../media/types/media.types';
 
 // Re-export for convenience
 export type { QuestionType, Difficulty };
@@ -19,6 +20,7 @@ export interface CreateQuestionRequest {
   hint?: string;                         // Max 500 characters, optional
   explanation?: string;                  // Max 2000 characters, optional
   attachmentUrl?: string;                // Max 2048 characters, optional
+  attachmentAssetId?: string;            // Optional media asset ID
   quizIds?: string[];                    // Optional array
   tagIds?: string[];                     // Optional array
 }
@@ -35,6 +37,8 @@ export interface UpdateQuestionRequest {
   hint?: string;                         // Max 500 characters, optional
   explanation?: string;                  // Max 2000 characters, optional
   attachmentUrl?: string;                // Max 2048 characters, optional
+  attachmentAssetId?: string;            // Optional media asset ID
+  clearAttachment?: boolean;             // Remove existing attachment when true
   quizIds?: string[];                    // Optional array
   tagIds?: string[];                     // Optional array
 }
@@ -51,6 +55,7 @@ export interface QuestionDto {
   content: any | null;                   // Question type-specific content (may be null for safe content)
   hint?: string | null;                  // Optional hint
   explanation?: string | null;           // Optional explanation
+  attachment?: MediaRefDto;              // Optional attachment reference
   attachmentUrl?: string | null;         // Optional attachment URL
   createdAt: string;                     // ISO date-time (UTC)
   updatedAt: string;                     // ISO date-time (UTC)
@@ -116,7 +121,8 @@ export interface QuestionSchemaResponse {
  */
 export interface McqOption {
   id: string;
-  text: string;
+  text?: string;
+  media?: MediaRefDto | { assetId: string };
   correct: boolean;
 }
 

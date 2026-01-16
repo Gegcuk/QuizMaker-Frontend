@@ -66,6 +66,55 @@ Each has different content structure. Always check `/api/v1/questions/schemas` f
 
 ---
 
+## Media Attachments (Questions + Options)
+
+**Requests (create/update):**
+- Question-level image: `attachmentAssetId` (UUID of an uploaded media asset)
+- Option/item-level image: `content.media.assetId` (UUID inside option/item objects)
+- `attachmentUrl` is legacy and still accepted; prefer `attachmentAssetId`
+
+**Responses (read/export):**
+- `attachment` is a resolved `MediaRefDto` (includes `cdnUrl`, `width`, `height`, `mimeType` when available)
+- `attachmentUrl` may still be present for legacy data
+- When both are present, `attachment` should be used
+
+**Example request (MCQ option media):**
+```json
+{
+  "type": "MCQ_SINGLE",
+  "content": {
+    "options": [
+      { "id": "a", "text": "Option A", "media": { "assetId": "3fa85f64-5717-4562-b3fc-2c963f66afa6" }, "correct": false }
+    ]
+  },
+  "attachmentAssetId": "4fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+**Example response (resolved attachment):**
+```json
+{
+  "attachment": {
+    "assetId": "4fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "cdnUrl": "https://cdn.example.com/assets/...",
+    "width": 1200,
+    "height": 800,
+    "mimeType": "image/png"
+  },
+  "attachmentUrl": "https://legacy.example.com/old-image.png"
+}
+```
+
+**AI generation note:**
+- The AI schema is derived from `/api/v1/questions/schemas` but **strips `media` fields** for generation.
+- Do not include `media` in AI-generated content.
+
+**Export/import round-trip:**
+- Exported content may include server-enriched media fields (`cdnUrl`, `width`, `height`, `mimeType`).
+- When re-importing or re-sending content, **strip those fields and keep only `media.assetId`**.
+
+---
+
 ## Authentication
 
 Most endpoints require JWT authentication.

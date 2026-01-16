@@ -30,6 +30,7 @@ export type {
   MediaAssetResponse,
   MediaAssetStatus,
   MediaAssetType,
+  MediaRefDto,
   MediaSearchParams,
   MediaSearchResponse,
   MediaUploadCompleteRequest,
