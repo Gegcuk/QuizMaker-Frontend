@@ -4,8 +4,9 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { McqOption, McqSingleContent, McqMultiContent } from '@/types';
+import { McqOption, McqSingleContent, McqMultiContent, MediaRefDto } from '@/types';
 import { InstructionsModal, AddItemButton, Textarea, Button } from '@/components';
+import { MediaPicker } from '@/features/media';
 // No specific content types - API uses JsonNode
 
 interface McqQuestionEditorProps {
@@ -65,6 +66,12 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
     });
   };
 
+  const handleOptionMediaChange = (id: string, media: MediaRefDto | null) => {
+    setOptions(prev => prev.map(option => 
+      option.id === id ? { ...option, media: media ?? undefined } : option
+    ));
+  };
+
   const addOption = () => {
     const newId = String.fromCharCode(97 + options.length); // a, b, c, d, e, f...
     setOptions(prev => [...prev, { id: newId, text: '', correct: false }]);
@@ -117,11 +124,11 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
               />
             </div>
 
-            {/* Option Text */}
-            <div className="flex-1">
+            {/* Option Text + Media */}
+            <div className="flex-1 space-y-3">
               <Textarea
                 data-mcq-option
-                value={option.text}
+                value={option.text || ''}
                 onChange={(e) => {
                   handleOptionTextChange(option.id, e.target.value);
                 }}
@@ -129,6 +136,13 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
                 rows={1}
                 fullWidth
                 className="!min-h-[38px]"
+              />
+              <MediaPicker
+                value={(option.media as MediaRefDto) || null}
+                onChange={(value) => handleOptionMediaChange(option.id, value)}
+                label="Option image (optional)"
+                helperText="Images only. Max 10 MB."
+                showPreview
               />
             </div>
 
@@ -160,6 +174,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
           <li>Enter the text for each option</li>
+          <li>Option text can be empty if you upload an image</li>
           <li>Mark the correct answer(s) using the checkbox/radio button</li>
           {isMultiSelect && <li>Multiple correct answers allowed</li>}
         </ul>

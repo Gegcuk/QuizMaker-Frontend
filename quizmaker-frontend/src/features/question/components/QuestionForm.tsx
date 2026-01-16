@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto } from '@/types';
+import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto, McqSingleContent, McqMultiContent } from '@/types';
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
@@ -22,6 +22,7 @@ import { MatchingQuestionForm } from './MatchingQuestionForm';
 import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { MediaPicker } from '@/features/media';
+import { sanitizeMcqContentForSubmission } from '../utils/contentSanitizer';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -151,17 +152,18 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       case 'MCQ_SINGLE':
       case 'MCQ_MULTI': {
         const options = (formData.content as any)?.options || [];
-        // Filter out empty options (no text)
-        const validOptions = options.filter((opt: any) => opt.text && opt.text.trim().length >= 1);
+        const hasText = (opt: any) => !!(opt.text && opt.text.trim().length >= 1);
+        const hasMedia = (opt: any) => !!(opt.media && (opt.media.assetId || opt.media.cdnUrl));
+        // Filter out empty options (no text or media)
+        const validOptions = options.filter((opt: any) => hasText(opt) || hasMedia(opt));
         
         if (validOptions.length < 2) {
-          errors.push('At least 2 options with text are required.');
+          errors.push('At least 2 options with text or image are required.');
         }
         
-        // Check all options with text have at least 1 character
-        const emptyOptions = options.filter((opt: any) => opt.text && opt.text.trim().length < 1 && opt.text.length > 0);
-        if (emptyOptions.length > 0) {
-          errors.push('All options must have at least 1 character (not just spaces).');
+        const invalidOptions = options.filter((opt: any) => !hasText(opt) && !hasMedia(opt));
+        if (invalidOptions.length > 0) {
+          errors.push('Each option must have text or an image.');
         }
         
         // Check correct answers
@@ -283,10 +285,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         return;
       }
       
+      const rawContent = formData.content;
+      const normalizedContent =
+        formData.type === 'MCQ_SINGLE' || formData.type === 'MCQ_MULTI'
+          ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
+          : rawContent;
+
       // For FILL_GAP, copy content.text to questionText before submitting
       const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
-        ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
-        : { ...formData, type: formData.type } as CreateQuestionRequest;
+        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (rawContent as any)?.text || '' } as CreateQuestionRequest
+        : { ...formData, type: formData.type, content: normalizedContent } as CreateQuestionRequest;
 
       const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};
       const clearPayload = clearAttachment ? { clearAttachment: true } : {};
@@ -481,10 +489,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         return;
       }
       
+      const rawContent = formData.content;
+      const normalizedContent =
+        formData.type === 'MCQ_SINGLE' || formData.type === 'MCQ_MULTI'
+          ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
+          : rawContent;
+
       // For FILL_GAP, copy content.text to questionText before submitting
       const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
-        ? { ...formData, type: formData.type, questionText: (formData.content as any)?.text || '' } as CreateQuestionRequest
-        : { ...formData, type: formData.type } as CreateQuestionRequest;
+        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (rawContent as any)?.text || '' } as CreateQuestionRequest
+        : { ...formData, type: formData.type, content: normalizedContent } as CreateQuestionRequest;
 
       const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};
       const questionData: CreateQuestionRequest = {

@@ -22,7 +22,8 @@ interface McqAnswerProps {
 
 interface McqOption {
   id: string;
-  text: string;
+  text?: string;
+  media?: { assetId?: string; cdnUrl?: string };
 }
 
 const McqAnswer: React.FC<McqAnswerProps> = ({
@@ -205,7 +206,24 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                   }`}>
                     {optionLabel}
                   </span>
-                  <span className="text-theme-text-primary">{option.text}</span>
+                  <div className="flex-1 space-y-2">
+                    {option.media?.cdnUrl && (
+                      <img
+                        src={option.media.cdnUrl}
+                        alt={`Option ${optionLabel} media`}
+                        className="max-w-full h-auto rounded-md border border-theme-border-primary"
+                      />
+                    )}
+                    {option.text && option.text.trim().length > 0 ? (
+                      <span className="text-theme-text-primary">{option.text}</span>
+                    ) : (
+                      !option.media?.cdnUrl && (
+                        <span className="text-theme-text-tertiary">
+                          Option {optionLabel}
+                        </span>
+                      )
+                    )}
+                  </div>
                   {showFeedback && isCorrectOption && (
                     <span className="ml-2 text-theme-interactive-success">✓</span>
                   )}

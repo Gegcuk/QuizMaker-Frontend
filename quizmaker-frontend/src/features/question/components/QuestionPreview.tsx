@@ -57,6 +57,24 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     }
   };
 
+  const renderMcqOptionLabel = (option: McqOption) => {
+    const hasText = !!(option.text && option.text.trim().length > 0);
+    return (
+      <div className="flex items-center gap-3">
+        {option.media?.cdnUrl && (
+          <img
+            src={option.media.cdnUrl}
+            alt={`Option ${option.id.toUpperCase()} media`}
+            className="h-10 w-auto rounded-md border border-theme-border-primary"
+          />
+        )}
+        <span>
+          {hasText ? option.text : option.media?.cdnUrl ? 'Image option' : `Option ${option.id.toUpperCase()}`}
+        </span>
+      </div>
+    );
+  };
+
   const renderQuestionContent = () => {
     switch (question.type) {
       case 'MCQ_SINGLE':
@@ -69,7 +87,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   checked={false}
                   onChange={() => {}}
                   disabled
-                  label={option.text || `Option ${option.id.toUpperCase()}`}
+                  label={renderMcqOptionLabel(option)}
                 />
                 {option.correct && (
                   <Badge variant="success" size="sm">Correct</Badge>
@@ -89,7 +107,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   checked={false}
                   onChange={() => {}}
                   disabled
-                  label={option.text || `Option ${option.id.toUpperCase()}`}
+                  label={renderMcqOptionLabel(option)}
                 />
                 {option.correct && (
                   <Badge variant="success" size="sm">Correct</Badge>

@@ -116,16 +116,31 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                 />
               </div>
 
-              {/* Option Text */}
-              <div className="flex-1">
-                <div 
-                  className={`text-sm ${
-                    status === 'correct' ? 'text-theme-interactive-success' :
-                    status === 'incorrect' ? 'text-theme-interactive-danger' :
-                    'text-theme-text-primary'
-                  }`}
-                  dangerouslySetInnerHTML={{ __html: option.text }}
-                />
+              {/* Option Text + Media */}
+              <div className="flex-1 space-y-2">
+                {option.media?.cdnUrl && (
+                  <img
+                    src={option.media.cdnUrl}
+                    alt={`Option ${option.id.toUpperCase()} media`}
+                    className="max-w-full h-auto rounded-md border border-theme-border-primary"
+                  />
+                )}
+                {option.text && option.text.trim().length > 0 ? (
+                  <div 
+                    className={`text-sm ${
+                      status === 'correct' ? 'text-theme-interactive-success' :
+                      status === 'incorrect' ? 'text-theme-interactive-danger' :
+                      'text-theme-text-primary'
+                    }`}
+                    dangerouslySetInnerHTML={{ __html: option.text }}
+                  />
+                ) : (
+                  !option.media?.cdnUrl && (
+                    <div className="text-sm text-theme-text-tertiary">
+                      Option {option.id.toUpperCase()}
+                    </div>
+                  )
+                )}
               </div>
 
               {/* Status Icons */}
