@@ -161,8 +161,18 @@ const QuizResultPage: React.FC = () => {
   };
 
   const renderOptionLabel = (option: any): React.ReactNode => {
-    const mediaUrl = option?.media?.cdnUrl || (option?.media?.assetId ? resolvedMediaUrls[option.media.assetId] || undefined : undefined);
+    const assetId = option?.media?.assetId;
+    const mediaUrl = option?.media?.cdnUrl || (assetId ? resolvedMediaUrls[assetId] || undefined : undefined);
     const hasText = !!(option?.text && option.text.trim().length > 0);
+    const isMediaMissing = !!(assetId && !mediaUrl && resolvedMediaUrls[assetId] === null);
+    const label = hasText
+      ? option.text
+      : mediaUrl
+        ? 'Image option'
+        : isMediaMissing
+          ? 'Image unavailable'
+          : `Option ${option?.id ?? ''}`;
+
     return (
       <div className="flex items-center gap-3">
         {mediaUrl && (
@@ -172,9 +182,12 @@ const QuizResultPage: React.FC = () => {
             className="h-8 w-auto rounded-md border border-theme-border-primary"
           />
         )}
-        <span>
-          {hasText ? option.text : mediaUrl ? 'Image option' : `Option ${option?.id ?? ''}`}
-        </span>
+        {!mediaUrl && isMediaMissing && !hasText && (
+          <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-2 py-1 text-xs text-theme-text-tertiary">
+            Image unavailable.
+          </div>
+        )}
+        <span>{label}</span>
       </div>
     );
   };
@@ -613,6 +626,10 @@ const QuizResultPage: React.FC = () => {
           
           {review.answers.map((answer, index) => {
             const isExpanded = isQuestionExpanded(answer.questionId);
+            const attachmentUrl =
+              answer.attachment?.cdnUrl
+              || (answer.attachment?.assetId ? resolvedMediaUrls[answer.attachment.assetId] || undefined : undefined)
+              || answer.attachmentUrl;
             return (
               <div 
                 key={answer.questionId} 
@@ -684,20 +701,23 @@ const QuizResultPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {(answer.attachment?.cdnUrl || answer.attachmentUrl) && (
+                    {attachmentUrl && (
                       <div>
                         <img
-                          src={
-                            answer.attachment?.cdnUrl
-                            || (answer.attachment?.assetId ? resolvedMediaUrls[answer.attachment.assetId] : undefined)
-                            || answer.attachmentUrl
-                            || ''
-                          }
+                          src={attachmentUrl}
                           alt="Question attachment"
                           className="max-w-full h-auto rounded-md border border-theme-border-primary"
                         />
                       </div>
                     )}
+
+                    {!attachmentUrl &&
+                      answer.attachment?.assetId &&
+                      resolvedMediaUrls[answer.attachment.assetId] === null && (
+                        <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-sm text-theme-text-tertiary">
+                          Attachment unavailable.
+                        </div>
+                      )}
 
                     {/* User's Answer */}
                     <div>

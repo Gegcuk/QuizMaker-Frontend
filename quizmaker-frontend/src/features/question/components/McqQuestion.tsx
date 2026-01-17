@@ -25,6 +25,8 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
 }) => {
   const content = question.content as McqSingleContent | McqMultiContent;
   const options = content.options || [];
+  const getMediaUrl = (media?: McqOption['media']) =>
+    media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
   const handleOptionChange = (optionId: string, checked: boolean) => {
     if (disabled) return;
@@ -61,7 +63,7 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
   };
 
   const hasOptionMedia = options.some(
-    (option) => option.media?.cdnUrl || option.media?.assetId
+    (option) => getMediaUrl(option.media) || option.media?.assetId
   );
 
   return (
@@ -70,6 +72,9 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
         {options.map((option) => {
           const status = getOptionStatus(option);
           const isSelected = isOptionSelected(option.id);
+          const hasText = !!(option.text && option.text.trim().length > 0);
+          const optionMediaUrl = getMediaUrl(option.media);
+          const isMediaMissing = !!(option.media?.assetId && !optionMediaUrl);
           const letterBaseClasses = 'inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full';
           const letterClasses = isMultiSelect
             ? `${letterBaseClasses} ${
@@ -146,24 +151,29 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
 
               {/* Option Text + Media */}
               <div className="flex-1 space-y-2">
-                {option.media?.cdnUrl && (
+                {optionMediaUrl && (
                   <img
-                    src={option.media.cdnUrl}
+                    src={optionMediaUrl}
                     alt={`Option ${option.id.toUpperCase()} media`}
                     className="max-w-full h-auto rounded-md border border-theme-border-primary"
                   />
                 )}
-                {option.text && option.text.trim().length > 0 ? (
+                {!optionMediaUrl && isMediaMissing && !hasText && (
+                  <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-xs text-theme-text-tertiary">
+                    Image unavailable.
+                  </div>
+                )}
+                {hasText ? (
                   <div 
                     className={`text-sm ${
                       status === 'correct' ? 'text-theme-interactive-success' :
                       status === 'incorrect' ? 'text-theme-interactive-danger' :
                       'text-theme-text-primary'
                     }`}
-                    dangerouslySetInnerHTML={{ __html: option.text }}
+                    dangerouslySetInnerHTML={{ __html: option.text ?? '' }}
                   />
                 ) : (
-                  !option.media?.cdnUrl && (
+                  !optionMediaUrl && !isMediaMissing && (
                     <div className="text-sm text-theme-text-tertiary">
                       Option {option.id.toUpperCase()}
                     </div>

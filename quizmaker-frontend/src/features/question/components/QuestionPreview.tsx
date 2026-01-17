@@ -18,6 +18,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   className = ''
 }) => {
   const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
+  const isAttachmentMissing = !!(question.attachment?.assetId && !attachmentUrl);
+  const getMediaUrl = (media?: McqOption['media']) =>
+    media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {
@@ -59,17 +62,24 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
   const renderMcqOptionLabel = (option: McqOption) => {
     const hasText = !!(option.text && option.text.trim().length > 0);
+    const optionMediaUrl = getMediaUrl(option.media);
+    const isMediaMissing = !!(option.media?.assetId && !optionMediaUrl);
     return (
       <div className="flex items-center gap-3">
-        {option.media?.cdnUrl && (
+        {optionMediaUrl && (
           <img
-            src={option.media.cdnUrl}
+            src={optionMediaUrl}
             alt={`Option ${option.id.toUpperCase()} media`}
             className="h-10 w-auto rounded-md border border-theme-border-primary"
           />
         )}
+        {!optionMediaUrl && isMediaMissing && !hasText && (
+          <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-2 py-1 text-xs text-theme-text-tertiary">
+            Image unavailable.
+          </div>
+        )}
         <span>
-          {hasText ? option.text : option.media?.cdnUrl ? 'Image option' : `Option ${option.id.toUpperCase()}`}
+          {hasText ? option.text : optionMediaUrl ? 'Image option' : isMediaMissing ? 'Image unavailable' : `Option ${option.id.toUpperCase()}`}
         </span>
       </div>
     );
@@ -82,7 +92,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           ? (question.content.options as McqOption[])
           : [];
         const hasOptionMedia = options.some(
-          (option) => option.media?.cdnUrl || option.media?.assetId
+          (option) => getMediaUrl(option.media) || option.media?.assetId
         );
         return (
           <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
@@ -109,7 +119,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           ? (question.content.options as McqOption[])
           : [];
         const hasOptionMedia = options.some(
-          (option) => option.media?.cdnUrl || option.media?.assetId
+          (option) => getMediaUrl(option.media) || option.media?.assetId
         );
         return (
           <div className={hasOptionMedia ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
@@ -312,6 +322,11 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
               alt="Question attachment"
               className="max-w-full h-auto rounded-md border border-theme-border-primary"
             />
+          </div>
+        )}
+        {!attachmentUrl && isAttachmentMissing && (
+          <div className="mb-6 rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-sm text-theme-text-tertiary">
+            Attachment unavailable.
           </div>
         )}
 

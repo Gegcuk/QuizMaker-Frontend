@@ -33,6 +33,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   className = ''
 }) => {
   const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
+  const isAttachmentMissing = !!(question.attachment?.assetId && !attachmentUrl);
 
   const renderQuestionByType = () => {
     switch (question.type) {
@@ -194,6 +195,11 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               alt="Question attachment"
               className="max-w-full h-auto rounded-md border border-theme-border-primary"
             />
+          </div>
+        )}
+        {!attachmentUrl && isAttachmentMissing && (
+          <div className="mb-4 rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-sm text-theme-text-tertiary">
+            Attachment unavailable.
           </div>
         )}
 

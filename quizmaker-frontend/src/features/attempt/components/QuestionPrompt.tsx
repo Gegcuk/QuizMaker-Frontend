@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { QuestionForAttemptDto } from '@/types';
+import { mediaService } from '@/features/media';
 interface QuestionPromptProps {
   question: QuestionForAttemptDto;
   showQuestionText?: boolean;
@@ -16,7 +17,40 @@ const QuestionPrompt: React.FC<QuestionPromptProps> = ({
   className = ''
 }) => {
   const shouldShowText = showQuestionText ?? question.type !== 'FILL_GAP';
-  const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
+  const [resolvedAttachmentUrl, setResolvedAttachmentUrl] = useState<string | null>(null);
+  const [isAttachmentMissing, setIsAttachmentMissing] = useState(false);
+  const attachmentAssetId = question.attachment?.assetId;
+  const attachmentCdnUrl = question.attachment?.cdnUrl;
+  const legacyAttachmentUrl = question.attachmentUrl;
+
+  useEffect(() => {
+    let isActive = true;
+    setResolvedAttachmentUrl(null);
+    setIsAttachmentMissing(false);
+
+    if (!attachmentAssetId || attachmentCdnUrl || legacyAttachmentUrl) {
+      return undefined;
+    }
+
+    const fetchAttachment = async () => {
+      try {
+        const asset = await mediaService.getAsset(attachmentAssetId);
+        if (!isActive) return;
+        setResolvedAttachmentUrl(asset.cdnUrl);
+      } catch {
+        if (!isActive) return;
+        setIsAttachmentMissing(true);
+      }
+    };
+
+    fetchAttachment();
+
+    return () => {
+      isActive = false;
+    };
+  }, [attachmentAssetId, attachmentCdnUrl, legacyAttachmentUrl]);
+
+  const attachmentUrl = attachmentCdnUrl || legacyAttachmentUrl || resolvedAttachmentUrl;
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -33,6 +67,12 @@ const QuestionPrompt: React.FC<QuestionPromptProps> = ({
             alt="Question attachment"
             className="max-w-full h-auto rounded-md border border-theme-border-primary"
           />
+        </div>
+      )}
+
+      {showAttachment && !attachmentUrl && isAttachmentMissing && (
+        <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-sm text-theme-text-tertiary">
+          Attachment unavailable.
         </div>
       )}
     </div>

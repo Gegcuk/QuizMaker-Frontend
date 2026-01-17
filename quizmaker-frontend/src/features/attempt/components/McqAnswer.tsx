@@ -195,6 +195,8 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
           const optionLabel = String.fromCharCode(65 + index); // A, B, C, D, etc.
           const letterBaseClasses = 'inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full';
           const optionMediaUrl = option.media?.cdnUrl || (option.media?.assetId ? resolvedMediaUrls[option.media.assetId] || undefined : undefined);
+          const hasText = !!(option.text && option.text.trim().length > 0);
+          const isMediaMissing = !!(option.media?.assetId && !optionMediaUrl && resolvedMediaUrls[option.media.assetId] === null);
 
           // Determine if this option is correct (for feedback)
           let isCorrectOption = false;
@@ -292,10 +294,15 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                         className="max-w-full h-auto rounded-md border border-theme-border-primary"
                       />
                     )}
-                    {option.text && option.text.trim().length > 0 ? (
+                    {!optionMediaUrl && isMediaMissing && !hasText && (
+                      <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-3 py-2 text-xs text-theme-text-tertiary">
+                        Image unavailable.
+                      </div>
+                    )}
+                    {hasText ? (
                       <span className="text-theme-text-primary">{option.text}</span>
                     ) : (
-                      !optionMediaUrl && (
+                      !optionMediaUrl && !isMediaMissing && (
                         <span className="text-theme-text-tertiary">
                           Option {optionLabel}
                         </span>
