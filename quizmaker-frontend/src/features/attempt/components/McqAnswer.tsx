@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionForAttemptDto } from '@/types';
 import { Button } from '@/components';
+import { mediaService } from '@/features/media';
 
 interface McqAnswerProps {
   question: QuestionForAttemptDto;
@@ -38,7 +39,9 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
   correctAnswer
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [resolvedMediaUrls, setResolvedMediaUrls] = useState<Record<string, string | null>>({});
   const isMultiChoice = !singleChoice && question.type === 'MCQ_MULTI';
+  const options: McqOption[] = question.safeContent?.options || [];
 
   useEffect(() => {
     if (currentAnswer) {
@@ -51,6 +54,54 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
       setSelectedOptions([]);
     }
   }, [currentAnswer, isMultiChoice]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const missingAssetIds = options
+      .map((option) => (option.media?.assetId && !option.media?.cdnUrl ? option.media.assetId : null))
+      .filter((assetId): assetId is string => !!assetId)
+      .filter((assetId) => !Object.prototype.hasOwnProperty.call(resolvedMediaUrls, assetId));
+
+    const uniqueAssetIds = Array.from(new Set(missingAssetIds));
+
+    if (uniqueAssetIds.length === 0) {
+      return undefined;
+    }
+
+    const fetchAssets = async () => {
+      const results = await Promise.all(
+        uniqueAssetIds.map(async (assetId) => {
+          try {
+            const asset = await mediaService.getAsset(assetId);
+            return { assetId, cdnUrl: asset.cdnUrl };
+          } catch (error) {
+            return { assetId, cdnUrl: null };
+          }
+        })
+      );
+
+      if (!isActive) {
+        return;
+      }
+
+      setResolvedMediaUrls((prev) => {
+        const next = { ...prev };
+        results.forEach((result) => {
+          if (result) {
+            next[result.assetId] = result.cdnUrl;
+          }
+        });
+        return next;
+      });
+    };
+
+    fetchAssets();
+
+    return () => {
+      isActive = false;
+    };
+  }, [options, resolvedMediaUrls]);
 
   const handleOptionChange = (optionId: string) => {
     let newSelection: string[];
@@ -89,9 +140,6 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
     setSelectedOptions([]);
     onAnswerChange(isMultiChoice ? [] : '');
   };
-
-  // Extract options from safe content
-  const options: McqOption[] = question.safeContent?.options || [];
 
   if (options.length === 0) {
     return (
@@ -146,6 +194,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
           const isSelected = selectedOptions.includes(option.id);
           const optionLabel = String.fromCharCode(65 + index); // A, B, C, D, etc.
           const letterBaseClasses = 'inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full';
+          const optionMediaUrl = option.media?.cdnUrl || (option.media?.assetId ? resolvedMediaUrls[option.media.assetId] || undefined : undefined);
 
           // Determine if this option is correct (for feedback)
           let isCorrectOption = false;
@@ -236,9 +285,9 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                     {optionLabel}
                   </span>
                   <div className="flex-1 space-y-2">
-                    {option.media?.cdnUrl && (
+                    {optionMediaUrl && (
                       <img
-                        src={option.media.cdnUrl}
+                        src={optionMediaUrl}
                         alt={`Option ${optionLabel} media`}
                         className="max-w-full h-auto rounded-md border border-theme-border-primary"
                       />
@@ -246,7 +295,7 @@ const McqAnswer: React.FC<McqAnswerProps> = ({
                     {option.text && option.text.trim().length > 0 ? (
                       <span className="text-theme-text-primary">{option.text}</span>
                     ) : (
-                      !option.media?.cdnUrl && (
+                      !optionMediaUrl && (
                         <span className="text-theme-text-tertiary">
                           Option {optionLabel}
                         </span>

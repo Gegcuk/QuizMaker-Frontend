@@ -15,6 +15,7 @@ import { Spinner, Button, Badge, PageHeader } from '@/components';
 import { Seo } from '@/features/seo';
 import type { AttemptReviewDto, AnswerReviewDto } from '@/types';
 import { api } from '@/services';
+import { mediaService } from '@/features/media';
 import { 
   CheckCircleIcon, 
   XCircleIcon,
@@ -34,6 +35,7 @@ const QuizResultPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [resolvedMediaUrls, setResolvedMediaUrls] = useState<Record<string, string | null>>({});
 
   /* ------------------------------------------------------------------ */
   /*  Fetch attempt review with answers                                */
@@ -62,6 +64,71 @@ const QuizResultPage: React.FC = () => {
 
     fetchReview();
   }, [attemptId]);
+
+  useEffect(() => {
+    if (!review) {
+      return;
+    }
+
+    let isActive = true;
+    const missingAssetIds = new Set<string>();
+
+    review.answers.forEach((answer) => {
+      const attachmentAssetId = answer.attachment?.assetId;
+      if (attachmentAssetId && !answer.attachment?.cdnUrl && !Object.prototype.hasOwnProperty.call(resolvedMediaUrls, attachmentAssetId)) {
+        missingAssetIds.add(attachmentAssetId);
+      }
+
+      const options = answer.questionSafeContent?.options;
+      if (Array.isArray(options)) {
+        options.forEach((option: any) => {
+          const assetId = option?.media?.assetId;
+          if (assetId && !option?.media?.cdnUrl && !Object.prototype.hasOwnProperty.call(resolvedMediaUrls, assetId)) {
+            missingAssetIds.add(assetId);
+          }
+        });
+      }
+    });
+
+    const uniqueAssetIds = Array.from(missingAssetIds);
+
+    if (uniqueAssetIds.length === 0) {
+      return;
+    }
+
+    const fetchAssets = async () => {
+      const results = await Promise.all(
+        uniqueAssetIds.map(async (assetId) => {
+          try {
+            const asset = await mediaService.getAsset(assetId);
+            return { assetId, cdnUrl: asset.cdnUrl };
+          } catch (error) {
+            return { assetId, cdnUrl: null };
+          }
+        })
+      );
+
+      if (!isActive) {
+        return;
+      }
+
+      setResolvedMediaUrls((prev) => {
+        const next = { ...prev };
+        results.forEach((result) => {
+          if (result) {
+            next[result.assetId] = result.cdnUrl;
+          }
+        });
+        return next;
+      });
+    };
+
+    fetchAssets();
+
+    return () => {
+      isActive = false;
+    };
+  }, [review, resolvedMediaUrls]);
 
   /* ------------------------------------------------------------------ */
   /*  Helper functions                                                  */
@@ -93,6 +160,25 @@ const QuizResultPage: React.FC = () => {
     return 'bg-theme-bg-danger border-theme-border-danger';
   };
 
+  const renderOptionLabel = (option: any): React.ReactNode => {
+    const mediaUrl = option?.media?.cdnUrl || (option?.media?.assetId ? resolvedMediaUrls[option.media.assetId] || undefined : undefined);
+    const hasText = !!(option?.text && option.text.trim().length > 0);
+    return (
+      <div className="flex items-center gap-3">
+        {mediaUrl && (
+          <img
+            src={mediaUrl}
+            alt={`Option ${option?.id ?? ''} media`}
+            className="h-8 w-auto rounded-md border border-theme-border-primary"
+          />
+        )}
+        <span>
+          {hasText ? option.text : mediaUrl ? 'Image option' : `Option ${option?.id ?? ''}`}
+        </span>
+      </div>
+    );
+  };
+
   // Format question text for FILL_GAP questions - replace {N} with underscores
   const formatQuestionText = (questionText: string, questionType: string): string => {
     if (questionType === 'FILL_GAP') {
@@ -112,7 +198,7 @@ const QuizResultPage: React.FC = () => {
         // SafeContent: { options: [{ id, text }] }
         if (answer.selectedOptionId !== undefined && safeContent?.options) {
           const option = safeContent.options.find((opt: any) => opt.id === answer.selectedOptionId);
-          return option?.text || `Option ${answer.selectedOptionId}`;
+          return option ? renderOptionLabel(option) : `Option ${answer.selectedOptionId}`;
         }
         return <span className="text-theme-text-tertiary">No answer</span>;
       
@@ -124,7 +210,7 @@ const QuizResultPage: React.FC = () => {
             <ul className="list-disc list-inside space-y-1">
               {answer.selectedOptionIds.map((optId: any, idx: number) => {
                 const option = safeContent.options.find((opt: any) => opt.id === optId);
-                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
+                return <li key={idx}>{option ? renderOptionLabel(option) : `Option ${optId}`}</li>;
               })}
             </ul>
           );
@@ -247,7 +333,7 @@ const QuizResultPage: React.FC = () => {
         // CorrectAnswer: { correctOptionId: string | number } - ID can be string!
         if (answer.correctOptionId !== undefined && safeContent?.options) {
           const option = safeContent.options.find((opt: any) => opt.id === answer.correctOptionId);
-          return option?.text || `Option ${answer.correctOptionId}`;
+          return option ? renderOptionLabel(option) : `Option ${answer.correctOptionId}`;
         }
         return <span className="text-theme-text-tertiary">N/A</span>;
       
@@ -258,7 +344,7 @@ const QuizResultPage: React.FC = () => {
             <ul className="list-disc list-inside space-y-1">
               {answer.correctOptionIds.map((optId: any, idx: number) => {
                 const option = safeContent.options.find((opt: any) => opt.id === optId);
-                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
+                return <li key={idx}>{option ? renderOptionLabel(option) : `Option ${optId}`}</li>;
               })}
             </ul>
           );
@@ -598,6 +684,21 @@ const QuizResultPage: React.FC = () => {
                       </div>
                     </div>
 
+                    {(answer.attachment?.cdnUrl || answer.attachmentUrl) && (
+                      <div>
+                        <img
+                          src={
+                            answer.attachment?.cdnUrl
+                            || (answer.attachment?.assetId ? resolvedMediaUrls[answer.attachment.assetId] : undefined)
+                            || answer.attachmentUrl
+                            || ''
+                          }
+                          alt="Question attachment"
+                          className="max-w-full h-auto rounded-md border border-theme-border-primary"
+                        />
+                      </div>
+                    )}
+
                     {/* User's Answer */}
                     <div>
                       <h4 className="font-medium text-theme-text-primary mb-2">Your Answer:</h4>
@@ -629,6 +730,17 @@ const QuizResultPage: React.FC = () => {
                         <div className="p-3 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
                           <p className="text-sm text-theme-text-secondary whitespace-pre-wrap">
                             {answer.explanation}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {answer.hint && (
+                      <div>
+                        <h4 className="font-medium text-theme-text-primary mb-2">Hint:</h4>
+                        <div className="p-3 rounded-md bg-theme-bg-secondary border border-theme-border-primary">
+                          <p className="text-sm text-theme-text-secondary whitespace-pre-wrap">
+                            {answer.hint}
                           </p>
                         </div>
                       </div>

@@ -9,6 +9,8 @@ import { AnswerSubmissionDto, QuestionForAttemptDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 import { getAnswerStatusText, getAnswerStatusColor, getAnswerStatusIcon } from '@/utils/statusHelpers';
 import { Button } from '@/components';
+import QuestionPrompt from './QuestionPrompt';
+import HintDisplay from './HintDisplay';
 
 interface AnswerReviewProps {
   answers: AnswerSubmissionDto[];
@@ -43,6 +45,10 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
   const getQuestionType = (questionId: string): string => {
     const question = questions.find(q => q.id === questionId);
     return question?.type || 'Unknown';
+  };
+
+  const getQuestion = (questionId: string): QuestionForAttemptDto | undefined => {
+    return questions.find(q => q.id === questionId);
   };
 
 
@@ -96,6 +102,7 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
           const questionType = getQuestionType(answer.questionId);
           const isExpanded = expandedAnswers.has(answer.answerId);
           const questionText = getQuestionText(answer.questionId);
+          const question = getQuestion(answer.questionId);
 
           return (
             <div
@@ -144,18 +151,24 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
               {isExpanded && (
                 <div className="mt-4 pt-4 border-t border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
                   <div className="space-y-3">
-                                         {/* Your Answer */}
-                     <div>
-                       <div className="text-sm font-medium text-theme-text-secondary mb-1">Answer Details:</div>
-                       <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-                         <div className="text-sm text-theme-text-secondary">
-                           <strong>Status:</strong> {answer.isCorrect ? 'Correct' : 'Incorrect'}
-                         </div>
-                         <div className="text-sm text-theme-text-secondary mt-1">
-                           <strong>Score:</strong> {answer.score}
-                         </div>
-                       </div>
-                     </div>
+                    {question ? (
+                      <QuestionPrompt question={question} className="mb-2" />
+                    ) : (
+                      <div className="text-sm text-theme-text-tertiary">{questionText}</div>
+                    )}
+
+                    {/* Your Answer */}
+                    <div>
+                      <div className="text-sm font-medium text-theme-text-secondary mb-1">Answer Details:</div>
+                      <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
+                        <div className="text-sm text-theme-text-secondary">
+                          <strong>Status:</strong> {answer.isCorrect ? 'Correct' : 'Incorrect'}
+                        </div>
+                        <div className="text-sm text-theme-text-secondary mt-1">
+                          <strong>Score:</strong> {answer.score}
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Answer Metadata */}
                     <div className="grid grid-cols-2 gap-4 text-sm text-theme-text-secondary">
@@ -173,6 +186,12 @@ const AnswerReview: React.FC<AnswerReviewProps> = ({
                         <div className="text-sm text-theme-interactive-warning">
                           <strong>Note:</strong> This answer was incorrect. Review the question and consider the correct approach for future attempts.
                         </div>
+                      </div>
+                    )}
+
+                    {question?.hint && (
+                      <div className="pt-2">
+                        <HintDisplay hint={question.hint} />
                       </div>
                     )}
                   </div>

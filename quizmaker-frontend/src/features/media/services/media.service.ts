@@ -76,6 +76,19 @@ export class MediaService {
   }
 
   /**
+   * Fetch a single media asset
+   * GET /api/v1/media/{assetId}
+   */
+  async getAsset(assetId: string): Promise<MediaAssetResponse> {
+    try {
+      const response = await this.axiosInstance.get<MediaAssetResponse>(MEDIA_ENDPOINTS.GET(assetId));
+      return response.data;
+    } catch (error) {
+      throw this.handleMediaError(error);
+    }
+  }
+
+  /**
    * Delete or retire a media asset
    * DELETE /api/v1/media/{assetId}
    */
