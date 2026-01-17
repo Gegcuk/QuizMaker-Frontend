@@ -39,6 +39,20 @@ const getPriorityVariant = (priority: RoadmapPriority): 'primary' | 'success' | 
   }
 };
 
+const getFeatureCardClasses = (status: RoadmapStatus): string => {
+  switch (status) {
+    case 'completed':
+      return 'bg-theme-bg-success border-theme-border-success';
+    case 'in-progress':
+      return 'bg-theme-bg-info border-theme-border-info';
+    case 'on-hold':
+      return 'bg-theme-bg-warning border-theme-border-warning';
+    case 'planned':
+    default:
+      return 'bg-theme-bg-secondary border-theme-border-primary';
+  }
+};
+
 export const TimelineView: React.FC = () => {
   return (
     <div className="space-y-8">
@@ -86,20 +100,26 @@ export const TimelineView: React.FC = () => {
                         key={feature.id}
                         variant="outlined"
                         padding="sm"
-                        className="bg-theme-bg-secondary"
+                        className={getFeatureCardClasses(feature.status)}
                       >
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h5 className="font-medium text-theme-text-primary">
                               {feature.title}
-                            </h5>
-                            <Badge
-                              variant={getPriorityVariant(feature.priority)}
-                              size="sm"
-                            >
-                              {feature.priority}
-                            </Badge>
-                          </div>
+                          </h5>
+                          <Badge
+                            variant={getStatusVariant(feature.status)}
+                            size="sm"
+                          >
+                            {feature.status.replace('-', ' ')}
+                          </Badge>
+                          <Badge
+                            variant={getPriorityVariant(feature.priority)}
+                            size="sm"
+                          >
+                            {feature.priority}
+                          </Badge>
+                        </div>
                           <p className="text-sm text-theme-text-secondary">
                             {feature.description}
                           </p>

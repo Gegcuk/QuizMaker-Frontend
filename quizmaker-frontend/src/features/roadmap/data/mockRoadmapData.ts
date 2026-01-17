@@ -65,13 +65,13 @@ export const mockFeatures: RoadmapFeature[] = [
     id: 'jan-2',
     title: 'Image-Based Questions',
     description: 'Image-based questions and answer options (upload/URL, validation, export).',
-    status: getStatusFromDate('2026-01-31'),
+    status: 'completed',
     priority: 'high',
     quarter: 'Q1 2026',
     estimatedDate: '2026-01-31',
     category: 'Content',
     tags: ['images', 'questions', 'upload', 'validation'],
-    progress: getStatusFromDate('2026-01-31') === 'in-progress' ? 10 : undefined
+    progress: 100
   },
   // February 2026
   {
