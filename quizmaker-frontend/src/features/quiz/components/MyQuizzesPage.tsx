@@ -19,6 +19,7 @@ import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService, quizGroupService } from '../services';
 import { useCreateGroup } from '../hooks';
 import CreateGroupModal from './CreateGroupModal';
+import { sanitizeQuizExportBlob } from '../utils/quizExportSanitizer';
 import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
@@ -615,6 +616,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         includeExplanations: options.includeExplanations,
         groupQuestionsByType: options.groupQuestionsByType
       });
+      const downloadBlob =
+        format === 'JSON_EDITABLE' ? await sanitizeQuizExportBlob(blob) : blob;
       
       // Determine file extension
       const extensionMap: Record<string, string> = {
@@ -627,7 +630,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       
       // Create download link
       const fileName = `${quizToExport.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.${extension}`;
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(downloadBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = fileName;

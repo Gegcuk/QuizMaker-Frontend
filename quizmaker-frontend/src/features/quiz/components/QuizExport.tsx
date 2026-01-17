@@ -10,6 +10,7 @@ import QuizExportModal, { ExportOptions } from './QuizExportModal';
 import { QuizService } from '../services/quiz.service';
 import { api } from '@/services';
 import { useToast } from '@/components';
+import { sanitizeQuizExportBlob } from '../utils/quizExportSanitizer';
 
 interface QuizExportProps {
   quiz: QuizDto;
@@ -101,6 +102,8 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
         includeExplanations: options.includeExplanations,
         groupQuestionsByType: options.groupQuestionsByType,
       });
+      const downloadBlob =
+        format === 'JSON_EDITABLE' ? await sanitizeQuizExportBlob(blob) : blob;
 
       const extensionMap: Record<string, string> = {
         'JSON_EDITABLE': 'json',
@@ -111,7 +114,7 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
       const extension = extensionMap[format] || 'file';
       const fileName = `${quiz.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.${extension}`;
 
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(downloadBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = fileName;
