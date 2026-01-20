@@ -49,13 +49,30 @@ const fetchArticleRoutes = async () => {
 
     const entries = await response.json();
     const routes = entries
-      .map((entry) => ({
-        path: normalizeBlogUrl(entry.url),
-        priority: entry.priority?.toString() || '0.8',
-        changefreq: entry.changefreq || 'weekly',
-        lastmod: entry.updatedAt || undefined,
-      }))
-      .filter((route) => route.path && route.path.includes('/blog/'))
+      .map((entry) => {
+        // Skip entries without URLs
+        if (!entry.url) return null;
+        
+        // Normalize URL - ensure blog URLs have trailing slash
+        let normalizedPath = normalizeBlogUrl(entry.url);
+        
+        // Only process blog article URLs (exclude homepage, blog index, and non-blog URLs)
+        // Must be a blog article URL (contains /blog/ and has a slug after /blog/)
+        if (normalizedPath && 
+            normalizedPath.includes('/blog/') && 
+            normalizedPath !== '/blog/' && 
+            normalizedPath !== '/' &&
+            normalizedPath.match(/\/blog\/[^\/]+\//)) { // Must have a slug: /blog/slug/
+          return {
+            path: normalizedPath,
+            priority: entry.priority?.toString() || '0.8',
+            changefreq: entry.changefreq || 'weekly',
+            lastmod: entry.updatedAt || undefined,
+          };
+        }
+        return null;
+      })
+      .filter((route) => route !== null) // Remove nulls (non-blog URLs)
       .filter((route, index, self) => 
         self.findIndex((r) => r.path === route.path) === index
       ); // Remove duplicates
@@ -76,8 +93,8 @@ const generateSitemap = (routes) => {
     let entry = `  <url>\n    <loc>${escapeXml(loc)}</loc>\n`;
     
     if (route.lastmod) {
-      // Format date as YYYY-MM-DD or ISO 8601
-      const lastmod = new Date(route.lastmod).toISOString().split('T')[0];
+      // Format date as ISO 8601 (YYYY-MM-DDThh:mm:ssZ)
+      const lastmod = new Date(route.lastmod).toISOString();
       entry += `    <lastmod>${lastmod}</lastmod>\n`;
     }
     
@@ -109,6 +126,34 @@ const escapeXml = (str) => {
     .replace(/'/g, '&apos;');
 };
 
+// Generate articles-only sitemap
+const generateArticlesSitemap = async () => {
+  try {
+    // Fetch only article routes (no static routes)
+    const articleRoutes = await fetchArticleRoutes();
+    
+    // Filter out non-blog URLs (like homepage)
+    const blogOnlyRoutes = articleRoutes.filter(route => 
+      route.path && route.path.includes('/blog/') && route.path !== '/blog/'
+    );
+
+    // Generate XML for articles only
+    const xml = generateSitemap(blogOnlyRoutes);
+    
+    // Ensure dist directory exists
+    await fs.mkdir(distDir, { recursive: true });
+    
+    // Write articles sitemap to dist
+    const articlesSitemapPath = path.join(distDir, 'sitemap_articles.xml');
+    await fs.writeFile(articlesSitemapPath, xml, 'utf8');
+    
+    console.log(`✔ Generated articles sitemap with ${blogOnlyRoutes.length} URLs -> ${path.relative(rootDir, articlesSitemapPath)}`);
+  } catch (error) {
+    console.error('Failed to generate articles sitemap:', error);
+    // Don't exit - continue with main sitemap
+  }
+};
+
 // Main function
 const generateSitemapFile = async () => {
   try {
@@ -132,6 +177,9 @@ const generateSitemapFile = async () => {
     await fs.writeFile(sitemapPath, xml, 'utf8');
     
     console.log(`✔ Generated sitemap with ${allRoutes.length} URLs -> ${path.relative(rootDir, sitemapPath)}`);
+    
+    // Also generate articles-only sitemap
+    await generateArticlesSitemap();
   } catch (error) {
     console.error('Failed to generate sitemap:', error);
     process.exit(1);

@@ -25,6 +25,7 @@ import BlogArticlePage from '../pages/BlogArticlePage';
 import BlogArticleTemplatePage from '../pages/BlogArticleTemplatePage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import ThemeDemoPage from '../pages/ThemeDemoPage';
+import SitemapArticlesPage from '../pages/SitemapArticlesPage';
 import TermsPage from '../pages/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage';
 import FaqPage from '../pages/FaqPage';
@@ -116,6 +117,9 @@ const AppRoutes: React.FC = () => {
         <Route path="/blog/retrieval-practice-template/" element={<BlogArticleTemplatePage />} />
         <Route path="/blog/:slug" element={<BlogArticlePage />} />
         <Route path="/blog/:slug/" element={<BlogArticlePage />} />
+        
+        {/* Sitemap routes */}
+        <Route path="/sitemap_articles.xml" element={<SitemapArticlesPage />} />
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />
