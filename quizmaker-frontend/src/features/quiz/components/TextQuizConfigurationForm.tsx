@@ -193,10 +193,14 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
       }, {} as Record<string, number>);
 
     // Prepare the generation request
+    // CRITICAL: Ensure title is properly mapped to quizTitle (not quizDescription)
+    // The user's title input should go to quizTitle, not description
     const generationRequest = {
       text: generationConfig.text,
-      quizTitle: localData.title,
-      quizDescription: localData.description || '',
+      // Map localData.title to quizTitle - this is what the user entered in "Quiz Title" field
+      quizTitle: localData.title?.trim() || undefined,
+      // Map localData.description to quizDescription - this is what the user entered in "Description" field
+      quizDescription: localData.description?.trim() || undefined,
       questionsPerType: filteredQuestionsPerType,
       difficulty: localData.difficulty || 'MEDIUM',
       // Always use SIZE_BASED with 100000 chunk size (backend max limit)

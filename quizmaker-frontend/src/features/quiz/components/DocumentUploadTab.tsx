@@ -25,6 +25,7 @@ export const DocumentUploadTab: React.FC = () => {
 
   // Quiz generation configuration
   const [quizConfig, setQuizConfig] = useState({
+    quizTitle: '',
     quizScope: 'ENTIRE_DOCUMENT' as QuizScope,
     quizDescription: '',
     questionTypes: {
@@ -76,10 +77,11 @@ export const DocumentUploadTab: React.FC = () => {
     }
     
     setSelectedFile(file);
-    // Auto-generate quiz description from filename
+    // Auto-generate quiz title and description from filename
     const fileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
     setQuizConfig(prev => ({
       ...prev,
+      quizTitle: `${fileName} Quiz`,
       quizDescription: `Quiz generated from ${fileName} document`
     }));
   };
@@ -121,9 +123,9 @@ export const DocumentUploadTab: React.FC = () => {
       const documentTitle = selectedFile.name.replace(/\.[^/.]+$/, '');
       formData.append('title', documentTitle);
       
-      // Auto-generate quiz title from document title (first 200 chars)
-      const quizTitle = documentTitle.substring(0, 200);
-      formData.append('quizTitle', quizTitle);
+      // Use user-provided quiz title or auto-generate from document title (max 100 chars for API)
+      const quizTitle = quizConfig.quizTitle?.trim() || documentTitle.substring(0, 100);
+      formData.append('quizTitle', quizTitle.substring(0, 100));
       
       // Filter out question types with 0 questions
       const filteredQuestionTypes = Object.entries(quizConfig.questionTypes)
@@ -320,6 +322,23 @@ export const DocumentUploadTab: React.FC = () => {
             <h3 className="text-lg font-semibold text-theme-text-primary mb-4">Quiz Configuration</h3>
             
             <div className="space-y-4">
+              {/* Quiz Title */}
+              <div>
+                <label className="block text-sm font-medium text-theme-text-secondary mb-2">
+                  Quiz Title
+                </label>
+                <Input
+                  type="text"
+                  value={quizConfig.quizTitle}
+                  onChange={(e) => setQuizConfig(prev => ({
+                    ...prev,
+                    quizTitle: e.target.value
+                  }))}
+                  placeholder="Enter quiz title (optional - auto-generated from filename if empty)"
+                  maxLength={100}
+                />
+              </div>
+
               {/* Quiz Description */}
               <Textarea
                 label="Quiz Description"

@@ -115,6 +115,121 @@ Each has different content structure. Always check `/api/v1/questions/schemas` f
 
 ---
 
+## Bulk Quiz Import
+
+**Endpoint:**
+```bash
+POST https://quizzence.com/api/v1/quizzes/import
+Content-Type: multipart/form-data
+Authorization: Bearer {token}
+```
+
+**Request Parameters:**
+- `file` (required): Import file (JSON_EDITABLE or XLSX_EDITABLE format)
+- `format` (required): `JSON_EDITABLE` or `XLSX_EDITABLE`
+- `strategy` (optional): Upsert strategy (defaults to `CREATE_ONLY`)
+  - `CREATE_ONLY`: Create new quizzes only, fail on duplicates
+  - `UPSERT_BY_ID`: Update if quiz ID exists, otherwise create
+  - `UPSERT_BY_CONTENT_HASH`: Update if content hash matches, otherwise create
+  - `SKIP_ON_DUPLICATE`: Skip duplicates, create new ones
+- `dryRun` (optional): Validate only, do not persist (defaults to `false`)
+- `autoCreateTags` (optional): Auto-create missing tags (defaults to `false`)
+- `autoCreateCategory` (optional): Auto-create missing category (defaults to `false`)
+
+**Response:**
+```json
+{
+  "total": 5,
+  "created": 4,
+  "updated": 1,
+  "skipped": 0,
+  "failed": 0,
+  "errors": []
+}
+```
+
+**Error Response:**
+```json
+{
+  "total": 5,
+  "created": 3,
+  "updated": 0,
+  "skipped": 1,
+  "failed": 1,
+  "errors": [
+    {
+      "index": 2,
+      "itemId": null,
+      "field": "title",
+      "message": "Title must be between 3 and 100 characters",
+      "code": "ValidationException"
+    }
+  ]
+}
+```
+
+**Limits:**
+- Rate limit: 10 imports per minute (default, configurable)
+- Max items per file: 1000 (default, configurable)
+- Max file size: Enforced by server (413 if exceeded)
+
+**Supported Formats:**
+- **JSON_EDITABLE**: Array of quiz objects matching export structure
+- **XLSX_EDITABLE**: Excel workbook with "Quizzes" sheet and question type sheets
+
+**Important Notes:**
+- Requires `QUIZ_CREATE` permission
+- MATCHING and HOTSPOT questions are not supported in XLSX format (use JSON)
+- Visibility: Non-moderators can only create `PRIVATE` quizzes
+- Media attachments: Use `attachmentAssetId` (UUID) or legacy `attachmentUrl`
+- Round-trip: Exported files can be edited and re-imported
+
+**Example (cURL):**
+```bash
+curl -X POST "https://quizzence.com/api/v1/quizzes/import" \
+  -H "Authorization: Bearer {token}" \
+  -F "file=@quizzes.json" \
+  -F "format=JSON_EDITABLE" \
+  -F "strategy=CREATE_ONLY" \
+  -F "autoCreateTags=true" \
+  -F "autoCreateCategory=true"
+```
+
+**Example (JSON import file structure):**
+```json
+[
+  {
+    "schemaVersion": 1,
+    "id": null,
+    "title": "Sample Quiz",
+    "description": "Quiz description",
+    "visibility": "PRIVATE",
+    "difficulty": "MEDIUM",
+    "estimatedTime": 15,
+    "tags": ["tag1", "tag2"],
+    "category": "Category Name",
+    "questions": [
+      {
+        "id": null,
+        "type": "MCQ_SINGLE",
+        "difficulty": "EASY",
+        "questionText": "What is 2+2?",
+        "content": {
+          "options": [
+            {"id": "a", "text": "3", "correct": false},
+            {"id": "b", "text": "4", "correct": true}
+          ]
+        }
+      }
+    ]
+  }
+]
+```
+
+For detailed format specifications, see the [Quiz Import Template Guide](../quiz-import-template-guide.md).
+
+---
+
 ## Authentication
 
 Most endpoints require JWT authentication.
@@ -138,6 +253,9 @@ Authorization: Bearer {token}
 - `/api/v1/articles/public` (search published articles; rate-limited)
 - `/api/v1/articles/public/slug/{slug}` (get a published article by slug; rate-limited)
 - `/api/v1/articles/sitemap`
+
+**Protected endpoints (require auth):**
+- `/api/v1/quizzes/import` - Requires `QUIZ_CREATE` permission
 
 ---
 
@@ -164,7 +282,10 @@ Use a JSON Schema validator on question `content` before creating questions. Pre
 |------|---------|--------|
 | 400 | Invalid content structure | Check schema |
 | 401 | Token expired | Re-authenticate |
+| 403 | Forbidden - missing permission | Check required permissions |
+| 413 | Payload too large | Reduce file size or item count |
 | 422 | Content validation failed | Review schema requirements |
+| 429 | Rate limit exceeded | Wait before retrying |
 
 ---
 

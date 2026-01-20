@@ -150,8 +150,9 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     setSelectedContent(data.selectedContent);
     setShowPreviewModal(false);
     
-    // Auto-populate title from filename if not set (max 100 chars)
-    if (!localData.title && generationConfig.file) {
+    // Auto-populate title from filename if user hasn't entered one (max 100 chars)
+    // Only set if title is empty or just whitespace
+    if (!localData.title?.trim() && generationConfig.file) {
       let fileName = generationConfig.file.name.replace(/\.[^/.]+$/, '');
       if (fileName.length > 100) {
         fileName = fileName.substring(0, 100);
@@ -297,9 +298,18 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     formData.append('chunkingStrategy', 'SIZE_BASED');
     formData.append('maxChunkSize', '100000');
     
-    formData.append('quizTitle', localData.title!);
-    if (localData.description) {
-      formData.append('quizDescription', localData.description);
+    // CRITICAL: Map localData.title to quizTitle (not quizDescription)
+    // The user's title input should go to quizTitle, not description
+    const quizTitle = localData.title?.trim() || undefined;
+    const quizDescription = localData.description?.trim() || undefined;
+    
+    // Only include quizTitle if it has a value (backend will auto-generate from filename if empty)
+    if (quizTitle) {
+      formData.append('quizTitle', quizTitle.substring(0, 100)); // API max is 100 chars
+    }
+    // Only include quizDescription if it has a value
+    if (quizDescription) {
+      formData.append('quizDescription', quizDescription);
     }
     
     // Filter out question types with 0 counts (API expects only types with actual counts)
@@ -367,6 +377,22 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Quiz Title */}
+            <div data-field="title">
+              <label className="block text-sm font-medium text-theme-text-secondary mb-2">
+                Quiz Title
+              </label>
+              <Input
+                type="text"
+                value={localData.title || ''}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Title is auto-generated from filename if empty"
+                className="w-full"
+                maxLength={100}
+                error={errors.title}
+              />
+            </div>
+
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-theme-text-secondary mb-2">
