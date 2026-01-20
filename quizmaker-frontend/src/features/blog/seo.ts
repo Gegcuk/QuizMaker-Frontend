@@ -67,13 +67,27 @@ export const buildArticleStructuredData = (article: ArticleInput): StructuredDat
   return schemas;
 };
 
-export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => ({
-  title: `${article.title} | Quizzence`,
-  description: article.description,
-  canonicalPath: getArticleCanonicalPath(article),
-  canonicalUrl: 'canonicalUrl' in article ? (article.canonicalUrl || undefined) : undefined,
-  ogType: 'article',
-  ogImage: 'ogImage' in article ? (article.ogImage || undefined) : undefined,
-  noindex: 'noindex' in article ? !!article.noindex : false,
-  structuredData: buildArticleStructuredData(article),
-});
+export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => {
+  // Use article's canonicalUrl only if it's provided and not empty/whitespace
+  // Otherwise fall back to auto-generated canonical URL
+  let canonicalUrl: string | undefined = undefined;
+  if ('canonicalUrl' in article && article.canonicalUrl) {
+    const trimmedUrl = article.canonicalUrl.trim();
+    // Only use it if it's a valid URL (starts with http:// or https://) and not empty
+    if (trimmedUrl && (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
+      canonicalUrl = trimmedUrl;
+    }
+    // If canonicalUrl is empty/invalid, fall back to auto-generated canonicalPath
+  }
+  
+  return {
+    title: `${article.title} | Quizzence`,
+    description: article.description,
+    canonicalPath: getArticleCanonicalPath(article),
+    canonicalUrl,
+    ogType: 'article',
+    ogImage: 'ogImage' in article ? (article.ogImage || undefined) : undefined,
+    noindex: 'noindex' in article ? !!article.noindex : false,
+    structuredData: buildArticleStructuredData(article),
+  };
+};
