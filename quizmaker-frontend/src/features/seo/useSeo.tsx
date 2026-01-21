@@ -74,13 +74,42 @@ export const useSeo = ({
     }
 
     const baseUrl = SITE_URL.replace(/\/$/, '');
-    const computedCanonical =
+    
+    // Helper: Ensure trailing slash for blog article paths
+    const ensureTrailingSlashForBlog = (path: string): string => {
+      if (path === '/' || path.endsWith('/')) return path;
+      // Blog article pattern: /blog/slug (no trailing slash)
+      if (/\/blog\/[^\/]+$/.test(path)) return `${path}/`;
+      return path;
+    };
+    
+    // Normalize canonical URL: add trailing slash for blog articles, keep files as-is
+    const normalizeCanonical = (url: string): string => {
+      try {
+        // Absolute URL
+        const u = new URL(url);
+        // Don't touch file URLs (has extension)
+        if (/\.[a-z0-9]{2,5}$/i.test(u.pathname)) return u.toString();
+        u.pathname = ensureTrailingSlashForBlog(u.pathname);
+        return u.toString();
+      } catch {
+        // Relative path - check if it's a file
+        if (/\.[a-z0-9]{2,5}$/i.test(url)) return url;
+        return ensureTrailingSlashForBlog(url);
+      }
+    };
+    
+    // Compute canonical URL
+    const computedCanonicalRaw =
       canonicalUrl ||
       (canonicalPath
         ? `${baseUrl}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
         : typeof window !== 'undefined'
-          ? `${baseUrl}${window.location.pathname}`
+          ? `${baseUrl}${ensureTrailingSlashForBlog(window.location.pathname)}`
           : baseUrl);
+    
+    // Normalize to ensure trailing slash for blog articles
+    const computedCanonical = normalizeCanonical(computedCanonicalRaw);
 
     ensureLinkTag('canonical', computedCanonical);
     ensureMetaTag('og:url', computedCanonical, true);

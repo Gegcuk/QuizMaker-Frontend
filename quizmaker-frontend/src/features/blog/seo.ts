@@ -67,24 +67,38 @@ export const buildArticleStructuredData = (article: ArticleInput): StructuredDat
   return schemas;
 };
 
+// Normalize canonical URL from database: ensure trailing slash for blog articles
+const normalizeCanonicalUrl = (url: string): string | undefined => {
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return undefined;
+  }
+  
+  try {
+    const u = new URL(trimmed);
+    // If it's a blog article URL without trailing slash, add it
+    if (/\/blog\/[^\/]+$/.test(u.pathname)) {
+      u.pathname = `${u.pathname}/`;
+    }
+    return u.toString();
+  } catch {
+    return undefined;
+  }
+};
+
 export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => {
-  // Use article's canonicalUrl only if it's provided and not empty/whitespace
-  // Otherwise fall back to auto-generated canonical URL
+  // Normalize DB canonicalUrl if present (add trailing slash for blog articles)
+  // If invalid/empty, will be undefined and fall back to canonicalPath
   let canonicalUrl: string | undefined = undefined;
   if ('canonicalUrl' in article && article.canonicalUrl) {
-    const trimmedUrl = article.canonicalUrl.trim();
-    // Only use it if it's a valid URL (starts with http:// or https://) and not empty
-    if (trimmedUrl && (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-      canonicalUrl = trimmedUrl;
-    }
-    // If canonicalUrl is empty/invalid, fall back to auto-generated canonicalPath
+    canonicalUrl = normalizeCanonicalUrl(article.canonicalUrl);
   }
   
   return {
     title: `${article.title} | Quizzence`,
     description: article.description,
-    canonicalPath: getArticleCanonicalPath(article),
-    canonicalUrl,
+    canonicalPath: getArticleCanonicalPath(article), // Always returns /blog/${slug}/
+    canonicalUrl, // Normalized or undefined (will use canonicalPath)
     ogType: 'article',
     ogImage: 'ogImage' in article ? (article.ogImage || undefined) : undefined,
     noindex: 'noindex' in article ? !!article.noindex : false,

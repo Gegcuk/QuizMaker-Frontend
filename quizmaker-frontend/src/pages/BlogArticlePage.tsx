@@ -215,11 +215,18 @@ const BlogArticlePage: React.FC = () => {
     );
   }
 
-  const seoConfig = article ? buildArticleSeoConfig(article) : null;
+  // Always provide canonicalPath even if article hasn't loaded yet
+  // This prevents fallback to window.location.pathname or homepage
+  const seoConfig = article 
+    ? buildArticleSeoConfig(article)
+    : {
+        title: 'Loading...',
+        canonicalPath: `/blog/${normalizedSlug}/`, // Always use trailing slash
+      };
 
   return (
     <>
-      {seoConfig && <Seo {...seoConfig} />}
+      <Seo {...seoConfig} />
       <div className="bg-theme-bg-secondary min-h-screen">
         <PageContainer
           title={article?.title || 'Blog'}
