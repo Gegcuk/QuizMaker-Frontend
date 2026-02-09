@@ -51,13 +51,13 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
     file: null,
     quizScope: 'ENTIRE_DOCUMENT',
     questionsPerType: {
-      MCQ_SINGLE: 3,
-      MCQ_MULTI: 1,
-      TRUE_FALSE: 2,
-      FILL_GAP: 1,
+      MCQ_SINGLE: 10,
+      MCQ_MULTI: 5,
+      TRUE_FALSE: 0,
+      FILL_GAP: 5,
       COMPLIANCE: 0,
       ORDERING: 0,
-      MATCHING: 0
+      MATCHING: 5
     },
     difficulty: 'MEDIUM'
   });

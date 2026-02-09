@@ -69,11 +69,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     quizTitle: '',
     quizDescription: '',
     questionsPerType: {
-      MCQ_SINGLE: 3,
-      MCQ_MULTI: 1,
-      TRUE_FALSE: 2,
-      OPEN: 1,
-      FILL_GAP: 1,
+      MCQ_SINGLE: 10,
+      MCQ_MULTI: 5,
+      TRUE_FALSE: 0,
+      OPEN: 0,
+      FILL_GAP: 5,
       COMPLIANCE: 0,
       ORDERING: 0,
       HOTSPOT: 0
@@ -193,11 +193,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         quizTitle: quizConfig.quizTitle || `${uploadedDocument.title} Quiz`,
         quizDescription: quizConfig.quizDescription || `Quiz generated from ${uploadedDocument.title}`,
         questionsPerType: quizConfig.questionsPerType || {
-          MCQ_SINGLE: 3,
-          MCQ_MULTI: 1,
-          TRUE_FALSE: 2,
-          OPEN: 1,
-          FILL_GAP: 1,
+          MCQ_SINGLE: 10,
+          MCQ_MULTI: 5,
+          TRUE_FALSE: 0,
+          OPEN: 0,
+          FILL_GAP: 5,
           COMPLIANCE: 0,
           ORDERING: 0,
           HOTSPOT: 0
@@ -634,15 +634,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-theme-text-secondary mb-1">Multiple Choice</label>
                   <Input
                     type="number"
-                    value={(quizConfig.questionsPerType?.MCQ_SINGLE || 3).toString()}
+                    value={(quizConfig.questionsPerType?.MCQ_SINGLE || 10).toString()}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
                       questionsPerType: {
                         MCQ_SINGLE: parseInt(e.target.value) || 0,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
-                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
-                        OPEN: prev.questionsPerType?.OPEN || 1,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 5,
+                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 0,
+                        OPEN: prev.questionsPerType?.OPEN || 0,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 5,
                         COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
                         ORDERING: prev.questionsPerType?.ORDERING || 0,
                         HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
@@ -657,15 +657,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-theme-text-secondary mb-1">True/False</label>
                   <Input
                     type="number"
-                    value={(quizConfig.questionsPerType?.TRUE_FALSE || 2).toString()}
+                    value={(quizConfig.questionsPerType?.TRUE_FALSE || 0).toString()}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
                       questionsPerType: {
-                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
+                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 10,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 5,
                         TRUE_FALSE: parseInt(e.target.value) || 0,
-                        OPEN: prev.questionsPerType?.OPEN || 1,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        OPEN: prev.questionsPerType?.OPEN || 0,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 5,
                         COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
                         ORDERING: prev.questionsPerType?.ORDERING || 0,
                         HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
@@ -680,15 +680,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <label className="block text-xs text-theme-text-secondary mb-1">Open Questions</label>
                   <Input
                     type="number"
-                    value={(quizConfig.questionsPerType?.OPEN || 1).toString()}
+                    value={(quizConfig.questionsPerType?.OPEN || 0).toString()}
                     onChange={(e) => setQuizConfig(prev => ({
                       ...prev,
                       questionsPerType: {
-                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 3,
-                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 1,
-                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 2,
+                        MCQ_SINGLE: prev.questionsPerType?.MCQ_SINGLE || 10,
+                        MCQ_MULTI: prev.questionsPerType?.MCQ_MULTI || 5,
+                        TRUE_FALSE: prev.questionsPerType?.TRUE_FALSE || 0,
                         OPEN: parseInt(e.target.value) || 0,
-                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 1,
+                        FILL_GAP: prev.questionsPerType?.FILL_GAP || 5,
                         COMPLIANCE: prev.questionsPerType?.COMPLIANCE || 0,
                         ORDERING: prev.questionsPerType?.ORDERING || 0,
                         HOTSPOT: prev.questionsPerType?.HOTSPOT || 0
