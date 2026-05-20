@@ -30,7 +30,101 @@ import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
 
 // Shape of user answer input; varies by question type
-type AnswerInput = any;
+type AnswerInput = unknown;
+
+interface AttemptQuestionLike {
+  type: string;
+  safeContent?: {
+    gaps?: unknown[];
+  } | null;
+}
+
+interface FillGapSubmissionResponse {
+  answers: Array<{
+    gapId: number;
+    answer: string;
+  }>;
+}
+
+const isFillGapSubmissionResponse = (answer: AnswerInput): answer is FillGapSubmissionResponse =>
+  !!answer &&
+  typeof answer === 'object' &&
+  !Array.isArray(answer) &&
+  Array.isArray((answer as Partial<FillGapSubmissionResponse>).answers);
+
+const buildFillGapResponse = (answer: AnswerInput): FillGapSubmissionResponse => {
+  if (isFillGapSubmissionResponse(answer)) {
+    return answer;
+  }
+
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+    return { answers: [] };
+  }
+
+  return {
+    answers: Object.entries(answer as Record<string, unknown>)
+      .map(([id, ans]) => ({
+        gapId: Number(id),
+        answer: String(ans).trim(),
+      }))
+      .filter((gap) => Number.isFinite(gap.gapId) && gap.answer.length > 0)
+      .sort((a, b) => a.gapId - b.gapId),
+  };
+};
+
+const buildQuestionResponse = (question: AttemptQuestionLike, answer: AnswerInput): unknown => {
+  switch (question.type) {
+    case "MCQ_SINGLE":
+      return { selectedOptionId: answer };
+    case "MCQ_MULTI":
+      return { selectedOptionIds: Array.isArray(answer) ? answer : [] };
+    case "TRUE_FALSE":
+      return { answer: Boolean(answer) };
+    case "OPEN":
+      return { answer };
+    case "COMPLIANCE":
+      return { selectedStatementIds: Array.isArray(answer) ? answer : [] };
+    case "FILL_GAP":
+      return buildFillGapResponse(answer);
+    case "HOTSPOT":
+      return { regionId: answer };
+    case "ORDERING":
+      return { orderedItemIds: Array.isArray(answer) ? answer : [] };
+    case "MATCHING":
+      return answer && typeof answer === 'object' ? answer : { matches: [] };
+    default:
+      return { answer };
+  }
+};
+
+const isQuestionAnswerProvided = (question: AttemptQuestionLike, answer: AnswerInput): boolean => {
+  switch (question.type) {
+    case "MCQ_SINGLE":
+      return Boolean(answer);
+    case "MCQ_MULTI":
+      return Array.isArray(answer) && answer.length > 0;
+    case "TRUE_FALSE":
+      return answer !== null && answer !== undefined;
+    case "OPEN":
+      return typeof answer === "string" && answer.trim().length > 0;
+    case "COMPLIANCE":
+      return Array.isArray(answer) && answer.length > 0;
+    case "FILL_GAP": {
+      const totalGaps = question?.safeContent?.gaps?.length || 0;
+      if (totalGaps === 0) return false;
+
+      const filledGaps = buildFillGapResponse(answer).answers.length;
+
+      return filledGaps === totalGaps;
+    }
+    case "HOTSPOT":
+      return Boolean(answer);
+    case "ORDERING":
+      return Array.isArray(answer) && answer.length > 0;
+    default:
+      return !!answer && typeof answer === 'object' && Object.keys(answer).length > 0;
+  }
+};
 
 const QuizAttemptPage: React.FC = () => {
   console.log('QuizAttemptPage: Component rendering...');
@@ -240,36 +334,7 @@ const QuizAttemptPage: React.FC = () => {
 
   const isAnswerProvided = () => {
     if (!currentQuestion) return false;
-
-    switch (currentQuestion.type) {
-      case "MCQ_SINGLE":
-        return Boolean(answerInput);
-      case "MCQ_MULTI":
-        return Array.isArray(answerInput) && answerInput.length > 0;
-      case "TRUE_FALSE":
-        return answerInput !== null && answerInput !== undefined;
-      case "OPEN":
-        return typeof answerInput === "string" && answerInput.trim().length > 0;
-      case "COMPLIANCE":
-        return Array.isArray(answerInput) && answerInput.length > 0;
-      case "FILL_GAP": {
-        // Check that ALL gaps are filled
-        const totalGaps = currentQuestion?.safeContent?.gaps?.length || 0;
-        if (totalGaps === 0) return false;
-        
-        const filledGaps = Object.values(answerInput || {}).filter(
-          (answer) => typeof answer === 'string' && answer.trim().length > 0
-        ).length;
-        
-        return filledGaps === totalGaps;
-      }
-      case "HOTSPOT":
-        return Boolean(answerInput);
-      case "ORDERING":
-        return Array.isArray(answerInput) && answerInput.length > 0;
-      default:
-        return Object.keys(answerInput || {}).length > 0;
-    }
+    return isQuestionAnswerProvided(currentQuestion, answerInput);
   };
 
   /* -------------------------------------------------------------------- */
@@ -306,39 +371,11 @@ const QuizAttemptPage: React.FC = () => {
     setSubmitting(true);
     setError(null);
 
-    const buildResponse = () => {
-      switch (currentQuestion.type) {
-        case "MCQ_SINGLE":
-          return { selectedOptionId: answerInput };
-        case "MCQ_MULTI":
-          return { selectedOptionIds: answerInput ?? [] };
-        case "TRUE_FALSE":
-          return { answer: Boolean(answerInput) };
-        case "OPEN":
-          return { answer: answerInput };
-        case "COMPLIANCE":
-          return { selectedStatementIds: answerInput ?? [] };
-        case "FILL_GAP":
-          return {
-            answers: Object.entries(answerInput || {}).map(([id, ans]) => ({
-              gapId: Number(id),
-              answer: String(ans).trim(),
-            })),
-          };
-        case "HOTSPOT":
-          return { regionId: answerInput };
-        case "ORDERING":
-          return { orderedItemIds: answerInput ?? [] };
-        case "MATCHING":
-          return answerInput ?? { matches: [] };
-        default:
-          return { answer: answerInput };
-      }
-    };
+    const response = buildQuestionResponse(currentQuestion, answerInput);
 
     const payload: AnswerSubmissionRequest = {
       questionId: currentQuestion.id,
-      response: buildResponse(),
+      response,
       includeCorrectness: true,  // Always include correctness to show result
       includeCorrectAnswer: true, // Always include correct answer to show if incorrect
       includeExplanation: true,   // Always include explanation to display after submission
@@ -350,7 +387,7 @@ const QuizAttemptPage: React.FC = () => {
       // Update answers for ALL_AT_ONCE mode
       setAnswers(prev => ({
         ...prev,
-        [currentQuestion.id]: buildResponse()
+        [currentQuestion.id]: response
       }));
 
       // Store the result to display to the user
@@ -358,7 +395,7 @@ const QuizAttemptPage: React.FC = () => {
         setAnswerResult({
           isCorrect: data.isCorrect,
           correctAnswer: data.correctAnswer,
-          userAnswer: buildResponse(),
+          userAnswer: response,
           score: data.score,
           explanation: data.explanation || null,
           nextQuestion: data.nextQuestion,
@@ -419,11 +456,29 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Handle answer changes (ALL_AT_ONCE mode)                            */
   /* -------------------------------------------------------------------- */
-  const handleAnswerChange = (questionId: string, answer: any) => {
+  const handleAnswerChange = (questionId: string, answer: unknown) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
     }));
+  };
+
+  const buildAllAnswersForSubmission = () => {
+    return allQuestions.reduce<Record<string, unknown>>((acc, question) => {
+      const answer = answers[question.id];
+
+      if (isQuestionAnswerProvided(question, answer)) {
+        acc[question.id] = buildQuestionResponse(question, answer);
+      }
+
+      return acc;
+    }, {});
+  };
+
+  const getAnsweredQuestionCount = () => {
+    return allQuestions.filter((question) =>
+      isQuestionAnswerProvided(question, answers[question.id])
+    ).length;
   };
 
   /* -------------------------------------------------------------------- */
@@ -612,10 +667,12 @@ const QuizAttemptPage: React.FC = () => {
           case "MCQ_SINGLE":
           case "MCQ_MULTI":
           case "OPEN":
-          case "FILL_GAP":
           case "COMPLIANCE":
           case "HOTSPOT":
             currentAnswer = '';
+            break;
+          case "FILL_GAP":
+            currentAnswer = {};
             break;
           case "TRUE_FALSE":
             currentAnswer = null; // null is valid for boolean questions
@@ -831,6 +888,9 @@ const QuizAttemptPage: React.FC = () => {
   };
 
   const renderALL_AT_ONCE_Mode = () => {
+    const answeredQuestionCount = getAnsweredQuestionCount();
+    const submissionAnswers = buildAllAnswersForSubmission();
+
     return (
       <div className="max-w-4xl mx-auto py-8 px-4">
         {/* Progress and Timer */}
@@ -840,7 +900,7 @@ const QuizAttemptPage: React.FC = () => {
               All Questions Mode
             </div>
             <div className="text-sm text-theme-text-secondary">
-              {Object.keys(answers).length} of {totalQuestions} answered
+              {answeredQuestionCount} of {totalQuestions} answered
             </div>
           </div>
           
@@ -848,7 +908,7 @@ const QuizAttemptPage: React.FC = () => {
             <div 
               className="bg-theme-interactive-primary h-2 rounded-full transition-all duration-300"
               style={{ 
-                width: `${totalQuestions > 0 ? (Object.keys(answers).length / totalQuestions) * 100 : 0}%` 
+                width: `${totalQuestions > 0 ? (answeredQuestionCount / totalQuestions) * 100 : 0}%`
               }}
             />
           </div>
@@ -862,7 +922,7 @@ const QuizAttemptPage: React.FC = () => {
                 <h3 className="text-lg font-medium text-theme-text-primary">
                   Question {index + 1}
                 </h3>
-                {answers[question.id] && (
+                {isQuestionAnswerProvided(question, answers[question.id]) && (
                   <span className="text-sm text-theme-interactive-success bg-theme-bg-success px-2 py-1 rounded">
                     ✓ Answered
                   </span>
@@ -890,7 +950,7 @@ const QuizAttemptPage: React.FC = () => {
         <div className="mt-8">
           <AttemptBatchAnswers
             attemptId={attemptId!}
-            answers={answers}
+            answers={submissionAnswers}
             totalQuestions={totalQuestions}
             existingAnswers={existingAnswers}
             onSubmissionComplete={handleSubmitAllAnswers}

@@ -162,6 +162,7 @@ export interface GapAnswer {
 export interface FillGapContent {
   text: string;
   gaps: GapAnswer[];
+  options?: string[];
 }
 
 /**

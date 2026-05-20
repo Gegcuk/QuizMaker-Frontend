@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto, McqSingleContent, McqMultiContent } from '@/types';
+import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto, McqSingleContent, McqMultiContent, FillGapContent } from '@/types';
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
@@ -21,7 +21,7 @@ import { MatchingQuestionForm } from './MatchingQuestionForm';
 import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { MediaPicker } from '@/features/media';
-import { sanitizeMcqContentForSubmission } from '../utils/contentSanitizer';
+import { dedupeFillGapOptions, sanitizeFillGapContentForSubmission, sanitizeMcqContentForSubmission } from '../utils/contentSanitizer';
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -135,7 +135,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     // Validate question text
     if (formData.type === 'FILL_GAP') {
       // For FILL_GAP, validate content.text
-      const fillGapText = (formData.content as any)?.text || '';
+      const fillGapText = (formData.content as Partial<FillGapContent>)?.text || '';
       if (!fillGapText || fillGapText.trim().length < 3) {
         errors.push('Question text must be at least 3 characters long.');
       }
@@ -242,9 +242,37 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       }
       
       case 'FILL_GAP': {
-        const gaps = (formData.content as any)?.gaps || [];
+        const fillGapContent = formData.content as Partial<FillGapContent>;
+        const gaps = Array.isArray(fillGapContent?.gaps) ? fillGapContent.gaps : [];
+        const gapAnswers = gaps.map((gap) => gap.answer?.trim() || '');
+        const fillGapText = fillGapContent?.text || '';
+
         if (gaps.length === 0) {
           errors.push('At least one gap is required for fill-in-the-gap questions.');
+        }
+
+        if (gaps.some((gap) => !gap.answer || gap.answer.trim().length === 0)) {
+          errors.push('Each fill-in-the-gap blank must have a correct answer.');
+        }
+
+        const missingGapMarkers = gaps.filter((gap) => !fillGapText.includes(`{${gap.id}}`));
+        if (missingGapMarkers.length > 0) {
+          errors.push('Each gap answer must have a matching marker in the question text.');
+        }
+
+        const options = dedupeFillGapOptions(fillGapContent?.options || []);
+        if (options.length > 0) {
+          const optionKeys = new Set(options.map((option) => option.toLowerCase()));
+          const missingAnswers = gapAnswers.filter((answer) => answer && !optionKeys.has(answer.toLowerCase()));
+          if (missingAnswers.length > 0) {
+            errors.push('Fill-in-the-gap answer pool must include every correct gap answer.');
+          }
+
+          const correctAnswerKeys = new Set(gapAnswers.filter(Boolean).map((answer) => answer.toLowerCase()));
+          const distractorCount = options.filter((option) => !correctAnswerKeys.has(option.toLowerCase())).length;
+          if (distractorCount < 6 || distractorCount > 7) {
+            errors.push('Fill-in-the-gap answer pool must include all correct answers plus 6 to 7 distractors.');
+          }
         }
         break;
       }
@@ -288,11 +316,13 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       const normalizedContent =
         formData.type === 'MCQ_SINGLE' || formData.type === 'MCQ_MULTI'
           ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
+          : formData.type === 'FILL_GAP'
+          ? sanitizeFillGapContentForSubmission(rawContent as FillGapContent)
           : rawContent;
 
       // For FILL_GAP, copy content.text to questionText before submitting
       const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
-        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (rawContent as any)?.text || '' } as CreateQuestionRequest
+        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (normalizedContent as FillGapContent).text || '' } as CreateQuestionRequest
         : { ...formData, type: formData.type, content: normalizedContent } as CreateQuestionRequest;
 
       const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};
@@ -423,7 +453,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       case 'FILL_GAP':
         safeContent = {
           text: content?.text || '',
-          gaps: (content?.gaps || []).map((g: any) => ({ id: g.id }))
+          gaps: (content?.gaps || []).map((g: any) => ({ id: g.id })),
+          ...(Array.isArray(content?.options) && content.options.length > 0
+            ? { options: content.options }
+            : {})
         };
         break;
       case 'COMPLIANCE':
@@ -493,11 +526,13 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       const normalizedContent =
         formData.type === 'MCQ_SINGLE' || formData.type === 'MCQ_MULTI'
           ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
+          : formData.type === 'FILL_GAP'
+          ? sanitizeFillGapContentForSubmission(rawContent as FillGapContent)
           : rawContent;
 
       // For FILL_GAP, copy content.text to questionText before submitting
       const submissionDataBase: CreateQuestionRequest = formData.type === 'FILL_GAP' 
-        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (rawContent as any)?.text || '' } as CreateQuestionRequest
+        ? { ...formData, type: formData.type, content: normalizedContent, questionText: (normalizedContent as FillGapContent).text || '' } as CreateQuestionRequest
         : { ...formData, type: formData.type, content: normalizedContent } as CreateQuestionRequest;
 
       const attachmentPayload = attachment?.assetId ? { attachmentAssetId: attachment.assetId } : {};

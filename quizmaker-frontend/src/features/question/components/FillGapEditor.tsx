@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { FillGapContent } from '@/types';
-import { InstructionsModal, Hint, Textarea, Input, Button } from '@/components';
+import { InstructionsModal, Hint, Textarea, Input, Button, Switch, Chip } from '@/components';
+import { dedupeFillGapOptions } from '../utils/contentSanitizer';
 
 interface FillGapEditorProps {
   content: FillGapContent;
@@ -22,15 +23,25 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 }) => {
   const [text, setText] = useState<string>(content?.text || '');
   const [gaps, setGaps] = useState<Array<{id: number; answer: string}>>(content?.gaps || []);
+  const [answerPoolEnabled, setAnswerPoolEnabled] = useState<boolean>(
+    Array.isArray(content?.options) && content.options.length > 0
+  );
+  const [distractors, setDistractors] = useState<string[]>(() =>
+    getDistractorsFromOptions(content?.options || [], content?.gaps || [])
+  );
 
   // Update parent when content changes
   useEffect(() => {
-    onChange({ text, gaps });
-  }, [text, gaps, onChange]);
+    const options = answerPoolEnabled ? buildFillGapOptions(gaps, distractors) : [];
+    onChange(options.length > 0 ? { text, gaps, options } : { text, gaps });
+  }, [text, gaps, distractors, answerPoolEnabled, onChange]);
 
-  const addGap = () => {
-    const newGapId = gaps.length + 1;
-    setGaps(prev => [...prev, { id: newGapId, answer: '' }]);
+  const handleAnswerPoolToggle = (enabled: boolean) => {
+    setAnswerPoolEnabled(enabled);
+
+    if (enabled && distractors.length === 0) {
+      setDistractors(Array.from({ length: MIN_FILL_GAP_DISTRACTORS }, () => ''));
+    }
   };
 
   const removeGap = (gapId: number) => {
@@ -43,6 +54,20 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
     ));
   };
 
+  const addDistractor = () => {
+    setDistractors(prev => [...prev, '']);
+  };
+
+  const updateDistractor = (index: number, value: string) => {
+    setDistractors(prev => prev.map((option, optionIndex) => (
+      optionIndex === index ? value : option
+    )));
+  };
+
+  const removeDistractor = (index: number) => {
+    setDistractors(prev => prev.filter((_, optionIndex) => optionIndex !== index));
+  };
+
   const insertGapMarker = () => {
     if (gaps.length >= 3) return; // Maximum 3 gaps allowed
     const gapId = gaps.length + 1;
@@ -53,13 +78,18 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 
   const getGapCount = () => gaps.length;
 
-  const getGapAnswers = () => {
+  const getCurrentGapAnswers = () => {
     return gaps.map(gap => gap.answer).filter(answer => answer.trim() !== '');
   };
 
   const getMissingAnswers = () => {
     return gaps.filter(gap => !gap.answer.trim());
   };
+
+  const answerPoolOptions = answerPoolEnabled ? buildFillGapOptions(gaps, distractors) : [];
+  const answerPoolCount = answerPoolOptions.length;
+  const answerPoolRequirements = getAnswerPoolRequirements(gaps, distractors);
+  const answerPoolIsSchemaSized = !answerPoolEnabled || answerPoolRequirements.isValid;
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -171,10 +201,105 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
         </div>
       )}
 
+      <div className="bg-theme-bg-secondary rounded-lg p-6">
+        <Switch
+          checked={answerPoolEnabled}
+          onChange={handleAnswerPoolToggle}
+          label="Answer pool"
+          description="Enable selectable answer chips for this fill-gap question."
+        />
+
+        {answerPoolEnabled && (
+          <div className="mt-5 space-y-4">
+            <div className="p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <h5 className="text-sm font-medium text-theme-text-secondary">Included gap answers</h5>
+                <span className="text-xs text-theme-text-tertiary">
+                  {getCurrentGapAnswers().length} answer{getCurrentGapAnswers().length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              {getCurrentGapAnswers().length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {getCurrentGapAnswers().map((answer) => (
+                    <Chip key={answer} label={answer} variant="success" size="sm" />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-theme-text-tertiary">Add gap answers to include them in the pool.</p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h5 className="text-sm font-medium text-theme-text-secondary">Distractors</h5>
+                  <p className="text-xs text-theme-text-tertiary">
+                    Add 6-7 plausible wrong answers.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={addDistractor}
+                  disabled={answerPoolRequirements.distractorCount >= MAX_FILL_GAP_DISTRACTORS}
+                >
+                  Add Distractor
+                </Button>
+              </div>
+
+              {distractors.map((option, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
+                  <Input
+                    type="text"
+                    value={option}
+                    onChange={(e) => updateDistractor(index, e.target.value)}
+                    placeholder="Enter distractor..."
+                    fullWidth
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeDistractor(index)}
+                    className="!text-theme-interactive-danger hover:!text-theme-interactive-danger"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+
+              {distractors.length === 0 && (
+                <div className="p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary">
+                  <p className="text-sm text-theme-text-tertiary">No distractors added yet.</p>
+                </div>
+              )}
+            </div>
+
+            <div className={`p-3 border rounded-md ${
+              answerPoolIsSchemaSized
+                ? 'border-theme-border-primary bg-theme-bg-primary'
+                : 'border-theme-border-warning bg-theme-bg-warning'
+            }`}>
+              <p className={`text-sm ${
+                answerPoolIsSchemaSized ? 'text-theme-text-secondary' : 'text-theme-interactive-warning'
+              }`}>
+                Pool total: {answerPoolCount} option{answerPoolCount !== 1 ? 's' : ''}.
+                {answerPoolIsSchemaSized
+                  ? ' Ready for drag-option mode.'
+                  : ` Add ${answerPoolRequirements.minDistractorCount}-${answerPoolRequirements.maxDistractorCount} unique distractors for ${answerPoolRequirements.correctAnswerCount} correct answer${answerPoolRequirements.correctAnswerCount !== 1 ? 's' : ''}.`}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
           <li>Provide the correct answer for each gap</li>
+          <li>Answer pool is optional; leave it disabled for typed-answer questions</li>
+          <li>If enabled, include every correct answer plus 6-7 distractors</li>
           <li>Maximum 3 gaps per question</li>
         </ul>
       </InstructionsModal>
@@ -232,6 +357,46 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
       )}
     </div>
   );
+};
+
+const normalizeOptionKey = (value: string) => value.trim().toLowerCase();
+
+const MIN_FILL_GAP_DISTRACTORS = 6;
+const MAX_FILL_GAP_DISTRACTORS = 7;
+
+const getGapAnswerValues = (gaps: Array<{ id: number; answer: string }>): string[] =>
+  dedupeFillGapOptions(gaps.map(gap => gap.answer));
+
+const getDistractorsFromOptions = (
+  options: string[],
+  gaps: Array<{ id: number; answer: string }>
+): string[] => {
+  const gapAnswerKeys = new Set(getGapAnswerValues(gaps).map(normalizeOptionKey));
+  return dedupeFillGapOptions(options).filter(option => !gapAnswerKeys.has(normalizeOptionKey(option)));
+};
+
+const buildFillGapOptions = (
+  gaps: Array<{ id: number; answer: string }>,
+  distractors: string[]
+): string[] => dedupeFillGapOptions([...getGapAnswerValues(gaps), ...distractors]);
+
+const getAnswerPoolRequirements = (
+  gaps: Array<{ id: number; answer: string }>,
+  distractors: string[]
+) => {
+  const correctAnswerCount = getGapAnswerValues(gaps).length;
+  const distractorCount = getDistractorsFromOptions(distractors, gaps).length;
+
+  return {
+    correctAnswerCount,
+    distractorCount,
+    minDistractorCount: MIN_FILL_GAP_DISTRACTORS,
+    maxDistractorCount: MAX_FILL_GAP_DISTRACTORS,
+    isValid:
+      correctAnswerCount > 0 &&
+      distractorCount >= MIN_FILL_GAP_DISTRACTORS &&
+      distractorCount <= MAX_FILL_GAP_DISTRACTORS,
+  };
 };
 
 export default FillGapEditor; 
