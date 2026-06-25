@@ -20,6 +20,8 @@ Additional test commands:
 npm run test:watch
 npm run test:coverage
 npm run test:smoke
+npm run audit:production
+npm run browserslist:update
 ```
 
 Vitest component and service tests live next to the source they cover as
@@ -40,9 +42,19 @@ The pull request workflow runs lint, Vitest, browser smoke, and build checks for
 
 - `.github/workflows/frontend-pr.yml` runs lint, Vitest, browser smoke, and build on every pull request to `main`.
 - `.github/workflows/deploy.yml` runs on pushes to `main` and can also be started manually.
-- Production deployment first runs `npm ci`, `npm run lint`, `npm test`, `npm run test:smoke`, and `npm run build` in a validation job.
+- Production deployment first runs `npm ci`, `npm run audit:production`, `npm run lint`, `npm test`, `npm run test:smoke`, and `npm run build` in a validation job.
 - Deployment only starts after validation passes.
 - Post-deploy smoke checks verify the public site and frontend SPA routing.
+
+## Dependency Maintenance
+
+- Dependabot opens weekly npm dependency PRs for `quizmaker-frontend`.
+- Dependabot opens monthly GitHub Actions update PRs.
+- `.github/workflows/dependency-maintenance.yml` runs weekly and can be started manually.
+- Production dependency vulnerabilities are checked with `npm run audit:production`.
+- Browserslist data is checked by running `npm run browserslist:update` and failing if `package.json` or `package-lock.json` would change.
+- Before merging dependency PRs, run `npm run lint`, `npm test`, `npm run test:smoke`, and `npm run build`.
+- Dev-only audit findings are not part of normal PR or deploy gates unless intentionally promoted to production risk.
 
 Production deployment requires these GitHub secrets:
 
