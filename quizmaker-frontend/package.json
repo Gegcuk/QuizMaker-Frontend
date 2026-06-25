@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
+    "test": "node --test tests/smoke.test.mjs",
+    "test:smoke": "node --test tests/smoke.test.mjs",
     "preview": "vite preview",
     "generate-sitemap": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/generate-sitemap.mjs",
     "prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/prerender.mjs",

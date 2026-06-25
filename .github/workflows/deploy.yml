@@ -35,8 +35,14 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Lint
         run: npm run lint
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build
@@ -64,7 +70,7 @@ jobs:
 
       - name: Install Playwright Chromium
         working-directory: quizmaker-frontend
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Validate deployment configuration
         env:

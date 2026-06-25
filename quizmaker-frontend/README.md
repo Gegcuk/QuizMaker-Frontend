@@ -10,6 +10,7 @@ From the repository root:
 cd quizmaker-frontend
 npm ci
 npm run lint
+npm test
 npm run build
 ```
 
@@ -23,9 +24,9 @@ The pull request workflow runs the same lint and build checks for every pull req
 
 ## CI/CD
 
-- `.github/workflows/frontend-pr.yml` runs on every pull request to `main`.
+- `.github/workflows/frontend-pr.yml` runs lint, tests, and build on every pull request to `main`.
 - `.github/workflows/deploy.yml` runs on pushes to `main` and can also be started manually.
-- Production deployment first runs `npm ci`, `npm run lint`, and `npm run build` in a validation job.
+- Production deployment first runs `npm ci`, `npm run lint`, `npm test`, and `npm run build` in a validation job.
 - Deployment only starts after validation passes.
 - Post-deploy smoke checks verify the public site, Swagger UI proxy, and OpenAPI proxy.
 
