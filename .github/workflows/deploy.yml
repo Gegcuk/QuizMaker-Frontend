@@ -35,6 +35,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Audit production dependencies
+        run: npm run audit:production
+
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 

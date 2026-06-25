@@ -1,0 +1,49 @@
+name: Dependency Maintenance
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-maintenance
+  cancel-in-progress: false
+
+jobs:
+  frontend-dependencies:
+    name: Frontend dependency audit and browser data
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: quizmaker-frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: quizmaker-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm run audit:production
+
+      - name: Check Browserslist data freshness
+        run: |
+          set -euo pipefail
+          npm run browserslist:update
+
+          if ! git diff --exit-code -- package.json package-lock.json; then
+            echo "::error::Browserslist data is stale. Run npm run browserslist:update in quizmaker-frontend and commit package-lock.json."
+            exit 1
+          fi
