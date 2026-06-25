@@ -3,10 +3,6 @@ name: Frontend PR Checks
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'quizmaker-frontend/**'
-      - '.github/workflows/frontend-pr.yml'
-      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
