@@ -28,7 +28,7 @@ The pull request workflow runs the same lint and build checks for every pull req
 - `.github/workflows/deploy.yml` runs on pushes to `main` and can also be started manually.
 - Production deployment first runs `npm ci`, `npm run lint`, `npm test`, and `npm run build` in a validation job.
 - Deployment only starts after validation passes.
-- Post-deploy smoke checks verify the public site, Swagger UI proxy, and OpenAPI proxy.
+- Post-deploy smoke checks verify the public site and frontend SPA routing.
 
 Production deployment requires these GitHub secrets:
 
