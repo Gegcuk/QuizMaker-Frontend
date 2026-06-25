@@ -79,7 +79,7 @@ export const useSeo = ({
     const ensureTrailingSlashForBlog = (path: string): string => {
       if (path === '/' || path.endsWith('/')) return path;
       // Blog article pattern: /blog/slug (no trailing slash)
-      if (/\/blog\/[^\/]+$/.test(path)) return `${path}/`;
+      if (/\/blog\/[^/]+$/.test(path)) return `${path}/`;
       return path;
     };
     

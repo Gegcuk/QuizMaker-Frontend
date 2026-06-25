@@ -18,8 +18,8 @@ export interface ValidationResult {
 // Common validation patterns
 export const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  phone: /^[\+]?[1-9][\d]{0,15}$/,
-  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+  phone: /^[+]?[1-9][\d]{0,15}$/,
+  url: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
   username: /^[a-zA-Z0-9_]{3,20}$/,
   password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
 };

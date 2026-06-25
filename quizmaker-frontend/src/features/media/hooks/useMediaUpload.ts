@@ -18,7 +18,7 @@ export interface MediaUploadOptions {
   articleId?: string;
 }
 
-export interface MediaUploadResult extends MediaRefDto {}
+export type MediaUploadResult = MediaRefDto;
 
 const getImageDimensions = (file: File): Promise<{ width: number; height: number }> =>
   new Promise((resolve, reject) => {

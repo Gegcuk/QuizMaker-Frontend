@@ -269,66 +269,62 @@ const QuizAttemptPage: React.FC = () => {
   const initializeAttemptNormal = async () => {
     if (!quizId) return;
 
-    try {
-      // Check for existing attempts first
-      const existingAttemptId = await checkExistingAttempts();
-      
-      if (existingAttemptId) {
-        // Resume existing attempt
-        const attemptDetails = await attemptService.getAttemptDetails(existingAttemptId);
-        setAttemptId(existingAttemptId);
-        setAttemptMode(attemptDetails.mode);
-        setAttemptStatus(attemptDetails.status);
-        
-        // Load existing answers
-        const existingAnswers: Record<string, any> = {};
-        // Note: API response doesn't include the original response data, only answer metadata
-        // attemptDetails.answers.forEach(answer => {
-        //   // Convert answer back to input format based on question type
-        //   // This is a simplified conversion - you might need more complex logic
-        //   existingAnswers[answer.questionId] = answer.response;
-        // });
-        setAnswers(existingAnswers);
-        setExistingAnswers(existingAnswers); // Track what was originally loaded
-        
-        // For ONE_BY_ONE and TIMED modes, get the next question
-        if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
-          // Get current question for the attempt
-          const currentQuestionData = await attemptService.getCurrentQuestion(existingAttemptId);
-          setCurrentQuestion(currentQuestionData.question);
-          setCurrentQuestionNumber(currentQuestionData.questionNumber);
-          setTotalQuestions(currentQuestionData.totalQuestions);
-        } else {
-          // For ALL_AT_ONCE mode, load all questions
-          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-          setAllQuestions(shuffledQuestions);
-          setTotalQuestions(shuffledQuestions.length);
-        }
-        
-        setQuestionsAnswered(attemptDetails.answers.length);
+    // Check for existing attempts first
+    const existingAttemptId = await checkExistingAttempts();
+
+    if (existingAttemptId) {
+      // Resume existing attempt
+      const attemptDetails = await attemptService.getAttemptDetails(existingAttemptId);
+      setAttemptId(existingAttemptId);
+      setAttemptMode(attemptDetails.mode);
+      setAttemptStatus(attemptDetails.status);
+
+      // Load existing answers
+      const existingAnswers: Record<string, any> = {};
+      // Note: API response doesn't include the original response data, only answer metadata
+      // attemptDetails.answers.forEach(answer => {
+      //   // Convert answer back to input format based on question type
+      //   // This is a simplified conversion - you might need more complex logic
+      //   existingAnswers[answer.questionId] = answer.response;
+      // });
+      setAnswers(existingAnswers);
+      setExistingAnswers(existingAnswers); // Track what was originally loaded
+
+      // For ONE_BY_ONE and TIMED modes, get the next question
+      if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
+        // Get current question for the attempt
+        const currentQuestionData = await attemptService.getCurrentQuestion(existingAttemptId);
+        setCurrentQuestion(currentQuestionData.question);
+        setCurrentQuestionNumber(currentQuestionData.questionNumber);
+        setTotalQuestions(currentQuestionData.totalQuestions);
       } else {
-        // Start new attempt
-        const mode = searchParams.get('mode') as AttemptMode || 'ONE_BY_ONE';
-        const attempt = await attemptService.startAttempt(quizId, { mode });
-        setAttemptId(attempt.attemptId);
-        setAttemptMode(mode);
-        setAttemptStatus('IN_PROGRESS');
-        
-        if (mode === 'ONE_BY_ONE' || mode === 'TIMED') {
-          // Get current question after starting attempt
-          const currentQuestionData = await attemptService.getCurrentQuestion(attempt.attemptId);
-          setCurrentQuestion(currentQuestionData.question);
-          setCurrentQuestionNumber(currentQuestionData.questionNumber);
-          setTotalQuestions(currentQuestionData.totalQuestions);
-        } else {
-          // For ALL_AT_ONCE mode, load all questions
-          const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-          setAllQuestions(shuffledQuestions);
-          setTotalQuestions(shuffledQuestions.length);
-        }
+        // For ALL_AT_ONCE mode, load all questions
+        const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+        setAllQuestions(shuffledQuestions);
+        setTotalQuestions(shuffledQuestions.length);
       }
-    } catch (error) {
-      throw error;
+
+      setQuestionsAnswered(attemptDetails.answers.length);
+    } else {
+      // Start new attempt
+      const mode = searchParams.get('mode') as AttemptMode || 'ONE_BY_ONE';
+      const attempt = await attemptService.startAttempt(quizId, { mode });
+      setAttemptId(attempt.attemptId);
+      setAttemptMode(mode);
+      setAttemptStatus('IN_PROGRESS');
+
+      if (mode === 'ONE_BY_ONE' || mode === 'TIMED') {
+        // Get current question after starting attempt
+        const currentQuestionData = await attemptService.getCurrentQuestion(attempt.attemptId);
+        setCurrentQuestion(currentQuestionData.question);
+        setCurrentQuestionNumber(currentQuestionData.questionNumber);
+        setTotalQuestions(currentQuestionData.totalQuestions);
+      } else {
+        // For ALL_AT_ONCE mode, load all questions
+        const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
+        setAllQuestions(shuffledQuestions);
+        setTotalQuestions(shuffledQuestions.length);
+      }
     }
   };
 

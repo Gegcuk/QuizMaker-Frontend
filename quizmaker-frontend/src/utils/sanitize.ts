@@ -72,7 +72,7 @@ export const convertNewlinesToHtml = (text: string): string => {
 
   // If no HTML block tags, convert newlines to proper paragraph structure
   // First, normalize: replace multiple consecutive newlines with double newline
-  let normalized = text.replace(/\n{3,}/g, '\n\n');
+  const normalized = text.replace(/\n{3,}/g, '\n\n');
   
   // Split by double newlines (paragraph breaks)
   const paragraphs = normalized.split(/\n\s*\n/);

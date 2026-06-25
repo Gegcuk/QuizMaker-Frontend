@@ -87,11 +87,12 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
         aValue = a.isCorrect ? 1 : 0;
         bValue = b.isCorrect ? 1 : 0;
         break;
-      case 'difficulty':
+      case 'difficulty': {
         const difficultyOrder = { 'EASY': 1, 'MEDIUM': 2, 'HARD': 3 };
         aValue = difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 0;
         bValue = difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 0;
         break;
+      }
       case 'type':
         aValue = a.questionType;
         bValue = b.questionType;

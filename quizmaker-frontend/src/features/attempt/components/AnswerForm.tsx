@@ -96,12 +96,13 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
         }
         break;
 
-      case 'FILL_GAP':
+      case 'FILL_GAP': {
         if (!value || typeof value !== 'object') {
           setValidationError('Please fill in all gaps.');
           setIsValid(false);
           return false;
         }
+
         const gaps = Object.values(value);
         if (gaps.some((gap: any) => !gap || gap.toString().trim().length === 0)) {
           setValidationError('Please fill in all gaps.');
@@ -109,6 +110,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
           return false;
         }
         break;
+      }
 
       case 'COMPLIANCE':
         if (!Array.isArray(value) || value.length === 0) {

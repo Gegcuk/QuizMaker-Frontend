@@ -704,13 +704,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
         setShowCreateGroupModal(false);
       }}
       onCreate={async (data) => {
-        try {
-          const groupId = await handleCreateGroup(data);
-          setShowCreateGroupModal(false);
-          return groupId;
-        } catch (error) {
-          throw error;
-        }
+        const groupId = await handleCreateGroup(data);
+        setShowCreateGroupModal(false);
+        return groupId;
       }}
     />
   </>

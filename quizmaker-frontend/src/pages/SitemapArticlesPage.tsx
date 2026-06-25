@@ -14,7 +14,7 @@ const baseUrl = SITE_URL.replace(/\/$/, '');
 // Normalize blog URLs to match canonical format (with trailing slash)
 const normalizeBlogUrl = (url: string): string => {
   // Extract slug from URL (handles both /blog/slug and /blog/slug/)
-  const match = url.match(/\/blog\/([^\/]+)/);
+  const match = url.match(/\/blog\/([^/]+)/);
   if (match) {
     return `/blog/${match[1]}/`; // Always add trailing slash
   }

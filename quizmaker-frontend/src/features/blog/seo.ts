@@ -77,7 +77,7 @@ const normalizeCanonicalUrl = (url: string): string | undefined => {
   try {
     const u = new URL(trimmed);
     // If it's a blog article URL without trailing slash, add it
-    if (/\/blog\/[^\/]+$/.test(u.pathname)) {
+    if (/\/blog\/[^/]+$/.test(u.pathname)) {
       u.pathname = `${u.pathname}/`;
     }
     return u.toString();
