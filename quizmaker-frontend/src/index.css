@@ -137,4 +137,16 @@
   --color-interactive-warning: #f59e0b;
   --color-accent: #3b82f6;
   --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-matching-pair-1-bg: #dbeafe;
+  --color-matching-pair-1-border: #2563eb;
+  --color-matching-pair-1-badge: #2563eb;
+  --color-matching-pair-2-bg: #ccfbf1;
+  --color-matching-pair-2-border: #0f766e;
+  --color-matching-pair-2-badge: #0f766e;
+  --color-matching-pair-3-bg: #e0e7ff;
+  --color-matching-pair-3-border: #4f46e5;
+  --color-matching-pair-3-badge: #4f46e5;
+  --color-matching-pair-4-bg: #e2e8f0;
+  --color-matching-pair-4-border: #475569;
+  --color-matching-pair-4-badge: #475569;
 }
