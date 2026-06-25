@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
@@ -7,6 +8,26 @@ import { chromium } from 'playwright';
 const HOST = '127.0.0.1';
 const PORT = 4179;
 const BASE_URL = `http://${HOST}:${PORT}`;
+
+const createDevServer = () =>
+  spawn(
+    process.execPath,
+    ['node_modules/vite/bin/vite.js', '--host', HOST, '--port', String(PORT), '--strictPort'],
+    {
+      cwd: process.cwd(),
+      env: { ...process.env, BROWSER: 'none' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  );
+
+const stopDevServer = async (server) => {
+  if (server.exitCode !== null || server.signalCode !== null) {
+    return;
+  }
+
+  server.kill('SIGKILL');
+  await Promise.race([once(server, 'exit'), delay(2_000)]);
+};
 
 const waitForServer = async (url, timeoutMs = 30_000) => {
   const startedAt = Date.now();
@@ -30,15 +51,7 @@ const waitForServer = async (url, timeoutMs = 30_000) => {
 };
 
 test('home page renders in a browser', { timeout: 45_000 }, async () => {
-  const server = spawn(
-    'npm',
-    ['run', 'dev', '--', '--host', HOST, '--port', String(PORT), '--strictPort'],
-    {
-      cwd: process.cwd(),
-      env: { ...process.env, BROWSER: 'none' },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
-  );
+  const server = createDevServer();
 
   let browser;
 
@@ -58,9 +71,6 @@ test('home page renders in a browser', { timeout: 45_000 }, async () => {
     );
   } finally {
     await browser?.close();
-
-    if (!server.killed) {
-      server.kill('SIGTERM');
-    }
+    await stopDevServer(server);
   }
 });
