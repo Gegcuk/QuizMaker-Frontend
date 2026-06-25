@@ -14,19 +14,33 @@ npm test
 npm run build
 ```
 
+Additional test commands:
+
+```bash
+npm run test:watch
+npm run test:coverage
+npm run test:smoke
+```
+
+Vitest component and service tests live next to the source they cover as
+`*.test.ts` or `*.test.tsx`, or under `src/test` for shared test infrastructure.
+Use `src/test/render.tsx` when a component needs app providers such as router,
+React Query, theme, auth, feature flags, or toast context. Use MSW handlers from
+`src/test/msw` for API-dependent tests instead of calling the real backend.
+
 For focused lint checks during development:
 
 ```bash
 npx eslint path/to/changed-file.tsx
 ```
 
-The pull request workflow runs the same lint and build checks for every pull request to `main`.
+The pull request workflow runs lint, Vitest, browser smoke, and build checks for every pull request to `main`.
 
 ## CI/CD
 
-- `.github/workflows/frontend-pr.yml` runs lint, tests, and build on every pull request to `main`.
+- `.github/workflows/frontend-pr.yml` runs lint, Vitest, browser smoke, and build on every pull request to `main`.
 - `.github/workflows/deploy.yml` runs on pushes to `main` and can also be started manually.
-- Production deployment first runs `npm ci`, `npm run lint`, `npm test`, and `npm run build` in a validation job.
+- Production deployment first runs `npm ci`, `npm run lint`, `npm test`, `npm run test:smoke`, and `npm run build` in a validation job.
 - Deployment only starts after validation passes.
 - Post-deploy smoke checks verify the public site and frontend SPA routing.
 
