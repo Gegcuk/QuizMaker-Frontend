@@ -4,7 +4,7 @@
 // Handles multiple input fields for gap filling
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QuestionForAttemptDto } from '@/types';
 import { Button } from '@/components';
 
@@ -104,7 +104,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   const [gapAnswers, setGapAnswers] = useState<Record<number, string>>(
     normalizeGapAnswers(currentAnswer)
   );
-  const [selectedOptionKey, setSelectedOptionKey] = useState<string | null>(null);
+  const [activeGapId, setActiveGapId] = useState<number | null>(null);
 
   useEffect(() => {
     setGapAnswers(normalizeGapAnswers(currentAnswer));
@@ -122,21 +122,82 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   const handleClearAll = () => {
     const emptyAnswers: Record<number, string> = {};
     console.log("FillGapAnswer clear all:", emptyAnswers);
-    setSelectedOptionKey(null);
+    setActiveGapId(orderedGapIds[0] ?? null);
     setGapAnswers(emptyAnswers);
     onAnswerChange(emptyAnswers);
   };
 
   // Extract text and gaps from safe content
   const text = question.safeContent?.text || '';
-  const gaps = question.safeContent?.gaps || [];
+  const gaps = useMemo<GapAnswer[]>(
+    () => Array.isArray(question.safeContent?.gaps) ? question.safeContent.gaps : [],
+    [question.safeContent?.gaps]
+  );
   const options = normalizeOptions(question.safeContent?.options);
   const hasOptions = options.length > 0;
-  const usedOptionValues = new Set(
-    Object.values(gapAnswers || {})
-      .map((answer) => normalizeOptionValue(answer))
-      .filter(Boolean)
-  );
+  const orderedGapIds = useMemo(() => {
+    const seenGapIds = new Set<number>();
+    const ids: number[] = [];
+    const gapRegex = /\{(\d+)\}/g;
+    let match;
+
+    while ((match = gapRegex.exec(text)) !== null) {
+      const gapId = Number(match[1]);
+      const gapExists = gaps.some((gap: GapAnswer) => (gap.id ?? gap.gapId) === gapId);
+
+      if (gapExists && !seenGapIds.has(gapId)) {
+        seenGapIds.add(gapId);
+        ids.push(gapId);
+      }
+    }
+
+    gaps.forEach((gap: GapAnswer) => {
+      const gapId = gap.id ?? gap.gapId;
+
+      if (typeof gapId === 'number' && !seenGapIds.has(gapId)) {
+        seenGapIds.add(gapId);
+        ids.push(gapId);
+      }
+    });
+
+    return ids;
+  }, [text, gaps]);
+  const orderedGapKey = orderedGapIds.join('|');
+  const firstOrderedGapId = orderedGapIds[0] ?? null;
+
+  useEffect(() => {
+    setActiveGapId(hasOptions ? firstOrderedGapId : null);
+  }, [question.id, hasOptions, firstOrderedGapId, orderedGapKey]);
+
+  const getNextActiveGapId = (currentGapId: number, answers: Record<number, string>) => {
+    if (orderedGapIds.length === 0) return null;
+
+    const currentIndex = orderedGapIds.indexOf(currentGapId);
+    const nextEmptyGapId = orderedGapIds
+      .slice(currentIndex + 1)
+      .find((gapId) => !answers[gapId]?.trim());
+
+    if (nextEmptyGapId !== undefined) {
+      return nextEmptyGapId;
+    }
+
+    const firstEmptyGapId = orderedGapIds.find((gapId) => !answers[gapId]?.trim());
+    return firstEmptyGapId ?? null;
+  };
+
+  const isOptionUsed = (optionValue: string) =>
+    Object.values(gapAnswers || {}).some(
+      (answer) => normalizeOptionValue(answer) === normalizeOptionValue(optionValue)
+    );
+
+  const isOptionUsedByOtherGap = (optionValue: string, targetGapId: number | null) =>
+    Object.entries(gapAnswers || {}).some(([gapId, answer]) => {
+      if (targetGapId !== null && Number(gapId) === targetGapId) {
+        return false;
+      }
+
+      return normalizeOptionValue(answer) === normalizeOptionValue(optionValue);
+    });
 
   const assignOptionToGap = (gapId: number, optionKey: string) => {
     if (disabled) return;
@@ -144,21 +205,30 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     const option = options.find((item) => item.key === optionKey);
     if (!option) return;
 
-    handleGapChange(gapId, option.value);
-    setSelectedOptionKey(null);
+    const newAnswers = { ...(gapAnswers || {}), [gapId]: option.value };
+    console.log("FillGapAnswer option assignment:", { gapId, option: option.value, newAnswers });
+    setGapAnswers(newAnswers);
+    onAnswerChange(newAnswers);
+    setActiveGapId(getNextActiveGapId(gapId, newAnswers));
   };
 
   const handleGapSelection = (gapId: number) => {
-    if (!selectedOptionKey) return;
-    assignOptionToGap(gapId, selectedOptionKey);
+    if (disabled) return;
+    setActiveGapId(gapId);
   };
 
   const handleOptionClick = (option: FillGapOption) => {
-    if (disabled || usedOptionValues.has(normalizeOptionValue(option.value))) {
+    const targetGapId = activeGapId ?? orderedGapIds[0] ?? null;
+
+    if (
+      disabled ||
+      targetGapId === null ||
+      isOptionUsedByOtherGap(option.value, targetGapId)
+    ) {
       return;
     }
 
-    setSelectedOptionKey((currentKey) => (currentKey === option.key ? null : option.key));
+    assignOptionToGap(targetGapId, option.key);
   };
 
   // Debug logging
@@ -241,6 +311,9 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
             borderColor = 'border-theme-interactive-danger';
             bgColor = 'bg-theme-bg-danger';
           }
+        } else if (hasOptions && activeGapId === gapId) {
+          borderColor = 'border-theme-interactive-primary';
+          bgColor = 'bg-theme-bg-info';
         }
         
         // Use matchIndex for unique key when same gap ID appears multiple times
@@ -260,10 +333,11 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
                   assignOptionToGap(gapId, event.dataTransfer.getData('text/plain'));
                 }}
                 disabled={disabled}
-                className={`mx-1 min-w-24 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
+                className={`mx-1 min-w-24 min-h-8 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
                 aria-label={`Gap ${gapId}${currentValue ? `: ${currentValue}` : ''}`}
+                aria-pressed={activeGapId === gapId}
               >
-                {currentValue || 'Select'}
+                {currentValue}
               </button>
             ) : (
               <input
@@ -332,33 +406,36 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
         <div className="p-4 bg-theme-bg-secondary border border-theme-border-primary rounded-lg">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-3">
             <p className="text-sm font-medium text-theme-text-secondary">Answer pool</p>
-            {selectedOptionKey && !disabled && (
+            {activeGapId !== null && !disabled && (
               <p className="text-xs text-theme-text-tertiary">
-                Selected: {options.find((option) => option.key === selectedOptionKey)?.value}
+                Active gap: {activeGapId}
               </p>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
             {options.map((option) => {
-              const isUsed = usedOptionValues.has(normalizeOptionValue(option.value));
-              const isSelected = selectedOptionKey === option.key;
+              const isUsed = isOptionUsed(option.value);
+              const isUsedByOtherGap = isOptionUsedByOtherGap(option.value, activeGapId);
+              const activeGapValue = activeGapId !== null ? gapAnswers?.[activeGapId] : '';
+              const isActiveGapValue = normalizeOptionValue(activeGapValue || '') === normalizeOptionValue(option.value);
+              const isUnavailable = isUsed || activeGapId === null;
 
               return (
                 <Button
                   key={option.key}
                   type="button"
-                  variant={isSelected ? 'primary' : 'outline'}
+                  variant={isActiveGapValue && !isUsed ? 'primary' : 'outline'}
                   size="sm"
                   rounded
-                  draggable={!disabled && !isUsed}
-                  disabled={disabled || isUsed}
+                  draggable={!disabled && !isUnavailable}
+                  disabled={disabled || isUnavailable || isUsedByOtherGap}
                   onClick={() => handleOptionClick(option)}
                   onDragStart={(event) => {
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', option.key);
                   }}
-                  className={`${isUsed ? 'opacity-50 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}`}
-                  aria-pressed={isSelected}
+                  className={`${isUnavailable ? 'opacity-50 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}`}
+                  aria-pressed={isActiveGapValue}
                 >
                   {option.value}
                 </Button>

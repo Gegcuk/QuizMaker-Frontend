@@ -59,6 +59,29 @@ export interface ColorPalette {
       muted: string;      // Muted background/text
       subtle: string;     // Subtle borders/separators
     };
+    // Matching question pair colors
+    matching: {
+      pair1: {
+        bg: string;
+        border: string;
+        badge: string;
+      };
+      pair2: {
+        bg: string;
+        border: string;
+        badge: string;
+      };
+      pair3: {
+        bg: string;
+        border: string;
+        badge: string;
+      };
+      pair4: {
+        bg: string;
+        border: string;
+        badge: string;
+      };
+    };
     // Special colors
     accent: string;       // Accent color for highlights
     shadow: string;       // Shadow color
@@ -116,6 +139,12 @@ export const lightPalette: ColorPalette = {
       muted: '#f8fafc',
       subtle: '#f1f5f9',
     },
+    matching: {
+      pair1: { bg: '#dbeafe', border: '#2563eb', badge: '#2563eb' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
+      pair3: { bg: '#e0e7ff', border: '#4f46e5', badge: '#4f46e5' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+    },
     accent: '#3b82f6',
     shadow: 'rgba(0, 0, 0, 0.1)',
     overlay: 'rgba(0, 0, 0, 0.5)',
@@ -171,6 +200,12 @@ export const darkPalette: ColorPalette = {
     neutral: {
       muted: '#1e293b',
       subtle: '#334155',
+    },
+    matching: {
+      pair1: { bg: '#1e3a8a', border: '#60a5fa', badge: '#60a5fa' },
+      pair2: { bg: '#134e4a', border: '#2dd4bf', badge: '#2dd4bf' },
+      pair3: { bg: '#312e81', border: '#818cf8', badge: '#818cf8' },
+      pair4: { bg: '#334155', border: '#94a3b8', badge: '#94a3b8' },
     },
     accent: '#60a5fa',
     shadow: 'rgba(0, 0, 0, 0.3)',
@@ -228,6 +263,12 @@ export const bluePalette: ColorPalette = {
       muted: '#fef9d9',
       subtle: '#dee5d4',
     },
+    matching: {
+      pair1: { bg: '#bfdbfe', border: '#1d4ed8', badge: '#2563eb' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
+      pair3: { bg: '#e0e7ff', border: '#4338ca', badge: '#4f46e5' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+    },
     accent: '#8eaccd',
     shadow: 'rgba(142, 172, 205, 0.2)',
     overlay: 'rgba(142, 172, 205, 0.6)',
@@ -283,6 +324,12 @@ export const purplePalette: ColorPalette = {
     neutral: {
       muted: '#2e236c',
       subtle: '#433d8b',
+    },
+    matching: {
+      pair1: { bg: '#312e81', border: '#93c5fd', badge: '#93c5fd' },
+      pair2: { bg: '#164e63', border: '#67e8f9', badge: '#67e8f9' },
+      pair3: { bg: '#4c1d95', border: '#c4b5fd', badge: '#c4b5fd' },
+      pair4: { bg: '#334155', border: '#cbd5e1', badge: '#cbd5e1' },
     },
     accent: '#c8acd6',
     shadow: 'rgba(23, 21, 59, 0.4)',
@@ -340,6 +387,12 @@ export const greenPalette: ColorPalette = {
       muted: '#dcfce7',
       subtle: '#bbf7d0',
     },
+    matching: {
+      pair1: { bg: '#bbf7d0', border: '#15803d', badge: '#15803d' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
+      pair3: { bg: '#dbeafe', border: '#1d4ed8', badge: '#2563eb' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+    },
     accent: '#22c55e',
     shadow: 'rgba(34, 197, 94, 0.2)',
     overlay: 'rgba(34, 197, 94, 0.6)',
@@ -393,6 +446,18 @@ export const generateCSSVariables = (palette: ColorPalette): Record<string, stri
     '--color-focus-ring-offset': palette.colors.focus.ringOffset,
     '--color-neutral-muted': palette.colors.neutral.muted,
     '--color-neutral-subtle': palette.colors.neutral.subtle,
+    '--color-matching-pair-1-bg': palette.colors.matching.pair1.bg,
+    '--color-matching-pair-1-border': palette.colors.matching.pair1.border,
+    '--color-matching-pair-1-badge': palette.colors.matching.pair1.badge,
+    '--color-matching-pair-2-bg': palette.colors.matching.pair2.bg,
+    '--color-matching-pair-2-border': palette.colors.matching.pair2.border,
+    '--color-matching-pair-2-badge': palette.colors.matching.pair2.badge,
+    '--color-matching-pair-3-bg': palette.colors.matching.pair3.bg,
+    '--color-matching-pair-3-border': palette.colors.matching.pair3.border,
+    '--color-matching-pair-3-badge': palette.colors.matching.pair3.badge,
+    '--color-matching-pair-4-bg': palette.colors.matching.pair4.bg,
+    '--color-matching-pair-4-border': palette.colors.matching.pair4.border,
+    '--color-matching-pair-4-badge': palette.colors.matching.pair4.badge,
     '--color-accent': palette.colors.accent,
     '--color-shadow': palette.colors.shadow,
     '--color-bg-overlay': palette.colors.overlay,
