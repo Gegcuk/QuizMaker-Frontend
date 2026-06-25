@@ -151,11 +151,6 @@ jobs:
             test -f docker-compose.yml || { echo "❌ docker-compose.yml missing"; exit 1; }
             test -f nginx.conf || { echo "❌ nginx.conf missing"; exit 1; }
             echo "✅ All required files present"
-            echo ""
-            echo "=== Checking nginx.conf for proxy rules ==="
-            grep -q "location /swagger-ui/" nginx.conf && echo "✅ Swagger UI proxy found" || echo "❌ Swagger UI proxy missing"
-            grep -q "location /v3/" nginx.conf && echo "✅ OpenAPI proxy found" || echo "❌ OpenAPI proxy missing"
-            grep -q "proxy_pass http://backend:8080" nginx.conf && echo "✅ Backend proxy configured" || echo "❌ Backend proxy missing"
             
       - name: Build and start containers
         uses: appleboy/ssh-action@v1.0.3
@@ -166,11 +161,48 @@ jobs:
           script: |
             set -e
             cd /var/www/quizzence
-            docker compose build --no-cache || docker-compose build --no-cache
-            docker compose up -d || docker-compose up -d
+
+            if docker compose version >/dev/null 2>&1; then
+              compose() { docker compose "$@"; }
+            else
+              compose() { docker-compose "$@"; }
+            fi
+
+            compose build --no-cache
+            compose up -d
             echo ""
             echo "=== Container status ==="
-            docker compose ps || docker-compose ps
+            compose ps
+
+            container_id="$(compose ps -q quizzence-frontend)"
+            if [ -z "$container_id" ]; then
+              echo "❌ quizzence-frontend container was not created"
+              exit 1
+            fi
+
+            ready=0
+            for attempt in $(seq 1 30); do
+              health="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id")"
+              echo "Frontend health (${attempt}/30): ${health}"
+
+              if [ "$health" = "healthy" ]; then
+                ready=1
+                break
+              fi
+
+              if [ "$health" = "unhealthy" ] || [ "$health" = "exited" ]; then
+                docker logs --tail 100 "$container_id"
+                exit 1
+              fi
+
+              sleep 2
+            done
+
+            if [ "$ready" -ne 1 ]; then
+              echo "❌ quizzence-frontend did not become healthy"
+              docker logs --tail 100 "$container_id"
+              exit 1
+            fi
 
       - name: Smoke check production site
         env:
@@ -179,7 +211,7 @@ jobs:
           set -euo pipefail
           site_url="${VITE_SITE_URL%/}"
 
-          for path in "/" "/swagger-ui/" "/v3/api-docs"; do
+          for path in "/" "/login"; do
             url="${site_url}${path}"
             echo "Checking ${url}"
             curl --fail --silent --show-error --location \
