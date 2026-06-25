@@ -41,6 +41,7 @@ These instructions apply to the whole repository. They are intentionally specifi
 - Verify backend contracts before changing request or response shapes.
 - Use Swagger/OpenAPI for live schemas when available, especially question schemas.
 - Existing API documentation starts in `quizmaker-frontend/docs/api/ai_api_guide.md`.
+- Frontend-to-backend implementation workflow is documented in `quizmaker-frontend/docs/api/frontend_backend_workflow_for_ai.md`.
 - Keep frontend DTO/type changes aligned with backend payloads.
 - For generated questions, treat `safeContent` as schema-driven content. Do not infer validation rules from UI behavior alone.
 - Answer submission payloads must remain compatible with backend attempt endpoints.
@@ -66,4 +67,3 @@ Current lint policy allows legacy `any`, unused-symbol, and hook-dependency warn
 - Production deployment is defined in `.github/workflows/deploy.yml`.
 - Do not add deployment secrets or production-only behavior to PR validation workflows.
 - Keep PR workflows safe for fork/PR execution: no SSH deploy steps, no production secrets, no writes to protected branches.
-

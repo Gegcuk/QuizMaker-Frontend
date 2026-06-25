@@ -4,6 +4,11 @@
 
 The QuizMaker API uses a **modular documentation structure** optimized for token efficiency. Follow this process:
 
+For frontend implementation work, also read
+[`frontend_backend_workflow_for_ai.md`](./frontend_backend_workflow_for_ai.md).
+It explains how to trace a backend endpoint through frontend endpoint constants,
+services, DTO types, page adapters, and UI components.
+
 ### Step 1: Start with the Discovery Endpoint
 
 ```bash
