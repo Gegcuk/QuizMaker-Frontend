@@ -24,6 +24,11 @@ npm run audit:production
 npm run browserslist:update
 ```
 
+`npm run test:smoke` starts the frontend in a browser and checks that the
+public home page renders with Tailwind styles applied, readable theme contrast
+across light, dark, blue, purple, and green palettes, and no mobile horizontal
+overflow.
+
 Vitest component and service tests live next to the source they cover as
 `*.test.ts` or `*.test.tsx`, or under `src/test` for shared test infrastructure.
 Use `src/test/render.tsx` when a component needs app providers such as router,
