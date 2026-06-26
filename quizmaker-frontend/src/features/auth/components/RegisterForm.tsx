@@ -108,7 +108,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       }
       
       // Re-throw to let Form component handle it
-      throw new Error(errorMessage);
+      throw new Error(errorMessage, { cause: error });
     }
   };
 

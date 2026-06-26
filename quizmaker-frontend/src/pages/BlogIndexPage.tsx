@@ -153,7 +153,9 @@ const uploadImage = async (file: File, articleId?: string): Promise<{ assetId: s
     width = dimensions.width;
     height = dimensions.height;
   } catch (error) {
-    throw new Error('Failed to read image dimensions. Please ensure the file is a valid image.');
+    throw new Error('Failed to read image dimensions. Please ensure the file is a valid image.', {
+      cause: error,
+    });
   }
 
   // Step 2: Create upload intent

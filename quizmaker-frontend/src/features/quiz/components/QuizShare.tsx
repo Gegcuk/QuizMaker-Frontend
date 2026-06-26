@@ -43,7 +43,7 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
     const url = getShareUrl();
     const text = getShareText();
     
-    let shareUrl = '';
+    let shareUrl: string;
     
     switch (platform) {
       case 'twitter':
@@ -244,4 +244,4 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
   );
 };
 
-export default QuizShare; 
+export default QuizShare;
