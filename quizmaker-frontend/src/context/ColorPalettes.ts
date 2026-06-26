@@ -236,8 +236,8 @@ export const bluePalette: ColorPalette = {
       focus: '#3b82f6',
     },
     interactive: {
-      primary: '#3b82f6',
-      primaryHover: '#2563eb',
+      primary: '#1d4ed8',
+      primaryHover: '#1e40af',
       secondary: '#64748b',
       secondaryHover: '#475569',
       danger: '#ef4444',
@@ -360,8 +360,8 @@ export const greenPalette: ColorPalette = {
       focus: '#22c55e',
     },
     interactive: {
-      primary: '#22c55e',
-      primaryHover: '#16a34a',
+      primary: '#15803d',
+      primaryHover: '#166534',
       secondary: '#64748b',
       secondaryHover: '#475569',
       danger: '#ef4444',
