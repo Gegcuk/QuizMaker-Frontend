@@ -4,6 +4,11 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
+const legacyReactHooksRules = {
+  'react-hooks/rules-of-hooks': reactHooks.configs.recommended.rules['react-hooks/rules-of-hooks'],
+  'react-hooks/exhaustive-deps': reactHooks.configs.recommended.rules['react-hooks/exhaustive-deps'],
+}
+
 export default tseslint.config(
   { ignores: ['dist'] },
   {
@@ -18,7 +23,7 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      ...legacyReactHooksRules,
       // Legacy cleanup: keep the repo lintable while broad type/unused debt is paid down.
       // New code should still avoid `any` and unused symbols; these remain visible warnings.
       '@typescript-eslint/no-explicit-any': 'warn',

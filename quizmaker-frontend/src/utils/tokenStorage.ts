@@ -43,7 +43,7 @@ export class LocalStorageTokenStorage implements TokenStorage {
       localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     } catch (error) {
       console.error('Failed to set tokens in localStorage:', error);
-      throw new Error('Failed to store authentication tokens');
+      throw new Error('Failed to store authentication tokens', { cause: error });
     }
   }
 
@@ -92,7 +92,7 @@ export class SessionStorageTokenStorage implements TokenStorage {
       sessionStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     } catch (error) {
       console.error('Failed to set tokens in sessionStorage:', error);
-      throw new Error('Failed to store authentication tokens');
+      throw new Error('Failed to store authentication tokens', { cause: error });
     }
   }
 
@@ -186,7 +186,7 @@ export class SecureTokenStorage implements TokenStorage {
       this.storage.setTokens(encryptedAccessToken, encryptedRefreshToken);
     } catch (error) {
       console.error('Failed to encrypt tokens:', error);
-      throw new Error('Failed to securely store authentication tokens');
+      throw new Error('Failed to securely store authentication tokens', { cause: error });
     }
   }
 
@@ -233,4 +233,4 @@ export const getAccessToken = (): string | null => tokenStorage.getAccessToken()
 export const getRefreshToken = (): string | null => tokenStorage.getRefreshToken();
 export const setTokens = (accessToken: string, refreshToken: string): void => tokenStorage.setTokens(accessToken, refreshToken);
 export const clearTokens = (): void => tokenStorage.clearTokens();
-export const isAuthenticated = (): boolean => tokenStorage.isAuthenticated(); 
+export const isAuthenticated = (): boolean => tokenStorage.isAuthenticated();

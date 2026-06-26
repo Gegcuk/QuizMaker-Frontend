@@ -438,7 +438,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   const toAttemptQuestion = (): QuestionForAttemptDto | null => {
     if (!formData.type) return null;
     const { type, difficulty, questionText, content } = formData as any;
-    let safeContent: any = {};
+    let safeContent: any;
     switch (type) {
       case 'MCQ_SINGLE':
       case 'MCQ_MULTI':
