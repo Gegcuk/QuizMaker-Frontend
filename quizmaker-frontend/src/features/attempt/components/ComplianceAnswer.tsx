@@ -157,7 +157,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
-                className="mt-1 rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2 bg-theme-bg-primary"
+                className="mt-1 rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2"
               />
               
               <div className="ml-3 flex-1">
@@ -199,4 +199,3 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
 };
 
 export default ComplianceAnswer; 
-

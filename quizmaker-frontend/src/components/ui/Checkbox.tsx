@@ -50,6 +50,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     'focus:ring-2',
     'focus:ring-offset-0',
     'bg-theme-bg-primary',
+    'checked:bg-current',
     'transition-colors',
     'duration-150',
     disabled ? (checked ? 'opacity-100 cursor-not-allowed' : 'opacity-50 cursor-not-allowed') : 'cursor-pointer',
@@ -105,4 +106,3 @@ const Checkbox: React.FC<CheckboxProps> = ({
 };
 
 export default Checkbox;
-
