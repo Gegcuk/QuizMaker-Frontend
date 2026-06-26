@@ -26,7 +26,7 @@ interface OrderingItem {
 
 const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   question,
-  currentAnswer = [],
+  currentAnswer,
   onAnswerChange,
   disabled = false,
   className = '',
@@ -41,12 +41,6 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   const originalItems: OrderingItem[] = question.safeContent?.items || [];
 
   useEffect(() => {
-    console.log("OrderingAnswer useEffect:", {
-      currentAnswer,
-      originalItems: originalItems.length,
-      hasCurrentAnswer: currentAnswer && currentAnswer.length > 0
-    });
-
     if (currentAnswer && currentAnswer.length > 0) {
       // Reconstruct order from current answer
       const ordered = currentAnswer.map(id => 
@@ -97,7 +91,6 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
 
     setOrderedItems(newOrder);
     const newAnswer = newOrder.map(item => item.id);
-    console.log("OrderingAnswer onAnswerChange:", newAnswer);
     onAnswerChange(newAnswer);
     setDraggedItem(null);
   };
@@ -114,7 +107,6 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     
     setOrderedItems(newOrder);
     const newAnswer = newOrder.map(item => item.id);
-    console.log("OrderingAnswer moveUp onAnswerChange:", newAnswer);
     onAnswerChange(newAnswer);
   };
 
@@ -126,7 +118,6 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     
     setOrderedItems(newOrder);
     const newAnswer = newOrder.map(item => item.id);
-    console.log("OrderingAnswer moveDown onAnswerChange:", newAnswer);
     onAnswerChange(newAnswer);
   };
 
@@ -134,7 +125,6 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
     const resetOrder = [...originalItems];
     setOrderedItems(resetOrder);
     const resetAnswer = resetOrder.map(item => item.id);
-    console.log("OrderingAnswer reset onAnswerChange:", resetAnswer);
     onAnswerChange(resetAnswer);
   };
 

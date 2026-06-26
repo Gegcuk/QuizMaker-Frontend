@@ -26,7 +26,7 @@ interface ComplianceStatement {
 
 const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   question,
-  currentAnswer = [],
+  currentAnswer,
   onAnswerChange,
   disabled = false,
   className = '',
