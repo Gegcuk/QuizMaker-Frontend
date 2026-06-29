@@ -93,7 +93,7 @@ const normalizeGapAnswers = (answer: FillGapCurrentAnswer): Record<number, strin
 
 const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   question,
-  currentAnswer = {},
+  currentAnswer = null,
   onAnswerChange,
   disabled = false,
   className = '',
@@ -114,14 +114,12 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     if (disabled) return;
 
     const newAnswers = { ...(gapAnswers || {}), [gapId]: value };
-    console.log("FillGapAnswer gap change:", { gapId, value, newAnswers });
     setGapAnswers(newAnswers);
     onAnswerChange(newAnswers);
   };
 
   const handleClearAll = () => {
     const emptyAnswers: Record<number, string> = {};
-    console.log("FillGapAnswer clear all:", emptyAnswers);
     setActiveGapId(orderedGapIds[0] ?? null);
     setGapAnswers(emptyAnswers);
     onAnswerChange(emptyAnswers);
@@ -206,7 +204,6 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     if (!option) return;
 
     const newAnswers = { ...(gapAnswers || {}), [gapId]: option.value };
-    console.log("FillGapAnswer option assignment:", { gapId, option: option.value, newAnswers });
     setGapAnswers(newAnswers);
     onAnswerChange(newAnswers);
     setActiveGapId(getNextActiveGapId(gapId, newAnswers));
@@ -231,17 +228,6 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     assignOptionToGap(targetGapId, option.key);
   };
 
-  // Debug logging
-  console.log("FillGapAnswer data:", {
-    text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
-    textLength: text.length,
-    gapsCount: gaps.length,
-    gaps: gaps,
-    currentAnswer: currentAnswer,
-    hasGapMarkers: text.includes('{'),
-    gapMarkerCount: (text.match(/\{\d+\}/g) || []).length
-  });
-
   const renderTextWithGaps = () => {
     if (!text || gaps.length === 0) {
       return (
@@ -261,12 +247,6 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     let lastIndex = 0;
     let matchIndex = 0; // For unique keys when same gap ID appears multiple times
     
-    console.log("FillGapAnswer parsing:", {
-      textLength: currentText.length,
-      gapMatches: currentText.match(/\{\d+\}/g) || [],
-      gapsArrayLength: gaps.length
-    });
-
     while ((match = gapRegex.exec(currentText)) !== null) {
       // Add text before the gap
       if (match.index > lastIndex) {

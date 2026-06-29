@@ -1,7 +1,12 @@
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, waitFor } from '@/test/render';
+import { renderWithProviders, screen, waitFor } from '@/test/render';
 import { MatchingAnswer } from './MatchingAnswer';
 import type { QuestionForAttemptDto } from '../types/attempt.types';
+
+type MatchingValue = {
+  matches: Array<{ leftId: number; rightId: number }>;
+};
 
 const matchingQuestion: QuestionForAttemptDto = {
   id: 'matching-question',
@@ -48,5 +53,42 @@ describe('MatchingAnswer responsive feedback lines', () => {
     expect(lineLayer).toHaveClass('hidden');
     expect(lineLayer).toHaveClass('md:block');
     expect(lineLayer).toHaveClass('pointer-events-none');
+  });
+
+  it('allows a chosen pair to be removed from its right-column option', async () => {
+    const onAnswerChange = vi.fn();
+
+    const ControlledMatchingAnswer = () => {
+      const [answer, setAnswer] = useState<MatchingValue>({ matches: [] });
+
+      const handleAnswerChange = (nextAnswer: MatchingValue) => {
+        setAnswer(nextAnswer);
+        onAnswerChange(nextAnswer);
+      };
+
+      return (
+        <MatchingAnswer
+          question={matchingQuestion}
+          currentAnswer={answer}
+          onAnswerChange={handleAnswerChange}
+        />
+      );
+    };
+
+    const { user } = renderWithProviders(<ControlledMatchingAnswer />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /mitochondria/i }));
+    await user.click(screen.getByRole('button', { name: /produces atp/i }));
+
+    expect(onAnswerChange).toHaveBeenLastCalledWith({
+      matches: [{ leftId: 1, rightId: 10 }],
+    });
+
+    await user.click(screen.getByRole('button', { name: /produces atp/i }));
+
+    expect(onAnswerChange).toHaveBeenLastCalledWith({ matches: [] });
+    expect(screen.getByText('0 of 2 matches completed')).toBeInTheDocument();
   });
 });

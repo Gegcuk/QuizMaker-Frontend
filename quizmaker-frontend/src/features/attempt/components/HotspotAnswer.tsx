@@ -1,23 +1,19 @@
-// src/components/attempt/HotspotAnswer.tsx
-// ---------------------------------------------------------------------------
-// Component for hotspot question answers
-// Handles image region selection for hotspot questions
-// ---------------------------------------------------------------------------
-
-import React, { useState, useEffect, useRef } from 'react';
-import { QuestionForAttemptDto } from '@/types';
-import { useTheme } from '@/context/ThemeContext';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components';
+import type { QuestionForAttemptDto } from '@/types';
 
 interface HotspotAnswerProps {
   question: QuestionForAttemptDto;
-  currentAnswer?: { x: number; y: number; width: number; height: number };
-  onAnswerChange: (answer: { x: number; y: number; width: number; height: number }) => void;
+  currentAnswer?: number | null;
+  onAnswerChange: (answer: number | null) => void;
   disabled?: boolean;
   className?: string;
   showFeedback?: boolean;
   isCorrect?: boolean;
-  correctAnswer?: any;
+  correctAnswer?: {
+    regionId?: number;
+    correctRegionId?: number;
+  } | null;
 }
 
 interface HotspotRegion {
@@ -28,365 +24,182 @@ interface HotspotRegion {
   height: number;
 }
 
+const normalizeRegionId = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null;
+
 const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
   question,
-  currentAnswer,
+  currentAnswer = null,
   onAnswerChange,
   disabled = false,
   className = '',
   showFeedback = false,
   isCorrect,
-  correctAnswer
+  correctAnswer = null,
 }) => {
-  const [selectedRegion, setSelectedRegion] = useState<{ x: number; y: number; width: number; height: number } | null>(currentAnswer || null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const { currentPalette } = useTheme();
+  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(
+    normalizeRegionId(currentAnswer),
+  );
+  const [imageFailed, setImageFailed] = useState(false);
 
-  // Extract image and regions from safe content
-  const imageUrl = question.safeContent?.imageUrl || '';
-  const regions: HotspotRegion[] = question.safeContent?.regions || [];
-  const effectiveImageUrl = imageUrl;
+  const imageUrl =
+    typeof question.safeContent?.imageUrl === 'string'
+      ? question.safeContent.imageUrl
+      : '';
+  const regions = useMemo<HotspotRegion[]>(() => {
+    if (!Array.isArray(question.safeContent?.regions)) {
+      return [];
+    }
+
+    return question.safeContent.regions.filter((region: unknown): region is HotspotRegion => {
+      if (!region || typeof region !== 'object') {
+        return false;
+      }
+
+      const candidate = region as Partial<HotspotRegion>;
+      return [
+        candidate.id,
+        candidate.x,
+        candidate.y,
+        candidate.width,
+        candidate.height,
+      ].every((value) => typeof value === 'number' && Number.isFinite(value));
+    });
+  }, [question.safeContent?.regions]);
+
+  const correctRegionId = normalizeRegionId(
+    correctAnswer?.regionId ?? correctAnswer?.correctRegionId,
+  );
 
   useEffect(() => {
-    setSelectedRegion(currentAnswer || null);
+    setSelectedRegionId(normalizeRegionId(currentAnswer));
   }, [currentAnswer]);
 
   useEffect(() => {
-    drawCanvas();
-  }, [selectedRegion, mousePosition, isDrawing, startPoint, showFeedback, isCorrect, correctAnswer]);
-
-  // Ensure canvas is drawn on mount and when image changes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      drawCanvas();
-    }, 100);
-    return () => clearTimeout(timer);
+    setImageFailed(false);
   }, [imageUrl]);
 
-  const drawCanvas = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    const image = imageRef.current;
-
-    if (!canvas || !ctx) return;
-    
-    // If no image is loaded or image is broken, draw a simple placeholder directly on canvas
-    if (!image || !image.complete || image.naturalWidth === 0) {
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw placeholder background
-      ctx.fillStyle = currentPalette.colors.bg.secondary;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw border
-      ctx.strokeStyle = currentPalette.colors.border.primary;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw text
-      ctx.fillStyle = currentPalette.colors.text.tertiary;
-      ctx.font = '24px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Hotspot Question', canvas.width / 2, canvas.height / 2 - 20);
-      
-      ctx.font = '16px Arial';
-      ctx.fillText('No image provided', canvas.width / 2, canvas.height / 2 + 10);
-      ctx.fillText('Click and drag to select regions', canvas.width / 2, canvas.height / 2 + 35);
-      
-      // Draw sample regions
-      const sampleRegions = [
-        { x: 50, y: 80, width: 120, height: 80 },
-        { x: 200, y: 120, width: 150, height: 100 },
-        { x: 400, y: 60, width: 100, height: 120 }
-      ];
-      
-      sampleRegions.forEach(region => {
-        ctx.strokeStyle = `${currentPalette.colors.interactive.primary}30`; // 30 = 0.3 opacity
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
-        ctx.strokeRect(region.x, region.y, region.width, region.height);
-        ctx.setLineDash([]);
-      });
-      
+  const handleRegionSelect = (regionId: number) => {
+    if (disabled) {
       return;
     }
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw image
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    // Draw predefined regions (for reference, semi-transparent)
-    regions.forEach(region => {
-      const x = (region.x / 100) * canvas.width;
-      const y = (region.y / 100) * canvas.height;
-      const width = (region.width / 100) * canvas.width;
-      const height = (region.height / 100) * canvas.height;
-
-      ctx.strokeStyle = `${currentPalette.colors.interactive.primary}30`; // 30 = 0.3 opacity
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.strokeRect(x, y, width, height);
-      ctx.setLineDash([]);
-    });
-
-    // Draw correct region if showing feedback and user was wrong
-    if (showFeedback && !isCorrect && correctAnswer && correctAnswer.correctRegionId !== undefined) {
-      const correctRegion = regions.find((r: HotspotRegion) => r.id === correctAnswer.correctRegionId);
-      if (correctRegion) {
-        const x = (correctRegion.x / 100) * canvas.width;
-        const y = (correctRegion.y / 100) * canvas.height;
-        const width = (correctRegion.width / 100) * canvas.width;
-        const height = (correctRegion.height / 100) * canvas.height;
-
-        ctx.fillStyle = `${currentPalette.colors.interactive.primary}30`; // Info color for correct answer
-        ctx.fillRect(x, y, width, height);
-        ctx.strokeStyle = currentPalette.colors.interactive.primary;
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]);
-        ctx.strokeRect(x, y, width, height);
-        ctx.setLineDash([]);
-      }
-    }
-
-    // Draw current selection with feedback colors
-    if (selectedRegion && selectedRegion.width > 0 && selectedRegion.height > 0) {
-      const x = (selectedRegion.x / 100) * canvas.width;
-      const y = (selectedRegion.y / 100) * canvas.height;
-      const width = (selectedRegion.width / 100) * canvas.width;
-      const height = (selectedRegion.height / 100) * canvas.height;
-
-      if (showFeedback && isCorrect !== undefined) {
-        if (isCorrect) {
-          // Green for correct
-          ctx.fillStyle = `${currentPalette.colors.interactive.success}30`;
-          ctx.strokeStyle = currentPalette.colors.interactive.success;
-        } else {
-          // Red for incorrect
-          ctx.fillStyle = `${currentPalette.colors.interactive.danger}30`;
-          ctx.strokeStyle = currentPalette.colors.interactive.danger;
-        }
-      } else {
-        // Normal selection color
-        ctx.fillStyle = `${currentPalette.colors.interactive.primary}20`;
-        ctx.strokeStyle = currentPalette.colors.interactive.primary;
-      }
-      
-      ctx.fillRect(x, y, width, height);
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x, y, width, height);
-    }
-
-    // Draw selection in progress
-    if (isDrawing && startPoint && mousePosition) {
-      const x = Math.min(startPoint.x, mousePosition.x);
-      const y = Math.min(startPoint.y, mousePosition.y);
-      const width = Math.abs(mousePosition.x - startPoint.x);
-      const height = Math.abs(mousePosition.y - startPoint.y);
-
-      ctx.fillStyle = `${currentPalette.colors.interactive.primary}10`; // 10 = 0.1 opacity
-      ctx.fillRect(x, y, width, height);
-      ctx.strokeStyle = currentPalette.colors.interactive.primary;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.strokeRect(x, y, width, height);
-      ctx.setLineDash([]);
-    }
-  };
-
-  const getCanvasCoordinates = (e: React.MouseEvent): { x: number; y: number } => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-  };
-
-  const getPercentageCoordinates = (x: number, y: number, width: number, height: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas || canvas.width === 0 || canvas.height === 0) {
-      return { x: 0, y: 0, width: 0, height: 0 };
-    }
-
-    return {
-      x: (x / canvas.width) * 100,
-      y: (y / canvas.height) * 100,
-      width: (width / canvas.width) * 100,
-      height: (height / canvas.height) * 100
-    };
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (disabled) return;
-    
-    const coords = getCanvasCoordinates(e);
-    setStartPoint(coords);
-    setIsDrawing(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (disabled) return;
-    
-    const coords = getCanvasCoordinates(e);
-    setMousePosition(coords);
-  };
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (disabled || !isDrawing || !startPoint) return;
-    
-    const coords = getCanvasCoordinates(e);
-    const x = Math.min(startPoint.x, coords.x);
-    const y = Math.min(startPoint.y, coords.y);
-    const width = Math.abs(coords.x - startPoint.x);
-    const height = Math.abs(coords.y - startPoint.y);
-
-    // Minimum selection size
-    if (width > 10 && height > 10) {
-      const percentageCoords = getPercentageCoordinates(x, y, width, height);
-      setSelectedRegion(percentageCoords);
-      onAnswerChange(percentageCoords);
-    }
-
-    setIsDrawing(false);
-    setStartPoint(null);
-    setMousePosition(null);
+    setSelectedRegionId(regionId);
+    onAnswerChange(regionId);
   };
 
   const handleClearSelection = () => {
-    setSelectedRegion(null);
-    onAnswerChange({ x: 0, y: 0, width: 0, height: 0 });
+    setSelectedRegionId(null);
+    onAnswerChange(null);
   };
 
-  const handleImageLoad = () => {
-    drawCanvas();
-  };
+  if (regions.length === 0) {
+    return (
+      <div
+        className={`rounded-md border border-theme-border-primary bg-theme-bg-secondary p-4 text-center text-theme-text-tertiary ${className}`}
+      >
+        No regions available
+      </div>
+    );
+  }
 
-  const handleImageError = () => {
-    drawCanvas();
-  };
-
-  const handlePlaceholderLoad = () => {
-    // Force canvas redraw when placeholder is created
-    setTimeout(() => {
-      drawCanvas();
-    }, 100);
-  };
+  const showImage = imageUrl.length > 0 && !imageFailed;
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Instructions */}
-      <div className="text-sm text-theme-text-secondary mb-4">
-        {imageUrl ? (
-          <>Click and drag on the image to select the correct region:</>
-        ) : (
-          <>
-            <div className="text-theme-interactive-warning font-medium mb-2">⚠️ No image provided</div>
-            <div>This is a placeholder. You can still practice selecting regions by clicking and dragging:</div>
-          </>
-        )}
-      </div>
+      <p className="text-sm text-theme-text-secondary">
+        Select one region on the image.
+      </p>
 
-      {/* Image Container */}
-      <div className="relative border border-theme-border-primary rounded-lg overflow-hidden bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
-        <canvas
-          ref={canvasRef}
-          width={600}
-          height={400}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          className={`w-full h-auto cursor-crosshair ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
-        />
-        {imageUrl && (
+      <div
+        className={`relative w-full max-w-3xl overflow-hidden rounded-lg border border-theme-border-primary bg-theme-bg-secondary ${
+          showImage ? '' : 'aspect-[3/2]'
+        }`}
+      >
+        {showImage ? (
           <img
-            ref={imageRef}
-            src={effectiveImageUrl}
+            src={imageUrl}
             alt="Hotspot question"
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            className="hidden"
+            className="block h-auto w-full"
+            onError={() => setImageFailed(true)}
           />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-theme-text-tertiary">
+            Image unavailable
+          </div>
         )}
-        
-        {/* Overlay Instructions removed to allow full canvas interaction */}
+
+        {regions.map((region) => {
+          const isSelected = selectedRegionId === region.id;
+          const isCorrectRegion = showFeedback && correctRegionId === region.id;
+          const isIncorrectSelection =
+            showFeedback && isCorrect === false && isSelected && !isCorrectRegion;
+
+          let regionClasses =
+            'border-theme-border-secondary bg-transparent hover:border-theme-interactive-primary';
+          let badgeClasses =
+            'border-theme-border-primary bg-theme-bg-primary text-theme-text-secondary';
+
+          if (isCorrectRegion) {
+            regionClasses = 'border-theme-interactive-success bg-theme-bg-success';
+            badgeClasses =
+              'border-theme-interactive-success bg-theme-interactive-success text-theme-text-inverse';
+          } else if (isIncorrectSelection) {
+            regionClasses = 'border-theme-interactive-danger bg-theme-bg-danger';
+            badgeClasses =
+              'border-theme-interactive-danger bg-theme-interactive-danger text-theme-text-inverse';
+          } else if (isSelected) {
+            regionClasses = 'border-theme-interactive-primary bg-theme-bg-info';
+            badgeClasses =
+              'border-theme-interactive-primary bg-theme-interactive-primary text-theme-text-inverse';
+          }
+
+          return (
+            <button
+              key={region.id}
+              type="button"
+              onClick={() => handleRegionSelect(region.id)}
+              disabled={disabled}
+              aria-label={`Select region ${region.id}`}
+              aria-pressed={isSelected}
+              className={`absolute border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 ${regionClasses}`}
+              style={{
+                left: `${region.x}%`,
+                top: `${region.y}%`,
+                width: `${region.width}%`,
+                height: `${region.height}%`,
+              }}
+            >
+              <span
+                className={`absolute left-1 top-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full border px-1 text-xs font-semibold ${badgeClasses}`}
+              >
+                {region.id}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-theme-text-secondary">
-          {selectedRegion ? 'Region selected' : 'No region selected'}
-        </div>
-        {selectedRegion && (
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-theme-text-secondary">
+          {selectedRegionId === null
+            ? 'No region selected'
+            : `Region ${selectedRegionId} selected`}
+        </p>
+        {selectedRegionId !== null && (
           <Button
             type="button"
             onClick={handleClearSelection}
             disabled={disabled}
             variant="ghost"
             size="sm"
-            className="!text-sm !p-0 hover:underline"
           >
             Clear Selection
           </Button>
         )}
       </div>
-
-      {/* Selection Details */}
-      {selectedRegion && selectedRegion.x !== undefined && selectedRegion.y !== undefined && (
-        <div className="p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-          <div className="text-sm text-theme-interactive-primary">
-            <strong>Selected Region:</strong>
-            <div className="mt-1 text-xs">
-              X: {(selectedRegion.x ?? 0).toFixed(1)}%, Y: {(selectedRegion.y ?? 0).toFixed(1)}%
-              <br />
-              Width: {(selectedRegion.width ?? 0).toFixed(1)}%, Height: {(selectedRegion.height ?? 0).toFixed(1)}%
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Instructions */}
-      <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-        <div className="text-sm text-theme-text-secondary">
-          <strong>Instructions:</strong> {imageUrl ? (
-            <>Click and drag on the image to create a selection box around the correct area. The blue dashed lines show predefined regions for reference.</>
-          ) : (
-            <>This is a practice hotspot question. Click and drag to create selection boxes. The blue dashed lines show sample regions for reference.</>
-          )}
-        </div>
-      </div>
-
-      {/* Tips */}
-      <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-        <div className="text-sm text-theme-text-secondary">
-          <strong>Tips:</strong>
-          <ul className="mt-1 ml-4 list-disc">
-            <li>Make sure your selection covers the entire target area</li>
-            <li>You can adjust your selection by clicking and dragging again</li>
-            <li>The blue dashed lines show predefined regions for reference</li>
-            <li>Use the clear button to start over if needed</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* No Selection Warning */}
-      {!selectedRegion && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
-          <div className="text-sm text-theme-text-secondary">
-            Please select a region on the image to continue.
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default HotspotAnswer; 
+export default HotspotAnswer;

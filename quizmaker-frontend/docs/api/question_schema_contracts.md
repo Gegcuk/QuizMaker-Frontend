@@ -304,10 +304,8 @@ The backend handler expects:
 { "selectedRegionId": 1 }
 ```
 
-Contract warning: as of the verification date, `buildQuestionResponse` in
-`QuizAttemptPage.tsx` emits `{ "regionId": ... }`. That adapter does not match
-the backend handler's `selectedRegionId` field and should be corrected in a
-focused source change with an answer-shape test.
+`HotspotAnswer` emits the selected region ID. `buildQuestionResponse` in
+`QuizAttemptPage.tsx` wraps it in the `selectedRegionId` field above.
 
 ### MATCHING
 
