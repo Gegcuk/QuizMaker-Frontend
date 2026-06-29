@@ -9,6 +9,10 @@ For frontend implementation work, also read
 It explains how to trace a backend endpoint through frontend endpoint constants,
 services, DTO types, page adapters, and UI components.
 
+For generated versus user-authored question content, safe attempt content,
+submission payloads, and review payloads, read
+[`question_schema_contracts.md`](./question_schema_contracts.md).
+
 ### Step 1: Start with the Discovery Endpoint
 
 ```bash
@@ -68,6 +72,13 @@ GET https://quizzence.com/api/v1/questions/schemas/MCQ_SINGLE
 - `MCQ_SINGLE`, `MCQ_MULTI`, `OPEN`, `FILL_GAP`, `COMPLIANCE`, `TRUE_FALSE`, `ORDERING`, `HOTSPOT`, `MATCHING`
 
 Each has different content structure. Always check `/api/v1/questions/schemas` first.
+
+The generation schema and create/update validation are not always identical.
+For example, generated matching questions require more items than manually
+authored matching questions, and AI-generated fill-gap questions require an
+option pool while legacy/manual fill-gap questions may omit it. See
+[`question_schema_contracts.md`](./question_schema_contracts.md) before copying
+schema limits into editor validation.
 
 ---
 
