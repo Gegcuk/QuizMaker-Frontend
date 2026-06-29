@@ -33,6 +33,11 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
   showActions = true,
   className = ''
 }) => {
+  const completionPercentage = Math.min(
+    Math.max(attempt.stats?.completionPercentage ?? 0, 0),
+    100,
+  );
+
   // Helper function to get status color
   const getStatusColor = (status: string): 'success' | 'warning' | 'info' | 'neutral' => {
     switch (status) {
@@ -121,7 +126,7 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
           <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-3">
             <div
               className="bg-theme-interactive-primary h-full rounded-full transition-all duration-300"
-              style={{ width: `${attempt.stats?.completionPercentage || 0}%` }}
+              style={{ width: `${completionPercentage}%` }}
             />
           </div>
 
@@ -209,7 +214,7 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
                 <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mt-2">
                   <div
                     className="bg-theme-interactive-primary h-full rounded-full transition-all duration-300"
-                    style={{ width: `${attempt.stats?.completionPercentage || 0}%` }}
+                    style={{ width: `${completionPercentage}%` }}
                   />
                 </div>
               </div>
@@ -269,4 +274,3 @@ const AttemptCard: React.FC<AttemptCardProps> = ({
 };
 
 export default AttemptCard;
-

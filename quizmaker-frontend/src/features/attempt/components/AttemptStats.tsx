@@ -38,6 +38,10 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
   const totalQuestions = stats.questionTimings.length;
   const correctQuestions = stats.questionTimings.filter(q => q.isCorrect).length;
   const accuracyPercentage = totalQuestions > 0 ? (correctQuestions / totalQuestions) * 100 : 0;
+  const clampPercentage = (value: number) => Math.min(Math.max(value, 0), 100);
+  const answeredPercentage = totalQuestions > 0
+    ? clampPercentage((stats.questionsAnswered / totalQuestions) * 100)
+    : 0;
   
   // Group by question type
   const questionTypeStats = stats.questionTimings.reduce((acc, question) => {
@@ -106,7 +110,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className={`h-2 rounded-full ${getPerformanceColor(stats.accuracyPercentage).split(' ')[0].replace('text-', 'bg-')}`}
-                style={{ width: `${stats.accuracyPercentage}%` }}
+                style={{ width: `${clampPercentage(stats.accuracyPercentage)}%` }}
               />
             </div>
           </div>
@@ -119,7 +123,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-theme-bg-info"
-                style={{ width: `${stats.completionPercentage}%` }}
+                style={{ width: `${clampPercentage(stats.completionPercentage)}%` }}
               />
             </div>
           </div>
@@ -132,7 +136,7 @@ const AttemptStats: React.FC<AttemptStatsProps> = ({
             <div className="w-full bg-theme-bg-tertiary rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-theme-bg-success"
-                style={{ width: `${(stats.questionsAnswered / totalQuestions) * 100}%` }}
+                style={{ width: `${answeredPercentage}%` }}
               />
             </div>
           </div>

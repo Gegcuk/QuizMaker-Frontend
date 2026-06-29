@@ -36,7 +36,11 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
   // Load user attempts
   useEffect(() => {
     const loadAttempts = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        setAttempts([]);
+        setIsLoading(false);
+        return;
+      }
 
       setIsLoading(true);
       setError(null);
