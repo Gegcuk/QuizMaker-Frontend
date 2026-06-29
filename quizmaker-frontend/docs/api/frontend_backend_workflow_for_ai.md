@@ -14,6 +14,9 @@ Start with these files when the task touches backend data:
 
 - `quizmaker-frontend/docs/api/ai_api_guide.md` - API discovery, grouped OpenAPI
   specs, question schema endpoints, auth notes, media rules, and import rules.
+- `quizmaker-frontend/docs/api/question_schema_contracts.md` - generated versus
+  user-authored content, safe attempt content, submission payloads, and review
+  payloads for all question types.
 - `AGENTS.md` - repository conventions, git safety, API contract rules, and
   verification commands.
 - `quizmaker-frontend/src/api/axiosInstance.ts` - API base URL, auth token
@@ -268,7 +271,10 @@ Question response examples currently shaped in `QuizAttemptPage.tsx`:
 { "matches": [{ "leftId": 1, "rightId": 4 }] }
 ```
 
-Verify each shape against Swagger before changing it.
+The complete response table, including fill-gap, compliance, open, and hotspot,
+lives in [`question_schema_contracts.md`](./question_schema_contracts.md).
+Verify each shape against Swagger or the backend handler before changing it.
+Do not assume submission and review shapes use the same field names.
 
 ## Backend Validation Errors
 
@@ -301,6 +307,8 @@ relevant:
 
 - `quizmaker-frontend/docs/api/ai_api_guide.md` for API discovery, AI
   generation, question schemas, media rules, and import/export notes.
+- `quizmaker-frontend/docs/api/question_schema_contracts.md` for type-specific
+  authoring, safe-content, submission, and review contracts.
 - This file for frontend-to-backend trace workflow.
 - `AGENTS.md` when agent operating rules change.
 - Feature docs under `quizmaker-frontend/docs/` when a product workflow changes.
