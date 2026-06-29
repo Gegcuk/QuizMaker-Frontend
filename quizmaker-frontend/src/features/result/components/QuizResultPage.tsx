@@ -300,15 +300,19 @@ const QuizResultPage: React.FC = () => {
         }
         return <span className="text-theme-text-tertiary">No answer</span>;
       
-      case 'HOTSPOT':
-        // Answer: { regionId: number }
+      case 'HOTSPOT': {
+        // Answer: { selectedRegionId: number }; regionId is retained for legacy attempts.
         // SafeContent: { imageUrl, regions: [{ id, label }] }
-        if (answer.regionId && safeContent?.regions) {
-          const region = safeContent.regions.find((r: any) => r.id === answer.regionId);
-          return region?.label || `Region ${answer.regionId}`;
+        const selectedRegionId = answer.selectedRegionId ?? answer.regionId;
+        if (selectedRegionId !== null && selectedRegionId !== undefined && safeContent?.regions) {
+          const region = safeContent.regions.find((r: any) => r.id === selectedRegionId);
+          return region?.label || `Region ${selectedRegionId}`;
         }
-        if (answer.regionId) return `Region ${answer.regionId}`;
+        if (selectedRegionId !== null && selectedRegionId !== undefined) {
+          return `Region ${selectedRegionId}`;
+        }
         return <span className="text-theme-text-tertiary">No answer</span>;
+      }
       
       case 'MATCHING':
         // Answer: { matches: [{ leftId: number, rightId: number }] }

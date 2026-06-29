@@ -1056,7 +1056,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
                       return (
                         <HotspotAnswer
                           question={previewQuestion}
-                          currentAnswer={previewAnswer as any}
+                          currentAnswer={previewAnswer as number | null}
                           onAnswerChange={setPreviewAnswer}
                         />
                       );

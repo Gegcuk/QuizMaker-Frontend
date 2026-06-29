@@ -28,103 +28,11 @@ import {
 } from '@/features/attempt';
 import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
-
-// Shape of user answer input; varies by question type
-type AnswerInput = unknown;
-
-interface AttemptQuestionLike {
-  type: string;
-  safeContent?: {
-    gaps?: unknown[];
-  } | null;
-}
-
-interface FillGapSubmissionResponse {
-  answers: Array<{
-    gapId: number;
-    answer: string;
-  }>;
-}
-
-const isFillGapSubmissionResponse = (answer: AnswerInput): answer is FillGapSubmissionResponse =>
-  !!answer &&
-  typeof answer === 'object' &&
-  !Array.isArray(answer) &&
-  Array.isArray((answer as Partial<FillGapSubmissionResponse>).answers);
-
-const buildFillGapResponse = (answer: AnswerInput): FillGapSubmissionResponse => {
-  if (isFillGapSubmissionResponse(answer)) {
-    return answer;
-  }
-
-  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
-    return { answers: [] };
-  }
-
-  return {
-    answers: Object.entries(answer as Record<string, unknown>)
-      .map(([id, ans]) => ({
-        gapId: Number(id),
-        answer: String(ans).trim(),
-      }))
-      .filter((gap) => Number.isFinite(gap.gapId) && gap.answer.length > 0)
-      .sort((a, b) => a.gapId - b.gapId),
-  };
-};
-
-const buildQuestionResponse = (question: AttemptQuestionLike, answer: AnswerInput): unknown => {
-  switch (question.type) {
-    case "MCQ_SINGLE":
-      return { selectedOptionId: answer };
-    case "MCQ_MULTI":
-      return { selectedOptionIds: Array.isArray(answer) ? answer : [] };
-    case "TRUE_FALSE":
-      return { answer: Boolean(answer) };
-    case "OPEN":
-      return { answer };
-    case "COMPLIANCE":
-      return { selectedStatementIds: Array.isArray(answer) ? answer : [] };
-    case "FILL_GAP":
-      return buildFillGapResponse(answer);
-    case "HOTSPOT":
-      return { regionId: answer };
-    case "ORDERING":
-      return { orderedItemIds: Array.isArray(answer) ? answer : [] };
-    case "MATCHING":
-      return answer && typeof answer === 'object' ? answer : { matches: [] };
-    default:
-      return { answer };
-  }
-};
-
-const isQuestionAnswerProvided = (question: AttemptQuestionLike, answer: AnswerInput): boolean => {
-  switch (question.type) {
-    case "MCQ_SINGLE":
-      return Boolean(answer);
-    case "MCQ_MULTI":
-      return Array.isArray(answer) && answer.length > 0;
-    case "TRUE_FALSE":
-      return answer !== null && answer !== undefined;
-    case "OPEN":
-      return typeof answer === "string" && answer.trim().length > 0;
-    case "COMPLIANCE":
-      return Array.isArray(answer) && answer.length > 0;
-    case "FILL_GAP": {
-      const totalGaps = question?.safeContent?.gaps?.length || 0;
-      if (totalGaps === 0) return false;
-
-      const filledGaps = buildFillGapResponse(answer).answers.length;
-
-      return filledGaps === totalGaps;
-    }
-    case "HOTSPOT":
-      return Boolean(answer);
-    case "ORDERING":
-      return Array.isArray(answer) && answer.length > 0;
-    default:
-      return !!answer && typeof answer === 'object' && Object.keys(answer).length > 0;
-  }
-};
+import {
+  buildQuestionResponse,
+  isQuestionAnswerProvided,
+  type AnswerInput,
+} from '@/features/attempt/utils/answerResponse';
 
 const QuizAttemptPage: React.FC = () => {
   console.log('QuizAttemptPage: Component rendering...');
@@ -664,14 +572,14 @@ const QuizAttemptPage: React.FC = () => {
           case "MCQ_MULTI":
           case "OPEN":
           case "COMPLIANCE":
-          case "HOTSPOT":
             currentAnswer = '';
             break;
           case "FILL_GAP":
             currentAnswer = {};
             break;
           case "TRUE_FALSE":
-            currentAnswer = null; // null is valid for boolean questions
+          case "HOTSPOT":
+            currentAnswer = null;
             break;
           case "ORDERING":
             currentAnswer = [];
