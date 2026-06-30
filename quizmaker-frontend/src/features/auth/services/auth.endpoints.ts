@@ -13,6 +13,7 @@ export const AUTH_ENDPOINTS = {
   // Password management
   FORGOT_PASSWORD: '/v1/auth/forgot-password',
   RESET_PASSWORD: '/v1/auth/reset-password',
+  CHANGE_PASSWORD: '/v1/auth/change-password',
   
   // Email verification
   VERIFY_EMAIL: '/v1/auth/verify-email',

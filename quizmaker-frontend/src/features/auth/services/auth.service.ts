@@ -11,6 +11,8 @@ import {
   ForgotPasswordResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
   ResendVerificationRequest,
@@ -19,7 +21,8 @@ import {
   LinkedAccountsResponse,
   UnlinkAccountRequest
 } from '@/types';
-import { BaseService } from '@/services';
+import { BaseService } from '../../../api/base.service';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 /**
  * Authentication service for handling user authentication operations
@@ -34,9 +37,9 @@ export class AuthService extends BaseService<UserDto> {
    * Register a new user account
    * POST /api/v1/auth/register
    */
-  async register(data: RegisterRequest): Promise<UserDto> {
+  async register(data: RegisterRequest): Promise<AuthenticatedUserDto> {
     try {
-      const response = await this.axiosInstance.post<UserDto>(AUTH_ENDPOINTS.REGISTER, data);
+      const response = await this.axiosInstance.post<AuthenticatedUserDto>(AUTH_ENDPOINTS.REGISTER, data);
       return response.data;
     } catch (error) {
       throw this.handleAuthError(error);
@@ -124,6 +127,22 @@ export class AuthService extends BaseService<UserDto> {
   }
 
   /**
+   * Change the current authenticated user's password
+   * POST /api/v1/auth/change-password
+   */
+  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+    try {
+      const response = await this.axiosInstance.post<ChangePasswordResponse>(
+        AUTH_ENDPOINTS.CHANGE_PASSWORD,
+        data,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
    * Verify email using a verification token
    * POST /api/v1/auth/verify-email
    */
@@ -203,7 +222,7 @@ export class AuthService extends BaseService<UserDto> {
   private handleAuthError(error: any): Error {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
 
       switch (status) {
         case 400:
@@ -224,7 +243,7 @@ export class AuthService extends BaseService<UserDto> {
       }
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
@@ -232,4 +251,4 @@ export class AuthService extends BaseService<UserDto> {
 import api from '@/api/axiosInstance';
 
 // Export singleton instance
-export const authService = new AuthService(api); 
+export const authService = new AuthService(api);

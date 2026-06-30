@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/services';
 import {
   getAccessToken,
-  getRefreshToken,
   setTokens,
   clearTokens,
 } from '@/utils';
@@ -128,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/v1/auth/logout', { refreshToken: getRefreshToken() });
+      await api.post('/v1/auth/logout');
     } finally {
       clearTokens();
       setUser(null);
