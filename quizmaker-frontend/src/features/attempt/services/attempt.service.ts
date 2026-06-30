@@ -4,6 +4,7 @@ import {
   StartAttemptRequest,
   StartAttemptResponse,
   AttemptDto,
+  AttemptStatus,
   AttemptDetailsDto,
   AnswerSubmissionRequest,
   AnswerSubmissionDto,
@@ -16,6 +17,7 @@ import {
   CurrentQuestionDto,
   Page
 } from '@/types';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 /**
  * Attempt service for handling quiz attempts and answer submissions
@@ -51,6 +53,7 @@ export class AttemptService {
   async getAttempts(params?: {
     page?: number;
     size?: number;
+    sort?: string | string[];
     quizId?: string;
     userId?: string;
   }): Promise<Page<AttemptDto>> {
@@ -72,9 +75,10 @@ export class AttemptService {
   async getAttemptsSummary(params?: {
     page?: number;
     size?: number;
+    sort?: string | string[];
     quizId?: string;
     userId?: string;
-    status?: string;
+    status?: AttemptStatus;
   }): Promise<Page<AttemptSummaryDto>> {
     try {
       const response = await this.axiosInstance.get<Page<AttemptSummaryDto>>(
@@ -296,7 +300,7 @@ export class AttemptService {
   private handleAttemptError(error: any): Error {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
 
       switch (status) {
         case 400:
@@ -319,6 +323,6 @@ export class AttemptService {
       }
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
