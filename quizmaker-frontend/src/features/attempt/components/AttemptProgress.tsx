@@ -21,8 +21,15 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
   attemptMode,
   className = ''
 }) => {
-  const progressPercentage = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
-  const currentQuestionNumber = currentQuestionIndex + 1;
+  const answeredCount = totalQuestions > 0
+    ? Math.min(totalQuestions, Math.max(answeredQuestions, 0))
+    : 0;
+  const progressPercentage = totalQuestions > 0
+    ? (answeredCount / totalQuestions) * 100
+    : 0;
+  const currentQuestionNumber = totalQuestions > 0
+    ? Math.min(Math.max(currentQuestionIndex + 1, 1), totalQuestions)
+    : 0;
 
   const getProgressColor = (percentage: number) => {
     if (percentage >= 80) return 'bg-theme-interactive-success';
@@ -35,7 +42,7 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
     if (attemptMode === 'ONE_BY_ONE') {
       return `Question ${currentQuestionNumber} of ${totalQuestions}`;
     }
-    return `${answeredQuestions} of ${totalQuestions} questions answered`;
+    return `${answeredCount} of ${totalQuestions} questions answered`;
   };
 
   return (
@@ -61,13 +68,13 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
             <div
               key={index}
               className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                index < answeredQuestions
+                index < answeredCount
                   ? 'bg-theme-interactive-success' // Answered
                   : index === currentQuestionIndex
                   ? 'bg-theme-interactive-primary' // Current
                   : 'bg-theme-bg-tertiary' // Not reached
               }`}
-              title={`Question ${index + 1}${index < answeredQuestions ? ' (Answered)' : index === currentQuestionIndex ? ' (Current)' : ''}`}
+              title={`Question ${index + 1}${index < answeredCount ? ' (Answered)' : index === currentQuestionIndex ? ' (Current)' : ''}`}
             />
           ))}
         </div>

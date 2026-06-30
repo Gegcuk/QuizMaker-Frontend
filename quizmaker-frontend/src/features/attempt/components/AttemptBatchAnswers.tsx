@@ -44,11 +44,6 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
       errors.push('No answers provided. Please answer at least one question.');
     }
 
-    if (answeredQuestions < totalQuestions) {
-      const unanswered = totalQuestions - answeredQuestions;
-      errors.push(`${unanswered} question${unanswered > 1 ? 's' : ''} remain${unanswered > 1 ? '' : 's'} unanswered.`);
-    }
-
     // Validate individual answers
     Object.entries(answers).forEach(([questionId, answer]) => {
       if (answer === null || answer === undefined || answer === '') {
@@ -124,9 +119,14 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
     }
   };
 
-  const answeredCount = Object.keys(answers).length;
-  const unansweredCount = totalQuestions - answeredCount;
-  const completionPercentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+  const providedAnswerCount = Object.keys(answers).length;
+  const answeredCount = totalQuestions > 0
+    ? Math.min(providedAnswerCount, totalQuestions)
+    : providedAnswerCount;
+  const unansweredCount = Math.max(totalQuestions - answeredCount, 0);
+  const completionPercentage = totalQuestions > 0
+    ? Math.min((answeredCount / totalQuestions) * 100, 100)
+    : 0;
 
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 ${className}`}>
@@ -217,7 +217,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
       <div className="flex justify-center space-x-4">
         <Button
           onClick={handleBatchSubmission}
-          disabled={isSubmitting || answeredCount === 0}
+          disabled={isSubmitting || providedAnswerCount === 0}
           loading={isSubmitting}
           variant="primary"
           size="lg"

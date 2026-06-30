@@ -69,7 +69,7 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     if (!question) return 'unanswered';
     
     if (questionIndex === currentQuestionIndex) return 'current';
-    if (answers[question.id]) return 'answered';
+    if (Object.prototype.hasOwnProperty.call(answers, question.id)) return 'answered';
     return 'unanswered';
   };
 
@@ -144,8 +144,10 @@ const AttemptShuffledQuestions: React.FC<AttemptShuffledQuestionsProps> = ({
     );
   }
 
-  const answeredCount = Object.keys(answers).length;
   const totalQuestions = questions.length;
+  const answeredCount = questions.filter((question) =>
+    Object.prototype.hasOwnProperty.call(answers, question.id),
+  ).length;
 
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>

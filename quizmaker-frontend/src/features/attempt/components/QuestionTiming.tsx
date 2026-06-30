@@ -116,15 +116,9 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
   const totalTimeSeconds = timings.reduce((sum, t) => sum + getDurationInSeconds(t.timeSpent), 0);
   const averageTimeSeconds = totalQuestions > 0 ? totalTimeSeconds / totalQuestions : 0;
   
-  const fastestQuestion = timings.reduce((min, t) => {
-    const time = getDurationInSeconds(t.timeSpent);
-    return time < min.time ? { time, timing: t } : min;
-  }, { time: Infinity, timing: timings[0] });
-  
-  const slowestQuestion = timings.reduce((max, t) => {
-    const time = getDurationInSeconds(t.timeSpent);
-    return time > max.time ? { time, timing: t } : max;
-  }, { time: 0, timing: timings[0] });
+  const timingDurations = timings.map((timing) => getDurationInSeconds(timing.timeSpent));
+  const fastestTimeSeconds = timingDurations.length > 0 ? Math.min(...timingDurations) : 0;
+  const slowestTimeSeconds = timingDurations.length > 0 ? Math.max(...timingDurations) : 0;
 
   // Group by question type
   const typeStats = timings.reduce((acc, timing) => {
@@ -163,12 +157,12 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
         </div>
         
         <div className="text-center p-4 bg-theme-bg-success rounded-lg border border-theme-border-success">
-          <div className="text-2xl font-bold text-theme-interactive-success">{formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
+          <div className="text-2xl font-bold text-theme-interactive-success">{formatDuration(`PT${Math.floor(fastestTimeSeconds / 60)}M${Math.floor(fastestTimeSeconds % 60)}S`)}</div>
           <div className="text-sm text-theme-interactive-success font-medium">Fastest</div>
         </div>
         
         <div className="text-center p-4 bg-theme-bg-danger rounded-lg border border-theme-border-danger">
-          <div className="text-2xl font-bold text-theme-interactive-danger">{formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
+          <div className="text-2xl font-bold text-theme-interactive-danger">{formatDuration(`PT${Math.floor(slowestTimeSeconds / 60)}M${Math.floor(slowestTimeSeconds % 60)}S`)}</div>
           <div className="text-sm text-theme-interactive-danger font-medium">Slowest</div>
         </div>
         
@@ -283,9 +277,9 @@ const QuestionTiming: React.FC<QuestionTimingProps> = ({
         <h3 className="text-sm font-medium text-theme-text-primary mb-2">Timing Insights</h3>
         <div className="space-y-1 text-sm text-theme-interactive-primary">
           <div>• Average time per question: {formatDuration(`PT${Math.floor(averageTimeSeconds / 60)}M${Math.floor(averageTimeSeconds % 60)}S`)}</div>
-          <div>• Fastest question: {formatDuration(`PT${Math.floor(fastestQuestion.time / 60)}M${Math.floor(fastestQuestion.time % 60)}S`)}</div>
-          <div>• Slowest question: {formatDuration(`PT${Math.floor(slowestQuestion.time / 60)}M${Math.floor(slowestQuestion.time % 60)}S`)}</div>
-          <div>• Time range: {formatDuration(`PT${Math.floor((slowestQuestion.time - fastestQuestion.time) / 60)}M${Math.floor((slowestQuestion.time - fastestQuestion.time) % 60)}S`)}</div>
+          <div>• Fastest question: {formatDuration(`PT${Math.floor(fastestTimeSeconds / 60)}M${Math.floor(fastestTimeSeconds % 60)}S`)}</div>
+          <div>• Slowest question: {formatDuration(`PT${Math.floor(slowestTimeSeconds / 60)}M${Math.floor(slowestTimeSeconds % 60)}S`)}</div>
+          <div>• Time range: {formatDuration(`PT${Math.floor((slowestTimeSeconds - fastestTimeSeconds) / 60)}M${Math.floor((slowestTimeSeconds - fastestTimeSeconds) % 60)}S`)}</div>
           {averageTimeSeconds > 120 && (
             <div>• Consider practicing to improve your speed on similar questions</div>
           )}

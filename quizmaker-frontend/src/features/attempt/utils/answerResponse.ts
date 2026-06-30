@@ -84,7 +84,7 @@ export const isQuestionAnswerProvided = (
     case 'MCQ_MULTI':
       return Array.isArray(answer) && answer.length > 0;
     case 'TRUE_FALSE':
-      return answer !== null && answer !== undefined;
+      return typeof answer === 'boolean';
     case 'OPEN':
       return typeof answer === 'string' && answer.trim().length > 0;
     case 'COMPLIANCE':

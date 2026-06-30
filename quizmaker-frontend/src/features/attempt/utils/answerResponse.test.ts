@@ -85,6 +85,7 @@ describe('isQuestionAnswerProvided', () => {
     ['MCQ_MULTI', ['a'], true],
     ['MCQ_MULTI', [], false],
     ['TRUE_FALSE', false, true],
+    ['TRUE_FALSE', 'false', false],
     ['OPEN', '  ', false],
     ['COMPLIANCE', [2], true],
     ['HOTSPOT', 0, true],

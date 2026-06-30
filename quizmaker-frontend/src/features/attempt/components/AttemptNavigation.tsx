@@ -56,6 +56,14 @@ const AttemptNavigation: React.FC<AttemptNavigationProps> = ({
     }
   };
 
+  const answeredCount = new Set(
+    answeredQuestions.filter((index) => index >= 0 && index < totalQuestions),
+  ).size;
+  const progressPercentage = totalQuestions > 0
+    ? Math.min(Math.round((answeredCount / totalQuestions) * 100), 100)
+    : 0;
+  const remainingCount = Math.max(totalQuestions - answeredCount, 0);
+
   return (
     <div className={`bg-theme-bg-primary border border-theme-border-primary rounded-lg p-4 ${className}`}>
       {/* Main Navigation Controls */}
@@ -109,9 +117,9 @@ const AttemptNavigation: React.FC<AttemptNavigationProps> = ({
       {/* Progress Summary */}
       <div className="mt-4 pt-4 border-t">
         <div className="flex justify-between text-sm text-theme-text-secondary">
-          <span>Answered: {answeredQuestions.length}</span>
-          <span>Remaining: {totalQuestions - answeredQuestions.length}</span>
-          <span>Progress: {Math.round((answeredQuestions.length / totalQuestions) * 100)}%</span>
+          <span>Answered: {answeredCount}</span>
+          <span>Remaining: {remainingCount}</span>
+          <span>Progress: {progressPercentage}%</span>
         </div>
       </div>
 

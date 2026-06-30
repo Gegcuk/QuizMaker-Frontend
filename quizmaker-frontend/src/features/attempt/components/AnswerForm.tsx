@@ -11,6 +11,10 @@ import QuestionPrompt from './QuestionPrompt';
 import { AttemptService } from '@/services';
 import { api } from '@/services';
 import HintDisplay from './HintDisplay';
+import {
+  buildQuestionResponse,
+  isQuestionAnswerProvided,
+} from '../utils/answerResponse';
 
 interface AnswerFormProps {
   question: QuestionForAttemptDto;
@@ -52,89 +56,28 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
   const validateAnswer = (value: any): boolean => {
     setValidationError(null);
 
-    if (value === null || value === undefined || value === '') {
-      setValidationError('Please provide an answer.');
+    if (!isQuestionAnswerProvided(question, value)) {
+      const messageByType: Partial<Record<QuestionForAttemptDto['type'], string>> = {
+        MCQ_SINGLE: 'Please select one option.',
+        MCQ_MULTI: 'Please select at least one option.',
+        TRUE_FALSE: 'Please select True or False.',
+        OPEN: 'Please provide a text answer.',
+        FILL_GAP: 'Please fill in all gaps.',
+        COMPLIANCE: 'Please select at least one statement.',
+        ORDERING: 'Please arrange all items in order.',
+        HOTSPOT: 'Please select a region on the image.',
+        MATCHING: 'Please match every item.',
+      };
+
+      setValidationError(messageByType[question.type] ?? 'Please provide an answer.');
       setIsValid(false);
       return false;
     }
 
-    switch (question.type) {
-      case 'MCQ_SINGLE':
-        if (!value || typeof value !== 'string') {
-          setValidationError('Please select one option.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'MCQ_MULTI':
-        if (!Array.isArray(value) || value.length === 0) {
-          setValidationError('Please select at least one option.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'TRUE_FALSE':
-        if (typeof value !== 'boolean') {
-          setValidationError('Please select True or False.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'OPEN':
-        if (typeof value !== 'string' || value.trim().length === 0) {
-          setValidationError('Please provide a text answer.');
-          setIsValid(false);
-          return false;
-        }
-        if (value.trim().length < 3) {
-          setValidationError('Answer must be at least 3 characters long.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'FILL_GAP': {
-        if (!value || typeof value !== 'object') {
-          setValidationError('Please fill in all gaps.');
-          setIsValid(false);
-          return false;
-        }
-
-        const gaps = Object.values(value);
-        if (gaps.some((gap: any) => !gap || gap.toString().trim().length === 0)) {
-          setValidationError('Please fill in all gaps.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-      }
-
-      case 'COMPLIANCE':
-        if (!Array.isArray(value) || value.length === 0) {
-          setValidationError('Please select at least one statement.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'ORDERING':
-        if (!Array.isArray(value) || value.length === 0) {
-          setValidationError('Please arrange all items in order.');
-          setIsValid(false);
-          return false;
-        }
-        break;
-
-      case 'HOTSPOT':
-        if (!value || typeof value !== 'object') {
-          setValidationError('Please select a region on the image.');
-          setIsValid(false);
-          return false;
-        }
-        break;
+    if (question.type === 'OPEN' && String(value).trim().length < 3) {
+      setValidationError('Answer must be at least 3 characters long.');
+      setIsValid(false);
+      return false;
     }
 
     setIsValid(true);
@@ -154,7 +97,7 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
     try {
       const request: AnswerSubmissionRequest = {
         questionId: question.id,
-        response: answer
+        response: buildQuestionResponse(question, answer)
       };
 
       const result = await attemptService.submitAnswer(attemptId, request);
