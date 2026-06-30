@@ -5,8 +5,10 @@ import {
   UpdateQuestionRequest,
   QuestionDto,
   QuestionSchemaResponse,
+  QuestionType,
   Page
 } from '@/types';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 /**
  * Question service for handling question operations
@@ -41,13 +43,24 @@ export class QuestionService {
    */
   async getQuestions(params?: {
     quizId?: string;
+    page?: number;
+    /** @deprecated Use page. Kept while existing page components migrate. */
     pageNumber?: number;
     size?: number;
+    sort?: string | string[];
   }): Promise<Page<QuestionDto>> {
     try {
+      const requestParams = params
+        ? {
+            quizId: params.quizId,
+            page: params.page ?? params.pageNumber,
+            size: params.size,
+            sort: params.sort,
+          }
+        : undefined;
       const response = await this.axiosInstance.get<Page<QuestionDto>>(
         QUESTION_ENDPOINTS.GET_QUESTIONS,
-        { params }
+        { params: requestParams }
       );
       return response.data;
     } catch (error) {
@@ -117,7 +130,7 @@ export class QuestionService {
    * Get schema for a specific question type
    * GET /api/v1/questions/schemas/{questionType}
    */
-  async getSchemaByType(questionType: string): Promise<QuestionSchemaResponse> {
+  async getSchemaByType(questionType: QuestionType): Promise<QuestionSchemaResponse> {
     try {
       const response = await this.axiosInstance.get<QuestionSchemaResponse>(
         QUESTION_ENDPOINTS.GET_SCHEMA_BY_TYPE(questionType)
@@ -134,7 +147,7 @@ export class QuestionService {
   private handleQuestionError(error: any): Error {
     if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
 
       switch (status) {
         case 400:
@@ -155,6 +168,6 @@ export class QuestionService {
       }
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }

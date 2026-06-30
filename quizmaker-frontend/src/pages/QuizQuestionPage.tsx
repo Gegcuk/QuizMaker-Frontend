@@ -27,7 +27,7 @@ import {
 const questionService = new QuestionService(api);
 
 // Helper functions
-const getAllQuestions = async (params: { pageNumber: number; size: number }) => {
+const getAllQuestions = async (params: { page: number; size: number }) => {
   return questionService.getQuestions(params);
 };
 
@@ -196,7 +196,7 @@ const QuizQuestionsPage: React.FC = () => {
   const fetchAllQuestions = async () => {
     setLoadingAll(true);
     try {
-      const response = await getAllQuestions({ pageNumber: qPage, size: 20 });
+      const response = await getAllQuestions({ page: qPage, size: 20 });
       setAllQuestions(response.content || []);
       setQTotalPages(response.totalPages || 1);
     } catch (err: any) {
