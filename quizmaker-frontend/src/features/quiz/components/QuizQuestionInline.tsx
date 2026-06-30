@@ -66,7 +66,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await questionService.getQuestions({ quizId: id, pageNumber: page, size });
+      const res = await questionService.getQuestions({ quizId: id, page, size });
       const list = res?.content || [];
       setQuestions(list);
       setQTotalPages(res?.totalPages || 1);
@@ -94,7 +94,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       // Fetch until a page returns fewer than size items (or safety cap)
        
       while (true) {
-        const res = await questionService.getQuestions({ quizId: id, pageNumber: p, size });
+        const res = await questionService.getQuestions({ quizId: id, page: p, size });
         const batch = res?.content || [];
         all = all.concat(batch);
         if (!batch.length || batch.length < size || p > 200) break;

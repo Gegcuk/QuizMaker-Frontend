@@ -95,7 +95,7 @@ const QuestionManagementPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await questionService.getQuestions({ pageNumber: page, size: 20 });
+      const response = await questionService.getQuestions({ page, size: 20 });
       setQuestions(response.content || []);
       setTotalPages(response.totalPages || 1);
     } catch (err: any) {
