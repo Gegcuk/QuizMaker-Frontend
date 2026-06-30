@@ -112,6 +112,23 @@ export interface ResetPasswordResponse {
 }
 
 /**
+ * Authenticated password change request
+ * Matches ChangePasswordRequest from the deployed OpenAPI schema
+ */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/**
+ * Authenticated password change response
+ * Matches ChangePasswordResponse from the deployed OpenAPI schema
+ */
+export interface ChangePasswordResponse {
+  message: string;
+}
+
+/**
  * Verify email request
  * Matches VerifyEmailRequest DTO from API documentation
  */
@@ -210,4 +227,4 @@ export interface LinkedAccountsResponse {
  */
 export interface UnlinkAccountRequest {
   provider: OAuthProvider; // OAuth provider to unlink
-} 
+}

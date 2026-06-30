@@ -14,6 +14,8 @@ export type {
   ForgotPasswordResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
   ResendVerificationRequest,
