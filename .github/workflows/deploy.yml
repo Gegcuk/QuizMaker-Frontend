@@ -130,7 +130,7 @@ jobs:
             rm -rf dist/ docker-compose.yml Dockerfile nginx.conf
 
       - name: Copy deployment bundle
-        uses: burnett01/rsync-deployments@7.0.1
+        uses: burnett01/rsync-deployments@9.0.0
         with:
           switches: -avzr --delete
           path: deployment/
