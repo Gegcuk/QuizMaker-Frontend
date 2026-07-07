@@ -51,8 +51,8 @@ export interface CreateQuizRequest {
   difficulty?: Difficulty;          // Defaults to MEDIUM
   isRepetitionEnabled?: boolean;    // Boolean
   timerEnabled?: boolean;           // Boolean
-  estimatedTime: number;            // 1-180 minutes, required
-  timerDuration: number;            // 1-180 minutes, required
+  estimatedTime?: number;           // 1-180 minutes, optional
+  timerDuration?: number;           // 1-180 minutes, optional
   categoryId?: string;              // Optional UUID
   tagIds?: string[];                // Optional array of UUIDs
 }
@@ -112,9 +112,9 @@ export interface QuizSearchCriteria {
  */
 export interface GenerateQuizFromDocumentRequest {
   documentId: string;               // Required: Document ID returned from /api/documents/upload
-  quizScope: QuizScope;             // Required: Determines whether entire doc or specific chunks are used
-  questionsPerType: Record<QuizQuestionType, number>; // Required: Questions per type per chunk
-  difficulty: Difficulty;           // Required: Question difficulty
+  quizScope?: QuizScope;            // Optional: Determines whether entire doc or specific chunks are used
+  questionsPerType: Partial<Record<QuizQuestionType, number>>; // Required map of selected question types
+  difficulty?: Difficulty;          // Optional: Defaults to MEDIUM
   chunkIndices?: number[];          // Optional: Specific chunk indices when quizScope is SPECIFIC_CHUNKS
   chapterTitle?: string;            // Optional: Chapter title when targeting chapter scope
   chapterNumber?: number;           // Optional: Chapter number when targeting chapter scope
@@ -132,10 +132,10 @@ export interface GenerateQuizFromDocumentRequest {
  */
 export interface GenerateQuizFromTextRequest {
   text: string;                                    // Required: Plain text content (1-300,000 characters)
-  questionsPerType: Record<QuizQuestionType, number>; // Required: Question types and counts
-  difficulty: Difficulty;                          // Required: Question difficulty level
+  questionsPerType: Partial<Record<QuizQuestionType, number>>; // Required map of selected question types
+  difficulty?: Difficulty;                         // Optional: Defaults to MEDIUM
   language?: string;                              // Optional: Language code (e.g., "en", "es")
-  chunkingStrategy?: 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED'; // Optional: Document processing strategy
+  chunkingStrategy?: 'AUTO' | 'CHAPTER_BASED' | 'SECTION_BASED' | 'SIZE_BASED' | 'PAGE_BASED'; // Optional: Document processing strategy
   maxChunkSize?: number;                          // Optional: Max characters per chunk (1000-300000)
   quizScope?: QuizScope;                          // Optional: Quiz generation scope
   chunkIndices?: number[];                        // Optional: Specific chunk indices (for SPECIFIC_CHUNKS scope)
@@ -430,4 +430,12 @@ export interface UpdateQuizGroupRequest {
 export interface AddQuizzesToGroupRequest {
   quizIds: string[];                       // List of quiz UUIDs to add
   position?: number;                       // Optional position to insert at
+}
+
+/**
+ * Reorder quizzes in a group request
+ * Matches ReorderGroupQuizzesRequest from the deployed API
+ */
+export interface ReorderGroupQuizzesRequest {
+  orderedQuizIds: string[];
 }

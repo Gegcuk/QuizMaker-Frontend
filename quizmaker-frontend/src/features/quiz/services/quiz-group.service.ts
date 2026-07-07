@@ -1,17 +1,23 @@
 // src/api/quiz-group.service.ts
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { QUIZ_ENDPOINTS } from '../../../api/endpoints';
-import { 
+import type {
   QuizGroupDto,
   QuizGroupSummaryDto,
   QuizSummaryDto,
   CreateQuizGroupRequest,
   UpdateQuizGroupRequest,
   AddQuizzesToGroupRequest,
-  QuizDto
-} from '@/types';
+  ReorderGroupQuizzesRequest,
+} from '../types/quiz.types';
 import { BaseService } from '../../../api/base.service';
 import { Paginated } from '@/types';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type QuizGroupServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Quiz Group service for handling quiz group operations
@@ -65,9 +71,7 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
    */
   async createQuizGroup(data: CreateQuizGroupRequest): Promise<string> {
     try {
-      // According to OpenAPI spec, POST /v1/quiz-groups returns a string (the group ID)
-      // However, backend actually returns { groupId: string }, so we handle all cases
-      const response = await this.axiosInstance.post<any>(
+      const response = await this.axiosInstance.post<unknown>(
         QUIZ_ENDPOINTS.QUIZ_GROUPS,
         data
       );
@@ -80,11 +84,21 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
         groupId = responseData;
       }
       // Handle object with groupId field (actual backend response)
-      else if (responseData && typeof responseData === 'object' && responseData.groupId) {
+      else if (
+        responseData &&
+        typeof responseData === 'object' &&
+        'groupId' in responseData &&
+        responseData.groupId
+      ) {
         groupId = String(responseData.groupId);
       }
       // Handle object with id field (fallback)
-      else if (responseData && typeof responseData === 'object' && responseData.id) {
+      else if (
+        responseData &&
+        typeof responseData === 'object' &&
+        'id' in responseData &&
+        responseData.id
+      ) {
         groupId = String(responseData.id);
       }
       else {
@@ -183,6 +197,41 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
   }
 
   /**
+   * Reorder quizzes in a group
+   * PATCH /api/v1/quiz-groups/{groupId}/quizzes/reorder
+   */
+  async reorderQuizzesInGroup(
+    groupId: string,
+    data: ReorderGroupQuizzesRequest,
+  ): Promise<void> {
+    try {
+      await this.axiosInstance.patch(QUIZ_ENDPOINTS.QUIZ_GROUP_REORDER(groupId), data);
+    } catch (error) {
+      throw this.handleQuizGroupError(error);
+    }
+  }
+
+  /**
+   * Get archived quizzes for the authenticated user
+   * GET /api/v1/quiz-groups/archived
+   */
+  async getArchivedQuizzes(params?: {
+    page?: number;
+    size?: number;
+    sort?: string[];
+  }): Promise<Paginated<QuizSummaryDto>> {
+    try {
+      const response = await this.axiosInstance.get<Paginated<QuizSummaryDto>>(
+        QUIZ_ENDPOINTS.ARCHIVED_QUIZZES,
+        { params },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizGroupError(error);
+    }
+  }
+
+  /**
    * Check if a quiz belongs to a group
    * Helper method - checks if quiz ID is in group's quiz previews or full list
    */
@@ -231,17 +280,17 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
   /**
    * Handle quiz group specific errors
    */
-  private handleQuizGroupError(error: any): Error {
-    if (error?.response) {
-      const status = error.response.status;
-      const message = error.response.data?.message || error.message;
-      const enhancedError = new Error(message);
-      (enhancedError as any).status = status;
-      (enhancedError as any).response = error.response;
+  private handleQuizGroupError(error: unknown): QuizGroupServiceError {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = getErrorMessage(error);
+      const enhancedError: QuizGroupServiceError = new Error(message);
+      enhancedError.status = status;
+      enhancedError.response = error.response;
 
       switch (status) {
         case 400:
-          enhancedError.message = 'Invalid request parameters';
+          enhancedError.message = `Validation error: ${message}`;
           break;
         case 401:
           enhancedError.message = 'Authentication required';
@@ -251,6 +300,12 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
           break;
         case 404:
           enhancedError.message = 'Quiz group not found';
+          break;
+        case 409:
+          enhancedError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          enhancedError.message = 'Too many requests. Please try again later.';
           break;
         case 500:
         case 502:
@@ -265,7 +320,7 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
       return enhancedError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
