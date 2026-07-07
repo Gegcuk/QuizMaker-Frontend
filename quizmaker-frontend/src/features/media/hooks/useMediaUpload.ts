@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { MediaAssetType, MediaRefDto } from '../types/media.types';
 import { mediaService } from '../services/media.service';
-import { logger } from '@/utils';
+import { getErrorMessage, logger } from '@/utils';
 
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const DEFAULT_IMAGE_MIME_TYPES = [
@@ -51,7 +51,9 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
   const validateFile = useCallback(
     (file: File): string | null => {
       const maxSize = options.maxSizeBytes ?? DEFAULT_MAX_SIZE_BYTES;
-      const allowedMimeTypes = options.allowedMimeTypes ?? DEFAULT_IMAGE_MIME_TYPES;
+      const allowedMimeTypes =
+        options.allowedMimeTypes ??
+        ((options.type ?? 'IMAGE') === 'IMAGE' ? DEFAULT_IMAGE_MIME_TYPES : []);
 
       if (!file) {
         return 'No file selected.';
@@ -73,7 +75,7 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
 
       return null;
     },
-    [options.allowedMimeTypes, options.maxSizeBytes]
+    [options.allowedMimeTypes, options.maxSizeBytes, options.type]
   );
 
   const clearError = useCallback(() => {
@@ -132,11 +134,11 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
           height: asset.height,
           mimeType: asset.mimeType,
         };
-      } catch (err: any) {
-        const message = err?.message || 'Failed to upload media.';
+      } catch (err: unknown) {
+        const message = getErrorMessage(err) || 'Failed to upload media.';
         setError(message);
         logger.error(message, 'useMediaUpload');
-        throw err;
+        throw err instanceof Error ? err : new Error(message);
       } finally {
         setIsUploading(false);
       }

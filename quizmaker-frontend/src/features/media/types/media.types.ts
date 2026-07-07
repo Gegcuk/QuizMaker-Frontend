@@ -108,7 +108,7 @@ export interface MediaSearchParams {
  */
 export type MediaSearchResponse =
   | MediaAssetResponse
- | MediaAssetResponse[]
+  | MediaAssetResponse[]
   | {
       items?: MediaAssetResponse[];
       content?: MediaAssetResponse[];
