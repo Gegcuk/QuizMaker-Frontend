@@ -97,27 +97,14 @@ const QuizResultsSummaryPage: React.FC = () => {
   // Calculate total number of questions from questionStats
   const totalQuestions = results.questionStats?.length || 0;
 
-  // Calculate percentages from raw scores
-  // Backend returns:
-  // - averageScore: total sum of correct answers across all attempts (need to divide by attemptsCount to get average per attempt)
-  // - bestScore: best number of correct answers in a single attempt
-  // - worstScore: worst number of correct answers in a single attempt
-  // For averageScore: (totalCorrect / attemptsCount) / totalQuestions * 100
-  // For bestScore/worstScore: correctAnswers / totalQuestions * 100
-  const calculateAveragePercentage = (totalCorrect: number): number => {
-    if (totalQuestions === 0 || results.attemptsCount === 0) return 0;
-    const averageCorrectPerAttempt = totalCorrect / results.attemptsCount;
-    return (averageCorrectPerAttempt / totalQuestions) * 100;
-  };
-
-  const calculateSingleAttemptPercentage = (correctAnswers: number): number => {
+  const calculateScorePercentage = (rawScore: number): number => {
     if (totalQuestions === 0) return 0;
-    return (correctAnswers / totalQuestions) * 100;
+    return (rawScore / totalQuestions) * 100;
   };
 
-  const averageScorePercentage = calculateAveragePercentage(results.averageScore);
-  const bestScorePercentage = calculateSingleAttemptPercentage(results.bestScore);
-  const worstScorePercentage = calculateSingleAttemptPercentage(results.worstScore);
+  const averageScorePercentage = calculateScorePercentage(results.averageScore);
+  const bestScorePercentage = calculateScorePercentage(results.bestScore);
+  const worstScorePercentage = calculateScorePercentage(results.worstScore);
 
   return (
     <>
@@ -127,7 +114,7 @@ const QuizResultsSummaryPage: React.FC = () => {
 
       {/* summary card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="border rounded p-4 shadow-sm">
+        <div className="border border-theme-border-primary rounded-lg p-4 shadow-theme bg-theme-bg-primary">
           <p>
             <strong>Attempts Count:</strong> {results.attemptsCount}
           </p>
@@ -151,7 +138,7 @@ const QuizResultsSummaryPage: React.FC = () => {
       <div>
         <h3 className="text-xl font-semibold mb-2">Per-Question Stats</h3>
         <div className="overflow-x-auto">
-          <table className="w-full border">
+          <table className="w-full border border-theme-border-primary">
             <thead>
               <tr className="bg-theme-bg-tertiary">
                 <th className="p-2">Question ID</th>
@@ -163,11 +150,11 @@ const QuizResultsSummaryPage: React.FC = () => {
             <tbody>
               {results.questionStats.map((qs) => (
                 <tr key={qs.questionId}>
-                  <td className="border px-2 py-1">{qs.questionId}</td>
-                  <td className="border px-2 py-1">{qs.timesAsked}</td>
-                  <td className="border px-2 py-1">{qs.timesCorrect}</td>
-                  <td className="border px-2 py-1">
-                    {(qs.correctRate * 100).toFixed(1)}%
+                  <td className="border border-theme-border-primary px-2 py-1">{qs.questionId}</td>
+                  <td className="border border-theme-border-primary px-2 py-1">{qs.timesAsked}</td>
+                  <td className="border border-theme-border-primary px-2 py-1">{qs.timesCorrect}</td>
+                  <td className="border border-theme-border-primary px-2 py-1">
+                    {qs.correctRate.toFixed(1)}%
                   </td>
                 </tr>
               ))}

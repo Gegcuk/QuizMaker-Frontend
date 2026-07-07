@@ -147,6 +147,7 @@ describe('quiz query hooks', () => {
     const updatedQuiz = { ...quiz, title: 'Updated Architecture Quiz' };
     mocks.updateQuiz.mockResolvedValue(updatedQuiz);
     const queryClient = createTestQueryClient();
+    queryClient.setQueryDefaults(quizKeys.details(), { gcTime: Infinity });
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
     const { result } = renderHook(() => useUpdateQuiz(), {
       wrapper: createQueryWrapper(queryClient),
