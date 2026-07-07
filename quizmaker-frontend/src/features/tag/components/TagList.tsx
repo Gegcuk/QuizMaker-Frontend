@@ -45,8 +45,8 @@ export const TagList: React.FC<TagListProps> = ({
       });
 
       setTags(response.content);
-      setTotalPages(response.pageable.totalPages);
-      setTotalElements(response.pageable.totalElements);
+      setTotalPages(response.totalPages);
+      setTotalElements(response.totalElements);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tags');
     } finally {
