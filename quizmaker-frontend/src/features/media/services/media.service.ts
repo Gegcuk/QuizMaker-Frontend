@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { MEDIA_ENDPOINTS } from './media.endpoints';
 import {
   MediaAssetListResponse,
@@ -10,6 +10,12 @@ import {
   MediaUploadResponse,
 } from '../types/media.types';
 import api from '@/api/axiosInstance';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type MediaServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Media library service for presigned uploads and asset management
@@ -109,11 +115,15 @@ export class MediaService {
     }
 
     if (data && typeof data === 'object') {
-      const candidate = data as Record<string, any>;
+      const candidate = data as Record<string, unknown>;
+      const toAssetArray = (value: unknown): MediaAssetResponse[] | undefined =>
+        Array.isArray(value)
+          ? value.filter((item): item is MediaAssetResponse => this.isMediaAssetResponse(item))
+          : undefined;
       const items =
-        (Array.isArray(candidate.items) ? candidate.items : undefined) ??
-        (Array.isArray(candidate.content) ? candidate.content : undefined) ??
-        (this.isMediaAssetResponse(candidate) ? [candidate as MediaAssetResponse] : []);
+        toAssetArray(candidate.items) ??
+        toAssetArray(candidate.content) ??
+        (this.isMediaAssetResponse(candidate) ? [candidate] : []);
 
       const total =
         typeof candidate.total === 'number'
@@ -157,31 +167,41 @@ export class MediaService {
   /**
    * Handle media-specific API errors
    */
-  private handleMediaError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleMediaError(error: unknown): MediaServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.response?.data?.detail || error.message;
+      const message = getErrorMessage(error);
+      const buildError = (errorMessage: string): MediaServiceError => {
+        const mediaError: MediaServiceError = new Error(errorMessage);
+        mediaError.status = status;
+        mediaError.response = error.response;
+        return mediaError;
+      };
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          return buildError(`Validation error: ${message}`);
         case 401:
-          return new Error('Authentication required');
+          return buildError('Authentication required');
         case 403:
-          return new Error('Insufficient permissions to manage media assets');
+          return buildError('Insufficient permissions to manage media assets');
         case 404:
-          return new Error('Media asset not found');
+          return buildError('Media asset not found');
+        case 409:
+          return buildError(`Conflict: ${message}`);
+        case 429:
+          return buildError('Too many requests. Please try again later.');
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred while managing media assets');
+          return buildError('Server error occurred while managing media assets');
         default:
-          return new Error(message || 'Media operation failed');
+          return buildError(message || 'Media operation failed');
       }
     }
 
-    return new Error(error?.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
