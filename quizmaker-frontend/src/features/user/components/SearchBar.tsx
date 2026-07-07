@@ -8,7 +8,8 @@ import {
   QuizSearchCriteria, 
   Difficulty,
   CategoryDto,
-  TagDto
+  TagDto,
+  Paginated,
 } from '@/types';
 
 interface SearchBarProps {
@@ -18,15 +19,7 @@ interface SearchBarProps {
   onSearchChange?: (criteria: QuizSearchCriteria) => void;
 }
 
-interface SearchResult {
-  content: QuizDto[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-    totalElements: number;
-    totalPages: number;
-  };
-}
+type SearchResult = Paginated<QuizDto>;
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   className = '', 
@@ -132,8 +125,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (searchCache.current.has(cacheKey)) {
       const cachedResult = searchCache.current.get(cacheKey)!;
       setSearchResults(cachedResult.content);
-      setTotalPages(cachedResult.pageable.totalPages);
-      setTotalResults(cachedResult.pageable.totalElements);
+      setTotalPages(cachedResult.totalPages);
+      setTotalResults(cachedResult.totalElements);
       setCurrentPage(page);
       return;
     }
@@ -141,11 +134,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setIsSearching(true);
     setError(null);
 
-    // Convert arrays to single values for API compatibility
     const apiParams = {
       ...criteria,
-      category: selectedCategories.length > 0 ? selectedCategories.join(',') : undefined,
-      tag: selectedTags.length > 0 ? selectedTags.join(',') : undefined,
+      category: selectedCategories.length > 0 ? selectedCategories : undefined,
+      tag: selectedTags.length > 0 ? selectedTags : undefined,
     };
 
     try {
@@ -161,8 +153,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       searchCache.current.set(cacheKey, result);
 
       setSearchResults(result.content);
-      setTotalPages(result.pageable.totalPages);
-      setTotalResults(result.pageable.totalElements);
+      setTotalPages(result.totalPages);
+      setTotalResults(result.totalElements);
       setCurrentPage(page);
       setShowResults(true);
 
@@ -608,4 +600,4 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
-export default SearchBar; 
+export default SearchBar;

@@ -1,5 +1,5 @@
 // src/api/quiz.service.ts
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { QUIZ_ENDPOINTS, RESULT_ENDPOINTS } from '../../../api/endpoints';
 import { 
   CreateQuizRequest,
@@ -14,10 +14,34 @@ import {
   LeaderboardEntryDto,
   UpdateQuizVisibilityRequest,
   UpdateQuizStatusRequest,
-  QuizExportRequest
+  QuizExportRequest,
+  Difficulty,
+  Paginated,
 } from '@/types';
 import { BaseService } from '../../../api/base.service';
 import api from '../../../api/axiosInstance';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type QuizListParams = {
+  page?: number;
+  size?: number;
+  sort?: string | string[];
+  category?: string | string[];
+  tag?: string | string[];
+  authorName?: string;
+  search?: string;
+  difficulty?: Difficulty;
+  scope?: 'public' | 'me' | 'all';
+};
+
+type QuizServiceError = Error & {
+  response?: AxiosResponse;
+  isAxiosError?: boolean;
+  status?: number;
+  code?: string;
+  isBalanceError?: boolean;
+  userMessage?: string;
+};
 
 /**
  * Quiz service for handling quiz operations
@@ -45,27 +69,9 @@ export class QuizService extends BaseService<QuizDto> {
    * Get all quizzes with pagination and filtering
    * GET /api/v1/quizzes
    */
-  async getQuizzes(params?: {
-    page?: number;
-    size?: number;
-    sort?: string;
-    category?: string;
-    tag?: string;
-    authorName?: string;
-    search?: string;
-    difficulty?: string;
-    scope?: string;
-  }): Promise<{
-    content: QuizDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+  async getQuizzes(params?: QuizListParams): Promise<Paginated<QuizDto>> {
     try {
-      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.QUIZZES, {
+      const response = await this.axiosInstance.get<Paginated<QuizDto>>(QUIZ_ENDPOINTS.QUIZZES, {
         params
       });
       return response.data;
@@ -78,26 +84,9 @@ export class QuizService extends BaseService<QuizDto> {
    * Get user's own quizzes with pagination and filtering
    * GET /api/v1/quizzes?scope=me
    */
-  async getMyQuizzes(params?: {
-    page?: number;
-    size?: number;
-    sort?: string;
-    category?: string;
-    tag?: string;
-    authorName?: string;
-    search?: string;
-    difficulty?: string;
-  }): Promise<{
-    content: QuizDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+  async getMyQuizzes(params?: Omit<QuizListParams, 'scope'>): Promise<Paginated<QuizDto>> {
     try {
-      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.QUIZZES, {
+      const response = await this.axiosInstance.get<Paginated<QuizDto>>(QUIZ_ENDPOINTS.QUIZZES, {
         params: {
           ...params,
           scope: 'me'
@@ -149,11 +138,11 @@ export class QuizService extends BaseService<QuizDto> {
 
   /**
    * Add question to quiz
-   * PUT /api/v1/quizzes/{quizId}/questions/{questionId}
+   * POST /api/v1/quizzes/{quizId}/questions/{questionId}
    */
   async addQuestionToQuiz(quizId: string, questionId: string): Promise<void> {
     try {
-      await this.axiosInstance.put(QUIZ_ENDPOINTS.ADD_QUESTION(quizId, questionId));
+      await this.axiosInstance.post(QUIZ_ENDPOINTS.ADD_QUESTION(quizId, questionId));
     } catch (error) {
       throw this.handleQuizError(error);
     }
@@ -252,9 +241,9 @@ export class QuizService extends BaseService<QuizDto> {
    * Cancel generation job
    * DELETE /api/v1/quizzes/generation-status/{jobId}
    */
-  async cancelGenerationJob(jobId: string): Promise<QuizGenerationResponse> {
+  async cancelGenerationJob(jobId: string): Promise<QuizGenerationStatus> {
     try {
-      const response = await this.axiosInstance.delete<QuizGenerationResponse>(
+      const response = await this.axiosInstance.delete<QuizGenerationStatus>(
         QUIZ_ENDPOINTS.GENERATION_STATUS(jobId)
       );
       return response.data;
@@ -335,23 +324,10 @@ export class QuizService extends BaseService<QuizDto> {
   async getPublicQuizzes(params?: {
     page?: number;
     size?: number;
-    sort?: string;
-    category?: string;
-    tag?: string;
-    authorName?: string;
-    search?: string;
-    difficulty?: string;
-  }): Promise<{
-    content: QuizDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+    sort?: string | string[];
+  }): Promise<Paginated<QuizDto>> {
     try {
-      const response = await this.axiosInstance.get(QUIZ_ENDPOINTS.PUBLIC_QUIZZES, {
+      const response = await this.axiosInstance.get<Paginated<QuizDto>>(QUIZ_ENDPOINTS.PUBLIC_QUIZZES, {
         params
       });
       return response.data;
@@ -379,45 +355,31 @@ export class QuizService extends BaseService<QuizDto> {
   /**
    * Handle quiz-specific errors
    */
-  private handleQuizError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleQuizError(error: unknown): QuizServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const errorData = error.response?.data;
-      
-      // Support both standard and RFC 7807 Problem Details formats
-      // RFC 7807: { title, detail, status, type, instance }
-      // Standard: { message }
-      const message = errorData?.detail || errorData?.title || errorData?.message || error.message;
-      console.log('🔧 handleQuizError - status:', status);
-      console.log('🔧 handleQuizError - extracted message:', message);
+      const message = getErrorMessage(error);
 
       // For 409 errors, preserve the full axios error with enhanced properties
       if (status === 409) {
         // Check if this is an insufficient balance error
-        const messageText = message?.toLowerCase() || '';
-        const titleText = errorData?.title?.toLowerCase() || '';
+        const messageText = message.toLowerCase();
         
         const isBalanceError = 
           messageText.includes('insufficient') ||
           messageText.includes('balance') ||
-          messageText.includes('token') ||
-          titleText.includes('insufficient') ||
-          titleText.includes('balance') ||
-          titleText.includes('token');
+          messageText.includes('token');
 
         if (isBalanceError) {
-          // Enhance the original error object instead of creating a new one
-          console.log('✅ Detected insufficient balance error!');
-          (error as any).code = 'INSUFFICIENT_BALANCE';
-          (error as any).isBalanceError = true;
-          (error as any).userMessage = message; // Store the user-friendly message
-          console.log('✅ Enhanced error with balance flag');
-          return error;
+          const balanceError = error as QuizServiceError;
+          balanceError.code = 'INSUFFICIENT_BALANCE';
+          balanceError.isBalanceError = true;
+          balanceError.userMessage = message;
+          return balanceError;
         }
       }
 
-      // For other errors, create a new error but preserve the response
-      const enhancedError = new Error(message) as any;
+      const enhancedError: QuizServiceError = new Error(message);
       enhancedError.response = error.response;
       enhancedError.isAxiosError = true;
       enhancedError.status = status;
@@ -435,6 +397,12 @@ export class QuizService extends BaseService<QuizDto> {
         case 404:
           enhancedError.message = 'Quiz not found';
           break;
+        case 409:
+          enhancedError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          enhancedError.message = 'Too many requests. Please try again later.';
+          break;
         case 500:
         case 502:
         case 503:
@@ -448,7 +416,7 @@ export class QuizService extends BaseService<QuizDto> {
       return enhancedError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
@@ -456,28 +424,10 @@ export class QuizService extends BaseService<QuizDto> {
 const quizService = new QuizService(api);
 
 // Export individual functions for backward compatibility
-export const getAllQuizzes = (params?: {
-  page?: number;
-  size?: number;
-  sort?: string;
-  category?: string;
-  tag?: string;
-  authorName?: string;
-  search?: string;
-  difficulty?: string;
-  scope?: string;
-}) => quizService.getQuizzes(params);
+export const getAllQuizzes = (params?: QuizListParams) => quizService.getQuizzes(params);
 
-export const getMyQuizzes = (params?: {
-  page?: number;
-  size?: number;
-  sort?: string;
-  category?: string;
-  tag?: string;
-  authorName?: string;
-  search?: string;
-  difficulty?: string;
-}) => quizService.getMyQuizzes(params);
+export const getMyQuizzes = (params?: Omit<QuizListParams, 'scope'>) =>
+  quizService.getMyQuizzes(params);
 
 export const getQuizById = (quizId: string) => quizService.getQuizById(quizId);
 

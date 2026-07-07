@@ -68,6 +68,8 @@ export const QUIZ_ENDPOINTS = {
   QUIZ_GROUP_BY_ID: (id: string) => `/v1/quiz-groups/${id}`,
   QUIZ_GROUP_QUIZZES: (groupId: string) => `/v1/quiz-groups/${groupId}/quizzes`,
   QUIZ_GROUP_QUIZ: (groupId: string, quizId: string) => `/v1/quiz-groups/${groupId}/quizzes/${quizId}`,
+  QUIZ_GROUP_REORDER: (groupId: string) => `/v1/quiz-groups/${groupId}/quizzes/reorder`,
+  ARCHIVED_QUIZZES: '/v1/quiz-groups/archived',
 } as const;
 
 
@@ -121,4 +123,4 @@ export const ENDPOINTS = {
   QUIZ: QUIZ_ENDPOINTS,
   TAG: TAG_ENDPOINTS,
   RESULT: RESULT_ENDPOINTS,
-} as const; 
+} as const;
