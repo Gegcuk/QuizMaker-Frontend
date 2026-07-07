@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance } from 'axios';
 import { BILLING_ENDPOINTS } from './billing.endpoints';
 import type {
   BillingConfigResponse,
@@ -16,7 +16,10 @@ import type {
   UpdateSubscriptionRequest,
   CancelSubscriptionRequest,
   PackDto,
+  TokenTransactionSource,
+  TokenTransactionType,
 } from '@/types';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 const DEFAULT_BILLING_CONFIG_MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -24,6 +27,9 @@ type BillingConfigCacheEntry = {
   data: BillingConfigResponse;
   fetchedAt: number;
 };
+
+type BillingError = Error & { status?: number };
+
 export class BillingService {
   private axiosInstance: AxiosInstance;
   private configCache: BillingConfigCacheEntry | null = null;
@@ -62,6 +68,9 @@ export class BillingService {
         }
         return response.data;
       })
+      .catch(error => {
+        throw this.handleBillingError(error);
+      })
       .finally(() => {
         if (this.configRequestMeta?.id === requestId) {
           this.configRequest = null;
@@ -93,8 +102,12 @@ export class BillingService {
    * Returns the authenticated user's billing token balance
    */
   async getBalance(): Promise<BalanceDto> {
-    const response = await this.axiosInstance.get<BalanceDto>(BILLING_ENDPOINTS.BALANCE);
-    return response.data;
+    try {
+      const response = await this.axiosInstance.get<BalanceDto>(BILLING_ENDPOINTS.BALANCE);
+      return response.data;
+    } catch (error) {
+      throw this.handleBillingError(error);
+    }
   }
 
   /**
@@ -104,15 +117,21 @@ export class BillingService {
   async getTransactions(params?: {
     page?: number;
     size?: number;
-    type?: string;
-    source?: string;
+    sort?: string | string[];
+    type?: TokenTransactionType;
+    source?: TokenTransactionSource;
     dateFrom?: string;
     dateTo?: string;
   }): Promise<TransactionPage> {
-    const response = await this.axiosInstance.get<TransactionPage>(BILLING_ENDPOINTS.TRANSACTIONS, {
-      params,
-    });
-    return response.data;
+    try {
+      const response = await this.axiosInstance.get<TransactionPage>(
+        BILLING_ENDPOINTS.TRANSACTIONS,
+        { params },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleBillingError(error);
+    }
   }
 
   /**
@@ -120,11 +139,15 @@ export class BillingService {
    * Estimate billing cost for quiz generation requests
    */
   async estimateQuizGeneration(request: QuizGenerationEstimateRequest): Promise<EstimationDto> {
-    const response = await this.axiosInstance.post<EstimationDto>(
-      BILLING_ENDPOINTS.ESTIMATE_QUIZ_GENERATION,
-      request,
-    );
-    return response.data;
+    try {
+      const response = await this.axiosInstance.post<EstimationDto>(
+        BILLING_ENDPOINTS.ESTIMATE_QUIZ_GENERATION,
+        request,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleBillingError(error);
+    }
   }
 
   /**
@@ -134,11 +157,15 @@ export class BillingService {
   async createCheckoutSession(
     request: CreateCheckoutSessionRequest,
   ): Promise<CheckoutSessionResponse> {
-    const response = await this.axiosInstance.post<CheckoutSessionResponse>(
-      BILLING_ENDPOINTS.CHECKOUT_SESSIONS,
-      request,
-    );
-    return response.data;
+    try {
+      const response = await this.axiosInstance.post<CheckoutSessionResponse>(
+        BILLING_ENDPOINTS.CHECKOUT_SESSIONS,
+        request,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleBillingError(error);
+    }
   }
 
   /**
@@ -234,9 +261,9 @@ export class BillingService {
    * POST /api/v1/billing/update-subscription
    * Update existing subscription
    */
-  async updateSubscription(data: UpdateSubscriptionRequest): Promise<any> {
+  async updateSubscription(data: UpdateSubscriptionRequest): Promise<string> {
     try {
-      const response = await this.axiosInstance.post(
+      const response = await this.axiosInstance.post<string>(
         BILLING_ENDPOINTS.UPDATE_SUBSCRIPTION,
         data
       );
@@ -250,9 +277,9 @@ export class BillingService {
    * POST /api/v1/billing/cancel-subscription
    * Cancel subscription
    */
-  async cancelSubscription(data: CancelSubscriptionRequest): Promise<any> {
+  async cancelSubscription(data: CancelSubscriptionRequest): Promise<string> {
     try {
-      const response = await this.axiosInstance.post(
+      const response = await this.axiosInstance.post<string>(
         BILLING_ENDPOINTS.CANCEL_SUBSCRIPTION,
         data
       );
@@ -265,14 +292,14 @@ export class BillingService {
   /**
    * Handle billing-specific errors
    */
-  private handleBillingError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleBillingError(error: unknown): BillingError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
-      const buildError = (msg: string) => {
-        const err = new Error(msg);
+      const message = getErrorMessage(error);
+      const buildError = (msg: string): BillingError => {
+        const err: BillingError = new Error(msg);
         if (status) {
-          (err as any).status = status;
+          err.status = status;
         }
         return err;
       };
@@ -298,11 +325,7 @@ export class BillingService {
       }
     }
 
-    const fallbackError = new Error(error?.message || 'Network error occurred');
-    if (error?.status) {
-      (fallbackError as any).status = error.status;
-    }
-    return fallbackError;
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
