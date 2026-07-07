@@ -78,7 +78,7 @@ export interface QuestionStatsDto {
   questionId: string;
   timesAsked: number;
   timesCorrect: number;
-  correctRate: number; // 0..1
+  correctRate: number; // percentage, 0..100
 }
 
 export interface QuizResultSummaryDto {

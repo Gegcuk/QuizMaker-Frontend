@@ -187,9 +187,9 @@ export interface QuizGenerationStatus {
 export interface QuizResultSummaryDto {
   quizId: string;                   // Quiz identifier
   attemptsCount: number;            // Total attempts
-  averageScore: number;             // Average score percentage
-  bestScore: number;                // Best score achieved
-  worstScore: number;               // Worst score achieved
+  averageScore: number;             // Average raw score across completed attempts
+  bestScore: number;                // Highest raw score achieved
+  worstScore: number;               // Lowest raw score achieved
   passRate: number;                 // Pass rate percentage
   questionStats: QuestionStatDto[]; // Per-question statistics
 }
@@ -202,7 +202,7 @@ export interface QuestionStatDto {
   questionId: string;               // Question identifier
   timesAsked: number;               // Number of times asked
   timesCorrect: number;             // Number of times answered correctly
-  correctRate: number;              // Correct answer rate percentage
+  correctRate: number;              // Correct answer percentage (0-100)
 }
 
 /**

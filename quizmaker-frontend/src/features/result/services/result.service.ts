@@ -1,13 +1,16 @@
-// Result service for handling result-related operations
-// Implements all endpoints from the ResultController API documentation
-
-import type { AxiosInstance } from 'axios';
-import { 
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import {
   QuizResultSummaryDto,
-  AttemptResultDto,
-  LeaderboardEntryDto
+  LeaderboardEntryDto,
 } from '@/types';
-import { BaseService, api } from '@/services';
+import { RESULT_ENDPOINTS } from '@/api/endpoints';
+import api from '@/api/axiosInstance';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type ResultServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Result service for handling result operations
@@ -25,17 +28,75 @@ export class ResultService {
    * GET /api/v1/quizzes/{quizId}/results
    */
   async getQuizResults(quizId: string): Promise<QuizResultSummaryDto> {
-    const response = await this.axiosInstance.get<QuizResultSummaryDto>(`/v1/quizzes/${quizId}/results`);
-    return response.data;
+    try {
+      const response = await this.axiosInstance.get<QuizResultSummaryDto>(
+        RESULT_ENDPOINTS.QUIZ_RESULTS(quizId),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleResultError(error);
+    }
   }
 
   /**
    * Get quiz leaderboard
    * GET /api/v1/quizzes/{quizId}/leaderboard
    */
-  async getQuizLeaderboard(quizId: string): Promise<LeaderboardEntryDto[]> {
-    const response = await this.axiosInstance.get<LeaderboardEntryDto[]>(`/v1/quizzes/${quizId}/leaderboard`);
-    return response.data;
+  async getQuizLeaderboard(
+    quizId: string,
+    top: number = 10,
+  ): Promise<LeaderboardEntryDto[]> {
+    try {
+      const response = await this.axiosInstance.get<LeaderboardEntryDto[]>(
+        RESULT_ENDPOINTS.LEADERBOARD(quizId),
+        { params: { top } },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleResultError(error);
+    }
+  }
+
+  private handleResultError(error: unknown): ResultServiceError {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = getErrorMessage(error);
+      const resultError: ResultServiceError = new Error(message);
+      resultError.status = status;
+      resultError.response = error.response;
+
+      switch (status) {
+        case 400:
+          resultError.message = `Validation error: ${message}`;
+          break;
+        case 401:
+          resultError.message = 'Authentication required';
+          break;
+        case 403:
+          resultError.message = 'Insufficient permissions to view quiz results';
+          break;
+        case 404:
+          resultError.message = 'Quiz results not found';
+          break;
+        case 429:
+          resultError.message = 'Too many requests. Please try again later.';
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          resultError.message = 'Server error occurred while loading quiz results';
+          break;
+        default:
+          resultError.message = message || 'Failed to load quiz results';
+      }
+
+      return resultError;
+    }
+
+    return new Error(
+      error instanceof Error ? error.message : 'Network error occurred',
+    );
   }
 }
 
@@ -45,4 +106,5 @@ export default resultService;
 
 // Export individual functions for convenience
 export const getQuizResults = (quizId: string) => resultService.getQuizResults(quizId);
-export const getQuizLeaderboard = (quizId: string) => resultService.getQuizLeaderboard(quizId);
+export const getQuizLeaderboard = (quizId: string, top: number = 10) =>
+  resultService.getQuizLeaderboard(quizId, top);
