@@ -28,6 +28,15 @@ export const createTestQueryClient = () =>
     },
   });
 
+export const createQueryWrapper = (queryClient: QueryClient) => {
+  const QueryWrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
+  QueryWrapper.displayName = 'QueryWrapper';
+  return QueryWrapper;
+};
+
 export const setTestAuthTokens = (
   accessToken = 'test-access-token',
   refreshToken = 'test-refresh-token',

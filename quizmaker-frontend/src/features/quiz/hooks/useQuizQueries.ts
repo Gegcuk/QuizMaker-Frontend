@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getQuizById, deleteQuiz, updateQuiz, getQuizResults, getQuizLeaderboard } from '@/services';
-import { QuizDto, QuizResultSummaryDto } from '@/types';
-import { logger } from '@/utils';
+import type { UpdateQuizRequest } from '@/types';
+import { getErrorMessage, logger } from '@/utils';
 
 // Query keys
 export const quizKeys = {
   all: ['quizzes'] as const,
   lists: () => [...quizKeys.all, 'list'] as const,
-  list: (filters: Record<string, any>) => [...quizKeys.lists(), { filters }] as const,
+  list: (filters: Record<string, unknown>) => [...quizKeys.lists(), { filters }] as const,
   details: () => [...quizKeys.all, 'detail'] as const,
   detail: (id: string) => [...quizKeys.details(), id] as const,
   stats: (id: string) => [...quizKeys.detail(id), 'stats'] as const,
@@ -55,7 +55,7 @@ export const useDeleteQuiz = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteQuiz,
+    mutationFn: (quizId: string) => deleteQuiz(quizId),
     onSuccess: (_, quizId) => {
       logger.info('Quiz deleted successfully', 'useDeleteQuiz', { quizId });
       
@@ -63,10 +63,10 @@ export const useDeleteQuiz = () => {
       queryClient.removeQueries({ queryKey: quizKeys.detail(quizId) });
       queryClient.invalidateQueries({ queryKey: quizKeys.lists() });
     },
-    onError: (error: any, quizId) => {
+    onError: (error: unknown, quizId) => {
       logger.error('Failed to delete quiz', 'useDeleteQuiz', { 
         quizId, 
-        error: error?.response?.data?.message || error.message 
+        error: getErrorMessage(error),
       });
     },
   });
@@ -77,7 +77,7 @@ export const useUpdateQuiz = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ quizId, data }: { quizId: string; data: Partial<QuizDto> }) => 
+    mutationFn: ({ quizId, data }: { quizId: string; data: UpdateQuizRequest }) =>
       updateQuiz(quizId, data),
     onSuccess: (updatedQuiz, { quizId }) => {
       logger.info('Quiz updated successfully', 'useUpdateQuiz', { quizId });
@@ -86,10 +86,10 @@ export const useUpdateQuiz = () => {
       queryClient.setQueryData(quizKeys.detail(quizId), updatedQuiz);
       queryClient.invalidateQueries({ queryKey: quizKeys.lists() });
     },
-    onError: (error: any, { quizId }) => {
+    onError: (error: unknown, { quizId }) => {
       logger.error('Failed to update quiz', 'useUpdateQuiz', { 
         quizId, 
-        error: error?.response?.data?.message || error.message 
+        error: getErrorMessage(error),
       });
     },
   });
