@@ -1,5 +1,10 @@
 // Billing-related type definitions
-// Based on billing_controller.md API specification
+
+import type {
+  Difficulty,
+  QuizQuestionType,
+  QuizScope,
+} from '../../quiz/types/quiz.types';
 
 /**
  * Token transaction types
@@ -105,10 +110,19 @@ export interface TransactionPage {
  * Quiz generation cost estimation request
  */
 export interface QuizGenerationEstimateRequest {
-  documentId?: string;
-  questionCount?: number;
-  questionTypes?: string[];
-  difficulty?: string;
+  documentId: string;
+  questionsPerType: Partial<Record<QuizQuestionType, number>>;
+  quizScope?: QuizScope;
+  chunkIndices?: number[];
+  chapterTitle?: string;
+  chapterNumber?: number;
+  quizTitle?: string;
+  quizDescription?: string;
+  difficulty?: Difficulty;
+  estimatedTimePerQuestion?: number;
+  categoryId?: string;
+  tagIds?: string[];
+  language?: string;
 }
 
 /**
