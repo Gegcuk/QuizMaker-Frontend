@@ -1,13 +1,18 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { CATEGORY_ENDPOINTS } from './category.endpoints';
-import { 
+import type {
   CategoryDto,
   CreateCategoryRequest,
   UpdateCategoryRequest,
   CategoryPage,
   CreateCategoryResponse,
 } from '@/types';
-import { BaseService } from '@/services';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type CategoryServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Category service for handling category operations
@@ -27,14 +32,14 @@ export class CategoryService {
   async getCategories(params?: {
     page?: number;
     size?: number;
-    sort?: string;
+    sort?: string | string[];
   }): Promise<CategoryPage> {
     try {
       const response = await this.axiosInstance.get<CategoryPage>(CATEGORY_ENDPOINTS.CATEGORIES, {
         params: {
           page: params?.page ?? 0,
           size: params?.size ?? 20,
-          sort: params?.sort ?? 'name,asc',
+          sort: params?.sort ?? 'name,ASC',
         }
       });
       return response.data;
@@ -97,34 +102,47 @@ export class CategoryService {
   /**
    * Handle category-specific errors
    */
-  private handleCategoryError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleCategoryError(error: unknown): CategoryServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
-      const details = error.response?.data?.details;
+      const message = getErrorMessage(error);
+      const categoryError: CategoryServiceError = new Error(message);
+      categoryError.status = status;
+      categoryError.response = error.response;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${details ? details.join(', ') : message}`);
+          categoryError.message = `Validation error: ${message}`;
+          break;
         case 401:
-          return new Error('Authentication required');
+          categoryError.message = 'Authentication required';
+          break;
         case 403:
-          return new Error('Insufficient permissions - Admin role required');
+          categoryError.message = 'Insufficient permissions - Admin role required';
+          break;
         case 404:
-          return new Error('Category not found');
+          categoryError.message = 'Category not found';
+          break;
         case 409:
-          return new Error('Conflict: Category name already exists or category is in use');
+          categoryError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          categoryError.message = 'Too many requests. Please try again later.';
+          break;
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          categoryError.message = 'Server error occurred';
+          break;
         default:
-          return new Error(message || 'Category operation failed');
+          categoryError.message = message || 'Category operation failed';
       }
+
+      return categoryError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
@@ -136,7 +154,7 @@ export const categoryService = new CategoryService(api);
 export const getAllCategories = (params?: {
   page?: number;
   size?: number;
-  sort?: string;
+  sort?: string | string[];
 }) => categoryService.getCategories(params);
 
 export const createCategory = (data: CreateCategoryRequest) => categoryService.createCategory(data);

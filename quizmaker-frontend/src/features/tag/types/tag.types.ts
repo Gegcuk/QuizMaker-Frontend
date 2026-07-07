@@ -29,4 +29,33 @@ export interface CreateTagRequest {
 export interface UpdateTagRequest {
   name?: string;                   // Updated tag name (3-50 characters)
   description?: string;            // Updated description (max 1000 characters)
-} 
+}
+
+export interface TagPage {
+  content: TagDto[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  first: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  empty: boolean;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+}

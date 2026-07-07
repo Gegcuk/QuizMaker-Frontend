@@ -1,11 +1,19 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { TAG_ENDPOINTS } from '@/api/endpoints';
-import { 
+import type {
   TagDto,
+  TagPage,
   CreateTagRequest,
-  UpdateTagRequest
+  UpdateTagRequest,
 } from '@/types';
-import { BaseService, api } from '@/services';
+import { BaseService } from '@/api/base.service';
+import api from '@/api/axiosInstance';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type TagServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Tag service for handling tag operations
@@ -23,19 +31,15 @@ export class TagService extends BaseService<TagDto> {
   async getTags(params?: {
     page?: number;
     size?: number;
-    sort?: string;
-  }): Promise<{
-    content: TagDto[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  }> {
+    sort?: string | string[];
+  }): Promise<TagPage> {
     try {
-      const response = await this.axiosInstance.get(TAG_ENDPOINTS.TAGS, {
-        params
+      const response = await this.axiosInstance.get<TagPage>(TAG_ENDPOINTS.TAGS, {
+        params: {
+          page: params?.page ?? 0,
+          size: params?.size ?? 20,
+          sort: params?.sort ?? 'name,ASC',
+        },
       });
       return response.data;
     } catch (error) {
@@ -97,31 +101,47 @@ export class TagService extends BaseService<TagDto> {
   /**
    * Handle tag-specific errors
    */
-  private handleTagError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleTagError(error: unknown): TagServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
+      const tagError: TagServiceError = new Error(message);
+      tagError.status = status;
+      tagError.response = error.response;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          tagError.message = `Validation error: ${message}`;
+          break;
         case 401:
-          return new Error('Authentication required');
+          tagError.message = 'Authentication required';
+          break;
         case 403:
-          return new Error('Insufficient permissions');
+          tagError.message = 'Insufficient permissions';
+          break;
         case 404:
-          return new Error('Tag not found');
+          tagError.message = 'Tag not found';
+          break;
+        case 409:
+          tagError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          tagError.message = 'Too many requests. Please try again later.';
+          break;
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          tagError.message = 'Server error occurred';
+          break;
         default:
-          return new Error(message || 'Tag operation failed');
+          tagError.message = message || 'Tag operation failed';
       }
+
+      return tagError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
@@ -132,7 +152,7 @@ const tagService = new TagService(api);
 export const getAllTags = (params?: {
   page?: number;
   size?: number;
-  sort?: string;
+  sort?: string | string[];
 }) => tagService.getTags(params);
 
 export const createTag = (data: CreateTagRequest) => tagService.createTag(data);
