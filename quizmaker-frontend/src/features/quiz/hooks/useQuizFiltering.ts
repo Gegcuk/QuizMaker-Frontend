@@ -45,8 +45,8 @@ export const useQuizFiltering = (
         const time = quiz.estimatedTime || 0;
         // Check if quiz time matches ANY of the selected time ranges
         return filters.estimatedTime!.some(range => {
-          const min = range.min || 0;
-          const max = range.max || Infinity;
+          const min = range.min ?? 0;
+          const max = range.max ?? Infinity;
           return time >= min && time <= max;
         });
       });
@@ -130,4 +130,4 @@ export const useQuizPagination = (
   }), [filteredQuizzes.length, currentPage, pageSize]);
 
   return { paginatedQuizzes, pagination };
-}; 
+};

@@ -18,8 +18,7 @@ export {
 export * from './types/quiz.types';
 
 // Hooks
-export { useQuizMetadata } from './hooks/useQuizMetadata';
-export { useQuizFiltering } from './hooks/useQuizFiltering';
+export * from './hooks';
 
 // Components
 export * from './components';

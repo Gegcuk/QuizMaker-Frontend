@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllTags, getAllCategories } from '@/services';
 import { TagDto, CategoryDto } from '@/types';
@@ -47,24 +48,24 @@ export const useQuizMetadata = () => {
   const error = tagsError || categoriesError;
 
   // Memoized selectors to prevent unnecessary re-renders
-  const getTagName = (tagId: string): string => {
+  const getTagName = useCallback((tagId: string): string => {
     const tag = tags.find(t => t.id === tagId);
     return tag ? tag.name : `#${tagId}`;
-  };
+  }, [tags]);
 
-  const getCategoryName = (categoryId?: string): string => {
+  const getCategoryName = useCallback((categoryId?: string): string => {
     if (!categoryId) return 'No Category';
     const category = categories.find(c => c.id === categoryId);
     return category ? category.name : 'Unknown Category';
-  };
+  }, [categories]);
 
-  const getTagById = (tagId: string): TagDto | undefined => {
+  const getTagById = useCallback((tagId: string): TagDto | undefined => {
     return tags.find(t => t.id === tagId);
-  };
+  }, [tags]);
 
-  const getCategoryById = (categoryId: string): CategoryDto | undefined => {
+  const getCategoryById = useCallback((categoryId: string): CategoryDto | undefined => {
     return categories.find(c => c.id === categoryId);
-  };
+  }, [categories]);
 
   return {
     tags,

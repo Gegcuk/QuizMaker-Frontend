@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import { CreateQuizGroupRequest } from '../types/quiz.types';
 import { quizGroupService } from '../services';
 import { useToast } from '@/components';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface UseCreateGroupOptions {
   quizId?: string;
@@ -39,7 +40,7 @@ export const useCreateGroup = ({
       const groupId = await quizGroupService.createQuizGroup(data);
 
       // Validate groupId before proceeding
-      if (!groupId || groupId === 'undefined' || groupId === 'null') {
+      if (!groupId?.trim() || groupId === 'undefined' || groupId === 'null') {
         addToast({
           type: 'error',
           message: 'Failed to create group: Invalid group ID returned'
@@ -57,12 +58,14 @@ export const useCreateGroup = ({
             type: 'success',
             message: 'Group created and quiz added'
           });
-        } catch (error: any) {
-          // Show more detailed error message if available
-          const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error);
+          const punctuatedError = /[.!?]$/.test(errorMessage)
+            ? errorMessage
+            : `${errorMessage}.`;
           addToast({
             type: 'warning',
-            message: `Group created but failed to add quiz: ${errorMessage}. You can add it manually.`
+            message: `Group created but failed to add quiz: ${punctuatedError} You can add it manually.`
           });
         }
       } else {
@@ -84,4 +87,3 @@ export const useCreateGroup = ({
 
   return { handleCreateGroup };
 };
-
