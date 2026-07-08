@@ -10,7 +10,6 @@ interface TagAnalyticsProps {
 }
 
 interface AnalyticsData {
-  tagCreationTrend: Array<{ date: string; count: number }>;
   usageTrend: Array<{ date: string; usage: number }>;
   topTagsByUsage: Array<{
     tag: TagDto;
@@ -87,20 +86,12 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
   const calculateAnalyticsData = (tags: TagDto[], quizzes: QuizDto[], range: string): AnalyticsData => {
     const now = new Date();
     const startDate = getStartDate(now, range);
-    
-    // Filter data by time range
-    const filteredTags = tags.filter(tag => {
-      const tagDate = new Date(tag.createdAt);
-      return tagDate >= startDate;
-    });
 
+    // Filter quiz usage by time range. TagDto does not include timestamps in the live API.
     const filteredQuizzes = quizzes.filter(quiz => {
       const quizDate = new Date(quiz.createdAt);
       return quizDate >= startDate;
     });
-
-    // Tag creation trend
-    const creationTrend = generateTrendData(filteredTags, startDate, now, range, 'createdAt');
 
     // Usage trend (based on quiz creation with tags)
     const usageTrend = generateUsageTrend(filteredQuizzes, startDate, now, range);
@@ -204,7 +195,6 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     });
 
     return {
-      tagCreationTrend: creationTrend,
       usageTrend,
       topTagsByUsage,
       tagEfficiency: {
@@ -232,37 +222,6 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       default:
         return new Date(now.getFullYear(), now.getMonth(), 1);
     }
-  };
-
-  const generateTrendData = (data: any[], startDate: Date, endDate: Date, range: string, dateField: string) => {
-    const trendData: Array<{ date: string; count: number }> = [];
-    const current = new Date(startDate);
-
-    while (current <= endDate) {
-      const dateStr = current.toISOString().split('T')[0];
-      const count = data.filter(item => {
-        const itemDate = new Date(item[dateField]).toISOString().split('T')[0];
-        return itemDate === dateStr;
-      }).length;
-
-      trendData.push({ date: dateStr, count });
-
-      // Move to next period
-      switch (range) {
-        case 'week':
-        case 'month':
-          current.setDate(current.getDate() + 1);
-          break;
-        case 'quarter':
-          current.setDate(current.getDate() + 7);
-          break;
-        case 'year':
-          current.setMonth(current.getMonth() + 1);
-          break;
-      }
-    }
-
-    return trendData;
   };
 
   const generateUsageTrend = (quizzes: QuizDto[], startDate: Date, endDate: Date, range: string) => {
@@ -324,10 +283,11 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     );
   };
 
-  const renderTrendChart = (data: Array<{ date: string; count?: number; usage?: number }>, title: string, yAxis: string) => {
-    const maxValue = Math.max(...data.map(d => d.count || d.usage || 0));
+  const renderTrendChart = (data: Array<{ date: string; usage: number }>, title: string) => {
+    const maxValue = Math.max(...data.map(d => d.usage), 0);
     const height = 200;
-    
+    const divisor = maxValue > 0 ? maxValue : 1;
+
     return (
       <div className="bg-theme-bg-primary rounded-lg p-4 border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary">
         <h4 className="text-lg font-medium text-theme-text-primary mb-4">{title}</h4>
@@ -335,13 +295,13 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
           <svg className="w-full h-full" viewBox={`0 0 ${data.length * 40} ${height}`}>
             {data.map((point, index) => {
               const x = index * 40;
-              const y = height - ((point.count || point.usage || 0) / maxValue) * height;
+              const y = height - (point.usage / divisor) * height;
               const nextPoint = data[index + 1];
-              
+
               if (nextPoint) {
                 const nextX = (index + 1) * 40;
-                const nextY = height - ((nextPoint.count || nextPoint.usage || 0) / maxValue) * height;
-                
+                const nextY = height - (nextPoint.usage / divisor) * height;
+
                 return (
                   <g key={index}>
                     <line
@@ -433,9 +393,8 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       </div>
 
       {/* Trend Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {renderTrendChart(analyticsData.tagCreationTrend, 'Tag Creation Trend', 'Tags Created')}
-        {renderTrendChart(analyticsData.usageTrend, 'Tag Usage Trend', 'Tags Used')}
+      <div className="grid grid-cols-1 gap-6">
+        {renderTrendChart(analyticsData.usageTrend, 'Tag Usage Trend')}
       </div>
 
       {/* Top Tags by Usage */}
@@ -461,7 +420,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
             </div>
             <div className="space-y-2">
               <h5 className="text-sm font-medium text-theme-text-secondary">Most Efficient Tags:</h5>
-              {analyticsData.tagEfficiency.mostEfficientTags.map((item, index) => (
+              {analyticsData.tagEfficiency.mostEfficientTags.map((item) => (
                 <div key={item.tag.id} className="flex justify-between items-center text-sm">
                   <span className="text-theme-text-secondary">{item.tag.name}</span>
                   <span className="font-medium text-theme-text-primary">{item.efficiency} quizzes</span>
@@ -539,4 +498,4 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
       </div>
     </div>
   );
-}; 
+};

@@ -17,15 +17,6 @@ interface TagStatistics {
     tag: TagDto;
     usageCount: number;
   }>;
-  recentActivity: {
-    lastCreated: Date | null;
-    lastUpdated: Date | null;
-  };
-  growthMetrics: {
-    tagsThisMonth: number;
-    tagsLastMonth: number;
-    growthRate: number;
-  };
   usageDistribution: {
     highUsage: number; // > 10 quizzes
     mediumUsage: number; // 5-10 quizzes
@@ -81,13 +72,9 @@ export const TagStats: React.FC<TagStatsProps> = ({
   };
 
   const calculateStats = (tags: TagDto[], quizzes: QuizDto[]): TagStatistics => {
-    const now = new Date();
-    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
     // Calculate usage for each tag
     const tagUsageMap = new Map<string, number>();
-    
+
     quizzes.forEach(quiz => {
       quiz.tagIds.forEach(tagId => {
         tagUsageMap.set(tagId, (tagUsageMap.get(tagId) || 0) + 1);
@@ -114,40 +101,6 @@ export const TagStats: React.FC<TagStatsProps> = ({
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 5);
 
-    // Activity tracking
-    let lastCreated: Date | null = null;
-    let lastUpdated: Date | null = null;
-
-    tags.forEach(tag => {
-      const createdDate = new Date(tag.createdAt);
-      const updatedDate = new Date(tag.updatedAt);
-
-      if (!lastCreated || createdDate > lastCreated) {
-        lastCreated = createdDate;
-      }
-      if (!lastUpdated || updatedDate > lastUpdated) {
-        lastUpdated = updatedDate;
-      }
-    });
-
-    // Monthly growth
-    let tagsThisMonth = 0;
-    let tagsLastMonth = 0;
-
-    tags.forEach(tag => {
-      const createdDate = new Date(tag.createdAt);
-      
-      if (createdDate >= thisMonth) {
-        tagsThisMonth++;
-      } else if (createdDate >= lastMonth && createdDate < thisMonth) {
-        tagsLastMonth++;
-      }
-    });
-
-    const growthRate = tagsLastMonth > 0 
-      ? ((tagsThisMonth - tagsLastMonth) / tagsLastMonth) * 100 
-      : tagsThisMonth > 0 ? 100 : 0;
-
     const usedTags = tagUsageData.filter(t => t.usageCount > 0).length;
     const totalUsage = tagUsageData.reduce((sum, t) => sum + t.usageCount, 0);
 
@@ -157,38 +110,8 @@ export const TagStats: React.FC<TagStatsProps> = ({
       unusedTags: tags.length - usedTags,
       averageUsagePerTag: tags.length > 0 ? Math.round(totalUsage / tags.length) : 0,
       mostUsedTags,
-      recentActivity: {
-        lastCreated,
-        lastUpdated
-      },
-      growthMetrics: {
-        tagsThisMonth,
-        tagsLastMonth,
-        growthRate
-      },
       usageDistribution
     };
-  };
-
-  const getGrowthIcon = (growthRate: number) => {
-    if (growthRate > 0) {
-      return (
-        <svg className="w-4 h-4 text-theme-interactive-success" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-        </svg>
-      );
-    } else if (growthRate < 0) {
-      return (
-        <svg className="w-4 h-4 text-theme-interactive-danger" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
-        </svg>
-      );
-    }
-    return (
-      <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-      </svg>
-    );
   };
 
   if (loading) {
@@ -275,17 +198,17 @@ export const TagStats: React.FC<TagStatsProps> = ({
             </div>
           </div>
 
-          {/* Growth Rate */}
+          {/* Unused Tags */}
           <div className="bg-theme-bg-warning rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                {getGrowthIcon(stats.growthMetrics.growthRate)}
+                <svg className="w-8 h-8 text-theme-interactive-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V7a2 2 0 00-2-2h-3.5a2 2 0 01-1.6-.8l-.8-1.067A2 2 0 0010.5 2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2v-7z" />
+                </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-theme-interactive-warning">Growth Rate</p>
-                <p className="text-2xl font-bold text-theme-text-primary">
-                  {stats.growthMetrics.growthRate > 0 ? '+' : ''}{stats.growthMetrics.growthRate.toFixed(1)}%
-                </p>
+                <p className="text-sm font-medium text-theme-interactive-warning">Unused Tags</p>
+                <p className="text-2xl font-bold text-theme-text-primary">{stats.unusedTags}</p>
               </div>
             </div>
           </div>
@@ -384,36 +307,9 @@ export const TagStats: React.FC<TagStatsProps> = ({
                 ))}
               </div>
             </div>
-
-            {/* Recent Activity */}
-            <div className="mt-8">
-              <h4 className="text-lg font-medium text-theme-text-primary mb-4">Recent Activity</h4>
-              <div className="bg-theme-bg-secondary rounded-lg p-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-theme-text-secondary">Last Created:</span>
-                    <span className="text-sm font-medium text-theme-text-primary">
-                      {stats.recentActivity.lastCreated 
-                        ? new Date(stats.recentActivity.lastCreated).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-theme-text-secondary">Last Updated:</span>
-                    <span className="text-sm font-medium text-theme-text-primary">
-                      {stats.recentActivity.lastUpdated 
-                        ? new Date(stats.recentActivity.lastUpdated).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </>
         )}
       </div>
     </div>
   );
-}; 
+};

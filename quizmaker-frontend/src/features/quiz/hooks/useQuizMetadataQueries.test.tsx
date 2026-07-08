@@ -13,8 +13,6 @@ vi.mock('@/services', () => serviceMocks);
 const tag = {
   id: 'tag-1',
   name: 'Architecture',
-  createdAt: '2026-07-07T12:00:00Z',
-  updatedAt: '2026-07-07T12:00:00Z',
 };
 
 const category = {

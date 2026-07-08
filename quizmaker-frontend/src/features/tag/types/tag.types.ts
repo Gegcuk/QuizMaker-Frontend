@@ -1,13 +1,12 @@
 // Tag-related type definitions
 // Used for quiz tag management as documented in the API specification
 
-import { BaseEntity } from '@/types';
-
 /**
  * Tag data transfer object
  * Matches TagDto from API documentation
  */
-export interface TagDto extends BaseEntity {
+export interface TagDto {
+  id: string;                      // Tag ID
   name: string;                    // Tag name (3-50 characters)
   description?: string;            // Tag description (max 1000 characters)
 }

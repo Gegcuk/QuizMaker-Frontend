@@ -6,7 +6,6 @@ import type {
   CreateTagRequest,
   UpdateTagRequest,
 } from '@/types';
-import { BaseService } from '@/api/base.service';
 import api from '@/api/axiosInstance';
 import { getErrorMessage } from '@/utils/errorUtils';
 
@@ -19,9 +18,11 @@ type TagServiceError = Error & {
  * Tag service for handling tag operations
  * Implements all endpoints from the TagController API documentation
  */
-export class TagService extends BaseService<TagDto> {
+export class TagService {
+  private readonly axiosInstance: AxiosInstance;
+
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/v1/tags');
+    this.axiosInstance = axiosInstance;
   }
 
   /**
