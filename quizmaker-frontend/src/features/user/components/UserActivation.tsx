@@ -1,13 +1,11 @@
 // src/components/UserActivation.tsx
 // ---------------------------------------------------------------------------
-// User activation/deactivation component based on USER_ENDPOINTS
+// User activation/deactivation component
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '@/features/auth';
-import { userService } from '@/services';
 import { UserDto } from '@/types';
-import type { AxiosError } from 'axios';
 import { Button, Alert, Checkbox } from '@/components';
 
 interface UserActivationProps {
@@ -25,64 +23,22 @@ interface BulkActivationProps {
   className?: string;
 }
 
+const ACTIVATION_UNAVAILABLE_MESSAGE =
+  'User activation controls are unavailable because the deployed API does not expose activation endpoints.';
+
 // Individual user activation component
 export const UserActivation: React.FC<UserActivationProps> = ({
   userId,
   user,
-  onActivationChange,
-  onError,
   className = ''
 }) => {
   const { user: currentUser } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isActive, setIsActive] = useState(user?.isActive ?? false);
-  const [errors, setErrors] = useState<string | null>(null);
-
-  // Update local state when user prop changes
-  useEffect(() => {
-    if (user) {
-      setIsActive(user.isActive);
-    }
-  }, [user]);
+  const isActive = user?.isActive ?? false;
 
   // Check if current user has permission to activate/deactivate users
   const hasPermission = currentUser?.roles.some(role => 
     ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'].includes(role)
   );
-
-  const handleToggleActivation = async () => {
-    if (!hasPermission) {
-      const errorMsg = 'You do not have permission to activate/deactivate users';
-      setErrors(errorMsg);
-      if (onError) onError(errorMsg);
-      return;
-    }
-
-    setIsLoading(true);
-    setErrors(null);
-
-    try {
-      if (isActive) {
-        await userService.deactivateUser(userId);
-        setIsActive(false);
-      } else {
-        await userService.activateUser(userId);
-        setIsActive(true);
-      }
-
-      if (onActivationChange) {
-        onActivationChange(userId, !isActive);
-      }
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 
-        `Failed to ${isActive ? 'deactivate' : 'activate'} user`;
-      setErrors(errorMessage);
-      if (onError) onError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (!hasPermission) {
     return (
@@ -103,11 +59,9 @@ export const UserActivation: React.FC<UserActivationProps> = ({
 
   return (
     <div className={className}>
-      {errors && (
-        <Alert type="error" dismissible onDismiss={() => setErrors(null)} className="mb-3">
-          {errors}
-        </Alert>
-      )}
+      <Alert type="warning" title="Activation unavailable" className="mb-3">
+        {ACTIVATION_UNAVAILABLE_MESSAGE}
+      </Alert>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -124,13 +78,12 @@ export const UserActivation: React.FC<UserActivationProps> = ({
         </div>
         
         <Button
-          variant={isActive ? 'danger' : 'success'}
+          variant="secondary"
           size="sm"
-          onClick={handleToggleActivation}
-          disabled={isLoading}
-          loading={isLoading}
+          disabled
+          title={ACTIVATION_UNAVAILABLE_MESSAGE}
         >
-          {isActive ? 'Deactivate' : 'Activate'}
+          {isActive ? 'Deactivate unavailable' : 'Activate unavailable'}
         </Button>
       </div>
     </div>
@@ -140,60 +93,14 @@ export const UserActivation: React.FC<UserActivationProps> = ({
 // Bulk activation component
 export const BulkUserActivation: React.FC<BulkActivationProps> = ({
   userIds,
-  onActivationChange,
-  onError,
   className = ''
 }) => {
   const { user: currentUser } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [action, setAction] = useState<'activate' | 'deactivate' | null>(null);
-  const [errors, setErrors] = useState<string | null>(null);
 
   // Check if current user has permission
   const hasPermission = currentUser?.roles.some(role => 
     ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'].includes(role)
   );
-
-  const handleBulkActivation = async (activate: boolean) => {
-    if (!hasPermission) {
-      const errorMsg = 'You do not have permission to perform bulk user operations';
-      setErrors(errorMsg);
-      if (onError) onError(errorMsg);
-      return;
-    }
-
-    if (userIds.length === 0) {
-      const errorMsg = 'No users selected for bulk operation';
-      setErrors(errorMsg);
-      if (onError) onError(errorMsg);
-      return;
-    }
-
-    setIsLoading(true);
-    setAction(activate ? 'activate' : 'deactivate');
-    setErrors(null);
-
-    try {
-      if (activate) {
-        await userService.bulkActivateUsers(userIds);
-      } else {
-        await userService.bulkDeactivateUsers(userIds);
-      }
-
-      if (onActivationChange) {
-        onActivationChange(userIds, activate);
-      }
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 
-        `Failed to bulk ${activate ? 'activate' : 'deactivate'} users`;
-      setErrors(errorMessage);
-      if (onError) onError(errorMessage);
-    } finally {
-      setIsLoading(false);
-      setAction(null);
-    }
-  };
 
   if (!hasPermission) {
     return (
@@ -223,33 +130,29 @@ export const BulkUserActivation: React.FC<BulkActivationProps> = ({
         </span>
       </div>
 
-      {errors && (
-        <Alert type="error" dismissible onDismiss={() => setErrors(null)} className="mb-3">
-          {errors}
-        </Alert>
-      )}
+      <Alert type="warning" title="Bulk activation unavailable" className="mb-3">
+        {ACTIVATION_UNAVAILABLE_MESSAGE}
+      </Alert>
 
       <div className="flex space-x-2">
         <Button
-          variant="success"
+          variant="secondary"
           size="sm"
-          onClick={() => handleBulkActivation(true)}
-          disabled={isLoading || userIds.length === 0}
-          loading={isLoading && action === 'activate'}
+          disabled
+          title={ACTIVATION_UNAVAILABLE_MESSAGE}
           className="flex-1"
         >
-          Activate All
+          Activate All unavailable
         </Button>
-        
+
         <Button
-          variant="danger"
+          variant="secondary"
           size="sm"
-          onClick={() => handleBulkActivation(false)}
-          disabled={isLoading || userIds.length === 0}
-          loading={isLoading && action === 'deactivate'}
+          disabled
+          title={ACTIVATION_UNAVAILABLE_MESSAGE}
           className="flex-1"
         >
-          Deactivate All
+          Deactivate All unavailable
         </Button>
       </div>
 
@@ -323,6 +226,7 @@ const UserActivationManager: React.FC<{
             {/* Select All */}
             <div className="flex items-center space-x-3 p-3 bg-theme-bg-secondary rounded-md">
               <Checkbox
+                id="user-activation-select-all"
                 checked={selectedUserIds.length === users.length && users.length > 0}
                 onChange={handleSelectAll}
                 label={`Select All (${users.length} users)`}
@@ -333,6 +237,7 @@ const UserActivationManager: React.FC<{
             {users.map((user) => (
               <div key={user.id} className="flex items-center space-x-3 p-3 bg-theme-bg-primary border border-theme-border-primary rounded-md">
                 <Checkbox
+                  id={`user-activation-select-${user.id}`}
                   checked={selectedUserIds.includes(user.id)}
                   onChange={(checked) => handleUserSelection(user.id, checked)}
                   label=""
@@ -354,4 +259,4 @@ const UserActivationManager: React.FC<{
   );
 };
 
-export default UserActivationManager; 
+export default UserActivationManager;

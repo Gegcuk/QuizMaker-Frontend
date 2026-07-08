@@ -91,9 +91,14 @@ describe('UserService', () => {
     const serviceSurface = service as unknown as Record<string, unknown>;
 
     expect(serviceSurface.getAll).toBeUndefined();
+    expect(serviceSurface.getUserById).toBeUndefined();
     expect(serviceSurface.create).toBeUndefined();
     expect(serviceSurface.update).toBeUndefined();
     expect(serviceSurface.search).toBeUndefined();
+    expect(serviceSurface.activateUser).toBeUndefined();
+    expect(serviceSurface.deactivateUser).toBeUndefined();
+    expect(serviceSurface.bulkActivateUsers).toBeUndefined();
+    expect(serviceSurface.bulkDeactivateUsers).toBeUndefined();
     expect(serviceSurface.bulkCreate).toBeUndefined();
     expect(serviceSurface.bulkUpdate).toBeUndefined();
     expect(serviceSurface.bulkDelete).toBeUndefined();

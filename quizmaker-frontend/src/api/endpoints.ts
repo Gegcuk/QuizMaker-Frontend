@@ -8,13 +8,6 @@
 export const USER_ENDPOINTS = {
   PROFILE: '/v1/users/me',                // GET/PATCH /api/v1/users/me (user profile)
   UPLOAD_AVATAR: '/v1/users/me/avatar',   // POST /api/v1/users/me/avatar (upload avatar)
-  // Note: Admin user management endpoints below are not yet implemented in backend API
-  USERS: '/v1/users',
-  USER_BY_ID: (id: string) => `/v1/users/${id}`,
-  ACTIVATE_USER: (id: string) => `/v1/users/${id}/activate`,
-  DEACTIVATE_USER: (id: string) => `/v1/users/${id}/deactivate`,
-  BULK_ACTIVATE: '/v1/users/bulk-activate',
-  BULK_DEACTIVATE: '/v1/users/bulk-deactivate',
 } as const;
 
 

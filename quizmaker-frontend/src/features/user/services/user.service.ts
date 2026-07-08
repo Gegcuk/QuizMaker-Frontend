@@ -1,7 +1,7 @@
 // src/api/user.service.ts
 import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { USER_ENDPOINTS } from '@/api/endpoints';
-import { UserDto, UserProfileResponse, AvatarUploadResponse } from '@/types';
+import { UserProfileResponse, AvatarUploadResponse } from '@/types';
 import api from '@/api/axiosInstance';
 import { getErrorMessage } from '@/utils/errorUtils';
 
@@ -65,67 +65,6 @@ export class UserService {
     try {
       const response = await this.axiosInstance.patch<UserProfileResponse>(USER_ENDPOINTS.PROFILE, data);
       return response.data;
-    } catch (error) {
-      throw this.handleUserError(error);
-    }
-  }
-
-  /**
-   * Get user by ID (admin only)
-   * GET /api/v1/users/{id}
-   */
-  async getUserById(id: string): Promise<UserDto> {
-    try {
-      const response = await this.axiosInstance.get<UserDto>(USER_ENDPOINTS.USER_BY_ID(id));
-      return response.data;
-    } catch (error) {
-      throw this.handleUserError(error);
-    }
-  }
-
-  /**
-   * Activate user (admin only)
-   * POST /api/v1/users/{id}/activate
-   */
-  async activateUser(id: string): Promise<void> {
-    try {
-      await this.axiosInstance.post(USER_ENDPOINTS.ACTIVATE_USER(id));
-    } catch (error) {
-      throw this.handleUserError(error);
-    }
-  }
-
-  /**
-   * Deactivate user (admin only)
-   * POST /api/v1/users/{id}/deactivate
-   */
-  async deactivateUser(id: string): Promise<void> {
-    try {
-      await this.axiosInstance.post(USER_ENDPOINTS.DEACTIVATE_USER(id));
-    } catch (error) {
-      throw this.handleUserError(error);
-    }
-  }
-
-  /**
-   * Bulk activate users (admin only)
-   * POST /api/v1/users/bulk-activate
-   */
-  async bulkActivateUsers(userIds: string[]): Promise<void> {
-    try {
-      await this.axiosInstance.post(USER_ENDPOINTS.BULK_ACTIVATE, { userIds });
-    } catch (error) {
-      throw this.handleUserError(error);
-    }
-  }
-
-  /**
-   * Bulk deactivate users (admin only)
-   * POST /api/v1/users/bulk-deactivate
-   */
-  async bulkDeactivateUsers(userIds: string[]): Promise<void> {
-    try {
-      await this.axiosInstance.post(USER_ENDPOINTS.BULK_DEACTIVATE, { userIds });
     } catch (error) {
       throw this.handleUserError(error);
     }
