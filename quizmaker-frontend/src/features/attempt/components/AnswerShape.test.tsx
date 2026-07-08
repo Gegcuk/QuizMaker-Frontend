@@ -131,7 +131,16 @@ describe('attempt answer shape emissions', () => {
               { id: 1, answer: 'mitochondria' },
               { id: 2, answer: 'ATP' },
             ],
-            options: ['mitochondria', 'ATP', 'chlorophyll'],
+            options: [
+              'mitochondria',
+              'ATP',
+              'chloroplast',
+              'ribosome',
+              'nucleus',
+              'glucose',
+              'NADH',
+              'oxygen',
+            ],
           },
         }}
         onAnswerChange={onAnswerChange}
@@ -143,6 +152,88 @@ describe('attempt answer shape emissions', () => {
     expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria' });
 
     await user.click(screen.getByRole('button', { name: 'ATP' }));
+    expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria', 2: 'ATP' });
+  });
+
+  it('allows typing against a fill-gap option pool and advances on enter', async () => {
+    const onAnswerChange = vi.fn();
+    const { user } = renderWithProviders(
+      <FillGapAnswer
+        question={{
+          ...baseQuestion,
+          type: 'FILL_GAP',
+          questionText: 'Fill the gaps.',
+          safeContent: {
+            text: 'The {1} produces {2}.',
+            gaps: [
+              { id: 1, answer: 'mitochondria' },
+              { id: 2, answer: 'ATP' },
+            ],
+            options: [
+              'mitochondria',
+              'ATP',
+              'chloroplast',
+              'ribosome',
+              'nucleus',
+              'glucose',
+              'NADH',
+              'oxygen',
+            ],
+          },
+        }}
+        onAnswerChange={onAnswerChange}
+      />,
+      { withAuthProvider: false },
+    );
+
+    const firstGap = screen.getByRole('textbox', { name: /Gap 1/i });
+    const secondGap = screen.getByRole('textbox', { name: /Gap 2/i });
+
+    await user.click(firstGap);
+    await user.type(firstGap, 'mito');
+
+    expect(screen.getByText('Closest pool option: mitochondria')).toBeInTheDocument();
+
+    await user.keyboard('{Enter}');
+
+    expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria' });
+    await waitFor(() => expect(secondGap).toHaveFocus());
+
+    await user.type(secondGap, 'ATP{Enter}');
+
+    expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria', 2: 'ATP' });
+  });
+
+  it('keeps typed fill-gap blanks when options are not a full distractor pool', async () => {
+    const onAnswerChange = vi.fn();
+    const { user } = renderWithProviders(
+      <FillGapAnswer
+        question={{
+          ...baseQuestion,
+          type: 'FILL_GAP',
+          questionText: 'Fill the gaps.',
+          safeContent: {
+            text: 'The {1} produces {2}.',
+            gaps: [
+              { id: 1, answer: 'mitochondria' },
+              { id: 2, answer: 'ATP' },
+            ],
+            options: ['mitochondria', 'ATP'],
+          },
+        }}
+        onAnswerChange={onAnswerChange}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.queryByText('Answer pool')).not.toBeInTheDocument();
+
+    const [firstGap, secondGap] = screen.getAllByRole('textbox');
+
+    await user.type(firstGap, 'mitochondria');
+    expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria' });
+
+    await user.type(secondGap, 'ATP');
     expect(onAnswerChange).toHaveBeenLastCalledWith({ 1: 'mitochondria', 2: 'ATP' });
   });
 
