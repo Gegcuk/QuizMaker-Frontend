@@ -142,4 +142,100 @@ describe('FillGapEditor', () => {
     });
     expect(getLastChange(onChange)).not.toHaveProperty('options');
   });
+
+  it('creates gap answer rows when markers are typed manually', async () => {
+    const onChange = vi.fn();
+    renderWithProviders(
+      <FillGapEditor content={{ text: '', gaps: [] }} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    fireEvent.change(screen.getByLabelText(/Question Text/), {
+      target: { value: 'Cellular respiration produces {1}.' },
+    });
+
+    expect(screen.getByText('Gap Answers')).toBeInTheDocument();
+    expect(screen.getByText('Gap 1:')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter correct answer...')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)).toEqual({
+        text: 'Cellular respiration produces {1}.',
+        gaps: [{ id: 1, answer: '' }],
+      });
+    });
+  });
+
+  it('removes stale gap rows when markers are deleted from the text', async () => {
+    const onChange = vi.fn();
+    renderWithProviders(
+      <FillGapEditor content={legacyContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    fireEvent.change(screen.getByLabelText(/Question Text/), {
+      target: { value: 'Cellular respiration produces ATP.' },
+    });
+
+    expect(screen.queryByText('Gap Answers')).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)).toEqual({
+        text: 'Cellular respiration produces ATP.',
+        gaps: [],
+      });
+    });
+  });
+
+  it('preserves typed-marker answers when Add Gap inserts the next available marker', async () => {
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(
+      <FillGapEditor content={{ text: '', gaps: [] }} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    fireEvent.change(screen.getByLabelText(/Question Text/), {
+      target: { value: 'Cellular respiration produces {1}.' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Enter correct answer...'), {
+      target: { value: 'ATP' },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Add Gap' }));
+
+    const answerInputs = screen.getAllByPlaceholderText('Enter correct answer...');
+    expect(answerInputs).toHaveLength(2);
+    expect(answerInputs[0]).toHaveValue('ATP');
+    expect(screen.getByLabelText(/Question Text/)).toHaveValue('Cellular respiration produces {1}.{2}');
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)).toEqual({
+        text: 'Cellular respiration produces {1}.{2}',
+        gaps: [
+          { id: 1, answer: 'ATP' },
+          { id: 2, answer: '' },
+        ],
+      });
+    });
+  });
+
+  it('removes a marker from the text when its gap row is removed', async () => {
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(
+      <FillGapEditor content={dragOptionContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByLabelText('Remove gap 1'));
+
+    expect(screen.getByLabelText(/Question Text/)).toHaveValue(
+      'Cellular respiration occurs in the  and produces {2}.',
+    );
+    expect(screen.queryByText('Gap 1:')).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.gaps).toEqual([{ id: 2, answer: 'ATP' }]);
+      expect(getLastChange(onChange)?.text).not.toContain('{1}');
+    });
+  });
 });
