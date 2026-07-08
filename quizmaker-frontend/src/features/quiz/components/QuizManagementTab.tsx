@@ -187,9 +187,7 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
       const newTag: TagDto = {
         id: response.tagId,
         name: newTagName.trim(),
-        description: newTagDescription.trim(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        description: newTagDescription.trim()
       };
       
       // Add to available tags only (don't automatically select it)

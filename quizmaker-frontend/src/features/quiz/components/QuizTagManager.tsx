@@ -27,7 +27,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   className = ''
 }) => {
   const tagService = new TagService(api);
-  
+
   const [tags, setTags] = useState<TagWithStatus[]>([]);
   const [displayedCount, setDisplayedCount] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +43,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
     const loadTags = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await tagService.getTags();
         const tagsWithStatus = response.content.map(tag => ({
@@ -71,15 +71,15 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
   // Handle tag selection
   const handleTagToggle = (tagId: string) => {
-    const updatedTags = tags.map(t => 
+    const updatedTags = tags.map(t =>
       t.id === tagId ? { ...t, isSelected: !t.isSelected } : t
     );
     setTags(updatedTags);
-    
+
     const selectedIds = updatedTags
       .filter(t => t.isSelected)
       .map(t => t.id);
-    
+
     onTagsChange(selectedIds);
   };
 
@@ -87,7 +87,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   const handleBulkSelect = (selectAll: boolean) => {
     const updatedTags = tags.map(t => ({ ...t, isSelected: selectAll }));
     setTags(updatedTags);
-    
+
     const selectedIds = selectAll ? tags.map(t => t.id) : [];
     onTagsChange(selectedIds);
   };
@@ -99,22 +99,20 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
     try {
       setIsCreating(true);
       setError(null);
-      
-      const response = await tagService.createTag({ 
-        name: newTagName.trim(), 
-        description: newTagDescription.trim() 
+
+      const response = await tagService.createTag({
+        name: newTagName.trim(),
+        description: newTagDescription.trim()
       });
-      
+
       // Create the new tag object with the response
       const newTag: TagWithStatus = {
         id: response.tagId,
         name: newTagName.trim(),
         description: newTagDescription.trim(),
-        isSelected: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        isSelected: false
       };
-      
+
       setTags(prev => [...prev, newTag]);
       setNewTagName('');
       setNewTagDescription('');
@@ -310,9 +308,6 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                             {tag.description}
                           </p>
                         )}
-                        <div className="mt-2 flex items-center space-x-4 text-xs text-theme-text-tertiary">
-                          <span>Created: {new Date(tag.createdAt).toLocaleDateString()}</span>
-                        </div>
                       </div>
                     }
                   />
@@ -363,4 +358,4 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   );
 };
 
-export default QuizTagManager; 
+export default QuizTagManager;

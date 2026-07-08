@@ -7,8 +7,6 @@ const tag: TagDto = {
   id: 'tag-1',
   name: 'Architecture',
   description: 'Software architecture topics',
-  createdAt: '2026-07-07T12:00:00Z',
-  updatedAt: '2026-07-07T12:00:00Z',
 };
 
 const tagPage: TagPage = {
@@ -93,6 +91,19 @@ describe('TagService', () => {
       description: 'Updated',
     });
     expect(axios.delete).toHaveBeenCalledWith('/v1/tags/tag-1');
+  });
+
+  it('does not expose unsupported generic service operations', () => {
+    const serviceSurface = service as unknown as Record<string, unknown>;
+
+    expect(serviceSurface.getAll).toBeUndefined();
+    expect(serviceSurface.update).toBeUndefined();
+    expect(serviceSurface.search).toBeUndefined();
+    expect(serviceSurface.bulkCreate).toBeUndefined();
+    expect(serviceSurface.bulkUpdate).toBeUndefined();
+    expect(serviceSurface.bulkDelete).toBeUndefined();
+    expect(serviceSurface.count).toBeUndefined();
+    expect(serviceSurface.export).toBeUndefined();
   });
 
   it('preserves ProblemDetail detail for validation and conflict failures', async () => {

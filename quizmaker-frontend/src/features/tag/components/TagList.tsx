@@ -112,16 +112,6 @@ export const TagList: React.FC<TagListProps> = ({
         </div>
       )
     },
-    {
-      key: 'createdAt',
-      header: 'Created',
-      sortable: true,
-      render: (value: string) => (
-        <div className="text-sm text-theme-text-secondary">
-          {new Date(value).toLocaleDateString()}
-        </div>
-      )
-    },
     ...(showActions ? [{
       key: 'actions',
       header: 'Actions',
