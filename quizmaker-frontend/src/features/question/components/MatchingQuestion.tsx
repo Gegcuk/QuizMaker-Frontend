@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QuestionDto } from '@/types';
-import { InstructionsModal } from '@/components';
+import { InstructionsModal, SafeContent } from '@/components';
 
 interface MatchingQuestionProps {
   question: QuestionDto;
@@ -22,15 +22,18 @@ interface MatchingItem {
   matchId?: number;
 }
 
+const EMPTY_MATCHES: Record<number, number> = {};
+
 const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
   question,
   onAnswerChange,
-  currentAnswer = {},
+  currentAnswer = EMPTY_MATCHES,
   showCorrectAnswer = false,
   disabled = false,
   className = ''
 }) => {
   const [matches, setMatches] = useState<Record<number, number>>(currentAnswer);
+  const [selectedLeftId, setSelectedLeftId] = useState<number | null>(null);
   
   // Extract left and right items from question content
   const leftItems: MatchingItem[] = question.content?.left || [];
@@ -38,6 +41,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
 
   useEffect(() => {
     setMatches(currentAnswer);
+    setSelectedLeftId(null);
   }, [currentAnswer]);
 
   const handleMatch = (leftId: number, rightId: number) => {
@@ -52,37 +56,56 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
     
     // If this right item was already matched by another left item, remove that match
     Object.keys(newMatches).forEach(key => {
-      if (newMatches[parseInt(key)] === rightId) {
-        delete newMatches[parseInt(key)];
+      const leftIdForExistingMatch = parseInt(key, 10);
+      if (newMatches[leftIdForExistingMatch] === rightId) {
+        delete newMatches[leftIdForExistingMatch];
       }
     });
     
     // Add the new match
     newMatches[leftId] = rightId;
     setMatches(newMatches);
+    setSelectedLeftId(null);
     onAnswerChange?.(newMatches);
   };
 
-  const isCorrectMatch = (leftId: number, rightId: number) => {
-    if (!showCorrectAnswer) return false;
-    
-    // Find the correct match for this left item
-    const leftItem = leftItems.find(item => item.id === leftId);
-    if (!leftItem || !leftItem.matchId) return false;
-    
-    return leftItem.matchId === rightId;
+  const removeMatch = (leftId: number) => {
+    if (disabled) return;
+
+    const newMatches = { ...matches };
+    delete newMatches[leftId];
+    setMatches(newMatches);
+    if (selectedLeftId === leftId) {
+      setSelectedLeftId(null);
+    }
+    onAnswerChange?.(newMatches);
   };
 
-  const getMatchStatus = (leftId: number, rightId: number) => {
-    if (!showCorrectAnswer) return '';
-    
-    const isCorrect = isCorrectMatch(leftId, rightId);
-    const isSelected = matches[leftId] === rightId;
-    
-    if (isSelected && isCorrect) return 'correct';
-    if (isSelected && !isCorrect) return 'incorrect';
-    if (!isSelected && isCorrect) return 'should-be-selected';
-    return '';
+  const handleLeftClick = (leftId: number) => {
+    if (disabled) return;
+
+    if (matches[leftId]) {
+      removeMatch(leftId);
+      return;
+    }
+
+    setSelectedLeftId((current) => (current === leftId ? null : leftId));
+  };
+
+  const handleRightClick = (rightId: number) => {
+    if (disabled) return;
+
+    if (selectedLeftId !== null) {
+      handleMatch(selectedLeftId, rightId);
+      return;
+    }
+
+    const matchedLeftId = Object.keys(matches).find(
+      key => matches[parseInt(key, 10)] === rightId
+    );
+    if (matchedLeftId) {
+      removeMatch(parseInt(matchedLeftId, 10));
+    }
   };
 
   return (
@@ -98,32 +121,31 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
         <div className="space-y-3">
           <h4 className="font-medium text-theme-text-secondary mb-3">Column A</h4>
           {leftItems.map((leftItem) => (
-            <div
+            <button
+              type="button"
               key={leftItem.id}
-              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+              disabled={disabled}
+              aria-pressed={selectedLeftId === leftItem.id || !!matches[leftItem.id]}
+              className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
                 matches[leftItem.id]
                   ? 'border-theme-interactive-primary bg-theme-bg-tertiary'
+                  : selectedLeftId === leftItem.id
+                  ? 'border-theme-interactive-primary bg-theme-bg-info'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => {
-                if (!disabled) {
-                  // Toggle selection
-                  if (matches[leftItem.id]) {
-                    const newMatches = { ...matches };
-                    delete newMatches[leftItem.id];
-                    setMatches(newMatches);
-                    onAnswerChange?.(newMatches);
-                  }
-                }
-              }}
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => handleLeftClick(leftItem.id)}
             >
               <div className="flex items-center justify-between">
-                <span className="text-theme-text-primary">{leftItem.text}</span>
+                <SafeContent
+                  content={leftItem.text}
+                  allowHtml
+                  className="text-theme-text-primary"
+                />
                 {matches[leftItem.id] && (
                   <span className="text-theme-interactive-primary font-medium">Selected</span>
                 )}
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
@@ -131,37 +153,31 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
         <div className="space-y-3">
           <h4 className="font-medium text-theme-text-secondary mb-3">Column B</h4>
           {rightItems.map((rightItem) => (
-            <div
+            <button
+              type="button"
               key={rightItem.id}
-              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+              disabled={disabled}
+              aria-pressed={Object.values(matches).includes(rightItem.id)}
+              className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
                 Object.values(matches).includes(rightItem.id)
                   ? 'border-theme-interactive-success bg-theme-bg-tertiary'
+                  : selectedLeftId !== null
+                  ? 'border-theme-border-secondary bg-theme-bg-primary'
                   : 'border-theme-border-primary hover:border-theme-border-secondary'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => {
-                if (!disabled) {
-                  // Find which left item is currently selected
-                  const selectedLeftId = Object.keys(matches).find(
-                    key => matches[parseInt(key)] === rightItem.id
-                  );
-                  
-                  if (selectedLeftId) {
-                    // Remove this match
-                    const newMatches = { ...matches };
-                    delete newMatches[parseInt(selectedLeftId)];
-                    setMatches(newMatches);
-                    onAnswerChange?.(newMatches);
-                  }
-                }
-              }}
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={() => handleRightClick(rightItem.id)}
             >
               <div className="flex items-center justify-between">
-                <span className="text-theme-text-primary">{rightItem.text}</span>
+                <SafeContent
+                  content={rightItem.text}
+                  allowHtml
+                  className="text-theme-text-primary"
+                />
                 {Object.values(matches).includes(rightItem.id) && (
                   <span className="text-theme-interactive-success font-medium">Matched</span>
                 )}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -179,11 +195,21 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
             <strong>Current Matches:</strong>
             <div className="mt-1 space-y-1">
               {Object.entries(matches).map(([leftId, rightId]) => {
-                const leftItem = leftItems.find(item => item.id === parseInt(leftId));
+                const leftItem = leftItems.find(item => item.id === parseInt(leftId, 10));
                 const rightItem = rightItems.find(item => item.id === rightId);
                 return (
-                  <div key={`${leftId}-${rightId}`} className="text-xs">
-                    {leftItem?.text} → {rightItem?.text}
+                  <div key={`${leftId}-${rightId}`} className="flex items-center gap-1 text-xs">
+                    <SafeContent
+                      content={leftItem?.text ?? ''}
+                      allowHtml
+                      className="text-theme-text-secondary"
+                    />
+                    <span className="text-theme-text-secondary">→</span>
+                    <SafeContent
+                      content={rightItem?.text ?? ''}
+                      allowHtml
+                      className="text-theme-text-secondary"
+                    />
                   </div>
                 );
               })}
@@ -201,8 +227,18 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               {leftItems.map((leftItem) => {
                 const correctRightItem = rightItems.find(item => item.id === leftItem.matchId);
                 return (
-                  <div key={leftItem.id} className="text-xs">
-                    {leftItem.text} → {correctRightItem?.text || 'No match'}
+                  <div key={leftItem.id} className="flex items-center gap-1 text-xs">
+                    <SafeContent
+                      content={leftItem.text}
+                      allowHtml
+                      className="text-theme-text-secondary"
+                    />
+                    <span className="text-theme-text-secondary">→</span>
+                    <SafeContent
+                      content={correctRightItem?.text || 'No match'}
+                      allowHtml
+                      className="text-theme-text-secondary"
+                    />
                   </div>
                 );
               })}

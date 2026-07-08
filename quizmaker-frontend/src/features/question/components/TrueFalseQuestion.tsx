@@ -52,7 +52,10 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={() => handleAnswerChange(true)}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest('input')) return;
+            handleAnswerChange(true);
+          }}
         >
           <input
             type="radio"
@@ -100,7 +103,10 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               ? 'border-theme-interactive-primary bg-theme-bg-primary'
               : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
           } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={() => handleAnswerChange(false)}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest('input')) return;
+            handleAnswerChange(false);
+          }}
         >
           <input
             type="radio"
@@ -161,4 +167,4 @@ const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
   );
 };
 
-export default TrueFalseQuestion; 
+export default TrueFalseQuestion;
