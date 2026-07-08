@@ -32,5 +32,4 @@ export const ADMIN_ENDPOINTS = {
  */
 export const SUPER_ADMIN_ENDPOINTS = {
   DANGEROUS_OPERATION: '/v1/admin/super/dangerous-operation',
-  BULK_OPERATIONS: '/v1/admin/super/bulk-operations',
 } as const;

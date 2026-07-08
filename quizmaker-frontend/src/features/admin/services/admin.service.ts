@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { ADMIN_ENDPOINTS, SUPER_ADMIN_ENDPOINTS } from './admin.endpoints';
 import {
   RoleDto,
@@ -12,6 +12,12 @@ import {
   Page,
   PackDto
 } from '@/types';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type AdminServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * Admin service for handling administrative operations
@@ -191,19 +197,6 @@ export class AdminService {
     }
   }
 
-  /**
-   * Perform bulk operations
-   * POST /api/v1/admin/super/bulk-operations
-   */
-  async performBulkOperations(): Promise<string> {
-    try {
-      const response = await this.axiosInstance.post<string>(SUPER_ADMIN_ENDPOINTS.BULK_OPERATIONS);
-      return response.data;
-    } catch (error) {
-      throw this.handleAdminError(error);
-    }
-  }
-
   // ===== PERMISSION MANAGEMENT METHODS =====
 
   /**
@@ -351,31 +344,47 @@ export class AdminService {
   /**
    * Handle admin-specific errors
    */
-  private handleAdminError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleAdminError(error: unknown): AdminServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
+      const adminError: AdminServiceError = new Error(message);
+      adminError.status = status;
+      adminError.response = error.response;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          adminError.message = `Validation error: ${message}`;
+          break;
         case 401:
-          return new Error('Authentication required');
+          adminError.message = 'Authentication required';
+          break;
         case 403:
-          return new Error('Insufficient permissions');
+          adminError.message = 'Insufficient permissions';
+          break;
         case 404:
-          return new Error('Resource not found');
+          adminError.message = 'Resource not found';
+          break;
+        case 409:
+          adminError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          adminError.message = 'Too many requests. Please try again later.';
+          break;
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          adminError.message = 'Server error occurred';
+          break;
         default:
-          return new Error(message || 'Admin operation failed');
+          adminError.message = message || 'Admin operation failed';
       }
+
+      return adminError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 } 
 

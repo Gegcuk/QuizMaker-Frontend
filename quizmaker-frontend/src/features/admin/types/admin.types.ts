@@ -9,7 +9,7 @@ export interface Role {
   roleId: number;                  // Role identifier
   roleName: string;                // Role name
   description?: string;            // Role description
-  default: boolean;                // Whether this is a default role
+  isDefault: boolean;              // Whether this is a default role
   users?: User[];                  // Users assigned to this role
   permissions?: Permission[];      // Full permission objects (circular reference handled)
 }
@@ -34,7 +34,7 @@ export interface RoleDto {
   roleId: number;                  // Role identifier
   roleName: string;                // Role name
   description: string;             // Role description
-  default: boolean;                // Whether this is a default role
+  isDefault: boolean;              // Whether this is a default role
   permissions: string[];           // Set of permission names (strings, not full objects)
   userCount: number;               // Number of users with this role
 }
@@ -46,7 +46,7 @@ export interface RoleDto {
 export interface CreateRoleRequest {
   roleName: string;                // Required: Role name
   description?: string;            // Optional: Role description
-  default?: boolean;               // Optional: Whether this is a default role
+  isDefault?: boolean;             // Optional: Whether this is a default role
 }
 
 /**
@@ -55,7 +55,7 @@ export interface CreateRoleRequest {
  */
 export interface UpdateRoleRequest {
   description?: string;            // Optional: Updated description
-  default?: boolean;               // Optional: Updated default status
+  isDefault?: boolean;             // Optional: Updated default status
 }
 
 /**
