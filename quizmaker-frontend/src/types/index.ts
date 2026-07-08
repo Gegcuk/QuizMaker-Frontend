@@ -110,6 +110,7 @@ export type {
   DocumentStructureNodeDto,
   StructureTreeResponseDto,
   StructureFlatResponseDto,
+  StructureBuildResponseDto,
   ExtractResponseDto,
   DocumentChunkDto,
   DocumentConfigDto,

@@ -244,7 +244,7 @@ const DocumentProcessList: React.FC<DocumentProcessListProps> = ({
               <div className="flex items-center space-x-3">
                 <DocumentTextIcon className="h-6 w-6 text-theme-text-tertiary" />
                 <div>
-                                     <h3 className="text-lg font-semibold text-theme-text-primary">{document.name || `Document ${document.id.slice(0, 8)}`}</h3>
+                                     <h3 className="text-lg font-semibold text-theme-text-primary">{document.originalName || `Document ${document.id.slice(0, 8)}`}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     {getStatusIcon(document.status)}
                     {getStatusBadge(document.status)}

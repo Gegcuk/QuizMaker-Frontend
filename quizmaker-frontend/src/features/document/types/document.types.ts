@@ -78,8 +78,6 @@ export interface DocumentDto {
  */
 export interface DocumentProcessDto {
   id: string;                            // UUID of the document
-  name?: string;                         // Document name (optional)
-  charCount?: number;                    // Character count (optional)
   status: DocumentProcessStatus;         // Document status
 }
 
@@ -89,9 +87,14 @@ export interface DocumentProcessDto {
  */
 export interface DocumentProcessViewDto {
   id: string;                            // UUID of the document
-  name?: string;                         // Document name (optional)
+  originalName?: string;                 // Original filename
+  mime?: string;                         // MIME type
+  source?: 'UPLOAD' | 'TEXT';            // Document source
   charCount?: number;                    // Character count (optional)
+  language?: string;                     // Language code
   status: DocumentProcessStatus;         // Document status
+  createdAt?: string;                    // ISO date-time
+  updatedAt?: string;                    // ISO date-time
 }
 
 /**
@@ -100,7 +103,7 @@ export interface DocumentProcessViewDto {
  */
 export interface IngestRequestDto {
   text: string;                          // Document content as text (required)
-  language: string;                      // Language code (ISO 639-1, e.g., 'en')
+  language?: string;                     // Language code (ISO 639-1, e.g., 'en')
 }
 
 /**
