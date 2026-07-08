@@ -3,7 +3,7 @@
 // Based on HotspotContent from API documentation
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QuestionDto, HotspotContent, HotspotRegion } from '@/types';
 
 interface HotspotQuestionProps {
@@ -14,16 +14,22 @@ interface HotspotQuestionProps {
   disabled?: boolean;
 }
 
+const EMPTY_CLICKED_REGIONS: number[] = [];
+
 const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   question,
   onAnswerChange,
-  currentAnswer = [],
+  currentAnswer = EMPTY_CLICKED_REGIONS,
   showCorrectAnswer = false,
   disabled = false
 }) => {
   const content = question.content as HotspotContent;
   const { imageUrl, regions } = content;
   const [clickedRegions, setClickedRegions] = useState<number[]>(currentAnswer);
+
+  useEffect(() => {
+    setClickedRegions(currentAnswer);
+  }, [currentAnswer]);
 
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled || !regions) return;
@@ -275,4 +281,4 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   );
 };
 
-export default HotspotQuestion; 
+export default HotspotQuestion;
