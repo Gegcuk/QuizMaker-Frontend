@@ -3,7 +3,7 @@
 // Confirmation modal for publishing based on QuizStatus
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { QuizStatus, QuizDto } from '@/types';
 import { Badge, Button, Alert } from '@/components';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
@@ -25,13 +25,18 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const titleId = useId();
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    if (!isLoading) onClose();
+  };
 
   const handleConfirm = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await onConfirm('PUBLISHED');
       onClose();
@@ -45,7 +50,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
   const handleArchive = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await onConfirm('ARCHIVED');
       onClose();
@@ -59,7 +64,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
   const handleDraft = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await onConfirm('DRAFT');
       onClose();
@@ -74,20 +79,27 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
-        <div 
-          className="fixed inset-0 bg-theme-bg-tertiary bg-opacity-75 transition-opacity"
-          onClick={onClose}
+        <div
+          className="fixed inset-0 z-0 bg-theme-bg-tertiary bg-opacity-75 transition-opacity"
+          data-testid="quiz-publish-modal-backdrop"
+          aria-hidden="true"
+          onClick={handleClose}
         ></div>
 
         {/* Modal panel */}
-        <div className={`inline-block align-bottom bg-theme-bg-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ${className}`}>
+        <div
+          className={`relative z-10 inline-block align-bottom bg-theme-bg-primary rounded-lg text-left overflow-hidden shadow-theme-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ${className}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+        >
           <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
               <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-theme-bg-tertiary sm:mx-0 sm:h-10 sm:w-10">
                 <CheckCircleIcon className="h-6 w-6 text-theme-interactive-primary" />
               </div>
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 className="text-lg leading-6 font-medium text-theme-text-primary">
+                <h3 id={titleId} className="text-lg leading-6 font-medium text-theme-text-primary">
                   Quiz Status Management
                 </h3>
                 <div className="mt-2">
@@ -139,7 +151,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                   Publish Quiz
                 </Button>
               )}
-              
+
               {quiz.status !== 'DRAFT' && (
                 <Button
                   onClick={handleDraft}
@@ -151,7 +163,7 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
                   Save as Draft
                 </Button>
               )}
-              
+
               {quiz.status !== 'ARCHIVED' && (
                 <Button
                   onClick={handleArchive}
@@ -190,4 +202,4 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
   );
 };
 
-export default QuizPublishModal; 
+export default QuizPublishModal;
