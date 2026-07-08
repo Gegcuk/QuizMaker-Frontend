@@ -2,6 +2,79 @@
 // Content sanitization utilities to prevent XSS attacks
 // ---------------------------------------------------------------------------
 
+import createDOMPurify, {
+  type Config as DOMPurifyConfig,
+  type DOMPurify as DOMPurifyInstance,
+} from 'dompurify';
+
+const ALLOWED_HTML_TAGS = [
+  'a', 'article', 'b', 'blockquote', 'br', 'code', 'del', 'details', 'div', 'em',
+  'figcaption', 'figure', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'img',
+  'li', 'mark', 'ol', 'p', 'pre', 's', 'section', 'span', 'strong', 'sub', 'summary',
+  'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul',
+];
+
+const ALLOWED_HTML_ATTRIBUTES = [
+  'alt', 'class', 'colspan', 'height', 'href', 'id', 'loading', 'referrerpolicy', 'rel',
+  'rowspan', 'scope', 'src', 'target', 'title', 'width',
+];
+
+const HTML_SANITIZE_CONFIG: DOMPurifyConfig = {
+  ALLOWED_TAGS: ALLOWED_HTML_TAGS,
+  ALLOWED_ATTR: ALLOWED_HTML_ATTRIBUTES,
+  ALLOWED_NAMESPACES: ['http://www.w3.org/1999/xhtml'],
+  ALLOW_ARIA_ATTR: false,
+  ALLOW_DATA_ATTR: false,
+  ALLOW_UNKNOWN_PROTOCOLS: false,
+  FORBID_ATTR: ['formaction', 'srcset', 'style', 'xlink:href'],
+  FORBID_TAGS: [
+    'button', 'embed', 'form', 'iframe', 'input', 'math', 'meta', 'object', 'script',
+    'select', 'style', 'svg', 'template', 'textarea',
+  ],
+};
+
+const UNSAFE_URI_PROTOCOL = /^(?:data|javascript|vbscript):/i;
+const URI_ATTRIBUTES = new Set(['href', 'src']);
+
+const stripControlCharacters = (value: string, stripSpaces = false): string =>
+  Array.from(value)
+    .filter((character) => {
+      const codePoint = character.codePointAt(0) ?? 0;
+      const lowerBound = stripSpaces ? 0x20 : 0x1f;
+      return codePoint > lowerBound && (codePoint < 0x7f || codePoint > 0x9f);
+    })
+    .join('');
+
+let browserPurifier: DOMPurifyInstance | null = null;
+
+const getBrowserPurifier = (): DOMPurifyInstance | null => {
+  if (typeof window === 'undefined' || !window.document) return null;
+  if (browserPurifier) return browserPurifier;
+
+  browserPurifier = createDOMPurify(window);
+  browserPurifier.addHook('uponSanitizeAttribute', (_node, event) => {
+    if (!URI_ATTRIBUTES.has(event.attrName)) return;
+
+    const normalizedValue = stripControlCharacters(event.attrValue.trim(), true);
+    if (UNSAFE_URI_PROTOCOL.test(normalizedValue)) {
+      event.keepAttr = false;
+    }
+  });
+  browserPurifier.addHook('afterSanitizeAttributes', (node) => {
+    if (!(node instanceof window.HTMLAnchorElement)) return;
+
+    const target = node.getAttribute('target');
+    if (target && target !== '_blank' && target !== '_self') {
+      node.removeAttribute('target');
+    }
+    if (target === '_blank') {
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+
+  return browserPurifier;
+};
+
 /**
  * Escapes HTML attribute values to prevent XSS
  * @param value - The attribute value to escape
@@ -30,23 +103,30 @@ export const sanitizeUrl = (url: string): string => {
     return '';
   }
 
-  // Remove dangerous protocols
-  const dangerousProtocols = /^(javascript:|data:|vbscript:)/i;
-  if (dangerousProtocols.test(url)) {
+  const normalizedUrl = stripControlCharacters(url.trim());
+  if (!normalizedUrl || UNSAFE_URI_PROTOCOL.test(normalizedUrl)) return '';
+  if (normalizedUrl.startsWith('//')) return '';
+
+  if (
+    normalizedUrl.startsWith('/') ||
+    normalizedUrl.startsWith('./') ||
+    normalizedUrl.startsWith('../') ||
+    normalizedUrl.startsWith('#')
+  ) {
+    return normalizedUrl;
+  }
+
+  const candidate = /^[a-z][a-z\d+.-]*:/i.test(normalizedUrl)
+    ? normalizedUrl
+    : `https://${normalizedUrl}`;
+
+  try {
+    const parsedUrl = new URL(candidate);
+    if (!['http:', 'https:', 'mailto:', 'tel:'].includes(parsedUrl.protocol)) return '';
+    return parsedUrl.toString();
+  } catch {
     return '';
   }
-
-  // Allow relative URLs (starting with /) and absolute URLs (http/https)
-  if (url.startsWith('/')) {
-    return url;
-  }
-
-  // Ensure absolute URL starts with http or https
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return `https://${url}`;
-  }
-
-  return url;
 };
 
 /**
@@ -196,7 +276,7 @@ export const convertMarkdownFormatting = (text: string): string => {
 };
 
 /**
- * Sanitizes HTML content by removing potentially dangerous tags and attributes
+ * Sanitizes HTML content with a parser-based allowlist.
  * @param html - The HTML string to sanitize
  * @returns Sanitized HTML string
  */
@@ -205,29 +285,19 @@ export const sanitizeHtml = (html: string): string => {
     return '';
   }
 
-  // First, convert newlines to HTML formatting
-  // Then convert markdown links to HTML links
-  // Finally convert markdown bold/italic formatting
-  // Order matters: newlines first, then links, then formatting
-  let sanitized = convertNewlinesToHtml(html);
+  const purifier = getBrowserPurifier();
+  if (!purifier) {
+    // Server-side callers do not have a DOM. Escape everything rather than
+    // attempting incomplete HTML parsing; browser prerendering uses DOMPurify.
+    return escapeHtmlAttribute(html);
+  }
+
+  let sanitized = purifier.sanitize(html, HTML_SANITIZE_CONFIG);
+  sanitized = convertNewlinesToHtml(sanitized);
   sanitized = convertMarkdownLinks(sanitized);
   sanitized = convertMarkdownFormatting(sanitized);
 
-  // Remove script tags and their content
-  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  
-  // Remove javascript: protocols
-  sanitized = sanitized.replace(/javascript:/gi, '');
-  
-  // Remove on* event handlers (both quoted and unquoted)
-  sanitized = sanitized.replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '');
-  sanitized = sanitized.replace(/\son\w+\s*=\s*[^\s>]*/gi, '');
-  
-  // Remove potentially dangerous attributes (both quoted and unquoted)
-  sanitized = sanitized.replace(/\s(style|onload|onerror|onclick|onmouseover)\s*=\s*["'][^"']*["']/gi, '');
-  sanitized = sanitized.replace(/\s(style|onload|onerror|onclick|onmouseover)\s*=\s*[^\s>]*/gi, '');
-  
-  return sanitized;
+  return purifier.sanitize(sanitized, HTML_SANITIZE_CONFIG);
 };
 
 /**
