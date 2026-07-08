@@ -1,16 +1,24 @@
 // src/api/user.service.ts
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
 import { USER_ENDPOINTS } from '@/api/endpoints';
 import { UserDto, UserProfileResponse, AvatarUploadResponse } from '@/types';
-import { BaseService } from '@/services';
+import api from '@/api/axiosInstance';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type UserServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
 
 /**
  * User service for handling user profile operations
  * Implements all endpoints from the UserController API documentation
  */
-export class UserService extends BaseService<UserDto> {
+export class UserService {
+  private readonly axiosInstance: AxiosInstance;
+
   constructor(axiosInstance: AxiosInstance) {
-    super(axiosInstance, '/v1/users');
+    this.axiosInstance = axiosInstance;
   }
 
   /**
@@ -126,36 +134,49 @@ export class UserService extends BaseService<UserDto> {
   /**
    * Handle user-specific errors
    */
-  private handleUserError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
+  private handleUserError(error: unknown): UserServiceError {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
+      const message = getErrorMessage(error);
+      const userError: UserServiceError = new Error(message);
+      userError.status = status;
+      userError.response = error.response;
 
       switch (status) {
         case 400:
-          return new Error(`Validation error: ${message}`);
+          userError.message = `Validation error: ${message}`;
+          break;
         case 401:
-          return new Error('Authentication required');
+          userError.message = 'Authentication required';
+          break;
         case 403:
-          return new Error('Insufficient permissions');
+          userError.message = 'Insufficient permissions';
+          break;
         case 404:
-          return new Error('User not found');
+          userError.message = 'User not found';
+          break;
         case 409:
-          return new Error('User operation conflict');
+          userError.message = `Conflict: ${message}`;
+          break;
+        case 429:
+          userError.message = 'Too many requests. Please try again later.';
+          break;
         case 500:
         case 502:
         case 503:
         case 504:
-          return new Error('Server error occurred');
+          userError.message = 'Server error occurred';
+          break;
         default:
-          return new Error(message || 'User operation failed');
+          userError.message = message || 'User operation failed';
       }
+
+      return userError;
     }
 
-    return new Error(error.message || 'Network error occurred');
+    return new Error(error instanceof Error ? error.message : 'Network error occurred');
   }
 }
 
 // Export a default instance
-import { api } from '@/services';
-export const userService = new UserService(api); 
+export const userService = new UserService(api);
