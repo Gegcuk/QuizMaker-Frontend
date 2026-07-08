@@ -399,4 +399,4 @@ const getAnswerPoolRequirements = (
   };
 };
 
-export default FillGapEditor; 
+export default FillGapEditor;
