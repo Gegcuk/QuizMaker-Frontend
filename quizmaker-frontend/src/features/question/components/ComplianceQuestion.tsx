@@ -79,7 +79,10 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={() => handleStatementToggle(statement.id)}
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest('input')) return;
+                handleStatementToggle(statement.id);
+              }}
             >
               {/* Statement Number */}
               <div className="flex-shrink-0 mt-1">
@@ -103,6 +106,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   checked={isSelected}
                   onChange={() => handleStatementToggle(statement.id)}
                   disabled={disabled}
+                  aria-label={`Select statement ${statement.id}`}
                   className={`h-4 w-4 rounded ${
                     status === 'correct'
                       ? 'text-theme-interactive-success focus:ring-theme-interactive-success border-theme-border-success'
@@ -210,7 +214,11 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                 {statements.filter(s => s.compliant).map((statement) => (
                   <div key={statement.id} className="flex items-center space-x-2 text-sm">
                     <span className="font-medium text-theme-interactive-primary">{statement.id}.</span>
-                    <span className="text-theme-interactive-info">{statement.text}</span>
+                    <SafeContent
+                      content={statement.text}
+                      allowHtml
+                      className="text-theme-interactive-info"
+                    />
                     {currentAnswer.includes(statement.id) && (
                       <svg className="w-4 h-4 text-theme-interactive-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

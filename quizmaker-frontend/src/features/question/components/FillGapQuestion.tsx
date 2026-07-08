@@ -3,7 +3,7 @@
 // Based on FillGapContent from API documentation
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QuestionDto, FillGapContent } from '@/types';
 
 interface FillGapQuestionProps {
@@ -14,16 +14,22 @@ interface FillGapQuestionProps {
   disabled?: boolean;
 }
 
+const EMPTY_GAP_ANSWERS: Record<number, string> = {};
+
 const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
   question,
   onAnswerChange,
-  currentAnswer = {},
+  currentAnswer = EMPTY_GAP_ANSWERS,
   showCorrectAnswer = false,
   disabled = false
 }) => {
   const content = question.content as FillGapContent;
   const { text, gaps } = content;
   const [answers, setAnswers] = useState<Record<number, string>>(currentAnswer);
+
+  useEffect(() => {
+    setAnswers(currentAnswer);
+  }, [currentAnswer]);
 
   const handleGapChange = (gapId: number, value: string) => {
     if (disabled) return;
@@ -40,7 +46,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
     return parts.map((part, index) => {
       const gapMatch = part.match(/\{(\d+)\}/);
       if (gapMatch) {
-        const gapId = parseInt(gapMatch[1]);
+        const gapId = parseInt(gapMatch[1], 10);
         const gap = gaps?.find(g => g.id === gapId);
         const userAnswer = answers[gapId] || '';
         const correctAnswer = gap?.answer || '';
@@ -160,7 +166,7 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
               <p className="text-sm font-medium text-theme-interactive-info">Your Answers</p>
               <div className="mt-2 space-y-1">
                 {Object.entries(answers).map(([gapId, answer]) => {
-                  const gap = gaps?.find(g => g.id === parseInt(gapId));
+                  const gap = gaps?.find(g => g.id === parseInt(gapId, 10));
                   const isCorrect = gap && answer === gap.answer;
                   return (
                     <div key={gapId} className="flex items-center space-x-2 text-sm">
@@ -189,4 +195,4 @@ const FillGapQuestion: React.FC<FillGapQuestionProps> = ({
   );
 };
 
-export default FillGapQuestion; 
+export default FillGapQuestion;
