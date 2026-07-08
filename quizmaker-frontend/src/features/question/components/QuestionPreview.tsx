@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Badge, Checkbox, Textarea, Input } from '@/components';
-import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer, MediaRefDto } from '@/types';
+import { Badge, Checkbox, Textarea, Input, SafeContent } from '@/components';
+import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer, MatchingItem, MediaRefDto } from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
 interface QuestionPreviewProps {
@@ -266,6 +266,33 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           </div>
         );
 
+      case 'MATCHING': {
+        const leftItems = question.content && 'left' in question.content
+          ? (question.content.left as MatchingItem[])
+          : [];
+        const rightItems = question.content && 'right' in question.content
+          ? (question.content.right as MatchingItem[])
+          : [];
+
+        return (
+          <div className="space-y-3">
+            {leftItems.map((leftItem) => {
+              const rightItem = rightItems.find((item) => item.id === leftItem.matchId);
+              return (
+                <div
+                  key={leftItem.id}
+                  className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-md border border-theme-border-primary bg-theme-bg-primary p-3 text-sm"
+                >
+                  <span className="text-theme-text-primary">{leftItem.text}</span>
+                  <span aria-hidden="true" className="text-theme-text-tertiary">→</span>
+                  <span className="text-theme-text-secondary">{rightItem?.text || 'No match'}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
       default:
         return (
           <div className="text-sm text-theme-text-tertiary">
@@ -309,9 +336,10 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         {/* Question Text */}
         <div className="mb-6">
           <h4 className="text-sm font-medium text-theme-text-secondary mb-2">Question:</h4>
-          <div 
+          <SafeContent
+            content={question.questionText || 'No question text provided'}
+            allowHtml
             className="prose max-w-none text-theme-text-primary"
-            dangerouslySetInnerHTML={{ __html: question.questionText || 'No question text provided' }}
           />
         </div>
 

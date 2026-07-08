@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { QuestionDto, OpenContent } from '@/types';
-import { Textarea } from '@/components';
+import { SafeContent, Textarea } from '@/components';
 
 interface OpenQuestionProps {
   question: QuestionDto;
@@ -65,9 +65,10 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
             </svg>
             <div>
               <p className="text-sm font-medium text-theme-interactive-success">Model Answer</p>
-              <div 
+              <SafeContent
+                content={modelAnswer}
+                allowHtml
                 className="text-sm text-theme-interactive-success mt-1 prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: modelAnswer }}
               />
             </div>
           </div>
@@ -111,4 +112,4 @@ const OpenQuestion: React.FC<OpenQuestionProps> = ({
   );
 };
 
-export default OpenQuestion; 
+export default OpenQuestion;
