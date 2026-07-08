@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { QuestionDto, McqSingleContent, McqMultiContent, McqOption } from '@/types';
+import { SafeContent } from '@/components';
 
 interface McqQuestionProps {
   question: QuestionDto;
@@ -108,7 +109,10 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                   ? 'border-theme-interactive-primary bg-theme-bg-primary'
                   : 'border-theme-border-primary bg-theme-bg-primary hover:border-theme-border-secondary'
               } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={() => handleOptionChange(option.id, !isSelected)}
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest('input')) return;
+                handleOptionChange(option.id, !isSelected);
+              }}
             >
               {/* Option Letter */}
               <div className="flex-shrink-0 mt-1">
@@ -164,13 +168,14 @@ const McqQuestion: React.FC<McqQuestionProps> = ({
                   </div>
                 )}
                 {hasText ? (
-                  <div 
+                  <SafeContent
+                    content={option.text ?? ''}
+                    allowHtml
                     className={`text-sm ${
                       status === 'correct' ? 'text-theme-interactive-success' :
                       status === 'incorrect' ? 'text-theme-interactive-danger' :
                       'text-theme-text-primary'
                     }`}
-                    dangerouslySetInnerHTML={{ __html: option.text ?? '' }}
                   />
                 ) : (
                   !optionMediaUrl && !isMediaMissing && (

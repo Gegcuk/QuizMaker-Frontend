@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { QuestionDto, OrderingContent, OrderingItem } from '@/types';
+import { SafeContent } from '@/components';
 
 interface OrderingQuestionProps {
   question: QuestionDto;
@@ -131,13 +132,14 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
 
               {/* Item Text */}
               <div className="flex-1">
-                <div 
+                <SafeContent
+                  content={item.text}
+                  allowHtml
                   className={`text-sm ${
                     status === 'correct' ? 'text-theme-interactive-success' :
                     status === 'incorrect' ? 'text-theme-interactive-danger' :
                     'text-theme-text-primary'
                   }`}
-                  dangerouslySetInnerHTML={{ __html: item.text }}
                 />
               </div>
 
@@ -253,4 +255,4 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
   );
 };
 
-export default OrderingQuestion; 
+export default OrderingQuestion;

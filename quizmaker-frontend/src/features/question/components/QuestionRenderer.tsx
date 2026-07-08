@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Badge } from '@/components';
+import { Badge, SafeContent } from '@/components';
 import { QuestionDto, QuestionType } from '@/types';
 import McqQuestion from './McqQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
@@ -35,7 +35,57 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
   const isAttachmentMissing = !!(question.attachment?.assetId && !attachmentUrl);
 
+  const hasRenderableContent = () => {
+    const supportedTypes: QuestionType[] = [
+      'MCQ_SINGLE',
+      'MCQ_MULTI',
+      'TRUE_FALSE',
+      'OPEN',
+      'FILL_GAP',
+      'COMPLIANCE',
+      'ORDERING',
+      'HOTSPOT',
+      'MATCHING',
+    ];
+    if (!supportedTypes.includes(question.type)) return true;
+
+    const content = question.content;
+    if (!content || typeof content !== 'object' || Array.isArray(content)) return false;
+
+    switch (question.type) {
+      case 'MCQ_SINGLE':
+      case 'MCQ_MULTI':
+        return Array.isArray(content.options);
+      case 'TRUE_FALSE':
+        return typeof content.answer === 'boolean';
+      case 'OPEN':
+        return typeof content.answer === 'string';
+      case 'FILL_GAP':
+        return typeof content.text === 'string' && Array.isArray(content.gaps);
+      case 'COMPLIANCE':
+        return Array.isArray(content.statements);
+      case 'ORDERING':
+        return Array.isArray(content.items);
+      case 'HOTSPOT':
+        return typeof content.imageUrl === 'string' && Array.isArray(content.regions);
+      case 'MATCHING':
+        return Array.isArray(content.left) && Array.isArray(content.right);
+      default:
+        return true;
+    }
+  };
+
+  const renderInvalidContent = () => (
+    <div className="rounded-lg border border-theme-border-warning bg-theme-bg-warning p-4 text-theme-interactive-warning">
+      Question content is unavailable or invalid.
+    </div>
+  );
+
   const renderQuestionByType = () => {
+    if (!hasRenderableContent()) {
+      return renderInvalidContent();
+    }
+
     switch (question.type) {
       case 'MCQ_SINGLE':
         return (
@@ -182,9 +232,10 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
         {/* Question Text */}
         <div className="prose max-w-none">
-          <div 
+          <SafeContent
+            content={question.questionText}
+            allowHtml
             className="text-lg font-medium text-theme-text-primary mb-4"
-            dangerouslySetInnerHTML={{ __html: question.questionText }}
           />
         </div>
 
@@ -233,9 +284,10 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             </svg>
             <div>
               <p className="text-sm font-medium text-theme-interactive-success">Explanation</p>
-              <div 
+              <SafeContent
+                content={question.explanation}
+                allowHtml
                 className="text-sm text-theme-interactive-success mt-1 prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: question.explanation }}
               />
             </div>
           </div>

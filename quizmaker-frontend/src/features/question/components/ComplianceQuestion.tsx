@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { QuestionDto, ComplianceContent, ComplianceStatement } from '@/types';
+import { SafeContent } from '@/components';
 
 interface ComplianceQuestionProps {
   question: QuestionDto;
@@ -114,13 +115,14 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
 
               {/* Statement Text */}
               <div className="flex-1">
-                <div 
+                <SafeContent
+                  content={statement.text}
+                  allowHtml
                   className={`text-sm ${
                     status === 'correct' ? 'text-theme-interactive-success' :
                     status === 'incorrect' ? 'text-theme-interactive-danger' :
                     'text-theme-text-primary'
                   }`}
-                  dangerouslySetInnerHTML={{ __html: statement.text }}
                 />
               </div>
 
@@ -225,4 +227,4 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
   );
 };
 
-export default ComplianceQuestion; 
+export default ComplianceQuestion;
