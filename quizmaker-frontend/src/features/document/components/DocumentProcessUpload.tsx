@@ -184,8 +184,10 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
          // Convert DocumentProcessDto to DocumentProcessViewDto for the list
          const documentView: DocumentProcessViewDto = {
            id: document.id,
-           name: document.name,
-           charCount: document.charCount,
+           originalName: selectedFile?.name || 'text-input',
+           source: selectedFile ? 'UPLOAD' : 'TEXT',
+           charCount: selectedFile ? undefined : textInput.length,
+           language,
            status: document.status
          };
          onUploadSuccess(documentView);
@@ -390,10 +392,6 @@ const DocumentProcessUpload: React.FC<DocumentProcessUploadProps> = ({
              </h3>
              <div className="mt-2 text-sm text-theme-interactive-success">
                <p>Document ID: {uploadedDocument.id}</p>
-               {uploadedDocument.name && <p>Name: {uploadedDocument.name}</p>}
-               {uploadedDocument.charCount && (
-                 <p>Character count: {uploadedDocument.charCount.toLocaleString()}</p>
-               )}
                <div className="mt-2">
                  <Badge variant="outline" className="text-theme-interactive-success border-theme-border-success">
                    {uploadedDocument.status}

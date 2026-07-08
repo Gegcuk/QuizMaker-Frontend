@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import { isAxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { DOCUMENT_PROCESS_ENDPOINTS } from './documentProcess.endpoints';
 import { 
   DocumentProcessDto,
@@ -8,10 +8,20 @@ import {
   TextSliceResponseDto,
   StructureTreeResponseDto,
   StructureFlatResponseDto,
+  StructureBuildResponseDto,
   ExtractResponseDto,
   StructureFormat
 } from '@/types';
-import { BaseService } from '@/services';
+import { getErrorMessage } from '@/utils/errorUtils';
+
+type DocumentProcessServiceError = Error & {
+  status?: number;
+  response?: AxiosResponse;
+};
+
+type FileUploadConfig = AxiosRequestConfig & {
+  _isFileUpload: true;
+};
 
 /**
  * Document Process service for handling document processing operations
@@ -51,17 +61,16 @@ export class DocumentProcessService {
     try {
       const formData = new FormData();
       formData.append('file', data.file);
-      
-      if (data.originalName) {
-        formData.append('originalName', data.originalName);
-      }
+
+      const config: FileUploadConfig = {
+        _isFileUpload: true,
+        params: data.originalName ? { originalName: data.originalName } : undefined,
+      };
 
       const response = await this.axiosInstance.post<DocumentProcessDto>(
-        '/v1/documentProcess/documents', 
-        formData, 
-        {
-          _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
-        } as any
+        DOCUMENT_PROCESS_ENDPOINTS.INGEST,
+        formData,
+        config
       );
       return response.data;
     } catch (error) {
@@ -75,19 +84,19 @@ export class DocumentProcessService {
    */
   async uploadDocumentText(data: {
     text: string;
-    language: string;
+    language?: string;
     originalName?: string;
   }): Promise<DocumentProcessDto> {
     try {
       const requestData: IngestRequestDto = {
         text: data.text,
-        language: data.language
+        ...(data.language ? { language: data.language } : {}),
       };
 
       const params = data.originalName ? { originalName: data.originalName } : undefined;
 
       const response = await this.axiosInstance.post<DocumentProcessDto>(
-        '/v1/documentProcess/documents', 
+        DOCUMENT_PROCESS_ENDPOINTS.INGEST,
         requestData,
         {
           headers: {
@@ -139,11 +148,16 @@ export class DocumentProcessService {
   async getTextSlice(id: string, params: {
     start?: number;
     end?: number;
-  }): Promise<TextSliceResponseDto> {
+  } = {}): Promise<TextSliceResponseDto> {
     try {
       const response = await this.axiosInstance.get<TextSliceResponseDto>(
         DOCUMENT_PROCESS_ENDPOINTS.TEXT_SLICE(id),
-        { params }
+        {
+          params: {
+            start: params.start ?? 0,
+            ...(typeof params.end === 'number' ? { end: params.end } : {}),
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -173,9 +187,9 @@ export class DocumentProcessService {
    * Build document structure (trigger AI processing)
    * POST /v1/documentProcess/documents/{id}/structure
    */
-  async buildDocumentStructure(id: string): Promise<any> {
+  async buildDocumentStructure(id: string): Promise<StructureBuildResponseDto> {
     try {
-      const response = await this.axiosInstance.post(
+      const response = await this.axiosInstance.post<StructureBuildResponseDto>(
         DOCUMENT_PROCESS_ENDPOINTS.BUILD_STRUCTURE(id)
       );
       return response.data;
@@ -205,11 +219,52 @@ export class DocumentProcessService {
   /**
    * Handle document process specific errors
    */
-  private handleError(error: any): Error {
-    if (error.response?.data) {
-      const { message, errorCode } = error.response.data;
-      return new Error(`${errorCode || 'DOCUMENT_PROCESS_ERROR'}: ${message || 'Unknown error'}`);
+  private handleError(error: unknown): DocumentProcessServiceError {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = getErrorMessage(error);
+      const documentError: DocumentProcessServiceError = new Error(message);
+      documentError.status = status;
+      documentError.response = error.response;
+
+      switch (status) {
+        case 400:
+          documentError.message = `Validation error: ${message}`;
+          break;
+        case 401:
+          documentError.message = 'Authentication required';
+          break;
+        case 403:
+          documentError.message = 'Insufficient permissions to process this document';
+          break;
+        case 404:
+          documentError.message = 'Document or structure node not found';
+          break;
+        case 413:
+          documentError.message = 'File size exceeds maximum allowed size';
+          break;
+        case 415:
+          documentError.message = `Unsupported document format: ${message}`;
+          break;
+        case 422:
+          documentError.message = `Document normalization failed: ${message}`;
+          break;
+        case 429:
+          documentError.message = 'Too many document requests. Please try again later.';
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          documentError.message = 'Server error occurred while processing the document';
+          break;
+        default:
+          documentError.message = message || 'Document process operation failed';
+      }
+
+      return documentError;
     }
-    return new Error(error.message || 'Document process operation failed');
+
+    return new Error(error instanceof Error ? error.message : 'Document process operation failed');
   }
 }
