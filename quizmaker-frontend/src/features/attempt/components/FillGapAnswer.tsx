@@ -4,7 +4,7 @@
 // Handles multiple input fields for gap filling
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { QuestionForAttemptDto } from '@/types';
 import { Button } from '@/components';
 
@@ -47,6 +47,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
 const normalizeOptionValue = (value: string) => value.trim().toLowerCase();
+const MIN_FILL_GAP_DISTRACTORS = 6;
+const MAX_FILL_GAP_DISTRACTORS = 7;
 
 const normalizeOptions = (options: unknown): FillGapOption[] => {
   if (!Array.isArray(options)) {
@@ -59,6 +61,22 @@ const normalizeOptions = (options: unknown): FillGapOption[] => {
       value: String(option ?? '').trim(),
     }))
     .filter((option) => option.value.length > 0);
+};
+
+const hasUsableOptionPool = (options: FillGapOption[], gapCount: number) => {
+  if (options.length === 0 || gapCount === 0) {
+    return false;
+  }
+
+  const uniqueOptionValues = new Set(options.map((option) => normalizeOptionValue(option.value)));
+  const minOptionCount = gapCount + MIN_FILL_GAP_DISTRACTORS;
+  const maxOptionCount = gapCount + MAX_FILL_GAP_DISTRACTORS;
+
+  return (
+    uniqueOptionValues.size === options.length &&
+    options.length >= minOptionCount &&
+    options.length <= maxOptionCount
+  );
 };
 
 const normalizeGapAnswers = (answer: FillGapCurrentAnswer): Record<number, string> => {
@@ -105,6 +123,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     normalizeGapAnswers(currentAnswer)
   );
   const [activeGapId, setActiveGapId] = useState<number | null>(null);
+  const inputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   useEffect(() => {
     setGapAnswers(normalizeGapAnswers(currentAnswer));
@@ -114,6 +133,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     if (disabled) return;
 
     const newAnswers = { ...(gapAnswers || {}), [gapId]: value };
+    setActiveGapId(gapId);
     setGapAnswers(newAnswers);
     onAnswerChange(newAnswers);
   };
@@ -132,7 +152,7 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     [question.safeContent?.gaps]
   );
   const options = normalizeOptions(question.safeContent?.options);
-  const hasOptions = options.length > 0;
+  const hasOptions = hasUsableOptionPool(options, gaps.length);
   const orderedGapIds = useMemo(() => {
     const seenGapIds = new Set<number>();
     const ids: number[] = [];
@@ -183,6 +203,70 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
     return firstEmptyGapId ?? null;
   };
 
+  const getNextOrderedGapId = (currentGapId: number) => {
+    const currentIndex = orderedGapIds.indexOf(currentGapId);
+
+    if (currentIndex === -1) {
+      return orderedGapIds[0] ?? null;
+    }
+
+    return orderedGapIds[currentIndex + 1] ?? null;
+  };
+
+  const focusGapInput = (gapId: number | null) => {
+    if (gapId === null) return;
+
+    const input = inputRefs.current[gapId];
+
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  };
+
+  const getExactOptionMatch = (value: string) =>
+    options.find((option) => normalizeOptionValue(option.value) === normalizeOptionValue(value));
+
+  const getUniqueOptionPrefixMatch = (value: string) => {
+    const normalizedValue = normalizeOptionValue(value);
+
+    if (!normalizedValue) {
+      return null;
+    }
+
+    const matches = options.filter((option) =>
+      normalizeOptionValue(option.value).startsWith(normalizedValue)
+    );
+
+    return matches.length === 1 ? matches[0] : null;
+  };
+
+  const getOptionAlignment = (value: string) => {
+    const normalizedValue = normalizeOptionValue(value);
+
+    if (!hasOptions || !normalizedValue) {
+      return { status: 'empty' as const };
+    }
+
+    const exactMatch = getExactOptionMatch(value);
+
+    if (exactMatch) {
+      return { status: 'exact' as const, option: exactMatch };
+    }
+
+    const prefixMatch = getUniqueOptionPrefixMatch(value);
+
+    if (prefixMatch) {
+      return { status: 'partial' as const, option: prefixMatch };
+    }
+
+    const matchingOptions = options.filter((option) =>
+      normalizeOptionValue(option.value).startsWith(normalizedValue)
+    );
+
+    return { status: matchingOptions.length > 1 ? 'multiple' as const : 'none' as const };
+  };
+
   const isOptionUsed = (optionValue: string) =>
     Object.values(gapAnswers || {}).some(
       (answer) => normalizeOptionValue(answer) === normalizeOptionValue(optionValue)
@@ -212,6 +296,29 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   const handleGapSelection = (gapId: number) => {
     if (disabled) return;
     setActiveGapId(gapId);
+  };
+
+  const handleGapKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, gapId: number) => {
+    if (disabled || event.key !== 'Enter') return;
+
+    event.preventDefault();
+
+    const currentValue = gapAnswers?.[gapId] || '';
+    const optionMatch = hasOptions
+      ? getExactOptionMatch(currentValue) ?? getUniqueOptionPrefixMatch(currentValue)
+      : null;
+    const nextAnswers = optionMatch
+      ? { ...(gapAnswers || {}), [gapId]: optionMatch.value }
+      : gapAnswers;
+    const nextGapId = getNextOrderedGapId(gapId);
+
+    if (optionMatch && optionMatch.value !== currentValue) {
+      setGapAnswers(nextAnswers);
+      onAnswerChange(nextAnswers);
+    }
+
+    setActiveGapId(nextGapId);
+    focusGapInput(nextGapId);
   };
 
   const handleOptionClick = (option: FillGapOption) => {
@@ -268,6 +375,11 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
         const currentValue = gapAnswers?.[gapId] || '';
         // Calculate dynamic width: minimum 60px, grows with content (roughly 8px per character)
         const inputWidth = Math.max(60, Math.min(currentValue.length * 8 + 20, 400));
+        const optionAlignment = getOptionAlignment(currentValue);
+        const poolMismatch =
+          hasOptions &&
+          currentValue.trim().length > 0 &&
+          optionAlignment.status === 'none';
         
         // Determine if this gap answer is correct
         let gapIsCorrect = false;
@@ -291,6 +403,9 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
             borderColor = 'border-theme-interactive-danger';
             bgColor = 'bg-theme-bg-danger';
           }
+        } else if (poolMismatch) {
+          borderColor = 'border-theme-border-warning';
+          bgColor = 'bg-theme-bg-warning';
         } else if (hasOptions && activeGapId === gapId) {
           borderColor = 'border-theme-interactive-primary';
           bgColor = 'bg-theme-bg-info';
@@ -299,37 +414,33 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
         // Use matchIndex for unique key when same gap ID appears multiple times
         parts.push(
           <span key={`gap-${gapId}-${matchIndex}`} className="inline-block">
-            {hasOptions ? (
-              <button
-                type="button"
-                onClick={() => handleGapSelection(gapId)}
-                onDragOver={(event) => {
-                  if (!disabled) {
-                    event.preventDefault();
-                  }
-                }}
-                onDrop={(event) => {
+            <input
+              ref={(element) => {
+                inputRefs.current[gapId] = element;
+              }}
+              type="text"
+              value={currentValue}
+              onChange={(e) => handleGapChange(gapId, e.target.value)}
+              onFocus={() => handleGapSelection(gapId)}
+              onKeyDown={(event) => handleGapKeyDown(event, gapId)}
+              onDragOver={(event) => {
+                if (hasOptions && !disabled) {
                   event.preventDefault();
-                  assignOptionToGap(gapId, event.dataTransfer.getData('text/plain'));
-                }}
-                disabled={disabled}
-                className={`mx-1 min-w-24 min-h-8 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
-                aria-label={`Gap ${gapId}${currentValue ? `: ${currentValue}` : ''}`}
-                aria-pressed={activeGapId === gapId}
-              >
-                {currentValue}
-              </button>
-            ) : (
-              <input
-                type="text"
-                value={currentValue}
-                onChange={(e) => handleGapChange(gapId, e.target.value)}
-                disabled={disabled}
-                placeholder=""
-                style={{ width: `${inputWidth}px` }}
-                className={`mx-1 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
-              />
-            )}
+                }
+              }}
+              onDrop={(event) => {
+                if (!hasOptions) return;
+
+                event.preventDefault();
+                assignOptionToGap(gapId, event.dataTransfer.getData('text/plain'));
+              }}
+              disabled={disabled}
+              placeholder=""
+              style={{ width: `${inputWidth}px` }}
+              className={`mx-1 min-w-24 min-h-8 px-2 py-1 my-1 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary disabled:opacity-70 text-center transition-all duration-150 ${borderColor} ${bgColor} text-theme-text-primary`}
+              aria-label={`Gap ${gapId}${currentValue ? `: ${currentValue}` : ''}`}
+              aria-invalid={poolMismatch ? 'true' : undefined}
+            />
             {showFeedback && !gapIsCorrect && correctAnswerText && (
               <span className="ml-1 text-xs text-theme-interactive-primary" title={`Correct: ${correctAnswerText}`}>
                 (✓ {correctAnswerText})
@@ -365,6 +476,43 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
   const filledGaps = gapAnswers ? Object.values(gapAnswers).filter(answer => answer && answer.trim().length > 0).length : 0;
   const totalGaps = gaps.length;
   const completionPercentage = totalGaps > 0 ? (filledGaps / totalGaps) * 100 : 0;
+  const activeGapValue = activeGapId !== null ? gapAnswers?.[activeGapId] || '' : '';
+  const activeOptionAlignment = getOptionAlignment(activeGapValue);
+  const optionAlignmentMessage = (() => {
+    if (!hasOptions || activeGapId === null || activeGapValue.trim().length === 0) {
+      return null;
+    }
+
+    switch (activeOptionAlignment.status) {
+      case 'exact':
+        return {
+          tone: 'success',
+          text: 'Matches a pool option.',
+        };
+      case 'partial':
+        return {
+          tone: 'info',
+          text: `Closest pool option: ${activeOptionAlignment.option.value}`,
+        };
+      case 'multiple':
+        return {
+          tone: 'info',
+          text: 'Multiple pool options match this text.',
+        };
+      case 'none':
+        return {
+          tone: 'warning',
+          text: 'No pool option matches this text yet.',
+        };
+      default:
+        return null;
+    }
+  })();
+  const optionAlignmentClass = optionAlignmentMessage?.tone === 'success'
+    ? 'text-theme-interactive-success'
+    : optionAlignmentMessage?.tone === 'warning'
+      ? 'text-theme-interactive-warning'
+      : 'text-theme-text-tertiary';
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -422,6 +570,11 @@ const FillGapAnswer: React.FC<FillGapAnswerProps> = ({
               );
             })}
           </div>
+          {optionAlignmentMessage && (
+            <p className={`mt-3 text-xs ${optionAlignmentClass}`}>
+              {optionAlignmentMessage.text}
+            </p>
+          )}
         </div>
       )}
 
