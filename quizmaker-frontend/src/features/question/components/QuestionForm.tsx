@@ -23,6 +23,10 @@ import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@her
 import { MediaPicker } from '@/features/media';
 import { dedupeFillGapOptions, sanitizeFillGapContentForSubmission, sanitizeMcqContentForSubmission } from '../utils/contentSanitizer';
 
+const MCQ_SINGLE_OPTION_COUNT = 4;
+const MCQ_MULTI_MIN_OPTIONS = 4;
+const MCQ_MULTI_MAX_OPTIONS = 6;
+
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
   quizId?: string; // If provided, we're creating a question for a specific quiz
@@ -151,16 +155,25 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     switch (formData.type) {
       case 'MCQ_SINGLE':
       case 'MCQ_MULTI': {
-        const options = (formData.content as any)?.options || [];
+        const options = Array.isArray((formData.content as any)?.options)
+          ? (formData.content as any).options
+          : [];
         const hasText = (opt: any) => !!(opt.text && opt.text.trim().length >= 1);
         const hasMedia = (opt: any) => !!(opt.media && (opt.media.assetId || opt.media.cdnUrl));
         // Filter out empty options (no text or media)
         const validOptions = options.filter((opt: any) => hasText(opt) || hasMedia(opt));
-        
-        if (validOptions.length < 2) {
-          errors.push('At least 2 options with text or image are required.');
+
+        if (formData.type === 'MCQ_SINGLE' && options.length !== MCQ_SINGLE_OPTION_COUNT) {
+          errors.push('Single-choice questions must have exactly 4 options.');
         }
-        
+
+        if (
+          formData.type === 'MCQ_MULTI'
+          && (options.length < MCQ_MULTI_MIN_OPTIONS || options.length > MCQ_MULTI_MAX_OPTIONS)
+        ) {
+          errors.push('Multiple-choice questions must have 4 to 6 options.');
+        }
+
         const invalidOptions = options.filter((opt: any) => !hasText(opt) && !hasMedia(opt));
         if (invalidOptions.length > 0) {
           errors.push('Each option must have text or an image.');
