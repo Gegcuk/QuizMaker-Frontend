@@ -10,8 +10,10 @@ import {
   Squares2X2Icon,
   CheckBadgeIcon,
   PencilSquareIcon,
+  ChatBubbleBottomCenterTextIcon,
   ClipboardDocumentCheckIcon,
   ArrowsUpDownIcon,
+  CursorArrowRaysIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
 
@@ -49,6 +51,13 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
+      type: 'OPEN' as QuestionType,
+      label: 'Open Ended',
+      description: 'Write a free-form answer',
+      icon: ChatBubbleBottomCenterTextIcon,
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
+    },
+    {
       type: 'FILL_GAP' as QuestionType,
       label: 'Fill in the Blank',
       description: 'Complete missing words in text',
@@ -67,6 +76,13 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       label: 'Ordering',
       description: 'Arrange items in correct order',
       icon: ArrowsUpDownIcon,
+      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
+    },
+    {
+      type: 'HOTSPOT' as QuestionType,
+      label: 'Hotspot',
+      description: 'Select the correct area in an image',
+      icon: CursorArrowRaysIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {
