@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
-import type { McqOption, OrderingItem } from '@/types';
+import type { HotspotContent, HotspotRegion, McqOption, OrderingItem, QuestionDto } from '@/types';
 import QuestionForm from './QuestionForm';
 
 const questionServiceMocks = vi.hoisted(() => ({
@@ -138,6 +138,100 @@ vi.mock('./OrderingEditor', async () => {
   return { default: OrderingEditorMock };
 });
 
+vi.mock('./HotspotEditor', async () => {
+  const React = await import('react');
+
+  const region = (
+    id: number,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    correct: boolean,
+  ): HotspotRegion => ({
+    id,
+    x,
+    y,
+    width,
+    height,
+    correct,
+  });
+
+  const oneRegion: HotspotContent = {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [region(1, 10, 20, 30, 40, true)],
+  };
+
+  const duplicateIdRegions: HotspotContent = {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [
+      region(1, 10, 20, 30, 40, true),
+      region(1, 50, 60, 10, 10, false),
+    ],
+  };
+
+  const invalidGeometryRegions: HotspotContent = {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [
+      region(1, -1, 20, 30, 40, true),
+      region(2, 50, 60, 10, 10, false),
+    ],
+  };
+
+  const missingImage: HotspotContent = {
+    imageUrl: '',
+    regions: [
+      region(1, 10, 20, 30, 40, true),
+      region(2, 50, 60, 10, 10, false),
+    ],
+  };
+
+  const validHotspot: HotspotContent = {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [
+      region(1, 10, 20, 30, 40, true),
+      region(2, 50, 60, 10, 10, false),
+    ],
+  };
+
+  const HotspotEditorMock = ({
+    onChange,
+  }: {
+    onChange: (content: HotspotContent) => void;
+  }) =>
+    React.createElement(
+      'div',
+      { 'aria-label': 'Mock hotspot editor' },
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(oneRegion) },
+        'Use one hotspot region',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(duplicateIdRegions) },
+        'Use duplicate hotspot ids',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(invalidGeometryRegions) },
+        'Use invalid hotspot geometry',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(missingImage) },
+        'Use hotspot without image',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(validHotspot) },
+        'Use valid hotspot content',
+      ),
+    );
+
+  return { default: HotspotEditorMock };
+});
+
 const fillQuestionText = (text = 'What is the main function of mitochondria?') => {
   fireEvent.change(screen.getByLabelText('Question Text'), {
     target: { value: text },
@@ -148,10 +242,43 @@ const expectValidationMessage = (message: string) => {
   expect(screen.getAllByText(message).length).toBeGreaterThan(0);
 };
 
+const makeHotspotQuestion = (): QuestionDto => ({
+  id: 'hotspot-question',
+  type: 'HOTSPOT',
+  difficulty: 'MEDIUM',
+  questionText: 'Click the nucleus in this cell diagram.',
+  content: {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [
+      { id: 1, x: 10, y: 20, width: 30, height: 40, correct: true },
+      { id: 2, x: 50, y: 60, width: 10, height: 10, correct: false },
+    ],
+  },
+  hint: '',
+  explanation: '',
+  attachmentUrl: null,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+  quizIds: [],
+  tagIds: [],
+});
+
+const renderHotspotEditForm = async (onSuccess = vi.fn()) => {
+  questionServiceMocks.getQuestionById.mockResolvedValue(makeHotspotQuestion());
+  const renderResult = renderWithProviders(
+    <QuestionForm compact questionId="hotspot-question" onSuccess={onSuccess} />,
+    { withAuthProvider: false },
+  );
+
+  await screen.findByDisplayValue('Click the nucleus in this cell diagram.');
+  return renderResult;
+};
+
 describe('QuestionForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     questionServiceMocks.createQuestion.mockResolvedValue({ questionId: 'question-1' });
+    questionServiceMocks.updateQuestion.mockResolvedValue(makeHotspotQuestion());
   });
 
   it('blocks MCQ_SINGLE submission unless exactly four options are present', async () => {
@@ -275,5 +402,70 @@ describe('QuestionForm', () => {
       );
     });
     expect(onSuccess).toHaveBeenCalledWith({ questionId: 'question-1' });
+  });
+
+  it('blocks HOTSPOT submission outside the live 2 to 6 region range', async () => {
+    const { user } = await renderHotspotEditForm();
+
+    await user.click(screen.getByRole('button', { name: 'Use one hotspot region' }));
+
+    expectValidationMessage('Hotspot questions must have 2 to 6 regions.');
+    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
+  });
+
+  it('blocks HOTSPOT submission without a live schema image URL', async () => {
+    const { user } = await renderHotspotEditForm();
+
+    await user.click(screen.getByRole('button', { name: 'Use hotspot without image' }));
+
+    expectValidationMessage('Hotspot questions must include an image URL.');
+    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
+  });
+
+  it('blocks HOTSPOT submission with duplicate region ids or invalid geometry', async () => {
+    const { user } = await renderHotspotEditForm();
+
+    await user.click(screen.getByRole('button', { name: 'Use duplicate hotspot ids' }));
+
+    expectValidationMessage('Hotspot region IDs must be unique positive integers.');
+    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Use invalid hotspot geometry' }));
+
+    expectValidationMessage('Each hotspot region must use non-negative integer coordinates, dimensions, and a correct flag.');
+    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
+  });
+
+  it('submits schema-sized HOTSPOT content after validation passes', async () => {
+    const onSuccess = vi.fn();
+    const { user } = await renderHotspotEditForm(onSuccess);
+
+    await user.click(screen.getByRole('button', { name: 'Use valid hotspot content' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Update Question' })).toBeEnabled();
+    });
+    await user.click(screen.getByRole('button', { name: 'Update Question' }));
+
+    await waitFor(() => {
+      expect(questionServiceMocks.updateQuestion).toHaveBeenCalledWith(
+        'hotspot-question',
+        expect.objectContaining({
+          type: 'HOTSPOT',
+          questionText: 'Click the nucleus in this cell diagram.',
+          content: {
+            imageUrl: 'https://cdn.example.com/cell.png',
+            regions: [
+              { id: 1, x: 10, y: 20, width: 30, height: 40, correct: true },
+              { id: 2, x: 50, y: 60, width: 10, height: 10, correct: false },
+            ],
+          },
+        }),
+      );
+    });
+    expect(onSuccess).toHaveBeenCalled();
   });
 });

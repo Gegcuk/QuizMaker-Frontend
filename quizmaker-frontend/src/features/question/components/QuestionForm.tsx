@@ -29,6 +29,8 @@ const MCQ_MULTI_MAX_OPTIONS = 6;
 const ORDERING_MIN_ITEMS = 3;
 const ORDERING_MAX_ITEMS = 10;
 const ORDERING_MIN_TEXT_LENGTH = 5;
+const HOTSPOT_MIN_REGIONS = 2;
+const HOTSPOT_MAX_REGIONS = 6;
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -297,9 +299,42 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         break;
       }
       
+      case 'HOTSPOT': {
+        const hotspotContent = formData.content as any;
+        const imageUrl = typeof hotspotContent?.imageUrl === 'string' ? hotspotContent.imageUrl.trim() : '';
+        const regions = Array.isArray(hotspotContent?.regions) ? hotspotContent.regions : [];
+
+        if (!imageUrl) {
+          errors.push('Hotspot questions must include an image URL.');
+        }
+
+        if (regions.length < HOTSPOT_MIN_REGIONS || regions.length > HOTSPOT_MAX_REGIONS) {
+          errors.push('Hotspot questions must have 2 to 6 regions.');
+        }
+
+        const regionIds = regions.map((region: any) => region.id);
+        const hasValidIds = regionIds.every((id: any) => Number.isInteger(id) && id > 0);
+        const hasUniqueIds = new Set(regionIds).size === regionIds.length;
+        if (!hasValidIds || !hasUniqueIds) {
+          errors.push('Hotspot region IDs must be unique positive integers.');
+        }
+
+        const hasValidGeometry = (value: any) => Number.isInteger(value) && value >= 0;
+        const invalidRegions = regions.filter((region: any) =>
+          !hasValidGeometry(region.x)
+          || !hasValidGeometry(region.y)
+          || !hasValidGeometry(region.width)
+          || !hasValidGeometry(region.height)
+          || typeof region.correct !== 'boolean'
+        );
+        if (invalidRegions.length > 0) {
+          errors.push('Each hotspot region must use non-negative integer coordinates, dimensions, and a correct flag.');
+        }
+        break;
+      }
+
       case 'TRUE_FALSE':
-      case 'HOTSPOT':
-        // TRUE_FALSE and HOTSPOT don't need additional validation beyond question text
+        // TRUE_FALSE doesn't need additional validation beyond question text
         break;
       
       default:

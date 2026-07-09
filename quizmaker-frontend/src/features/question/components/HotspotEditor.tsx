@@ -8,12 +8,51 @@ import { HotspotContent, HotspotRegion } from '@/types';
 import { InstructionsModal, AddItemButton, Input, Button } from '@/components';
 import { useTheme } from '@/context/ThemeContext';
 
+const MIN_HOTSPOT_REGIONS = 2;
+const MAX_HOTSPOT_REGIONS = 6;
+
 interface HotspotEditorProps {
   content: HotspotContent;
   onChange: (content: HotspotContent) => void;
   className?: string;
   showPreview?: boolean;
 }
+
+const toNonNegativeInteger = (value: unknown, fallback = 0): number => {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return fallback;
+
+  return Math.max(0, Math.trunc(numericValue));
+};
+
+const createDefaultRegion = (index: number): HotspotRegion => ({
+  id: index + 1,
+  x: 20 + (index % 3) * 20,
+  y: 20 + Math.floor(index / 3) * 20,
+  width: 15,
+  height: 15,
+  correct: index === 0,
+});
+
+const normalizeRegions = (regions: HotspotRegion[] | undefined): HotspotRegion[] => {
+  const normalized = (regions || [])
+    .slice(0, MAX_HOTSPOT_REGIONS)
+    .map((region, index) => ({
+      ...region,
+      id: index + 1,
+      x: toNonNegativeInteger(region.x),
+      y: toNonNegativeInteger(region.y),
+      width: toNonNegativeInteger(region.width),
+      height: toNonNegativeInteger(region.height),
+      correct: Boolean(region.correct),
+    }));
+
+  while (normalized.length < MIN_HOTSPOT_REGIONS) {
+    normalized.push(createDefaultRegion(normalized.length));
+  }
+
+  return normalized;
+};
 
 const HotspotEditor: React.FC<HotspotEditorProps> = ({
   content,
@@ -22,9 +61,11 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
   showPreview = true
 }) => {
   const [imageUrl, setImageUrl] = useState<string>(content.imageUrl || '');
-  const [regions, setRegions] = useState<HotspotRegion[]>(content.regions || []);
+  const [regions, setRegions] = useState<HotspotRegion[]>(() => normalizeRegions(content.regions));
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
   const { currentPalette } = useTheme();
+  const canAddRegion = regions.length < MAX_HOTSPOT_REGIONS;
+  const canRemoveRegion = regions.length > MIN_HOTSPOT_REGIONS;
 
   // Update parent when content changes
   useEffect(() => {
@@ -32,30 +73,27 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
   }, [imageUrl, regions, onChange]);
 
   const addRegion = () => {
-    const newId = regions.length + 1;
-    const newRegion: HotspotRegion = {
-      id: newId,
-      x: 50,
-      y: 50,
-      width: 100,
-      height: 100,
-      correct: true
-    };
-    setRegions(prev => [...prev, newRegion]);
-    setSelectedRegion(newId);
+    if (!canAddRegion) return;
+    const nextRegions = normalizeRegions([...regions, createDefaultRegion(regions.length)]);
+    setRegions(nextRegions);
+    setSelectedRegion(nextRegions[nextRegions.length - 1]?.id ?? null);
   };
 
   const removeRegion = (id: number) => {
-    setRegions(prev => prev.filter(region => region.id !== id));
-    if (selectedRegion === id) {
-      setSelectedRegion(null);
-    }
+    if (!canRemoveRegion) return;
+
+    setRegions(prev => normalizeRegions(prev.filter(region => region.id !== id)));
+    setSelectedRegion(prevSelected => {
+      if (prevSelected === id) return null;
+      if (prevSelected && prevSelected > id) return prevSelected - 1;
+      return prevSelected;
+    });
   };
 
   const updateRegion = (id: number, updates: Partial<HotspotRegion>) => {
-    setRegions(prev => prev.map(region => 
+    setRegions(prev => normalizeRegions(prev.map(region =>
       region.id === id ? { ...region, ...updates } : region
-    ));
+    )));
   };
 
   const toggleRegionCorrect = (id: number) => {
@@ -130,7 +168,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h5 className="text-sm font-medium text-theme-text-secondary">Hotspot Regions</h5>
-            <AddItemButton onClick={addRegion} itemType="Region" className="" />
+            <AddItemButton onClick={addRegion} itemType="Region" disabled={!canAddRegion} className="" />
           </div>
 
           {regions.length === 0 ? (
@@ -189,6 +227,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                           e.stopPropagation();
                           removeRegion(region.id);
                         }}
+                        disabled={!canRemoveRegion}
                         className="!text-theme-text-danger hover:!text-theme-text-danger"
                         title="Remove region"
                         aria-label={`Remove region ${region.id}`}
@@ -209,7 +248,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                           min={0}
                           max={100}
                           value={region.x}
-                          onChange={(e) => updateRegion(region.id, { x: parseInt(e.target.value) || 0 })}
+                          onChange={(e) => updateRegion(region.id, { x: toNonNegativeInteger(e.target.value) })}
                           label="X Position (%)"
                           size="sm"
                         />
@@ -218,7 +257,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                           min={0}
                           max={100}
                           value={region.y}
-                          onChange={(e) => updateRegion(region.id, { y: parseInt(e.target.value) || 0 })}
+                          onChange={(e) => updateRegion(region.id, { y: toNonNegativeInteger(e.target.value) })}
                           label="Y Position (%)"
                           size="sm"
                         />
@@ -227,7 +266,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                           min={1}
                           max={100}
                           value={region.width}
-                          onChange={(e) => updateRegion(region.id, { width: parseInt(e.target.value) || 1 })}
+                          onChange={(e) => updateRegion(region.id, { width: toNonNegativeInteger(e.target.value, 1) })}
                           label="Width (%)"
                           size="sm"
                         />
@@ -236,7 +275,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
                           min={1}
                           max={100}
                           value={region.height}
-                          onChange={(e) => updateRegion(region.id, { height: parseInt(e.target.value) || 1 })}
+                          onChange={(e) => updateRegion(region.id, { height: toNonNegativeInteger(e.target.value, 1) })}
                           label="Height (%)"
                           size="sm"
                         />
@@ -254,7 +293,7 @@ const HotspotEditor: React.FC<HotspotEditorProps> = ({
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
           <li>Upload an image for interaction</li>
-          <li>Add regions to mark clickable areas</li>
+          <li>Add 2-6 regions to mark clickable areas</li>
           <li>Mark regions as correct or incorrect</li>
           <li>Adjust region position and size as needed</li>
           <li>Clicking on areas will provide the answer</li>
