@@ -9,6 +9,10 @@ import { InstructionsModal, AddItemButton, Textarea, Button } from '@/components
 import { MediaPicker } from '@/features/media';
 // No specific content types - API uses JsonNode
 
+const MIN_MCQ_OPTIONS = 4;
+const MAX_MCQ_SINGLE_OPTIONS = 4;
+const MAX_MCQ_MULTI_OPTIONS = 6;
+
 interface McqQuestionEditorProps {
   content: McqSingleContent | McqMultiContent;
   onChange: (content: McqSingleContent | McqMultiContent) => void;
@@ -16,18 +20,46 @@ interface McqQuestionEditorProps {
   className?: string;
 }
 
+const getOptionId = (index: number) => String.fromCharCode(97 + index);
+
+const createBlankOption = (index: number): McqOption => ({
+  id: getOptionId(index),
+  text: '',
+  correct: false
+});
+
+const normalizeOptions = (
+  options: McqOption[] | undefined,
+  isMultiSelect: boolean,
+): McqOption[] => {
+  const maxOptions = isMultiSelect ? MAX_MCQ_MULTI_OPTIONS : MAX_MCQ_SINGLE_OPTIONS;
+  const normalized = (options || [])
+    .slice(0, maxOptions)
+    .map((option, index) => ({
+      ...option,
+      id: option.id || getOptionId(index),
+      correct: Boolean(option.correct)
+    }));
+
+  while (normalized.length < MIN_MCQ_OPTIONS) {
+    normalized.push(createBlankOption(normalized.length));
+  }
+
+  return normalized;
+};
+
 const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
   content,
   onChange,
   isMultiSelect = false,
   className = ''
 }) => {
-  const [options, setOptions] = useState<McqOption[]>(content.options || [
-    { id: 'a', text: '', correct: false },
-    { id: 'b', text: '', correct: false },
-    { id: 'c', text: '', correct: false },
-    { id: 'd', text: '', correct: false }
-  ]);
+  const [options, setOptions] = useState<McqOption[]>(() =>
+    normalizeOptions(content.options, isMultiSelect)
+  );
+  const maxOptions = isMultiSelect ? MAX_MCQ_MULTI_OPTIONS : MAX_MCQ_SINGLE_OPTIONS;
+  const canAddOption = options.length < maxOptions;
+  const canRemoveOption = options.length > MIN_MCQ_OPTIONS;
 
   // Update parent when options change
   useEffect(() => {
@@ -73,12 +105,12 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
   };
 
   const addOption = () => {
-    const newId = String.fromCharCode(97 + options.length); // a, b, c, d, e, f...
-    setOptions(prev => [...prev, { id: newId, text: '', correct: false }]);
+    if (!canAddOption) return;
+    setOptions(prev => [...prev, createBlankOption(prev.length)]);
   };
 
   const removeOption = (id: string) => {
-    if (options.length <= 2) return; // Minimum 2 options required
+    if (!canRemoveOption) return;
     setOptions(prev => prev.filter(option => option.id !== id));
   };
 
@@ -109,7 +141,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
 
       {/* Options */}
       <div className="space-y-3">
-        {options.map((option, index) => (
+        {options.map((option) => (
           <div key={option.id} className="flex items-start space-x-3 p-3 border border-theme-border-primary rounded-lg bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
             {/* Correct Answer Checkbox */}
             <div className="flex-shrink-0 mt-2">
@@ -118,6 +150,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
                 name={isMultiSelect ? 'multi-correct' : 'single-correct'}
                 checked={option.correct}
                 onChange={(e) => handleOptionCorrectChange(option.id, e.target.checked)}
+                aria-label={`Mark option ${option.id.toUpperCase()} as correct`}
                 className={`h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary ${
                   isMultiSelect ? 'rounded' : ''
                 }`}
@@ -151,7 +184,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
               <Button
                 type="button"
                 onClick={() => removeOption(option.id)}
-                disabled={options.length <= 2}
+                disabled={!canRemoveOption}
                 variant="ghost"
                 size="sm"
                 className="!p-1 !min-w-0 !text-theme-interactive-danger hover:!text-theme-interactive-danger disabled:!text-theme-text-tertiary"
@@ -168,7 +201,7 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
       </div>
 
       {/* Add Option Button */}
-      <AddItemButton onClick={addOption} itemType="Option" />
+      <AddItemButton onClick={addOption} itemType="Option" disabled={!canAddOption} />
 
       {/* Instructions */}
       <InstructionsModal title="Instructions">
