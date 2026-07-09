@@ -44,7 +44,13 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
     }
   };
 
+  const handleTextChange = (value: string) => {
+    setText(value);
+    setGaps(prev => syncGapsWithTextMarkers(value, prev));
+  };
+
   const removeGap = (gapId: number) => {
+    setText(prev => prev.replace(new RegExp(`\\{${gapId}\\}`, 'g'), ''));
     setGaps(prev => prev.filter(gap => gap.id !== gapId));
   };
 
@@ -70,10 +76,12 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 
   const insertGapMarker = () => {
     if (gaps.length >= 3) return; // Maximum 3 gaps allowed
-    const gapId = gaps.length + 1;
+    const gapId = getNextAvailableGapId(gaps);
+    if (!gapId) return;
     const gapMarker = `{${gapId}}`;
-    setText(prev => prev + gapMarker);
-    setGaps(prev => [...prev, { id: gapId, answer: '' }]);
+    const nextText = text + gapMarker;
+    setText(nextText);
+    setGaps(prev => syncGapsWithTextMarkers(nextText, prev));
   };
 
   const getGapCount = () => gaps.length;
@@ -129,7 +137,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
             <Textarea
               id="gap-text"
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => handleTextChange(e.target.value)}
               placeholder="Enter your question text. Use the 'Add Gap' button to insert gaps marked with {1}, {2}, etc."
               rows={6}
               required
@@ -361,8 +369,47 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
 
 const normalizeOptionKey = (value: string) => value.trim().toLowerCase();
 
+const MAX_FILL_GAP_GAPS = 3;
 const MIN_FILL_GAP_DISTRACTORS = 6;
 const MAX_FILL_GAP_DISTRACTORS = 7;
+
+const extractGapMarkerIds = (value: string): number[] => {
+  const seen = new Set<number>();
+  const markerIds: number[] = [];
+
+  value.replace(/\{(\d+)\}/g, (_match, rawId: string) => {
+    const id = Number(rawId);
+    if (!Number.isInteger(id) || id < 1 || id > MAX_FILL_GAP_GAPS || seen.has(id)) {
+      return _match;
+    }
+
+    seen.add(id);
+    markerIds.push(id);
+    return _match;
+  });
+
+  return markerIds.sort((a, b) => a - b);
+};
+
+const syncGapsWithTextMarkers = (
+  value: string,
+  existingGaps: Array<{ id: number; answer: string }>
+): Array<{ id: number; answer: string }> => {
+  const existingAnswers = new Map(existingGaps.map(gap => [gap.id, gap.answer]));
+
+  return extractGapMarkerIds(value).map((id) => ({
+    id,
+    answer: existingAnswers.get(id) || '',
+  }));
+};
+
+const getNextAvailableGapId = (gaps: Array<{ id: number; answer: string }>): number | null => {
+  const usedIds = new Set(gaps.map(gap => gap.id));
+  for (let id = 1; id <= MAX_FILL_GAP_GAPS; id += 1) {
+    if (!usedIds.has(id)) return id;
+  }
+  return null;
+};
 
 const getGapAnswerValues = (gaps: Array<{ id: number; answer: string }>): string[] =>
   dedupeFillGapOptions(gaps.map(gap => gap.answer));
