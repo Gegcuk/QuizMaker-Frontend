@@ -186,6 +186,14 @@ vi.mock('./HotspotEditor', async () => {
     ],
   };
 
+  const noCorrectRegions: HotspotContent = {
+    imageUrl: 'https://cdn.example.com/cell.png',
+    regions: [
+      region(1, 10, 20, 30, 40, false),
+      region(2, 50, 60, 10, 10, false),
+    ],
+  };
+
   const validHotspot: HotspotContent = {
     imageUrl: 'https://cdn.example.com/cell.png',
     regions: [
@@ -224,12 +232,65 @@ vi.mock('./HotspotEditor', async () => {
       ),
       React.createElement(
         'button',
+        { type: 'button', onClick: () => onChange(noCorrectRegions) },
+        'Use hotspot without correct region',
+      ),
+      React.createElement(
+        'button',
         { type: 'button', onClick: () => onChange(validHotspot) },
         'Use valid hotspot content',
       ),
     );
 
   return { default: HotspotEditorMock };
+});
+
+vi.mock('./MatchingQuestionForm', async () => {
+  const React = await import('react');
+
+  const invalidReferences = {
+    left: [
+      { id: 1, text: 'Mitochondria', matchId: 10 },
+      { id: 2, text: 'Ribosome', matchId: 99 },
+    ],
+    right: [
+      { id: 10, text: 'Energy production' },
+      { id: 11, text: 'Protein synthesis' },
+    ],
+  };
+
+  const validContent = {
+    left: [
+      { id: 1, text: 'Mitochondria', matchId: 10 },
+      { id: 2, text: 'Ribosome', matchId: 11 },
+    ],
+    right: [
+      { id: 10, text: 'Energy production' },
+      { id: 11, text: 'Protein synthesis' },
+    ],
+  };
+
+  const MatchingQuestionFormMock = ({
+    onChange,
+  }: {
+    onChange: (content: typeof validContent) => void;
+  }) =>
+    React.createElement(
+      'div',
+      { 'aria-label': 'Mock matching editor' },
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(invalidReferences) },
+        'Use invalid matching references',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange(validContent) },
+        'Use valid matching content',
+      ),
+    );
+
+  return { MatchingQuestionForm: MatchingQuestionFormMock };
 });
 
 const fillQuestionText = (text = 'What is the main function of mitochondria?') => {
@@ -437,6 +498,30 @@ describe('QuestionForm', () => {
     expectValidationMessage('Each hotspot region must use non-negative integer coordinates, dimensions, and a correct flag.');
     expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
     expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
+  });
+
+  it('blocks HOTSPOT submission without a correct region', async () => {
+    const { user } = await renderHotspotEditForm();
+
+    await user.click(screen.getByRole('button', { name: 'Use hotspot without correct region' }));
+
+    expectValidationMessage('At least one hotspot region must be marked correct.');
+    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
+  });
+
+  it('blocks MATCHING submission when a match does not refer to a right item', async () => {
+    const { user } = renderWithProviders(<QuestionForm compact />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /Matching/ }));
+    fillQuestionText('Match each organelle to its primary function.');
+    await user.click(screen.getByRole('button', { name: 'Use invalid matching references' }));
+
+    expectValidationMessage('Matching question matches must reference an existing right item.');
+    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
   it('submits schema-sized HOTSPOT content after validation passes', async () => {

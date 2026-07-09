@@ -14,9 +14,11 @@ Start with these files when the task touches backend data:
 
 - `quizmaker-frontend/docs/api/ai_api_guide.md` - API discovery, grouped OpenAPI
   specs, question schema endpoints, auth notes, media rules, and import rules.
-- `quizmaker-frontend/docs/api/question_schema_contracts.md` - generated versus
-  user-authored content, safe attempt content, submission payloads, and review
-  payloads for all question types.
+- Live API endpoints - `GET https://www.quizzence.com/api/v1/api-summary` for
+  discovery, `GET https://www.quizzence.com/v3/api-docs/questions` and
+  `GET https://www.quizzence.com/v3/api-docs/attempts` for request/response
+  contracts, and `GET https://www.quizzence.com/api/v1/questions/schemas/{type}`
+  for question-type schemas. These are the sole contract authority.
 - `AGENTS.md` - repository conventions, git safety, API contract rules, and
   verification commands.
 - `quizmaker-frontend/src/api/axiosInstance.ts` - API base URL, auth token
@@ -271,9 +273,8 @@ Question response examples currently shaped in `QuizAttemptPage.tsx`:
 { "matches": [{ "leftId": 1, "rightId": 4 }] }
 ```
 
-The complete response table, including fill-gap, compliance, open, and hotspot,
-lives in [`question_schema_contracts.md`](./question_schema_contracts.md).
-Verify each shape against Swagger or the backend handler before changing it.
+Fetch the live attempts group specification and inspect the relevant endpoint
+before changing fill-gap, compliance, open, hotspot, or any other answer shape.
 Do not assume submission and review shapes use the same field names.
 
 ## Backend Validation Errors
@@ -307,11 +308,13 @@ relevant:
 
 - `quizmaker-frontend/docs/api/ai_api_guide.md` for API discovery, AI
   generation, question schemas, media rules, and import/export notes.
-- `quizmaker-frontend/docs/api/question_schema_contracts.md` for type-specific
-  authoring, safe-content, submission, and review contracts.
 - This file for frontend-to-backend trace workflow.
 - `AGENTS.md` when agent operating rules change.
 - Feature docs under `quizmaker-frontend/docs/` when a product workflow changes.
+
+Do not create or update local copies of API contract tables. Update the live
+backend specification instead, or document the missing backend contract as a
+follow-up issue.
 
 For docs-only changes, run:
 

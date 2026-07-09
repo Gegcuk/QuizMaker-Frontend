@@ -10,8 +10,9 @@ It explains how to trace a backend endpoint through frontend endpoint constants,
 services, DTO types, page adapters, and UI components.
 
 For generated versus user-authored question content, safe attempt content,
-submission payloads, and review payloads, read
-[`question_schema_contracts.md`](./question_schema_contracts.md).
+submission payloads, and review payloads, query the live API. These local
+documents explain how to discover endpoints and trace frontend code; they are
+not API contract sources.
 
 ### Step 1: Start with the Discovery Endpoint
 
@@ -74,11 +75,11 @@ GET https://quizzence.com/api/v1/questions/schemas/MCQ_SINGLE
 Each has different content structure. Always check `/api/v1/questions/schemas` first.
 
 The generation schema and create/update validation are not always identical.
-For example, generated matching questions require more items than manually
-authored matching questions, and AI-generated fill-gap questions require an
-option pool while legacy/manual fill-gap questions may omit it. See
-[`question_schema_contracts.md`](./question_schema_contracts.md) before copying
-schema limits into editor validation.
+For example, generation, create/update, attempt safe-content, submission, and
+review contracts can differ. Fetch the relevant live group specification and
+question schema for the exact operation being changed. If the live schema does
+not disambiguate a rule, inspect the backend validation response instead of
+copying a rule from a checked-in document or current UI behavior.
 
 ---
 

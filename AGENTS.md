@@ -39,7 +39,9 @@ These instructions apply to the whole repository. They are intentionally specifi
 ## Backend And API Contracts
 
 - Verify backend contracts before changing request or response shapes.
-- Use Swagger/OpenAPI for live schemas when available, especially question schemas.
+- Treat the live API as the only contract authority. Start with `GET https://www.quizzence.com/api/v1/api-summary`, then fetch the relevant live group spec at `GET https://www.quizzence.com/v3/api-docs/{group}` or a live question schema at `GET https://www.quizzence.com/api/v1/questions/schemas/{type}`.
+- Local API Markdown files describe discovery and frontend code paths only. Do not use them as evidence for field names, limits, safe-content rules, submission payloads, or review payloads.
+- If the live specification does not answer a contract question, do not infer the behavior from the UI or a checked-in document. Inspect the backend response or validation error, then create a follow-up issue if the contract still needs backend clarification.
 - Existing API documentation starts in `quizmaker-frontend/docs/api/ai_api_guide.md`.
 - Frontend-to-backend implementation workflow is documented in `quizmaker-frontend/docs/api/frontend_backend_workflow_for_ai.md`.
 - Keep frontend DTO/type changes aligned with backend payloads.
