@@ -20,6 +20,7 @@ Additional test commands:
 npm run test:watch
 npm run test:coverage
 npm run test:smoke
+npm run test:e2e
 npm run audit:production
 npm run browserslist:update
 ```
@@ -28,6 +29,11 @@ npm run browserslist:update
 public home page renders with Tailwind styles applied, readable theme contrast
 across light, dark, blue, purple, and green palettes, and no mobile horizontal
 overflow.
+
+`npm run test:e2e` starts an isolated local Vite server and runs critical
+Playwright journeys against mocked API responses. It covers public routes,
+authentication success and error paths, and a mobile quiz-attempt interaction.
+It never calls production services or uses production credentials.
 
 Vitest component and service tests live next to the source they cover as
 `*.test.ts` or `*.test.tsx`, or under `src/test` for shared test infrastructure.
@@ -41,13 +47,14 @@ For focused lint checks during development:
 npx eslint path/to/changed-file.tsx
 ```
 
-The pull request workflow runs lint, Vitest, browser smoke, and build checks for every pull request to `main`.
+The pull request workflow runs lint, Vitest, browser smoke, critical E2E, and
+build checks for every pull request to `main`.
 
 ## CI/CD
 
-- `.github/workflows/frontend-pr.yml` runs lint, Vitest, browser smoke, and build on every pull request to `main`.
+- `.github/workflows/frontend-pr.yml` runs lint, Vitest, browser smoke, critical E2E, and build on every pull request to `main`.
 - `.github/workflows/deploy.yml` runs on pushes to `main` and can also be started manually.
-- Production deployment first runs `npm ci`, `npm run audit:production`, `npm run lint`, `npm test`, `npm run test:smoke`, and `npm run build` in a validation job.
+- Production deployment first runs `npm ci`, `npm run audit:production`, `npm run lint`, `npm test`, `npm run test:smoke`, `npm run test:e2e`, and `npm run build` in a validation job.
 - Deployment only starts after validation passes.
 - Post-deploy smoke checks verify the public site and frontend SPA routing.
 

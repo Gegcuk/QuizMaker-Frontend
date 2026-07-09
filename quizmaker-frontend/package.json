@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:smoke": "node --test tests/smoke.test.mjs",
+    "test:e2e": "node --test tests/e2e/critical-flows.test.mjs",
     "audit:production": "npm audit --omit=dev",
     "browserslist:update": "npx update-browserslist-db@latest",
     "preview": "vite preview",
