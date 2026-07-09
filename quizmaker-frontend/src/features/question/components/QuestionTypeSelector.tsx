@@ -10,7 +10,6 @@ import {
   Squares2X2Icon,
   CheckBadgeIcon,
   PencilSquareIcon,
-  ChatBubbleBottomCenterTextIcon,
   ClipboardDocumentCheckIcon,
   ArrowsUpDownIcon,
   CursorArrowRaysIcon,
@@ -48,13 +47,6 @@ const QuestionTypeSelector: React.FC<QuestionTypeSelectorProps> = ({
       label: 'True/False',
       description: 'Simple true or false question',
       icon: CheckBadgeIcon,
-      color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
-    },
-    {
-      type: 'OPEN' as QuestionType,
-      label: 'Open Ended',
-      description: 'Write a free-form answer',
-      icon: ChatBubbleBottomCenterTextIcon,
       color: 'bg-theme-bg-tertiary border-theme-border-primary text-theme-text-secondary'
     },
     {

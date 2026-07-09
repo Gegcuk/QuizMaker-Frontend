@@ -31,6 +31,7 @@ const ORDERING_MAX_ITEMS = 10;
 const ORDERING_MIN_TEXT_LENGTH = 5;
 const HOTSPOT_MIN_REGIONS = 2;
 const HOTSPOT_MAX_REGIONS = 6;
+const MATCHING_MIN_ITEMS = 2;
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -238,27 +239,49 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       }
       
       case 'MATCHING': {
-        const left = (formData.content as any)?.left || [];
-        const right = (formData.content as any)?.right || [];
+        const left = Array.isArray((formData.content as any)?.left)
+          ? (formData.content as any).left
+          : [];
+        const right = Array.isArray((formData.content as any)?.right)
+          ? (formData.content as any).right
+          : [];
         
-        if (left.length === 0) {
-          errors.push('At least one left item is required.');
+        if (left.length < MATCHING_MIN_ITEMS) {
+          errors.push('Matching questions must have at least 2 left items.');
         } else {
-          // Check all left items have at least 1 character
-          const invalidLeft = left.filter((item: any) => !item.text || item.text.trim().length < 1);
+          const invalidLeft = left.filter((item: any) =>
+            typeof item?.text !== 'string' || item.text.trim().length < 1,
+          );
           if (invalidLeft.length > 0) {
             errors.push('All left items must have at least 1 character.');
           }
         }
         
-        if (right.length === 0) {
-          errors.push('At least one right item is required.');
+        if (right.length < MATCHING_MIN_ITEMS) {
+          errors.push('Matching questions must have at least 2 right items.');
         } else {
-          // Check all right items have at least 1 character
-          const invalidRight = right.filter((item: any) => !item.text || item.text.trim().length < 1);
+          const invalidRight = right.filter((item: any) =>
+            typeof item?.text !== 'string' || item.text.trim().length < 1,
+          );
           if (invalidRight.length > 0) {
             errors.push('All right items must have at least 1 character.');
           }
+        }
+
+        if (left.length !== right.length) {
+          errors.push('Matching questions must have the same number of left and right items.');
+        }
+
+        const hasUniqueIntegerIds = (items: any[]) =>
+          items.every((item) => Number.isInteger(item?.id))
+          && new Set(items.map((item) => item?.id)).size === items.length;
+        if (!hasUniqueIntegerIds(left) || !hasUniqueIntegerIds(right)) {
+          errors.push('Matching item IDs must be unique integers within each column.');
+        }
+
+        const rightIds = new Set(right.map((item: any) => item?.id));
+        if (left.some((item: any) => !Number.isInteger(item?.matchId) || !rightIds.has(item.matchId))) {
+          errors.push('Matching question matches must reference an existing right item.');
         }
         break;
       }
@@ -329,6 +352,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         );
         if (invalidRegions.length > 0) {
           errors.push('Each hotspot region must use non-negative integer coordinates, dimensions, and a correct flag.');
+        }
+
+        if (!regions.some((region: any) => region?.correct === true)) {
+          errors.push('At least one hotspot region must be marked correct.');
         }
         break;
       }

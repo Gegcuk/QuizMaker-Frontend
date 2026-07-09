@@ -2,11 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
 import QuestionTypeSelector from './QuestionTypeSelector';
 
-const supportedQuestionTypes = [
+const selectableQuestionTypes = [
   ['Single Choice', 'MCQ_SINGLE'],
   ['Multiple Choice', 'MCQ_MULTI'],
   ['True/False', 'TRUE_FALSE'],
-  ['Open Ended', 'OPEN'],
   ['Fill in the Blank', 'FILL_GAP'],
   ['Compliance', 'COMPLIANCE'],
   ['Ordering', 'ORDERING'],
@@ -15,15 +14,17 @@ const supportedQuestionTypes = [
 ] as const;
 
 describe('QuestionTypeSelector', () => {
-  it('offers every question type supported by the backend schema', () => {
+  it('offers every currently selectable authoring type', () => {
     renderWithProviders(
       <QuestionTypeSelector onTypeChange={vi.fn()} />,
       { withAuthProvider: false },
     );
 
-    supportedQuestionTypes.forEach(([label]) => {
+    selectableQuestionTypes.forEach(([label]) => {
       expect(screen.getByRole('button', { name: new RegExp(label) })).toBeInTheDocument();
     });
+
+    expect(screen.queryByRole('button', { name: /Open Ended/ })).not.toBeInTheDocument();
   });
 
   it('reports the selected type and reflects the controlled selected state', async () => {
