@@ -26,6 +26,9 @@ import { dedupeFillGapOptions, sanitizeFillGapContentForSubmission, sanitizeMcqC
 const MCQ_SINGLE_OPTION_COUNT = 4;
 const MCQ_MULTI_MIN_OPTIONS = 4;
 const MCQ_MULTI_MAX_OPTIONS = 6;
+const ORDERING_MIN_ITEMS = 3;
+const ORDERING_MAX_ITEMS = 10;
+const ORDERING_MIN_TEXT_LENGTH = 5;
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -216,15 +219,18 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       }
       
       case 'ORDERING': {
-        const items = (formData.content as any)?.items || [];
-        if (items.length < 2) {
-          errors.push('At least 2 items are required for ordering questions.');
-        } else {
-          // Check all items have at least 1 character
-          const invalidItems = items.filter((item: any) => !item.text || item.text.trim().length < 1);
-          if (invalidItems.length > 0) {
-            errors.push('All items must have at least 1 character.');
-          }
+        const items = Array.isArray((formData.content as any)?.items)
+          ? (formData.content as any).items
+          : [];
+        if (items.length < ORDERING_MIN_ITEMS || items.length > ORDERING_MAX_ITEMS) {
+          errors.push('Ordering questions must have 3 to 10 items.');
+        }
+
+        const hasText = (item: any) => !!(item.text && item.text.trim().length >= ORDERING_MIN_TEXT_LENGTH);
+        const hasMedia = (item: any) => !!(item.media && (item.media.assetId || item.media.cdnUrl));
+        const invalidItems = items.filter((item: any) => !hasText(item) && !hasMedia(item));
+        if (invalidItems.length > 0) {
+          errors.push('Each ordering item must have text of at least 5 characters or an image.');
         }
         break;
       }
