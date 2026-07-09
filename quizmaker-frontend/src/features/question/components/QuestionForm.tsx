@@ -105,6 +105,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       setAttachment(question.attachment || null);
       setLegacyAttachmentUrl(question.attachmentUrl || null);
       setClearAttachment(false);
+      setEditorKey(prev => prev + 1);
       // Show hint/explanation sections if they have values
       if (question.hint) setShowHint(true);
       if (question.explanation) setShowExplanation(true);

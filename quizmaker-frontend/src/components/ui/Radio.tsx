@@ -60,6 +60,7 @@ const Radio: React.FC<RadioProps> = ({
             focus:ring-offset-0
             border-theme-border-primary
             bg-theme-bg-primary
+            checked:bg-current
             transition-colors
             duration-150
             cursor-pointer
@@ -104,4 +105,3 @@ const Radio: React.FC<RadioProps> = ({
 };
 
 export default Radio;
-
