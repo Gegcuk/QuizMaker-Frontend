@@ -14,6 +14,9 @@ interface ComplianceEditorProps {
   showPreview?: boolean;
 }
 
+const MIN_COMPLIANCE_STATEMENTS = 2;
+const MAX_COMPLIANCE_STATEMENTS = 6;
+
 const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   content,
   onChange,
@@ -21,10 +24,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   showPreview = true
 }) => {
   const [statements, setStatements] = useState<ComplianceStatement[]>(
-    content.statements || [
-      { id: 1, text: '', compliant: true },
-      { id: 2, text: '', compliant: false }
-    ]
+    () => normalizeInitialStatements(content?.statements)
   );
 
   // Update parent when statements change
@@ -43,12 +43,14 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   }, [statements]);
 
   const addStatement = () => {
-    const newId = statements.length + 1;
+    if (statements.length >= MAX_COMPLIANCE_STATEMENTS) return;
+
+    const newId = getNextStatementId(statements);
     setStatements(prev => [...prev, { id: newId, text: '', compliant: true }]);
   };
 
   const removeStatement = (id: number) => {
-    if (statements.length <= 2) return; // Minimum 2 statements required
+    if (statements.length <= MIN_COMPLIANCE_STATEMENTS) return;
     setStatements(prev => prev.filter(statement => statement.id !== id));
   };
 
@@ -102,6 +104,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                 minRows={1}
                 autoResize
                 fullWidth
+                data-compliance-statement
               />
             </div>
 
@@ -131,7 +134,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeStatement(statement.id)}
-                disabled={statements.length <= 2}
+                disabled={statements.length <= MIN_COMPLIANCE_STATEMENTS}
                 className="!text-theme-interactive-danger hover:!text-theme-interactive-danger disabled:!text-theme-text-tertiary"
                 title="Remove statement"
                 aria-label={`Remove statement ${statement.id}`}
@@ -144,7 +147,11 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
             </div>
           </div>
         ))}
-        <AddItemButton onClick={addStatement} itemType="Statement" />
+        <AddItemButton
+          onClick={addStatement}
+          itemType="Statement"
+          disabled={statements.length >= MAX_COMPLIANCE_STATEMENTS}
+        />
       </ItemManagementContainer>
 
       {/* Instructions */}
@@ -153,6 +160,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
           <li>Write statements to evaluate</li>
           <li>Mark each statement as Compliant or Non-compliant</li>
           <li>Minimum 2 statements required</li>
+          <li>Maximum 6 statements allowed</li>
         </ul>
       </InstructionsModal>
 
@@ -179,44 +187,27 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
         </p>
       </QuestionPreviewSection>
 
-      {/* Compliance Summary */}
-      {statements.length > 0 && (
-        <div className="bg-theme-bg-secondary border border-theme-border-primary rounded-md p-4 bg-theme-bg-primary text-theme-text-primary">
-          <h5 className="text-sm font-medium text-theme-text-primary mb-2">Compliance Summary</h5>
-          <div className="text-sm text-theme-text-secondary">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h6 className="font-medium text-theme-text-primary">Compliant Statements:</h6>
-                <div className="mt-1 space-y-1">
-                  {statements.filter(s => s.compliant).map((statement) => (
-                    <div key={statement.id} className="flex items-center space-x-2">
-                      <span className="font-medium">{statement.id}.</span>
-                      <span className={statement.text ? 'text-theme-text-primary' : 'text-theme-text-danger'}>
-                        {statement.text || 'No text provided'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h6 className="font-medium text-theme-text-primary">Non-compliant Statements:</h6>
-                <div className="mt-1 space-y-1">
-                  {statements.filter(s => !s.compliant).map((statement) => (
-                    <div key={statement.id} className="flex items-center space-x-2">
-                      <span className="font-medium">{statement.id}.</span>
-                      <span className={statement.text ? 'text-theme-text-primary' : 'text-theme-text-danger'}>
-                        {statement.text || 'No text provided'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
+};
+
+const getNextStatementId = (statements: ComplianceStatement[]) =>
+  Math.max(0, ...statements.map(statement => statement.id)) + 1;
+
+const createDefaultStatement = (id: number): ComplianceStatement => ({
+  id,
+  text: '',
+  compliant: id === 1,
+});
+
+const normalizeInitialStatements = (statements: ComplianceStatement[] = []) => {
+  const normalized = statements.slice(0, MAX_COMPLIANCE_STATEMENTS);
+
+  while (normalized.length < MIN_COMPLIANCE_STATEMENTS) {
+    normalized.push(createDefaultStatement(getNextStatementId(normalized)));
+  }
+
+  return normalized;
 };
 
 export default ComplianceEditor; 
