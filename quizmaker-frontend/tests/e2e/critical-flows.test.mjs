@@ -132,6 +132,29 @@ const fillRegistrationForm = async (page) => {
   await page.locator('#terms').check();
 };
 
+const getHorizontalOverflowingElements = async (page) =>
+  page.evaluate(() => {
+    const viewportWidth = window.innerWidth;
+
+    return Array.from(document.body.querySelectorAll('*'))
+      .flatMap((element) => {
+        const rect = element.getBoundingClientRect();
+        const isVisible = rect.width > 0 && rect.height > 0;
+
+        if (!isVisible || (rect.left >= -1 && rect.right <= viewportWidth + 1)) {
+          return [];
+        }
+
+        return [{
+          tagName: element.tagName.toLowerCase(),
+          className: element.getAttribute('class') || undefined,
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+        }];
+      })
+      .slice(0, 10);
+  });
+
 test('critical frontend journeys use local mocked API responses', { timeout: 120_000 }, async () => {
   const server = createDevServer();
   let browser;
@@ -330,10 +353,11 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         });
         await page.getByText('What is the capital of France?').waitFor();
 
-        assert.equal(
-          await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
-          true,
-          'Expected no horizontal overflow at the mobile attempt viewport',
+        const overflowingElements = await getHorizontalOverflowingElements(page);
+        assert.deepEqual(
+          overflowingElements,
+          [],
+          `Expected no horizontal overflow at the mobile attempt viewport. Found: ${JSON.stringify(overflowingElements)}`,
         );
 
         await page.getByText('Paris', { exact: true }).click();
