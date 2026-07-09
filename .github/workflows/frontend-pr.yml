@@ -49,5 +49,8 @@ jobs:
       - name: Browser smoke test
         run: npm run test:smoke
 
+      - name: Critical E2E tests
+        run: npm run test:e2e
+
       - name: Build
         run: npm run build
