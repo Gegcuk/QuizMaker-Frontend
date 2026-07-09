@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
-import type { McqOption } from '@/types';
+import type { McqOption, OrderingItem } from '@/types';
 import QuestionForm from './QuestionForm';
 
 const questionServiceMocks = vi.hoisted(() => ({
@@ -85,6 +85,59 @@ vi.mock('./McqQuestionEditor', async () => {
   return { default: McqQuestionEditorMock };
 });
 
+vi.mock('./OrderingEditor', async () => {
+  const React = await import('react');
+
+  const item = (id: number, text: string): OrderingItem => ({
+    id,
+    text,
+  });
+
+  const twoItems = [
+    item(1, 'First step'),
+    item(2, 'Second step'),
+  ];
+
+  const shortTextItems = [
+    item(1, 'One'),
+    item(2, 'Two'),
+    item(3, 'Tri'),
+  ];
+
+  const validItems = [
+    item(1, 'Collect requirements'),
+    item(2, 'Design the system'),
+    item(3, 'Implement the design'),
+  ];
+
+  const OrderingEditorMock = ({
+    onChange,
+  }: {
+    onChange: (content: { items: OrderingItem[] }) => void;
+  }) =>
+    React.createElement(
+      'div',
+      { 'aria-label': 'Mock ordering editor' },
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange({ items: twoItems }) },
+        'Use two ordering items',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange({ items: shortTextItems }) },
+        'Use short ordering text',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange({ items: validItems }) },
+        'Use valid ordering items',
+      ),
+    );
+
+  return { default: OrderingEditorMock };
+});
+
 const fillQuestionText = (text = 'What is the main function of mitochondria?') => {
   fireEvent.change(screen.getByLabelText('Question Text'), {
     target: { value: text },
@@ -155,6 +208,67 @@ describe('QuestionForm', () => {
               { id: 'b', text: 'Produce ATP', correct: true, media: undefined },
               { id: 'c', text: 'Transport proteins', correct: false, media: undefined },
               { id: 'd', text: 'Break down waste', correct: false, media: undefined },
+            ],
+          },
+        }),
+      );
+    });
+    expect(onSuccess).toHaveBeenCalledWith({ questionId: 'question-1' });
+  });
+
+  it('blocks ORDERING submission outside the live 3 to 10 item range', async () => {
+    const { user } = renderWithProviders(<QuestionForm compact />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /Ordering/ }));
+    fillQuestionText('Arrange the project lifecycle steps.');
+    await user.click(screen.getByRole('button', { name: 'Use two ordering items' }));
+
+    expectValidationMessage('Ordering questions must have 3 to 10 items.');
+    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
+  });
+
+  it('blocks ORDERING submission when item text is too short for the live schema', async () => {
+    const { user } = renderWithProviders(<QuestionForm compact />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /Ordering/ }));
+    fillQuestionText('Arrange the project lifecycle steps.');
+    await user.click(screen.getByRole('button', { name: 'Use short ordering text' }));
+
+    expectValidationMessage('Each ordering item must have text of at least 5 characters or an image.');
+    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
+  });
+
+  it('submits schema-sized ORDERING content after validation passes', async () => {
+    const onSuccess = vi.fn();
+    const { user } = renderWithProviders(<QuestionForm compact onSuccess={onSuccess} />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /Ordering/ }));
+    fillQuestionText('Arrange the project lifecycle steps.');
+    await user.click(screen.getByRole('button', { name: 'Use valid ordering items' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Create Question' })).toBeEnabled();
+    });
+    await user.click(screen.getByRole('button', { name: 'Create Question' }));
+
+    await waitFor(() => {
+      expect(questionServiceMocks.createQuestion).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ORDERING',
+          questionText: 'Arrange the project lifecycle steps.',
+          content: {
+            items: [
+              { id: 1, text: 'Collect requirements' },
+              { id: 2, text: 'Design the system' },
+              { id: 3, text: 'Implement the design' },
             ],
           },
         }),

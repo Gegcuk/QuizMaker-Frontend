@@ -7,12 +7,36 @@ import React, { useState, useEffect } from 'react';
 import { OrderingContent, OrderingItem } from '@/types';
 import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer, Textarea, Button } from '@/components';
 
+const MIN_ORDERING_ITEMS = 3;
+const MAX_ORDERING_ITEMS = 10;
+
 interface OrderingEditorProps {
   content: OrderingContent;
   onChange: (content: OrderingContent) => void;
   className?: string;
   showPreview?: boolean;
 }
+
+const createBlankItem = (index: number): OrderingItem => ({
+  id: index + 1,
+  text: '',
+});
+
+const normalizeOrderingItems = (items: OrderingItem[] | undefined): OrderingItem[] => {
+  const normalized = (items || [])
+    .slice(0, MAX_ORDERING_ITEMS)
+    .map((item, index) => ({
+      ...item,
+      id: index + 1,
+      text: item.text || '',
+    }));
+
+  while (normalized.length < MIN_ORDERING_ITEMS) {
+    normalized.push(createBlankItem(normalized.length));
+  }
+
+  return normalized;
+};
 
 const OrderingEditor: React.FC<OrderingEditorProps> = ({
   content,
@@ -21,12 +45,10 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
   showPreview = true
 }) => {
   const [items, setItems] = useState<OrderingItem[]>(
-    content.items || [
-      { id: 1, text: '' },
-      { id: 2, text: '' },
-      { id: 3, text: '' }
-    ]
+    () => normalizeOrderingItems(content.items)
   );
+  const canAddItem = items.length < MAX_ORDERING_ITEMS;
+  const canRemoveItem = items.length > MIN_ORDERING_ITEMS;
 
   // Update parent when items change
   useEffect(() => {
@@ -44,13 +66,13 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
   }, [items]);
 
   const addItem = () => {
-    const newId = items.length + 1;
-    setItems(prev => [...prev, { id: newId, text: '' }]);
+    if (!canAddItem) return;
+    setItems(prev => normalizeOrderingItems([...prev, createBlankItem(prev.length)]));
   };
 
   const removeItem = (id: number) => {
-    if (items.length <= 2) return; // Minimum 2 items required
-    setItems(prev => prev.filter(item => item.id !== id));
+    if (!canRemoveItem) return;
+    setItems(prev => normalizeOrderingItems(prev.filter(item => item.id !== id)));
   };
 
   const updateItemText = (id: number, text: string) => {
@@ -63,7 +85,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
     const newItems = [...items];
     const [movedItem] = newItems.splice(fromIndex, 1);
     newItems.splice(toIndex, 0, movedItem);
-    setItems(newItems);
+    setItems(normalizeOrderingItems(newItems));
   };
 
   const getEmptyItems = () => items.filter(item => !item.text.trim());
@@ -113,12 +135,12 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                   <Button
                     type="button"
                     onClick={() => removeItem(item.id)}
-                    disabled={items.length <= 2}
+                    disabled={!canRemoveItem}
                     variant="ghost"
                     size="sm"
                     className="!p-1 !min-w-0 !text-theme-interactive-danger hover:!text-theme-interactive-danger disabled:!text-theme-text-tertiary"
                     title="Remove item"
-                    aria-label="Remove item"
+                    aria-label={`Remove item ${item.id}`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -130,14 +152,15 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
           </div>
 
           {/* Add Item Button */}
-          <AddItemButton onClick={addItem} itemType="Item" />
+          <AddItemButton onClick={addItem} itemType="Item" disabled={!canAddItem} />
       </ItemManagementContainer>
 
       {/* Instructions */}
       <InstructionsModal title="Instructions">
         <ul className="list-disc list-inside space-y-1">
           <li>Enter items in the correct order from top to bottom</li>
-          <li>Minimum 2 items required</li>
+          <li>Minimum 3 items required</li>
+          <li>Maximum 10 items allowed</li>
         </ul>
       </InstructionsModal>
 
