@@ -193,7 +193,7 @@ const Navbar: React.FC = () => {
               onClick={() => setIsBugModalOpen(true)}
               variant="outline"
               size="sm"
-              className="hidden md:inline-flex border-theme-border-secondary text-theme-text-secondary hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 dark:hover:border-rose-700 transition-colors"
+              className="!hidden md:!inline-flex border-theme-border-secondary text-theme-text-secondary hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 dark:hover:border-rose-700 transition-colors"
               leftIcon={
                 <span aria-hidden className="inline-block">
                   🐞
@@ -231,7 +231,7 @@ const Navbar: React.FC = () => {
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="hidden md:flex !p-2 !min-w-0"
+                className="!hidden md:!flex !p-2 !min-w-0"
                 aria-label="Logout"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

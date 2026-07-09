@@ -353,6 +353,17 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         });
         await page.getByText('What is the capital of France?').waitFor();
 
+        assert.equal(
+          await page.getByRole('button', { name: 'Found a bug?' }).isVisible(),
+          false,
+          'Expected the desktop bug-report control to be hidden at the mobile viewport',
+        );
+        assert.equal(
+          await page.getByRole('button', { name: 'Logout' }).isVisible(),
+          false,
+          'Expected the desktop logout control to be hidden at the mobile viewport',
+        );
+
         const overflowingElements = await getHorizontalOverflowingElements(page);
         assert.deepEqual(
           overflowingElements,
