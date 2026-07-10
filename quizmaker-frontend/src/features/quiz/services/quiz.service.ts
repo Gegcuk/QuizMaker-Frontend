@@ -43,6 +43,36 @@ type QuizServiceError = Error & {
   userMessage?: string;
 };
 
+type UploadGenerationQueryParams = Record<string, string | string[]>;
+
+const uploadArrayQueryParams = new Set(['chunkIndices', 'tagIds']);
+
+const buildUploadGenerationQueryParams = (formData: FormData): UploadGenerationQueryParams => {
+  const params: UploadGenerationQueryParams = {};
+
+  formData.forEach((value, key) => {
+    if (key === 'file' || key === 'title' || typeof value !== 'string') {
+      return;
+    }
+
+    if (uploadArrayQueryParams.has(key)) {
+      try {
+        const parsedValue = JSON.parse(value);
+        if (Array.isArray(parsedValue)) {
+          params[key] = parsedValue.map(String);
+          return;
+        }
+      } catch {
+        // Preserve the supplied value when it is not JSON-encoded.
+      }
+    }
+
+    params[key] = value;
+  });
+
+  return params;
+};
+
 /**
  * Quiz service for handling quiz operations
  * Implements all endpoints from the QuizController API documentation
@@ -182,10 +212,19 @@ export class QuizService extends BaseService<QuizDto> {
    */
   async generateQuizFromUpload(formData: FormData): Promise<QuizGenerationResponse> {
     try {
+      const file = formData.get('file');
+      if (!(file instanceof Blob)) {
+        throw new Error('Document file is required');
+      }
+
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+
       const response = await this.axiosInstance.post<QuizGenerationResponse>(
         QUIZ_ENDPOINTS.GENERATE_FROM_UPLOAD, 
-        formData,
+        uploadData,
         {
+          params: buildUploadGenerationQueryParams(formData),
           _isFileUpload: true,  // Flag for request interceptor to handle Content-Type
         } as any
       );

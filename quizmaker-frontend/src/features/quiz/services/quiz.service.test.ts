@@ -179,17 +179,33 @@ describe('QuizService', () => {
     );
   });
 
-  it('marks generation uploads for multipart interceptor handling', async () => {
+  it('sends generation upload options as live query parameters with a multipart file body', async () => {
     const formData = new FormData();
     formData.append('file', new Blob(['content']), 'architecture.txt');
+    formData.append('title', 'Architecture Notes');
+    formData.append('quizTitle', 'Architecture Quiz');
+    formData.append('questionsPerType', JSON.stringify({ MCQ_SINGLE: 3 }));
+    formData.append('difficulty', 'MEDIUM');
+    formData.append('chunkIndices', JSON.stringify([0, 2]));
+    formData.append('tagIds', JSON.stringify(['tag-1', 'tag-2']));
     axios.post.mockResolvedValue({ data: generationResponse });
 
     await expect(service.generateQuizFromUpload(formData)).resolves.toBe(generationResponse);
-    expect(axios.post).toHaveBeenCalledWith(
-      '/v1/quizzes/generate-from-upload',
-      formData,
-      { _isFileUpload: true },
-    );
+
+    const [url, uploadData, config] = axios.post.mock.calls[0];
+    expect(url).toBe('/v1/quizzes/generate-from-upload');
+    expect(uploadData).toBeInstanceOf(FormData);
+    expect(Array.from((uploadData as FormData).keys())).toEqual(['file']);
+    expect(config).toEqual({
+      params: {
+        quizTitle: 'Architecture Quiz',
+        questionsPerType: '{"MCQ_SINGLE":3}',
+        difficulty: 'MEDIUM',
+        chunkIndices: ['0', '2'],
+        tagIds: ['tag-1', 'tag-2'],
+      },
+      _isFileUpload: true,
+    });
   });
 
   it('retrieves and cancels generation jobs with the status response contract', async () => {
