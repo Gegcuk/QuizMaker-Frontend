@@ -15,9 +15,15 @@ const QUESTION_ID = '44444444-4444-4444-8444-444444444444';
 const CREATED_QUIZ_ID = '55555555-5555-4555-8555-555555555555';
 const GENERATION_JOB_ID = '66666666-6666-4666-8666-666666666666';
 const GENERATED_QUIZ_ID = '77777777-7777-4777-8777-777777777777';
+const DOCUMENT_GENERATION_JOB_ID = '88888888-8888-4888-8888-888888888888';
+const DOCUMENT_GENERATED_QUIZ_ID = '99999999-9999-4999-8999-999999999999';
 const TEXT_GENERATION_SOURCE = (
   'Photosynthesis converts light energy into chemical energy that plants store in glucose. '
   + 'Chlorophyll absorbs light in the chloroplasts, where carbon dioxide and water become glucose and oxygen. '
+).repeat(4);
+const DOCUMENT_GENERATION_SOURCE = (
+  'Plants use photosynthesis to convert light energy, water, and carbon dioxide into glucose and oxygen. '
+  + 'Chloroplasts contain chlorophyll, which absorbs light and drives the chemical reactions needed for growth. '
 ).repeat(4);
 
 const createDevServer = () =>
@@ -454,6 +460,103 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           chunkingStrategy: 'SIZE_BASED',
           maxChunkSize: 100000,
         });
+        assert.equal(generationStatusRequests, 2);
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let uploadRequest = null;
+      let generationStatusRequests = 0;
+
+      try {
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/quizzes/generate-from-upload**', async (route) => {
+          assert.equal(route.request().method(), 'POST');
+          const requestUrl = new URL(route.request().url());
+          uploadRequest = {
+            query: Object.fromEntries(requestUrl.searchParams.entries()),
+            contentType: route.request().headers()['content-type'],
+            body: route.request().postDataBuffer()?.toString(),
+          };
+          await fulfillJson(route, {
+            jobId: DOCUMENT_GENERATION_JOB_ID,
+            status: 'PENDING',
+            message: 'Document processing and quiz generation started',
+            estimatedTimeSeconds: 10,
+          }, 202);
+        });
+        await page.route(`**/api/v1/quizzes/generation-status/${DOCUMENT_GENERATION_JOB_ID}`, async (route) => {
+          assert.equal(route.request().method(), 'GET');
+          generationStatusRequests += 1;
+
+          await fulfillJson(route, generationStatusRequests === 1 ? {
+            jobId: DOCUMENT_GENERATION_JOB_ID,
+            status: 'PROCESSING',
+            totalChunks: 1,
+            processedChunks: 0,
+            progressPercentage: 50,
+            currentChunk: 'Processing selected document content',
+            totalQuestionsGenerated: 12,
+            elapsedTimeSeconds: 5,
+            estimatedTimeRemainingSeconds: 5,
+            generatedQuizId: null,
+            startedAt: '2026-01-01T00:00:00Z',
+            completedAt: null,
+          } : {
+            jobId: DOCUMENT_GENERATION_JOB_ID,
+            status: 'COMPLETED',
+            totalChunks: 1,
+            processedChunks: 1,
+            progressPercentage: 100,
+            currentChunk: 'Generation complete',
+            totalQuestionsGenerated: 25,
+            elapsedTimeSeconds: 10,
+            estimatedTimeRemainingSeconds: 0,
+            generatedQuizId: DOCUMENT_GENERATED_QUIZ_ID,
+            startedAt: '2026-01-01T00:00:00Z',
+            completedAt: '2026-01-01T00:00:10Z',
+          });
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await page.getByText('Generate from Document', { exact: true }).click();
+        await page.getByRole('heading', { name: 'Configure Your Document-Based Quiz' }).waitFor();
+
+        await page.locator('input[placeholder="Title is auto-generated from filename if empty"]').fill('E2E Document Generation Quiz');
+        await page.locator('input[placeholder="Brief description..."]').fill('Generated from a selected document page.');
+        await page.locator('#document-upload').setInputFiles({
+          name: 'photosynthesis.txt',
+          mimeType: 'text/plain',
+          buffer: Buffer.from(DOCUMENT_GENERATION_SOURCE),
+        });
+        await page.getByRole('heading', { name: 'photosynthesis.txt' }).waitFor();
+        await page.getByRole('button', { name: 'All', exact: true }).click();
+        await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
+        await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
+        await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+
+        assert.deepEqual(uploadRequest?.query, {
+          quizScope: 'ENTIRE_DOCUMENT',
+          chunkingStrategy: 'SIZE_BASED',
+          maxChunkSize: '100000',
+          quizTitle: 'E2E Document Generation Quiz',
+          quizDescription: 'Generated from a selected document page.',
+          questionsPerType: '{"MCQ_SINGLE":10,"MCQ_MULTI":5,"FILL_GAP":5,"MATCHING":5}',
+          difficulty: 'MEDIUM',
+        });
+        assert.match(uploadRequest?.contentType ?? '', /^multipart\/form-data; boundary=/);
+        assert.match(uploadRequest?.body ?? '', /name="file"/);
+        assert.match(uploadRequest?.body ?? '', /Plants use photosynthesis/);
         assert.equal(generationStatusRequests, 2);
       } finally {
         await page.close();
