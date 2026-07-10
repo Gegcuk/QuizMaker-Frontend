@@ -1168,6 +1168,96 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
+      const page = await (await browser.newContext()).newPage();
+      const proPackId = '60606060-6060-4060-8060-606060606060';
+      let checkoutRequest = null;
+      let packRequestCount = 0;
+      let requestedProductionCheckout = false;
+
+      try {
+        page.on('request', (request) => {
+          if (new URL(request.url()).hostname === 'checkout.stripe.com') {
+            requestedProductionCheckout = true;
+          }
+        });
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/billing/balance', (route) => fulfillJson(route, {
+          userId: USER_ID,
+          availableTokens: 1200,
+          reservedTokens: 100,
+          updatedAt: '2026-01-01T00:00:00Z',
+        }));
+        await page.route('**/api/v1/billing/packs', (route) => {
+          packRequestCount += 1;
+          return fulfillJson(route, [
+            {
+              id: '60606061-6060-4060-8060-606060606060',
+              name: 'Starter',
+              description: 'A small token top-up.',
+              tokens: 500,
+              priceCents: 500,
+              currency: 'GBP',
+              stripePriceId: 'price_test_starter',
+            },
+            {
+              id: proPackId,
+              name: 'Pro',
+              description: 'A larger token top-up.',
+              tokens: 2000,
+              priceCents: 1500,
+              currency: 'GBP',
+              stripePriceId: 'price_test_pro',
+            },
+          ]);
+        });
+        await page.route('**/api/v1/billing/transactions**', (route) => fulfillJson(route, {
+          content: [],
+          totalElements: 0,
+          totalPages: 0,
+          size: 1000,
+          number: 0,
+          first: true,
+          last: true,
+          empty: true,
+        }));
+        await page.route('**/api/v1/billing/checkout-sessions', async (route) => {
+          checkoutRequest = JSON.parse(route.request().postData() ?? '{}');
+          await fulfillJson(route, {
+            url: 'https://checkout.example.test/session/cs_test_e2e',
+            sessionId: 'cs_test_e2e',
+          });
+        });
+        await page.route('https://checkout.example.test/**', (route) => route.fulfill({
+          status: 200,
+          contentType: 'text/html',
+          body: '<!doctype html><title>Mock checkout</title><h1>Mock checkout</h1>',
+        }));
+
+        await page.goto(`${BASE_URL}/billing`, { waitUntil: 'networkidle' });
+        await page.getByRole('heading', { name: 'Billing & Tokens' }).waitFor();
+        await page.getByText('1,200', { exact: true }).waitFor();
+        await page.getByRole('button', { name: /Select Pro pack/ }).click();
+        await page.getByRole('button', { name: 'Top up tokens' }).click();
+        await page.waitForURL('https://checkout.example.test/**');
+
+        assert.equal(packRequestCount, 2);
+        assert.equal(requestedProductionCheckout, false);
+        assert.equal(page.url(), 'https://checkout.example.test/session/cs_test_e2e');
+        assert.deepEqual(checkoutRequest, {
+          packId: proPackId,
+          priceId: 'price_test_pro',
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
       const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
       let submittedAnswer = null;
       let reviewQuery = null;
