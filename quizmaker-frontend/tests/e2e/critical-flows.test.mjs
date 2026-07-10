@@ -15,6 +15,8 @@ const QUESTION_ID = '44444444-4444-4444-8444-444444444444';
 const CREATED_QUIZ_ID = '55555555-5555-4555-8555-555555555555';
 const FILL_GAP_ATTEMPT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const FILL_GAP_QUESTION_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const MATCHING_ATTEMPT_ID = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+const MATCHING_QUESTION_ID = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const GENERATION_JOB_ID = '66666666-6666-4666-8666-666666666666';
 const GENERATED_QUIZ_ID = '77777777-7777-4777-8777-777777777777';
 const DOCUMENT_GENERATION_JOB_ID = '88888888-8888-4888-8888-888888888888';
@@ -142,6 +144,29 @@ const fillGapQuestion = {
     ],
   },
   hint: 'Think about the cell organelle and its energy currency.',
+  attachmentUrl: null,
+};
+
+const matchingQuestion = {
+  id: MATCHING_QUESTION_ID,
+  type: 'MATCHING',
+  difficulty: 'MEDIUM',
+  questionText: 'Match each cell organelle to its function.',
+  safeContent: {
+    left: [
+      { id: 1, text: 'Mitochondria', matchId: 1 },
+      { id: 2, text: 'Ribosome', matchId: 2 },
+      { id: 3, text: 'Nucleus', matchId: 3 },
+      { id: 4, text: 'Golgi apparatus', matchId: 4 },
+    ],
+    right: [
+      { id: 1, text: 'Energy production' },
+      { id: 2, text: 'Protein synthesis' },
+      { id: 3, text: 'Genetic information storage' },
+      { id: 4, text: 'Protein packaging and modification' },
+    ],
+  },
+  hint: null,
   attachmentUrl: null,
 };
 
@@ -672,6 +697,123 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
             answers: [
               { gapId: 1, answer: 'mitochondria' },
               { gapId: 2, answer: 'ATP' },
+            ],
+          },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedMatchingAnswer = null;
+
+      try {
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route(`**/api/v1/quizzes/${QUIZ_ID}`, (route) => fulfillJson(route, quiz));
+        await page.route(`**/api/v1/attempts/${MATCHING_ATTEMPT_ID}/current-question`, (route) => fulfillJson(route, {
+          question: matchingQuestion,
+          questionNumber: 1,
+          totalQuestions: 1,
+          attemptStatus: 'IN_PROGRESS',
+        }));
+        await page.route(`**/api/v1/attempts/${MATCHING_ATTEMPT_ID}/stats`, (route) => fulfillJson(route, {
+          attemptId: MATCHING_ATTEMPT_ID,
+          totalTime: 'PT0S',
+          averageTimePerQuestion: 'PT0S',
+          questionsAnswered: 0,
+          correctAnswers: 0,
+          accuracyPercentage: 0,
+          completionPercentage: 0,
+          questionTimings: [],
+          startedAt: '2026-01-01T00:00:00Z',
+          completedAt: null,
+        }));
+        await page.route(`**/api/v1/attempts/${MATCHING_ATTEMPT_ID}/answers`, async (route) => {
+          submittedMatchingAnswer = JSON.parse(route.request().postData() ?? '{}');
+          await fulfillJson(route, {
+            answerId: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+            questionId: MATCHING_QUESTION_ID,
+            isCorrect: true,
+            score: 4,
+            answeredAt: '2026-01-01T00:00:01Z',
+            correctAnswer: {
+              pairs: [
+                { leftId: 1, rightId: 1 },
+                { leftId: 2, rightId: 2 },
+                { leftId: 3, rightId: 3 },
+                { leftId: 4, rightId: 4 },
+              ],
+            },
+            explanation: 'Each organelle has a distinct cellular function.',
+            nextQuestion: null,
+          });
+        });
+        await page.route(`**/api/v1/attempts/${MATCHING_ATTEMPT_ID}`, (route) => fulfillJson(route, {
+          attemptId: MATCHING_ATTEMPT_ID,
+          quizId: QUIZ_ID,
+          userId: USER_ID,
+          startedAt: '2026-01-01T00:00:00Z',
+          completedAt: null,
+          status: 'IN_PROGRESS',
+          mode: 'ONE_BY_ONE',
+          answers: [],
+        }));
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${MATCHING_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.getByText('0 of 4 matches completed', { exact: true }).waitFor();
+
+        const matchPair = async (leftText, rightText) => {
+          await page.getByRole('button', { name: new RegExp(leftText) }).click();
+          await page.getByRole('button', { name: new RegExp(rightText) }).click();
+        };
+
+        await matchPair('Mitochondria', 'Energy production');
+        await page.getByText('1 of 4 matches completed', { exact: true }).waitFor();
+        await page.getByRole('button', { name: /Energy production/ }).click();
+        await page.getByText('0 of 4 matches completed', { exact: true }).waitFor();
+
+        await matchPair('Mitochondria', 'Energy production');
+        await matchPair('Ribosome', 'Protein synthesis');
+        await matchPair('Nucleus', 'Genetic information storage');
+        await matchPair('Golgi apparatus', 'Protein packaging and modification');
+        await page.getByText('4 of 4 matches completed', { exact: true }).waitFor();
+        await page.getByRole('button', { name: /Nucleus/ }).click();
+        await page.getByText('3 of 4 matches completed', { exact: true }).waitFor();
+        await matchPair('Nucleus', 'Genetic information storage');
+        await page.getByText('4 of 4 matches completed', { exact: true }).waitFor();
+
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Correct answers', { exact: true }).waitFor();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.ok(submittedMatchingAnswer);
+        assert.deepEqual({
+          ...submittedMatchingAnswer,
+          response: {
+            ...submittedMatchingAnswer.response,
+            matches: [...submittedMatchingAnswer.response.matches]
+              .sort((first, second) => first.leftId - second.leftId),
+          },
+        }, {
+          questionId: MATCHING_QUESTION_ID,
+          response: {
+            matches: [
+              { leftId: 1, rightId: 1 },
+              { leftId: 2, rightId: 2 },
+              { leftId: 3, rightId: 3 },
+              { leftId: 4, rightId: 4 },
             ],
           },
           includeCorrectness: true,
