@@ -27,6 +27,7 @@ const ORDERING_ATTEMPT_ID = '40404040-4040-4040-8040-404040404040';
 const ORDERING_QUESTION_ID = '40404041-4040-4040-8040-404040404040';
 const HOTSPOT_ATTEMPT_ID = '50505050-5050-4050-8050-505050505050';
 const HOTSPOT_QUESTION_ID = '50505051-5050-4050-8050-505050505050';
+const HOTSPOT_TEST_IMAGE_URL = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3C/svg%3E';
 const GENERATION_JOB_ID = '66666666-6666-4666-8666-666666666666';
 const GENERATED_QUIZ_ID = '77777777-7777-4777-8777-777777777777';
 const DOCUMENT_GENERATION_JOB_ID = '88888888-8888-4888-8888-888888888888';
@@ -245,7 +246,7 @@ const hotspotQuestion = {
   difficulty: 'EASY',
   questionText: 'Select the highlighted secure area on the diagram.',
   safeContent: {
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3C/svg%3E',
+    imageUrl: HOTSPOT_TEST_IMAGE_URL,
     regions: [
       { id: 1, x: 10, y: 10, width: 20, height: 20 },
       { id: 2, x: 40, y: 40, width: 20, height: 20 },
@@ -254,6 +255,140 @@ const hotspotQuestion = {
   hint: null,
   attachmentUrl: null,
 };
+
+const createEditableQuestion = ({ id, type, difficulty, questionText, content }) => ({
+  id,
+  type,
+  difficulty,
+  questionText,
+  content,
+  hint: 'Original hint for editing.',
+  explanation: 'Original explanation for editing.',
+  attachmentUrl: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  quizIds: [QUIZ_ID],
+  tagIds: [],
+});
+
+const editableQuestions = [
+  createEditableQuestion({
+    id: '70707070-7070-4070-8070-707070707070',
+    type: 'MCQ_SINGLE',
+    difficulty: 'EASY',
+    questionText: 'Which option is the secure single-choice answer?',
+    content: {
+      options: [
+        { id: 'a', text: 'Use a unique password', correct: true },
+        { id: 'b', text: 'Reuse a public password', correct: false },
+        { id: 'c', text: 'Share login details', correct: false },
+        { id: 'd', text: 'Disable account recovery', correct: false },
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '71717171-7171-4071-8071-717171717171',
+    type: 'MCQ_MULTI',
+    difficulty: 'MEDIUM',
+    questionText: 'Which practices improve account security?',
+    content: {
+      options: [
+        { id: 'a', text: 'Use a password manager', correct: true },
+        { id: 'b', text: 'Enable multi-factor authentication', correct: true },
+        { id: 'c', text: 'Publish passwords in chat', correct: false },
+        { id: 'd', text: 'Reuse a password everywhere', correct: false },
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '72727272-7272-4072-8072-727272727272',
+    type: 'TRUE_FALSE',
+    difficulty: 'EASY',
+    questionText: 'Passwords should be shared only with trusted teammates.',
+    content: { answer: false },
+  }),
+  createEditableQuestion({
+    id: '73737373-7373-4073-8073-737373737373',
+    type: 'FILL_GAP',
+    difficulty: 'MEDIUM',
+    questionText: 'Use a {1} and enable {2} to protect an account.',
+    content: {
+      text: 'Use a {1} and enable {2} to protect an account.',
+      gaps: [
+        { id: 1, answer: 'password manager' },
+        { id: 2, answer: 'multi-factor authentication' },
+      ],
+      options: [
+        'password manager',
+        'multi-factor authentication',
+        'shared spreadsheet',
+        'public chat room',
+        'disabled recovery',
+        'reused password',
+        'unprotected device',
+        'anonymous login',
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '74747474-7474-4074-8074-747474747474',
+    type: 'COMPLIANCE',
+    difficulty: 'MEDIUM',
+    questionText: 'Which practices comply with the data policy?',
+    content: {
+      statements: [
+        { id: 1, text: 'Obtain explicit consent before marketing.', compliant: true },
+        { id: 2, text: 'Retain all data without a purpose.', compliant: false },
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '75757575-7575-4075-8075-757575757575',
+    type: 'ORDERING',
+    difficulty: 'MEDIUM',
+    questionText: 'Arrange the release steps in their intended order.',
+    content: {
+      items: [
+        { id: 1, text: 'Review the proposed changes' },
+        { id: 2, text: 'Approve the release candidate' },
+        { id: 3, text: 'Deploy the approved release' },
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '76767676-7676-4076-8076-767676767676',
+    type: 'HOTSPOT',
+    difficulty: 'EASY',
+    questionText: 'Select the secure region in the image.',
+    content: {
+      imageUrl: HOTSPOT_TEST_IMAGE_URL,
+      regions: [
+        { id: 1, x: 10, y: 10, width: 20, height: 20, correct: true },
+        { id: 2, x: 40, y: 40, width: 20, height: 20, correct: false },
+      ],
+    },
+  }),
+  createEditableQuestion({
+    id: '77777777-7777-4077-8077-777777777777',
+    type: 'MATCHING',
+    difficulty: 'MEDIUM',
+    questionText: 'Match every security control to its purpose.',
+    content: {
+      left: [
+        { id: 1, text: 'Password manager', matchId: 1 },
+        { id: 2, text: 'Multi-factor authentication', matchId: 2 },
+        { id: 3, text: 'Account recovery', matchId: 3 },
+        { id: 4, text: 'Audit log', matchId: 4 },
+      ],
+      right: [
+        { id: 1, text: 'Stores unique passwords' },
+        { id: 2, text: 'Adds a second verification step' },
+        { id: 3, text: 'Restores access safely' },
+        { id: 4, text: 'Records account activity' },
+      ],
+    },
+  }),
+];
 
 const fulfillJson = (route, body, status = 200) =>
   route.fulfill({
@@ -1252,6 +1387,85 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           packId: proPackId,
           priceId: 'price_test_pro',
         });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      const updateRequests = new Map();
+
+      try {
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/questions**', async (route) => {
+          const request = route.request();
+          const requestUrl = new URL(request.url());
+          const questionId = requestUrl.pathname.split('/').at(-1);
+          const question = editableQuestions.find((candidate) => candidate.id === questionId);
+
+          if (request.method() === 'GET' && requestUrl.pathname === '/api/v1/questions') {
+            await fulfillJson(route, {
+              content: editableQuestions,
+              totalPages: 1,
+              totalElements: editableQuestions.length,
+              size: 20,
+              number: 0,
+              first: true,
+              last: true,
+              empty: false,
+            });
+            return;
+          }
+
+          if (request.method() === 'GET' && question) {
+            await fulfillJson(route, question);
+            return;
+          }
+
+          if (request.method() === 'PATCH' && question) {
+            const update = JSON.parse(request.postData() ?? '{}');
+            updateRequests.set(question.id, update);
+            await fulfillJson(route, { ...question, ...update });
+            return;
+          }
+
+          await route.abort('blockedbyclient');
+        });
+
+        await page.goto(`${BASE_URL}/questions`, { waitUntil: 'networkidle' });
+        await page.getByRole('heading', { name: 'Question Management' }).waitFor();
+
+        for (const question of editableQuestions) {
+          const updatedExplanation = `Updated ${question.type} explanation.`;
+          const questionCard = page.locator('li').filter({ hasText: question.questionText });
+
+          await questionCard.getByRole('button', { name: 'Edit' }).click();
+          const explanationInput = page.locator('textarea[placeholder="Provide an explanation for the correct answer..."]');
+          await explanationInput.fill(updatedExplanation);
+
+          const updateResponse = page.waitForResponse((response) =>
+            response.request().method() === 'PATCH'
+            && new URL(response.url()).pathname.endsWith(`/questions/${question.id}`),
+          );
+          await page.getByRole('button', { name: 'Update Question' }).click();
+          await updateResponse;
+
+          assert.deepEqual(updateRequests.get(question.id), {
+            type: question.type,
+            difficulty: question.difficulty,
+            questionText: question.questionText,
+            content: question.content,
+            hint: question.hint,
+            explanation: updatedExplanation,
+            tagIds: [],
+          });
+        }
       } finally {
         await page.close();
       }
