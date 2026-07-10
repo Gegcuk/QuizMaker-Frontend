@@ -13,6 +13,12 @@ const QUIZ_ID = '22222222-2222-4222-8222-222222222222';
 const ATTEMPT_ID = '33333333-3333-4333-8333-333333333333';
 const QUESTION_ID = '44444444-4444-4444-8444-444444444444';
 const CREATED_QUIZ_ID = '55555555-5555-4555-8555-555555555555';
+const GENERATION_JOB_ID = '66666666-6666-4666-8666-666666666666';
+const GENERATED_QUIZ_ID = '77777777-7777-4777-8777-777777777777';
+const TEXT_GENERATION_SOURCE = (
+  'Photosynthesis converts light energy into chemical energy that plants store in glucose. '
+  + 'Chlorophyll absorbs light in the chloroplasts, where carbon dioxide and water become glucose and oxygen. '
+).repeat(4);
 
 const createDevServer = () =>
   spawn(
@@ -362,6 +368,93 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
 
         await page.getByRole('button', { name: 'Save Draft' }).click();
         await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let generationRequest = null;
+      let generationStatusRequests = 0;
+
+      try {
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/quizzes/generate-from-text', async (route) => {
+          assert.equal(route.request().method(), 'POST');
+          generationRequest = JSON.parse(route.request().postData() ?? '{}');
+          await fulfillJson(route, {
+            jobId: GENERATION_JOB_ID,
+            status: 'PENDING',
+            message: 'Quiz generation started successfully',
+            estimatedTimeSeconds: 10,
+          }, 202);
+        });
+        await page.route(`**/api/v1/quizzes/generation-status/${GENERATION_JOB_ID}`, async (route) => {
+          assert.equal(route.request().method(), 'GET');
+          generationStatusRequests += 1;
+
+          await fulfillJson(route, generationStatusRequests === 1 ? {
+            jobId: GENERATION_JOB_ID,
+            status: 'PROCESSING',
+            totalChunks: 1,
+            processedChunks: 0,
+            progressPercentage: 50,
+            currentChunk: 'Generating questions',
+            totalQuestionsGenerated: 12,
+            elapsedTimeSeconds: 5,
+            estimatedTimeRemainingSeconds: 5,
+            generatedQuizId: null,
+            startedAt: '2026-01-01T00:00:00Z',
+            completedAt: null,
+          } : {
+            jobId: GENERATION_JOB_ID,
+            status: 'COMPLETED',
+            totalChunks: 1,
+            processedChunks: 1,
+            progressPercentage: 100,
+            currentChunk: 'Generation complete',
+            totalQuestionsGenerated: 25,
+            elapsedTimeSeconds: 10,
+            estimatedTimeRemainingSeconds: 0,
+            generatedQuizId: GENERATED_QUIZ_ID,
+            startedAt: '2026-01-01T00:00:00Z',
+            completedAt: '2026-01-01T00:00:10Z',
+          });
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await page.getByText('Generate from Text', { exact: true }).click();
+        await page.getByRole('heading', { name: 'Configure Your Text-Based Quiz' }).waitFor();
+
+        await page.locator('input[placeholder="Enter quiz title..."]').fill('E2E Text Generation Quiz');
+        await page.locator('input[placeholder="Brief description..."]').fill('Generated from a local E2E fixture.');
+        await page.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
+        await page.getByRole('button', { name: 'Generate Quiz from Text' }).click();
+        await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+
+        assert.deepEqual(generationRequest, {
+          text: TEXT_GENERATION_SOURCE,
+          quizTitle: 'E2E Text Generation Quiz',
+          quizDescription: 'Generated from a local E2E fixture.',
+          questionsPerType: {
+            MCQ_SINGLE: 10,
+            MCQ_MULTI: 5,
+            FILL_GAP: 5,
+            MATCHING: 5,
+          },
+          difficulty: 'MEDIUM',
+          chunkingStrategy: 'SIZE_BASED',
+          maxChunkSize: 100000,
+        });
+        assert.equal(generationStatusRequests, 2);
       } finally {
         await page.close();
       }
