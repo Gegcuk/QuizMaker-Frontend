@@ -566,6 +566,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     {
       const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
       let submittedAnswer = null;
+      let reviewQuery = null;
 
       try {
         await page.addInitScript(() => {
@@ -606,6 +607,45 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
             nextQuestion: null,
           });
         });
+        await page.route(`**/api/v1/attempts/${ATTEMPT_ID}/complete`, (route) => fulfillJson(route, {
+          attemptId: ATTEMPT_ID,
+          quizId: QUIZ_ID,
+          userId: USER_ID,
+          startedAt: '2026-01-01T00:00:00Z',
+          completedAt: '2026-01-01T00:01:00Z',
+          totalScore: 1,
+          correctCount: 1,
+          totalQuestions: 1,
+          answers: [],
+        }));
+        await page.route(`**/api/v1/attempts/${ATTEMPT_ID}/review**`, (route) => {
+          const requestUrl = new URL(route.request().url());
+          reviewQuery = Object.fromEntries(requestUrl.searchParams.entries());
+          return fulfillJson(route, {
+            attemptId: ATTEMPT_ID,
+            quizId: QUIZ_ID,
+            userId: USER_ID,
+            startedAt: '2026-01-01T00:00:00Z',
+            completedAt: '2026-01-01T00:01:00Z',
+            totalScore: 1,
+            correctCount: 1,
+            totalQuestions: 1,
+            answers: [{
+              questionId: QUESTION_ID,
+              type: 'MCQ_SINGLE',
+              questionText: 'What is the capital of France?',
+              hint: null,
+              attachmentUrl: null,
+              questionSafeContent: mobileQuestion.safeContent,
+              userResponse: { selectedOptionId: 'a' },
+              correctAnswer: { correctOptionId: 'a' },
+              isCorrect: true,
+              score: 1,
+              explanation: 'Paris is the capital of France.',
+              answeredAt: '2026-01-01T00:00:01Z',
+            }],
+          });
+        });
         await page.route(`**/api/v1/attempts/${ATTEMPT_ID}`, (route) => fulfillJson(route, {
           attemptId: ATTEMPT_ID,
           quizId: QUIZ_ID,
@@ -643,6 +683,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.getByText('Paris', { exact: true }).click();
         await page.getByRole('button', { name: 'Submit Answer' }).click();
         await page.getByRole('button', { name: 'View Results' }).waitFor();
+        await page.getByText('Explanation', { exact: true }).waitFor();
 
         assert.deepEqual(submittedAnswer, {
           questionId: QUESTION_ID,
@@ -650,6 +691,23 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           includeCorrectness: true,
           includeCorrectAnswer: true,
           includeExplanation: true,
+        });
+
+        await Promise.all([
+          page.waitForURL(`${BASE_URL}/quizzes/${QUIZ_ID}/results?attemptId=${ATTEMPT_ID}`),
+          page.getByRole('button', { name: 'View Results' }).click(),
+        ]);
+        await page.getByRole('heading', { name: 'Quiz Results' }).waitFor();
+        await page.getByText('Answer Review', { exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'What is the capital of France?' }).click();
+        await page.getByText('Your Answer:', { exact: true }).waitFor();
+        await page.getByText('Correct Answer:', { exact: true }).waitFor();
+        await page.getByText('Paris is the capital of France.', { exact: true }).waitFor();
+
+        assert.deepEqual(reviewQuery, {
+          includeUserAnswers: 'true',
+          includeCorrectAnswers: 'true',
+          includeQuestionContext: 'true',
         });
       } finally {
         await page.close();
