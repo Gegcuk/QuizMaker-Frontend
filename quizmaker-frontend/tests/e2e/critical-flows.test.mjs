@@ -12,6 +12,7 @@ const USER_ID = '11111111-1111-4111-8111-111111111111';
 const QUIZ_ID = '22222222-2222-4222-8222-222222222222';
 const ATTEMPT_ID = '33333333-3333-4333-8333-333333333333';
 const QUESTION_ID = '44444444-4444-4444-8444-444444444444';
+const CREATED_QUIZ_ID = '55555555-5555-4555-8555-555555555555';
 
 const createDevServer = () =>
   spawn(
@@ -291,6 +292,78 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await registerErrorPage.close();
         await resetSuccessPage.close();
         await resetErrorPage.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let createdQuizRequest = null;
+      let questionListQuery = null;
+
+      try {
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/quizzes', async (route) => {
+          assert.equal(route.request().method(), 'POST');
+          createdQuizRequest = JSON.parse(route.request().postData() ?? '{}');
+          await fulfillJson(route, { quizId: CREATED_QUIZ_ID });
+        });
+        await page.route('**/api/v1/questions**', async (route) => {
+          const requestUrl = new URL(route.request().url());
+          questionListQuery = {
+            quizId: requestUrl.searchParams.get('quizId'),
+            pageNumber: requestUrl.searchParams.get('pageNumber'),
+            page: requestUrl.searchParams.get('page'),
+            size: requestUrl.searchParams.get('size'),
+          };
+          await fulfillJson(route, {
+            content: [],
+            totalPages: 0,
+            totalElements: 0,
+            size: 50,
+            number: 0,
+            first: true,
+            last: true,
+            empty: true,
+          });
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await page.getByText('Manual Creation', { exact: true }).click();
+        await page.getByRole('heading', { name: 'Configure Your Manual Quiz' }).waitFor();
+
+        await page.locator('input[placeholder="Enter quiz title..."]').fill('E2E Manual Quiz');
+        await page.getByLabel('Description').fill('Created through the critical E2E journey.');
+        await page.locator('input[type="number"]').fill('15');
+        await page.getByRole('button', { name: 'Create Quiz & Add Questions' }).click();
+        await page.getByRole('heading', { name: 'Add Questions to "E2E Manual Quiz"' }).waitFor();
+
+        assert.deepEqual(createdQuizRequest, {
+          title: 'E2E Manual Quiz',
+          description: 'Created through the critical E2E journey.',
+          visibility: 'PRIVATE',
+          difficulty: 'MEDIUM',
+          isRepetitionEnabled: false,
+          timerEnabled: false,
+          estimatedTime: 15,
+          timerDuration: 30,
+          tagIds: [],
+        });
+        assert.deepEqual(questionListQuery, {
+          quizId: CREATED_QUIZ_ID,
+          pageNumber: '0',
+          page: null,
+          size: '50',
+        });
+
+        await page.getByRole('button', { name: 'Save Draft' }).click();
+        await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+      } finally {
+        await page.close();
       }
     }
 

@@ -105,18 +105,18 @@ describe('QuestionService', () => {
     expect(axios.post).toHaveBeenCalledWith('/v1/questions', createRequest);
   });
 
-  it('translates legacy pageNumber callers to the OpenAPI page query parameter', async () => {
+  it('passes the live pageNumber query parameter without renaming it', async () => {
     axios.get.mockResolvedValue({ data: questionPage });
 
     await expect(
       service.getQuestions({ quizId: 'quiz-1', pageNumber: 2, size: 20 }),
     ).resolves.toBe(questionPage);
     expect(axios.get).toHaveBeenCalledWith('/v1/questions', {
-      params: { quizId: 'quiz-1', page: 2, size: 20 },
+      params: { quizId: 'quiz-1', pageNumber: 2, size: 20 },
     });
   });
 
-  it('passes the live page, size, sort, and quiz filters without renaming them', async () => {
+  it('translates legacy page callers to the OpenAPI pageNumber query parameter', async () => {
     axios.get.mockResolvedValue({ data: questionPage });
 
     await service.getQuestions({
@@ -129,7 +129,7 @@ describe('QuestionService', () => {
     expect(axios.get).toHaveBeenCalledWith('/v1/questions', {
       params: {
         quizId: 'quiz-1',
-        page: 1,
+        pageNumber: 1,
         size: 10,
         sort: ['createdAt,desc'],
       },

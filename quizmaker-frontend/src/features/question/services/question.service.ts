@@ -43,8 +43,8 @@ export class QuestionService {
    */
   async getQuestions(params?: {
     quizId?: string;
+    /** @deprecated Use pageNumber. Kept while existing page components migrate. */
     page?: number;
-    /** @deprecated Use page. Kept while existing page components migrate. */
     pageNumber?: number;
     size?: number;
     sort?: string | string[];
@@ -53,7 +53,7 @@ export class QuestionService {
       const requestParams = params
         ? {
             quizId: params.quizId,
-            page: params.page ?? params.pageNumber,
+            pageNumber: params.pageNumber ?? params.page,
             size: params.size,
             sort: params.sort,
           }
