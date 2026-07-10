@@ -17,6 +17,16 @@ const FILL_GAP_ATTEMPT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const FILL_GAP_QUESTION_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const MATCHING_ATTEMPT_ID = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const MATCHING_QUESTION_ID = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+const MCQ_MULTI_ATTEMPT_ID = '10101010-1010-4010-8010-101010101010';
+const MCQ_MULTI_QUESTION_ID = '10101011-1010-4010-8010-101010101010';
+const TRUE_FALSE_ATTEMPT_ID = '20202020-2020-4020-8020-202020202020';
+const TRUE_FALSE_QUESTION_ID = '20202021-2020-4020-8020-202020202020';
+const COMPLIANCE_ATTEMPT_ID = '30303030-3030-4030-8030-303030303030';
+const COMPLIANCE_QUESTION_ID = '30303031-3030-4030-8030-303030303030';
+const ORDERING_ATTEMPT_ID = '40404040-4040-4040-8040-404040404040';
+const ORDERING_QUESTION_ID = '40404041-4040-4040-8040-404040404040';
+const HOTSPOT_ATTEMPT_ID = '50505050-5050-4050-8050-505050505050';
+const HOTSPOT_QUESTION_ID = '50505051-5050-4050-8050-505050505050';
 const GENERATION_JOB_ID = '66666666-6666-4666-8666-666666666666';
 const GENERATED_QUIZ_ID = '77777777-7777-4777-8777-777777777777';
 const DOCUMENT_GENERATION_JOB_ID = '88888888-8888-4888-8888-888888888888';
@@ -170,6 +180,81 @@ const matchingQuestion = {
   attachmentUrl: null,
 };
 
+const multiChoiceQuestion = {
+  id: MCQ_MULTI_QUESTION_ID,
+  type: 'MCQ_MULTI',
+  difficulty: 'MEDIUM',
+  questionText: 'Which practices protect an online account?',
+  safeContent: {
+    options: [
+      { id: 'a', text: 'Use a unique password' },
+      { id: 'b', text: 'Share passwords with colleagues' },
+      { id: 'c', text: 'Enable multi-factor authentication' },
+      { id: 'd', text: 'Reuse the same password everywhere' },
+    ],
+  },
+  hint: null,
+  attachmentUrl: null,
+};
+
+const trueFalseQuestion = {
+  id: TRUE_FALSE_QUESTION_ID,
+  type: 'TRUE_FALSE',
+  difficulty: 'EASY',
+  questionText: 'A strong password should be shared only with trusted teammates.',
+  safeContent: {},
+  hint: null,
+  attachmentUrl: null,
+};
+
+const complianceQuestion = {
+  id: COMPLIANCE_QUESTION_ID,
+  type: 'COMPLIANCE',
+  difficulty: 'MEDIUM',
+  questionText: 'Select the data handling practices that comply with the policy.',
+  safeContent: {
+    statements: [
+      { id: 1, text: 'Obtain explicit consent before sending marketing emails.' },
+      { id: 2, text: 'Keep customer data forever without a stated purpose.' },
+      { id: 3, text: 'Allow recipients to unsubscribe from marketing emails.' },
+    ],
+  },
+  hint: null,
+  attachmentUrl: null,
+};
+
+const orderingQuestion = {
+  id: ORDERING_QUESTION_ID,
+  type: 'ORDERING',
+  difficulty: 'MEDIUM',
+  questionText: 'Arrange the release steps from first to last.',
+  safeContent: {
+    items: [
+      { id: 3, text: 'Deploy the approved release' },
+      { id: 1, text: 'Review the proposed changes' },
+      { id: 2, text: 'Approve the release candidate' },
+    ],
+  },
+  hint: null,
+  attachmentUrl: null,
+};
+
+const hotspotQuestion = {
+  id: HOTSPOT_QUESTION_ID,
+  type: 'HOTSPOT',
+  difficulty: 'EASY',
+  questionText: 'Select the highlighted secure area on the diagram.',
+  safeContent: {
+    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3C/svg%3E',
+    regions: [
+      { id: 1, x: 10, y: 10, width: 20, height: 20 },
+      { id: 2, x: 40, y: 40, width: 20, height: 20 },
+    ],
+  },
+  hint: null,
+  attachmentUrl: null,
+};
+
 const fulfillJson = (route, body, status = 200) =>
   route.fulfill({
     status,
@@ -183,6 +268,45 @@ const installUnexpectedApiBlock = async (page) => {
 
 const installAuthMeMock = async (page) => {
   await page.route('**/api/v1/auth/me', (route) => fulfillJson(route, user));
+};
+
+const installSingleQuestionAttemptMocks = async (page, { attemptId, question, onAnswer }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('accessToken', 'e2e-access-token');
+    localStorage.setItem('refreshToken', 'e2e-refresh-token');
+  });
+  await installUnexpectedApiBlock(page);
+  await installAuthMeMock(page);
+  await page.route(`**/api/v1/quizzes/${QUIZ_ID}`, (route) => fulfillJson(route, quiz));
+  await page.route(`**/api/v1/attempts/${attemptId}/current-question`, (route) => fulfillJson(route, {
+    question,
+    questionNumber: 1,
+    totalQuestions: 1,
+    attemptStatus: 'IN_PROGRESS',
+  }));
+  await page.route(`**/api/v1/attempts/${attemptId}/stats`, (route) => fulfillJson(route, {
+    attemptId,
+    totalTime: 'PT0S',
+    averageTimePerQuestion: 'PT0S',
+    questionsAnswered: 0,
+    correctAnswers: 0,
+    accuracyPercentage: 0,
+    completionPercentage: 0,
+    questionTimings: [],
+    startedAt: '2026-01-01T00:00:00Z',
+    completedAt: null,
+  }));
+  await page.route(`**/api/v1/attempts/${attemptId}/answers`, onAnswer);
+  await page.route(`**/api/v1/attempts/${attemptId}`, (route) => fulfillJson(route, {
+    attemptId,
+    quizId: QUIZ_ID,
+    userId: USER_ID,
+    startedAt: '2026-01-01T00:00:00Z',
+    completedAt: null,
+    status: 'IN_PROGRESS',
+    mode: 'ONE_BY_ONE',
+    answers: [],
+  }));
 };
 
 const fillLoginForm = async (page) => {
@@ -816,6 +940,224 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
               { leftId: 4, rightId: 4 },
             ],
           },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedMultiChoiceAnswer = null;
+
+      try {
+        await installSingleQuestionAttemptMocks(page, {
+          attemptId: MCQ_MULTI_ATTEMPT_ID,
+          question: multiChoiceQuestion,
+          onAnswer: async (route) => {
+            submittedMultiChoiceAnswer = JSON.parse(route.request().postData() ?? '{}');
+            await fulfillJson(route, {
+              answerId: '11111111-aaaa-4aaa-8aaa-111111111111',
+              questionId: MCQ_MULTI_QUESTION_ID,
+              isCorrect: true,
+              score: 2,
+              answeredAt: '2026-01-01T00:00:01Z',
+              correctAnswer: { correctOptionIds: ['a', 'c'] },
+              explanation: 'Unique passwords and multi-factor authentication protect accounts.',
+              nextQuestion: null,
+            });
+          },
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${MCQ_MULTI_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.getByRole('checkbox', { name: 'Select option A' }).check();
+        await page.getByRole('checkbox', { name: 'Select option C' }).check();
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.deepEqual(submittedMultiChoiceAnswer, {
+          questionId: MCQ_MULTI_QUESTION_ID,
+          response: { selectedOptionIds: ['a', 'c'] },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedTrueFalseAnswer = null;
+
+      try {
+        await installSingleQuestionAttemptMocks(page, {
+          attemptId: TRUE_FALSE_ATTEMPT_ID,
+          question: trueFalseQuestion,
+          onAnswer: async (route) => {
+            submittedTrueFalseAnswer = JSON.parse(route.request().postData() ?? '{}');
+            await fulfillJson(route, {
+              answerId: '22222222-aaaa-4aaa-8aaa-222222222222',
+              questionId: TRUE_FALSE_QUESTION_ID,
+              isCorrect: true,
+              score: 1,
+              answeredAt: '2026-01-01T00:00:01Z',
+              correctAnswer: { answer: false },
+              explanation: 'Passwords must never be shared.',
+              nextQuestion: null,
+            });
+          },
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${TRUE_FALSE_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.getByRole('button', { name: /False/ }).click();
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.deepEqual(submittedTrueFalseAnswer, {
+          questionId: TRUE_FALSE_QUESTION_ID,
+          response: { answer: false },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedComplianceAnswer = null;
+
+      try {
+        await installSingleQuestionAttemptMocks(page, {
+          attemptId: COMPLIANCE_ATTEMPT_ID,
+          question: complianceQuestion,
+          onAnswer: async (route) => {
+            submittedComplianceAnswer = JSON.parse(route.request().postData() ?? '{}');
+            await fulfillJson(route, {
+              answerId: '33333333-aaaa-4aaa-8aaa-333333333333',
+              questionId: COMPLIANCE_QUESTION_ID,
+              isCorrect: true,
+              score: 2,
+              answeredAt: '2026-01-01T00:00:01Z',
+              correctAnswer: { compliantIds: [1, 3] },
+              explanation: 'Consent and clear opt-out mechanisms are required.',
+              nextQuestion: null,
+            });
+          },
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${COMPLIANCE_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.locator('label').filter({ hasText: 'Obtain explicit consent' }).locator('input').check();
+        await page.locator('label').filter({ hasText: 'Allow recipients to unsubscribe' }).locator('input').check();
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.deepEqual(submittedComplianceAnswer, {
+          questionId: COMPLIANCE_QUESTION_ID,
+          response: { selectedStatementIds: [1, 3] },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedOrderingAnswer = null;
+
+      try {
+        await installSingleQuestionAttemptMocks(page, {
+          attemptId: ORDERING_ATTEMPT_ID,
+          question: orderingQuestion,
+          onAnswer: async (route) => {
+            submittedOrderingAnswer = JSON.parse(route.request().postData() ?? '{}');
+            await fulfillJson(route, {
+              answerId: '44444444-aaaa-4aaa-8aaa-444444444444',
+              questionId: ORDERING_QUESTION_ID,
+              isCorrect: true,
+              score: 3,
+              answeredAt: '2026-01-01T00:00:01Z',
+              correctAnswer: { order: [1, 2, 3] },
+              explanation: 'Review precedes approval, which precedes deployment.',
+              nextQuestion: null,
+            });
+          },
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${ORDERING_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.locator('[draggable="true"]').filter({ hasText: 'Review the proposed changes' }).getByTitle('Move up').click();
+        await page.locator('[draggable="true"]').filter({ hasText: 'Approve the release candidate' }).getByTitle('Move up').click();
+        await page.getByText(/Current Order:.*Review the proposed changes.*Approve the release candidate.*Deploy the approved release/).waitFor();
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.deepEqual(submittedOrderingAnswer, {
+          questionId: ORDERING_QUESTION_ID,
+          response: { orderedItemIds: [1, 2, 3] },
+          includeCorrectness: true,
+          includeCorrectAnswer: true,
+          includeExplanation: true,
+        });
+      } finally {
+        await page.close();
+      }
+    }
+
+    {
+      const page = await (await browser.newContext()).newPage();
+      let submittedHotspotAnswer = null;
+
+      try {
+        await installSingleQuestionAttemptMocks(page, {
+          attemptId: HOTSPOT_ATTEMPT_ID,
+          question: hotspotQuestion,
+          onAnswer: async (route) => {
+            submittedHotspotAnswer = JSON.parse(route.request().postData() ?? '{}');
+            await fulfillJson(route, {
+              answerId: '55555555-aaaa-4aaa-8aaa-555555555555',
+              questionId: HOTSPOT_QUESTION_ID,
+              isCorrect: true,
+              score: 1,
+              answeredAt: '2026-01-01T00:00:01Z',
+              correctAnswer: { correctRegionId: 1 },
+              explanation: 'The first highlighted region is the secure area.',
+              nextQuestion: null,
+            });
+          },
+        });
+
+        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${HOTSPOT_ATTEMPT_ID}`, {
+          waitUntil: 'networkidle',
+        });
+        await page.getByRole('button', { name: 'Select region 2' }).click();
+        await page.getByText('Region 2 selected', { exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Clear Selection' }).click();
+        await page.getByText('No region selected', { exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Select region 1' }).click();
+        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        await page.getByText('Explanation', { exact: true }).waitFor();
+
+        assert.deepEqual(submittedHotspotAnswer, {
+          questionId: HOTSPOT_QUESTION_ID,
+          response: { selectedRegionId: 1 },
           includeCorrectness: true,
           includeCorrectAnswer: true,
           includeExplanation: true,
