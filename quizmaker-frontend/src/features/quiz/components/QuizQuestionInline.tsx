@@ -213,10 +213,6 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
         if (!keepOpen) closeModal();
         return;
       }
-      if (quizId) {
-        // TODO: Implement addQuestionToQuiz in QuizService
-        // await addQuestionToQuiz(quizId, newId);
-      }
       const q = await questionService.getQuestionById(newId);
       setQuestions((prev) => {
         const exists = prev.some((x) => x.id === q.id);
