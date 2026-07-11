@@ -3,7 +3,7 @@
 // Social sharing functionality
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { QuizDto } from '@/types';
 import { Card, CardHeader, CardBody, Button, Input } from '@/components';
 
@@ -15,6 +15,7 @@ interface QuizShareProps {
 const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const shareDialogTitleId = useId();
 
   // Generate share URL
   const getShareUrl = () => {
@@ -172,14 +173,20 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
       {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-theme-bg-primary">
+          <div
+            className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-theme-bg-primary"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={shareDialogTitleId}
+          >
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-theme-text-primary">Share Quiz</h3>
+                <h3 id={shareDialogTitleId} className="text-lg font-medium text-theme-text-primary">Share Quiz</h3>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowShareModal(false)}
+                  aria-label="Close share dialog"
                   leftIcon={
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
