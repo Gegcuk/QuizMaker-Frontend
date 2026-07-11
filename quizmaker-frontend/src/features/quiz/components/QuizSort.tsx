@@ -99,11 +99,12 @@ const QuizSort: React.FC<QuizSortProps> = ({
       <div className="px-6 py-4">
         <div className="space-y-3">
           {sortOptions.map((option) => (
-            <label
+            <div
               key={option.value}
               className="flex items-start space-x-3 cursor-pointer hover:bg-theme-bg-secondary p-2 rounded-md transition-colors"
             >
               <Radio
+                id={`quiz-sort-${option.value}`}
                 name="sort"
                 value={option.value}
                 checked={sortBy === option.value}
@@ -119,7 +120,7 @@ const QuizSort: React.FC<QuizSortProps> = ({
                   </div>
                 }
               />
-            </label>
+            </div>
           ))}
         </div>
       </div>
@@ -158,4 +159,4 @@ const QuizSort: React.FC<QuizSortProps> = ({
   );
 };
 
-export default QuizSort; 
+export default QuizSort;
