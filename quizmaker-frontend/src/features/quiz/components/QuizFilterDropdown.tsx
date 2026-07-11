@@ -79,7 +79,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
     const newFilters = { ...filters };
     
     if (filterType === 'difficulty' || filterType === 'category' || filterType === 'tags' || filterType === 'status') {
-      const currentValues = newFilters[filterType] as string[] || [];
+      const currentValues = [...((newFilters[filterType] as string[] | undefined) ?? [])];
       const valueIndex = currentValues.indexOf(value);
       
       if (valueIndex > -1) {
@@ -90,7 +90,7 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
       
       newFilters[filterType] = currentValues.length > 0 ? currentValues : undefined;
     } else if (filterType === 'estimatedTime') {
-      const currentRanges = newFilters.estimatedTime || [];
+      const currentRanges = [...(newFilters.estimatedTime ?? [])];
       const existingIndex = currentRanges.findIndex(
         range => range.min === value.min && range.max === value.max
       );
@@ -263,4 +263,4 @@ const QuizFilterDropdown: React.FC<QuizFilterDropdownProps> = ({
   );
 };
 
-export default QuizFilterDropdown; 
+export default QuizFilterDropdown;
