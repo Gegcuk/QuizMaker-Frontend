@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
-import { useAuth } from '@/features/auth';
+import { ChangePasswordForm, useAuth } from '@/features/auth';
 import { userService } from '@/services';
 import type { AxiosError } from 'axios';
 import { Button, Dropdown, Alert, Switch } from '@/components';
@@ -299,8 +299,16 @@ const UserSettings: React.FC<UserSettingsProps> = ({
           </div>
         </div>
       </form>
+
+      <div className="border-t border-theme-border-primary px-6 py-4">
+        <h3 className="text-lg font-medium text-theme-text-primary mb-1">Change Password</h3>
+        <p className="mb-4 text-sm text-theme-text-tertiary">
+          Update the password used to sign in to your account.
+        </p>
+        <ChangePasswordForm />
+      </div>
     </div>
   );
 };
 
-export default UserSettings; 
+export default UserSettings;
