@@ -246,29 +246,32 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   }`}
                   onClick={() => handleCategoryChange(category.id)}
                 >
-                  <Checkbox
-                    checked={category.id === currentCategoryId}
-                    onChange={() => handleCategoryChange(category.id)}
-                    label={
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-sm font-medium text-theme-text-primary">
-                            {category.name}
-                          </span>
-                          {category.id === currentCategoryId && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
-                              Selected
+                  <div onClick={(event) => event.stopPropagation()}>
+                    <Checkbox
+                      id={`quiz-category-${category.id}`}
+                      checked={category.id === currentCategoryId}
+                      onChange={() => handleCategoryChange(category.id)}
+                      label={
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-sm font-medium text-theme-text-primary">
+                              {category.name}
                             </span>
+                            {category.id === currentCategoryId && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
+                                Selected
+                              </span>
+                            )}
+                          </div>
+                          {category.description && (
+                            <p className="text-sm text-theme-text-secondary line-clamp-2">
+                              {category.description}
+                            </p>
                           )}
                         </div>
-                        {category.description && (
-                          <p className="text-sm text-theme-text-secondary line-clamp-2">
-                            {category.description}
-                          </p>
-                        )}
-                      </div>
-                    }
-                  />
+                      }
+                    />
+                  </div>
                 </div>
               ))}
 
@@ -303,25 +306,28 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
             }`}
             onClick={() => onCategoryChange(undefined)}
           >
-            <Checkbox
-              checked={!currentCategoryId}
-              onChange={() => onCategoryChange(undefined)}
-              label={
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-theme-text-primary">No Category</span>
-                    {!currentCategoryId && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
-                        Selected
-                      </span>
-                    )}
+            <div onClick={(event) => event.stopPropagation()}>
+              <Checkbox
+                id="quiz-category-none"
+                checked={!currentCategoryId}
+                onChange={() => onCategoryChange(undefined)}
+                label={
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-theme-text-primary">No Category</span>
+                      {!currentCategoryId && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-theme-bg-primary text-theme-interactive-primary">
+                          Selected
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-theme-text-secondary mt-1">
+                      This quiz will not be assigned to any specific category
+                    </p>
                   </div>
-                  <p className="text-sm text-theme-text-secondary mt-1">
-                    This quiz will not be assigned to any specific category
-                  </p>
-                </div>
-              }
-            />
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -329,4 +335,4 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   );
 };
 
-export default QuizCategoryManager; 
+export default QuizCategoryManager;
