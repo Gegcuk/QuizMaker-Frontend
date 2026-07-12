@@ -63,15 +63,3 @@ export { default as ConfirmationModal } from './common/ConfirmationModal';
 export { default as ErrorBoundary } from './common/ErrorBoundary';
 export { default as SafeContent, SafeLink } from './common/SafeContent';
 export { default as InsufficientBalanceModal } from './common/InsufficientBalanceModal';
-
-// Quiz Components
-export * from '../features/quiz/components';
-
-// Tag Components
-export * from '../features/tag/components';
-
-// User Components
-export * from '../features/user/components';
-
-// Result Components
-export * from '../features/result/components';

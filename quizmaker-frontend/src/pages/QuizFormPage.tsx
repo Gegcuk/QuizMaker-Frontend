@@ -7,8 +7,9 @@
 
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { PageContainer, QuizForm } from '@/components';
+import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
+import QuizForm from '@/features/quiz/components/QuizForm';
 import QuizCreationWizard from '@/features/quiz/components/QuizCreationWizard';
 
 const QuizFormPage: React.FC = () => {

@@ -9,8 +9,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { getQuizById } from '@/services';
 import { QuizDto } from '@/types';
-import { Spinner, QuizGenerationJobs, PageHeader } from '@/components';
+import { Spinner, PageHeader } from '@/components';
 import { Seo } from '@/features/seo';
+import QuizGenerationJobs from '@/features/quiz/components/QuizGenerationJobs';
 
 const QuizGenerationJobsPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -99,4 +100,4 @@ const QuizGenerationJobsPage: React.FC = () => {
   );
 };
 
-export default QuizGenerationJobsPage; 
+export default QuizGenerationJobsPage;

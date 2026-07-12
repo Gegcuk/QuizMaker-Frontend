@@ -20,8 +20,8 @@ vi.mock('@/services', () => ({
   },
 }));
 
-vi.mock('@/features/bug-report', () => ({
-  BugReportModal: ({ isOpen }: { isOpen: boolean }) =>
+vi.mock('@/features/bug-report/components/BugReportModal', () => ({
+  default: ({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div role="dialog">Bug report form</div> : null,
 }));
 

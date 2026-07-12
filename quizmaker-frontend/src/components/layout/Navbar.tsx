@@ -13,7 +13,7 @@ import ColorSchemeDropdown from '../ui/ColorSchemeDropdown';
 import { billingService } from '@/services';
 import type { BalanceDto } from '@/types';
 import { Button } from '@/components';
-import { BugReportModal } from '@/features/bug-report';
+import BugReportModal from '@/features/bug-report/components/BugReportModal';
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, user, logout } = useAuth();          // ← auth-aware menu

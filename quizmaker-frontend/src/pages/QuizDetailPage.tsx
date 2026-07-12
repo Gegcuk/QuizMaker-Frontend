@@ -19,20 +19,20 @@ import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/feat
 import { 
   Spinner, 
   ConfirmationModal,
-  QuizDetailHeader,
-  QuizStats,
   Button,
-  QuizExport,
-  QuizGenerationJobs,
-  QuizManagementTab,
-  QuizPublishModal,
-  QuizQuestionInline,
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent
 } from '@/components';
 import { Seo } from '@/features/seo';
+import QuizDetailHeader from '@/features/quiz/components/QuizDetailHeader';
+import QuizStats from '@/features/quiz/components/QuizStats';
+import QuizExport from '@/features/quiz/components/QuizExport';
+import QuizGenerationJobs from '@/features/quiz/components/QuizGenerationJobs';
+import QuizManagementTab from '@/features/quiz/components/QuizManagementTab';
+import QuizPublishModal from '@/features/quiz/components/QuizPublishModal';
+import QuizQuestionInline from '@/features/quiz/components/QuizQuestionInline';
 import type { QuizStatus, QuestionDifficulty } from '@/types';
 
 const QuizDetailPage: React.FC = () => {

@@ -105,6 +105,15 @@ const collectHomeStyles = async (page) =>
     const documentPreviewScriptCount = Array.from(document.scripts).filter((script) =>
       documentPreviewLibraryUrls.includes(script.src),
     ).length;
+    const deferredRouteModules = [
+      '/src/pages/QuizFormPage.tsx',
+      '/src/pages/DocumentListPage.tsx',
+      '/src/features/billing/components/BillingPage.tsx',
+      '/src/features/bug-report/components/BugReportManagementPage.tsx',
+    ];
+    const deferredRouteRequestCount = performance
+      .getEntriesByType('resource')
+      .filter((entry) => deferredRouteModules.some((modulePath) => entry.name.includes(modulePath))).length;
 
     if (!hero) {
       throw new Error('Home hero section is missing');
@@ -130,6 +139,7 @@ const collectHomeStyles = async (page) =>
       documentWidth: document.documentElement.scrollWidth,
       stylesheetCount: document.querySelectorAll('link[rel="stylesheet"], style').length,
       documentPreviewScriptCount,
+      deferredRouteRequestCount,
       hero: {
         display: heroStyle.display,
         flexDirection: heroStyle.flexDirection,
@@ -177,6 +187,11 @@ const assertTailwindLayoutIsApplied = (styles) => {
     styles.documentPreviewScriptCount,
     0,
     'Expected document-preview libraries to stay out of the public initial load',
+  );
+  assert.equal(
+    styles.deferredRouteRequestCount,
+    0,
+    'Expected protected route modules to stay out of the homepage initial load',
   );
 
   assert.equal(styles.hero.display, 'flex');

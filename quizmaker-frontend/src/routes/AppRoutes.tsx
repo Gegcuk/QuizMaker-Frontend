@@ -7,9 +7,12 @@
 //   user to /my-quizzes to avoid showing an auth form unnecessarily.
 // ---------------------------------------------------------------------------
 
-import React from 'react';
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { Layout, ProtectedRoute, ErrorBoundary } from '../components';
+import React, { lazy } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Layout from '../components/layout/Layout';
+import ProtectedRoute from '../components/layout/ProtectedRoute';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import LazyRouteBoundary from './LazyRouteBoundary';
 
 import { useAuth } from '../features/auth';
 
@@ -32,45 +35,40 @@ import FaqPage from '../pages/FaqPage';
 import ValuesPage from '../pages/ValuesPage';
 import RoadmapPage from '../pages/RoadmapPage';
 
-/* ----------  Quiz browsing / attempt pages  ------------------------------ */
-import { QuizListPage } from '../components';
-import QuizDetailPage from '../pages/QuizDetailPage';
-import QuizAttemptPage from '../pages/QuizAttemptPage';
-import QuizAttemptFlowPage from '../pages/QuizAttemptFlowPage';
-import { QuizResultPage, QuizResultsSummaryPage } from '@/features/result';
-
-/* ----------  Quiz CRUD / owner pages  ------------------------------------ */
-import { MyQuizzesPage } from '../components';
-import QuizFormPage from '../pages/QuizFormPage';
-
-/* ----------  Management pages  ------------------------------------------ */
-import { TagManagementPage } from '@/features/tag';
-import CategoryManagementPage from '../pages/CategoryManagementPage';
-import QuestionManagementPage from '../pages/QuestionManagementPage';
-import { BugReportManagementPage } from '@/features/bug-report';
-import QuizQuestionsPage from '../pages/QuizQuestionPage';
-import QuizGenerationJobsPage from '../pages/QuizGenerationJobsPage';
-
-/* ----------  Document management pages  --------------------------------------- */
-import DocumentListPage from '../pages/DocumentListPage';
-import DocumentUploadPage from '../pages/DocumentUploadPage';
-import DocumentViewPage from '../pages/DocumentViewPage';
-
-/* ----------  User profile pages  ----------------------------------------- */
-import { ProfilePage, SettingsPage } from '@/features/user';
-
-/* ----------  Billing pages  ---------------------------------------------- */
-import { BillingPage } from '@/features/billing';
-import BillingSuccessPage from '../features/billing/components/BillingSuccessPage';
-import BillingCancelPage from '../features/billing/components/BillingCancelPage';
-
-/* ----------  Attempt pages  ---------------------------------------------- */
-import MyAttemptsPage from '../pages/MyAttemptsPage';
+/* ----------  Deferred authenticated routes  ----------------------------- */
+const QuizDetailPage = lazy(() => import('../pages/QuizDetailPage'));
+const QuizAttemptPage = lazy(() => import('../pages/QuizAttemptPage'));
+const QuizAttemptFlowPage = lazy(() => import('../pages/QuizAttemptFlowPage'));
+const QuizResultPage = lazy(() => import('../features/result/components/QuizResultPage'));
+const MyQuizzesPage = lazy(() => import('../features/quiz/components/MyQuizzesPage'));
+const QuizFormPage = lazy(() => import('../pages/QuizFormPage'));
+const QuizResultsSummaryPage = lazy(() => import('../features/result/components/QuizResultsSummaryPage'));
+const QuizGenerationJobsPage = lazy(() => import('../pages/QuizGenerationJobsPage'));
+const TagManagementPage = lazy(() => import('../features/tag/components/TagManagementPage'));
+const CategoryManagementPage = lazy(() => import('../pages/CategoryManagementPage'));
+const QuestionManagementPage = lazy(() => import('../pages/QuestionManagementPage'));
+const BugReportManagementPage = lazy(() => import('../features/bug-report/components/BugReportManagementPage'));
+const QuizQuestionsPage = lazy(() => import('../pages/QuizQuestionPage'));
+const DocumentListPage = lazy(() => import('../pages/DocumentListPage'));
+const DocumentUploadPage = lazy(() => import('../pages/DocumentUploadPage'));
+const DocumentViewPage = lazy(() => import('../pages/DocumentViewPage'));
+const AiAnalysisPage = lazy(() => import('../pages/AiAnalysisPage'));
+const FormTestPage = lazy(() => import('../pages/FormTestPage'));
+const ProfilePage = lazy(() => import('../features/user/components/ProfilePage'));
+const SettingsPage = lazy(() => import('../features/user/components/SettingsPage'));
+const BillingPage = lazy(() => import('../features/billing/components/BillingPage'));
+const BillingSuccessPage = lazy(() => import('../features/billing/components/BillingSuccessPage'));
+const BillingCancelPage = lazy(() => import('../features/billing/components/BillingCancelPage'));
+const MyAttemptsPage = lazy(() => import('../pages/MyAttemptsPage'));
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
-import AiAnalysisPage from '../pages/AiAnalysisPage';
-import FormTestPage from '../pages/FormTestPage';
+
+const protectedRoute = (page: React.ReactElement, requiredRoles?: string[]) => (
+  <ProtectedRoute requiredRoles={requiredRoles}>
+    <LazyRouteBoundary>{page}</LazyRouteBoundary>
+  </ProtectedRoute>
+);
 
 const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -125,68 +123,36 @@ const AppRoutes: React.FC = () => {
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />
         <Route
           path="/quizzes/:quizId"
-          element={
-            <ProtectedRoute>
-              <QuizDetailPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizDetailPage />)}
         />
         <Route
           path="/quizzes/:quizId/attempt"
-          element={
-            <ProtectedRoute>
-              <QuizAttemptPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizAttemptPage />)}
         />
         <Route
           path="/quizzes/:quizId/attempt/start"
-          element={
-            <ProtectedRoute>
-              <QuizAttemptFlowPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizAttemptFlowPage />)}
         />
         <Route
           path="/quizzes/:quizId/results"
-          element={
-            <ProtectedRoute>
-              <QuizResultPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizResultPage />)}
         />
         <Route
           path="/my-quizzes"
-          element={
-            <ProtectedRoute>
-              <MyQuizzesPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<MyQuizzesPage />)}
         />
         {/* Quiz creation & editing share the same form component */}
         <Route
           path="/quizzes/create"
-          element={
-            <ProtectedRoute>
-              <QuizFormPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizFormPage />)}
         />
         <Route
           path="/quizzes/:quizId/edit"
-          element={
-            <ProtectedRoute>
-              <QuizFormPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizFormPage />)}
         />
         <Route
           path="/quizzes/:quizId/results-summary"
-          element={
-            <ProtectedRoute>
-              <QuizResultsSummaryPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizResultsSummaryPage />)}
         />
         <Route
           path="/quizzes/:quizId/questions"
@@ -194,72 +160,40 @@ const AppRoutes: React.FC = () => {
         />
         <Route
           path="/quizzes/:quizId/generation"
-          element={
-            <ProtectedRoute>
-              <QuizGenerationJobsPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuizGenerationJobsPage />)}
         />
         
         {/* Management sections */}
         <Route
           path="/tags"
-          element={
-            <ProtectedRoute>
-              <TagManagementPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<TagManagementPage />)}
         />
         <Route
           path="/categories"
-          element={
-            <ProtectedRoute>
-              <CategoryManagementPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<CategoryManagementPage />)}
         />
         <Route
           path="/questions"
-          element={
-            <ProtectedRoute>
-              <QuestionManagementPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<QuestionManagementPage />)}
         />
         <Route
           path="/bug-reports"
-          element={
-            <ProtectedRoute requiredRoles={['ROLE_SUPER_ADMIN']}>
-              <BugReportManagementPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<BugReportManagementPage />, ['ROLE_SUPER_ADMIN'])}
         />
 
         {/* Document Management Routes */}
         <Route
           path="/documents"
-          element={
-            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentListPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<DocumentListPage />, ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'])}
         />
         <Route
           path="/documents/upload"
-          element={
-            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentUploadPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<DocumentUploadPage />, ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'])}
         />
 
         <Route
           path="/documents/:documentId"
-          element={
-            <ProtectedRoute requiredRoles={['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']}>
-              <DocumentViewPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<DocumentViewPage />, ['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'])}
         />
 
         
@@ -267,79 +201,49 @@ const AppRoutes: React.FC = () => {
         {/* AI Analysis Route */}
         <Route
           path="/ai-analysis"
-          element={
-            <ProtectedRoute>
-              <div>
-                <h1>AI Analysis Test Page</h1>
-                <p>If you can see this, the route is working!</p>
-                <AiAnalysisPage />
-              </div>
-            </ProtectedRoute>
-          }
+          element={protectedRoute(
+            <div>
+              <h1>AI Analysis Test Page</h1>
+              <p>If you can see this, the route is working!</p>
+              <AiAnalysisPage />
+            </div>,
+          )}
         />
 
         {/* Form Test Route */}
         <Route
           path="/form-test"
-          element={
-            <ProtectedRoute>
-              <FormTestPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<FormTestPage />)}
         />
 
         {/* User Profile Routes */}
         <Route
           path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<ProfilePage />)}
         />
         <Route
           path="/settings"
-          element={
-            <ProtectedRoute>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<SettingsPage />)}
         />
 
         {/* Billing Route */}
         <Route
           path="/billing"
-          element={
-            <ProtectedRoute>
-              <BillingPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<BillingPage />)}
         />
         <Route
           path="/billing/success"
-          element={
-            <ProtectedRoute>
-              <BillingSuccessPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<BillingSuccessPage />)}
         />
         <Route
           path="/billing/cancel"
-          element={
-            <ProtectedRoute>
-              <BillingCancelPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<BillingCancelPage />)}
         />
 
         {/* Attempts Route */}
         <Route
           path="/my-attempts"
-          element={
-            <ProtectedRoute>
-              <MyAttemptsPage />
-            </ProtectedRoute>
-          }
+          element={protectedRoute(<MyAttemptsPage />)}
         />
 
         {/* ---------------  Fallback: 404 Not-Found  ------------------------- */}

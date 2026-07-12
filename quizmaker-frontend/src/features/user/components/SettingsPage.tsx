@@ -4,8 +4,9 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer, UserSettings } from '@/components';
+import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
+import UserSettings from './UserSettings';
 
 const SettingsPage: React.FC = () => {
   return (
@@ -23,4 +24,4 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default SettingsPage; 
+export default SettingsPage;
