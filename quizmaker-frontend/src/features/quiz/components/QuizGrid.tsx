@@ -79,6 +79,7 @@ const QuizGrid: React.FC<QuizGridProps> = ({
       {onSelectAll && (
         <div className="mb-4">
           <Checkbox
+            id="quiz-grid-select-all"
             checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
             onChange={onSelectAll}
             label={`Select All (${selectedQuizzes.length}/${quizzes.length})`}
@@ -105,4 +106,4 @@ const QuizGrid: React.FC<QuizGridProps> = ({
   );
 };
 
-export default QuizGrid; 
+export default QuizGrid;

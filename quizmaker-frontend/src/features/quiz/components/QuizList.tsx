@@ -271,6 +271,7 @@ const QuizList: React.FC<QuizListProps> = ({
       {onSelectAll && (
         <div className="px-4 py-3 border-b border-theme-border-primary bg-theme-bg-tertiary">
           <Checkbox
+            id="quiz-list-select-all"
             checked={selectedQuizzes.length === quizzes.length && quizzes.length > 0}
             onChange={onSelectAll}
             label={`Select All (${selectedQuizzes.length}/${quizzes.length})`}
