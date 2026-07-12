@@ -89,12 +89,13 @@ const collectHomeStyles = async (page) =>
       height: rect.height,
     });
 
-    const hero = document.querySelector('main section');
+    const hero = document.querySelector('section[aria-labelledby="homepage-title"]');
     const heading = document.querySelector('h1');
-    const scoreChip = document.querySelector('main section p span');
-    const cards = Array.from(document.querySelectorAll('main section .grid > div'));
-    const ctaButtons = Array.from(document.querySelectorAll('main section button'));
-    const paragraph = document.querySelector('main section p');
+    const howItWorks = document.querySelector('section[aria-labelledby="how-it-works-title"]');
+    const steps = Array.from(howItWorks?.querySelectorAll('.grid > div') ?? []);
+    const ctaButtons = Array.from(hero?.querySelectorAll('button') ?? []);
+    const primaryButton = ctaButtons[0];
+    const paragraph = hero?.querySelector('p');
 
     if (!hero) {
       throw new Error('Home hero section is missing');
@@ -102,17 +103,17 @@ const collectHomeStyles = async (page) =>
     if (!heading) {
       throw new Error('Home heading is missing');
     }
-    if (!scoreChip) {
-      throw new Error('Research score chip is missing');
+    if (!primaryButton) {
+      throw new Error('Primary homepage call to action is missing');
     }
-    if (cards.length !== 3) {
-      throw new Error(`Expected three home explainer cards, got ${cards.length}`);
+    if (steps.length !== 3) {
+      throw new Error(`Expected three home explainer steps, got ${steps.length}`);
     }
 
     const heroStyle = getComputedStyle(hero);
     const headingStyle = getComputedStyle(heading);
-    const scoreChipStyle = getComputedStyle(scoreChip);
-    const firstCardStyle = getComputedStyle(cards[0]);
+    const primaryButtonStyle = getComputedStyle(primaryButton);
+    const firstStepStyle = getComputedStyle(steps[0]);
     const paragraphStyle = paragraph ? getComputedStyle(paragraph) : null;
 
     return {
@@ -140,24 +141,22 @@ const collectHomeStyles = async (page) =>
             fontSize: px(paragraphStyle.fontSize),
           }
         : null,
-      scoreChip: {
-        display: scoreChipStyle.display,
-        gap: px(scoreChipStyle.gap),
-        paddingTop: px(scoreChipStyle.paddingTop),
-        paddingLeft: px(scoreChipStyle.paddingLeft),
-        borderRadius: px(scoreChipStyle.borderRadius),
-        backgroundColor: scoreChipStyle.backgroundColor,
-        color: scoreChipStyle.color,
-        fontSize: px(scoreChipStyle.fontSize),
-        fontWeight: Number.parseInt(scoreChipStyle.fontWeight, 10),
+      primaryButton: {
+        display: primaryButtonStyle.display,
+        paddingTop: px(primaryButtonStyle.paddingTop),
+        paddingLeft: px(primaryButtonStyle.paddingLeft),
+        borderRadius: px(primaryButtonStyle.borderRadius),
+        backgroundColor: primaryButtonStyle.backgroundColor,
+        color: primaryButtonStyle.color,
+        fontSize: px(primaryButtonStyle.fontSize),
+        fontWeight: Number.parseInt(primaryButtonStyle.fontWeight, 10),
       },
-      firstCard: {
-        paddingTop: px(firstCardStyle.paddingTop),
-        paddingLeft: px(firstCardStyle.paddingLeft),
-        borderRadius: px(firstCardStyle.borderRadius),
-        backgroundColor: firstCardStyle.backgroundColor,
+      firstStep: {
+        paddingTop: px(firstStepStyle.paddingTop),
+        borderTopWidth: px(firstStepStyle.borderTopWidth),
+        borderTopColor: firstStepStyle.borderTopColor,
       },
-      cardRects: cards.map((card) => rectToObject(card.getBoundingClientRect())),
+      stepRects: steps.map((step) => rectToObject(step.getBoundingClientRect())),
       ctaButtonRects: ctaButtons.map((button) => rectToObject(button.getBoundingClientRect())),
     };
   });
@@ -177,18 +176,20 @@ const assertTailwindLayoutIsApplied = (styles) => {
   assert.ok(styles.heading.fontSize >= 36, `Expected styled heading font size, got ${styles.heading.fontSize}px`);
   assert.ok(styles.heading.fontWeight >= 700, `Expected bold heading, got weight ${styles.heading.fontWeight}`);
 
-  assert.equal(styles.scoreChip.display, 'inline-flex');
-  assert.ok(styles.scoreChip.gap >= 8, `Expected score chip gap, got ${styles.scoreChip.gap}px`);
-  assert.ok(styles.scoreChip.paddingLeft >= 8, `Expected score chip padding, got ${styles.scoreChip.paddingLeft}px`);
-  assert.ok(styles.scoreChip.paddingTop >= 4, `Expected score chip vertical padding, got ${styles.scoreChip.paddingTop}px`);
-  assert.ok(styles.scoreChip.borderRadius > 100, `Expected rounded score chip, got ${styles.scoreChip.borderRadius}px`);
-  assert.ok(styles.scoreChip.fontSize >= 13, `Expected score chip text size, got ${styles.scoreChip.fontSize}px`);
-  assert.ok(styles.scoreChip.fontWeight >= 600, `Expected semibold score chip, got ${styles.scoreChip.fontWeight}`);
+  assert.ok(
+    ['inline-flex', 'flex'].includes(styles.primaryButton.display),
+    `Expected flex CTA layout, got ${styles.primaryButton.display}`,
+  );
+  assert.ok(styles.primaryButton.paddingLeft >= 16, `Expected CTA padding, got ${styles.primaryButton.paddingLeft}px`);
+  assert.ok(styles.primaryButton.paddingTop >= 8, `Expected CTA vertical padding, got ${styles.primaryButton.paddingTop}px`);
+  assert.ok(styles.primaryButton.borderRadius >= 8, `Expected rounded CTA, got ${styles.primaryButton.borderRadius}px`);
+  assert.ok(styles.primaryButton.fontSize >= 13, `Expected CTA text size, got ${styles.primaryButton.fontSize}px`);
+  assert.ok(styles.primaryButton.fontWeight >= 500, `Expected CTA font weight, got ${styles.primaryButton.fontWeight}`);
+  assert.notEqual(styles.primaryButton.backgroundColor, 'rgba(0, 0, 0, 0)');
 
-  assert.ok(styles.firstCard.paddingLeft >= 16, `Expected card padding, got ${styles.firstCard.paddingLeft}px`);
-  assert.ok(styles.firstCard.paddingTop >= 16, `Expected card padding, got ${styles.firstCard.paddingTop}px`);
-  assert.ok(styles.firstCard.borderRadius >= 12, `Expected rounded card, got ${styles.firstCard.borderRadius}px`);
-  assert.notEqual(styles.firstCard.backgroundColor, 'rgba(0, 0, 0, 0)');
+  assert.ok(styles.firstStep.paddingTop >= 16, `Expected explainer step padding, got ${styles.firstStep.paddingTop}px`);
+  assert.ok(styles.firstStep.borderTopWidth >= 2, `Expected explainer step border, got ${styles.firstStep.borderTopWidth}px`);
+  assert.notEqual(styles.firstStep.borderTopColor, 'rgba(0, 0, 0, 0)');
 };
 
 const assertHomeDoesNotOverflow = (styles) => {
@@ -197,10 +198,10 @@ const assertHomeDoesNotOverflow = (styles) => {
     `Expected no horizontal overflow, viewport=${styles.viewportWidth}, document=${styles.documentWidth}`,
   );
 
-  for (const [index, rect] of styles.cardRects.entries()) {
-    assert.ok(rect.left >= 0, `Card ${index + 1} overflows left`);
-    assert.ok(rect.right <= styles.viewportWidth + 1, `Card ${index + 1} overflows right`);
-    assert.ok(rect.width > 0, `Card ${index + 1} has no rendered width`);
+  for (const [index, rect] of styles.stepRects.entries()) {
+    assert.ok(rect.left >= 0, `Explainer step ${index + 1} overflows left`);
+    assert.ok(rect.right <= styles.viewportWidth + 1, `Explainer step ${index + 1} overflows right`);
+    assert.ok(rect.width > 0, `Explainer step ${index + 1} has no rendered width`);
   }
 
   for (const [index, rect] of styles.ctaButtonRects.entries()) {
@@ -224,10 +225,10 @@ const assertThemeContrast = (styles, palette) => {
     `${palette} large heading contrast should be at least 3:1, got ${headingRatio.toFixed(2)}:1`,
   );
 
-  const chipRatio = contrastRatio(styles.scoreChip.color, styles.scoreChip.backgroundColor);
+  const buttonRatio = contrastRatio(styles.primaryButton.color, styles.primaryButton.backgroundColor);
   assert.ok(
-    chipRatio >= 3,
-    `${palette} score chip contrast should be at least 3:1, got ${chipRatio.toFixed(2)}:1`,
+    buttonRatio >= 3,
+    `${palette} CTA contrast should be at least 3:1, got ${buttonRatio.toFixed(2)}:1`,
   );
 };
 
@@ -261,7 +262,7 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 
     await assert.doesNotReject(() =>
-      page.getByRole('heading', { name: /welcome to quizzence/i }).waitFor(),
+      page.getByRole('heading', { name: /create ai quizzes that help students learn and remember/i }).waitFor(),
     );
 
     await assert.doesNotReject(() =>
