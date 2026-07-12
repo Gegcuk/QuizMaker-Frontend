@@ -75,8 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
         isOpen &&
         sidebar &&
         !sidebar.contains(event.target as Node) &&
-        toggleButton &&
-        !toggleButton.contains(event.target as Node)
+        (!toggleButton || !toggleButton.contains(event.target as Node))
       ) {
         onClose();
       }
@@ -389,4 +388,4 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

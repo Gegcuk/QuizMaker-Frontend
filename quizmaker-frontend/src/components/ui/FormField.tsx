@@ -50,7 +50,7 @@ const FormField: React.FC<FormFieldProps> = ({
     let errorMessage: string | null = null;
     
     // Required validation
-    if (validation.required && (!value || value.trim() === '')) {
+    if ((required || validation.required) && (!value || value.trim() === '')) {
       errorMessage = `${label || name} is required`;
     }
     // Min length validation
@@ -76,8 +76,6 @@ const FormField: React.FC<FormFieldProps> = ({
       form.clearErrors(name);
     }
     
-    // Call original onBlur
-    fieldProps.onBlur();
   };
   
   // Log validation errors for debugging
