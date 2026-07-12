@@ -7,8 +7,8 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { CreationMethod } from './QuizCreationWizard';
-import { Button, Card, Hint } from '@/components';
+import type { CreationMethod } from './QuizCreationWizard';
+import { Hint } from '@/components';
 import { 
   PencilSquareIcon, 
   DocumentTextIcon, 
@@ -110,33 +110,34 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        role="group"
+        aria-label="Quiz creation methods"
+      >
         {methodOptions.map((option) => (
           <div
             key={option.id}
-            className={`relative cursor-pointer transition-all duration-200 transform hover:scale-[1.02] bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-sm ${
+            className="relative"
+          >
+            <button
+              type="button"
+              aria-pressed={selectedMethod === option.id}
+              className={`relative w-full cursor-pointer text-left transition-all duration-200 transform hover:scale-[1.02] bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary ${
               selectedMethod === option.id
                 ? 'ring-2 ring-theme-interactive-primary border-theme-border-info shadow-lg bg-theme-bg-info'
                 : 'hover:border-theme-border-secondary hover:shadow-lg hover:bg-theme-bg-secondary'
-            }`}
-            onClick={() => onMethodSelect(option.id)}
-          >
-            <div className="p-6">
+              }`}
+              onClick={() => onMethodSelect(option.id)}
+            >
+              <div className="p-6">
               {/* Icon and title */}
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 flex items-center justify-center bg-theme-bg-tertiary rounded-lg mr-3 flex-shrink-0">
                   <option.icon className="w-6 h-6 text-theme-interactive-primary" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 pr-8 md:pr-0">
                   <h4 className="text-lg font-semibold text-theme-text-primary">{option.title}</h4>
-                </div>
-                {/* Hint icon - Mobile only */}
-                <div className="md:hidden ml-2">
-                  <Hint 
-                    content={option.hint} 
-                    position="left"
-                    size="sm"
-                  />
                 </div>
               </div>
 
@@ -168,6 +169,15 @@ export const QuizCreationMethodSelector: React.FC<QuizCreationMethodSelectorProp
                 Estimated time: {option.estimatedTime}
               </div>
 
+            </div>
+            </button>
+            {/* Keep the mobile hint outside the selectable button to avoid nested controls. */}
+            <div className="absolute top-6 right-6 z-10 md:hidden">
+              <Hint
+                content={option.hint}
+                position="left"
+                size="sm"
+              />
             </div>
           </div>
         ))}

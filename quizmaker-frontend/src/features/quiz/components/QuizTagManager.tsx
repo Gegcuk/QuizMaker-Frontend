@@ -293,24 +293,27 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   }`}
                   onClick={() => handleTagToggle(tag.id)}
                 >
-                  <Checkbox
-                    checked={tag.isSelected}
-                    onChange={(checked) => handleTagToggle(tag.id)}
-                    label={
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-sm font-medium text-theme-text-primary">
-                            #{tag.name}
-                          </span>
+                  <div onClick={(event) => event.stopPropagation()}>
+                    <Checkbox
+                      id={`quiz-tag-${tag.id}`}
+                      checked={tag.isSelected}
+                      onChange={() => handleTagToggle(tag.id)}
+                      label={
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-sm font-medium text-theme-text-primary">
+                              #{tag.name}
+                            </span>
+                          </div>
+                          {tag.description && (
+                            <p className="text-sm text-theme-text-secondary line-clamp-2">
+                              {tag.description}
+                            </p>
+                          )}
                         </div>
-                        {tag.description && (
-                          <p className="text-sm text-theme-text-secondary line-clamp-2">
-                            {tag.description}
-                          </p>
-                        )}
-                      </div>
-                    }
-                  />
+                      }
+                    />
+                  </div>
                 </div>
               ))}
 

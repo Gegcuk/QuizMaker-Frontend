@@ -142,6 +142,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
         {/* Timer Settings */}
         <div className="space-y-4">
           <Checkbox
+            id="timerEnabled"
             name="timerEnabled"
             checked={quizData.timerEnabled || false}
             onChange={(checked) => onDataChange({ ...quizData, timerEnabled: checked })}
@@ -192,6 +193,7 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
 
         {/* Repetition Settings */}
         <Checkbox
+          id="isRepetitionEnabled"
           name="isRepetitionEnabled"
           checked={quizData.isRepetitionEnabled || false}
           onChange={(checked) => onDataChange({ ...quizData, isRepetitionEnabled: checked })}
@@ -219,4 +221,4 @@ const QuizSettings: React.FC<QuizSettingsProps> = ({
   );
 };
 
-export default QuizSettings; 
+export default QuizSettings;

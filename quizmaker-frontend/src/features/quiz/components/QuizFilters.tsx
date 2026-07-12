@@ -156,6 +156,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                 {categories.map((category) => (
                   <Checkbox
                     key={category.id}
+                    id={`quiz-filter-category-${category.id}`}
                     checked={(filters.category || []).includes(category.name)}
                     onChange={(checked) => handleArrayChange('category', category.name, checked)}
                     label={category.name}
@@ -187,6 +188,7 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
                 {tags.map((tag) => (
                   <Checkbox
                     key={tag.id}
+                    id={`quiz-filter-tag-${tag.id}`}
                     checked={(filters.tag || []).includes(tag.name)}
                     onChange={(checked) => handleArrayChange('tag', tag.name, checked)}
                     label={`#${tag.name}`}
@@ -247,4 +249,4 @@ const QuizFilters: React.FC<QuizFiltersProps> = ({
   );
 };
 
-export default QuizFilters; 
+export default QuizFilters;
