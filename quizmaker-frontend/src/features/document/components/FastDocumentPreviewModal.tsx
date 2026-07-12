@@ -10,6 +10,7 @@ import {
   MagnifyingGlassPlusIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { loadDocumentPreviewLibrary } from '../utils/documentPreviewLibraries';
 
 interface FastDocumentPreviewModalProps {
   file: File;
@@ -120,10 +121,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   };
 
   const loadPDF = async () => {
-    if (typeof window === 'undefined' || !(window as any).pdfjsLib) {
-      throw new Error('PDF.js not loaded');
-    }
-
+    await loadDocumentPreviewLibrary('pdf');
     const pdfjsLib = (window as any).pdfjsLib;
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -184,10 +182,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   };
 
   const loadDOCX = async () => {
-    if (typeof window === 'undefined' || !(window as any).mammoth) {
-      throw new Error('Mammoth.js not loaded');
-    }
-
+    await loadDocumentPreviewLibrary('docx');
     const mammoth = (window as any).mammoth;
     const arrayBuffer = await file.arrayBuffer();
     
@@ -217,10 +212,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   };
 
   const loadEPUB = async () => {
-    if (typeof window === 'undefined' || !(window as any).JSZip) {
-      throw new Error('JSZip not loaded - EPUB preview requires JSZip library');
-    }
-
+    await loadDocumentPreviewLibrary('epub');
     const JSZip = (window as any).JSZip;
     const zip = new JSZip();
     const arrayBuffer = await file.arrayBuffer();
@@ -793,4 +785,3 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
 };
 
 export default FastDocumentPreviewModal;
-

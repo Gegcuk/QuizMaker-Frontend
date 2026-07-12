@@ -96,6 +96,15 @@ const collectHomeStyles = async (page) =>
     const ctaButtons = Array.from(hero?.querySelectorAll('button') ?? []);
     const primaryButton = ctaButtons[0];
     const paragraph = hero?.querySelector('p');
+    const documentPreviewLibraryUrls = [
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+    ];
+    const documentPreviewScriptCount = Array.from(document.scripts).filter((script) =>
+      documentPreviewLibraryUrls.includes(script.src),
+    ).length;
 
     if (!hero) {
       throw new Error('Home hero section is missing');
@@ -120,6 +129,7 @@ const collectHomeStyles = async (page) =>
       viewportWidth: window.innerWidth,
       documentWidth: document.documentElement.scrollWidth,
       stylesheetCount: document.querySelectorAll('link[rel="stylesheet"], style').length,
+      documentPreviewScriptCount,
       hero: {
         display: heroStyle.display,
         flexDirection: heroStyle.flexDirection,
@@ -163,6 +173,11 @@ const collectHomeStyles = async (page) =>
 
 const assertTailwindLayoutIsApplied = (styles) => {
   assert.ok(styles.stylesheetCount > 0, 'Expected at least one stylesheet to be loaded');
+  assert.equal(
+    styles.documentPreviewScriptCount,
+    0,
+    'Expected document-preview libraries to stay out of the public initial load',
+  );
 
   assert.equal(styles.hero.display, 'flex');
   assert.equal(styles.hero.flexDirection, 'column');
