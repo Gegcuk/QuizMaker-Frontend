@@ -4,9 +4,10 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { PageContainer, UserProfile } from '@/components';
+import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
-import { TokenTopUp } from '@/features/billing';
+import TokenTopUp from '@/features/billing/components/TokenTopUp';
+import UserProfile from './UserProfile';
 
 const ProfilePage: React.FC = () => {
   return (
