@@ -28,4 +28,5 @@ export { default as RegisterForm } from './components/RegisterForm';
 export { default as EmailVerification } from './components/EmailVerification';
 export { default as ForgotPasswordForm } from './components/ForgotPasswordForm';
 export { default as ResetPasswordForm } from './components/ResetPasswordForm';
+export { default as ChangePasswordForm } from './components/ChangePasswordForm';
 export { default as LinkedAccounts } from './components/LinkedAccounts';
