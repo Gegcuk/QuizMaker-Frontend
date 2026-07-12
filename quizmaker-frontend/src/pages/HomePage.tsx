@@ -4,8 +4,37 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components';
-import { Seo } from '@/features/seo';
+import { Seo, SITE_URL } from '@/features/seo';
 import { useAuth } from '../features/auth';
+
+const baseSiteUrl = SITE_URL.replace(/\/$/, '');
+
+const homepageStructuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${baseSiteUrl}/#organization`,
+        name: 'Quizzence',
+        url: `${baseSiteUrl}/`,
+        sameAs: [
+          'https://github.com/Gegcuk/',
+          'https://www.linkedin.com/in/alekseylazunin/',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${baseSiteUrl}/#website`,
+        name: 'Quizzence',
+        url: `${baseSiteUrl}/`,
+        publisher: {
+          '@id': `${baseSiteUrl}/#organization`,
+        },
+      },
+    ],
+  },
+];
 
 const HomePage: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -25,6 +54,7 @@ const HomePage: React.FC = () => {
         description="Create AI-powered quizzes from text, PDFs, or links. Practise retrieval, learn with feedback, and revisit key ideas with Quizzence."
         canonicalPath="/"
         ogType="website"
+        structuredData={homepageStructuredData}
       />
 
       <section

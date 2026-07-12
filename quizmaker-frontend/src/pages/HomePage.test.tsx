@@ -41,6 +41,51 @@ describe('HomePage', () => {
     expect(description?.getAttribute('content')?.length).toBeLessThanOrEqual(160);
   });
 
+  it('injects one valid Organization and WebSite JSON-LD graph', async () => {
+    const { rerender } = renderWithProviders(<HomePage />, { withAuthProvider: false });
+
+    await waitFor(() => {
+      expect(document.head.querySelectorAll('script[type="application/ld+json"][data-seo="structured-data"]')).toHaveLength(1);
+    });
+
+    const script = document.head.querySelector<HTMLScriptElement>(
+      'script[type="application/ld+json"][data-seo="structured-data"]',
+    );
+    expect(script?.textContent).toBeTruthy();
+
+    const structuredData = JSON.parse(script?.textContent ?? '{}');
+    expect(structuredData).toEqual({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': 'https://www.quizzence.com/#organization',
+          name: 'Quizzence',
+          url: 'https://www.quizzence.com/',
+          sameAs: [
+            'https://github.com/Gegcuk/',
+            'https://www.linkedin.com/in/alekseylazunin/',
+          ],
+        },
+        {
+          '@type': 'WebSite',
+          '@id': 'https://www.quizzence.com/#website',
+          name: 'Quizzence',
+          url: 'https://www.quizzence.com/',
+          publisher: {
+            '@id': 'https://www.quizzence.com/#organization',
+          },
+        },
+      ],
+    });
+
+    rerender(<HomePage />);
+
+    await waitFor(() => {
+      expect(document.head.querySelectorAll('script[type="application/ld+json"][data-seo="structured-data"]')).toHaveLength(1);
+    });
+  });
+
   it('uses an ordered heading hierarchy and provides substantive public-page content', () => {
     renderWithProviders(<HomePage />, { withAuthProvider: false });
 
