@@ -84,6 +84,7 @@ const main = async () => {
     ]) {
       const response = await expectStatus(path, 404);
       assert.match(response.headers.get('x-robots-tag') || '', /noindex/);
+      assert.match(response.headers.get('content-type') || '', /^text\/html/);
       const body = await response.text();
       assert.match(body, /<div id="root"><\/div>/);
       assert.match(body, /src="\/assets\/[^\"]+\.js"/);
