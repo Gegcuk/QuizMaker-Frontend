@@ -249,6 +249,15 @@ jobs:
             "$url" > /dev/null
           done
 
+          hsts_policy="$(curl --fail --silent --show-error --head \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 30 \
+            "${site_url}/" | tr -d '\r' | awk 'tolower($1) == "strict-transport-security:" { print $2; exit }')"
+          if [ "$hsts_policy" != "max-age=2592000" ]; then
+            echo "❌ Expected production HSTS policy max-age=2592000, got ${hsts_policy:-missing}"
+            exit 1
+          fi
+
           not_found_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "${site_url}/this-route-should-not-exist")"
           if [ "$not_found_status" != "404" ]; then
             echo "❌ Expected production unknown route to return 404, got ${not_found_status}"
