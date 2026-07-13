@@ -56,6 +56,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Validate Nginx route policy
+        run: npm run test:nginx
+
   deploy:
     name: Deploy frontend to production
     runs-on: ubuntu-latest
@@ -213,6 +216,23 @@ jobs:
               exit 1
             fi
 
+            assert_status() {
+              expected="$1"
+              path="$2"
+              status="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:3000${path}")"
+
+              if [ "$status" != "$expected" ]; then
+                echo "❌ Expected ${path} to return ${expected}, got ${status}"
+                exit 1
+              fi
+            }
+
+            assert_status 200 "/"
+            assert_status 200 "/login"
+            assert_status 200 "/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333"
+            assert_status 404 "/this-route-should-not-exist"
+            assert_status 404 "/assets/this-asset-does-not-exist.js"
+
       - name: Smoke check production site
         env:
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
@@ -226,5 +246,11 @@ jobs:
             curl --fail --silent --show-error --location \
               --retry 5 --retry-delay 10 --retry-all-errors \
               --max-time 30 \
-              "$url" > /dev/null
+            "$url" > /dev/null
           done
+
+          not_found_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "${site_url}/this-route-should-not-exist")"
+          if [ "$not_found_status" != "404" ]; then
+            echo "❌ Expected production unknown route to return 404, got ${not_found_status}"
+            exit 1
+          fi

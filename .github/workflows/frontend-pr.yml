@@ -54,3 +54,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Validate Nginx route policy
+        run: npm run test:nginx
