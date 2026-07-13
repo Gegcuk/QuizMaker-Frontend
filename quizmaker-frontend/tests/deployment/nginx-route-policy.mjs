@@ -81,12 +81,17 @@ const main = async () => {
     for (const path of [
       '/this-route-should-not-exist',
       '/quizzes/22222222-2222-4222-8222-222222222222/not-a-real-route',
-      '/assets/this-asset-does-not-exist.js',
     ]) {
       const response = await expectStatus(path, 404);
       assert.match(response.headers.get('x-robots-tag') || '', /noindex/);
-      assert.match(await response.text(), /Page not found/);
+      assert.match(response.headers.get('content-type') || '', /^text\/html/);
+      const body = await response.text();
+      assert.match(body, /<div id="root"><\/div>/);
+      assert.match(body, /src="\/assets\/[^\"]+\.js"/);
     }
+
+    const missingAsset = await expectStatus('/assets/this-asset-does-not-exist.js', 404);
+    assert.doesNotMatch(await missingAsset.text(), /<div id="root"><\/div>/);
 
     console.log('Nginx route policy passed.');
   } finally {
