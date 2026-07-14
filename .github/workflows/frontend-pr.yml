@@ -46,6 +46,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: SEO build contract test
+        run: npm run test:seo
+
       - name: Browser smoke test
         run: npm run test:smoke
 

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
+import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,45 +40,6 @@ const STATIC_ROUTES = [
 ];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Normalize blog URLs to match canonical format (with trailing slash)
-const normalizeBlogUrl = (url) => {
-  // Extract slug from URL (handles both /blog/slug and /blog/slug/)
-  const match = url.match(/\/blog\/([^\/]+)/);
-  if (match) {
-    return `/blog/${match[1]}/`; // Always add trailing slash
-  }
-  return url; // Return as-is for non-blog URLs
-};
-
-// Fetch article sitemap from API
-const fetchArticleRoutes = async () => {
-  const sitemapUrl = `${apiBaseUrl}/v1/articles/sitemap`;
-
-  try {
-    console.log(`Fetching article sitemap from ${sitemapUrl}...`);
-    const response = await fetch(sitemapUrl);
-    
-    if (!response.ok) {
-      console.warn(`Failed to fetch sitemap (${response.status}): ${response.statusText}`);
-      return [];
-    }
-
-    const entries = await response.json();
-    const routes = entries
-      .map((entry) => entry.url)
-      .filter((url) => url && url.includes('/blog/'))
-      .map(normalizeBlogUrl)
-      .filter((url, index, self) => self.indexOf(url) === index); // Remove duplicates
-
-    console.log(`Found ${routes.length} blog article routes`);
-    return routes;
-  } catch (error) {
-    console.warn(`Error fetching article sitemap: ${error.message}`);
-    console.warn('Continuing with static routes only...');
-    return [];
-  }
-};
 
 const setupApiProxy = async (page) => {
   const isApiRequest = (requestUrl) => {
@@ -243,9 +205,8 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
-  // Fetch dynamic blog routes from API
-  const articleRoutes = await fetchArticleRoutes();
-  const ROUTES_TO_PRERENDER = [...STATIC_ROUTES, ...articleRoutes];
+  const articleRoutes = await loadArticleSitemapRoutes({ apiBaseUrl });
+  const routesToPrerender = [...new Set([...STATIC_ROUTES, ...articleRoutes.map((route) => route.path)])];
 
   let preview;
   let browser;
@@ -257,7 +218,7 @@ const prerender = async () => {
     const page = await browser.newPage();
     await setupApiProxy(page);
 
-    for (const route of ROUTES_TO_PRERENDER) {
+    for (const route of routesToPrerender) {
       const url = `${PREVIEW_ORIGIN}${route}`;
       console.log(`Prerendering ${route}...`);
       
