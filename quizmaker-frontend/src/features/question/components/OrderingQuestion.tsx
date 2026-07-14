@@ -15,6 +15,9 @@ interface OrderingQuestionProps {
   disabled?: boolean;
 }
 
+const getMediaUrl = (media?: OrderingItem['media']) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
+
 const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
   question,
   onAnswerChange,
@@ -91,6 +94,8 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
           const status = getItemStatus(itemId, index);
           
           if (!item) return null;
+          const mediaUrl = getMediaUrl(item.media);
+          const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
 
           return (
             <div
@@ -131,9 +136,19 @@ const OrderingQuestion: React.FC<OrderingQuestionProps> = ({
               </div>
 
               {/* Item Text */}
-              <div className="flex-1">
+              <div className="min-w-0 flex-1 space-y-2">
+                {mediaUrl && (
+                  <img
+                    src={mediaUrl}
+                    alt={`Ordering item ${index + 1} media`}
+                    className="h-16 w-auto rounded-md border border-theme-border-primary"
+                  />
+                )}
+                {!mediaUrl && isMediaMissing && !item.text?.trim() && (
+                  <div className="text-sm text-theme-text-tertiary">Image unavailable.</div>
+                )}
                 <SafeContent
-                  content={item.text}
+                  content={item.text || (item.media?.assetId ? 'Image item' : `Item ${item.id}`)}
                   allowHtml
                   className={`text-sm ${
                     status === 'correct' ? 'text-theme-interactive-success' :

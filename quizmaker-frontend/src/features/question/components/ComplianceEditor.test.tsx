@@ -145,4 +145,34 @@ describe('ComplianceEditor', () => {
       ]);
     });
   });
+
+  it('preserves a media-only statement for submission', async () => {
+    const onChange = vi.fn();
+    const mediaContent: ComplianceContent = {
+      statements: [
+        {
+          id: 1,
+          compliant: true,
+          media: {
+            assetId: 'statement-image',
+            cdnUrl: 'https://cdn.example.test/statement.png',
+          },
+        },
+        { id: 2, text: 'A text statement', compliant: false },
+      ],
+    };
+
+    renderWithProviders(
+      <ComplianceEditor content={mediaContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.statements[0]).toEqual(mediaContent.statements[0]);
+    });
+    expect(screen.getByAltText('Uploaded media preview')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/statement.png',
+    );
+  });
 });

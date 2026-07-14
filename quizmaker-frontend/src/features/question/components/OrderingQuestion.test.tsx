@@ -74,4 +74,27 @@ describe('OrderingQuestion', () => {
     expect(screen.getByText('Your Order')).toBeInTheDocument();
     expect(screen.getByText('You have 1 items in the correct position.')).toBeInTheDocument();
   });
+
+  it('renders a media-only ordering item without requiring text', () => {
+    renderWithProviders(
+      <OrderingQuestion
+        question={{
+          ...orderingQuestion,
+          content: {
+            items: [
+              { id: 1, media: { assetId: 'ordering-image', cdnUrl: 'https://cdn.example.test/ordering.png' } },
+              { id: 2, text: 'Design the system' },
+              { id: 3, text: 'Implement the design' },
+            ],
+          },
+        }}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Ordering item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/ordering.png',
+    );
+  });
 });

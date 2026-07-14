@@ -5,7 +5,17 @@
 
 import React from 'react';
 import { Badge, Checkbox, Textarea, Input, SafeContent } from '@/components';
-import { CreateQuestionRequest, QuestionType, McqOption, ComplianceStatement, OrderingItem, GapAnswer, MatchingItem, MediaRefDto } from '@/types';
+import {
+  ComplianceStatement,
+  CreateQuestionRequest,
+  GapAnswer,
+  MatchingItem,
+  McqOption,
+  MediaRefDto,
+  OrderingItem,
+  QuestionItemMedia,
+  QuestionType,
+} from '@/types';
 import { getQuestionTypeIcon } from '@/utils/questionUtils';
 
 interface QuestionPreviewProps {
@@ -19,8 +29,35 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 }) => {
   const attachmentUrl = question.attachment?.cdnUrl || question.attachmentUrl;
   const isAttachmentMissing = !!(question.attachment?.assetId && !attachmentUrl);
-  const getMediaUrl = (media?: McqOption['media']) =>
+  const getMediaUrl = (media?: QuestionItemMedia) =>
     media && 'cdnUrl' in media ? media.cdnUrl : undefined;
+
+  const renderMediaItemLabel = (
+    item: { text?: string; media?: QuestionItemMedia },
+    fallbackLabel: string,
+  ) => {
+    const hasText = !!item.text?.trim();
+    const mediaUrl = getMediaUrl(item.media);
+    const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
+
+    return (
+      <div className="flex min-w-0 items-center gap-3">
+        {mediaUrl && (
+          <img
+            src={mediaUrl}
+            alt={`${fallbackLabel} media`}
+            className="h-10 w-auto rounded-md border border-theme-border-primary"
+          />
+        )}
+        {!mediaUrl && isMediaMissing && !hasText && (
+          <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-2 py-1 text-xs text-theme-text-tertiary">
+            Image unavailable.
+          </div>
+        )}
+        <span>{hasText ? item.text : mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : fallbackLabel}</span>
+      </div>
+    );
+  };
 
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {
@@ -61,28 +98,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   };
 
   const renderMcqOptionLabel = (option: McqOption) => {
-    const hasText = !!(option.text && option.text.trim().length > 0);
-    const optionMediaUrl = getMediaUrl(option.media);
-    const isMediaMissing = !!(option.media?.assetId && !optionMediaUrl);
-    return (
-      <div className="flex items-center gap-3">
-        {optionMediaUrl && (
-          <img
-            src={optionMediaUrl}
-            alt={`Option ${option.id.toUpperCase()} media`}
-            className="h-10 w-auto rounded-md border border-theme-border-primary"
-          />
-        )}
-        {!optionMediaUrl && isMediaMissing && !hasText && (
-          <div className="rounded-md border border-theme-border-primary bg-theme-bg-secondary px-2 py-1 text-xs text-theme-text-tertiary">
-            Image unavailable.
-          </div>
-        )}
-        <span>
-          {hasText ? option.text : optionMediaUrl ? 'Image option' : isMediaMissing ? 'Image unavailable' : `Option ${option.id.toUpperCase()}`}
-        </span>
-      </div>
-    );
+    return renderMediaItemLabel(option, `Option ${option.id.toUpperCase()}`);
   };
 
   const renderQuestionContent = () => {
@@ -222,7 +238,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   checked={false}
                   onChange={() => {}}
                   disabled
-                  label={statement.text}
+                  label={renderMediaItemLabel(statement, `Statement ${statement.id}`)}
                 />
                 <Badge variant={statement.compliant ? 'success' : 'danger'} size="sm">
                   {statement.compliant ? 'Compliant' : 'Non-compliant'}
@@ -238,7 +254,9 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
             {question.content && 'items' in question.content && (question.content.items as OrderingItem[]).map((item, index) => (
               <div key={item.id} className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-theme-text-tertiary w-8">{index + 1}.</span>
-                <div className="flex-1 text-sm text-theme-text-secondary">{item.text}</div>
+                <div className="flex-1 text-sm text-theme-text-secondary">
+                  {renderMediaItemLabel(item, `Item ${index + 1}`)}
+                </div>
               </div>
             ))}
             <p className="text-xs text-theme-text-tertiary mt-2">Drag to reorder items</p>
@@ -283,9 +301,15 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   key={leftItem.id}
                   className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-md border border-theme-border-primary bg-theme-bg-primary p-3 text-sm"
                 >
-                  <span className="text-theme-text-primary">{leftItem.text}</span>
+                  <div className="min-w-0 text-theme-text-primary">
+                    {renderMediaItemLabel(leftItem, `Left item ${leftItem.id}`)}
+                  </div>
                   <span aria-hidden="true" className="text-theme-text-tertiary">→</span>
-                  <span className="text-theme-text-secondary">{rightItem?.text || 'No match'}</span>
+                  <div className="min-w-0 text-theme-text-secondary">
+                    {rightItem
+                      ? renderMediaItemLabel(rightItem, `Right item ${rightItem.id}`)
+                      : 'No match'}
+                  </div>
                 </div>
               );
             })}

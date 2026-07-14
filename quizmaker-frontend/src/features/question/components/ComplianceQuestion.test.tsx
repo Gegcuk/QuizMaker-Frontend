@@ -80,4 +80,26 @@ describe('ComplianceQuestion', () => {
     expect(screen.getAllByText('Consent')[0].tagName).toBe('STRONG');
     expect(container.querySelector('script')).not.toBeInTheDocument();
   });
+
+  it('renders a media-only statement without requiring text', () => {
+    renderWithProviders(
+      <ComplianceQuestion
+        question={{
+          ...makeQuestion(),
+          content: {
+            statements: [
+              { id: 1, compliant: true, media: { assetId: 'statement-image', cdnUrl: 'https://cdn.example.test/statement.png' } },
+              { id: 2, text: 'Consent is assumed.', compliant: false },
+            ],
+          },
+        }}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Statement 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/statement.png',
+    );
+  });
 });

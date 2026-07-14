@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionDto } from '@/types';
+import { MatchingItem, QuestionDto } from '@/types';
 import { InstructionsModal, SafeContent } from '@/components';
 
 interface MatchingQuestionProps {
@@ -16,13 +16,10 @@ interface MatchingQuestionProps {
   className?: string;
 }
 
-interface MatchingItem {
-  id: number;
-  text: string;
-  matchId?: number;
-}
-
 const EMPTY_MATCHES: Record<number, number> = {};
+
+const getMediaUrl = (media?: MatchingItem['media']) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
 const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
   question,
@@ -43,6 +40,31 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
     setMatches(currentAnswer);
     setSelectedLeftId(null);
   }, [currentAnswer]);
+
+  const renderItemContent = (item: MatchingItem, fallbackLabel: string) => {
+    const mediaUrl = getMediaUrl(item.media);
+    const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
+
+    return (
+      <div className="min-w-0 space-y-2">
+        {mediaUrl && (
+          <img
+            src={mediaUrl}
+            alt={`${fallbackLabel} media`}
+            className="h-16 w-auto rounded-md border border-theme-border-primary"
+          />
+        )}
+        {!mediaUrl && isMediaMissing && !item.text?.trim() && (
+          <div className="text-theme-text-tertiary">Image unavailable.</div>
+        )}
+        <SafeContent
+          content={item.text || (mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : fallbackLabel)}
+          allowHtml
+          className="text-theme-text-primary"
+        />
+      </div>
+    );
+  };
 
   const handleMatch = (leftId: number, rightId: number) => {
     if (disabled) return;
@@ -125,6 +147,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               type="button"
               key={leftItem.id}
               disabled={disabled}
+              aria-label={leftItem.text || `Left item ${leftItem.id}`}
               aria-pressed={selectedLeftId === leftItem.id || !!matches[leftItem.id]}
               className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
                 matches[leftItem.id]
@@ -136,11 +159,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               onClick={() => handleLeftClick(leftItem.id)}
             >
               <div className="flex items-center justify-between">
-                <SafeContent
-                  content={leftItem.text}
-                  allowHtml
-                  className="text-theme-text-primary"
-                />
+                {renderItemContent(leftItem, `Left item ${leftItem.id}`)}
                 {matches[leftItem.id] && (
                   <span className="text-theme-interactive-primary font-medium">Selected</span>
                 )}
@@ -157,6 +176,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               type="button"
               key={rightItem.id}
               disabled={disabled}
+              aria-label={rightItem.text || `Right item ${rightItem.id}`}
               aria-pressed={Object.values(matches).includes(rightItem.id)}
               className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
                 Object.values(matches).includes(rightItem.id)
@@ -168,11 +188,7 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
               onClick={() => handleRightClick(rightItem.id)}
             >
               <div className="flex items-center justify-between">
-                <SafeContent
-                  content={rightItem.text}
-                  allowHtml
-                  className="text-theme-text-primary"
-                />
+                {renderItemContent(rightItem, `Right item ${rightItem.id}`)}
                 {Object.values(matches).includes(rightItem.id) && (
                   <span className="text-theme-interactive-success font-medium">Matched</span>
                 )}
@@ -199,17 +215,9 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
                 const rightItem = rightItems.find(item => item.id === rightId);
                 return (
                   <div key={`${leftId}-${rightId}`} className="flex items-center gap-1 text-xs">
-                    <SafeContent
-                      content={leftItem?.text ?? ''}
-                      allowHtml
-                      className="text-theme-text-secondary"
-                    />
+                    {leftItem ? renderItemContent(leftItem, `Left item ${leftId}`) : `Left item ${leftId}`}
                     <span className="text-theme-text-secondary">→</span>
-                    <SafeContent
-                      content={rightItem?.text ?? ''}
-                      allowHtml
-                      className="text-theme-text-secondary"
-                    />
+                    {rightItem ? renderItemContent(rightItem, `Right item ${rightId}`) : `Right item ${rightId}`}
                   </div>
                 );
               })}
@@ -228,17 +236,11 @@ const MatchingQuestion: React.FC<MatchingQuestionProps> = ({
                 const correctRightItem = rightItems.find(item => item.id === leftItem.matchId);
                 return (
                   <div key={leftItem.id} className="flex items-center gap-1 text-xs">
-                    <SafeContent
-                      content={leftItem.text}
-                      allowHtml
-                      className="text-theme-text-secondary"
-                    />
+                    {renderItemContent(leftItem, `Left item ${leftItem.id}`)}
                     <span className="text-theme-text-secondary">→</span>
-                    <SafeContent
-                      content={correctRightItem?.text || 'No match'}
-                      allowHtml
-                      className="text-theme-text-secondary"
-                    />
+                    {correctRightItem
+                      ? renderItemContent(correctRightItem, `Right item ${correctRightItem.id}`)
+                      : 'No match'}
                   </div>
                 );
               })}

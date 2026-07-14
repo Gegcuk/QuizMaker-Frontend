@@ -25,6 +25,44 @@ describe('quizExportSanitizer', () => {
                 },
               },
             ],
+            statements: [
+              {
+                id: 1,
+                compliant: true,
+                media: {
+                  assetId: 'statement-asset',
+                  cdnUrl: 'https://cdn.example.test/statement.png',
+                },
+              },
+            ],
+            items: [
+              {
+                id: 1,
+                media: {
+                  assetId: 'ordering-asset',
+                  cdnUrl: 'https://cdn.example.test/ordering.png',
+                },
+              },
+            ],
+            left: [
+              {
+                id: 1,
+                matchId: 10,
+                media: {
+                  assetId: 'left-asset',
+                  cdnUrl: 'https://cdn.example.test/left.png',
+                },
+              },
+            ],
+            right: [
+              {
+                id: 10,
+                media: {
+                  assetId: 'right-asset',
+                  cdnUrl: 'https://cdn.example.test/right.png',
+                },
+              },
+            ],
           },
         },
       ],
@@ -44,6 +82,18 @@ describe('quizExportSanitizer', () => {
                 text: 'Diagram answer',
                 media: { assetId: 'option-asset' },
               },
+            ],
+            statements: [
+              { id: 1, compliant: true, media: { assetId: 'statement-asset' } },
+            ],
+            items: [
+              { id: 1, media: { assetId: 'ordering-asset' } },
+            ],
+            left: [
+              { id: 1, matchId: 10, media: { assetId: 'left-asset' } },
+            ],
+            right: [
+              { id: 10, media: { assetId: 'right-asset' } },
             ],
           },
         },

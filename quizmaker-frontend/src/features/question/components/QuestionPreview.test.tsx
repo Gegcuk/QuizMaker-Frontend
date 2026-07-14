@@ -163,6 +163,78 @@ describe('QuestionPreview', () => {
     expect(screen.getByText('Attachment unavailable.')).toBeInTheDocument();
   });
 
+  it('renders media-only compliance, ordering, and matching items', () => {
+    const compliance = renderWithProviders(
+      <QuestionPreview
+        question={makeQuestion('COMPLIANCE', {
+          content: {
+            statements: [
+              {
+                id: 1,
+                compliant: true,
+                media: { assetId: 'statement-asset', cdnUrl: 'https://cdn.example.test/statement.png' },
+              },
+              { id: 2, text: 'Text statement', compliant: false },
+            ],
+          },
+        })}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Statement 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/statement.png',
+    );
+    compliance.unmount();
+
+    const ordering = renderWithProviders(
+      <QuestionPreview
+        question={makeQuestion('ORDERING', {
+          content: {
+            items: [
+              { id: 1, media: { assetId: 'ordering-asset', cdnUrl: 'https://cdn.example.test/ordering.png' } },
+              { id: 2, text: 'Design the system' },
+              { id: 3, text: 'Implement the design' },
+            ],
+          },
+        })}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/ordering.png',
+    );
+    ordering.unmount();
+
+    renderWithProviders(
+      <QuestionPreview
+        question={makeQuestion('MATCHING', {
+          content: {
+            left: [
+              { id: 1, matchId: 10, media: { assetId: 'left-asset', cdnUrl: 'https://cdn.example.test/left.png' } },
+            ],
+            right: [
+              { id: 10, media: { assetId: 'right-asset', cdnUrl: 'https://cdn.example.test/right.png' } },
+            ],
+          },
+        })}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Left item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/left.png',
+    );
+    expect(screen.getByAltText('Right item 10 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/right.png',
+    );
+  });
+
   it('sanitizes authored question HTML and preserves safe formatting', () => {
     const { container } = renderWithProviders(
       <QuestionPreview
