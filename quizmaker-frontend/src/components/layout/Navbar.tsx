@@ -116,6 +116,11 @@ const Navbar: React.FC = () => {
           Bug Reports
         </Link>
       )}
+      {hasRole(['ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
+        <Link to="/admin" className={linkClasses}>
+          Administration
+        </Link>
+      )}
       {/* Hidden for now - Documents */}
       {/* {hasRole(['ROLE_QUIZ_CREATOR', 'ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
         <Link to="/documents" className={linkClasses}>
@@ -145,6 +150,11 @@ const Navbar: React.FC = () => {
       {hasRole(['ROLE_SUPER_ADMIN']) && (
         <Link to="/bug-reports" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
           Bug Reports
+        </Link>
+      )}
+      {hasRole(['ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN']) && (
+        <Link to="/admin" className={mobileLinkClasses} onClick={() => setIsOpen(false)}>
+          Administration
         </Link>
       )}
       {/* Hidden for now - Documents */}
