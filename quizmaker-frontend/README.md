@@ -58,6 +58,24 @@ build checks for every pull request to `main`.
 - Deployment only starts after validation passes.
 - Post-deploy smoke checks verify the public site and frontend SPA routing.
 
+### SEO production verification
+
+After a successful deployment, run the following read-only checks against the public site:
+
+```bash
+curl --fail --silent --show-error https://www.quizzence.com/sitemap.xml
+curl --fail --silent --show-error https://www.quizzence.com/sitemap_articles.xml
+curl --fail --silent --show-error https://www.quizzence.com/blog/retrieval-practice-fastest-way-to-make-learning-stick/
+curl --fail --silent --show-error --head https://www.quizzence.com/my-quizzes
+```
+
+- Both sitemap responses must be XML, and `sitemap_articles.xml` must contain an article `<loc>` entry.
+- An article response must contain a title, meta description, canonical link, matching Open Graph title/description/URL, `og:type=article`, and Article JSON-LD.
+- The `my-quizzes` response must include `X-Robots-Tag: noindex, nofollow`.
+- Canonical article URLs must redirect from `/blog/<slug>` to `/blog/<slug>/`.
+
+`npm run build:prerender` fails when the live article sitemap is unavailable, empty, malformed, or does not produce verified article metadata. The deployment workflow enforces the same sitemap and private-route header checks after rollout.
+
 ## Dependency Maintenance
 
 - Dependabot opens weekly npm dependency PRs for `quizmaker-frontend`.

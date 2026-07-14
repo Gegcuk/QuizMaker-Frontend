@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,16 +10,6 @@ const distDir = path.join(rootDir, 'dist');
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
 const baseUrl = SITE_URL.replace(/\/$/, '');
-
-// Normalize blog URLs to match canonical format (with trailing slash)
-const normalizeBlogUrl = (url) => {
-  // Extract slug from URL (handles both /blog/slug and /blog/slug/)
-  const match = url.match(/\/blog\/([^\/]+)/);
-  if (match) {
-    return `/blog/${match[1]}/`; // Always add trailing slash
-  }
-  return url; // Return as-is for non-blog URLs
-};
 
 // Static routes with their priorities and change frequencies
 const STATIC_ROUTES = [
@@ -32,59 +23,6 @@ const STATIC_ROUTES = [
   { path: '/roadmap/', priority: '0.6', changefreq: 'monthly' },
   { path: '/theme-demo/', priority: '0.3', changefreq: 'monthly' },
 ];
-
-// Fetch article sitemap from API
-const fetchArticleRoutes = async () => {
-  const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-  const sitemapUrl = `${apiBaseUrl}/v1/articles/sitemap`;
-
-  try {
-    console.log(`Fetching article sitemap from ${sitemapUrl}...`);
-    const response = await fetch(sitemapUrl);
-    
-    if (!response.ok) {
-      console.warn(`Failed to fetch sitemap (${response.status}): ${response.statusText}`);
-      return [];
-    }
-
-    const entries = await response.json();
-    const routes = entries
-      .map((entry) => {
-        // Skip entries without URLs
-        if (!entry.url) return null;
-        
-        // Normalize URL - ensure blog URLs have trailing slash
-        let normalizedPath = normalizeBlogUrl(entry.url);
-        
-        // Only process blog article URLs (exclude homepage, blog index, and non-blog URLs)
-        // Must be a blog article URL (contains /blog/ and has a slug after /blog/)
-        if (normalizedPath && 
-            normalizedPath.includes('/blog/') && 
-            normalizedPath !== '/blog/' && 
-            normalizedPath !== '/' &&
-            normalizedPath.match(/\/blog\/[^\/]+\//)) { // Must have a slug: /blog/slug/
-          return {
-            path: normalizedPath,
-            priority: entry.priority?.toString() || '0.8',
-            changefreq: entry.changefreq || 'weekly',
-            lastmod: entry.updatedAt || undefined,
-          };
-        }
-        return null;
-      })
-      .filter((route) => route !== null) // Remove nulls (non-blog URLs)
-      .filter((route, index, self) => 
-        self.findIndex((r) => r.path === route.path) === index
-      ); // Remove duplicates
-
-    console.log(`Found ${routes.length} blog article routes`);
-    return routes;
-  } catch (error) {
-    console.warn(`Error fetching article sitemap: ${error.message}`);
-    console.warn('Continuing with static routes only...');
-    return [];
-  }
-};
 
 // Generate XML sitemap
 const generateSitemap = (routes) => {
@@ -126,64 +64,22 @@ const escapeXml = (str) => {
     .replace(/'/g, '&apos;');
 };
 
-// Generate articles-only sitemap
-const generateArticlesSitemap = async () => {
-  try {
-    // Fetch only article routes (no static routes)
-    const articleRoutes = await fetchArticleRoutes();
-    
-    // Filter out non-blog URLs (like homepage)
-    const blogOnlyRoutes = articleRoutes.filter(route => 
-      route.path && route.path.includes('/blog/') && route.path !== '/blog/'
-    );
-
-    // Generate XML for articles only
-    const xml = generateSitemap(blogOnlyRoutes);
-    
-    // Ensure dist directory exists
-    await fs.mkdir(distDir, { recursive: true });
-    
-    // Write articles sitemap to dist
-    const articlesSitemapPath = path.join(distDir, 'sitemap_articles.xml');
-    await fs.writeFile(articlesSitemapPath, xml, 'utf8');
-    
-    console.log(`✔ Generated articles sitemap with ${blogOnlyRoutes.length} URLs -> ${path.relative(rootDir, articlesSitemapPath)}`);
-  } catch (error) {
-    console.error('Failed to generate articles sitemap:', error);
-    // Don't exit - continue with main sitemap
-  }
-};
-
 // Main function
 const generateSitemapFile = async () => {
-  try {
-    // Fetch dynamic blog routes
-    const articleRoutes = await fetchArticleRoutes();
-    
-    // Combine static and dynamic routes
-    const allRoutes = [
-      ...STATIC_ROUTES,
-      ...articleRoutes,
-    ];
+  const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  const articleRoutes = await loadArticleSitemapRoutes({ apiBaseUrl });
+  const allRoutes = [...STATIC_ROUTES, ...articleRoutes];
+  const sitemapPath = path.join(distDir, 'sitemap.xml');
+  const articlesSitemapPath = path.join(distDir, 'sitemap_articles.xml');
 
-    // Generate XML
-    const xml = generateSitemap(allRoutes);
-    
-    // Ensure dist directory exists
-    await fs.mkdir(distDir, { recursive: true });
-    
-    // Write sitemap to dist
-    const sitemapPath = path.join(distDir, 'sitemap.xml');
-    await fs.writeFile(sitemapPath, xml, 'utf8');
-    
-    console.log(`✔ Generated sitemap with ${allRoutes.length} URLs -> ${path.relative(rootDir, sitemapPath)}`);
-    
-    // Also generate articles-only sitemap
-    await generateArticlesSitemap();
-  } catch (error) {
-    console.error('Failed to generate sitemap:', error);
-    process.exit(1);
-  }
+  await fs.mkdir(distDir, { recursive: true });
+  await Promise.all([
+    fs.writeFile(sitemapPath, generateSitemap(allRoutes), 'utf8'),
+    fs.writeFile(articlesSitemapPath, generateSitemap(articleRoutes), 'utf8'),
+  ]);
+
+  console.log(`Generated sitemap with ${allRoutes.length} URLs -> ${path.relative(rootDir, sitemapPath)}`);
+  console.log(`Generated articles sitemap with ${articleRoutes.length} URLs -> ${path.relative(rootDir, articlesSitemapPath)}`);
 };
 
 generateSitemapFile()

@@ -47,6 +47,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: SEO build contract test
+        run: npm run test:seo
+
       - name: Browser smoke test
         run: npm run test:smoke
 
@@ -230,8 +233,21 @@ jobs:
             assert_status 200 "/"
             assert_status 200 "/login"
             assert_status 200 "/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333"
+            assert_status 200 "/sitemap_articles.xml"
             assert_status 404 "/this-route-should-not-exist"
             assert_status 404 "/assets/this-asset-does-not-exist.js"
+
+            private_robots="$(curl --silent --show-error --head "http://127.0.0.1:3000/my-quizzes" | tr -d '\r' | awk 'tolower($1) == "x-robots-tag:" { print $2 " " $3; exit }')"
+            if [ "$private_robots" != "noindex, nofollow" ]; then
+              echo "❌ Expected /my-quizzes to return X-Robots-Tag noindex, nofollow"
+              exit 1
+            fi
+
+            article_sitemap="$(curl --fail --silent --show-error "http://127.0.0.1:3000/sitemap_articles.xml")"
+            if ! printf '%s' "$article_sitemap" | grep -q '<loc>'; then
+              echo "❌ Expected sitemap_articles.xml to contain an article URL"
+              exit 1
+            fi
 
       - name: Smoke check production site
         env:
@@ -261,5 +277,23 @@ jobs:
           not_found_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "${site_url}/this-route-should-not-exist")"
           if [ "$not_found_status" != "404" ]; then
             echo "❌ Expected production unknown route to return 404, got ${not_found_status}"
+            exit 1
+          fi
+
+          private_robots="$(curl --fail --silent --show-error --head \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 30 \
+            "${site_url}/my-quizzes" | tr -d '\r' | awk 'tolower($1) == "x-robots-tag:" { print $2 " " $3; exit }')"
+          if [ "$private_robots" != "noindex, nofollow" ]; then
+            echo "❌ Expected production /my-quizzes to return X-Robots-Tag noindex, nofollow"
+            exit 1
+          fi
+
+          article_sitemap="$(curl --fail --silent --show-error --location \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            --max-time 30 \
+            "${site_url}/sitemap_articles.xml")"
+          if ! printf '%s' "$article_sitemap" | grep -q '<loc>'; then
+            echo "❌ Expected production sitemap_articles.xml to contain an article URL"
             exit 1
           fi

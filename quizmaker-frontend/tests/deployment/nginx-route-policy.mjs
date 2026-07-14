@@ -71,10 +71,19 @@ const main = async () => {
 
     for (const path of [
       '/login',
-      '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
       '/blog/retrieval-practice-template/',
     ]) {
       await expectStatus(path, 200);
+    }
+
+    for (const path of [
+      '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
+      '/my-quizzes',
+      '/documents',
+    ]) {
+      const response = await expectStatus(path, 200);
+      assert.match(response.headers.get('x-robots-tag') || '', /noindex, nofollow/);
+      assert.match(response.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
     }
 
     const canonicalArticle = await expectStatus('/blog/retrieval-practice-template', 301);

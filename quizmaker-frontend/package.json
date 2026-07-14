@@ -13,12 +13,14 @@
     "test:smoke": "node --test tests/smoke.test.mjs",
     "test:e2e": "node --test tests/e2e/critical-flows.test.mjs",
     "test:nginx": "node tests/deployment/nginx-route-policy.mjs",
+    "test:seo": "node --test tests/seo/article-sitemap.test.mjs",
     "audit:production": "npm audit --omit=dev",
     "browserslist:update": "npx update-browserslist-db@latest",
     "preview": "vite preview",
     "generate-sitemap": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/generate-sitemap.mjs",
     "prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} node scripts/prerender.mjs",
-    "build:prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run build && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run generate-sitemap && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run prerender"
+    "verify:prerender": "node scripts/verify-prerendered-seo.mjs",
+    "build:prerender": "VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run build && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run generate-sitemap && VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api} npm run prerender && npm run verify:prerender"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
