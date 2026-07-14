@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createAxiosMock, type AxiosMock } from '@/test/mockAxios';
 import type {
+  EmailProviderStatus,
   Permission,
+  PendingReviewQuizDto,
   PolicyDiff,
+  QuizModerationAuditDto,
   ReconciliationResult,
   RoleDto,
 } from '@/types';
@@ -72,6 +75,29 @@ const pack = {
   stripePriceId: 'price_123',
 };
 
+const emailProviderStatus: EmailProviderStatus = {
+  providerClass: 'AwsSesEmailService',
+  isNoop: false,
+  isSes: true,
+  isSmtp: false,
+};
+
+const pendingReviewQuiz: PendingReviewQuizDto = {
+  id: '00000000-0000-0000-0000-000000000010',
+  title: 'Quiz awaiting moderation',
+  creatorId: '00000000-0000-0000-0000-000000000011',
+  createdAt: '2026-07-14T12:00:00Z',
+};
+
+const moderationAudit: QuizModerationAuditDto = {
+  id: '00000000-0000-0000-0000-000000000012',
+  quizId: pendingReviewQuiz.id,
+  moderatorId: '00000000-0000-0000-0000-000000000013',
+  action: 'APPROVE',
+  reason: 'Meets publication criteria.',
+  createdAt: '2026-07-14T12:15:00Z',
+};
+
 const problemError = (status: number, detail: string) => ({
   isAxiosError: true,
   message: 'Request failed',
@@ -99,6 +125,14 @@ describe('admin endpoint helpers', () => {
     expect(ADMIN_ENDPOINTS.REMOVE_PERMISSION_FROM_ROLE('1', '10')).toBe('/v1/admin/roles/1/permissions/10');
     expect(ADMIN_ENDPOINTS.POLICY_RECONCILE).toBe('/v1/admin/policy/reconcile');
     expect(ADMIN_ENDPOINTS.POLICY_RECONCILE_ROLE('ROLE_ADMIN')).toBe('/v1/admin/policy/reconcile/ROLE_ADMIN');
+    expect(ADMIN_ENDPOINTS.EMAIL_PROVIDER_STATUS).toBe('/v1/admin/email/provider-status');
+    expect(ADMIN_ENDPOINTS.TEST_PASSWORD_RESET_EMAIL).toBe('/v1/admin/email/test-password-reset');
+    expect(ADMIN_ENDPOINTS.TEST_VERIFICATION_EMAIL).toBe('/v1/admin/email/test-verification');
+    expect(ADMIN_ENDPOINTS.PENDING_REVIEW_QUIZZES).toBe('/v1/admin/quizzes/pending-review');
+    expect(ADMIN_ENDPOINTS.QUIZ_AUDITS('quiz-1')).toBe('/v1/admin/quizzes/quiz-1/audits');
+    expect(ADMIN_ENDPOINTS.APPROVE_QUIZ('quiz-1')).toBe('/v1/admin/quizzes/quiz-1/approve');
+    expect(ADMIN_ENDPOINTS.REJECT_QUIZ('quiz-1')).toBe('/v1/admin/quizzes/quiz-1/reject');
+    expect(ADMIN_ENDPOINTS.UNPUBLISH_QUIZ('quiz-1')).toBe('/v1/admin/quizzes/quiz-1/unpublish');
     expect(SUPER_ADMIN_ENDPOINTS.DANGEROUS_OPERATION).toBe('/v1/admin/super/dangerous-operation');
     expect((SUPER_ADMIN_ENDPOINTS as Record<string, unknown>).BULK_OPERATIONS).toBeUndefined();
   });
@@ -242,6 +276,69 @@ describe('AdminService', () => {
     expect(axios.get).toHaveBeenNthCalledWith(2, '/v1/admin/policy/status');
     expect(axios.get).toHaveBeenNthCalledWith(3, '/v1/admin/policy/version');
     expect(axios.post).toHaveBeenNthCalledWith(5, '/v1/admin/policy/reconcile/ROLE_ADMIN');
+  });
+
+  it('covers documented email diagnostics with email query parameters', async () => {
+    axios.get.mockResolvedValueOnce({ data: emailProviderStatus });
+    axios.post
+      .mockResolvedValueOnce({ data: 'Password reset email sent.' })
+      .mockResolvedValueOnce({ data: 'Verification email sent.' });
+
+    await expect(service.getEmailProviderStatus()).resolves.toEqual(emailProviderStatus);
+    await expect(service.testPasswordResetEmail('admin@example.com')).resolves.toBe('Password reset email sent.');
+    await expect(service.testVerificationEmail('admin@example.com')).resolves.toBe('Verification email sent.');
+
+    expect(axios.get).toHaveBeenCalledWith('/v1/admin/email/provider-status');
+    expect(axios.post).toHaveBeenNthCalledWith(
+      1,
+      '/v1/admin/email/test-password-reset',
+      undefined,
+      { params: { email: 'admin@example.com' } },
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      '/v1/admin/email/test-verification',
+      undefined,
+      { params: { email: 'admin@example.com' } },
+    );
+  });
+
+  it('covers documented moderation queries and actions with query-string reasons', async () => {
+    axios.get
+      .mockResolvedValueOnce({ data: [pendingReviewQuiz] })
+      .mockResolvedValueOnce({ data: [moderationAudit] });
+    axios.post.mockResolvedValue({});
+
+    await expect(service.getPendingReviewQuizzes('00000000-0000-0000-0000-000000000001')).resolves.toEqual([
+      pendingReviewQuiz,
+    ]);
+    await expect(service.getQuizModerationAudits(pendingReviewQuiz.id)).resolves.toEqual([moderationAudit]);
+    await expect(service.approveQuiz(pendingReviewQuiz.id, 'Approved after review.')).resolves.toBeUndefined();
+    await expect(service.rejectQuiz(pendingReviewQuiz.id, 'Missing required source attribution.')).resolves.toBeUndefined();
+    await expect(service.unpublishQuiz(pendingReviewQuiz.id)).resolves.toBeUndefined();
+
+    expect(axios.get).toHaveBeenNthCalledWith(1, '/v1/admin/quizzes/pending-review', {
+      params: { orgId: '00000000-0000-0000-0000-000000000001' },
+    });
+    expect(axios.get).toHaveBeenNthCalledWith(2, `/v1/admin/quizzes/${pendingReviewQuiz.id}/audits`);
+    expect(axios.post).toHaveBeenNthCalledWith(
+      1,
+      `/v1/admin/quizzes/${pendingReviewQuiz.id}/approve`,
+      undefined,
+      { params: { reason: 'Approved after review.' } },
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      `/v1/admin/quizzes/${pendingReviewQuiz.id}/reject`,
+      undefined,
+      { params: { reason: 'Missing required source attribution.' } },
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(
+      3,
+      `/v1/admin/quizzes/${pendingReviewQuiz.id}/unpublish`,
+      undefined,
+      { params: { reason: undefined } },
+    );
   });
 
   it('does not expose admin endpoints absent from the live OpenAPI spec', () => {

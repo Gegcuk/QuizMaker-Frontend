@@ -10,7 +10,10 @@ import {
   ReconciliationResult,
   PolicyDiff,
   Page,
-  PackDto
+  PackDto,
+  EmailProviderStatus,
+  PendingReviewQuizDto,
+  QuizModerationAuditDto,
 } from '@/types';
 import { getErrorMessage } from '@/utils/errorUtils';
 
@@ -179,6 +182,132 @@ export class AdminService {
     try {
       const response = await this.axiosInstance.post<PackDto[]>(ADMIN_ENDPOINTS.BILLING_PACKS_SYNC);
       return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Get the configured email provider diagnostics.
+   * GET /api/v1/admin/email/provider-status
+   */
+  async getEmailProviderStatus(): Promise<EmailProviderStatus> {
+    try {
+      const response = await this.axiosInstance.get<EmailProviderStatus>(ADMIN_ENDPOINTS.EMAIL_PROVIDER_STATUS);
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Send a password-reset test email.
+   * POST /api/v1/admin/email/test-password-reset?email={email}
+   */
+  async testPasswordResetEmail(email: string): Promise<string> {
+    try {
+      const response = await this.axiosInstance.post<string>(
+        ADMIN_ENDPOINTS.TEST_PASSWORD_RESET_EMAIL,
+        undefined,
+        { params: { email } },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Send an account-verification test email.
+   * POST /api/v1/admin/email/test-verification?email={email}
+   */
+  async testVerificationEmail(email: string): Promise<string> {
+    try {
+      const response = await this.axiosInstance.post<string>(
+        ADMIN_ENDPOINTS.TEST_VERIFICATION_EMAIL,
+        undefined,
+        { params: { email } },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Get quizzes awaiting moderation for an organization.
+   * GET /api/v1/admin/quizzes/pending-review?orgId={orgId}
+   */
+  async getPendingReviewQuizzes(orgId: string): Promise<PendingReviewQuizDto[]> {
+    try {
+      const response = await this.axiosInstance.get<PendingReviewQuizDto[]>(
+        ADMIN_ENDPOINTS.PENDING_REVIEW_QUIZZES,
+        { params: { orgId } },
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Get the moderation audit trail for a quiz.
+   * GET /api/v1/admin/quizzes/{quizId}/audits
+   */
+  async getQuizModerationAudits(quizId: string): Promise<QuizModerationAuditDto[]> {
+    try {
+      const response = await this.axiosInstance.get<QuizModerationAuditDto[]>(
+        ADMIN_ENDPOINTS.QUIZ_AUDITS(quizId),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Approve a quiz that is pending moderation.
+   * POST /api/v1/admin/quizzes/{quizId}/approve?reason={reason}
+   */
+  async approveQuiz(quizId: string, reason?: string): Promise<void> {
+    try {
+      await this.axiosInstance.post(
+        ADMIN_ENDPOINTS.APPROVE_QUIZ(quizId),
+        undefined,
+        { params: { reason } },
+      );
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Reject a quiz that is pending moderation.
+   * POST /api/v1/admin/quizzes/{quizId}/reject?reason={reason}
+   */
+  async rejectQuiz(quizId: string, reason: string): Promise<void> {
+    try {
+      await this.axiosInstance.post(
+        ADMIN_ENDPOINTS.REJECT_QUIZ(quizId),
+        undefined,
+        { params: { reason } },
+      );
+    } catch (error) {
+      throw this.handleAdminError(error);
+    }
+  }
+
+  /**
+   * Unpublish a previously approved quiz.
+   * POST /api/v1/admin/quizzes/{quizId}/unpublish?reason={reason}
+   */
+  async unpublishQuiz(quizId: string, reason?: string): Promise<void> {
+    try {
+      await this.axiosInstance.post(
+        ADMIN_ENDPOINTS.UNPUBLISH_QUIZ(quizId),
+        undefined,
+        { params: { reason } },
+      );
     } catch (error) {
       throw this.handleAdminError(error);
     }
