@@ -13,6 +13,7 @@
     "test:smoke": "node --test tests/smoke.test.mjs",
     "test:e2e": "node --test tests/e2e/critical-flows.test.mjs",
     "test:nginx": "node tests/deployment/nginx-route-policy.mjs",
+    "test:deployment-policy": "node tests/deployment/deploy-workflow-policy.mjs",
     "test:seo": "node --test tests/seo/article-sitemap.test.mjs",
     "audit:production": "npm audit --omit=dev",
     "browserslist:update": "npx update-browserslist-db@latest",
