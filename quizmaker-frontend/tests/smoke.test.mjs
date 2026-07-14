@@ -291,6 +291,18 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 
+    const appleTouchIcon = page.locator('link[rel="apple-touch-icon"]');
+    assert.equal(await appleTouchIcon.count(), 1, 'Expected a single Apple touch icon link');
+    assert.equal(await appleTouchIcon.getAttribute('href'), '/apple-touch-icon.png');
+
+    const appleTouchIconResponse = await fetch(`${BASE_URL}/apple-touch-icon.png`);
+    assert.equal(appleTouchIconResponse.status, 200, 'Expected the Apple touch icon asset to be available');
+    assert.match(
+      appleTouchIconResponse.headers.get('content-type') ?? '',
+      /^image\/png/,
+      'Expected the Apple touch icon to be served as a PNG',
+    );
+
     await assert.doesNotReject(() =>
       page.getByRole('heading', { name: /create ai quizzes that help students learn and remember/i }).waitFor(),
     );
