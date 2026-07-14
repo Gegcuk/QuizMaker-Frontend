@@ -138,4 +138,31 @@ describe('MatchingQuestion', () => {
     expect(container.querySelector('script')).not.toBeInTheDocument();
     expect(container.querySelector('img[onerror]')).not.toBeInTheDocument();
   });
+
+  it('renders media-only matching items without requiring text', () => {
+    renderWithProviders(
+      <MatchingQuestion
+        question={makeQuestion({
+          content: {
+            left: [
+              { id: 1, matchId: 1, media: { assetId: 'left-image', cdnUrl: 'https://cdn.example.test/left.png' } },
+            ],
+            right: [
+              { id: 1, media: { assetId: 'right-image', cdnUrl: 'https://cdn.example.test/right.png' } },
+            ],
+          },
+        })}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Left item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/left.png',
+    );
+    expect(screen.getByAltText('Right item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/right.png',
+    );
+  });
 });

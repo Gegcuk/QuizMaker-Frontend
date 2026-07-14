@@ -15,6 +15,9 @@ interface ComplianceQuestionProps {
   disabled?: boolean;
 }
 
+const getMediaUrl = (media?: ComplianceStatement['media']) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
+
 const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
   question,
   onAnswerChange,
@@ -66,6 +69,8 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
         {statements.map((statement) => {
           const status = getStatementStatus(statement);
           const isSelected = currentAnswer.includes(statement.id);
+          const mediaUrl = getMediaUrl(statement.media);
+          const isMediaMissing = !!(statement.media?.assetId && !mediaUrl);
           
           return (
             <div
@@ -118,9 +123,19 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
               </div>
 
               {/* Statement Text */}
-              <div className="flex-1">
+              <div className="min-w-0 flex-1 space-y-2">
+                {mediaUrl && (
+                  <img
+                    src={mediaUrl}
+                    alt={`Statement ${statement.id} media`}
+                    className="h-16 w-auto rounded-md border border-theme-border-primary"
+                  />
+                )}
+                {!mediaUrl && isMediaMissing && !statement.text?.trim() && (
+                  <div className="text-sm text-theme-text-tertiary">Image unavailable.</div>
+                )}
                 <SafeContent
-                  content={statement.text}
+                  content={statement.text || (statement.media?.assetId ? 'Image statement' : `Statement ${statement.id}`)}
                   allowHtml
                   className={`text-sm ${
                     status === 'correct' ? 'text-theme-interactive-success' :
@@ -215,7 +230,7 @@ const ComplianceQuestion: React.FC<ComplianceQuestionProps> = ({
                   <div key={statement.id} className="flex items-center space-x-2 text-sm">
                     <span className="font-medium text-theme-interactive-primary">{statement.id}.</span>
                     <SafeContent
-                      content={statement.text}
+                      content={statement.text || (statement.media?.assetId ? 'Image statement' : `Statement ${statement.id}`)}
                       allowHtml
                       className="text-theme-interactive-info"
                     />

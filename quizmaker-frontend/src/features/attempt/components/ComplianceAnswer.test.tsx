@@ -44,4 +44,31 @@ describe('ComplianceAnswer', () => {
 
     expect(onAnswerChange).toHaveBeenLastCalledWith([1, 2]);
   });
+
+  it('renders a media-only statement with an accessible checkbox label', () => {
+    renderWithProviders(
+      <ComplianceAnswer
+        question={{
+          ...complianceQuestion,
+          safeContent: {
+            statements: [
+              {
+                id: 1,
+                media: { assetId: 'statement-image', cdnUrl: 'https://cdn.example.test/statement.png' },
+              },
+              { id: 2, text: 'A text statement' },
+            ],
+          },
+        }}
+        onAnswerChange={vi.fn()}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Statement 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/statement.png',
+    );
+    expect(screen.getByRole('checkbox', { name: 'Statement 1' })).toBeInTheDocument();
+  });
 });

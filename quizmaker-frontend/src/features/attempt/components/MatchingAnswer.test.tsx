@@ -91,4 +91,34 @@ describe('MatchingAnswer responsive feedback lines', () => {
     expect(onAnswerChange).toHaveBeenLastCalledWith({ matches: [] });
     expect(screen.getByText('0 of 2 matches completed')).toBeInTheDocument();
   });
+
+  it('renders media-only matching items in both columns', () => {
+    renderWithProviders(
+      <MatchingAnswer
+        question={{
+          ...matchingQuestion,
+          safeContent: {
+            left: [
+              { id: 1, media: { assetId: 'left-image', cdnUrl: 'https://cdn.example.test/left.png' } },
+            ],
+            right: [
+              { id: 10, media: { assetId: 'right-image', cdnUrl: 'https://cdn.example.test/right.png' } },
+            ],
+          },
+        }}
+        currentAnswer={{ matches: [] }}
+        onAnswerChange={vi.fn()}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByAltText('Left item 1 media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/left.png',
+    );
+    expect(screen.getByAltText('Option A media')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/right.png',
+    );
+  });
 });

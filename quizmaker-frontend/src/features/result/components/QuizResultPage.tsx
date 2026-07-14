@@ -79,15 +79,19 @@ const QuizResultPage: React.FC = () => {
         missingAssetIds.add(attachmentAssetId);
       }
 
-      const options = answer.questionSafeContent?.options;
-      if (Array.isArray(options)) {
-        options.forEach((option: any) => {
-          const assetId = option?.media?.assetId;
-          if (assetId && !option?.media?.cdnUrl && !Object.prototype.hasOwnProperty.call(resolvedMediaUrls, assetId)) {
+      ['options', 'statements', 'items', 'left', 'right'].forEach((field) => {
+        const items = answer.questionSafeContent?.[field];
+        if (!Array.isArray(items)) {
+          return;
+        }
+
+        items.forEach((item: any) => {
+          const assetId = item?.media?.assetId;
+          if (assetId && !item?.media?.cdnUrl && !Object.prototype.hasOwnProperty.call(resolvedMediaUrls, assetId)) {
             missingAssetIds.add(assetId);
           }
         });
-      }
+      });
     });
 
     const uniqueAssetIds = Array.from(missingAssetIds);
@@ -160,25 +164,25 @@ const QuizResultPage: React.FC = () => {
     return 'bg-theme-bg-danger border-theme-border-danger';
   };
 
-  const renderOptionLabel = (option: any): React.ReactNode => {
-    const assetId = option?.media?.assetId;
-    const mediaUrl = option?.media?.cdnUrl || (assetId ? resolvedMediaUrls[assetId] || undefined : undefined);
-    const hasText = !!(option?.text && option.text.trim().length > 0);
+  const renderMediaItemLabel = (item: any, fallbackLabel: string): React.ReactNode => {
+    const assetId = item?.media?.assetId;
+    const mediaUrl = item?.media?.cdnUrl || (assetId ? resolvedMediaUrls[assetId] || undefined : undefined);
+    const hasText = !!(item?.text && item.text.trim().length > 0);
     const isMediaMissing = !!(assetId && !mediaUrl && resolvedMediaUrls[assetId] === null);
     const label = hasText
-      ? option.text
+      ? item.text
       : mediaUrl
-        ? 'Image option'
+        ? 'Image item'
         : isMediaMissing
           ? 'Image unavailable'
-          : `Option ${option?.id ?? ''}`;
+          : fallbackLabel;
 
     return (
       <div className="flex items-center gap-3">
         {mediaUrl && (
           <img
             src={mediaUrl}
-            alt={`Option ${option?.id ?? ''} media`}
+            alt={`${fallbackLabel} media`}
             className="h-8 w-auto rounded-md border border-theme-border-primary"
           />
         )}
@@ -191,6 +195,9 @@ const QuizResultPage: React.FC = () => {
       </div>
     );
   };
+
+  const renderOptionLabel = (option: any): React.ReactNode =>
+    renderMediaItemLabel(option, `Option ${option?.id ?? ''}`);
 
   // Format question text for FILL_GAP questions - replace {N} with underscores
   const formatQuestionText = (questionText: string, questionType: string): string => {
@@ -267,7 +274,7 @@ const QuizResultPage: React.FC = () => {
                 return (
                   <React.Fragment key={itemId}>
                     <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
-                      {item?.text || `Item ${itemId}`}
+                      {item ? renderMediaItemLabel(item, `Item ${itemId}`) : `Item ${itemId}`}
                     </span>
                     {idx < answer.orderedItemIds.length - 1 && <span className="text-theme-text-tertiary">→</span>}
                   </React.Fragment>
@@ -291,7 +298,9 @@ const QuizResultPage: React.FC = () => {
                     <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
                       Compliant
                     </span>
-                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
+                    <span className="text-sm">
+                      {statement ? renderMediaItemLabel(statement, `Statement ${stmtId}`) : `Statement ${stmtId}`}
+                    </span>
                   </li>
                 );
               })}
@@ -325,9 +334,13 @@ const QuizResultPage: React.FC = () => {
                 const rightItem = safeContent.right.find((r: any) => r.id === match.rightId);
                 return (
                   <li key={idx} className="flex items-center gap-2 text-sm">
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || match.leftId}</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">
+                      {leftItem ? renderMediaItemLabel(leftItem, `Left item ${match.leftId}`) : match.leftId}
+                    </span>
                     <span className="text-theme-text-tertiary">→</span>
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || match.rightId}</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">
+                      {rightItem ? renderMediaItemLabel(rightItem, `Right item ${match.rightId}`) : match.rightId}
+                    </span>
                   </li>
                 );
               })}
@@ -403,7 +416,7 @@ const QuizResultPage: React.FC = () => {
                 return (
                   <React.Fragment key={itemId}>
                     <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
-                      {item?.text || `Item ${itemId}`}
+                      {item ? renderMediaItemLabel(item, `Item ${itemId}`) : `Item ${itemId}`}
                     </span>
                     {idx < answer.order.length - 1 && <span className="text-theme-text-tertiary">→</span>}
                   </React.Fragment>
@@ -426,7 +439,9 @@ const QuizResultPage: React.FC = () => {
                     <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
                       Compliant
                     </span>
-                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
+                    <span className="text-sm">
+                      {statement ? renderMediaItemLabel(statement, `Statement ${stmtId}`) : `Statement ${stmtId}`}
+                    </span>
                   </li>
                 );
               })}
@@ -455,9 +470,13 @@ const QuizResultPage: React.FC = () => {
                 const rightItem = safeContent.right.find((r: any) => r.id === pair.rightId);
                 return (
                   <li key={idx} className="flex items-center gap-2 text-sm">
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || pair.leftId}</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">
+                      {leftItem ? renderMediaItemLabel(leftItem, `Left item ${pair.leftId}`) : pair.leftId}
+                    </span>
                     <span className="text-theme-text-tertiary">→</span>
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || pair.rightId}</span>
+                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">
+                      {rightItem ? renderMediaItemLabel(rightItem, `Right item ${pair.rightId}`) : pair.rightId}
+                    </span>
                   </li>
                 );
               })}

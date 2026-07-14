@@ -21,24 +21,33 @@ const sanitizeQuestionContent = (content: unknown): unknown => {
     return content;
   }
 
-  if (!Array.isArray(content.options)) {
-    return content;
-  }
+  const mediaItemFields = ['options', 'statements', 'items', 'left', 'right'] as const;
+  const nextContent: AnyRecord = { ...content };
 
-  const options = content.options.map((option: AnyRecord) => {
-    const media = sanitizeMediaRef(option.media);
-    const nextOption: AnyRecord = { ...option };
-
-    if (media) {
-      nextOption.media = media;
-    } else {
-      delete nextOption.media;
+  mediaItemFields.forEach((field) => {
+    if (!Array.isArray(content[field])) {
+      return;
     }
 
-    return nextOption;
+    nextContent[field] = content[field].map((item: unknown) => {
+      if (!isRecord(item)) {
+        return item;
+      }
+
+      const media = sanitizeMediaRef(item.media);
+      const nextItem: AnyRecord = { ...item };
+
+      if (media) {
+        nextItem.media = media;
+      } else {
+        delete nextItem.media;
+      }
+
+      return nextItem;
+    });
   });
 
-  return { ...content, options };
+  return nextContent;
 };
 
 const sanitizeQuestionExport = (question: AnyRecord): AnyRecord => {

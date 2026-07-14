@@ -1,14 +1,59 @@
-import type { FillGapContent, GapAnswer, McqMultiContent, McqSingleContent } from '../types/question.types';
+import type {
+  ComplianceContent,
+  FillGapContent,
+  GapAnswer,
+  MatchingContent,
+  McqMultiContent,
+  McqSingleContent,
+  OrderingContent,
+  QuestionItemMedia,
+} from '../types/question.types';
+
+const sanitizeMediaRef = (media?: QuestionItemMedia): { assetId: string } | undefined =>
+  media?.assetId ? { assetId: media.assetId } : undefined;
+
+const sanitizeMediaItem = <T extends { media?: QuestionItemMedia }>(item: T): T => {
+  const media = sanitizeMediaRef(item.media);
+  const sanitizedItem = {
+    ...item,
+    media,
+  } as T;
+
+  if (
+    media
+    && 'text' in sanitizedItem
+    && typeof sanitizedItem.text === 'string'
+    && sanitizedItem.text.trim().length === 0
+  ) {
+    delete (sanitizedItem as T & { text?: string }).text;
+  }
+
+  return sanitizedItem;
+};
 
 export const sanitizeMcqContentForSubmission = (
   content: McqSingleContent | McqMultiContent
 ): McqSingleContent | McqMultiContent => ({
-  options: (content?.options || []).map((opt) => ({
-    id: opt.id,
-    text: opt.text,
-    correct: opt.correct,
-    media: opt.media?.assetId ? { assetId: opt.media.assetId } : undefined,
-  })),
+  options: (content?.options || []).map((opt) => sanitizeMediaItem(opt)),
+});
+
+export const sanitizeComplianceContentForSubmission = (
+  content: ComplianceContent
+): ComplianceContent => ({
+  statements: (content?.statements || []).map(sanitizeMediaItem),
+});
+
+export const sanitizeOrderingContentForSubmission = (
+  content: OrderingContent
+): OrderingContent => ({
+  items: (content?.items || []).map(sanitizeMediaItem),
+});
+
+export const sanitizeMatchingContentForSubmission = (
+  content: MatchingContent
+): MatchingContent => ({
+  left: (content?.left || []).map(sanitizeMediaItem),
+  right: (content?.right || []).map(sanitizeMediaItem),
 });
 
 const normalizeOptionValue = (value: string) => value.trim();

@@ -5,7 +5,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionRequest, UpdateQuestionRequest, QuestionType, QuestionDifficulty, MediaRefDto, McqSingleContent, McqMultiContent, FillGapContent } from '@/types';
+import {
+  ComplianceContent,
+  CreateQuestionRequest,
+  FillGapContent,
+  MatchingContent,
+  McqMultiContent,
+  McqSingleContent,
+  MediaRefDto,
+  OrderingContent,
+  QuestionDifficulty,
+  QuestionType,
+  UpdateQuestionRequest,
+} from '@/types';
 import { QuestionService } from '@/services';
 import { api } from '@/services';
 import QuestionTypeSelector from './QuestionTypeSelector';
@@ -21,7 +33,14 @@ import { MatchingQuestionForm } from './MatchingQuestionForm';
 import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip } from '@/components';
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { MediaPicker } from '@/features/media';
-import { dedupeFillGapOptions, sanitizeFillGapContentForSubmission, sanitizeMcqContentForSubmission } from '../utils/contentSanitizer';
+import {
+  dedupeFillGapOptions,
+  sanitizeComplianceContentForSubmission,
+  sanitizeFillGapContentForSubmission,
+  sanitizeMatchingContentForSubmission,
+  sanitizeMcqContentForSubmission,
+  sanitizeOrderingContentForSubmission,
+} from '../utils/contentSanitizer';
 
 const MCQ_SINGLE_OPTION_COUNT = 4;
 const MCQ_MULTI_MIN_OPTIONS = 4;
@@ -31,7 +50,7 @@ const ORDERING_MAX_ITEMS = 10;
 const ORDERING_MIN_TEXT_LENGTH = 5;
 const HOTSPOT_MIN_REGIONS = 2;
 const HOTSPOT_MAX_REGIONS = 6;
-const MATCHING_MIN_ITEMS = 2;
+const MATCHING_MIN_ITEMS = 4;
 
 interface QuestionFormProps {
   questionId?: string; // If provided, we're editing an existing question
@@ -209,13 +228,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       
       case 'COMPLIANCE': {
         const statements = (formData.content as any)?.statements || [];
-        if (statements.length === 0) {
-          errors.push('At least one statement is required.');
+        if (statements.length < 2 || statements.length > 6) {
+          errors.push('Compliance questions must have 2 to 6 statements.');
         } else {
-          // Check all statements have at least 1 character
-          const invalidStatements = statements.filter((stmt: any) => !stmt.text || stmt.text.trim().length < 1);
+          const hasText = (statement: any) => !!(statement.text && statement.text.trim().length >= 1);
+          const hasMedia = (statement: any) => !!(statement.media && (statement.media.assetId || statement.media.cdnUrl));
+          const invalidStatements = statements.filter((statement: any) => !hasText(statement) && !hasMedia(statement));
           if (invalidStatements.length > 0) {
-            errors.push('All statements must have at least 1 character.');
+            errors.push('Each compliance statement must have text or an image.');
           }
         }
         break;
@@ -247,24 +267,26 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           : [];
         
         if (left.length < MATCHING_MIN_ITEMS) {
-          errors.push('Matching questions must have at least 2 left items.');
+          errors.push('Matching questions must have at least 4 left items.');
         } else {
           const invalidLeft = left.filter((item: any) =>
-            typeof item?.text !== 'string' || item.text.trim().length < 1,
+            !(typeof item?.text === 'string' && item.text.trim().length >= 1)
+            && !(item?.media && (item.media.assetId || item.media.cdnUrl)),
           );
           if (invalidLeft.length > 0) {
-            errors.push('All left items must have at least 1 character.');
+            errors.push('Each left matching item must have text or an image.');
           }
         }
         
         if (right.length < MATCHING_MIN_ITEMS) {
-          errors.push('Matching questions must have at least 2 right items.');
+          errors.push('Matching questions must have at least 4 right items.');
         } else {
           const invalidRight = right.filter((item: any) =>
-            typeof item?.text !== 'string' || item.text.trim().length < 1,
+            !(typeof item?.text === 'string' && item.text.trim().length >= 1)
+            && !(item?.media && (item.media.assetId || item.media.cdnUrl)),
           );
           if (invalidRight.length > 0) {
-            errors.push('All right items must have at least 1 character.');
+            errors.push('Each right matching item must have text or an image.');
           }
         }
 
@@ -400,6 +422,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
           : formData.type === 'FILL_GAP'
           ? sanitizeFillGapContentForSubmission(rawContent as FillGapContent)
+          : formData.type === 'COMPLIANCE'
+          ? sanitizeComplianceContentForSubmission(rawContent as ComplianceContent)
+          : formData.type === 'ORDERING'
+          ? sanitizeOrderingContentForSubmission(rawContent as OrderingContent)
+          : formData.type === 'MATCHING'
+          ? sanitizeMatchingContentForSubmission(rawContent as MatchingContent)
           : rawContent;
 
       // For FILL_GAP, copy content.text to questionText before submitting
@@ -476,11 +504,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         return { 
           left: [
             { id: 1, text: '', matchId: 10 },
-            { id: 2, text: '', matchId: 11 }
+            { id: 2, text: '', matchId: 11 },
+            { id: 3, text: '', matchId: 12 },
+            { id: 4, text: '', matchId: 13 },
           ],
           right: [
             { id: 10, text: '' },
-            { id: 11, text: '' }
+            { id: 11, text: '' },
+            { id: 12, text: '' },
+            { id: 13, text: '' },
           ]
         } as CreateQuestionRequest['content'];
       default:
@@ -543,12 +575,20 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         break;
       case 'COMPLIANCE':
         safeContent = {
-          statements: (content?.statements || []).map((s: any) => ({ id: s.id, text: s.text }))
+          statements: (content?.statements || []).map((s: any) => ({
+            id: s.id,
+            text: s.text,
+            ...(s.media ? { media: s.media } : {}),
+          }))
         };
         break;
       case 'ORDERING':
         safeContent = {
-          items: (content?.items || []).map((it: any) => ({ id: it.id, text: it.text }))
+          items: (content?.items || []).map((it: any) => ({
+            id: it.id,
+            text: it.text,
+            ...(it.media ? { media: it.media } : {}),
+          }))
         };
         break;
       case 'HOTSPOT':
@@ -610,6 +650,12 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           ? sanitizeMcqContentForSubmission(rawContent as McqSingleContent | McqMultiContent)
           : formData.type === 'FILL_GAP'
           ? sanitizeFillGapContentForSubmission(rawContent as FillGapContent)
+          : formData.type === 'COMPLIANCE'
+          ? sanitizeComplianceContentForSubmission(rawContent as ComplianceContent)
+          : formData.type === 'ORDERING'
+          ? sanitizeOrderingContentForSubmission(rawContent as OrderingContent)
+          : formData.type === 'MATCHING'
+          ? sanitizeMatchingContentForSubmission(rawContent as MatchingContent)
           : rawContent;
 
       // For FILL_GAP, copy content.text to questionText before submitting

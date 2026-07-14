@@ -122,9 +122,15 @@ export interface QuestionSchemaResponse {
 export interface McqOption {
   id: string;
   text?: string;
-  media?: MediaRefDto | { assetId: string };
+  media?: QuestionItemMedia;
   correct: boolean;
 }
+
+/**
+ * Question item media is submitted as an asset ID. Read responses may include
+ * resolved display fields such as a CDN URL and dimensions.
+ */
+export type QuestionItemMedia = MediaRefDto | { assetId: string };
 
 /**
  * MCQ Single/Multi Content
@@ -170,7 +176,8 @@ export interface FillGapContent {
  */
 export interface ComplianceStatement {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
   compliant: boolean;
 }
 
@@ -183,7 +190,8 @@ export interface ComplianceContent {
  */
 export interface OrderingItem {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
 }
 
 export interface OrderingContent {
@@ -212,7 +220,8 @@ export interface HotspotContent {
  */
 export interface MatchingItem {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
   matchId?: number; // Only for left side items
 }
 

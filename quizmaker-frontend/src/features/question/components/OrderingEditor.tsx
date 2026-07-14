@@ -4,11 +4,15 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { OrderingContent, OrderingItem } from '@/types';
+import { MediaRefDto, OrderingContent, OrderingItem } from '@/types';
 import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer, Textarea, Button } from '@/components';
+import { MediaPicker } from '@/features/media';
 
 const MIN_ORDERING_ITEMS = 3;
 const MAX_ORDERING_ITEMS = 10;
+
+const getMediaUrl = (media?: OrderingItem['media']) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
 interface OrderingEditorProps {
   content: OrderingContent;
@@ -23,7 +27,7 @@ const createBlankItem = (index: number): OrderingItem => ({
 });
 
 const normalizeOrderingItems = (items: OrderingItem[] | undefined): OrderingItem[] => {
-  const normalized = (items || [])
+  const normalized: OrderingItem[] = (items || [])
     .slice(0, MAX_ORDERING_ITEMS)
     .map((item, index) => ({
       ...item,
@@ -81,6 +85,12 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
     ));
   };
 
+  const updateItemMedia = (id: number, media: MediaRefDto | null) => {
+    setItems(prev => prev.map(item =>
+      item.id === id ? { ...item, media: media ?? undefined } : item
+    ));
+  };
+
   const moveItem = (fromIndex: number, toIndex: number) => {
     const newItems = [...items];
     const [movedItem] = newItems.splice(fromIndex, 1);
@@ -88,7 +98,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
     setItems(normalizeOrderingItems(newItems));
   };
 
-  const getEmptyItems = () => items.filter(item => !item.text.trim());
+  const getEmptyItems = () => items.filter(item => !item.text?.trim() && !item.media?.assetId);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -119,7 +129,7 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                 <div className="flex-1">
                   <Textarea
                     data-ordering-item
-                    value={item.text}
+                    value={item.text || ''}
                     onChange={(e) => {
                       updateItemText(item.id, e.target.value);
                     }}
@@ -127,6 +137,13 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                     rows={1}
                     fullWidth
                     className="!min-h-[38px]"
+                  />
+                  <MediaPicker
+                    value={(item.media as MediaRefDto | undefined) || null}
+                    onChange={(media) => updateItemMedia(item.id, media)}
+                    label="Item image"
+                    helperText="Optional. An image can be used instead of item text."
+                    uploadLabel="Upload image"
                   />
                 </div>
 
@@ -175,9 +192,19 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
                 </span>
               </div>
               <div className="flex-1">
-                <span className="text-sm">
-                  {item.text || `Item ${index + 1}`}
-                </span>
+                <div className="space-y-2 text-sm">
+                  {getMediaUrl(item.media) && (
+                    <img
+                      src={getMediaUrl(item.media)}
+                      alt={`Ordering item ${index + 1} media`}
+                      className="h-10 w-auto rounded-md border border-theme-border-primary"
+                    />
+                  )}
+                  {!getMediaUrl(item.media) && item.media?.assetId && !item.text?.trim() && (
+                    <span className="text-theme-text-tertiary">Image unavailable.</span>
+                  )}
+                  <span>{item.text || (getMediaUrl(item.media) ? 'Image item' : `Item ${index + 1}`)}</span>
+                </div>
               </div>
               <div className="flex-shrink-0">
                 <svg className="w-4 h-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
@@ -201,8 +228,8 @@ const OrderingEditor: React.FC<OrderingEditorProps> = ({
               {items.map((item, index) => (
                 <div key={item.id} className="flex items-center space-x-2">
                   <span className="font-medium">{index + 1}.</span>
-                  <span className={item.text ? 'text-theme-text-primary' : 'text-theme-interactive-danger'}>
-                    {item.text || 'No text provided'}
+                  <span className={item.text || item.media?.assetId ? 'text-theme-text-primary' : 'text-theme-interactive-danger'}>
+                    {item.text || (getMediaUrl(item.media) ? 'Image item' : item.media?.assetId ? 'Image unavailable' : 'No text provided')}
                   </span>
                 </div>
               ))}

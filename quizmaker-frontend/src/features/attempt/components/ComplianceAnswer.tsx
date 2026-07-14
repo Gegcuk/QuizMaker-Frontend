@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionForAttemptDto } from '@/types';
+import { QuestionForAttemptDto, QuestionItemMedia } from '@/types';
 import { Button } from '@/components';
 
 interface ComplianceAnswerProps {
@@ -21,8 +21,12 @@ interface ComplianceAnswerProps {
 
 interface ComplianceStatement {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
 }
+
+const getMediaUrl = (media?: QuestionItemMedia) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
 const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
   question,
@@ -113,6 +117,8 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
         {statements.map((statement, index) => {
           const isSelected = selectedStatements.includes(statement.id);
           const statementNumber = index + 1;
+          const mediaUrl = getMediaUrl(statement.media);
+          const isMediaMissing = !!(statement.media?.assetId && !mediaUrl);
 
           // Determine if this statement should be selected (correct answer)
           let isCorrectStatement = false;
@@ -157,6 +163,7 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                 checked={isSelected}
                 onChange={() => handleStatementToggle(statement.id)}
                 disabled={disabled}
+                aria-label={statement.text || `Statement ${statementNumber}`}
                 className="mt-1 rounded border-theme-border-primary text-theme-interactive-primary focus:ring-theme-interactive-primary focus:ring-2"
               />
               
@@ -169,8 +176,18 @@ const ComplianceAnswer: React.FC<ComplianceAnswerProps> = ({
                   }`}>
                     {statementNumber}
                   </span>
-                  <div className="text-theme-text-primary">
-                    {statement.text}
+                  <div className="min-w-0 space-y-2 text-theme-text-primary">
+                    {mediaUrl && (
+                      <img
+                        src={mediaUrl}
+                        alt={`Statement ${statementNumber} media`}
+                        className="h-16 w-auto rounded-md border border-theme-border-primary"
+                      />
+                    )}
+                    {!mediaUrl && isMediaMissing && !statement.text?.trim() && (
+                      <div className="text-sm text-theme-text-tertiary">Image unavailable.</div>
+                    )}
+                    <div>{statement.text || (mediaUrl ? 'Image statement' : isMediaMissing ? 'Image unavailable' : `Statement ${statementNumber}`)}</div>
                   </div>
                   {showFeedback && isCorrectStatement && (
                     <span className="ml-2 text-theme-interactive-success">✓</span>
