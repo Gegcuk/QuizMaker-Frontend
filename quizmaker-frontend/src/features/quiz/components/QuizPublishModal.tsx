@@ -140,40 +140,52 @@ const QuizPublishModal: React.FC<QuizPublishModalProps> = ({
 
             {/* Action options */}
             <div className="mt-4 space-y-3">
-              {quiz.status !== 'PUBLISHED' && (
-                <Button
-                  onClick={handleConfirm}
-                  disabled={isLoading}
-                  loading={isLoading}
-                  variant="primary"
-                  className="!w-full !bg-theme-interactive-success hover:!bg-theme-interactive-success-hover focus-visible:!ring-theme-interactive-success"
-                >
-                  Publish Quiz
-                </Button>
-              )}
-
-              {quiz.status !== 'DRAFT' && (
+              {quiz.status === 'ARCHIVED' ? (
                 <Button
                   onClick={handleDraft}
                   disabled={isLoading}
                   loading={isLoading}
                   variant="primary"
-                  className="!w-full !bg-theme-interactive-warning hover:!bg-theme-interactive-warning-hover focus-visible:!ring-theme-interactive-warning"
-                >
-                  Save as Draft
-                </Button>
-              )}
-
-              {quiz.status !== 'ARCHIVED' && (
-                <Button
-                  onClick={handleArchive}
-                  disabled={isLoading}
-                  loading={isLoading}
-                  variant="ghost"
                   className="!w-full"
                 >
-                  Archive Quiz
+                  Restore as Draft
                 </Button>
+              ) : (
+                <>
+                  {quiz.status !== 'PUBLISHED' && (
+                    <Button
+                      onClick={handleConfirm}
+                      disabled={isLoading}
+                      loading={isLoading}
+                      variant="primary"
+                      className="!w-full !bg-theme-interactive-success hover:!bg-theme-interactive-success-hover focus-visible:!ring-theme-interactive-success"
+                    >
+                      Publish Quiz
+                    </Button>
+                  )}
+
+                  {quiz.status !== 'DRAFT' && (
+                    <Button
+                      onClick={handleDraft}
+                      disabled={isLoading}
+                      loading={isLoading}
+                      variant="primary"
+                      className="!w-full !bg-theme-interactive-warning hover:!bg-theme-interactive-warning-hover focus-visible:!ring-theme-interactive-warning"
+                    >
+                      Save as Draft
+                    </Button>
+                  )}
+
+                  <Button
+                    onClick={handleArchive}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    variant="ghost"
+                    className="!w-full"
+                  >
+                    Archive Quiz
+                  </Button>
+                </>
               )}
             </div>
 
