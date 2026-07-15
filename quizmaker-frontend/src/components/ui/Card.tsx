@@ -67,7 +67,16 @@ const Card: React.FC<CardProps> = ({
 
   const hoverClass = hoverable && variant !== 'interactive' ? 'hover:shadow-lg' : '';
   const selectedClass = selected ? 'ring-2 ring-theme-interactive-primary' : '';
-  const clickableClass = onClick ? 'cursor-pointer' : '';
+  const clickableClass = onClick
+    ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary'
+    : '';
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    event.preventDefault();
+    onClick();
+  };
 
   const classes = [
     baseClasses,
@@ -80,7 +89,14 @@ const Card: React.FC<CardProps> = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <div id={id} className={classes} onClick={onClick}>
+    <div
+      id={id}
+      className={classes}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+    >
       {children}
     </div>
   );

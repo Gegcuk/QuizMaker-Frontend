@@ -43,7 +43,7 @@ describe('shared overlay and theme components', () => {
     expect(screen.queryByText('Please complete the following:')).not.toBeInTheDocument();
   });
 
-  it('closes modals by close button and Escape while restoring page scroll on unmount', async () => {
+  it('closes modals by close button and Escape while restoring the previous page scroll state', async () => {
     const onClose = vi.fn();
     const { user, rerender } = renderWithProviders(
       <Modal isOpen onClose={onClose} title="Delete quiz">This cannot be undone.</Modal>,
@@ -58,7 +58,7 @@ describe('shared overlay and theme components', () => {
 
     rerender(<Modal isOpen={false} onClose={onClose}>Closed</Modal>);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(document.body.style.overflow).toBe('unset');
+    expect(document.body.style.overflow).toBe('');
   });
 
   it('shows tooltips on focus and hides them when focus leaves the trigger', () => {
