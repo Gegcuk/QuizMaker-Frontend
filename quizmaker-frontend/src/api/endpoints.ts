@@ -23,6 +23,8 @@ export const QUIZ_ENDPOINTS = {
   BULK_DELETE: '/v1/quizzes',
   VISIBILITY: (id: string) => `/v1/quizzes/${id}/visibility`,
   STATUS: (id: string) => `/v1/quizzes/${id}/status`,
+  ARCHIVE: (id: string) => `/v1/quizzes/${id}/archive`,
+  UNARCHIVE: (id: string) => `/v1/quizzes/${id}/unarchive`,
   SUBMIT_FOR_REVIEW: (id: string) => `/v1/quizzes/${id}/submit-for-review`,
   ADD_QUESTION: (quizId: string, questionId: string) => `/v1/quizzes/${quizId}/questions/${questionId}`,
   REMOVE_QUESTION: (quizId: string, questionId: string) => `/v1/quizzes/${quizId}/questions/${questionId}`,
@@ -55,6 +57,7 @@ export const QUIZ_ENDPOINTS = {
   GENERATION_STATISTICS: '/v1/quizzes/generation-jobs/statistics',
   FORCE_CANCEL_JOB: (jobId: string) => `/v1/quizzes/generation-jobs/${jobId}/force-cancel`,
   CLEANUP_STALE_JOBS: '/v1/quizzes/generation-jobs/cleanup-stale',
+  IMPORT: '/v1/quizzes/import',
   EXPORT: '/v1/quizzes/export',
   // Quiz Groups endpoints
   QUIZ_GROUPS: '/v1/quiz-groups',

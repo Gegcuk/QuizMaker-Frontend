@@ -10,6 +10,9 @@ export {
   createQuiz, 
   updateQuiz, 
   updateQuizStatus, 
+  archiveQuiz,
+  unarchiveQuiz,
+  submitQuizForReview,
   deleteQuiz, 
   getQuizResults 
 } from './services/quiz.service';

@@ -31,7 +31,19 @@ export { ResultService, getQuizResults, getQuizLeaderboard } from '../features/r
 // API services
 export { default as api } from '../api/axiosInstance';
 export { BaseService } from '../api/base.service';
-export { QuizService, getAllQuizzes, getMyQuizzes, getQuizById, createQuiz, updateQuiz, updateQuizStatus, deleteQuiz } from '../features/quiz/services/quiz.service';
+export {
+  QuizService,
+  getAllQuizzes,
+  getMyQuizzes,
+  getQuizById,
+  createQuiz,
+  updateQuiz,
+  updateQuizStatus,
+  archiveQuiz,
+  unarchiveQuiz,
+  submitQuizForReview,
+  deleteQuiz,
+} from '../features/quiz/services/quiz.service';
 export { QuizGroupService } from '../features/quiz/services/quiz-group.service';
 export { TagService, getAllTags } from '../features/tag/services/tag.service';
 export { UserService, userService } from '../features/user/services/user.service';
