@@ -46,7 +46,7 @@ export const useFormContext = () => {
 };
 
 const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormReturn<T> => {
-  const [values, setValues] = useState<T>(defaultValues as T);
+  const [values, setValues] = useState<T>((defaultValues ?? {}) as T);
   const [errors, setErrors] = useState<Record<string, { message?: string }>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -121,7 +121,7 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
   const getValues = () => values;
 
   const reset = (newValues?: Partial<T>) => {
-    setValues(newValues as T || defaultValues as T);
+    setValues((newValues ?? defaultValues ?? {}) as T);
     setErrors({});
     setIsDirty(false);
   };
@@ -252,4 +252,4 @@ const Form = <T extends FieldValues = FieldValues>({
   );
 };
 
-export default Form; 
+export default Form;
