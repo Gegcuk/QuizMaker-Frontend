@@ -84,14 +84,14 @@ describe('shared display and feedback components', () => {
         <CardHeader>Quiz details</CardHeader>
         <CardBody>Architecture fundamentals</CardBody>
         <CardFooter>Updated today</CardFooter>
-        <CardActions align="right"><button type="button">Edit</button></CardActions>
+        <CardActions align="right"><span>Edit actions</span></CardActions>
       </Card>,
       { withAuthProvider: false },
     );
 
     const card = screen.getByText('Architecture fundamentals').parentElement;
     expect(card).toHaveClass('ring-2', 'ring-theme-interactive-primary');
-    expect(screen.getByRole('button', { name: 'Edit' }).parentElement).toHaveClass('justify-end');
+    expect(screen.getByText('Edit actions').parentElement).toHaveClass('justify-end');
 
     await user.click(card!);
     expect(onClick).toHaveBeenCalledOnce();
