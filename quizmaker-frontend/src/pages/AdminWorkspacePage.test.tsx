@@ -107,6 +107,30 @@ describe('AdminWorkspacePage', () => {
     });
   });
 
+  it('keeps the email confirmation open and reports a failed delivery', async () => {
+    adminServiceMocks.testPasswordResetEmail.mockRejectedValue(new Error('Email provider rejected the request.'));
+    const { user } = renderAdminWorkspace();
+
+    await screen.findByText('Amazon SES');
+    await user.clear(screen.getByLabelText('Test recipient'));
+    await user.type(screen.getByLabelText('Test recipient'), 'recipient@example.com');
+    await user.click(screen.getByRole('button', { name: 'Send reset email' }));
+    await user.click(screen.getByRole('button', { name: 'Send email' }));
+
+    expect(await screen.findByText('Email provider rejected the request.')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Send test email' })).toBeInTheDocument();
+    expect(adminServiceMocks.testPasswordResetEmail).toHaveBeenCalledWith('recipient@example.com');
+  });
+
+  it('shows an email diagnostics failure without exposing stale provider details', async () => {
+    adminServiceMocks.getEmailProviderStatus.mockRejectedValue(new Error('Insufficient permissions'));
+
+    renderAdminWorkspace();
+
+    expect(await screen.findByText('Insufficient permissions')).toBeInTheDocument();
+    expect(screen.queryByText('Amazon SES')).not.toBeInTheDocument();
+  });
+
   it('validates the organization UUID before requesting a moderation queue', async () => {
     const { user } = renderAdminWorkspace();
 
@@ -149,6 +173,22 @@ describe('AdminWorkspacePage', () => {
       expect(adminServiceMocks.rejectQuiz).toHaveBeenCalledWith(pendingQuiz.id, 'Missing source attribution.');
     });
     expect(screen.queryByText(pendingQuiz.title)).not.toBeInTheDocument();
+  });
+
+  it('does not submit a rejection until its required reason is provided', async () => {
+    adminServiceMocks.getPendingReviewQuizzes.mockResolvedValue([pendingQuiz]);
+    const { user } = renderAdminWorkspace();
+
+    await user.type(screen.getByLabelText('Organization UUID'), organizationId);
+    await user.click(screen.getByRole('button', { name: 'Load review queue' }));
+    await screen.findByText(pendingQuiz.title);
+    await user.click(screen.getByRole('button', { name: 'Reject' }));
+    await user.type(screen.getByLabelText('Rejection reason'), ' ');
+    await user.click(screen.getByRole('button', { name: 'Reject quiz' }));
+
+    expect(await screen.findByText('A rejection reason is required.')).toBeInTheDocument();
+    expect(adminServiceMocks.rejectQuiz).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Reject quiz' })).toBeInTheDocument();
   });
 
   it('shows normalized queue failures without leaving stale moderation data visible', async () => {
