@@ -78,30 +78,11 @@ const SitemapArticlesPage: React.FC = () => {
   const [xmlContent, setXmlContent] = useState<string>('');
 
   useEffect(() => {
-    // Set XML content type header
-    const contentType = 'application/xml; charset=utf-8';
-    
     // Fetch sitemap data from backend API
     articleService.getSitemap()
       .then((entries: ArticleSitemapEntry[]) => {
-        // Generate XML
-        const xml = generateSitemapXml(entries);
-        setXmlContent(xml);
-        
-        // Update document title and meta
+        setXmlContent(generateSitemapXml(entries));
         document.title = 'Articles Sitemap';
-        
-        // Replace page content with XML (for crawlers)
-        // Note: This will work for client-side rendering
-        // For better SEO, consider server-side rendering or build-time generation
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xml, 'application/xml');
-        
-        // Clear body and write XML
-        document.body.innerHTML = '';
-        const pre = document.createElement('pre');
-        pre.textContent = xml;
-        document.body.appendChild(pre);
       })
       .catch((error) => {
         console.error('Failed to fetch article sitemap:', error);
@@ -110,18 +91,14 @@ const SitemapArticlesPage: React.FC = () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </urlset>`;
         setXmlContent(emptySitemap);
-        document.body.innerHTML = '';
-        const pre = document.createElement('pre');
-        pre.textContent = emptySitemap;
-        document.body.appendChild(pre);
       });
   }, []);
 
-  // Render XML content as text for crawlers
-  // For proper XML serving, this should ideally be handled at the server level
+  // Production serves this URL directly as application/xml. This fallback keeps
+  // the app shell intact in development when Vite handles the route.
   if (xmlContent) {
     return (
-      <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+      <pre aria-label="Articles sitemap" className="whitespace-pre-wrap font-mono">
         {xmlContent}
       </pre>
     );
