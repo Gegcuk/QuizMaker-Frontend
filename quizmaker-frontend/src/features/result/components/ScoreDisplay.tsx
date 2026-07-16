@@ -21,6 +21,9 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
   const accuracy = result.totalQuestions > 0 ? (result.correctCount / result.totalQuestions) * 100 : 0;
   const score = result.totalQuestions > 0 ? (result.totalScore / result.totalQuestions) * 100 : 0;
   const incorrectCount = result.totalQuestions - result.correctCount;
+  const correctPercentage = result.totalQuestions > 0 ? (result.correctCount / result.totalQuestions) * 100 : 0;
+  const incorrectPercentage = result.totalQuestions > 0 ? (incorrectCount / result.totalQuestions) * 100 : 0;
+  const averageScore = result.totalQuestions > 0 ? (result.totalScore / result.totalQuestions) * 100 : 0;
   
   const getScoreGrade = (percentage: number): string => {
     if (percentage >= 90) return 'A+';
@@ -112,7 +115,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           <div className="text-3xl font-bold text-theme-interactive-success">{result.correctCount}</div>
           <div className="text-sm text-theme-interactive-success font-medium">Correct</div>
           <div className="text-xs text-theme-interactive-success mt-1">
-            {Math.round((result.correctCount / result.totalQuestions) * 100)}%
+            {Math.round(correctPercentage)}%
           </div>
         </div>
         
@@ -120,7 +123,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           <div className="text-3xl font-bold text-theme-interactive-danger">{incorrectCount}</div>
           <div className="text-sm text-theme-interactive-danger font-medium">Incorrect</div>
           <div className="text-xs text-theme-interactive-danger mt-1">
-            {Math.round((incorrectCount / result.totalQuestions) * 100)}%
+            {Math.round(incorrectPercentage)}%
           </div>
         </div>
         
@@ -136,7 +139,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
           <div className="text-3xl font-bold text-theme-interactive-primary">{result.totalScore}</div>
           <div className="text-sm text-theme-text-primary font-medium">Total Score</div>
           <div className="text-xs text-theme-interactive-primary mt-1">
-            {Math.round(result.totalScore / result.totalQuestions * 100)}% avg
+            {Math.round(averageScore)}% avg
           </div>
         </div>
       </div>
