@@ -32,6 +32,7 @@ import { useAuth } from '@/features/auth';
 import { mediaService } from '@/features/media';
 import { escapeHtmlAttribute, sanitizeUrl } from '@/utils/sanitize';
 import Spinner from '@/components/ui/Spinner';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const statusOptions: Array<{ value: ArticleStatus | 'all'; label: string }> = [
   { value: 'all', label: 'All statuses' },
@@ -237,7 +238,14 @@ const BlogIndexPage: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    error,
+    isError,
+    isFetching,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['articles', statusFilter, isAdmin],
     queryFn: () => {
       const commonParams = {
@@ -863,6 +871,26 @@ const BlogIndexPage: React.FC = () => {
         {isLoading && (
           <div className="flex justify-center py-10">
             <Spinner />
+          </div>
+        )}
+
+        {isError && (
+          <div className="space-y-3">
+            <Alert
+              type="error"
+              title="Unable to load articles"
+              error={error}
+              autoDismissOnInput={false}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetch()}
+              loading={isFetching}
+              leftIcon={<ArrowPathIcon className="w-4 h-4" />}
+            >
+              Retry
+            </Button>
           </div>
         )}
 
