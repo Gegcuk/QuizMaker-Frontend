@@ -106,6 +106,20 @@ describe('QuizPublishModal', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
+  it('restores archived quizzes as drafts without offering a direct publish action', async () => {
+    const onConfirm = vi.fn().mockResolvedValue(undefined);
+    const onClose = vi.fn();
+    const { user } = renderModal({ status: 'ARCHIVED', onClose, onConfirm });
+
+    expect(screen.queryByRole('button', { name: 'Publish Quiz' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Archive Quiz' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Restore as Draft' }));
+
+    expect(onConfirm).toHaveBeenCalledWith('DRAFT');
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it('prevents duplicate status submissions while loading', async () => {
     let resolveConfirm: (() => void) | undefined;
     const pendingConfirm = new Promise<void>((resolve) => {

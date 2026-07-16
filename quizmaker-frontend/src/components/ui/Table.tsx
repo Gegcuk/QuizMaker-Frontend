@@ -28,6 +28,7 @@ export interface TableProps<T = any> {
   selectedRows?: string[];
   onSelectionChange?: (selectedRows: string[]) => void;
   rowKey?: (row: T) => string;
+  rowLabel?: (row: T, index: number) => string;
 }
 
 const Table = <T extends Record<string, any>>({
@@ -42,7 +43,8 @@ const Table = <T extends Record<string, any>>({
   selectable = false,
   selectedRows = [],
   onSelectionChange,
-  rowKey = (row: T) => row.id || row.key
+  rowKey = (row: T) => row.id || row.key,
+  rowLabel
 }: TableProps<T>) => {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -112,6 +114,13 @@ const Table = <T extends Record<string, any>>({
   const isAllSelected = selectedRows.length === sortedData.length && sortedData.length > 0;
   const isIndeterminate = selectedRows.length > 0 && selectedRows.length < sortedData.length;
 
+  const handleRowKeyDown = (event: React.KeyboardEvent<HTMLTableRowElement>, row: T, index: number) => {
+    if (!onRowClick || event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    event.preventDefault();
+    onRowClick(row, index);
+  };
+
   return (
     <div className={`overflow-hidden ${className}`}>
       <div className="overflow-x-auto">
@@ -127,51 +136,64 @@ const Table = <T extends Record<string, any>>({
                       if (input) input.indeterminate = isIndeterminate;
                     }}
                     onChange={handleSelectAll}
+                    aria-label="Select all rows"
                     className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary rounded-md"
                   />
                 </th>
               )}
-              {columns.map(column => (
-                <th
-                  key={column.key}
-                  className={`px-6 py-3 text-left text-xs font-medium text-theme-text-tertiary uppercase tracking-wider ${
-                    column.sortable && sortable ? 'cursor-pointer hover:bg-theme-bg-tertiary' : ''
-                  } ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''}`}
-                  style={{ width: column.width }}
-                  onClick={() => handleSort(column.key)}
-                >
-                  <div className="flex items-center justify-between">
+              {columns.map(column => {
+                const isSortable = Boolean(column.sortable && sortable);
+                const sortDirection = sortConfig?.key === column.key ? sortConfig.direction : 'none';
+                const ariaSort = sortDirection === 'asc'
+                  ? 'ascending'
+                  : sortDirection === 'desc'
+                    ? 'descending'
+                    : 'none';
+                const content = (
+                  <span className="flex items-center justify-between">
                     <span>{column.header}</span>
-                    {column.sortable && sortable && (
-                      <div className="ml-2">
-                        {sortConfig?.key === column.key ? (
-                          <svg
-                            className={`h-4 w-4 ${
-                              sortConfig.direction === 'asc' ? 'rotate-180' : ''
-                            }`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        ) : (
-                          <svg className="h-4 w-4 text-theme-text-tertiary" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
-                      </div>
+                    {isSortable && (
+                      <span className="ml-2">
+                        <svg
+                          className={`h-4 w-4 ${
+                            sortDirection === 'asc' ? 'rotate-180' : 'text-theme-text-tertiary'
+                          }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </span>
                     )}
-                  </div>
-                </th>
-              ))}
+                  </span>
+                );
+
+                return (
+                  <th
+                    key={column.key}
+                    scope="col"
+                    aria-sort={isSortable ? ariaSort : undefined}
+                    className={`px-6 py-3 text-left text-xs font-medium text-theme-text-tertiary uppercase tracking-wider ${
+                      column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''}`}
+                    style={{ width: column.width }}
+                  >
+                    {isSortable ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSort(column.key)}
+                        className="w-full text-left hover:bg-theme-bg-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-interactive-primary"
+                      >
+                        {content}
+                      </button>
+                    ) : content}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody className="bg-theme-bg-primary divide-y divide-theme-border-primary">
@@ -201,9 +223,11 @@ const Table = <T extends Record<string, any>>({
                 <tr
                   key={rowKey(row)}
                   className={`${
-                    onRowClick ? 'cursor-pointer hover:bg-theme-bg-secondary' : ''
+                    onRowClick ? 'cursor-pointer hover:bg-theme-bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-interactive-primary' : ''
                   } ${selectedRows.includes(rowKey(row)) ? 'bg-theme-bg-info' : ''}`}
+                  tabIndex={onRowClick ? 0 : undefined}
                   onClick={() => onRowClick?.(row, index)}
+                  onKeyDown={(event) => handleRowKeyDown(event, row, index)}
                 >
                   {selectable && (
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -212,6 +236,7 @@ const Table = <T extends Record<string, any>>({
                         checked={selectedRows.includes(rowKey(row))}
                         onChange={() => handleRowSelect(row)}
                         onClick={(e) => e.stopPropagation()}
+                        aria-label={`Select ${rowLabel?.(row, index) || `row ${index + 1}`}`}
                         className="h-4 w-4 text-theme-interactive-primary focus:ring-theme-interactive-primary border-theme-border-primary rounded bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary"
                       />
                     </td>
@@ -325,4 +350,4 @@ const Table = <T extends Record<string, any>>({
   );
 };
 
-export default Table; 
+export default Table;

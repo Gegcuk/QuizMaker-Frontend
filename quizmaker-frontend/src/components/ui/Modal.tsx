@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface ModalProps {
@@ -11,7 +11,20 @@ export interface ModalProps {
   closeOnEscape?: boolean;
   showCloseButton?: boolean;
   className?: string;
+  ariaLabel?: string;
 }
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+const getFocusableElements = (container: HTMLElement | null) =>
+  container ? Array.from(container.querySelectorAll<HTMLElement>(focusableSelector)) : [];
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -22,9 +35,12 @@ const Modal: React.FC<ModalProps> = ({
   closeOnBackdrop = true,
   closeOnEscape = true,
   showCloseButton = true,
-  className = ''
+  className = '',
+  ariaLabel
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const lastActiveElementRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
 
   const sizeClasses = {
     sm: 'max-w-sm',
@@ -36,20 +52,62 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const activeElement = document.activeElement;
+    lastActiveElementRef.current = activeElement instanceof HTMLElement ? activeElement : null;
+    document.body.style.overflow = 'hidden';
+
+    const focusTimer = window.setTimeout(() => {
+      const [firstFocusable] = getFocusableElements(modalRef.current);
+      (firstFocusable || modalRef.current)?.focus();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      if (lastActiveElementRef.current?.isConnected) {
+        lastActiveElementRef.current.focus();
+      }
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && closeOnEscape) {
         onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = getFocusableElements(modalRef.current);
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      if (!firstFocusable || !lastFocusable) {
+        event.preventDefault();
+        modalRef.current?.focus();
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      if (event.shiftKey && (activeElement === firstFocusable || activeElement === modalRef.current)) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!event.shiftKey && activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose, closeOnEscape]);
 
@@ -88,6 +146,7 @@ const Modal: React.FC<ModalProps> = ({
             bottom: 0
           }}
           onClick={handleBackdropClick}
+          aria-hidden="true"
         />
         
         {/* Modal */}
@@ -104,14 +163,16 @@ const Modal: React.FC<ModalProps> = ({
           }}
           role="dialog"
           aria-modal="true"
-          aria-labelledby={title ? 'modal-title' : undefined}
+          aria-labelledby={title ? titleId : undefined}
+          aria-label={title ? undefined : ariaLabel || 'Dialog'}
+          tabIndex={-1}
         >
           {/* Header */}
           {(title || showCloseButton) && (
             <div className="flex items-center justify-between p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
               {title && (
                 <h3
-                  id="modal-title"
+                  id={titleId}
                   className="text-lg font-medium text-theme-text-primary"
                 >
                   {title}
@@ -119,6 +180,7 @@ const Modal: React.FC<ModalProps> = ({
               )}
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
                   className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
                   aria-label="Close modal"

@@ -1,5 +1,10 @@
 // src/api/quiz.service.ts
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import {
+  isAxiosError,
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+} from 'axios';
 import { QUIZ_ENDPOINTS, RESULT_ENDPOINTS } from '../../../api/endpoints';
 import { 
   CreateQuizRequest,
@@ -15,6 +20,13 @@ import {
   UpdateQuizVisibilityRequest,
   UpdateQuizStatusRequest,
   QuizExportRequest,
+  CreateShareLinkRequest,
+  CreateShareLinkResponse,
+  AttemptDto,
+  AttemptStatsDto,
+  QuizImportRequest,
+  ImportSummaryDto,
+  JobStatistics,
   Difficulty,
   Paginated,
 } from '@/types';
@@ -357,6 +369,213 @@ export class QuizService extends BaseService<QuizDto> {
   }
 
   /**
+   * Archive a quiz.
+   * PATCH /api/v1/quizzes/{quizId}/archive
+   */
+  async archiveQuiz(quizId: string): Promise<QuizDto> {
+    try {
+      const response = await this.axiosInstance.patch<QuizDto>(QUIZ_ENDPOINTS.ARCHIVE(quizId));
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Restore an archived quiz to draft status.
+   * PATCH /api/v1/quizzes/{quizId}/unarchive
+   */
+  async unarchiveQuiz(quizId: string): Promise<QuizDto> {
+    try {
+      const response = await this.axiosInstance.patch<QuizDto>(QUIZ_ENDPOINTS.UNARCHIVE(quizId));
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Submit a quiz for moderation review.
+   * POST /api/v1/quizzes/{quizId}/submit-for-review
+   */
+  async submitQuizForReview(quizId: string): Promise<void> {
+    try {
+      await this.axiosInstance.post(QUIZ_ENDPOINTS.SUBMIT_FOR_REVIEW(quizId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Add a tag to a quiz.
+   * POST /api/v1/quizzes/{quizId}/tags/{tagId}
+   */
+  async addTagToQuiz(quizId: string, tagId: string): Promise<void> {
+    try {
+      await this.axiosInstance.post(QUIZ_ENDPOINTS.ADD_TAG(quizId, tagId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Remove a tag from a quiz.
+   * DELETE /api/v1/quizzes/{quizId}/tags/{tagId}
+   */
+  async removeTagFromQuiz(quizId: string, tagId: string): Promise<void> {
+    try {
+      await this.axiosInstance.delete(QUIZ_ENDPOINTS.REMOVE_TAG(quizId, tagId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Change a quiz's category.
+   * PATCH /api/v1/quizzes/{quizId}/category/{categoryId}
+   */
+  async changeQuizCategory(quizId: string, categoryId: string): Promise<void> {
+    try {
+      await this.axiosInstance.patch(QUIZ_ENDPOINTS.CHANGE_CATEGORY(quizId, categoryId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Create a secure share link for a quiz.
+   * POST /api/v1/quizzes/{quizId}/share-link
+   */
+  async createShareLink(
+    quizId: string,
+    data: CreateShareLinkRequest,
+  ): Promise<CreateShareLinkResponse> {
+    try {
+      const response = await this.axiosInstance.post<CreateShareLinkResponse>(
+        QUIZ_ENDPOINTS.CREATE_SHARE_LINK(quizId),
+        data,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Revoke a secure share link.
+   * DELETE /api/v1/quizzes/shared/{tokenId}
+   */
+  async revokeShareLink(tokenId: string): Promise<void> {
+    try {
+      await this.axiosInstance.delete(QUIZ_ENDPOINTS.DELETE_SHARE_LINK(tokenId));
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * List attempts for a quiz owned by the authenticated user.
+   * GET /api/v1/quizzes/{quizId}/attempts
+   */
+  async getQuizAttempts(quizId: string): Promise<AttemptDto[]> {
+    try {
+      const response = await this.axiosInstance.get<AttemptDto[]>(
+        QUIZ_ENDPOINTS.GET_QUIZ_ATTEMPTS(quizId),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Get owner-visible statistics for an attempt.
+   * GET /api/v1/quizzes/{quizId}/attempts/{attemptId}/stats
+   */
+  async getQuizAttemptStats(quizId: string, attemptId: string): Promise<AttemptStatsDto> {
+    try {
+      const response = await this.axiosInstance.get<AttemptStatsDto>(
+        QUIZ_ENDPOINTS.GET_ATTEMPT_STATS(quizId, attemptId),
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Get aggregate statistics for the authenticated user's generation jobs.
+   * GET /api/v1/quizzes/generation-jobs/statistics
+   */
+  async getGenerationJobStatistics(): Promise<JobStatistics> {
+    try {
+      const response = await this.axiosInstance.get<JobStatistics>(
+        QUIZ_ENDPOINTS.GENERATION_STATISTICS,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Force-cancel a generation job.
+   * POST /api/v1/quizzes/generation-jobs/{jobId}/force-cancel
+   */
+  async forceCancelGenerationJob(jobId: string): Promise<string> {
+    try {
+      const response = await this.axiosInstance.post<string>(QUIZ_ENDPOINTS.FORCE_CANCEL_JOB(jobId));
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Clean up stale generation jobs for the authenticated user.
+   * POST /api/v1/quizzes/generation-jobs/cleanup-stale
+   */
+  async cleanupStaleGenerationJobs(): Promise<string> {
+    try {
+      const response = await this.axiosInstance.post<string>(QUIZ_ENDPOINTS.CLEANUP_STALE_JOBS);
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
+   * Import editable quiz data from a multipart file.
+   * POST /api/v1/quizzes/import
+   */
+  async importQuizzes(data: QuizImportRequest): Promise<ImportSummaryDto> {
+    try {
+      const formData = new FormData();
+      formData.append('file', data.file);
+      formData.append('format', data.format);
+
+      if (data.strategy) formData.append('strategy', data.strategy);
+      if (data.dryRun !== undefined) formData.append('dryRun', String(data.dryRun));
+      if (data.autoCreateTags !== undefined) formData.append('autoCreateTags', String(data.autoCreateTags));
+      if (data.autoCreateCategory !== undefined) {
+        formData.append('autoCreateCategory', String(data.autoCreateCategory));
+      }
+
+      const uploadConfig: AxiosRequestConfig & { _isFileUpload: true } = {
+        _isFileUpload: true,
+      };
+      const response = await this.axiosInstance.post<ImportSummaryDto>(
+        QUIZ_ENDPOINTS.IMPORT,
+        formData,
+        uploadConfig,
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  /**
    * Get public quizzes
    * GET /api/v1/quizzes/public
    */
@@ -477,6 +696,12 @@ export const updateQuiz = (quizId: string, data: UpdateQuizRequest) =>
 
 export const updateQuizStatus = (quizId: string, data: UpdateQuizStatusRequest) => 
   quizService.updateQuizStatus(quizId, data);
+
+export const archiveQuiz = (quizId: string) => quizService.archiveQuiz(quizId);
+
+export const unarchiveQuiz = (quizId: string) => quizService.unarchiveQuiz(quizId);
+
+export const submitQuizForReview = (quizId: string) => quizService.submitQuizForReview(quizId);
 
 export const deleteQuiz = (quizId: string) => quizService.deleteQuiz(quizId);
 
