@@ -622,7 +622,6 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     {
       const page = await (await browser.newContext()).newPage();
       let createdQuizRequest = null;
-      let questionListQuery = null;
 
       try {
         await page.addInitScript(() => {
@@ -637,13 +636,6 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           await fulfillJson(route, { quizId: CREATED_QUIZ_ID });
         });
         await page.route('**/api/v1/questions**', async (route) => {
-          const requestUrl = new URL(route.request().url());
-          questionListQuery = {
-            quizId: requestUrl.searchParams.get('quizId'),
-            pageNumber: requestUrl.searchParams.get('pageNumber'),
-            page: requestUrl.searchParams.get('page'),
-            size: requestUrl.searchParams.get('size'),
-          };
           await fulfillJson(route, {
             content: [],
             totalPages: 0,
@@ -663,6 +655,19 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.locator('input[placeholder="Enter quiz title..."]').fill('E2E Manual Quiz');
         await page.getByLabel('Description').fill('Created through the critical E2E journey.');
         await page.locator('input[type="number"]').fill('15');
+
+        const paginatedQuestionListRequest = page.waitForRequest((request) => {
+          if (request.method() !== 'GET') {
+            return false;
+          }
+
+          const requestUrl = new URL(request.url());
+          return requestUrl.pathname === '/api/v1/questions'
+            && requestUrl.searchParams.get('quizId') === CREATED_QUIZ_ID
+            && requestUrl.searchParams.get('pageNumber') === '0'
+            && requestUrl.searchParams.get('size') === '50';
+        });
+
         await page.getByRole('button', { name: 'Create Quiz & Add Questions' }).click();
         await page.getByRole('heading', { name: 'Add Questions to "E2E Manual Quiz"' }).waitFor();
 
@@ -677,7 +682,13 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           timerDuration: 30,
           tagIds: [],
         });
-        assert.deepEqual(questionListQuery, {
+        const requestUrl = new URL((await paginatedQuestionListRequest).url());
+        assert.deepEqual({
+          quizId: requestUrl.searchParams.get('quizId'),
+          pageNumber: requestUrl.searchParams.get('pageNumber'),
+          page: requestUrl.searchParams.get('page'),
+          size: requestUrl.searchParams.get('size'),
+        }, {
           quizId: CREATED_QUIZ_ID,
           pageNumber: '0',
           page: null,
