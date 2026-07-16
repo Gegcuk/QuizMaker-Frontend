@@ -79,6 +79,7 @@ const main = async () => {
     for (const path of [
       '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
       '/my-quizzes',
+      '/admin',
       '/documents',
     ]) {
       const response = await expectStatus(path, 200);
