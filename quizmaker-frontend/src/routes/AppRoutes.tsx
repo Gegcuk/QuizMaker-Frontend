@@ -60,6 +60,7 @@ const BillingPage = lazy(() => import('../features/billing/components/BillingPag
 const BillingSuccessPage = lazy(() => import('../features/billing/components/BillingSuccessPage'));
 const BillingCancelPage = lazy(() => import('../features/billing/components/BillingCancelPage'));
 const MyAttemptsPage = lazy(() => import('../pages/MyAttemptsPage'));
+const AdminWorkspacePage = lazy(() => import('../pages/AdminWorkspacePage'));
 
 /* ----------  Misc  ------------------------------------------------------- */
 import NotFoundPage from '../pages/NotFoundPage';
@@ -179,6 +180,10 @@ const AppRoutes: React.FC = () => {
         <Route
           path="/bug-reports"
           element={protectedRoute(<BugReportManagementPage />, ['ROLE_SUPER_ADMIN'])}
+        />
+        <Route
+          path="/admin"
+          element={protectedRoute(<AdminWorkspacePage />, ['ROLE_MODERATOR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'])}
         />
 
         {/* Document Management Routes */}
