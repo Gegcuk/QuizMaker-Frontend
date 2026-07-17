@@ -68,6 +68,10 @@ const main = async () => {
 
     const homepage = await expectStatus('/', 200);
     assert.match(homepage.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
+    assert.match(homepage.headers.get('cache-control') || '', /no-cache/);
+
+    const appShell = await expectStatus('/index.html', 200);
+    assert.match(appShell.headers.get('cache-control') || '', /no-cache/);
 
     for (const path of [
       '/login',
