@@ -5,6 +5,7 @@
 
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { QuestionForAttemptDto } from '../types/attempt.types';
+import type { QuestionItemMedia } from '@/types';
 
 interface MatchingPair {
   leftId: number;
@@ -17,7 +18,8 @@ interface MatchingAnswerValue {
 
 interface MatchingItem {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
 }
 
 interface MatchingCorrectAnswer {
@@ -85,6 +87,19 @@ const PAIR_STYLES: PairStyle[] = [
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
+const toMediaReference = (value: unknown): QuestionItemMedia | undefined => {
+  if (!isRecord(value) || typeof value.assetId !== 'string') {
+    return undefined;
+  }
+
+  return typeof value.cdnUrl === 'string'
+    ? { assetId: value.assetId, cdnUrl: value.cdnUrl }
+    : { assetId: value.assetId };
+};
+
+const getMediaUrl = (media?: QuestionItemMedia) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
+
 const normalizeItems = (items: unknown): MatchingItem[] => {
   if (!Array.isArray(items)) {
     return [];
@@ -103,6 +118,7 @@ const normalizeItems = (items: unknown): MatchingItem[] => {
     acc.push({
       id,
       text: String(item.text ?? ''),
+      media: toMediaReference(item.media),
     });
 
     return acc;
@@ -365,6 +381,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     const isMatched = matchedRightId !== null;
     const matchIsCorrect = matchedRightId !== null ? isMatchCorrect(item.id, matchedRightId) : false;
     const correctRightId = getCorrectRightId(item.id);
+    const mediaUrl = getMediaUrl(item.media);
+    const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
 
     let borderColor = 'border-theme-border-primary';
     let bgColor = 'bg-theme-bg-primary';
@@ -414,7 +432,19 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
             <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${badgeColor}`}>
               {getLeftNumber(item.id)}
             </span>
-            <span className="text-sm text-theme-text-primary">{item.text}</span>
+            <div className="min-w-0 space-y-2 text-sm text-theme-text-primary">
+              {mediaUrl && (
+                <img
+                  src={mediaUrl}
+                  alt={`Left item ${getLeftNumber(item.id)} media`}
+                  className="h-16 w-auto rounded-md border border-theme-border-primary"
+                />
+              )}
+              {!mediaUrl && isMediaMissing && !item.text?.trim() && (
+                <div className="text-theme-text-tertiary">Image unavailable.</div>
+              )}
+              <div>{item.text || (mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : `Left item ${getLeftNumber(item.id)}`)}</div>
+            </div>
           </div>
           {canShowPairFeedback && matchIsCorrect && (
             <span className="text-theme-interactive-success">✓</span>
@@ -437,6 +467,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     const isMatched = matchedLeftId !== null;
     const matchIsCorrect = matchedLeftId !== null ? isMatchCorrect(matchedLeftId, item.id) : false;
     const correctRightItem = isCorrectRightItem(item.id);
+    const mediaUrl = getMediaUrl(item.media);
+    const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
 
     let borderColor = 'border-theme-border-primary';
     let bgColor = selectedLeft !== null ? 'bg-theme-bg-primary' : 'bg-theme-bg-secondary';
@@ -482,7 +514,19 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
             <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${badgeColor}`}>
               {getRightOptionLabel(item.id)}
             </span>
-            <span className="text-sm text-theme-text-primary">{item.text}</span>
+            <div className="min-w-0 space-y-2 text-sm text-theme-text-primary">
+              {mediaUrl && (
+                <img
+                  src={mediaUrl}
+                  alt={`Option ${getRightOptionLabel(item.id)} media`}
+                  className="h-16 w-auto rounded-md border border-theme-border-primary"
+                />
+              )}
+              {!mediaUrl && isMediaMissing && !item.text?.trim() && (
+                <div className="text-theme-text-tertiary">Image unavailable.</div>
+              )}
+              <div>{item.text || (mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : `Option ${getRightOptionLabel(item.id)}`)}</div>
+            </div>
           </div>
           {canShowPairFeedback && matchIsCorrect && (
             <span className="text-theme-interactive-success">✓</span>

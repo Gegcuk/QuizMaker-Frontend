@@ -12,7 +12,14 @@ import {
   QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { updateQuiz, updateQuizStatus, QuestionService, api } from '@/services';
+import {
+  archiveQuiz,
+  unarchiveQuiz,
+  updateQuiz,
+  updateQuizStatus,
+  QuestionService,
+  api,
+} from '@/services';
 import { useToast } from '@/components';
 import { useAuth } from '@/features/auth';
 import { useQuiz, useQuizStats, useQuizLeaderboard, useDeleteQuiz } from '@/features/quiz/hooks/useQuizQueries';
@@ -132,7 +139,13 @@ const QuizDetailPage: React.FC = () => {
   const handleStatusChange = async (newStatus: QuizStatus) => {
     if (!quizId) return;
     try {
-      await updateQuizStatus(quizId, { status: newStatus });
+      if (newStatus === 'ARCHIVED') {
+        await archiveQuiz(quizId);
+      } else if (quiz?.status === 'ARCHIVED' && newStatus === 'DRAFT') {
+        await unarchiveQuiz(quizId);
+      } else {
+        await updateQuizStatus(quizId, { status: newStatus });
+      }
       addToast({ type: 'success', message: `Quiz ${newStatus.toLowerCase()} successfully.` });
       setShowPublishModal(false);
       // Refetch quiz data to update UI with new status

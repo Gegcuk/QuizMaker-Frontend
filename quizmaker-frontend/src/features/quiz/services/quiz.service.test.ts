@@ -6,6 +6,11 @@ import type {
   QuizDto,
   QuizGenerationResponse,
   QuizGenerationStatus,
+  AttemptDto,
+  AttemptStatsDto,
+  CreateShareLinkResponse,
+  ImportSummaryDto,
+  JobStatistics,
   QuizResultSummaryDto,
 } from '@/types';
 import { QuizService } from './quiz.service';
@@ -274,6 +279,164 @@ describe('QuizService', () => {
       params: { format: 'JSON_EDITABLE', quizIds: ['quiz-1'] },
       responseType: 'blob',
     });
+  });
+
+  it('uses the dedicated archive, restore, and moderation-review lifecycle routes', async () => {
+    axios.patch
+      .mockResolvedValueOnce({ data: { ...quiz, status: 'ARCHIVED' } })
+      .mockResolvedValueOnce({ data: quiz });
+    axios.post.mockResolvedValue({ data: undefined });
+
+    await expect(service.archiveQuiz('quiz-1')).resolves.toMatchObject({ status: 'ARCHIVED' });
+    await expect(service.unarchiveQuiz('quiz-1')).resolves.toBe(quiz);
+    await expect(service.submitQuizForReview('quiz-1')).resolves.toBeUndefined();
+
+    expect(axios.patch).toHaveBeenNthCalledWith(1, '/v1/quizzes/quiz-1/archive');
+    expect(axios.patch).toHaveBeenNthCalledWith(2, '/v1/quizzes/quiz-1/unarchive');
+    expect(axios.post).toHaveBeenCalledWith('/v1/quizzes/quiz-1/submit-for-review');
+  });
+
+  it('changes quiz taxonomy through the documented no-content endpoints', async () => {
+    axios.post.mockResolvedValue({ data: undefined });
+    axios.patch.mockResolvedValue({ data: undefined });
+    axios.delete.mockResolvedValue({ data: undefined });
+
+    await service.addTagToQuiz('quiz-1', 'tag-1');
+    await service.removeTagFromQuiz('quiz-1', 'tag-1');
+    await service.changeQuizCategory('quiz-1', 'category-1');
+
+    expect(axios.post).toHaveBeenCalledWith('/v1/quizzes/quiz-1/tags/tag-1');
+    expect(axios.delete).toHaveBeenCalledWith('/v1/quizzes/quiz-1/tags/tag-1');
+    expect(axios.patch).toHaveBeenCalledWith('/v1/quizzes/quiz-1/category/category-1');
+  });
+
+  it('creates and revokes share links without putting the quiz ID in the body', async () => {
+    const shareLink: CreateShareLinkResponse = {
+      token: 'raw-token',
+      link: {
+        id: 'link-1',
+        quizId: 'quiz-1',
+        createdBy: 'user-1',
+        scope: 'QUIZ_ATTEMPT_START',
+        oneTime: true,
+        createdAt: '2026-07-15T10:00:00Z',
+      },
+    };
+    axios.post.mockResolvedValue({ data: shareLink });
+    axios.delete.mockResolvedValue({ data: undefined });
+
+    await expect(
+      service.createShareLink('quiz-1', {
+        scope: 'QUIZ_ATTEMPT_START',
+        oneTime: true,
+      }),
+    ).resolves.toBe(shareLink);
+    await service.revokeShareLink('link-1');
+
+    expect(axios.post).toHaveBeenCalledWith('/v1/quizzes/quiz-1/share-link', {
+      scope: 'QUIZ_ATTEMPT_START',
+      oneTime: true,
+    });
+    expect(axios.delete).toHaveBeenCalledWith('/v1/quizzes/shared/link-1');
+  });
+
+  it('retrieves owner attempt data and documented generation statistics', async () => {
+    const attempts: AttemptDto[] = [{
+      attemptId: 'attempt-1',
+      quizId: 'quiz-1',
+      userId: 'user-2',
+      startedAt: '2026-07-15T10:00:00Z',
+      status: 'COMPLETED',
+      mode: 'ONE_BY_ONE',
+    }];
+    const attemptStats: AttemptStatsDto = {
+      attemptId: 'attempt-1',
+      totalTime: 'PT5M',
+      averageTimePerQuestion: 'PT1M',
+      questionsAnswered: 5,
+      correctAnswers: 4,
+      accuracyPercentage: 80,
+      completionPercentage: 100,
+      questionTimings: [],
+      startedAt: '2026-07-15T10:00:00Z',
+      completedAt: '2026-07-15T10:05:00Z',
+    };
+    const jobStatistics: JobStatistics = {
+      totalJobs: 3,
+      completedJobs: 2,
+      failedJobs: 1,
+      activeJobs: 0,
+      averageGenerationTimeSeconds: 42,
+    };
+    axios.get
+      .mockResolvedValueOnce({ data: attempts })
+      .mockResolvedValueOnce({ data: attemptStats })
+      .mockResolvedValueOnce({ data: jobStatistics });
+
+    await expect(service.getQuizAttempts('quiz-1')).resolves.toBe(attempts);
+    await expect(service.getQuizAttemptStats('quiz-1', 'attempt-1')).resolves.toBe(attemptStats);
+    await expect(service.getGenerationJobStatistics()).resolves.toBe(jobStatistics);
+
+    expect(axios.get).toHaveBeenNthCalledWith(1, '/v1/quizzes/quiz-1/attempts');
+    expect(axios.get).toHaveBeenNthCalledWith(2, '/v1/quizzes/quiz-1/attempts/attempt-1/stats');
+    expect(axios.get).toHaveBeenNthCalledWith(3, '/v1/quizzes/generation-jobs/statistics');
+  });
+
+  it('runs documented generation maintenance operations', async () => {
+    axios.post
+      .mockResolvedValueOnce({ data: 'Job cancelled' })
+      .mockResolvedValueOnce({ data: 'Cleaned up 2 stale jobs' });
+
+    await expect(service.forceCancelGenerationJob('job-1')).resolves.toBe('Job cancelled');
+    await expect(service.cleanupStaleGenerationJobs()).resolves.toBe('Cleaned up 2 stale jobs');
+
+    expect(axios.post).toHaveBeenNthCalledWith(1, '/v1/quizzes/generation-jobs/job-1/force-cancel');
+    expect(axios.post).toHaveBeenNthCalledWith(2, '/v1/quizzes/generation-jobs/cleanup-stale');
+  });
+
+  it('serializes quiz imports as multipart data and returns the import summary', async () => {
+    const file = new File(['{"title":"Architecture Quiz"}'], 'quiz.json', {
+      type: 'application/json',
+    });
+    const summary: ImportSummaryDto = {
+      total: 1,
+      created: 1,
+      updated: 0,
+      skipped: 0,
+      failed: 0,
+      errors: [],
+    };
+    axios.post.mockResolvedValue({ data: summary });
+
+    await expect(
+      service.importQuizzes({
+        file,
+        format: 'JSON_EDITABLE',
+        strategy: 'UPSERT_BY_ID',
+        dryRun: true,
+        autoCreateTags: false,
+        autoCreateCategory: true,
+      }),
+    ).resolves.toBe(summary);
+
+    const [url, formData, config] = axios.post.mock.calls[0];
+    expect(url).toBe('/v1/quizzes/import');
+    expect(formData).toBeInstanceOf(FormData);
+    expect(Array.from((formData as FormData).entries())).toEqual([
+      ['file', file],
+      ['format', 'JSON_EDITABLE'],
+      ['strategy', 'UPSERT_BY_ID'],
+      ['dryRun', 'true'],
+      ['autoCreateTags', 'false'],
+      ['autoCreateCategory', 'true'],
+    ]);
+    expect(config).toEqual({ _isFileUpload: true });
+  });
+
+  it('normalizes authorization failures for lifecycle mutations', async () => {
+    axios.patch.mockRejectedValue(problemError(403, 'You do not own this quiz.'));
+
+    await expect(service.archiveQuiz('quiz-1')).rejects.toThrow('Insufficient permissions');
   });
 
   it('preserves validation and conflict ProblemDetail text', async () => {

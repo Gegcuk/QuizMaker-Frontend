@@ -61,4 +61,25 @@ describe('Navbar', () => {
     await user.click(screen.getByRole('button', { name: 'Logout' }));
     expect(authMocks.logout).toHaveBeenCalledOnce();
   });
+
+  it('only exposes the administration entry point to moderation roles', () => {
+    authMocks.useAuth.mockReturnValue({
+      isLoggedIn: true,
+      user: { roles: ['ROLE_MODERATOR'] },
+      logout: authMocks.logout,
+    });
+    const moderatorView = renderWithProviders(<Navbar />, { withAuthProvider: false });
+
+    expect(screen.getByRole('link', { name: 'Administration' })).toHaveAttribute('href', '/admin');
+
+    moderatorView.unmount();
+    authMocks.useAuth.mockReturnValue({
+      isLoggedIn: true,
+      user: { roles: ['ROLE_USER'] },
+      logout: authMocks.logout,
+    });
+    renderWithProviders(<Navbar />, { withAuthProvider: false });
+
+    expect(screen.queryByRole('link', { name: 'Administration' })).not.toBeInTheDocument();
+  });
 });

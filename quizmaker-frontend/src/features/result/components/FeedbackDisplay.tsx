@@ -22,6 +22,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   const score = result.totalQuestions > 0 ? (result.totalScore / result.totalQuestions) * 100 : 0;
   const incorrectAnswers = answers.filter(answer => !answer.isCorrect);
   const correctAnswers = answers.filter(answer => answer.isCorrect);
+  const answerSuccessRate = answers.length > 0 ? (correctAnswers.length / answers.length) * 100 : 0;
 
   const getPerformanceLevel = (percentage: number): string => {
     if (percentage >= 90) return 'excellent';
@@ -186,7 +187,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
             <div className="text-2xl font-bold text-theme-interactive-success">{correctAnswers.length}</div>
             <div className="text-sm text-theme-interactive-success font-medium">Correct Answers</div>
             <div className="text-xs text-theme-interactive-success mt-1">
-              {Math.round((correctAnswers.length / answers.length) * 100)}% success rate
+              {Math.round(answerSuccessRate)}% success rate
             </div>
           </div>
         </div>

@@ -25,6 +25,18 @@ export const ADMIN_ENDPOINTS = {
   POLICY_STATUS: '/v1/admin/policy/status',
   POLICY_VERSION: '/v1/admin/policy/version',
   POLICY_RECONCILE_ROLE: (roleName: string) => `/v1/admin/policy/reconcile/${roleName}`,
+
+  // Email diagnostics
+  EMAIL_PROVIDER_STATUS: '/v1/admin/email/provider-status',
+  TEST_PASSWORD_RESET_EMAIL: '/v1/admin/email/test-password-reset',
+  TEST_VERIFICATION_EMAIL: '/v1/admin/email/test-verification',
+
+  // Quiz moderation
+  PENDING_REVIEW_QUIZZES: '/v1/admin/quizzes/pending-review',
+  QUIZ_AUDITS: (quizId: string) => `/v1/admin/quizzes/${quizId}/audits`,
+  APPROVE_QUIZ: (quizId: string) => `/v1/admin/quizzes/${quizId}/approve`,
+  REJECT_QUIZ: (quizId: string) => `/v1/admin/quizzes/${quizId}/reject`,
+  UNPUBLISH_QUIZ: (quizId: string) => `/v1/admin/quizzes/${quizId}/unpublish`,
 } as const;
 
 /**

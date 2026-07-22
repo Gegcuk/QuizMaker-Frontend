@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useId } from 'react';
 
 export interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
@@ -32,7 +32,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
+  const externalErrorId = `${inputId}-error`;
+  const validationErrorsId = `${inputId}-validation-errors`;
+  const describedBy = [
+    error ? externalErrorId : undefined,
+    errors.length > 0 ? validationErrorsId : undefined,
+  ].filter(Boolean).join(' ') || undefined;
 
   const validateFile = (file: File): string | null => {
     if (maxSize && file.size > maxSize) {
@@ -96,7 +102,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
+    if (!disabled && files) {
       handleFileSelect(files);
     }
   };
@@ -125,12 +131,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  const handleClick = () => {
-    if (!disabled) {
-      fileInputRef.current?.click();
-    }
-  };
-
   const removeFile = (index: number) => {
     const updatedFiles = selectedFiles.filter((_, i) => i !== index);
     setSelectedFiles(updatedFiles);
@@ -147,21 +147,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <div className="space-y-4">
-      <div
+      <label
+        htmlFor={inputId}
         className={baseClasses}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={handleClick}
+        aria-disabled={disabled || undefined}
       >
         <input
-          ref={fileInputRef}
+          id={inputId}
           type="file"
           multiple={multiple}
           accept={accept}
           onChange={handleInputChange}
-          className="hidden"
+          className="sr-only"
           disabled={disabled}
+          aria-describedby={describedBy}
         />
         
         <div className="space-y-2">
@@ -202,17 +204,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
             </p>
           )}
         </div>
-      </div>
+      </label>
 
       {/* Error Messages */}
       {error && (
-        <div className="text-sm text-theme-interactive-danger">
+        <div id={externalErrorId} className="text-sm text-theme-interactive-danger" role="alert">
           {error}
         </div>
       )}
       
       {errors.length > 0 && (
-        <div className="space-y-1">
+        <div id={validationErrorsId} className="space-y-1" role="alert">
           {errors.map((error, index) => (
             <div key={index} className="text-sm text-theme-interactive-danger">
               {error}
@@ -244,6 +246,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                   type="button"
                   onClick={() => removeFile(index)}
                   className="text-theme-interactive-danger hover:text-theme-interactive-danger"
+                  aria-label={`Remove ${file.name}`}
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -258,4 +261,4 @@ const FileUpload: React.FC<FileUploadProps> = ({
   );
 };
 
-export default FileUpload; 
+export default FileUpload;

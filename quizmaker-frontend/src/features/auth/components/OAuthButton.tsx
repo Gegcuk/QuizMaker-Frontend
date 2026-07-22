@@ -95,7 +95,7 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
     // Redirect directly to the OAuth authorization endpoint
     // Spring Security OAuth2 expects a browser redirect, not an API call
     // Note: OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
-    window.location.href = `/oauth2/authorization/${provider.toLowerCase()}`;
+    window.location.href = authService.getOAuthAuthorizationUrl(provider);
   };
 
   const buttonText = `${actionText} ${config.name}`;

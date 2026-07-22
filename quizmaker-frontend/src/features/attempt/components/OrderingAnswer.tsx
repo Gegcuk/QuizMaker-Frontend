@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { QuestionForAttemptDto } from '@/types';
+import { QuestionForAttemptDto, QuestionItemMedia } from '@/types';
 import { Button } from '@/components';
 
 interface OrderingAnswerProps {
@@ -21,8 +21,15 @@ interface OrderingAnswerProps {
 
 interface OrderingItem {
   id: number;
-  text: string;
+  text?: string;
+  media?: QuestionItemMedia;
 }
+
+const getMediaUrl = (media?: QuestionItemMedia) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
+
+const getItemLabel = (item: OrderingItem, fallback: string) =>
+  item.text?.trim() || (getMediaUrl(item.media) ? 'Image item' : item.media?.assetId ? 'Image unavailable' : fallback);
 
 const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
   question,
@@ -160,6 +167,8 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
       {/* Ordering List */}
       <div className="space-y-2">
         {orderedItems.map((item, index) => {
+          const mediaUrl = getMediaUrl(item.media);
+          const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
           // Determine if this item is in the correct position
           let isInCorrectPosition = false;
           let correctPosition = -1;
@@ -220,8 +229,18 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
             </div>
 
               {/* Item Text */}
-              <div className="flex-1 text-theme-text-primary">
-                {item.text}
+              <div className="min-w-0 flex-1 space-y-2 text-theme-text-primary">
+                {mediaUrl && (
+                  <img
+                    src={mediaUrl}
+                    alt={`Ordering item ${index + 1} media`}
+                    className="h-16 w-auto rounded-md border border-theme-border-primary"
+                  />
+                )}
+                {!mediaUrl && isMediaMissing && !item.text?.trim() && (
+                  <div className="text-sm text-theme-text-tertiary">Image unavailable.</div>
+                )}
+                <div>{getItemLabel(item, `Item ${index + 1}`)}</div>
                 {showFeedback && isInCorrectPosition && (
                   <span className="ml-2 text-theme-interactive-success">✓</span>
                 )}
@@ -267,9 +286,10 @@ const OrderingAnswer: React.FC<OrderingAnswerProps> = ({
       {/* Progress Indicator */}
       <div className="p-3 bg-theme-bg-secondary border border-theme-border-primary rounded-md bg-theme-bg-primary text-theme-text-primary">
         <div className="text-sm text-theme-text-secondary">
-          <strong>Current Order:</strong> {orderedItems.map((item, index) => 
-            `${index + 1}. ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`
-          ).join(' → ')}
+          <strong>Current Order:</strong> {orderedItems.map((item, index) => {
+            const label = getItemLabel(item, `Item ${index + 1}`);
+            return `${index + 1}. ${label.substring(0, 30)}${label.length > 30 ? '...' : ''}`;
+          }).join(' → ')}
         </div>
       </div>
     </div>

@@ -12,5 +12,8 @@ export type {
   PolicyDiff,
   Page,
   PermissionName,
-  RoleName
+  RoleName,
+  EmailProviderStatus,
+  PendingReviewQuizDto,
+  QuizModerationAuditDto,
 } from './types/admin.types';

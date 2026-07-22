@@ -311,7 +311,6 @@ export type ShareLinkScope = 'QUIZ_VIEW' | 'QUIZ_ATTEMPT_START';
  * Matches CreateShareLinkRequest from API
  */
 export interface CreateShareLinkRequest {
-  quizId: string;                          // Quiz UUID
   scope: ShareLinkScope;                   // Link scope
   expiresAt?: string;                      // Optional expiry (ISO date-time)
   oneTime?: boolean;                       // Optional one-time use flag
@@ -322,8 +321,8 @@ export interface CreateShareLinkRequest {
  * Matches CreateShareLinkResponse from API
  */
 export interface CreateShareLinkResponse {
-  token: string;                           // Share token
-  shareUrl: string;                        // Full share URL
+  link?: ShareLinkDto;                     // Share link descriptor
+  token?: string;                          // Raw share token, returned only on creation
 }
 
 /**
@@ -339,6 +338,67 @@ export interface ShareLinkDto {
   oneTime: boolean;                        // One-time use flag
   revokedAt?: string;                      // Revoked at (ISO date-time)
   createdAt: string;                       // Created at (ISO date-time)
+}
+
+/**
+ * Summary returned after importing quizzes.
+ * Matches ImportSummaryDto from the live Quizzes OpenAPI group.
+ */
+export interface ImportSummaryDto {
+  total?: number;
+  created?: number;
+  updated?: number;
+  skipped?: number;
+  failed?: number;
+  errors?: ImportErrorDto[];
+}
+
+/**
+ * One item-level import failure.
+ * Matches ImportErrorDto from the live Quizzes OpenAPI group.
+ */
+export interface ImportErrorDto {
+  index?: number;
+  itemId?: string;
+  field?: string;
+  message?: string;
+  code?: string;
+}
+
+/**
+ * Import strategy accepted by the quiz import endpoint.
+ */
+export type QuizImportStrategy =
+  | 'CREATE_ONLY'
+  | 'UPSERT_BY_ID'
+  | 'UPSERT_BY_CONTENT_HASH'
+  | 'SKIP_ON_DUPLICATE';
+
+/**
+ * Client-side input for the multipart quiz import endpoint.
+ */
+export interface QuizImportRequest {
+  file: File;
+  format: QuizExportFormat;
+  strategy?: QuizImportStrategy;
+  dryRun?: boolean;
+  autoCreateTags?: boolean;
+  autoCreateCategory?: boolean;
+}
+
+/**
+ * Aggregate generation-job statistics.
+ * Matches JobStatistics from the live Quizzes OpenAPI group.
+ */
+export interface JobStatistics {
+  totalJobs?: number;
+  completedJobs?: number;
+  failedJobs?: number;
+  cancelledJobs?: number;
+  activeJobs?: number;
+  averageGenerationTimeSeconds?: number;
+  totalQuestionsGenerated?: number;
+  lastJobCreated?: string;
 }
 
 /**

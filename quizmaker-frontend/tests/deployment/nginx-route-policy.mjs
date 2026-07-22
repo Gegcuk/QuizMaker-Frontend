@@ -66,13 +66,29 @@ const main = async () => {
 
     await waitForServer();
 
+    const homepage = await expectStatus('/', 200);
+    assert.match(homepage.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
+    assert.match(homepage.headers.get('cache-control') || '', /no-cache/);
+
+    const appShell = await expectStatus('/index.html', 200);
+    assert.match(appShell.headers.get('cache-control') || '', /no-cache/);
+
     for (const path of [
-      '/',
       '/login',
-      '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
       '/blog/retrieval-practice-template/',
     ]) {
       await expectStatus(path, 200);
+    }
+
+    for (const path of [
+      '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
+      '/my-quizzes',
+      '/admin',
+      '/documents',
+    ]) {
+      const response = await expectStatus(path, 200);
+      assert.match(response.headers.get('x-robots-tag') || '', /noindex, nofollow/);
+      assert.match(response.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
     }
 
     const canonicalArticle = await expectStatus('/blog/retrieval-practice-template', 301);
@@ -84,6 +100,7 @@ const main = async () => {
     ]) {
       const response = await expectStatus(path, 404);
       assert.match(response.headers.get('x-robots-tag') || '', /noindex/);
+      assert.match(response.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
       assert.match(response.headers.get('content-type') || '', /^text\/html/);
       const body = await response.text();
       assert.match(body, /<div id="root"><\/div>/);

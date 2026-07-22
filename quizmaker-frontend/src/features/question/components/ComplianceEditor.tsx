@@ -4,8 +4,9 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { ComplianceContent, ComplianceStatement } from '@/types';
+import { ComplianceContent, ComplianceStatement, MediaRefDto } from '@/types';
 import { InstructionsModal, AddItemButton, QuestionPreviewSection, ItemManagementContainer, Textarea, Button, Radio, Checkbox } from '@/components';
+import { MediaPicker } from '@/features/media';
 
 interface ComplianceEditorProps {
   content: ComplianceContent;
@@ -16,6 +17,9 @@ interface ComplianceEditorProps {
 
 const MIN_COMPLIANCE_STATEMENTS = 2;
 const MAX_COMPLIANCE_STATEMENTS = 6;
+
+const getMediaUrl = (media?: ComplianceStatement['media']) =>
+  media && 'cdnUrl' in media ? media.cdnUrl : undefined;
 
 const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
   content,
@@ -66,9 +70,15 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
     ));
   };
 
+  const updateStatementMedia = (id: number, media: MediaRefDto | null) => {
+    setStatements(prev => prev.map(statement =>
+      statement.id === id ? { ...statement, media: media ?? undefined } : statement
+    ));
+  };
+
   const getCompliantCount = () => statements.filter(s => s.compliant).length;
   const getNonCompliantCount = () => statements.filter(s => !s.compliant).length;
-  const getEmptyStatements = () => statements.filter(s => !s.text.trim());
+  const getEmptyStatements = () => statements.filter(s => !s.text?.trim() && !s.media?.assetId);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -97,7 +107,7 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
             {/* Statement Text */}
             <div className="flex-1">
               <Textarea
-                value={statement.text}
+                value={statement.text || ''}
                 onChange={(e) => updateStatementText(statement.id, e.target.value)}
                 placeholder="Enter statement text..."
                 rows={1}
@@ -107,6 +117,14 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                 data-compliance-statement
               />
             </div>
+
+            <MediaPicker
+              value={(statement.media as MediaRefDto | undefined) || null}
+              onChange={(media) => updateStatementMedia(statement.id, media)}
+              label="Statement image"
+              helperText="Optional. An image can be used instead of statement text."
+              uploadLabel="Upload image"
+            />
 
             {/* Compliance Toggle + Delete Button */}
             <div className="flex items-start sm:items-center justify-between gap-3 pl-1">
@@ -176,9 +194,19 @@ const ComplianceEditor: React.FC<ComplianceEditorProps> = ({
                 label=""
                 className="mt-1"
               />
-              <span className="text-sm">
-                {statement.text || `Statement ${statement.id}`}
-              </span>
+              <div className="min-w-0 space-y-2 text-sm">
+                {getMediaUrl(statement.media) && (
+                  <img
+                    src={getMediaUrl(statement.media)}
+                    alt={`Statement ${statement.id} media`}
+                    className="h-10 w-auto rounded-md border border-theme-border-primary"
+                  />
+                )}
+                {!getMediaUrl(statement.media) && statement.media?.assetId && !statement.text?.trim() && (
+                  <span className="text-theme-text-tertiary">Image unavailable.</span>
+                )}
+                {statement.text || (getMediaUrl(statement.media) ? 'Image statement' : `Statement ${statement.id}`)}
+              </div>
             </div>
           ))}
         </div>

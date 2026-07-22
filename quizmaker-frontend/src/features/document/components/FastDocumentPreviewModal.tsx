@@ -34,7 +34,7 @@ const MAX_CHARACTERS = 100000;
 
 export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> = ({
   file,
-  initialSelection = [],
+  initialSelection,
   onConfirm,
   onCancel
 }) => {
@@ -42,10 +42,14 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
   const imageUrlRef = useRef<string | null>(null);
   const isCancelledRef = useRef(false);
   
+  const initialSelectionKey = useMemo(
+    () => [...new Set(initialSelection ?? [])].sort((first, second) => first - second).join(','),
+    [initialSelection],
+  );
   const [pages, setPages] = useState<DocumentPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPageNumbers, setSelectedPageNumbers] = useState<Set<number>>(
-    initialSelection.length > 0 ? new Set(initialSelection) : new Set()
+    () => new Set(initialSelection ?? [])
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -88,12 +92,10 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
     };
   }, [file]);
 
-  // Sync selectedPageNumbers with initialSelection when it changes
+  // Sync the selection only when its values change, not when a caller omits the optional prop.
   useEffect(() => {
-    setSelectedPageNumbers(
-      initialSelection.length > 0 ? new Set(initialSelection) : new Set()
-    );
-  }, [initialSelection]);
+    setSelectedPageNumbers(new Set(initialSelection ?? []));
+  }, [initialSelectionKey]);
 
   const loadDocument = async () => {
     setIsLoading(true);

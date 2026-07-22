@@ -50,6 +50,7 @@ export type {
   Pageable as QuestionPageable,
   Page as QuestionPage,
   // Question content types based on question_controller.md
+  QuestionItemMedia,
   McqOption,
   McqSingleContent,
   McqMultiContent,

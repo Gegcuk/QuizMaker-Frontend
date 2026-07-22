@@ -31,6 +31,7 @@ const Rating: React.FC<RatingProps> = ({
 }) => {
   const [hoverValue, setHoverValue] = useState<number | null>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const isInteractive = !readOnly && Boolean(onChange);
 
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -49,7 +50,7 @@ const Rating: React.FC<RatingProps> = ({
   const getIcon = (filled: boolean, halfFilled: boolean = false) => {
     const baseClasses = `${sizeClasses[size]} ${
       filled ? 'text-theme-text-tertiary' : 'text-theme-text-tertiary'
-    } ${!readOnly ? 'cursor-pointer hover:text-theme-interactive-warning' : ''}`;
+    } ${isInteractive ? 'cursor-pointer hover:text-theme-interactive-warning' : ''}`;
 
     if (icon === 'star') {
       return (
@@ -107,9 +108,9 @@ const Rating: React.FC<RatingProps> = ({
 
     if (icon === 'custom' && customIcon) {
       return (
-        <div className={baseClasses}>
+        <span className={baseClasses}>
           {customIcon}
-        </div>
+        </span>
       );
     }
 
@@ -129,7 +130,7 @@ const Rating: React.FC<RatingProps> = ({
   };
 
   const handleClick = (clickedValue: number) => {
-    if (readOnly) return;
+    if (!isInteractive) return;
 
     if (clearable && clickedValue === value) {
       onChange?.(0);
@@ -139,13 +140,13 @@ const Rating: React.FC<RatingProps> = ({
   };
 
   const handleMouseEnter = (hoverValue: number) => {
-    if (readOnly) return;
+    if (!isInteractive) return;
     setHoverValue(hoverValue);
     setIsHovering(true);
   };
 
   const handleMouseLeave = () => {
-    if (readOnly) return;
+    if (!isInteractive) return;
     setHoverValue(null);
     setIsHovering(false);
   };
@@ -156,6 +157,8 @@ const Rating: React.FC<RatingProps> = ({
     <div className={`flex items-center ${className}`}>
       <div
         className="flex items-center"
+        role={isInteractive ? 'radiogroup' : 'img'}
+        aria-label={`Rating: ${getRatingLabel(value)}`}
         onMouseLeave={handleMouseLeave}
       >
         {Array.from({ length: max }, (_, index) => {
@@ -164,23 +167,42 @@ const Rating: React.FC<RatingProps> = ({
           const isHalfFilled = halfRatings && displayValue !== null && 
             starValue - 0.5 <= displayValue && displayValue < starValue;
 
+          const ratingIcon = (
+            <>
+              {getIcon(isFilled, isHalfFilled)}
+              {halfRatings && (
+                <span
+                  className="absolute inset-0 overflow-hidden"
+                  style={{ width: isHalfFilled ? '50%' : '0%' }}
+                  aria-hidden="true"
+                >
+                  {getIcon(true)}
+                </span>
+              )}
+            </>
+          );
+
+          if (!isInteractive) {
+            return (
+              <span key={index} className="relative inline-flex" aria-hidden="true">
+                {ratingIcon}
+              </span>
+            );
+          }
+
           return (
-            <div
+            <button
               key={index}
-              className="relative"
+              type="button"
+              role="radio"
+              aria-checked={starValue === value}
+              aria-label={`Set rating to ${starValue} out of ${max}`}
+              className="relative inline-flex rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary"
               onMouseEnter={() => handleMouseEnter(starValue)}
               onClick={() => handleClick(starValue)}
             >
-              {getIcon(isFilled, isHalfFilled)}
-              {halfRatings && (
-                <div
-                  className="absolute inset-0 overflow-hidden"
-                  style={{ width: isHalfFilled ? '50%' : '0%' }}
-                >
-                  {getIcon(true)}
-                </div>
-              )}
-            </div>
+              {ratingIcon}
+            </button>
           );
         })}
       </div>
@@ -203,4 +225,4 @@ const Rating: React.FC<RatingProps> = ({
   );
 };
 
-export default Rating; 
+export default Rating;

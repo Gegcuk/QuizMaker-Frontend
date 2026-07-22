@@ -166,4 +166,37 @@ describe('OrderingEditor', () => {
       expect(getLastChange(onChange)?.items.map((item) => item.id)).toEqual([1, 2, 3]);
     });
   });
+
+  it('preserves a media-only ordering item for submission', async () => {
+    const onChange = vi.fn();
+    const mediaContent: OrderingContent = {
+      items: [
+        {
+          id: 1,
+          media: {
+            assetId: 'ordering-image',
+            cdnUrl: 'https://cdn.example.test/ordering.png',
+          },
+        },
+        { id: 2, text: 'Design the system' },
+        { id: 3, text: 'Implement the design' },
+      ],
+    };
+
+    renderWithProviders(
+      <OrderingEditor content={mediaContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.items[0]).toEqual({
+        ...mediaContent.items[0],
+        text: '',
+      });
+    });
+    expect(screen.getByAltText('Uploaded media preview')).toHaveAttribute(
+      'src',
+      'https://cdn.example.test/ordering.png',
+    );
+  });
 });
