@@ -5,7 +5,6 @@ import { clearTokens } from '@/utils';
 import OAuthCallbackPage from './OAuthCallbackPage';
 import {
   OAUTH_CALLBACK_STORAGE_KEY,
-  OAUTH_LEGACY_TEST_STORAGE_KEY,
   resetOAuthCallbackProcessingForTests,
 } from '@/features/auth/services/oauthCallback';
 import {
@@ -68,25 +67,6 @@ describe('OAuthCallbackPage', () => {
 
     expect(await screen.findByText('Success!')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(authMocks.checkAuthStatus).toHaveBeenCalledOnce();
-  });
-
-  it('keeps the temporary legacy comparison callback working', async () => {
-    sessionStorage.setItem(OAUTH_LEGACY_TEST_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      capturedAt: Date.now(),
-    }));
-    const fetchMock = vi.spyOn(globalThis, 'fetch');
-
-    renderWithProviders(
-      <StrictMode><OAuthCallbackPage /></StrictMode>,
-      { route: '/oauth2/redirect', withAuthProvider: false },
-    );
-
-    expect(await screen.findByText('Success!')).toBeInTheDocument();
-    expect(fetchMock).not.toHaveBeenCalled();
     expect(authMocks.checkAuthStatus).toHaveBeenCalledOnce();
   });
 });

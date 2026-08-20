@@ -9,6 +9,7 @@ import { authService } from '@/services';
 import type { LinkedAccountsResponse, OAuthAccountDto, OAuthProvider } from '@/types';
 import { Button, Badge, useToast, ConfirmationModal } from '@/components';
 import { LinkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { startOAuthAuthorization } from '../services/oauthPkce';
 
 interface LinkedAccountsProps {
   className?: string;
@@ -18,6 +19,7 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccountsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [linkingProvider, setLinkingProvider] = useState<OAuthProvider | null>(null);
   const [unlinkingProvider, setUnlinkingProvider] = useState<OAuthProvider | null>(null);
   const [showUnlinkModal, setShowUnlinkModal] = useState(false);
   const [isUnlinking, setIsUnlinking] = useState(false);
@@ -94,10 +96,23 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
   };
 
   // Handle link account
-  const handleLinkAccount = (provider: OAuthProvider) => {
-    // OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
-    // The action=link parameter tells the backend this is an account linking operation
-    window.location.href = authService.getOAuthAuthorizationUrl(provider, 'link');
+  const handleLinkAccount = async (provider: OAuthProvider) => {
+    setLinkingProvider(provider);
+    try {
+      await startOAuthAuthorization({
+        provider,
+        purpose: 'link',
+        returnPath: '/profile',
+      });
+    } catch {
+      setLinkingProvider(null);
+      addToast({
+        type: 'error',
+        title: 'Connection Failed',
+        message: 'Secure account connection could not start. Please try again.',
+        duration: 5000,
+      });
+    }
   };
 
   // Handle unlink account
@@ -231,6 +246,8 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
                       variant="primary"
                       size="sm"
                       onClick={() => handleLinkAccount(provider)}
+                      disabled={linkingProvider !== null}
+                      loading={linkingProvider === provider}
                       leftIcon={<LinkIcon className="w-4 h-4" />}
                     >
                       Connect
@@ -283,6 +300,8 @@ const LinkedAccounts: React.FC<LinkedAccountsProps> = ({ className = '' }) => {
                       variant="primary"
                       size="sm"
                       onClick={() => handleLinkAccount(provider)}
+                      disabled={linkingProvider !== null}
+                      loading={linkingProvider === provider}
                       leftIcon={<LinkIcon className="w-4 h-4" />}
                       fullWidth
                     >

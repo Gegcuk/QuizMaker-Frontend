@@ -19,8 +19,5 @@ export const AUTH_ENDPOINTS = {
   VERIFY_EMAIL: '/v1/auth/verify-email',
   RESEND_VERIFICATION: '/v1/auth/resend-verification',
   
-  // OAuth2 endpoints (Spring Security OAuth2 standard paths)
-  // Note: OAuth endpoints are at root level (/oauth2), NOT under /api
-  OAUTH_AUTHORIZATION: (provider: string) => `/oauth2/authorization/${provider.toLowerCase()}`,
   OAUTH_ACCOUNTS: '/v1/auth/oauth/accounts',
 } as const;

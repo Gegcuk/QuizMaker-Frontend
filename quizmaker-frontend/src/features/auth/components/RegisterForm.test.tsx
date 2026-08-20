@@ -11,7 +11,19 @@ vi.mock('../AuthContext', () => ({
 }));
 
 vi.mock('./OAuthButton', () => ({
-  default: () => null,
+  default: ({
+    provider,
+    purpose,
+    returnPath,
+  }: {
+    provider: string;
+    purpose: string;
+    returnPath: string;
+  }) => (
+    <button type="button">
+      {provider} {purpose} {returnPath}
+    </button>
+  ),
 }));
 
 const fillValidRegistration = async (user: ReturnType<typeof renderWithProviders>['user']) => {
@@ -24,6 +36,13 @@ const fillValidRegistration = async (user: ReturnType<typeof renderWithProviders
 describe('RegisterForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('offers secure Google and GitHub registration with the signed-in return path', () => {
+    renderWithProviders(<RegisterForm />, { withAuthProvider: false });
+
+    expect(screen.getByRole('button', { name: 'GOOGLE register /my-quizzes' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'GITHUB register /my-quizzes' })).toBeInTheDocument();
   });
 
   it('requires accepting the terms before registering an account', async () => {

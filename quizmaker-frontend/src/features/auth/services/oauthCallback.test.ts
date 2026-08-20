@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   OAUTH_CALLBACK_STORAGE_KEY,
-  OAUTH_LEGACY_TEST_STORAGE_KEY,
   OAuthCallbackError,
-  processLegacyOAuthCallbackForTestOnce,
   processOAuthCallbackOnce,
   resetOAuthCallbackProcessingForTests,
 } from './oauthCallback';
@@ -98,25 +96,6 @@ describe('OAuth callback processing', () => {
     expect(error).toBeInstanceOf(OAuthCallbackError);
     expect(error.outcome).toBe('oauth_access_denied');
     expect(error.message).not.toContain('description');
-    expect(sessionStorage.length).toBe(0);
-  });
-
-  it('consumes the temporary legacy callback once for comparison testing', async () => {
-    sessionStorage.setItem('oauth_redirect', '/my-attempts');
-    sessionStorage.setItem(OAUTH_LEGACY_TEST_STORAGE_KEY, JSON.stringify({
-      version: 1,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      capturedAt: now,
-    }));
-    const storeTokens = vi.fn();
-
-    const first = processLegacyOAuthCallbackForTestOnce({ storeTokens, now });
-    const second = processLegacyOAuthCallbackForTestOnce({ storeTokens, now });
-
-    await expect(first).resolves.toMatchObject({ returnPath: '/my-attempts' });
-    await expect(second).resolves.toMatchObject({ returnPath: '/my-attempts' });
-    expect(storeTokens).toHaveBeenCalledOnce();
     expect(sessionStorage.length).toBe(0);
   });
 });

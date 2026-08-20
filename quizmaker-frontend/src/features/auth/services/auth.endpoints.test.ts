@@ -15,13 +15,4 @@ describe('AUTH_ENDPOINTS', () => {
     expect(AUTH_ENDPOINTS.RESEND_VERIFICATION).toBe('/v1/auth/resend-verification');
     expect(AUTH_ENDPOINTS.OAUTH_ACCOUNTS).toBe('/v1/auth/oauth/accounts');
   });
-
-  it('builds Spring Security OAuth authorization URLs outside the API prefix', () => {
-    expect(AUTH_ENDPOINTS.OAUTH_AUTHORIZATION('GOOGLE')).toBe(
-      '/oauth2/authorization/google',
-    );
-    expect(AUTH_ENDPOINTS.OAUTH_AUTHORIZATION('GitHub')).toBe(
-      '/oauth2/authorization/github',
-    );
-  });
 });

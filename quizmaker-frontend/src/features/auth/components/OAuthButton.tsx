@@ -8,18 +8,13 @@
 import React, { useState } from 'react';
 import type { OAuthProvider } from '../types/auth.types';
 import type { OAuthFlowPurpose } from '../services/oauthPkce';
-import { authService } from '../services/auth.service';
 import { startOAuthAuthorization } from '../services/oauthPkce';
-
-export type OAuthButtonFlow = 'legacy' | 'pkce';
 
 interface OAuthButtonProps {
   provider: OAuthProvider;
   fullWidth?: boolean;
   disabled?: boolean;
   actionText?: string; // Custom action text prefix (e.g., "Register with", "Continue with")
-  flow?: OAuthButtonFlow;
-  flowLabel?: string;
   purpose?: OAuthFlowPurpose;
   returnPath?: string;
   onStartError?: (message: string) => void;
@@ -97,8 +92,6 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
   fullWidth = true,
   disabled = false,
   actionText = 'Continue with', // Default to "Continue with" for backward compatibility
-  flow = 'legacy',
-  flowLabel,
   purpose = 'login',
   returnPath,
   onStartError,
@@ -107,11 +100,6 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
   const [isStarting, setIsStarting] = useState(false);
 
   const handleOAuthLogin = async () => {
-    if (flow === 'legacy') {
-      window.location.href = authService.getOAuthAuthorizationUrl(provider);
-      return;
-    }
-
     setIsStarting(true);
     try {
       await startOAuthAuthorization({ provider, purpose, returnPath });
@@ -121,19 +109,20 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
     }
   };
 
-  const buttonText = `${actionText} ${config.name}${flowLabel ? ` (${flowLabel})` : ''}`;
+  const buttonText = `${actionText} ${config.name}`;
 
   return (
     <button
       type="button"
       onClick={handleOAuthLogin}
       disabled={disabled || isStarting}
+      aria-busy={isStarting}
       className={`
         ${config.bgClass}
         ${config.textClass}
-        ${fullWidth ? 'w-full py-2.5 px-4' : 'w-14 h-14 sm:w-full sm:h-auto'}
+        ${fullWidth ? 'w-full' : 'w-14 h-14 sm:w-full sm:h-auto'}
         flex items-center justify-center gap-3
-        ${fullWidth ? '' : 'sm:py-2.5 sm:px-4'}
+        sm:py-2.5 sm:px-4
         border border-theme-border-primary
         rounded-lg
         font-medium
@@ -145,8 +134,7 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
       title={buttonText}
     >
       {config.icon}
-      {/* Show full text on tablet and up (sm breakpoint), hide on mobile */}
-      <span className={fullWidth ? 'inline' : 'hidden sm:inline'}>{buttonText}</span>
+      <span className="hidden sm:inline">{buttonText}</span>
     </button>
   );
 };

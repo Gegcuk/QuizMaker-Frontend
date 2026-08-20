@@ -12,7 +12,6 @@ import { Seo } from '@/features/seo';
 import { OAuthExchangeError } from '@/features/auth/services/oauthExchange';
 import {
   OAuthCallbackError,
-  processLegacyOAuthCallbackForTestOnce,
   processOAuthCallbackOnce,
 } from '@/features/auth/services/oauthCallback';
 
@@ -48,13 +47,6 @@ const OAuthCallbackPage: React.FC = () => {
 
     const handleCallback = async () => {
       try {
-        const legacyResult = await processLegacyOAuthCallbackForTestOnce();
-        if (!active) return;
-        if (legacyResult) {
-          await completeAuthentication(legacyResult.returnPath);
-          return;
-        }
-
         const result = await processOAuthCallbackOnce();
         if (!active) return;
         await completeAuthentication(result.returnPath);
