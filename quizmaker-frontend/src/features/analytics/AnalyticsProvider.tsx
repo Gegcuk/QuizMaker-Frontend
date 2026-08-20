@@ -12,13 +12,17 @@ interface AnalyticsProviderProps {
   children: React.ReactNode;
 }
 
+const OAUTH_CALLBACK_PATHS = new Set(['/oauth2/redirect', '/oauth/callback']);
+
 const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
     // Defer until the next animation frame so <Seo /> has time to update document.title.
     const frame = requestAnimationFrame(() => {
-      const path = `${location.pathname}${location.search}`;
+      const path = OAUTH_CALLBACK_PATHS.has(location.pathname)
+        ? location.pathname
+        : `${location.pathname}${location.search}`;
       const title = document.title || 'Quizzence';
       const contentGroup = getContentGroup(location.pathname);
 

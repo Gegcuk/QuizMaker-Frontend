@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
 import type { CategoryDto, QuizDto } from '@/types';
 import { CategoryAnalytics } from './CategoryAnalytics';
@@ -40,6 +40,12 @@ const quiz: QuizDto = {
 describe('CategoryAnalytics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-07-20T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('renders category quiz analytics from the documented quiz collection response', async () => {
