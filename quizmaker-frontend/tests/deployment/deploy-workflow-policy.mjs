@@ -81,14 +81,12 @@ const main = async () => {
   assert.equal(secureCallback.history.replacement, '/oauth2/redirect');
   assert.doesNotMatch(JSON.stringify([...secureCallback.records]), /secret-description-canary/);
 
-  const legacyCallback = executeBootstrap(
-    '?accessToken=legacy.access.token&refreshToken=legacy.refresh.token',
+  const tokenBearingCallback = executeBootstrap(
+    '?accessToken=credential.access.canary&refreshToken=credential.refresh.canary',
   );
-  assert.deepEqual(
-    Object.keys(JSON.parse(legacyCallback.records.get('quizzence:oauth:legacy-test:v1'))).sort(),
-    ['accessToken', 'capturedAt', 'refreshToken', 'version'],
-  );
-  assert.equal(legacyCallback.history.replacement, '/oauth2/redirect');
+  assert.equal(tokenBearingCallback.records.size, 0);
+  assert.doesNotMatch(JSON.stringify([...tokenBearingCallback.records]), /credential\.(access|refresh)\.canary/);
+  assert.equal(tokenBearingCallback.history.replacement, '/oauth2/redirect');
 
   console.log('Deployment workflow policy passed.');
 };

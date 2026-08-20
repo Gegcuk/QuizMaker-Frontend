@@ -73,22 +73,18 @@ const LoginForm: React.FC<LoginFormProps> = ({
         Sign in with
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <OAuthButton provider="GOOGLE" actionText="Sign in with" flow="legacy" flowLabel="Legacy" />
-        <OAuthButton provider="GITHUB" actionText="Sign in with" flow="legacy" flowLabel="Legacy" />
+      <div className="flex flex-wrap justify-center sm:flex-col gap-3">
         <OAuthButton
           provider="GOOGLE"
+          fullWidth={false}
           actionText="Sign in with"
-          flow="pkce"
-          flowLabel="PKCE"
           returnPath={redirectTo}
           onStartError={setOAuthError}
         />
         <OAuthButton
           provider="GITHUB"
+          fullWidth={false}
           actionText="Sign in with"
-          flow="pkce"
-          flowLabel="PKCE"
           returnPath={redirectTo}
           onStartError={setOAuthError}
         />

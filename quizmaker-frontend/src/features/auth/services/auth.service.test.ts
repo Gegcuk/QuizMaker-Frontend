@@ -166,7 +166,7 @@ describe('AuthService', () => {
     );
   });
 
-  it('builds OAuth login/link URLs and manages linked accounts', async () => {
+  it('manages linked OAuth accounts', async () => {
     const accounts: LinkedAccountsResponse = {
       accounts: [
         {
@@ -182,12 +182,6 @@ describe('AuthService', () => {
     axios.get.mockResolvedValue({ data: accounts });
     axios.delete.mockResolvedValue({ data: undefined });
 
-    expect(service.getOAuthAuthorizationUrl('GOOGLE')).toBe(
-      '/oauth2/authorization/google',
-    );
-    expect(service.getOAuthAuthorizationUrl('GITHUB', 'link')).toBe(
-      '/oauth2/authorization/github?action=link',
-    );
     await expect(service.getLinkedAccounts()).resolves.toBe(accounts);
     await service.unlinkAccount({ provider: 'GOOGLE' });
 

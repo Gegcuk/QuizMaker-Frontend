@@ -11,8 +11,8 @@ vi.mock('../AuthContext', () => ({
 }));
 
 vi.mock('./OAuthButton', () => ({
-  default: ({ provider, flow }: { provider: string; flow?: string }) => (
-    <button type="button">{provider} {flow || 'legacy'}</button>
+  default: ({ provider }: { provider: string }) => (
+    <button type="button">Continue with {provider}</button>
   ),
 }));
 
@@ -21,13 +21,12 @@ describe('LoginForm', () => {
     vi.clearAllMocks();
   });
 
-  it('shows two temporary legacy and two PKCE provider buttons', () => {
+  it('shows one secure control for each supported provider', () => {
     renderWithProviders(<LoginForm />, { withAuthProvider: false });
 
-    expect(screen.getByRole('button', { name: 'GOOGLE legacy' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'GITHUB legacy' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'GOOGLE pkce' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'GITHUB pkce' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continue with GOOGLE' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Continue with GITHUB' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Continue with (GOOGLE|GITHUB)/ })).toHaveLength(2);
   });
 
   it('shows required field feedback before an authentication request', async () => {

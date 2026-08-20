@@ -17,7 +17,6 @@ import {
   VerifyEmailResponse,
   ResendVerificationRequest,
   ResendVerificationResponse,
-  OAuthProvider,
   LinkedAccountsResponse,
   UnlinkAccountRequest
 } from '@/types';
@@ -166,29 +165,6 @@ export class AuthService extends BaseService<UserDto> {
     } catch (error) {
       throw this.handleAuthError(error);
     }
-  }
-
-  /**
-   * Get OAuth authorization URL for a provider
-   * This initiates the OAuth login flow by redirecting to the provider
-   * 
-   * NOTE: OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
-   * Spring Security OAuth2 endpoints are separate from our REST API
-   * 
-   * @param provider - OAuth provider (GOOGLE, GITHUB, etc.)
-   * @param action - 'login' for authentication, 'link' for account linking
-   * @returns The full authorization URL (without /api prefix)
-   */
-  getOAuthAuthorizationUrl(provider: OAuthProvider, action: 'login' | 'link' = 'login'): string {
-    // OAuth endpoints are NOT under /api - they're Spring Security OAuth2 endpoints
-    const authUrl = `/oauth2/authorization/${provider.toLowerCase()}`;
-    
-    // Add action parameter to indicate if this is a linking operation
-    if (action === 'link') {
-      return `${authUrl}?action=link`;
-    }
-    
-    return authUrl;
   }
 
   /**

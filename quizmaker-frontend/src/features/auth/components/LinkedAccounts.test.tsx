@@ -3,17 +3,20 @@ import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import LinkedAccounts from './LinkedAccounts';
 
 const authMocks = vi.hoisted(() => ({
-  getOAuthAuthorizationUrl: vi.fn(),
   getLinkedAccounts: vi.fn(),
+  startOAuthAuthorization: vi.fn(),
   unlinkAccount: vi.fn(),
 }));
 
 vi.mock('@/services', () => ({
   authService: {
-    getOAuthAuthorizationUrl: authMocks.getOAuthAuthorizationUrl,
     getLinkedAccounts: authMocks.getLinkedAccounts,
     unlinkAccount: authMocks.unlinkAccount,
   },
+}));
+
+vi.mock('../services/oauthPkce', () => ({
+  startOAuthAuthorization: authMocks.startOAuthAuthorization,
 }));
 
 const googleAccount = {
@@ -28,6 +31,7 @@ const googleAccount = {
 describe('LinkedAccounts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authMocks.startOAuthAuthorization.mockResolvedValue(undefined);
     window.history.replaceState({}, '', '/');
   });
 
@@ -51,17 +55,33 @@ describe('LinkedAccounts', () => {
     expect(screen.getAllByRole('button', { name: 'Connect' })).toHaveLength(2);
   });
 
-  it('starts the provider-specific OAuth link flow through the shared URL contract', async () => {
+  it('starts the provider-specific secure account-link flow', async () => {
     authMocks.getLinkedAccounts.mockResolvedValue({ accounts: [googleAccount] });
-    authMocks.getOAuthAuthorizationUrl.mockReturnValue('#link-github');
     const { user } = renderWithProviders(<LinkedAccounts />, { withAuthProvider: false });
 
     await screen.findByText('learner@example.com');
     const githubCard = screen.getAllByText('GitHub')[0].closest<HTMLElement>('.bg-theme-bg-primary')!;
     await user.click(within(githubCard).getAllByRole('button', { name: 'Connect' })[0]);
 
-    expect(authMocks.getOAuthAuthorizationUrl).toHaveBeenCalledWith('GITHUB', 'link');
-    expect(window.location.hash).toBe('#link-github');
+    expect(authMocks.startOAuthAuthorization).toHaveBeenCalledWith({
+      provider: 'GITHUB',
+      purpose: 'link',
+      returnPath: '/profile',
+    });
+  });
+
+  it('shows a bounded failure when secure account linking cannot start', async () => {
+    authMocks.getLinkedAccounts.mockResolvedValue({ accounts: [googleAccount] });
+    authMocks.startOAuthAuthorization.mockRejectedValue(new Error('secret crypto detail'));
+    const { user } = renderWithProviders(<LinkedAccounts />, { withAuthProvider: false });
+
+    await screen.findByText('learner@example.com');
+    const githubCard = screen.getAllByText('GitHub')[0].closest<HTMLElement>('.bg-theme-bg-primary')!;
+    await user.click(within(githubCard).getAllByRole('button', { name: 'Connect' })[0]);
+
+    expect(await screen.findByText('Connection Failed')).toBeInTheDocument();
+    expect(screen.getByText('Secure account connection could not start. Please try again.')).toBeInTheDocument();
+    expect(screen.queryByText('secret crypto detail')).not.toBeInTheDocument();
   });
 
   it('shows an account-loading failure without exposing account actions', async () => {

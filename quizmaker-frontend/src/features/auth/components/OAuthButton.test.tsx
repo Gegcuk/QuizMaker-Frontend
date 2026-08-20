@@ -3,14 +3,7 @@ import { renderWithProviders, screen } from '@/test/render';
 import OAuthButton from './OAuthButton';
 
 const authMocks = vi.hoisted(() => ({
-  getOAuthAuthorizationUrl: vi.fn(),
   startOAuthAuthorization: vi.fn(),
-}));
-
-vi.mock('../services/auth.service', () => ({
-  authService: {
-    getOAuthAuthorizationUrl: authMocks.getOAuthAuthorizationUrl,
-  },
 }));
 
 vi.mock('../services/oauthPkce', () => ({
@@ -23,30 +16,33 @@ describe('OAuthButton', () => {
     window.history.replaceState({}, '', '/');
   });
 
-  it('uses the shared authorization URL contract for the selected provider', async () => {
-    authMocks.getOAuthAuthorizationUrl.mockReturnValue('#google-oauth');
+  it('starts secure authorization for the selected provider', async () => {
+    authMocks.startOAuthAuthorization.mockResolvedValue(undefined);
     const { user } = renderWithProviders(
-      <OAuthButton provider="GOOGLE" actionText="Sign in with" />,
+      <OAuthButton provider="GOOGLE" actionText="Sign in with" returnPath="/quizzes" />,
       { withAuthProvider: false },
     );
 
     await user.click(screen.getByRole('button', { name: 'Sign in with Google' }));
 
-    expect(authMocks.getOAuthAuthorizationUrl).toHaveBeenCalledWith('GOOGLE');
-    expect(window.location.hash).toBe('#google-oauth');
+    expect(authMocks.startOAuthAuthorization).toHaveBeenCalledWith({
+      provider: 'GOOGLE',
+      purpose: 'login',
+      returnPath: '/quizzes',
+    });
   });
 
-  it('keeps provider context available on compact controls', () => {
+  it('keeps the pre-cutover compact mobile and labeled desktop treatment', () => {
     renderWithProviders(<OAuthButton provider="GITHUB" fullWidth={false} />, {
       withAuthProvider: false,
     });
 
     const button = screen.getByRole('button', { name: 'Continue with GitHub' });
-    expect(button).toHaveClass('w-14', 'h-14');
+    expect(button).toHaveClass('w-14', 'h-14', 'sm:w-full', 'sm:h-auto');
+    expect(button.querySelector('span')).toHaveClass('hidden', 'sm:inline');
   });
 
   it('does not allow a disabled OAuth action to initiate a redirect', async () => {
-    authMocks.getOAuthAuthorizationUrl.mockReturnValue('#github-oauth');
     const { user } = renderWithProviders(<OAuthButton provider="GITHUB" disabled />, {
       withAuthProvider: false,
     });
@@ -55,38 +51,34 @@ describe('OAuthButton', () => {
     expect(button).toBeDisabled();
     await user.click(button);
 
-    expect(authMocks.getOAuthAuthorizationUrl).not.toHaveBeenCalled();
-    expect(window.location.hash).toBe('');
+    expect(authMocks.startOAuthAuthorization).not.toHaveBeenCalled();
   });
 
-  it('starts the PKCE coordinator without using the legacy URL', async () => {
+  it('preserves registration purpose and return path', async () => {
     authMocks.startOAuthAuthorization.mockResolvedValue(undefined);
     const { user } = renderWithProviders(
       <OAuthButton
         provider="GOOGLE"
-        flow="pkce"
-        flowLabel="PKCE"
-        purpose="login"
-        returnPath="/quizzes"
+        purpose="register"
+        returnPath="/my-quizzes"
       />,
       { withAuthProvider: false },
     );
 
-    await user.click(screen.getByRole('button', { name: 'Continue with Google (PKCE)' }));
+    await user.click(screen.getByRole('button', { name: 'Continue with Google' }));
 
     expect(authMocks.startOAuthAuthorization).toHaveBeenCalledWith({
       provider: 'GOOGLE',
-      purpose: 'login',
-      returnPath: '/quizzes',
+      purpose: 'register',
+      returnPath: '/my-quizzes',
     });
-    expect(authMocks.getOAuthAuthorizationUrl).not.toHaveBeenCalled();
   });
 
   it('reports a bounded error when PKCE setup fails', async () => {
     const onStartError = vi.fn();
     authMocks.startOAuthAuthorization.mockRejectedValue(new Error('secret crypto detail'));
     const { user } = renderWithProviders(
-      <OAuthButton provider="GITHUB" flow="pkce" onStartError={onStartError} />,
+      <OAuthButton provider="GITHUB" onStartError={onStartError} />,
       { withAuthProvider: false },
     );
 

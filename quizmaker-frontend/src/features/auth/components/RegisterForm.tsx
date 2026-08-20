@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { RegisterRequest } from '@/types';
-import { Form, FormField, Button, Checkbox } from '@/components';
+import { Form, FormField, Button, Checkbox, Alert } from '@/components';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
 
@@ -37,6 +37,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [oauthError, setOAuthError] = useState<string | null>(null);
 
   // Password strength validation
   const validatePasswordStrength = (password: string): string | null => {
@@ -117,11 +118,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       <p className="text-center text-sm text-theme-text-secondary mb-3">
         Sign up with
       </p>
-      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
       <div className="flex flex-wrap justify-center sm:flex-col gap-3">
-        <OAuthButton provider="GOOGLE" fullWidth={false} actionText="Register with" />
-        <OAuthButton provider="GITHUB" fullWidth={false} actionText="Register with" />
+        <OAuthButton
+          provider="GOOGLE"
+          fullWidth={false}
+          actionText="Register with"
+          purpose="register"
+          returnPath="/my-quizzes"
+          onStartError={setOAuthError}
+        />
+        <OAuthButton
+          provider="GITHUB"
+          fullWidth={false}
+          actionText="Register with"
+          purpose="register"
+          returnPath="/my-quizzes"
+          onStartError={setOAuthError}
+        />
       </div>
+      {oauthError && <Alert type="error" className="mt-3">{oauthError}</Alert>}
 
       {/* OAuth Divider */}
       <div className="mt-6">

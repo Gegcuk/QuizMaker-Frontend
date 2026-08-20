@@ -22,14 +22,10 @@
         var params = new URLSearchParams(window.location.search);
         var code = params.get('code');
         var error = params.get('error');
-        var accessToken = params.get('accessToken') || params.get('access_token');
-        var refreshToken = params.get('refreshToken') || params.get('refresh_token');
-        var hasLegacyToken = accessToken !== null || refreshToken !== null;
         var allowedErrors = [
           'oauth_access_denied',
           'oauth_authentication_failed',
           'oauth_flow_invalid',
-          'oauth_legacy_login_expired',
           'oauth_login_temporarily_unavailable',
           'oauth_login_failed'
         ];
@@ -43,21 +39,15 @@
           captured = { version: 1, kind: 'error', value: 'oauth_flow_invalid', capturedAt: Date.now() };
         }
 
-        if (captured || hasLegacyToken) {
+        if (captured) {
           try {
-            if (captured) {
-              sessionStorage.setItem('quizzence:oauth:callback:v1', JSON.stringify(captured));
-            } else {
-              sessionStorage.setItem('quizzence:oauth:legacy-test:v1', JSON.stringify({
-                version: 1,
-                accessToken: accessToken,
-                refreshToken: refreshToken,
-                capturedAt: Date.now()
-              }));
-            }
+            sessionStorage.setItem('quizzence:oauth:callback:v1', JSON.stringify(captured));
           } catch (_) {
             // URL cleanup still takes precedence if tab storage is unavailable.
           }
+        }
+
+        if (window.location.search) {
           history.replaceState(history.state, '', window.location.pathname + window.location.hash);
         }
       })();
