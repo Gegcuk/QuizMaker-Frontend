@@ -27,6 +27,7 @@ import {
   setTokens,
   clearTokens,
 } from '../utils/tokenUtils';
+import { getSafeRequestTarget } from './requestDiagnostics';
 
 /* ------------------------------------------------------------------------ */
 /* 1. Enhanced Axios instance with timeout and logging                      */
@@ -67,7 +68,7 @@ const api = axios.create({
   }
 });
 
-// Enable request/response logging in development
+// Development diagnostics intentionally omit headers and bodies because they can contain credentials.
 const isDevelopment = import.meta.env.DEV;
 
 /* ------------------------------------------------------------------------ */
@@ -133,9 +134,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
   // Request logging in development
   if (isDevelopment) {
-    console.group(`🚀 API Request: ${enhancedConfig.method?.toUpperCase()} ${enhancedConfig.url}`);
-    console.log('Headers:', enhancedConfig.headers);
-    console.log('Data:', enhancedConfig.data);
+    console.group(
+      `🚀 API Request: ${enhancedConfig.method?.toUpperCase()} ${getSafeRequestTarget(enhancedConfig.url)}`,
+    );
     console.log('Timeout:', enhancedConfig.timeout);
     console.groupEnd();
   }
@@ -194,10 +195,10 @@ api.interceptors.response.use(
   (response: AxiosResponse) => {
     // Response logging in development
     if (isDevelopment) {
-      console.group(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      console.group(
+        `✅ API Response: ${response.config.method?.toUpperCase()} ${getSafeRequestTarget(response.config.url)}`,
+      );
       console.log('Status:', response.status);
-      console.log('Data:', response.data);
-      console.log('Headers:', response.headers);
       console.groupEnd();
     }
     return response;
@@ -206,10 +207,10 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     // Error logging in development
     if (isDevelopment) {
-      console.group(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.group(
+        `❌ API Error: ${error.config?.method?.toUpperCase()} ${getSafeRequestTarget(error.config?.url)}`,
+      );
       console.log('Status:', error.response?.status);
-      console.log('Error:', error.message);
-      console.log('Response Data:', error.response?.data);
       console.groupEnd();
     }
     const original = error.config as RetryConfig | undefined;

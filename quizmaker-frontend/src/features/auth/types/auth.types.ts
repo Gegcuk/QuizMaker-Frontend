@@ -32,6 +32,16 @@ export interface JwtResponse {
 }
 
 /**
+ * Browser PKCE exchange request from the local backend Auth OpenAPI contract.
+ */
+export interface OAuthCodeExchangeRequest {
+  code: string;
+  clientId: string;
+  redirectUri: string;
+  codeVerifier: string;
+}
+
+/**
  * Token refresh request
  * Matches RefreshRequest DTO from API documentation
  */

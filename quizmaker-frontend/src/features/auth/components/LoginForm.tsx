@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { LoginRequest } from '@/types';
-import { Form, FormField, Button, Checkbox } from '@/components';
+import { Form, FormField, Button, Checkbox, Alert } from '@/components';
 import { commonRules } from '@/utils';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
@@ -36,6 +36,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [oauthError, setOAuthError] = useState<string | null>(null);
 
   // Handle form submission with improved error handling
   const handleSubmit = async (data: LoginRequest) => {
@@ -72,11 +73,27 @@ const LoginForm: React.FC<LoginFormProps> = ({
         Sign in with
       </p>
 
-      {/* OAuth Buttons - Flexible wrap layout: square buttons on mobile, full-width on desktop */}
-      <div className="flex flex-wrap justify-center sm:flex-col gap-3">
-        <OAuthButton provider="GOOGLE" fullWidth={false} actionText="Sign in with" />
-        <OAuthButton provider="GITHUB" fullWidth={false} actionText="Sign in with" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <OAuthButton provider="GOOGLE" actionText="Sign in with" flow="legacy" flowLabel="Legacy" />
+        <OAuthButton provider="GITHUB" actionText="Sign in with" flow="legacy" flowLabel="Legacy" />
+        <OAuthButton
+          provider="GOOGLE"
+          actionText="Sign in with"
+          flow="pkce"
+          flowLabel="PKCE"
+          returnPath={redirectTo}
+          onStartError={setOAuthError}
+        />
+        <OAuthButton
+          provider="GITHUB"
+          actionText="Sign in with"
+          flow="pkce"
+          flowLabel="PKCE"
+          returnPath={redirectTo}
+          onStartError={setOAuthError}
+        />
       </div>
+      {oauthError && <Alert type="error" className="mt-3">{oauthError}</Alert>}
 
       {/* OAuth Divider */}
       <div className="mt-6">

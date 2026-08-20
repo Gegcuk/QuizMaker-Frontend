@@ -11,7 +11,7 @@ const baseUrl = `http://127.0.0.1:${port}`;
 
 const runDocker = async (args) => {
   try {
-    await execFileAsync('docker', args, { cwd: process.cwd() });
+    return await execFileAsync('docker', args, { cwd: process.cwd() });
   } catch (error) {
     if (error && typeof error === 'object' && error.code === 'ENOENT') {
       throw new Error('Docker is required to run the Nginx route policy test.');
@@ -79,6 +79,17 @@ const main = async () => {
     ]) {
       await expectStatus(path, 200);
     }
+
+    const callbackCanary = 'oauth-secret-canary';
+    for (const callbackPath of ['/oauth2/redirect', '/oauth/callback']) {
+      const response = await expectStatus(`${callbackPath}?code=${callbackCanary}`, 200);
+      assert.match(response.headers.get('cache-control') || '', /no-store/);
+      assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+      assert.match(response.headers.get('x-robots-tag') || '', /noindex, nofollow/);
+    }
+
+    const { stdout: accessLogs } = await runDocker(['logs', containerName]);
+    assert.doesNotMatch(accessLogs, new RegExp(callbackCanary));
 
     for (const path of [
       '/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333',
