@@ -8,9 +8,10 @@ const __dirname = path.dirname(__filename);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..');
 
 const main = async () => {
-  const [workflow, dockerignore] = await Promise.all([
+  const [workflow, dockerignore, indexHtml] = await Promise.all([
     fs.readFile(path.join(repositoryRoot, '.github', 'workflows', 'deploy.yml'), 'utf8'),
     fs.readFile(path.join(repositoryRoot, 'quizmaker-frontend', '.dockerignore'), 'utf8'),
+    fs.readFile(path.join(repositoryRoot, 'quizmaker-frontend', 'index.html'), 'utf8'),
   ]);
 
   assert.match(dockerignore, /^\*$/m, 'Expected the Docker context to default-deny files');
@@ -27,6 +28,67 @@ const main = async () => {
   assert.ok(buildIndex >= 0, 'Expected deployment to build the replacement image');
   assert.ok(stopIndex >= 0, 'Expected deployment to stop the previous container after a successful build');
   assert.ok(buildIndex < stopIndex, 'Expected the replacement image to build before the previous container stops');
+
+  const bootstrapMatch = indexHtml.match(
+    /<script id="oauth-callback-bootstrap">([\s\S]*?)<\/script>/,
+  );
+  assert.ok(bootstrapMatch, 'Expected the OAuth callback bootstrap in index.html');
+  assert.ok(
+    indexHtml.indexOf('id="oauth-callback-bootstrap"')
+      < indexHtml.indexOf('googletagmanager.com/gtag/js'),
+    'Expected OAuth callback sanitization before the Google tag request',
+  );
+
+  const executeBootstrap = (search) => {
+    const records = new Map();
+    const storage = {
+      setItem: (key, value) => records.set(key, value),
+    };
+    const history = {
+      state: null,
+      replacement: null,
+      replaceState(_state, _title, replacement) {
+        this.replacement = replacement;
+      },
+    };
+    const windowValue = {
+      location: { pathname: '/oauth2/redirect', search, hash: '' },
+    };
+    const bootstrap = new Function(
+      'window',
+      'sessionStorage',
+      'history',
+      'URLSearchParams',
+      bootstrapMatch[1],
+    );
+
+    bootstrap(windowValue, storage, history, URLSearchParams);
+    return { history, records };
+  };
+
+  const code = 'C'.repeat(43);
+  const secureCallback = executeBootstrap(
+    `?code=${code}&error_description=secret-description-canary`,
+  );
+  const capturedCode = JSON.parse(
+    secureCallback.records.get('quizzence:oauth:callback:v1'),
+  );
+  assert.deepEqual(
+    { version: capturedCode.version, kind: capturedCode.kind, value: capturedCode.value },
+    { version: 1, kind: 'code', value: code },
+  );
+  assert.ok(Number.isFinite(capturedCode.capturedAt));
+  assert.equal(secureCallback.history.replacement, '/oauth2/redirect');
+  assert.doesNotMatch(JSON.stringify([...secureCallback.records]), /secret-description-canary/);
+
+  const legacyCallback = executeBootstrap(
+    '?accessToken=legacy.access.token&refreshToken=legacy.refresh.token',
+  );
+  assert.deepEqual(
+    Object.keys(JSON.parse(legacyCallback.records.get('quizzence:oauth:legacy-test:v1'))).sort(),
+    ['accessToken', 'capturedAt', 'refreshToken', 'version'],
+  );
+  assert.equal(legacyCallback.history.replacement, '/oauth2/redirect');
 
   console.log('Deployment workflow policy passed.');
 };

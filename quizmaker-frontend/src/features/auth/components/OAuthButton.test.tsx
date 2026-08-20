@@ -4,12 +4,17 @@ import OAuthButton from './OAuthButton';
 
 const authMocks = vi.hoisted(() => ({
   getOAuthAuthorizationUrl: vi.fn(),
+  startOAuthAuthorization: vi.fn(),
 }));
 
 vi.mock('../services/auth.service', () => ({
   authService: {
     getOAuthAuthorizationUrl: authMocks.getOAuthAuthorizationUrl,
   },
+}));
+
+vi.mock('../services/oauthPkce', () => ({
+  startOAuthAuthorization: authMocks.startOAuthAuthorization,
 }));
 
 describe('OAuthButton', () => {
@@ -52,5 +57,42 @@ describe('OAuthButton', () => {
 
     expect(authMocks.getOAuthAuthorizationUrl).not.toHaveBeenCalled();
     expect(window.location.hash).toBe('');
+  });
+
+  it('starts the PKCE coordinator without using the legacy URL', async () => {
+    authMocks.startOAuthAuthorization.mockResolvedValue(undefined);
+    const { user } = renderWithProviders(
+      <OAuthButton
+        provider="GOOGLE"
+        flow="pkce"
+        flowLabel="PKCE"
+        purpose="login"
+        returnPath="/quizzes"
+      />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Continue with Google (PKCE)' }));
+
+    expect(authMocks.startOAuthAuthorization).toHaveBeenCalledWith({
+      provider: 'GOOGLE',
+      purpose: 'login',
+      returnPath: '/quizzes',
+    });
+    expect(authMocks.getOAuthAuthorizationUrl).not.toHaveBeenCalled();
+  });
+
+  it('reports a bounded error when PKCE setup fails', async () => {
+    const onStartError = vi.fn();
+    authMocks.startOAuthAuthorization.mockRejectedValue(new Error('secret crypto detail'));
+    const { user } = renderWithProviders(
+      <OAuthButton provider="GITHUB" flow="pkce" onStartError={onStartError} />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Continue with GitHub' }));
+
+    expect(onStartError).toHaveBeenCalledWith('Secure sign-in could not start. Please try again.');
+    expect(JSON.stringify(onStartError.mock.calls)).not.toContain('secret crypto detail');
   });
 });

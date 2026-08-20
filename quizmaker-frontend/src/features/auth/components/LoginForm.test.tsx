@@ -11,12 +11,23 @@ vi.mock('../AuthContext', () => ({
 }));
 
 vi.mock('./OAuthButton', () => ({
-  default: () => null,
+  default: ({ provider, flow }: { provider: string; flow?: string }) => (
+    <button type="button">{provider} {flow || 'legacy'}</button>
+  ),
 }));
 
 describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('shows two temporary legacy and two PKCE provider buttons', () => {
+    renderWithProviders(<LoginForm />, { withAuthProvider: false });
+
+    expect(screen.getByRole('button', { name: 'GOOGLE legacy' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'GITHUB legacy' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'GOOGLE pkce' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'GITHUB pkce' })).toBeInTheDocument();
   });
 
   it('shows required field feedback before an authentication request', async () => {

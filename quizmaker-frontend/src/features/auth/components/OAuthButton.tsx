@@ -5,15 +5,24 @@
 // Uses theme-aware colors and proper component library
 // ---------------------------------------------------------------------------
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { OAuthProvider } from '../types/auth.types';
+import type { OAuthFlowPurpose } from '../services/oauthPkce';
 import { authService } from '../services/auth.service';
+import { startOAuthAuthorization } from '../services/oauthPkce';
+
+export type OAuthButtonFlow = 'legacy' | 'pkce';
 
 interface OAuthButtonProps {
   provider: OAuthProvider;
   fullWidth?: boolean;
   disabled?: boolean;
   actionText?: string; // Custom action text prefix (e.g., "Register with", "Continue with")
+  flow?: OAuthButtonFlow;
+  flowLabel?: string;
+  purpose?: OAuthFlowPurpose;
+  returnPath?: string;
+  onStartError?: (message: string) => void;
 }
 
 // Provider-specific configuration
@@ -88,29 +97,43 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
   fullWidth = true,
   disabled = false,
   actionText = 'Continue with', // Default to "Continue with" for backward compatibility
+  flow = 'legacy',
+  flowLabel,
+  purpose = 'login',
+  returnPath,
+  onStartError,
 }) => {
   const config = providerConfig[provider];
+  const [isStarting, setIsStarting] = useState(false);
 
-  const handleOAuthLogin = () => {
-    // Redirect directly to the OAuth authorization endpoint
-    // Spring Security OAuth2 expects a browser redirect, not an API call
-    // Note: OAuth endpoints are at /oauth2/authorization/{provider}, NOT under /api
-    window.location.href = authService.getOAuthAuthorizationUrl(provider);
+  const handleOAuthLogin = async () => {
+    if (flow === 'legacy') {
+      window.location.href = authService.getOAuthAuthorizationUrl(provider);
+      return;
+    }
+
+    setIsStarting(true);
+    try {
+      await startOAuthAuthorization({ provider, purpose, returnPath });
+    } catch {
+      onStartError?.('Secure sign-in could not start. Please try again.');
+      setIsStarting(false);
+    }
   };
 
-  const buttonText = `${actionText} ${config.name}`;
+  const buttonText = `${actionText} ${config.name}${flowLabel ? ` (${flowLabel})` : ''}`;
 
   return (
     <button
       type="button"
       onClick={handleOAuthLogin}
-      disabled={disabled}
+      disabled={disabled || isStarting}
       className={`
         ${config.bgClass}
         ${config.textClass}
-        ${fullWidth ? 'w-full' : 'w-14 h-14 sm:w-full sm:h-auto'}
+        ${fullWidth ? 'w-full py-2.5 px-4' : 'w-14 h-14 sm:w-full sm:h-auto'}
         flex items-center justify-center gap-3
-        sm:py-2.5 sm:px-4
+        ${fullWidth ? '' : 'sm:py-2.5 sm:px-4'}
         border border-theme-border-primary
         rounded-lg
         font-medium
@@ -123,7 +146,7 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
     >
       {config.icon}
       {/* Show full text on tablet and up (sm breakpoint), hide on mobile */}
-      <span className="hidden sm:inline">{buttonText}</span>
+      <span className={fullWidth ? 'inline' : 'hidden sm:inline'}>{buttonText}</span>
     </button>
   );
 };

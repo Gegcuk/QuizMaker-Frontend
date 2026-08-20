@@ -5,66 +5,76 @@
 // ---------------------------------------------------------------------------
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
-import { setTokens } from '@/utils';
+import { getAccessToken } from '@/utils';
 import { Seo } from '@/features/seo';
+import { OAuthExchangeError } from '@/features/auth/services/oauthExchange';
+import {
+  OAuthCallbackError,
+  processLegacyOAuthCallbackForTestOnce,
+  processOAuthCallbackOnce,
+} from '@/features/auth/services/oauthCallback';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { checkAuthStatus } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
+    let active = true;
+    let redirectTimer: number | undefined;
+
+    const showFailure = (message: string) => {
+      if (!active) return;
+      setStatus('error');
+      setErrorMessage(message);
+      redirectTimer = window.setTimeout(() => navigate('/login', { replace: true }), 3000);
+    };
+
+    const completeAuthentication = async (redirectTo: string) => {
+      await checkAuthStatus();
+      if (!getAccessToken()) {
+        throw new Error('Current-user validation failed');
+      }
+      if (!active) return;
+      setStatus('success');
+      redirectTimer = window.setTimeout(
+        () => navigate(redirectTo, { replace: true }),
+        1500,
+      );
+    };
+
     const handleCallback = async () => {
       try {
-        // Check if there's an error from the OAuth provider
-        const error = searchParams.get('error');
-        const errorDescription = searchParams.get('error_description');
-
-        if (error) {
-          setStatus('error');
-          setErrorMessage(errorDescription || 'Authentication failed. Please try again.');
-          setTimeout(() => navigate('/login'), 3000);
+        const legacyResult = await processLegacyOAuthCallbackForTestOnce();
+        if (!active) return;
+        if (legacyResult) {
+          await completeAuthentication(legacyResult.returnPath);
           return;
         }
 
-        // According to the backend API docs, JWT tokens are returned in URL query parameters
-        const accessToken = searchParams.get('accessToken') || searchParams.get('access_token');
-        const refreshToken = searchParams.get('refreshToken') || searchParams.get('refresh_token');
-
-        if (accessToken && refreshToken) {
-          // Store tokens in localStorage
-          setTokens(accessToken, refreshToken);
-          
-          // Fetch user info to update auth context
-          await checkAuthStatus();
-          
-          setStatus('success');
-          
-          // Redirect to the intended destination or default to /my-quizzes
-          const redirectTo = sessionStorage.getItem('oauth_redirect') || '/my-quizzes';
-          sessionStorage.removeItem('oauth_redirect');
-          
-          setTimeout(() => navigate(redirectTo, { replace: true }), 1500);
-        } else {
-          // No tokens found in URL - this shouldn't happen
-          setStatus('error');
-          setErrorMessage('No authentication tokens received. Please try again.');
-          setTimeout(() => navigate('/login'), 3000);
-        }
+        const result = await processOAuthCallbackOnce();
+        if (!active) return;
+        await completeAuthentication(result.returnPath);
       } catch (error) {
-        console.error('OAuth callback error:', error);
-        setStatus('error');
-        setErrorMessage('Failed to complete authentication. Please try again.');
-        setTimeout(() => navigate('/login'), 3000);
+        const message = error instanceof OAuthCallbackError || error instanceof OAuthExchangeError
+          ? error.message
+          : 'Failed to complete authentication. Please restart sign-in.';
+        showFailure(message);
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, checkAuthStatus]);
+
+    return () => {
+      active = false;
+      if (redirectTimer !== undefined) {
+        window.clearTimeout(redirectTimer);
+      }
+    };
+  }, [navigate, checkAuthStatus]);
 
   return (
     <>
