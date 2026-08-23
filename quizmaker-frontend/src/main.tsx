@@ -10,22 +10,25 @@ import { QueryProvider } from './providers/QueryProvider';
 import { FeatureFlagProvider } from './utils';
 import { ThemeProvider } from './context/ThemeContext';
 import { AnalyticsProvider } from './features/analytics';
+import { SensitiveUrlBoundary } from './features/privacy';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <AnalyticsProvider>
-      <ThemeProvider>
-        <FeatureFlagProvider>
-          <QueryProvider>
-            <AuthProvider>
-              <ToastProvider>
-                <AppRoutes />
-              </ToastProvider>
-            </AuthProvider>
-          </QueryProvider>
-        </FeatureFlagProvider>
-      </ThemeProvider>
-    </AnalyticsProvider>
+    <SensitiveUrlBoundary>
+      <AnalyticsProvider>
+        <ThemeProvider>
+          <FeatureFlagProvider>
+            <QueryProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <AppRoutes />
+                </ToastProvider>
+              </AuthProvider>
+            </QueryProvider>
+          </FeatureFlagProvider>
+        </ThemeProvider>
+      </AnalyticsProvider>
+    </SensitiveUrlBoundary>
   </BrowserRouter>
 );

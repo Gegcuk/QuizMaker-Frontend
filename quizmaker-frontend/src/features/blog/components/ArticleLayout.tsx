@@ -40,7 +40,7 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({ article }) => {
   const handleCta = (cta?: ArticleCTA) => {
     if (!cta) return;
     if (cta.eventName) {
-      trackEvent(cta.eventName, { source: 'blog_article', slug: article.slug });
+      trackEvent(cta.eventName, { source: 'blog_article' });
     }
     if (cta.href.startsWith('http')) {
       window.location.assign(cta.href);

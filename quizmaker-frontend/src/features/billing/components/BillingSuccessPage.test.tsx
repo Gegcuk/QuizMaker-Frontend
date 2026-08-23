@@ -15,7 +15,10 @@ vi.mock('@/services', () => ({
   },
 }));
 
-const LocationProbe = () => <output data-testid="location">{useLocation().pathname}</output>;
+const LocationProbe = () => {
+  const location = useLocation();
+  return <output data-testid="location">{`${location.pathname}${location.search}${location.hash}`}</output>;
+};
 
 describe('BillingSuccessPage', () => {
   beforeEach(() => {
@@ -52,10 +55,16 @@ describe('BillingSuccessPage', () => {
       updatedAt: '2026-07-16T12:00:00Z',
     });
 
-    renderWithProviders(<BillingSuccessPage />, {
-      route: '/billing/success?session_id=cs_live_123',
-      withAuthProvider: false,
-    });
+    renderWithProviders(
+      <>
+        <BillingSuccessPage />
+        <LocationProbe />
+      </>,
+      {
+        route: '/billing/success?session_id=cs_live_123&customer=private-canary#hash-canary',
+        withAuthProvider: false,
+      },
+    );
 
     await waitFor(() => {
       expect(billingMocks.getCheckoutSessionStatus).toHaveBeenCalledWith('cs_live_123');
@@ -64,6 +73,8 @@ describe('BillingSuccessPage', () => {
     expect(screen.getByText('Yes (1,500 tokens)')).toBeInTheDocument();
     expect(screen.getByText('3,500 tokens')).toBeInTheDocument();
     expect(billingMocks.getBalance).toHaveBeenCalledOnce();
+    expect(screen.getByTestId('location')).toHaveTextContent('/billing/success');
+    expect(screen.queryByText('cs_live_123')).not.toBeInTheDocument();
   });
 
   it('keeps a failed checkout visible and lets the user retry billing', async () => {

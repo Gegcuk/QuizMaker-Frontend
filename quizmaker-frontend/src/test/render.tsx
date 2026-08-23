@@ -7,6 +7,7 @@ import { ToastProvider } from '@/components/ui';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/features/auth';
 import { FeatureFlagProvider, setTokens, clearTokens } from '@/utils';
+import { SensitiveUrlBoundary } from '@/features/privacy';
 
 interface AppRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   route?: string;
@@ -68,13 +69,15 @@ export const renderWithProviders = (
 
     return (
       <MemoryRouter initialEntries={[route]}>
-        <ThemeProvider defaultTheme="light" defaultColorScheme="light">
-          <FeatureFlagProvider>
-            <QueryClientProvider client={queryClient}>
-              {content}
-            </QueryClientProvider>
-          </FeatureFlagProvider>
-        </ThemeProvider>
+        <SensitiveUrlBoundary>
+          <ThemeProvider defaultTheme="light" defaultColorScheme="light">
+            <FeatureFlagProvider>
+              <QueryClientProvider client={queryClient}>
+                {content}
+              </QueryClientProvider>
+            </FeatureFlagProvider>
+          </ThemeProvider>
+        </SensitiveUrlBoundary>
       </MemoryRouter>
     );
   };

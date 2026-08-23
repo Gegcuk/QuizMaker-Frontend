@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="referrer" content="strict-origin" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,41 +15,98 @@
     <meta property="og:url" content="https://www.quizzence.com/" />
     <title>Quizzence</title>
 
-    <script id="oauth-callback-bootstrap">
+    <script id="sensitive-url-bootstrap">
       (function () {
-        var callbackPaths = ['/oauth2/redirect', '/oauth/callback'];
-        if (callbackPaths.indexOf(window.location.pathname) === -1) return;
+        var pathname = window.location.pathname;
+        var normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+        var sensitivePaths = [
+          '/reset-password',
+          '/verify-email',
+          '/billing/success',
+          '/oauth2/redirect',
+          '/oauth/callback'
+        ];
+        if (sensitivePaths.indexOf(normalizedPath) === -1) return;
 
         var params = new URLSearchParams(window.location.search);
-        var code = params.get('code');
-        var error = params.get('error');
-        var allowedErrors = [
-          'oauth_access_denied',
-          'oauth_authentication_failed',
-          'oauth_flow_invalid',
-          'oauth_login_temporarily_unavailable',
-          'oauth_login_failed'
-        ];
-        var captured = null;
-
-        if (code && /^[A-Za-z0-9_-]{43}$/.test(code)) {
-          captured = { version: 1, kind: 'code', value: code, capturedAt: Date.now() };
-        } else if (error && allowedErrors.indexOf(error) !== -1) {
-          captured = { version: 1, kind: 'error', value: error, capturedAt: Date.now() };
-        } else if (code !== null || error !== null) {
-          captured = { version: 1, kind: 'error', value: 'oauth_flow_invalid', capturedAt: Date.now() };
-        }
-
-        if (captured) {
+        var capturedAt = Date.now();
+        var readBounded = function (name, maxLength) {
+          var raw = params.get(name);
+          if (raw === null) return null;
+          var value = raw.trim();
+          return value && value.length <= maxLength ? value : null;
+        };
+        var store = function (key, value) {
           try {
-            sessionStorage.setItem('quizzence:oauth:callback:v1', JSON.stringify(captured));
+            sessionStorage.setItem(key, JSON.stringify(value));
           } catch (_) {
             // URL cleanup still takes precedence if tab storage is unavailable.
           }
+        };
+
+        if (normalizedPath === '/reset-password') {
+          var resetToken = readBounded('token', 2048);
+          if (resetToken) {
+            store('quizzence:auth:password-reset:v1', {
+              version: 1,
+              kind: 'passwordReset',
+              capturedAt: capturedAt,
+              values: { token: resetToken }
+            });
+          }
+        } else if (normalizedPath === '/verify-email') {
+          var verificationToken = readBounded('token', 512);
+          var email = readBounded('email', 320);
+          if (verificationToken || email) {
+            store('quizzence:auth:email-verification:v1', {
+              version: 1,
+              kind: 'emailVerification',
+              capturedAt: capturedAt,
+              values: { token: verificationToken, email: email }
+            });
+          }
+        } else if (normalizedPath === '/billing/success') {
+          var sessionId = readBounded('session_id', 512);
+          if (sessionId) {
+            store('quizzence:billing:checkout-return:v1', {
+              version: 1,
+              kind: 'billingCheckout',
+              capturedAt: capturedAt,
+              values: { sessionId: sessionId }
+            });
+          }
+        } else {
+          var code = readBounded('code', 43);
+          var error = readBounded('error', 64);
+          var allowedErrors = [
+            'oauth_access_denied',
+            'oauth_authentication_failed',
+            'oauth_flow_invalid',
+            'oauth_login_temporarily_unavailable',
+            'oauth_login_failed'
+          ];
+          var oauthCallback = null;
+
+          if (code && /^[A-Za-z0-9_-]{43}$/.test(code)) {
+            oauthCallback = { version: 1, kind: 'code', value: code, capturedAt: capturedAt };
+          } else if (error && allowedErrors.indexOf(error) !== -1) {
+            oauthCallback = { version: 1, kind: 'error', value: error, capturedAt: capturedAt };
+          } else if (params.has('code') || params.has('error')) {
+            oauthCallback = {
+              version: 1,
+              kind: 'error',
+              value: 'oauth_flow_invalid',
+              capturedAt: capturedAt
+            };
+          }
+
+          if (oauthCallback) {
+            store('quizzence:oauth:callback:v1', oauthCallback);
+          }
         }
 
-        if (window.location.search) {
-          history.replaceState(history.state, '', window.location.pathname + window.location.hash);
+        if (window.location.search || window.location.hash) {
+          history.replaceState(history.state, '', pathname);
         }
       })();
     </script>
@@ -60,7 +118,13 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-MJP80B10VH', { send_page_view: false });
+      gtag('config', 'G-MJP80B10VH', {
+        send_page_view: false,
+        page_path: '/',
+        page_title: 'Quizzence',
+        page_location: window.location.origin + '/',
+        page_referrer: ''
+      });
     </script>
   </head>
   <body class="min-h-screen bg-theme-bg-secondary text-theme-text-primary">

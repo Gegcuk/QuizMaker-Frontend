@@ -5,8 +5,9 @@ import {
   consumePendingOAuthFlow,
 } from './oauthPkce';
 import { exchangeOAuthCode } from './oauthExchange';
+import { SENSITIVE_RETURN_STORAGE_KEYS } from '@/features/privacy/sensitiveReturn';
 
-export const OAUTH_CALLBACK_STORAGE_KEY = 'quizzence:oauth:callback:v1';
+export const OAUTH_CALLBACK_STORAGE_KEY = SENSITIVE_RETURN_STORAGE_KEYS.oauthCallback;
 
 const CALLBACK_CODE = /^[A-Za-z0-9_-]{43}$/;
 const CALLBACK_ERRORS = new Set([
