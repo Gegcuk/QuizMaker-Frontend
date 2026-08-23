@@ -4,8 +4,8 @@
 // polls while pending, and refreshes balance once credited.
 // ---------------------------------------------------------------------------
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   PageHeader,
   Card,
@@ -23,15 +23,15 @@ import {
   ClockIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { useSensitiveReturn } from '@/features/privacy';
 
 const POLL_DELAY_MS = 2000;
 const MAX_POLL_ATTEMPTS = 5;
 
 const BillingSuccessPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const sessionId = searchParams.get('session_id')?.trim() || null;
+  const checkoutReturn = useSensitiveReturn('billingCheckout');
+  const sessionId = checkoutReturn?.sessionId ?? null;
 
   const [checkoutStatus, setCheckoutStatus] = useState<CheckoutSessionStatus | null>(null);
   const [balance, setBalance] = useState<BalanceDto | null>(null);
@@ -172,15 +172,7 @@ const BillingSuccessPage: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-theme-text-primary">
-                      Session ID
-                    </p>
-                    <p className="text-xs text-theme-text-secondary break-all">
-                      {sessionId}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-end gap-3">
                   <Button
                     type="button"
                     variant="ghost"

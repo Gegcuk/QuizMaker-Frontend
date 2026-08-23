@@ -4,10 +4,11 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { Button } from '@/components';
 import { authService } from '@/services';
+import { useSensitiveReturn } from '@/features/privacy';
 
 interface EmailVerificationProps {
   onSuccess?: () => void;
@@ -25,8 +26,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
   onError,
   className = ''
 }) => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const verificationReturn = useSensitiveReturn('emailVerification');
 
   // Component state
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>({
@@ -36,9 +36,8 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
   const [isResending, setIsResending] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
 
-  // Get token from URL parameters
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+  const token = verificationReturn?.token ?? null;
+  const email = verificationReturn?.email ?? null;
 
   // Handle automatic verification on component mount
   useEffect(() => {
@@ -245,4 +244,4 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
   );
 };
 
-export default EmailVerification; 
+export default EmailVerification;

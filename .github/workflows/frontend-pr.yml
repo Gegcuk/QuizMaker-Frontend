@@ -58,6 +58,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Production analytics privacy test
+        run: npm run test:privacy:production
+
       - name: Validate deployment workflow policy
         run: npm run test:deployment-policy
 

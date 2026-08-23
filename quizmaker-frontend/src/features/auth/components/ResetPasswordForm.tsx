@@ -4,10 +4,11 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { Button, Input, Alert } from '@/components';
 import { authService } from '@/services';
+import { useSensitiveReturn } from '@/features/privacy';
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
@@ -27,8 +28,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   onError,
   className = ''
 }) => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const passwordResetReturn = useSensitiveReturn('passwordReset');
 
   // Form state
   const [password, setPassword] = useState('');
@@ -39,8 +39,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Get token from URL parameters
-  const token = searchParams.get('token');
+  const token = passwordResetReturn?.token ?? null;
 
   // Check if token is present on component mount
   useEffect(() => {
@@ -337,4 +336,4 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   );
 };
 
-export default ResetPasswordForm; 
+export default ResetPasswordForm;

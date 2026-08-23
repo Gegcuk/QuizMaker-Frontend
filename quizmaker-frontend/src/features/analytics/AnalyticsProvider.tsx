@@ -6,39 +6,34 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackEvent, trackPageView } from './ga4';
-import { getContentGroup } from './contentGrouping';
+import { getAnalyticsRoute } from './routeAnalytics';
 
 interface AnalyticsProviderProps {
   children: React.ReactNode;
 }
 
-const OAUTH_CALLBACK_PATHS = new Set(['/oauth2/redirect', '/oauth/callback']);
-
 const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Defer until the next animation frame so <Seo /> has time to update document.title.
-    const frame = requestAnimationFrame(() => {
-      const path = OAUTH_CALLBACK_PATHS.has(location.pathname)
-        ? location.pathname
-        : `${location.pathname}${location.search}`;
-      const title = document.title || 'Quizzence';
-      const contentGroup = getContentGroup(location.pathname);
+    const analyticsRoute = getAnalyticsRoute(location.pathname);
+    if (!analyticsRoute) return;
 
+    // Coalesce the committed router navigation into one browser-frame page view.
+    const frame = requestAnimationFrame(() => {
       trackPageView({
-        path,
-        title,
-        contentGroup,
+        path: analyticsRoute.template,
+        title: analyticsRoute.title,
+        contentGroup: analyticsRoute.contentGroup,
       });
 
-      if (location.pathname === '/') {
-        trackEvent('view_home', { page_path: path });
+      if (analyticsRoute.template === '/') {
+        trackEvent('view_home');
       }
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [location]);
+  }, [location.key, location.pathname]);
 
   return <>{children}</>;
 };
