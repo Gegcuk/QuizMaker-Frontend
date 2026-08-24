@@ -2,6 +2,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { clearTokens } from '@/utils';
+import { resetAxiosAuthStateForTests } from '@/api/axiosInstance';
+import { resetAuthSessionForTests } from '@/features/auth/services/sessionLifecycle';
 import { server } from './msw/server';
 
 class ResizeObserverMock {
@@ -35,11 +37,13 @@ beforeAll(() => {
 });
 
 afterEach(() => {
+  cleanup();
   server.resetHandlers();
   localStorage.clear();
   sessionStorage.clear();
   clearTokens();
-  cleanup();
+  resetAxiosAuthStateForTests();
+  resetAuthSessionForTests();
 });
 
 afterAll(() => {

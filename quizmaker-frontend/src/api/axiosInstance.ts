@@ -5,14 +5,13 @@
 //   2.  Batches *all* simultaneous 401 responses into **one** token-refresh
 //      round-trip (so N pending requests → 1 × POST /auth/refresh).
 //   3.  Retries the original request once with the fresh token.
-//   4.  If refresh fails (or no refresh-token exists) → logs user out
-//      by clearing localStorage and hard-redirecting to /login.
+//   4.  Rejects responses and refreshes that belong to an old login session.
 //   5.  Support for file uploads (multipart/form-data)
 //   6.  Enhanced error handling for new endpoints
 //   7.  Request/response logging for debugging
 //   8.  Timeout configurations for long-running operations
 //   9.  Progress tracking for file uploads
-//   10. Throttled refresh calls to prevent race conditions
+//   10. Aborts in-flight work when the authenticated principal changes.
 // ---------------------------------------------------------------------------
 
 import axios, {
@@ -24,10 +23,17 @@ import axios, {
 import {
   getAccessToken,
   getRefreshToken,
-  setTokens,
-  clearTokens,
 } from '../utils/tokenUtils';
 import { getSafeRequestTarget } from './requestDiagnostics';
+import {
+  assertCurrentSessionGeneration,
+  getSessionGeneration,
+  isCurrentSessionGeneration,
+  registerSessionRequest,
+  rotateSessionTokens,
+  SessionChangedError,
+  terminateSession,
+} from '@/features/auth/services/sessionLifecycle';
 
 /* ------------------------------------------------------------------------ */
 /* 1. Enhanced Axios instance with timeout and logging                      */
@@ -86,6 +92,11 @@ interface RetryConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
   _isFileUpload?: boolean;
   _isLongRunning?: boolean;
+  _sessionAbortController?: AbortController;
+  _sessionGeneration?: number;
+  _sessionOriginalSignal?: InternalAxiosRequestConfig['signal'];
+  _sessionSignalForwarder?: () => void;
+  _sessionUnregister?: () => void;
 }
 
 /** Progress tracking callback type */
@@ -108,7 +119,29 @@ export interface EnhancedRequestConfig extends InternalAxiosRequestConfig {
 /* 3. Request interceptor – inject “Authorization: Bearer <token>”          */
 /* ------------------------------------------------------------------------ */
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const enhancedConfig = config as EnhancedRequestConfig;
+  const enhancedConfig = config as EnhancedRequestConfig & RetryConfig;
+
+  if (enhancedConfig._sessionGeneration === undefined) {
+    enhancedConfig._sessionGeneration = getSessionGeneration();
+  }
+  assertCurrentSessionGeneration(enhancedConfig._sessionGeneration);
+
+  const originalSignal = enhancedConfig._sessionOriginalSignal ?? enhancedConfig.signal;
+  const sessionController = new AbortController();
+  const forwardAbort = () => sessionController.abort();
+  if (originalSignal?.aborted) {
+    forwardAbort();
+  } else {
+    originalSignal?.addEventListener?.('abort', forwardAbort, { once: true });
+  }
+  enhancedConfig._sessionOriginalSignal = originalSignal;
+  enhancedConfig._sessionAbortController = sessionController;
+  enhancedConfig._sessionSignalForwarder = forwardAbort;
+  enhancedConfig._sessionUnregister = registerSessionRequest(
+    enhancedConfig._sessionGeneration,
+    sessionController,
+  );
+  enhancedConfig.signal = sessionController.signal;
   
   // Set appropriate timeout based on request type
   if (enhancedConfig._isFileUpload) {
@@ -151,10 +184,31 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 /** A promise that resolves with a fresh *access* token once the ongoing
  *  refresh finishes. All requests that hit 401 while refresh is running
  *  await this promise instead of firing additional /auth/refresh calls. */
-let refreshPromise: Promise<string> | null = null;
+interface RefreshFlight {
+  generation: number;
+  promise: Promise<string>;
+}
+
+let refreshFlight: RefreshFlight | null = null;
+
+const releaseSessionRequest = (config: RetryConfig | undefined): void => {
+  if (!config) {
+    return;
+  }
+
+  config._sessionUnregister?.();
+  if (config._sessionOriginalSignal && config._sessionSignalForwarder) {
+    config._sessionOriginalSignal.removeEventListener?.('abort', config._sessionSignalForwarder);
+  }
+  config.signal = config._sessionOriginalSignal;
+  delete config._sessionAbortController;
+  delete config._sessionSignalForwarder;
+  delete config._sessionUnregister;
+};
 
 /** Helper: perform the refresh in isolation (never uses the shared instance) */
-const runRefresh = async (): Promise<string> => {
+const runRefresh = async (generation: number): Promise<string> => {
+  assertCurrentSessionGeneration(generation);
   const refreshToken = getRefreshToken();
   if (!refreshToken) {
     throw new Error('No refresh token present');
@@ -164,35 +218,69 @@ const runRefresh = async (): Promise<string> => {
   const refreshBaseUrl = apiBaseUrl;
   const refreshUrl = `${refreshBaseUrl}/v1/auth/refresh`;
 
-  const { data } = await axios.post<RefreshResponse>(
-    refreshUrl,
-    { refreshToken },
-  );
+  const controller = new AbortController();
+  const unregister = registerSessionRequest(generation, controller);
+  try {
+    const { data } = await axios.post<RefreshResponse>(
+      refreshUrl,
+      { refreshToken },
+      { signal: controller.signal },
+    );
 
-  setTokens(data.accessToken, data.refreshToken);
-  return data.accessToken;
+    rotateSessionTokens(generation, data.accessToken, data.refreshToken);
+    return data.accessToken;
+  } finally {
+    unregister();
+  }
 };
 
-/** Centralised "logout-and-redirect" so we do it the same way everywhere */
-const forceLogout = () => {
-  clearTokens();
-  
-  // Dispatch a custom event that AuthContext can listen to
-  // This allows for better integration with React state management
-  window.dispatchEvent(new CustomEvent('auth:force-logout', {
-    detail: { reason: 'token-expired' }
-  }));
-  
-  // Fallback: hard redirect if the event listener doesn't handle it
-  setTimeout(() => {
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
-  }, 100);
+const isTerminalRefreshError = (error: unknown): boolean => {
+  return axios.isAxiosError(error) && error.response?.status === 401;
+};
+
+const getRefreshFlight = (generation: number): Promise<string> => {
+  if (refreshFlight?.generation === generation) {
+    return refreshFlight.promise;
+  }
+
+  const settledPromise = runRefresh(generation)
+    .catch((error: unknown) => {
+      if (isCurrentSessionGeneration(generation) && isTerminalRefreshError(error)) {
+        terminateSession('forced-logout');
+      }
+      throw error;
+    })
+    .finally(() => {
+      if (refreshFlight?.generation === generation) {
+        refreshFlight = null;
+      }
+    });
+
+  refreshFlight = { generation, promise: settledPromise };
+  return settledPromise;
+};
+
+const NON_REFRESHABLE_AUTH_PATHS = [
+  '/v1/auth/login',
+  '/v1/auth/register',
+  '/v1/auth/refresh',
+  '/v1/auth/oauth/exchange',
+  '/v1/auth/forgot-password',
+  '/v1/auth/reset-password',
+  '/v1/auth/verify-email',
+  '/v1/auth/resend-verification',
+];
+
+const isRefreshableRequest = (url: string | undefined): boolean => {
+  return !NON_REFRESHABLE_AUTH_PATHS.some((path) => url?.startsWith(path));
 };
 
 api.interceptors.response.use(
   (response: AxiosResponse) => {
+    const config = response.config as RetryConfig;
+    releaseSessionRequest(config);
+    assertCurrentSessionGeneration(config._sessionGeneration ?? getSessionGeneration());
+
     // Response logging in development
     if (isDevelopment) {
       console.group(
@@ -214,90 +302,41 @@ api.interceptors.response.use(
       console.groupEnd();
     }
     const original = error.config as RetryConfig | undefined;
+    releaseSessionRequest(original);
 
-    /* ------------------------------------------------------------------ */
-    /* Bail-out cases – we won’t even *try* to refresh                     */
-    /* ------------------------------------------------------------------ */
-    if (
-      error.response?.status !== 401 || // not an auth error
-      original?._retry || // we already retried this request once
-      !getRefreshToken() // no refresh-token to exchange
-    ) {
+    const requestGeneration = original?._sessionGeneration ?? getSessionGeneration();
+    if (!isCurrentSessionGeneration(requestGeneration)) {
+      return Promise.reject(new SessionChangedError());
+    }
+
+    if (error.response?.status !== 401 || !original || !isRefreshableRequest(original.url)) {
       return Promise.reject(error);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* First 401 encounter for this request – mark it so we don’t loop     */
-    /* ------------------------------------------------------------------ */
-    if (original) {
-      original._retry = true;
+    if (original._retry) {
+      terminateSession('forced-logout');
+      return Promise.reject(error);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Ensure only the FIRST 401 kicks off a refresh                       */
-    /* ------------------------------------------------------------------ */
-    if (!refreshPromise) {
-      refreshPromise = runRefresh().catch((refreshErr) => {
-        // Important: clear the shared promise *before* we throw so that
-        // subsequent requests don’t hang forever.
-        refreshPromise = null;
-        forceLogout();
-        throw refreshErr;
-      });
-      // When the refresh completes (success or failure) we must clear it so
-      // future 401s can spawn a new cycle.
-      refreshPromise.finally(() => {
-        refreshPromise = null;
-      });
+    if (!getRefreshToken()) {
+      if (getAccessToken() || original.headers?.get?.('Authorization')) {
+        terminateSession('forced-logout');
+      }
+      return Promise.reject(error);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Wait here until refresh finishes (success OR failure)               */
-    /* ------------------------------------------------------------------ */
-    const newAccessToken = await refreshPromise;
+    original._retry = true;
+    const newAccessToken = await getRefreshFlight(requestGeneration);
+    assertCurrentSessionGeneration(requestGeneration);
 
-    /* ------------------------------------------------------------------ */
-    /* At this point we have a fresh token – repeat the original request   */
-    /* ------------------------------------------------------------------ */
-    if (original) {
-      original.headers = {
-        ...(original.headers as any),
-        Authorization: `Bearer ${newAccessToken}`,
-      } as any;
-      return api(original);
-    }
-
-    // In the unlikely event original is undefined, treat as fatal
-    forceLogout();
-    return Promise.reject(error);
+    original.headers.set('Authorization', `Bearer ${newAccessToken}`);
+    return api(original);
   },
 );
 
 /* ------------------------------------------------------------------------ */
 /* 5. Utility functions for enhanced features                               */
 /* ------------------------------------------------------------------------ */
-
-/** Throttled refresh mechanism to prevent race conditions */
-let refreshThrottleTimeout: number | null = null;
-const REFRESH_THROTTLE_DELAY = 1000; // 1 second
-
-const throttledRefresh = async (): Promise<string> => {
-  if (refreshThrottleTimeout) {
-    // Wait for existing refresh to complete
-    return new Promise((resolve, reject) => {
-      refreshThrottleTimeout = setTimeout(async () => {
-        try {
-          const token = await runRefresh();
-          resolve(token);
-        } catch (error) {
-          reject(error);
-        }
-      }, REFRESH_THROTTLE_DELAY);
-    });
-  }
-  
-  return runRefresh();
-};
 
 /** Create a file upload request with progress tracking */
 export const createFileUploadRequest = (
@@ -386,6 +425,27 @@ export const handleApiError = (error: AxiosError): never => {
     // Other error
     throw new Error(error.message || 'An unexpected error occurred');
   }
+};
+
+/**
+ * Revokes the session that existed before the local identity boundary moved.
+ * It intentionally bypasses the shared client so a newer login cannot attach
+ * its credentials or cancel revocation of the captured access token.
+ */
+export const revokeAccessToken = async (accessToken: string): Promise<void> => {
+  try {
+    await axios.post(
+      `${apiBaseUrl}/v1/auth/logout`,
+      undefined,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+  } catch {
+    // Local logout remains authoritative when the revocation request cannot complete.
+  }
+};
+
+export const resetAxiosAuthStateForTests = (): void => {
+  refreshFlight = null;
 };
 
 export const axiosInstance = api;

@@ -13,12 +13,17 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/services';
-import {
-  getAccessToken,
-  setTokens,
-  clearTokens,
-} from '@/utils';
+import { getAccessToken } from '@/utils';
 import { UserDto } from '@/types';
+import { revokeAccessToken } from '@/api/axiosInstance';
+import {
+  establishSession,
+  getSessionGeneration,
+  isCurrentSessionGeneration,
+  SessionChangedError,
+  subscribeToSessionTransitions,
+  terminateSession,
+} from './services/sessionLifecycle';
 
 interface JwtResponse {
   accessToken: string;
@@ -35,7 +40,7 @@ interface AuthContextType {
     email: string;
     password: string;
   }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
 }
 
@@ -49,55 +54,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  /* Helper – centralises GET /auth/me + state sync */
-  const fetchCurrentUser = useCallback(async () => {
+  /* Helper – centralises GET /auth/me + generation-safe state sync */
+  const fetchCurrentUser = useCallback(async (
+    expectedGeneration = getSessionGeneration(),
+  ): Promise<boolean> => {
+    setIsLoading(true);
     try {
       const { data } = await api.get<UserDto>('/v1/auth/me');
+      if (!isCurrentSessionGeneration(expectedGeneration)) {
+        return false;
+      }
       setUser(data);
-    } catch {
-      // api instance has already tried a refresh. If we still get here
-      // the session is invalid → blow everything away.
-      clearTokens();
-      setUser(null);
+      return true;
+    } catch (error) {
+      if (error instanceof SessionChangedError
+        || !isCurrentSessionGeneration(expectedGeneration)) {
+        return false;
+      }
+
+      terminateSession('restore-failed');
+      return false;
     } finally {
-      setIsLoading(false);
+      if (isCurrentSessionGeneration(expectedGeneration)) {
+        setIsLoading(false);
+      }
     }
   }, []);
+
+  /* -------------------------------------------------------------------- */
+  /* Keep this tab aligned with local and remote principal transitions.    */
+  /* -------------------------------------------------------------------- */
+  useEffect(() => {
+    return subscribeToSessionTransitions((transition) => {
+      if (transition.status === 'anonymous') {
+        setUser(null);
+        setIsLoading(false);
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      if (transition.origin === 'remote') {
+        setUser(null);
+        setIsLoading(true);
+        void fetchCurrentUser(transition.generation);
+      }
+    });
+  }, [fetchCurrentUser, navigate]);
 
   /* -------------------------------------------------------------------- */
   /* On mount: if an accessToken is lying around try to resurrect session */
   /* -------------------------------------------------------------------- */
   useEffect(() => {
     if (getAccessToken()) {
-      fetchCurrentUser();
+      void fetchCurrentUser();
     } else {
       setIsLoading(false);
     }
   }, [fetchCurrentUser]);
-
-  /* -------------------------------------------------------------------- */
-  /* Listen for force logout events from axios interceptor                */
-  /* -------------------------------------------------------------------- */
-  useEffect(() => {
-    const handleForceLogout = (event: CustomEvent) => {
-      const reason = event.detail?.reason;
-      console.log('Force logout triggered:', reason);
-      
-      // Clear auth state
-      clearTokens();
-      setUser(null);
-      
-      // Navigate to login with replace to prevent back navigation
-      navigate('/login', { replace: true });
-    };
-
-    // Listen for the custom event dispatched by axios interceptor
-    window.addEventListener('auth:force-logout', handleForceLogout as EventListener);
-    
-    return () => {
-      window.removeEventListener('auth:force-logout', handleForceLogout as EventListener);
-    };
-  }, [navigate]);
 
   /* -------------------------------------------------------------------- */
   /*  Public actions                                                      */
@@ -106,9 +119,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async (creds: { username: string; password: string }) => {
       const { data } = await api.post<JwtResponse>('/v1/auth/login', creds);
 
-      setTokens(data.accessToken, data.refreshToken);
-      await fetchCurrentUser();
-      navigate('/quizzes', { replace: true });
+      const transition = establishSession(data.accessToken, data.refreshToken, 'login');
+      setUser(null);
+      const restored = await fetchCurrentUser(transition.generation);
+      if (!restored) {
+        throw new Error('Unable to validate the new session. Please sign in again.');
+      }
+      if (isCurrentSessionGeneration(transition.generation)) {
+        navigate('/quizzes', { replace: true });
+      }
     },
     [fetchCurrentUser, navigate],
   );
@@ -126,14 +145,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const logout = useCallback(async () => {
-    try {
-      await api.post('/v1/auth/logout');
-    } finally {
-      clearTokens();
-      setUser(null);
-      navigate('/login', { replace: true });
+    const accessToken = getAccessToken();
+    terminateSession('logout');
+
+    if (accessToken) {
+      await revokeAccessToken(accessToken);
     }
-  }, [navigate]);
+  }, []);
+
+  const checkAuthStatus = useCallback(async () => {
+    await fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   /* Memoise context value to avoid re-renders of all consumers on every keystroke */
   const value = useMemo<AuthContextType>(
@@ -144,9 +166,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       login,
       register,
       logout,
-      checkAuthStatus: fetchCurrentUser,
+      checkAuthStatus,
     }),
-    [user, isLoading, login, register, logout, fetchCurrentUser],
+    [user, isLoading, login, register, logout, checkAuthStatus],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
