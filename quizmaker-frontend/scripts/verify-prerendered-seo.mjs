@@ -124,25 +124,30 @@ const main = async () => {
     fs.readFile(path.join(distDir, 'sitemap.xml'), 'utf8'),
     fs.readFile(path.join(distDir, 'sitemap_articles.xml'), 'utf8'),
   ]);
-  const sitemapUrls = new Set(readSitemapUrls(sitemap, 'sitemap.xml'));
+  const staticSitemapUrls = new Set(readSitemapUrls(sitemap, 'sitemap.xml'));
   const requireArticles = process.env.REQUIRE_ARTICLE_ROUTES === 'true';
   const articleUrls = readSitemapUrls(articleSitemap, 'sitemap_articles.xml', {
     allowEmpty: !requireArticles,
   });
+  const articleSitemapUrls = new Set(articleUrls);
   const baseUrl = (process.env.VITE_SITE_URL || 'https://www.quizzence.com').replace(/\/$/, '');
 
   for (const route of staticPrerenderRoutes) {
-    assert.ok(sitemapUrls.has(`${baseUrl}${route.path}`), `Expected ${route.path} in sitemap.xml`);
+    const routeUrl = `${baseUrl}${route.path}`;
+    assert.ok(staticSitemapUrls.has(routeUrl), `Expected ${route.path} in sitemap.xml`);
+    assert.ok(!articleSitemapUrls.has(routeUrl), `Expected static route ${route.path} outside sitemap_articles.xml`);
     await assertStaticRouteHtml(route, baseUrl);
   }
 
   for (const route of publicRouteManifest.filter((candidate) => !candidate.indexable)) {
-    assert.ok(!sitemapUrls.has(`${baseUrl}${route.path}`), `Expected noindex route ${route.path} outside sitemap.xml`);
+    const routeUrl = `${baseUrl}${route.path}`;
+    assert.ok(!staticSitemapUrls.has(routeUrl), `Expected noindex route ${route.path} outside sitemap.xml`);
+    assert.ok(!articleSitemapUrls.has(routeUrl), `Expected noindex route ${route.path} outside sitemap_articles.xml`);
   }
   await assertNotFoundHtml();
 
   for (const articleUrl of articleUrls) {
-    assert.ok(sitemapUrls.has(articleUrl), `Expected ${articleUrl} in sitemap.xml as well as sitemap_articles.xml`);
+    assert.ok(!staticSitemapUrls.has(articleUrl), `Expected article URL ${articleUrl} outside static sitemap.xml`);
     await assertArticleHtml(articleUrl);
   }
 

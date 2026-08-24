@@ -279,6 +279,7 @@ jobs:
           PUBLIC_ROUTE_BASE_URL: ${{ secrets.VITE_SITE_URL }}
           PUBLIC_ROUTE_CANONICAL_ORIGIN: ${{ secrets.VITE_SITE_URL }}
           PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'
+          PUBLIC_ROUTE_SITEMAP_OWNER: 'backend'
           REQUIRE_ARTICLE_ROUTES: 'true'
         run: npm run verify:public-routes
 

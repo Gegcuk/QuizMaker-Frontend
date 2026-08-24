@@ -9,11 +9,8 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
 
-const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
-const baseUrl = SITE_URL.replace(/\/$/, '');
-
 // Generate XML sitemap
-const generateSitemap = (routes) => {
+const generateSitemap = (routes, baseUrl) => {
   const urlEntries = routes.map((route) => {
     const loc = `${baseUrl}${route.path}`;
     let entry = `  <url>\n    <loc>${escapeXml(loc)}</loc>\n`;
@@ -42,6 +39,19 @@ ${urlEntries}
 </urlset>`;
 };
 
+export const buildSitemapDocuments = ({
+  staticRoutes,
+  articleRoutes,
+  siteUrl = 'https://www.quizzence.com',
+}) => {
+  const baseUrl = siteUrl.replace(/\/$/, '');
+
+  return {
+    staticSitemap: generateSitemap(staticRoutes, baseUrl),
+    articleSitemap: generateSitemap(articleRoutes, baseUrl),
+  };
+};
+
 // Escape XML special characters
 const escapeXml = (str) => {
   return str
@@ -53,29 +63,34 @@ const escapeXml = (str) => {
 };
 
 // Main function
-const generateSitemapFile = async () => {
+export const generateSitemapFiles = async () => {
   const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
   const staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true';
   const articleRoutes = staticOnly ? [] : await loadArticleSitemapRoutes({ apiBaseUrl });
-  const allRoutes = [...staticSitemapRoutes, ...articleRoutes];
   const sitemapPath = path.join(distDir, 'sitemap.xml');
   const articlesSitemapPath = path.join(distDir, 'sitemap_articles.xml');
+  const documents = buildSitemapDocuments({
+    staticRoutes: staticSitemapRoutes,
+    articleRoutes,
+    siteUrl: process.env.VITE_SITE_URL || 'https://www.quizzence.com',
+  });
 
   await fs.mkdir(distDir, { recursive: true });
   await Promise.all([
-    fs.writeFile(sitemapPath, generateSitemap(allRoutes), 'utf8'),
-    fs.writeFile(articlesSitemapPath, generateSitemap(articleRoutes), 'utf8'),
+    fs.writeFile(sitemapPath, documents.staticSitemap, 'utf8'),
+    fs.writeFile(articlesSitemapPath, documents.articleSitemap, 'utf8'),
   ]);
 
-  console.log(`Generated sitemap with ${allRoutes.length} URLs -> ${path.relative(rootDir, sitemapPath)}`);
+  console.log(`Generated static sitemap with ${staticSitemapRoutes.length} URLs -> ${path.relative(rootDir, sitemapPath)}`);
   console.log(`Generated articles sitemap with ${articleRoutes.length} URLs -> ${path.relative(rootDir, articlesSitemapPath)}`);
 };
 
-generateSitemapFile()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err) => {
+const isDirectRun = process.argv[1]
+  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  generateSitemapFiles().catch((err) => {
     console.error('Sitemap generation failed:', err);
-    process.exit(1);
+    process.exitCode = 1;
   });
+}

@@ -83,15 +83,63 @@ const readSitemapPaths = async (baseUrl, sitemapPath) => {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
 };
 
+const supportedSitemapOwners = new Set(['frontend', 'backend']);
+
+const getNoindexDeliveryPaths = () => publicRouteManifest
+  .filter((route) => route.delivery === 'spa' || route.delivery === 'callback')
+  .flatMap((route) => [route.path, getAlternatePublicRoutePath(route)].filter(Boolean));
+
+export const validateSitemapPolicy = ({
+  staticSitemapPaths,
+  articleSitemapPaths,
+  sitemapOwner = 'frontend',
+}) => {
+  if (!supportedSitemapOwners.has(sitemapOwner)) {
+    throw new TypeError(`Unsupported sitemap owner: ${sitemapOwner}`);
+  }
+
+  const staticPaths = new Set(staticSitemapPaths);
+  const articlePaths = new Set(articleSitemapPaths);
+
+  for (const route of publicRouteManifest.filter((candidate) => candidate.delivery === 'prerender')) {
+    assert.ok(staticPaths.has(route.path), `Expected sitemap.xml to include ${route.path}`);
+    assert.ok(!articlePaths.has(route.path), `Expected sitemap_articles.xml to omit static route ${route.path}`);
+  }
+
+  for (const articlePath of articlePaths) {
+    assert.ok(!staticPaths.has(articlePath), `Expected static sitemap.xml to omit article route ${articlePath}`);
+  }
+
+  const noindexPaths = getNoindexDeliveryPaths().filter(
+    (routePath) => staticPaths.has(routePath) || articlePaths.has(routePath),
+  );
+
+  if (sitemapOwner === 'frontend') {
+    assert.deepEqual(
+      noindexPaths,
+      [],
+      `Expected frontend-owned sitemaps to omit noindex routes: ${noindexPaths.join(', ')}`,
+    );
+  }
+
+  return { backendOwnedNoindexPaths: noindexPaths };
+};
+
 export const verifyPublicRouteDelivery = async ({
   baseUrl,
   canonicalOrigin = 'https://www.quizzence.com',
   requireArticles = false,
+  sitemapOwner = 'frontend',
 }) => {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, '');
   const normalizedCanonicalOrigin = canonicalOrigin.replace(/\/$/, '');
-  const mainSitemapPaths = new Set(await readSitemapPaths(normalizedBaseUrl, '/sitemap.xml'));
+  const staticSitemapPaths = await readSitemapPaths(normalizedBaseUrl, '/sitemap.xml');
   const articlePaths = await readSitemapPaths(normalizedBaseUrl, '/sitemap_articles.xml');
+  const sitemapPolicy = validateSitemapPolicy({
+    staticSitemapPaths,
+    articleSitemapPaths: articlePaths,
+    sitemapOwner,
+  });
 
   if (requireArticles) {
     assert.ok(articlePaths.length > 0, 'Expected the production article sitemap to contain an article URL');
@@ -99,7 +147,6 @@ export const verifyPublicRouteDelivery = async ({
 
   for (const route of publicRouteManifest) {
     if (route.delivery === 'prerender') {
-      assert.ok(mainSitemapPaths.has(route.path), `Expected sitemap.xml to include ${route.path}`);
       await assertIndexableHtml({
         baseUrl: normalizedBaseUrl,
         canonicalOrigin: normalizedCanonicalOrigin,
@@ -128,12 +175,10 @@ export const verifyPublicRouteDelivery = async ({
           assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
         }
       }
-      assert.ok(!mainSitemapPaths.has(route.path), `Expected sitemap.xml to omit ${route.path}`);
     }
   }
 
   for (const articlePath of articlePaths) {
-    assert.ok(mainSitemapPaths.has(articlePath), `Expected sitemap.xml to include ${articlePath}`);
     await assertIndexableHtml({
       baseUrl: normalizedBaseUrl,
       canonicalOrigin: normalizedCanonicalOrigin,
@@ -163,6 +208,7 @@ export const verifyPublicRouteDelivery = async ({
   return {
     staticRouteCount: publicRouteManifest.filter((route) => route.delivery === 'prerender').length,
     articleRouteCount: articlePaths.length,
+    backendOwnedNoindexPaths: sitemapPolicy.backendOwnedNoindexPaths,
   };
 };
 
@@ -179,7 +225,13 @@ if (isDirectRun) {
     baseUrl,
     canonicalOrigin: process.env.PUBLIC_ROUTE_CANONICAL_ORIGIN,
     requireArticles: process.env.REQUIRE_ARTICLE_ROUTES === 'true',
+    sitemapOwner: process.env.PUBLIC_ROUTE_SITEMAP_OWNER,
   });
+  for (const routePath of result.backendOwnedNoindexPaths) {
+    console.warn(
+      `Backend-owned sitemap includes frontend noindex route ${routePath}; track this in the backend repository.`,
+    );
+  }
   console.log(
     `Verified public delivery for ${result.staticRouteCount} static routes and ${result.articleRouteCount} article routes.`,
   );
