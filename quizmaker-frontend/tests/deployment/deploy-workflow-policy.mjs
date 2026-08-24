@@ -46,6 +46,7 @@ const main = async () => {
 
   assert.match(workflow, /name: Verify public routes in production[\s\S]*run: npm run verify:public-routes/);
   assert.match(workflow, /PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'/);
+  assert.match(workflow, /PUBLIC_ROUTE_SITEMAP_OWNER: 'backend'/);
   assert.match(workflow, /REQUIRE_ARTICLE_ROUTES: 'true'/);
 
   const bootstrapMatch = indexHtml.match(
