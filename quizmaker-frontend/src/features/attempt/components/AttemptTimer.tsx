@@ -4,7 +4,7 @@
 // Shows remaining time with warnings and auto-submission capability
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 interface AttemptTimerProps {
   durationMinutes: number;
@@ -21,9 +21,13 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
   isPaused = false,
   className = ''
 }) => {
-  const [timeRemaining, setTimeRemaining] = useState(durationMinutes * 60); // Convert to seconds
-  const [isWarning, setIsWarning] = useState(false);
-  const [isCritical, setIsCritical] = useState(false);
+  const durationSeconds = Math.max(0, Math.round(durationMinutes * 60));
+  const [timeRemaining, setTimeRemaining] = useState(durationSeconds);
+  const onTimeUpRef = useRef(onTimeUp);
+  const onWarningRef = useRef(onWarning);
+  const timeUpFiredRef = useRef(false);
+  const warningLevelRef = useRef<'none' | 'warning' | 'critical'>('none');
+  const previousDurationRef = useRef(durationSeconds);
 
   // Warning thresholds (in minutes)
   const WARNING_THRESHOLD = 5; // 5 minutes remaining
@@ -40,6 +44,16 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
+  const remainingMinutes = Math.ceil(timeRemaining / 60);
+  const warningLevel = remainingMinutes <= CRITICAL_THRESHOLD
+    ? 'critical'
+    : remainingMinutes <= WARNING_THRESHOLD
+      ? 'warning'
+      : 'none';
+  const isCritical = warningLevel === 'critical';
+  const isWarning = warningLevel === 'warning';
+  const hasExpired = timeRemaining <= 0;
+
   const getTimerColor = (): string => {
     if (isCritical) return 'text-theme-interactive-danger bg-theme-bg-tertiary border-theme-border-primary';
     if (isWarning) return 'text-theme-interactive-warning bg-theme-bg-tertiary border-theme-border-primary';
@@ -53,44 +67,42 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
   };
 
   useEffect(() => {
-    if (isPaused) return;
+    onTimeUpRef.current = onTimeUp;
+    onWarningRef.current = onWarning;
+  }, [onTimeUp, onWarning]);
+
+  useEffect(() => {
+    if (isPaused || hasExpired) return undefined;
 
     const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        const newTime = prev - 1;
-        
-        // Check for warnings
-        const remainingMinutes = Math.ceil(newTime / 60);
-        
-        if (remainingMinutes <= CRITICAL_THRESHOLD && !isCritical) {
-          setIsCritical(true);
-          setIsWarning(false);
-          if (onWarning) onWarning(remainingMinutes);
-        } else if (remainingMinutes <= WARNING_THRESHOLD && !isWarning && !isCritical) {
-          setIsWarning(true);
-          if (onWarning) onWarning(remainingMinutes);
-        }
-
-        // Time's up
-        if (newTime <= 0) {
-          clearInterval(interval);
-          onTimeUp();
-          return 0;
-        }
-
-        return newTime;
-      });
+      setTimeRemaining((previous) => Math.max(0, previous - 1));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPaused, onTimeUp, onWarning, isCritical, isWarning]);
+  }, [hasExpired, isPaused]);
+
+  useEffect(() => {
+    if (warningLevel === warningLevelRef.current) return;
+    warningLevelRef.current = warningLevel;
+    if (warningLevel !== 'none') {
+      onWarningRef.current?.(remainingMinutes);
+    }
+  }, [remainingMinutes, warningLevel]);
+
+  useEffect(() => {
+    if (timeRemaining > 0 || timeUpFiredRef.current) return;
+    timeUpFiredRef.current = true;
+    onTimeUpRef.current();
+  }, [timeRemaining]);
 
   // Reset timer state when duration changes
   useEffect(() => {
-    setTimeRemaining(durationMinutes * 60);
-    setIsWarning(false);
-    setIsCritical(false);
-  }, [durationMinutes]);
+    if (previousDurationRef.current === durationSeconds) return;
+    previousDurationRef.current = durationSeconds;
+    setTimeRemaining(durationSeconds);
+    timeUpFiredRef.current = false;
+    warningLevelRef.current = 'none';
+  }, [durationSeconds]);
 
   return (
     <div className={`border rounded-lg p-3 ${getTimerColor()} ${className}`}>
@@ -132,7 +144,7 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
             isCritical ? 'bg-theme-interactive-danger' : isWarning ? 'bg-theme-interactive-warning' : 'bg-theme-interactive-info'
           }`}
           style={{ 
-            width: `${Math.max(0, (timeRemaining / (durationMinutes * 60)) * 100)}%` 
+            width: `${durationSeconds > 0 ? Math.max(0, (timeRemaining / durationSeconds) * 100) : 0}%`
           }}
         />
       </div>

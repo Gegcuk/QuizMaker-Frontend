@@ -131,17 +131,14 @@ describe('answer submission flows', () => {
   });
 
   it('allows documented partial batch submission and preserves falsy answers', async () => {
-    const submitBatchAnswers = vi
-      .spyOn(AttemptService.prototype, 'submitBatchAnswers')
-      .mockResolvedValue([answerResult]);
+    const submitBatchAnswers = vi.fn().mockResolvedValue([answerResult]);
     const onSubmissionComplete = vi.fn();
     const { user } = renderWithProviders(
       <AttemptBatchAnswers
-        attemptId="attempt-1"
         answers={{ 'question-1': false }}
         totalQuestions={2}
+        onSubmit={submitBatchAnswers}
         onSubmissionComplete={onSubmissionComplete}
-        onSubmissionError={vi.fn()}
       />,
       { withAuthProvider: false },
     );
@@ -150,7 +147,7 @@ describe('answer submission flows', () => {
     await user.click(screen.getByRole('button', { name: 'Submit All Answers' }));
 
     await waitFor(() => {
-      expect(submitBatchAnswers).toHaveBeenCalledWith('attempt-1', {
+      expect(submitBatchAnswers).toHaveBeenCalledWith({
         answers: [{ questionId: 'question-1', response: false }],
       });
     });

@@ -1,6 +1,7 @@
 // Attempt feature exports
 export { AttemptService } from './services/attempt.service';
 export { ATTEMPT_ENDPOINTS } from './services/attempt.endpoints';
+export { useAttemptSessionController } from './hooks/useAttemptSessionController';
 
 // Types
 export type {
