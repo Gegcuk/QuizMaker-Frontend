@@ -5,36 +5,37 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { AttemptService } from '@/services';
-import { BatchAnswerSubmissionRequest, AnswerSubmissionRequest } from '@/types';
-import { api } from '@/services';
+import type {
+  AnswerSubmissionDto,
+  AnswerSubmissionRequest,
+  BatchAnswerSubmissionRequest,
+} from '@/types';
 import { Button } from '@/components';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface AttemptBatchAnswersProps {
-  attemptId: string;
-  answers: Record<string, any>;
+  answers: Record<string, unknown>;
   totalQuestions: number;
-  existingAnswers?: Record<string, any>; // Track already submitted answers
-  onSubmissionComplete: (results: any[]) => void;
-  onSubmissionError: (error: string) => void;
+  existingAnswers?: Record<string, unknown>;
+  onSubmit: (
+    request: BatchAnswerSubmissionRequest,
+  ) => Promise<AnswerSubmissionDto[] | undefined>;
+  onSubmissionComplete: (results: AnswerSubmissionDto[]) => Promise<void> | void;
   className?: string;
 }
 
 const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
-  attemptId,
   answers,
   totalQuestions,
   existingAnswers = {},
+  onSubmit,
   onSubmissionComplete,
-  onSubmissionError,
   className = ''
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionProgress, setSubmissionProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
-  const attemptService = new AttemptService(api);
 
   const validateAnswers = (): string[] => {
     const errors: string[] = [];
@@ -75,7 +76,7 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
 
       if (newAnswers.length === 0) {
         // No new answers to submit, just complete the attempt
-        onSubmissionComplete([]);
+        await onSubmissionComplete([]);
         return;
       }
 
@@ -89,31 +90,13 @@ const AttemptBatchAnswers: React.FC<AttemptBatchAnswersProps> = ({
         answers: batchAnswers
       };
 
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setSubmissionProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-      const results = await attemptService.submitBatchAnswers(attemptId, request);
-      
-      clearInterval(progressInterval);
+      setSubmissionProgress(50);
+      const results = await onSubmit(request);
+      if (!results) return;
       setSubmissionProgress(100);
-
-      // Small delay to show completion
-      setTimeout(() => {
-        onSubmissionComplete(results);
-      }, 500);
-
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to submit answers. Please try again.';
-      setError(errorMessage);
-      onSubmissionError(errorMessage);
+      await onSubmissionComplete(results);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

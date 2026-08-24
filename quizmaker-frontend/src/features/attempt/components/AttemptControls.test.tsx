@@ -1,6 +1,7 @@
+import React, { StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderWithProviders, screen, waitFor } from '@/test/render';
-import type { AttemptDto, QuestionForAttemptDto } from '../types/attempt.types';
+import type { QuestionForAttemptDto } from '../types/attempt.types';
 import { AttemptService } from '../services/attempt.service';
 import AttemptNavigation from './AttemptNavigation';
 import AttemptPause from './AttemptPause';
@@ -16,15 +17,6 @@ const baseQuestion: QuestionForAttemptDto = {
   difficulty: 'MEDIUM',
   questionText: 'The contract is stable.',
   safeContent: {},
-};
-
-const pausedAttempt: AttemptDto = {
-  attemptId: 'attempt-1',
-  quizId: 'quiz-1',
-  userId: 'user-1',
-  startedAt: '2026-06-29T12:00:00Z',
-  status: 'PAUSED',
-  mode: 'ONE_BY_ONE',
 };
 
 afterEach(() => {
@@ -137,11 +129,13 @@ describe('AttemptTimer', () => {
     const onTimeUp = vi.fn();
 
     renderWithProviders(
-      <AttemptTimer
-        durationMinutes={1 / 60}
-        onWarning={onWarning}
-        onTimeUp={onTimeUp}
-      />,
+      <StrictMode>
+        <AttemptTimer
+          durationMinutes={1 / 60}
+          onWarning={onWarning}
+          onTimeUp={onTimeUp}
+        />
+      </StrictMode>,
       { withAuthProvider: false },
     );
 
@@ -150,7 +144,7 @@ describe('AttemptTimer', () => {
     });
 
     expect(screen.getByText('0:00')).toBeInTheDocument();
-    expect(onWarning).toHaveBeenCalledWith(0);
+    expect(onWarning).toHaveBeenCalledWith(1);
     expect(onTimeUp).toHaveBeenCalledOnce();
   });
 
@@ -175,17 +169,13 @@ describe('AttemptTimer', () => {
 
 describe('attempt persistence controls', () => {
   it('pauses an active attempt after confirmation', async () => {
-    const pauseAttempt = vi
-      .spyOn(AttemptService.prototype, 'pauseAttempt')
-      .mockResolvedValue(pausedAttempt);
-    const onStatusChange = vi.fn();
-    const onPause = vi.fn();
+    const onPause = vi.fn().mockResolvedValue(true);
+    const onResume = vi.fn().mockResolvedValue(true);
     const { user } = renderWithProviders(
       <AttemptPause
-        attemptId="attempt-1"
         currentStatus="IN_PROGRESS"
-        onStatusChange={onStatusChange}
         onPause={onPause}
+        onResume={onResume}
       />,
       { withAuthProvider: false },
     );
@@ -193,9 +183,32 @@ describe('attempt persistence controls', () => {
     await user.click(screen.getByRole('button', { name: /pause/i }));
     await user.click(screen.getByRole('button', { name: 'Pause' }));
 
-    await waitFor(() => expect(pauseAttempt).toHaveBeenCalledWith('attempt-1'));
-    expect(onStatusChange).toHaveBeenCalledWith('PAUSED');
-    expect(onPause).toHaveBeenCalledOnce();
+    await waitFor(() => expect(onPause).toHaveBeenCalledOnce());
+    expect(onResume).not.toHaveBeenCalled();
+  });
+
+  it('keeps the pause confirmation available after an action failure', async () => {
+    const onPause = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Pause unavailable'))
+      .mockResolvedValueOnce(true);
+    const { user } = renderWithProviders(
+      <AttemptPause
+        currentStatus="IN_PROGRESS"
+        onPause={onPause}
+        onResume={vi.fn().mockResolvedValue(true)}
+      />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByRole('button', { name: /pause/i }));
+    await user.click(screen.getByRole('button', { name: 'Pause' }));
+    expect(await screen.findByText('Pause unavailable')).toBeInTheDocument();
+    expect(screen.getByText('Pause Attempt?')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Pause' }));
+    await waitFor(() => expect(screen.queryByText('Pause Attempt?')).not.toBeInTheDocument());
+    expect(onPause).toHaveBeenCalledTimes(2);
   });
 
   it('submits current answers as a batch save payload', async () => {

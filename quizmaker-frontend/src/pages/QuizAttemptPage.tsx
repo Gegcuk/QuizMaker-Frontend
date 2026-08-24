@@ -4,12 +4,9 @@
 // Supports ONE_BY_ONE, ALL_AT_ONCE, and TIMED modes
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { AttemptService } from '@/services';
-import { QuizService, api } from "@/services";
-import { AnswerSubmissionRequest, AttemptMode, AttemptStatus } from '@/types';
-import { QuizDto } from "@/types";
+import type { AnswerSubmissionRequest, QuestionForAttemptDto } from '@/types';
 import { Spinner, Button } from "@/components";
 import { 
   McqAnswer, 
@@ -24,7 +21,8 @@ import {
   AttemptBatchAnswers,
   AttemptTimer,
   QuestionPrompt,
-  HintDisplay
+  HintDisplay,
+  useAttemptSessionController,
 } from '@/features/attempt';
 import { Seo } from '@/features/seo';
 import SafeContent from '@/components/common/SafeContent';
@@ -35,206 +33,35 @@ import {
 } from '@/features/attempt/utils/answerResponse';
 
 const QuizAttemptPage: React.FC = () => {
-  console.log('QuizAttemptPage: Component rendering...');
-  
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const attemptService = new AttemptService(api);
-  const quizService = new QuizService(api);
-  
-  // State for attempt management
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [attemptId, setAttemptId] = useState<string | null>(null);
-  const [attemptMode, setAttemptMode] = useState<AttemptMode>('ONE_BY_ONE');
-  const [attemptStatus, setAttemptStatus] = useState<AttemptStatus>('IN_PROGRESS');
-  const [quiz, setQuiz] = useState<QuizDto | null>(null);
-  
-  // State for questions and answers
-  const [currentQuestion, setCurrentQuestion] = useState<any | null>(null);
-  const [allQuestions, setAllQuestions] = useState<any[]>([]);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [existingAnswers, setExistingAnswers] = useState<Record<string, any>>({});
-  const [answerInput, setAnswerInput] = useState<AnswerInput>(null);
-  const [submitting, setSubmitting] = useState(false);
-  
-  // Progress tracking state
-  const [totalQuestions, setTotalQuestions] = useState<number>(0);
-  const [questionsAnswered, setQuestionsAnswered] = useState<number>(0);
-  const [currentQuestionNumber, setCurrentQuestionNumber] = useState<number>(1);
-  
-  // Answer result state (for showing result after submission)
-  const [answerResult, setAnswerResult] = useState<{
-    isCorrect: boolean;
-    correctAnswer?: any;
-    userAnswer: any;
-    score: number | null;
-    explanation?: string | null;
-    nextQuestion?: any | null;
-  } | null>(null);
-
-  // Check for existing attempts
-  const checkExistingAttempts = async (): Promise<string | null> => {
-    if (!quizId) return null;
-    
-    try {
-      const response = await attemptService.getAttempts({ quizId });
-      const existingAttempt = response.content.find(
-        attempt => attempt.status === 'PAUSED' || attempt.status === 'IN_PROGRESS'
-      );
-      return existingAttempt ? existingAttempt.attemptId : null;
-    } catch (error) {
-      console.warn('Could not check for existing attempts:', error);
-      return null;
-    }
-  };
-
-  // Load quiz details
-  const loadQuizDetails = async () => {
-    if (!quizId) return;
-    
-    try {
-      const quizData = await quizService.getQuizById(quizId);
-      setQuiz(quizData);
-    } catch (error) {
-      console.warn('Could not load quiz details:', error);
-    }
-  };
-
-  // Initialize attempt
-  const initializeAttempt = async () => {
-    if (!quizId) return;
-
-    try {
-      // First check if attemptId is provided in URL parameters (from resume flow)
-      const attemptIdFromUrl = searchParams.get('attemptId');
-      
-      console.log('QuizAttemptPage: Initializing attempt...');
-      console.log('QuizAttemptPage: quizId:', quizId);
-      console.log('QuizAttemptPage: attemptIdFromUrl:', attemptIdFromUrl);
-      console.log('QuizAttemptPage: all search params:', Object.fromEntries(searchParams.entries()));
-      
-      if (attemptIdFromUrl) {
-        console.log(`Resuming attempt from URL: ${attemptIdFromUrl}`);
-        console.log('About to call getCurrentQuestion API...');
-        
-        try {
-          // Get current question for the attempt
-          console.log('Calling attemptService.getCurrentQuestion...');
-          const currentQuestionData = await attemptService.getCurrentQuestion(attemptIdFromUrl);
-          console.log('getCurrentQuestion response:', currentQuestionData);
-          
-          console.log('Calling attemptService.getAttemptDetails...');
-          const attemptDetails = await attemptService.getAttemptDetails(attemptIdFromUrl);
-          console.log('getAttemptDetails response:', attemptDetails);
-          
-          setAttemptId(attemptIdFromUrl);
-          setAttemptMode(attemptDetails.mode);
-          setAttemptStatus(attemptDetails.status);
-          
-          // Load existing answers
-          const existingAnswers: Record<string, any> = {};
-          // Note: API response doesn't include the original response data, only answer metadata
-          // attemptDetails.answers.forEach(answer => {
-          //   existingAnswers[answer.questionId] = answer.response;
-          // });
-          setAnswers(existingAnswers);
-          setExistingAnswers(existingAnswers);
-          
-          // Set current question and progress
-          if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
-            setCurrentQuestion(currentQuestionData.question);
-            setCurrentQuestionNumber(currentQuestionData.questionNumber);
-            setTotalQuestions(currentQuestionData.totalQuestions);
-          } else {
-            // For ALL_AT_ONCE mode, load all questions
-            const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-            setAllQuestions(shuffledQuestions);
-            setTotalQuestions(shuffledQuestions.length);
-          }
-          
-          setQuestionsAnswered(attemptDetails.answers.length);
-          console.log(`Successfully resumed attempt. Current question: ${currentQuestionData.questionNumber}/${currentQuestionData.totalQuestions}`);
-        } catch (error) {
-          console.error('Failed to resume attempt from URL:', error);
-          // Fall back to normal flow
-          await initializeAttemptNormal();
-        }
-      } else {
-        console.log('No attemptId in URL, using normal flow...');
-        // Normal flow - check for existing attempts or start new one
-        await initializeAttemptNormal();
-      }
-    } catch (error) {
-      setError("Failed to initialize quiz attempt.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Normal attempt initialization (existing logic)
-  const initializeAttemptNormal = async () => {
-    if (!quizId) return;
-
-    // Check for existing attempts first
-    const existingAttemptId = await checkExistingAttempts();
-
-    if (existingAttemptId) {
-      // Resume existing attempt
-      const attemptDetails = await attemptService.getAttemptDetails(existingAttemptId);
-      setAttemptId(existingAttemptId);
-      setAttemptMode(attemptDetails.mode);
-      setAttemptStatus(attemptDetails.status);
-
-      // Load existing answers
-      const existingAnswers: Record<string, any> = {};
-      // Note: API response doesn't include the original response data, only answer metadata
-      // attemptDetails.answers.forEach(answer => {
-      //   // Convert answer back to input format based on question type
-      //   // This is a simplified conversion - you might need more complex logic
-      //   existingAnswers[answer.questionId] = answer.response;
-      // });
-      setAnswers(existingAnswers);
-      setExistingAnswers(existingAnswers); // Track what was originally loaded
-
-      // For ONE_BY_ONE and TIMED modes, get the next question
-      if (attemptDetails.mode === 'ONE_BY_ONE' || attemptDetails.mode === 'TIMED') {
-        // Get current question for the attempt
-        const currentQuestionData = await attemptService.getCurrentQuestion(existingAttemptId);
-        setCurrentQuestion(currentQuestionData.question);
-        setCurrentQuestionNumber(currentQuestionData.questionNumber);
-        setTotalQuestions(currentQuestionData.totalQuestions);
-      } else {
-        // For ALL_AT_ONCE mode, load all questions
-        const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-        setAllQuestions(shuffledQuestions);
-        setTotalQuestions(shuffledQuestions.length);
-      }
-
-      setQuestionsAnswered(attemptDetails.answers.length);
-    } else {
-      // Start new attempt
-      const mode = searchParams.get('mode') as AttemptMode || 'ONE_BY_ONE';
-      const attempt = await attemptService.startAttempt(quizId, { mode });
-      setAttemptId(attempt.attemptId);
-      setAttemptMode(mode);
-      setAttemptStatus('IN_PROGRESS');
-
-      if (mode === 'ONE_BY_ONE' || mode === 'TIMED') {
-        // Get current question after starting attempt
-        const currentQuestionData = await attemptService.getCurrentQuestion(attempt.attemptId);
-        setCurrentQuestion(currentQuestionData.question);
-        setCurrentQuestionNumber(currentQuestionData.questionNumber);
-        setTotalQuestions(currentQuestionData.totalQuestions);
-      } else {
-        // For ALL_AT_ONCE mode, load all questions
-        const shuffledQuestions = await attemptService.getShuffledQuestions(quizId);
-        setAllQuestions(shuffledQuestions);
-        setTotalQuestions(shuffledQuestions.length);
-      }
-    }
-  };
+  const { state, actions } = useAttemptSessionController({
+    quizId,
+    requestedAttemptId: searchParams.get('attemptId'),
+    requestedMode: searchParams.get('mode'),
+  });
+  const {
+    phase,
+    initializationError,
+    actionError,
+    activeAction,
+    attemptId,
+    attemptMode,
+    attemptStatus,
+    quiz,
+    currentQuestion,
+    allQuestions,
+    answers,
+    existingAnswers,
+    answerInput,
+    answerResult,
+    totalQuestions,
+    questionsAnswered,
+    currentQuestionNumber,
+  } = state;
+  const submitting = activeAction === 'submit-answer' || activeAction === 'complete';
+  const completingAttempt = activeAction === 'complete';
 
   const isAnswerProvided = () => {
     if (!currentQuestion) return false;
@@ -242,38 +69,10 @@ const QuizAttemptPage: React.FC = () => {
   };
 
   /* -------------------------------------------------------------------- */
-  /*  Progress tracking functions                                          */
-  /* -------------------------------------------------------------------- */
-  const fetchAttemptStats = async () => {
-    if (!attemptId) return;
-    
-    try {
-      const stats = await attemptService.getAttemptStats(attemptId);
-      setQuestionsAnswered(stats.questionsAnswered);
-      
-      if (attemptMode === 'ONE_BY_ONE') {
-        setCurrentQuestionNumber(stats.questionsAnswered + 1);
-      }
-    } catch (error) {
-      console.warn("Could not fetch attempt stats:", error);
-    }
-  };
-
-  const updateProgress = () => {
-    setQuestionsAnswered(prev => prev + 1);
-    if (attemptMode === 'ONE_BY_ONE') {
-      setCurrentQuestionNumber(prev => prev + 1);
-    }
-  };
-
-  /* -------------------------------------------------------------------- */
   /*  Submit current answer (ONE_BY_ONE mode)                             */
   /* -------------------------------------------------------------------- */
-  const handleSubmitAnswer = async () => {
+  const handleSubmitAnswer = useCallback(async () => {
     if (!attemptId || !currentQuestion) return;
-
-    setSubmitting(true);
-    setError(null);
 
     const response = buildQuestionResponse(currentQuestion, answerInput);
 
@@ -286,61 +85,28 @@ const QuizAttemptPage: React.FC = () => {
     };
 
     try {
-      const data = await attemptService.submitAnswer(attemptId, payload);
-      
-      // Update answers for ALL_AT_ONCE mode
-      setAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: response
-      }));
-
-      // Store the result to display to the user
-      if (data.isCorrect !== undefined) {
-        setAnswerResult({
-          isCorrect: data.isCorrect,
-          correctAnswer: data.correctAnswer,
-          userAnswer: response,
-          score: data.score,
-          explanation: data.explanation || null,
-          nextQuestion: data.nextQuestion,
-        });
-      } else if (!data.nextQuestion) {
-        // If no result but also no next question, we need to complete the attempt
-        await attemptService.completeAttempt(attemptId);
-        navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
-      }
-
-      // Don't proceed to next question automatically - wait for user to click "Next Question"
-    } catch (e: any) {
-      console.error('Submission error:', e.response);
-      const backendMessage = e?.response?.data?.details?.[0] || e?.response?.data?.error;
-      setError(backendMessage || 'Failed to submit answer. Please retry.');
-    } finally {
-      setSubmitting(false);
+      await actions.submitAnswer(payload, response);
+    } catch {
+      // The controller keeps the question visible and exposes a retryable action error.
     }
-  };
+  }, [actions, answerInput, attemptId, currentQuestion]);
 
   /* -------------------------------------------------------------------- */
   /*  Handle proceeding to next question after viewing result             */
   /* -------------------------------------------------------------------- */
   const handleNextQuestion = async () => {
-    if (!attemptId || !answerResult) return;
+    if (!attemptId || !answerResult || !quizId) return;
 
     // Check if there's a next question from the stored result
     if (answerResult.nextQuestion) {
-      // Move to next question
-      setCurrentQuestion(answerResult.nextQuestion);
-      setAnswerInput(null);
-      setAnswerResult(null); // Clear result
-      updateProgress();
+      actions.goToNextQuestion();
     } else {
-      // No more questions - complete attempt
       try {
-        await attemptService.completeAttempt(attemptId);
+        const completed = await actions.completeAttempt();
+        if (!completed) return;
         navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
-      } catch (e: any) {
-        console.error('Error completing attempt:', e);
-        setError('Failed to complete attempt. Please try again.');
+      } catch {
+        // Completion can be retried without losing the submitted answer.
       }
     }
   };
@@ -348,23 +114,22 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Submit all answers (ALL_AT_ONCE mode)                               */
   /* -------------------------------------------------------------------- */
-  const handleSubmitAllAnswers = async (results: any[]) => {
+  const handleSubmitAllAnswers = async () => {
+    if (!attemptId || !quizId) return;
     try {
-      await attemptService.completeAttempt(attemptId!);
+      const completed = await actions.completeAttempt();
+      if (!completed) return;
       navigate(`/quizzes/${quizId}/results?attemptId=${attemptId}`);
-    } catch (error) {
-      setError('Failed to complete attempt. Please try again.');
+    } catch {
+      // The controller exposes the completion error beside the loaded attempt.
     }
   };
 
   /* -------------------------------------------------------------------- */
   /*  Handle answer changes (ALL_AT_ONCE mode)                            */
   /* -------------------------------------------------------------------- */
-  const handleAnswerChange = (questionId: string, answer: unknown) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }));
+  const handleAnswerChange = (questionId: string, answer: AnswerInput) => {
+    actions.setAnswer(questionId, answer);
   };
 
   const buildAllAnswersForSubmission = () => {
@@ -388,43 +153,20 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Handle pause/resume                                                  */
   /* -------------------------------------------------------------------- */
-  const handleStatusChange = (status: AttemptStatus) => {
-    setAttemptStatus(status);
+  const handlePause = async () => {
+    return Boolean(await actions.pauseAttempt());
   };
 
-  const handlePause = () => {
-    // Could show a message or redirect
-    console.log('Attempt paused');
+  const handleResume = async () => {
+    const resumed = await actions.resumeAttempt();
+    if (!resumed) return false;
+    void actions.refreshStats().catch(() => undefined);
+    return true;
   };
 
-  const handleResume = () => {
-    // Refresh attempt data
-    fetchAttemptStats();
-  };
-
-  /* -------------------------------------------------------------------- */
-  /*  Effects                                                              */
-  /* -------------------------------------------------------------------- */
-  
-  // Debug effect to see when component mounts and searchParams change
-  useEffect(() => {
-    console.log('QuizAttemptPage: Component mounted or searchParams changed');
-    console.log('QuizAttemptPage: Current searchParams:', Object.fromEntries(searchParams.entries()));
-    console.log('QuizAttemptPage: Current quizId:', quizId);
-  }, [searchParams, quizId]);
-
-  useEffect(() => {
-    if (quizId) {
-      loadQuizDetails();
-      initializeAttempt();
-    }
-  }, [quizId, searchParams]);
-
-  useEffect(() => {
-    if (attemptId) {
-      fetchAttemptStats();
-    }
-  }, [attemptId]);
+  const handleTimeUp = useCallback(() => {
+    void handleSubmitAnswer();
+  }, [handleSubmitAnswer]);
 
   // Scroll to top when a new question is loaded
   useEffect(() => {
@@ -437,130 +179,10 @@ const QuizAttemptPage: React.FC = () => {
   /*  Rendering helpers                                                   */
   /* -------------------------------------------------------------------- */
   
-  // Format correct answer for display
-  const formatCorrectAnswer = (answer: any, type: string, safeContent: any): React.ReactNode => {
-    if (!answer) return <span className="text-theme-text-tertiary italic">N/A</span>;
-    
-    switch (type) {
-      case 'MCQ_SINGLE':
-        if (answer.correctOptionId !== undefined && safeContent?.options) {
-          const option = safeContent.options.find((opt: any) => opt.id === answer.correctOptionId || String(opt.id) === String(answer.correctOptionId));
-          return option?.text || `Option ${answer.correctOptionId}`;
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'MCQ_MULTI':
-        if (Array.isArray(answer.correctOptionIds) && answer.correctOptionIds.length > 0 && safeContent?.options) {
-          return (
-            <ul className="list-disc list-inside space-y-1">
-              {answer.correctOptionIds.map((optId: any, idx: number) => {
-                const option = safeContent.options.find((opt: any) => opt.id === optId || String(opt.id) === String(optId));
-                return <li key={idx}>{option?.text || `Option ${optId}`}</li>;
-              })}
-            </ul>
-          );
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'TRUE_FALSE':
-        return answer.answer !== undefined ? (answer.answer ? 'True' : 'False') : <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'OPEN':
-        return answer.answer ? (
-          <div className="whitespace-pre-wrap">{answer.answer}</div>
-        ) : <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'FILL_GAP':
-        if (Array.isArray(answer.answers) && answer.answers.length > 0) {
-          return (
-            <div className="space-y-1">
-              {answer.answers.map((gap: any) => (
-                <div key={gap.id || gap.gapId} className="text-sm">
-                  Gap {gap.id || gap.gapId}: <span className="font-medium">{gap.text || gap.answer}</span>
-                </div>
-              ))}
-            </div>
-          );
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'ORDERING':
-        if (Array.isArray(answer.order) && answer.order.length > 0 && safeContent?.items) {
-          return (
-            <div className="flex items-center gap-2 flex-wrap">
-              {answer.order.map((itemId: number, idx: number) => {
-                const item = safeContent.items.find((i: any) => i.id === itemId);
-                return (
-                  <React.Fragment key={itemId}>
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded text-sm font-medium">
-                      {item?.text || `Item ${itemId}`}
-                    </span>
-                    {idx < answer.order.length - 1 && <span className="text-theme-text-tertiary">→</span>}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          );
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'COMPLIANCE':
-        if (Array.isArray(answer.compliantIds) && answer.compliantIds.length > 0 && safeContent?.statements) {
-          return (
-            <ul className="space-y-1">
-              {answer.compliantIds.map((stmtId: number) => {
-                const statement = safeContent.statements.find((s: any) => s.id === stmtId);
-                return (
-                  <li key={stmtId} className="flex items-center gap-2">
-                    <span className="px-2 py-1 rounded text-xs bg-theme-bg-success text-theme-text-primary">
-                      Compliant
-                    </span>
-                    <span className="text-sm">{statement?.text || `Statement ${stmtId}`}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'HOTSPOT':
-        if (answer.correctRegionId !== undefined && safeContent?.regions) {
-          const region = safeContent.regions.find((r: any) => r.id === answer.correctRegionId);
-          return region?.label || `Region ${answer.correctRegionId}`;
-        }
-        if (answer.correctRegionId !== undefined) return `Region ${answer.correctRegionId}`;
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      case 'MATCHING':
-        if (Array.isArray(answer.pairs) && answer.pairs.length > 0 && safeContent?.left && safeContent?.right) {
-          return (
-            <ul className="space-y-1">
-              {answer.pairs.map((pair: any, idx: number) => {
-                const leftItem = safeContent.left.find((l: any) => l.id === pair.leftId);
-                const rightItem = safeContent.right.find((r: any) => r.id === pair.rightId);
-                return (
-                  <li key={idx} className="flex items-center gap-2 text-sm">
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded">{leftItem?.text || pair.leftId}</span>
-                    <span className="text-theme-text-tertiary">→</span>
-                    <span className="px-2 py-1 bg-theme-bg-tertiary rounded font-medium">{rightItem?.text || pair.rightId}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        }
-        return <span className="text-theme-text-tertiary">N/A</span>;
-      
-      default:
-        return <span className="text-theme-text-tertiary">Unknown question type</span>;
-    }
-  };
-
-  const renderQuestion = (question: any, isCurrent: boolean = false) => {
+  const renderQuestion = (question: QuestionForAttemptDto, isCurrent: boolean = false) => {
     // For ONE_BY_ONE and TIMED modes, use answerInput; for ALL_AT_ONCE mode, use answers state
-    let currentAnswer;
-    let onAnswerChange;
+    let currentAnswer: AnswerInput;
+    let onAnswerChange: (answer: AnswerInput) => void;
     
     if (attemptMode === 'ALL_AT_ONCE') {
       // For ALL_AT_ONCE mode, use answers state
@@ -588,11 +210,11 @@ const QuizAttemptPage: React.FC = () => {
             currentAnswer = '';
         }
       }
-      onAnswerChange = (answer: any) => handleAnswerChange(question.id, answer);
+      onAnswerChange = (answer: AnswerInput) => handleAnswerChange(question.id, answer);
     } else {
       // For ONE_BY_ONE and TIMED modes, use answerInput
       currentAnswer = answerInput;
-      onAnswerChange = (answer: any) => setAnswerInput(answer);
+      onAnswerChange = (answer: AnswerInput) => actions.setAnswerInput(answer);
     }
     
     // Disable input if submitted (show feedback mode)
@@ -606,7 +228,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <McqAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof McqAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             singleChoice={true}
@@ -619,7 +241,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <McqAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof McqAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             singleChoice={false}
@@ -632,7 +254,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <TrueFalseAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof TrueFalseAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -644,7 +266,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <OpenAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof OpenAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -656,7 +278,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <ComplianceAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof ComplianceAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -668,7 +290,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <FillGapAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof FillGapAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -680,7 +302,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <HotspotAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof HotspotAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -692,7 +314,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <OrderingAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof OrderingAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -704,7 +326,7 @@ const QuizAttemptPage: React.FC = () => {
         return (
           <MatchingAnswer
             question={question}
-            currentAnswer={currentAnswer}
+            currentAnswer={currentAnswer as React.ComponentProps<typeof MatchingAnswer>['currentAnswer']}
             onAnswerChange={onAnswerChange}
             disabled={isDisabled}
             showFeedback={showFeedback}
@@ -747,8 +369,6 @@ const QuizAttemptPage: React.FC = () => {
           {renderQuestion(currentQuestion, true)}
         </div>
 
-        {error && <p className="text-theme-interactive-danger mt-4">{error}</p>}
-
         {/* Explanation (shown when answer result is available) */}
         {answerResult && answerResult.explanation && (
           <div className="mt-4 p-4 bg-theme-bg-tertiary border border-theme-border-primary rounded-lg">
@@ -776,14 +396,16 @@ const QuizAttemptPage: React.FC = () => {
 
         <Button
           onClick={answerResult ? handleNextQuestion : handleSubmitAnswer}
-          disabled={answerResult ? false : (submitting || !isAnswerProvided())}
-          loading={submitting && !answerResult}
+          disabled={answerResult ? completingAttempt : (submitting || !isAnswerProvided())}
+          loading={answerResult ? completingAttempt : submitting}
           variant="primary"
           size="md"
           className="mt-4 w-full"
         >
           {answerResult 
-            ? (answerResult.nextQuestion ? "Next Question →" : "View Results")
+            ? (completingAttempt
+              ? 'Completing...'
+              : (answerResult.nextQuestion ? "Next Question →" : "View Results"))
             : (submitting ? "Submitting..." : "Submit Answer")
           }
         </Button>
@@ -853,12 +475,11 @@ const QuizAttemptPage: React.FC = () => {
         {/* Submit All Button */}
         <div className="mt-8">
           <AttemptBatchAnswers
-            attemptId={attemptId!}
             answers={submissionAnswers}
             totalQuestions={totalQuestions}
             existingAnswers={existingAnswers}
+            onSubmit={actions.submitBatchAnswers}
             onSubmissionComplete={handleSubmitAllAnswers}
-            onSubmissionError={setError}
           />
         </div>
       </div>
@@ -881,15 +502,7 @@ const QuizAttemptPage: React.FC = () => {
           {quiz?.timerDuration && (
             <AttemptTimer
               durationMinutes={quiz.timerDuration}
-              onTimeUp={() => {
-                // Auto-submit current answer when time is up
-                if (isAnswerProvided()) {
-                  handleSubmitAnswer();
-                } else {
-                  // If no answer provided, submit empty answer and complete attempt
-                  handleSubmitAnswer();
-                }
-              }}
+              onTimeUp={handleTimeUp}
             />
           )}
           
@@ -933,8 +546,19 @@ const QuizAttemptPage: React.FC = () => {
   /* -------------------------------------------------------------------- */
   /*  Main Render                                                         */
   /* -------------------------------------------------------------------- */
-  if (loading) return <Spinner />;
-  if (error) return <p className="text-theme-interactive-danger text-center py-10">{error}</p>;
+  if (phase === 'loading') return <Spinner />;
+  if (phase === 'initialization-error') {
+    return (
+      <div className="max-w-2xl mx-auto py-10 px-4 text-center">
+        <p role="alert" className="text-theme-interactive-danger">
+          {initializationError || 'Failed to initialize attempt.'}
+        </p>
+        <Button className="mt-4" onClick={actions.retryInitialization}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
   if (!attemptId) return <p className="text-center py-10">Failed to initialize attempt.</p>;
 
   return (
@@ -945,21 +569,20 @@ const QuizAttemptPage: React.FC = () => {
       {attemptId && (quiz?.timerEnabled || attemptMode === 'TIMED') && (
         <div className="max-w-4xl mx-auto pt-4 px-4">
           <AttemptPause
-            attemptId={attemptId}
             currentStatus={attemptStatus}
-            onStatusChange={handleStatusChange}
             onPause={handlePause}
             onResume={handleResume}
+            disabled={activeAction !== null}
             className="mb-4"
           />
         </div>
       )}
 
       {/* Error Display */}
-      {error && (
+      {actionError && (
         <div className="max-w-4xl mx-auto px-4 mb-4">
-          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4">
-            <p className="text-theme-interactive-danger">{error}</p>
+          <div role="alert" className="bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4">
+            <p className="text-theme-interactive-danger">{actionError}</p>
           </div>
         </div>
       )}

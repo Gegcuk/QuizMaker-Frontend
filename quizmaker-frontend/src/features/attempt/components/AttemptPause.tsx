@@ -5,26 +5,23 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
-import { AttemptService } from '@/services';
 import { AttemptStatus } from '@/types';
-import { api } from '@/services';
 import { Button, Alert } from '@/components';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface AttemptPauseProps {
-  attemptId: string;
   currentStatus: AttemptStatus;
-  onStatusChange: (status: AttemptStatus) => void;
-  onPause?: () => void;
-  onResume?: () => void;
+  onPause: () => Promise<boolean>;
+  onResume: () => Promise<boolean>;
+  disabled?: boolean;
   className?: string;
 }
 
 const AttemptPause: React.FC<AttemptPauseProps> = ({
-  attemptId,
   currentStatus,
-  onStatusChange,
   onPause,
   onResume,
+  disabled = false,
   className = ''
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,35 +29,21 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
   const [action, setAction] = useState<'pause' | 'resume' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const attemptService = new AttemptService(api);
-
-  const handlePause = async () => {
+  const runConfirmedAction = async () => {
+    if (!action) return;
     setIsLoading(true);
     setError(null);
 
     try {
-      const updatedAttempt = await attemptService.pauseAttempt(attemptId);
-      onStatusChange(updatedAttempt.status);
-      if (onPause) onPause();
+      const completed = await (action === 'pause' ? onPause() : onResume());
+      if (!completed) {
+        setError('Another attempt action is still finishing. Please try again.');
+        return;
+      }
       setShowConfirmDialog(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to pause attempt. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResume = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const updatedAttempt = await attemptService.resumeAttempt(attemptId);
-      onStatusChange(updatedAttempt.status);
-      if (onResume) onResume();
-      setShowConfirmDialog(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resume attempt. Please try again.');
+      setAction(null);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +94,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
             {canPause && (
               <Button
                 onClick={() => openConfirmDialog('pause')}
-                disabled={isLoading}
+                disabled={isLoading || disabled}
                 variant="secondary"
                 size="sm"
                 className="!bg-theme-bg-warning !text-theme-interactive-warning hover:!bg-theme-bg-tertiary"
@@ -123,7 +106,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
             {canResume && (
               <Button
                 onClick={() => openConfirmDialog('resume')}
-                disabled={isLoading}
+                disabled={isLoading || disabled}
                 variant="secondary"
                 size="sm"
                 className="!bg-theme-bg-success !text-theme-interactive-success hover:!bg-theme-bg-tertiary"
@@ -179,7 +162,7 @@ const AttemptPause: React.FC<AttemptPauseProps> = ({
                 </Button>
                 
                 <Button
-                  onClick={action === 'pause' ? handlePause : handleResume}
+                  onClick={runConfirmedAction}
                   disabled={isLoading}
                   loading={isLoading}
                   variant="primary"
