@@ -2,6 +2,7 @@ import React from 'react';
 import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
 import { FaqPageContent, faqIntroNote, faqPageMeta, faqSections } from '@/features/faq';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const FaqPage: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ const FaqPage: React.FC = () => {
       <Seo
         title="FAQ | Quizzence"
         description="Answers to common questions about Quizzence, quizzes, and AI quiz generation."
-        canonicalPath="/faq/"
+        {...getPublicRouteSeoPolicy('faq')}
         ogType="website"
       />
       <PageContainer

@@ -57,7 +57,7 @@ jobs:
         run: npm run test:e2e
 
       - name: Build
-        run: npm run build
+        run: npm run build:prerender:static
 
       - name: Production analytics privacy test
         run: npm run test:privacy:production
@@ -273,21 +273,21 @@ jobs:
               exit 1
             fi
 
-      - name: Smoke check production site
+      - name: Verify public routes in production
+        working-directory: quizmaker-frontend
+        env:
+          PUBLIC_ROUTE_BASE_URL: ${{ secrets.VITE_SITE_URL }}
+          PUBLIC_ROUTE_CANONICAL_ORIGIN: ${{ secrets.VITE_SITE_URL }}
+          PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'
+          REQUIRE_ARTICLE_ROUTES: 'true'
+        run: npm run verify:public-routes
+
+      - name: Verify production transport policy
         env:
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
         run: |
           set -euo pipefail
           site_url="${VITE_SITE_URL%/}"
-
-          for path in "/" "/login"; do
-            url="${site_url}${path}"
-            echo "Checking ${url}"
-            curl --fail --silent --show-error --location \
-              --retry 5 --retry-delay 10 --retry-all-errors \
-              --max-time 30 \
-            "$url" > /dev/null
-          done
 
           hsts_policy="$(curl --fail --silent --show-error --head \
             --retry 5 --retry-delay 10 --retry-all-errors \
@@ -295,29 +295,5 @@ jobs:
             "${site_url}/" | tr -d '\r' | awk 'tolower($1) == "strict-transport-security:" { print $2; exit }')"
           if [ "$hsts_policy" != "max-age=2592000" ]; then
             echo "❌ Expected production HSTS policy max-age=2592000, got ${hsts_policy:-missing}"
-            exit 1
-          fi
-
-          not_found_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "${site_url}/this-route-should-not-exist")"
-          if [ "$not_found_status" != "404" ]; then
-            echo "❌ Expected production unknown route to return 404, got ${not_found_status}"
-            exit 1
-          fi
-
-          private_robots="$(curl --fail --silent --show-error --head \
-            --retry 5 --retry-delay 10 --retry-all-errors \
-            --max-time 30 \
-            "${site_url}/my-quizzes" | tr -d '\r' | awk 'tolower($1) == "x-robots-tag:" { print $2 " " $3; exit }')"
-          if [ "$private_robots" != "noindex, nofollow" ]; then
-            echo "❌ Expected production /my-quizzes to return X-Robots-Tag noindex, nofollow"
-            exit 1
-          fi
-
-          article_sitemap="$(curl --fail --silent --show-error --location \
-            --retry 5 --retry-delay 10 --retry-all-errors \
-            --max-time 30 \
-            "${site_url}/sitemap_articles.xml")"
-          if ! printf '%s' "$article_sitemap" | grep -q '<loc>'; then
-            echo "❌ Expected production sitemap_articles.xml to contain an article URL"
             exit 1
           fi

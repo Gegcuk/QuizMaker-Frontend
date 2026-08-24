@@ -6,6 +6,7 @@
 import React from 'react';
 import { RegisterForm } from '../features/auth';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const RegisterPage: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const RegisterPage: React.FC = () => {
       <Seo
         title="Sign Up | Quizzence"
         description="Sign up for a free Quizzence account to create AI-powered quizzes for university teaching, school classes and self-study."
-        canonicalPath="/register"
+        {...getPublicRouteSeoPolicy('register')}
         ogType="website"
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">

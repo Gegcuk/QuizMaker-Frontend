@@ -7,6 +7,7 @@ import React from 'react';
 import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
 import { TimelineView } from '@/features/roadmap/components';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const RoadmapPage: React.FC = () => {
   return (
@@ -14,7 +15,7 @@ const RoadmapPage: React.FC = () => {
       <Seo
         title="Product Roadmap | Quizzence"
         description="Explore our product roadmap and upcoming features. See what we're building to enhance your quiz creation and learning experience."
-        canonicalPath="/roadmap"
+        {...getPublicRouteSeoPolicy('roadmap')}
         ogType="website"
       />
       <PageContainer

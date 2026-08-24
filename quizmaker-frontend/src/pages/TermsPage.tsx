@@ -1,6 +1,7 @@
 import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const TermsPage: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ const TermsPage: React.FC = () => {
       <Seo
         title="Terms of Service | Quizzence"
         description="Read the terms of service for using Quizzence, our AI-powered quiz and learning platform."
-        canonicalPath="/terms/"
+        {...getPublicRouteSeoPolicy('terms')}
         ogType="website"
       />
       <PageContainer title="Terms & Conditions" showHeader subtitle="The ground rules for using Quizzence">

@@ -90,6 +90,28 @@ describe('AppRoutes public routes', () => {
     expect(document.title).toBe('Learning Science Blog | Quizzence');
   });
 
+  it('uses the manifest canonical URL for a trailing-slash public page', async () => {
+    renderWithProviders(<AppRoutes />, { route: '/terms' });
+
+    await waitFor(() => {
+      expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        'https://www.quizzence.com/terms/',
+      );
+    });
+  });
+
+  it('keeps account entry pages out of search results', async () => {
+    renderWithProviders(<AppRoutes />, { route: '/login' });
+
+    await waitFor(() => {
+      expect(document.querySelector('meta[name="robots"]')).toHaveAttribute(
+        'content',
+        'noindex, nofollow',
+      );
+    });
+  });
+
   it('renders a public blog article with a representative slug', async () => {
     vi.spyOn(articleService, 'getBySlug').mockResolvedValue(article);
 

@@ -17,6 +17,7 @@ import {
   Switch,
 } from '@/components';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 import { articleService } from '@/features/blog';
 import {
   ArticleDto,
@@ -828,7 +829,7 @@ const BlogIndexPage: React.FC = () => {
       <Seo
         title="Learning Science Blog | Quizzence"
         description="Research-backed articles on retrieval practice, pre-testing, and quiz design for university students, school pupils and their teachers."
-        canonicalPath="/blog/"
+        {...getPublicRouteSeoPolicy('blogIndex')}
         ogType="website"
       />
       <PageContainer

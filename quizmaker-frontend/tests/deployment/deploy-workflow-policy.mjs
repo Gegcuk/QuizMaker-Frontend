@@ -34,7 +34,7 @@ const main = async () => {
     ['deployment', workflow],
     ['pull request', prWorkflow],
   ]) {
-    const validationBuildIndex = validationWorkflow.indexOf('run: npm run build');
+    const validationBuildIndex = validationWorkflow.indexOf('run: npm run build:prerender:static');
     const privacyTestIndex = validationWorkflow.indexOf('run: npm run test:privacy:production');
     assert.ok(validationBuildIndex >= 0, `Expected a production build in the ${name} workflow`);
     assert.ok(privacyTestIndex >= 0, `Expected the analytics privacy test in the ${name} workflow`);
@@ -43,6 +43,10 @@ const main = async () => {
       `Expected the ${name} workflow to test analytics privacy against built assets`,
     );
   }
+
+  assert.match(workflow, /name: Verify public routes in production[\s\S]*run: npm run verify:public-routes/);
+  assert.match(workflow, /PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'/);
+  assert.match(workflow, /REQUIRE_ARTICLE_ROUTES: 'true'/);
 
   const bootstrapMatch = indexHtml.match(
     /<script id="sensitive-url-bootstrap">([\s\S]*?)<\/script>/,

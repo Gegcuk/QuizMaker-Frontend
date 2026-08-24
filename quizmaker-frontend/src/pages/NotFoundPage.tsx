@@ -10,7 +10,7 @@ const NotFoundPage: React.FC = () => (
       noindex
     />
     <div className="p-4 text-center">
-      <h2 className="text-2xl font-semibold">Page Not Found</h2>
+      <h1 className="text-2xl font-semibold">Page Not Found</h1>
     </div>
   </>
 );
