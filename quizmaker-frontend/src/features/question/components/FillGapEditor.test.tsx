@@ -26,6 +26,23 @@ const dragOptionContent: FillGapContent = {
   ],
 };
 
+const extendedDragOptionContent: FillGapContent = {
+  text: 'Cellular respiration produces {1}.',
+  gaps: [{ id: 1, answer: 'ATP' }],
+  options: [
+    'ATP',
+    'chloroplast',
+    'ribosome',
+    'nucleus',
+    'oxygen',
+    'glucose',
+    'NADH',
+    'cytoplasm',
+    'cell wall',
+    'lysosome',
+  ],
+};
+
 const getLastChange = (onChange: ReturnType<typeof vi.fn>) =>
   onChange.mock.calls.at(-1)?.[0] as FillGapContent | undefined;
 
@@ -122,7 +139,72 @@ describe('FillGapEditor', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Answer pool' }));
 
     expect(screen.getAllByPlaceholderText('Enter distractor...')).toHaveLength(6);
-    expect(screen.getByText(/Add 6-7 unique distractors for 1 correct answer/)).toBeInTheDocument();
+    expect(screen.getByText(/Add 6 more unique options; this question needs at least 7 total/)).toBeInTheDocument();
+  });
+
+  it('preserves a valid ten-option pool with nine distractors', async () => {
+    const onChange = vi.fn();
+    renderWithProviders(
+      <FillGapEditor content={extendedDragOptionContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getAllByPlaceholderText('Enter distractor...')).toHaveLength(9);
+    expect(screen.getByText('Pool total: 10 options. Ready for drag-option mode.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add Distractor' })).toBeDisabled();
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.options).toEqual(extendedDragOptionContent.options);
+    });
+  });
+
+  it('keeps duplicate values visible and reports how to fix them', async () => {
+    const onChange = vi.fn();
+    renderWithProviders(
+      <FillGapEditor
+        content={{
+          ...dragOptionContent,
+          options: [...(dragOptionContent.options || []), ' CHLOROPLAST '],
+        }}
+        onChange={onChange}
+        showPreview={false}
+      />,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getAllByDisplayValue(/chloroplast/i)).toHaveLength(2);
+    expect(screen.getByText(/Remove duplicate options/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.options).toContain('chloroplast');
+      expect(getLastChange(onChange)?.options).toContain('CHLOROPLAST');
+    });
+  });
+
+  it('allows additional distractors until the pool reaches ten total options', async () => {
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(
+      <FillGapEditor content={legacyContent} onChange={onChange} showPreview={false} />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByRole('checkbox', { name: 'Answer pool' }));
+    const initialDistractors = screen.getAllByPlaceholderText('Enter distractor...');
+    ['one', 'two', 'three', 'four', 'five', 'six'].forEach((value, index) => {
+      fireEvent.change(initialDistractors[index], { target: { value } });
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Add Distractor' }));
+    await user.click(screen.getByRole('button', { name: 'Add Distractor' }));
+    await user.click(screen.getByRole('button', { name: 'Add Distractor' }));
+    const allDistractors = screen.getAllByPlaceholderText('Enter distractor...');
+    ['seven', 'eight', 'nine'].forEach((value, index) => {
+      fireEvent.change(allDistractors[index + 6], { target: { value } });
+    });
+
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.options).toHaveLength(10);
+      expect(screen.getByText('Pool total: 10 options. Ready for drag-option mode.')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: 'Add Distractor' })).toBeDisabled();
   });
 
   it('removes options from emitted content when answer pool is disabled', async () => {

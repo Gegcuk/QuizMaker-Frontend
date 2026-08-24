@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { McqOption, McqSingleContent, McqMultiContent, MediaRefDto } from '@/types';
 import { InstructionsModal, AddItemButton, Textarea, Button } from '@/components';
 import { MediaPicker } from '@/features/media';
+import { ensureUniqueMcqOptionIds, getNextMcqOptionId } from '../utils/mcqOptionIdentity';
 // No specific content types - API uses JsonNode
 
 const MIN_MCQ_OPTIONS = 4;
@@ -20,10 +21,8 @@ interface McqQuestionEditorProps {
   className?: string;
 }
 
-const getOptionId = (index: number) => String.fromCharCode(97 + index);
-
-const createBlankOption = (index: number): McqOption => ({
-  id: getOptionId(index),
+const createBlankOption = (options: McqOption[]): McqOption => ({
+  id: getNextMcqOptionId(options),
   text: '',
   correct: false
 });
@@ -33,16 +32,15 @@ const normalizeOptions = (
   isMultiSelect: boolean,
 ): McqOption[] => {
   const maxOptions = isMultiSelect ? MAX_MCQ_MULTI_OPTIONS : MAX_MCQ_SINGLE_OPTIONS;
-  const normalized = (options || [])
+  const normalized = ensureUniqueMcqOptionIds((options || [])
     .slice(0, maxOptions)
-    .map((option, index) => ({
+    .map((option) => ({
       ...option,
-      id: option.id || getOptionId(index),
       correct: Boolean(option.correct)
-    }));
+    })));
 
   while (normalized.length < MIN_MCQ_OPTIONS) {
-    normalized.push(createBlankOption(normalized.length));
+    normalized.push(createBlankOption(normalized));
   }
 
   return normalized;
@@ -105,13 +103,19 @@ const McqQuestionEditor: React.FC<McqQuestionEditorProps> = ({
   };
 
   const addOption = () => {
-    if (!canAddOption) return;
-    setOptions(prev => [...prev, createBlankOption(prev.length)]);
+    setOptions((previous) => (
+      previous.length < maxOptions
+        ? [...previous, createBlankOption(previous)]
+        : previous
+    ));
   };
 
   const removeOption = (id: string) => {
-    if (!canRemoveOption) return;
-    setOptions(prev => prev.filter(option => option.id !== id));
+    setOptions((previous) => (
+      previous.length > MIN_MCQ_OPTIONS
+        ? previous.filter((option) => option.id !== id)
+        : previous
+    ));
   };
 
   const getCorrectCount = () => options.filter(option => option.correct).length;

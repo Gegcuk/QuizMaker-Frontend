@@ -162,6 +162,66 @@ describe('McqQuestionEditor', () => {
     });
   });
 
+  it('reuses only free ids while surviving options keep their identity', async () => {
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(
+      <McqQuestionEditor
+        content={fiveOptionMultiContent}
+        onChange={onChange}
+        isMultiSelect
+      />,
+      { withAuthProvider: false },
+    );
+
+    await user.click(screen.getByLabelText('Remove option B'));
+    await user.click(screen.getByRole('button', { name: 'Add Option' }));
+    await waitFor(() => {
+      expect(getLastChange(onChange)?.options.map((option) => option.id)).toEqual([
+        'a',
+        'c',
+        'd',
+        'e',
+        'b',
+      ]);
+    });
+
+    await user.click(screen.getByLabelText('Remove option C'));
+    await user.click(screen.getByRole('button', { name: 'Add Option' }));
+    await waitFor(() => {
+      const ids = getLastChange(onChange)?.options.map((option) => option.id) || [];
+      expect(ids).toEqual(['a', 'd', 'e', 'b', 'c']);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+  });
+
+  it.each([
+    ['first', 'A', ['b', 'c', 'd', 'e', 'a']],
+    ['middle', 'C', ['a', 'b', 'd', 'e', 'c']],
+    ['last', 'E', ['a', 'b', 'c', 'd', 'e']],
+  ])(
+    'keeps stable unique ids after removing the %s option and adding another',
+    async (_position, removedId, expectedIds) => {
+      const onChange = vi.fn();
+      const { user } = renderWithProviders(
+        <McqQuestionEditor
+          content={fiveOptionMultiContent}
+          onChange={onChange}
+          isMultiSelect
+        />,
+        { withAuthProvider: false },
+      );
+
+      await user.click(screen.getByLabelText(`Remove option ${removedId}`));
+      await user.click(screen.getByRole('button', { name: 'Add Option' }));
+
+      await waitFor(() => {
+        const ids = getLastChange(onChange)?.options.map((option) => option.id) || [];
+        expect(ids).toEqual(expectedIds);
+        expect(new Set(ids).size).toBe(ids.length);
+      });
+    },
+  );
+
   it('normalizes empty or oversized initial content to live schema option counts', async () => {
     const emptyOnChange = vi.fn();
     renderWithProviders(
