@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageContainer } from '@/components';
 import { Seo } from '@/features/seo';
 import { ValuesPageContent, HeroImagePlaceholder } from '@/features/values';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ValuesPage: React.FC = () => {
   return (
@@ -10,7 +11,7 @@ const ValuesPage: React.FC = () => {
       <Seo
         title="Values, Mission, and Vision | Quizzence"
         description="The principles behind Quizzence: transparency, evidence-based learning, dialogue, and continuous growth — with a focus on turning noisy information into real understanding."
-        canonicalPath="/values/"
+        {...getPublicRouteSeoPolicy('values')}
         ogType="website"
       />
       <PageContainer

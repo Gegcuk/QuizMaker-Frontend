@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth';
 import { getAccessToken } from '@/utils';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 import { OAuthExchangeError } from '@/features/auth/services/oauthExchange';
 import {
   OAuthCallbackError,
@@ -73,9 +74,8 @@ const OAuthCallbackPage: React.FC = () => {
       <Seo
         title="Completing sign in… | Quizzence"
         description="Completing OAuth sign-in and redirecting you to your Quizzence account."
-        canonicalPath="/oauth/callback"
+        {...getPublicRouteSeoPolicy('oauthCallback')}
         ogType="website"
-        noindex
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

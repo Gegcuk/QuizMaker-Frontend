@@ -6,6 +6,7 @@
 import React from 'react';
 import { ForgotPasswordForm } from '../features/auth';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ForgotPasswordPage: React.FC = () => {
   return (
@@ -13,9 +14,8 @@ const ForgotPasswordPage: React.FC = () => {
       <Seo
         title="Reset Password | Quizzence"
         description="Reset your Quizzence account password and regain access to your quizzes and learning analytics."
-        canonicalPath="/forgot-password"
+        {...getPublicRouteSeoPolicy('forgotPassword')}
         ogType="website"
-        noindex
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

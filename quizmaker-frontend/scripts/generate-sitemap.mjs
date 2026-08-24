@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
+import { staticSitemapRoutes } from '../src/routes/publicRouteManifest.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,19 +11,6 @@ const distDir = path.join(rootDir, 'dist');
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
 const baseUrl = SITE_URL.replace(/\/$/, '');
-
-// Static routes with their priorities and change frequencies
-const STATIC_ROUTES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/blog/', priority: '0.8', changefreq: 'weekly' },
-  { path: '/blog/retrieval-practice-template/', priority: '0.8', changefreq: 'weekly' },
-  { path: '/terms/', priority: '0.4', changefreq: 'monthly' },
-  { path: '/privacy/', priority: '0.4', changefreq: 'monthly' },
-  { path: '/faq/', priority: '0.5', changefreq: 'monthly' },
-  { path: '/values/', priority: '0.5', changefreq: 'monthly' },
-  { path: '/roadmap/', priority: '0.6', changefreq: 'monthly' },
-  { path: '/theme-demo/', priority: '0.3', changefreq: 'monthly' },
-];
 
 // Generate XML sitemap
 const generateSitemap = (routes) => {
@@ -67,8 +55,9 @@ const escapeXml = (str) => {
 // Main function
 const generateSitemapFile = async () => {
   const apiBaseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-  const articleRoutes = await loadArticleSitemapRoutes({ apiBaseUrl });
-  const allRoutes = [...STATIC_ROUTES, ...articleRoutes];
+  const staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true';
+  const articleRoutes = staticOnly ? [] : await loadArticleSitemapRoutes({ apiBaseUrl });
+  const allRoutes = [...staticSitemapRoutes, ...articleRoutes];
   const sitemapPath = path.join(distDir, 'sitemap.xml');
   const articlesSitemapPath = path.join(distDir, 'sitemap_articles.xml');
 

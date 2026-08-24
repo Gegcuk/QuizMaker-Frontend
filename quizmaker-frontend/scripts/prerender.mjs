@@ -2,16 +2,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import net from 'node:net';
 import { chromium } from 'playwright';
 import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
+import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRouteManifest.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
-
-const PREVIEW_PORT = 4173;
-const PREVIEW_ORIGIN = `http://127.0.0.1:${PREVIEW_PORT}`;
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
 const rawApiBaseUrl = process.env.VITE_API_BASE_URL || '/api';
@@ -27,17 +26,6 @@ const normalizeApiBaseUrl = (value) => {
   return `${base}${path}`.replace(/\/$/, '');
 };
 const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
-
-// Routes whose HTML should be fully prerendered with correct <title>/<meta>.
-// Keep this list small and focused on key marketing / blog / legal pages.
-const STATIC_ROUTES = [
-  '/',
-  '/blog/',
-  '/blog/retrieval-practice-template/',
-  '/terms/',
-  '/privacy/',
-  '/theme-demo/',
-];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -110,6 +98,9 @@ const setupApiProxy = async (page) => {
 };
 
 const resolveOutputPath = (route) => {
+  if (route === getPublicRoute('notFound').path) {
+    return path.join(distDir, '404.html');
+  }
   if (route === '/' || route === '') {
     return path.join(distDir, 'index.html');
   }
@@ -118,9 +109,23 @@ const resolveOutputPath = (route) => {
   return path.join(distDir, cleaned, 'index.html');
 };
 
-const waitForPreviewServer = async () => {
+const findAvailablePort = () => new Promise((resolve, reject) => {
+  const server = net.createServer();
+  server.unref();
+  server.once('error', reject);
+  server.listen(0, '127.0.0.1', () => {
+    const address = server.address();
+    if (!address || typeof address === 'string') {
+      server.close(() => reject(new Error('Unable to allocate a preview port.')));
+      return;
+    }
+    server.close(() => resolve(address.port));
+  });
+});
+
+const waitForPreviewServer = async (previewOrigin) => {
   const maxAttempts = 30;
-  const url = `${PREVIEW_ORIGIN}/`;
+  const url = `${previewOrigin}/`;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
@@ -137,20 +142,30 @@ const waitForPreviewServer = async () => {
   throw new Error('Vite preview server did not start in time.');
 };
 
-const startPreviewServer = () =>
-  new Promise((resolve, reject) => {
+const startPreviewServer = async () => {
+  const previewPort = await findAvailablePort();
+  const previewOrigin = `http://127.0.0.1:${previewPort}`;
+
+  return new Promise((resolve, reject) => {
     const preview = spawn(
       'npm',
-      ['run', 'preview', '--', '--port', String(PREVIEW_PORT), '--host', '127.0.0.1'],
+      ['run', 'preview', '--', '--port', String(previewPort), '--strictPort', '--host', '127.0.0.1'],
       {
         cwd: rootDir,
-        stdio: 'ignore',
+        stdio: ['ignore', 'pipe', 'pipe'],
         env: {
           ...process.env,
           NODE_ENV: 'production',
         },
       },
     );
+    let output = '';
+    preview.stdout.on('data', (chunk) => {
+      output += chunk.toString();
+    });
+    preview.stderr.on('data', (chunk) => {
+      output += chunk.toString();
+    });
 
     let settled = false;
 
@@ -169,7 +184,7 @@ const startPreviewServer = () =>
         return;
       }
       settled = true;
-      resolve(preview);
+      resolve({ preview, previewOrigin });
     };
 
     preview.on('error', (err) => {
@@ -179,13 +194,15 @@ const startPreviewServer = () =>
     // If preview dies before we're ready, fail fast. If it dies after ready, ignore.
     preview.on('exit', (code) => {
       if (!settled) {
-        handleFailure(new Error(`Vite preview exited early with code ${code}`));
+        handleFailure(new Error(
+          `Vite preview exited early with code ${code}.${output.trim() ? `\n${output.trim()}` : ''}`,
+        ));
       }
     });
 
     const checkReady = async () => {
       try {
-        await waitForPreviewServer();
+        await waitForPreviewServer(previewOrigin);
         handleReady();
       } catch (error) {
         handleFailure(error);
@@ -194,6 +211,7 @@ const startPreviewServer = () =>
 
     void checkReady();
   });
+};
 
 const prerender = async () => {
   const distExists = await fs
@@ -205,28 +223,40 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
-  const articleRoutes = await loadArticleSitemapRoutes({ apiBaseUrl });
-  const routesToPrerender = [...new Set([...STATIC_ROUTES, ...articleRoutes.map((route) => route.path)])];
+  const staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true';
+  const articleRoutes = staticOnly ? [] : await loadArticleSitemapRoutes({ apiBaseUrl });
+  const routesToPrerender = [
+    ...new Set([
+      ...staticPrerenderRoutes.map((route) => route.path),
+      ...articleRoutes.map((route) => route.path),
+      getPublicRoute('notFound').path,
+    ]),
+  ];
+  const articleRoutePaths = new Set(articleRoutes.map((route) => route.path));
+  const blogIndexPath = getPublicRoute('blogIndex').path;
 
   let preview;
+  let previewOrigin;
   let browser;
 
   try {
-    preview = await startPreviewServer();
+    ({ preview, previewOrigin } = await startPreviewServer());
 
     browser = await chromium.launch();
     const page = await browser.newPage();
-    await setupApiProxy(page);
+    if (!staticOnly) {
+      await setupApiProxy(page);
+    }
 
     for (const route of routesToPrerender) {
-      const url = `${PREVIEW_ORIGIN}${route}`;
+      const url = `${previewOrigin}${route}`;
       console.log(`Prerendering ${route}...`);
       
       // Load the page
       await page.goto(url, { waitUntil: 'load' });
 
       // Wait for content to be ready based on route type
-      if (route.startsWith('/blog/') && route !== '/blog/') {
+      if (articleRoutePaths.has(route)) {
         // Blog article page - wait for SEO meta + title to confirm data loaded.
         await page.waitForFunction(() => {
           const meta = document.querySelector('meta[property="og:type"]');
@@ -236,7 +266,7 @@ const prerender = async () => {
           const heading = document.querySelector('h1');
           return heading && heading.textContent && heading.textContent.trim().length > 0;
         }, { timeout: 15000 });
-      } else if (route === '/blog/') {
+      } else if (!staticOnly && route === blogIndexPath) {
         // Blog index page - wait for article links or empty state.
         await page.waitForFunction(() => {
           const hasArticleLink = Array.from(document.querySelectorAll('a')).some((link) => {

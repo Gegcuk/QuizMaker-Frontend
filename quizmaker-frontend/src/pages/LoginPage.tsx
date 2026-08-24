@@ -1,6 +1,7 @@
 import React from 'react';
 import { LoginForm } from '../features/auth';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const LoginPage: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ const LoginPage: React.FC = () => {
       <Seo
         title="Log In | Quizzence"
         description="Log in to Quizzence to access your quizzes, review your progress and continue learning in your university courses or school classes."
-        canonicalPath="/login"
+        {...getPublicRouteSeoPolicy('login')}
         ogType="website"
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">

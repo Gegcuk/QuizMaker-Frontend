@@ -8,6 +8,7 @@ import { PageContainer } from '@/components';
 import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ThemeDemoPage: React.FC = () => {
   const { currentPalette, colorScheme } = useTheme();
@@ -17,9 +18,8 @@ const ThemeDemoPage: React.FC = () => {
       <Seo
         title="Theme Demo | Quizzence"
         description="Internal theme playground for testing Quizzence color schemes and UI components."
-        canonicalPath="/theme-demo"
+        {...getPublicRouteSeoPolicy('themeDemo')}
         ogType="website"
-        noindex
       />
       <PageContainer
         title="Theme System Demo"

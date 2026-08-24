@@ -1,6 +1,7 @@
 import React from 'react';
 import PageContainer from '@/components/layout/PageContainer';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const PrivacyPage: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ const PrivacyPage: React.FC = () => {
       <Seo
         title="Privacy Policy | Quizzence"
         description="Learn how Quizzence handles your account data, quiz results and learning analytics in our privacy policy."
-        canonicalPath="/privacy/"
+        {...getPublicRouteSeoPolicy('privacy')}
         ogType="website"
       />
       <PageContainer title="Privacy Policy" showHeader subtitle="How we handle your data, in plain language">

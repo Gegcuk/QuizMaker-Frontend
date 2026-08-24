@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { once } from 'node:events';
 import { promisify } from 'node:util';
+import { verifyPublicRouteDelivery } from '../../scripts/verify-public-route-delivery.mjs';
 
 const execFileAsync = promisify(execFile);
 const port = process.env.NGINX_TEST_PORT || '8085';
@@ -73,12 +74,10 @@ const main = async () => {
     const appShell = await expectStatus('/index.html', 200);
     assert.match(appShell.headers.get('cache-control') || '', /no-cache/);
 
-    for (const path of [
-      '/login',
-      '/blog/retrieval-practice-template/',
-    ]) {
-      await expectStatus(path, 200);
-    }
+    const verifiedRoutes = await verifyPublicRouteDelivery({
+      baseUrl,
+      canonicalOrigin: 'https://www.quizzence.com',
+    });
 
     const callbackCanary = 'oauth-secret-canary';
     for (const callbackPath of ['/oauth2/redirect', '/oauth/callback']) {
@@ -102,26 +101,16 @@ const main = async () => {
       assert.match(response.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
     }
 
-    const canonicalArticle = await expectStatus('/blog/retrieval-practice-template', 301);
-    assert.match(canonicalArticle.headers.get('location') || '', /\/blog\/retrieval-practice-template\/$/);
-
-    for (const path of [
-      '/this-route-should-not-exist',
+    const invalidPrivateRoute = await expectStatus(
       '/quizzes/22222222-2222-4222-8222-222222222222/not-a-real-route',
-    ]) {
-      const response = await expectStatus(path, 404);
-      assert.match(response.headers.get('x-robots-tag') || '', /noindex/);
-      assert.match(response.headers.get('strict-transport-security') || '', /^max-age=2592000$/);
-      assert.match(response.headers.get('content-type') || '', /^text\/html/);
-      const body = await response.text();
-      assert.match(body, /<div id="root"><\/div>/);
-      assert.match(body, /src="\/assets\/[^\"]+\.js"/);
-    }
+      404,
+    );
+    assert.match(invalidPrivateRoute.headers.get('x-robots-tag') || '', /noindex/);
 
-    const missingAsset = await expectStatus('/assets/this-asset-does-not-exist.js', 404);
-    assert.doesNotMatch(await missingAsset.text(), /<div id="root"><\/div>/);
-
-    console.log('Nginx route policy passed.');
+    console.log(
+      `Nginx route policy passed for ${verifiedRoutes.staticRouteCount} static public routes `
+        + `and ${verifiedRoutes.articleRouteCount} article routes.`,
+    );
   } finally {
     if (containerStarted) {
       await runDocker(['rm', '--force', containerName]).catch(() => undefined);

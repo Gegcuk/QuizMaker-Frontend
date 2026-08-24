@@ -5,6 +5,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components';
 import { Seo, SITE_URL } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 import { useAuth } from '../features/auth';
 
 const baseSiteUrl = SITE_URL.replace(/\/$/, '');
@@ -52,7 +53,7 @@ const HomePage: React.FC = () => {
       <Seo
         title="AI Quiz Generator for Students & Teachers | Quizzence"
         description="Create AI-powered quizzes from text, PDFs, or links. Practise retrieval, learn with feedback, and revisit key ideas with Quizzence."
-        canonicalPath="/"
+        {...getPublicRouteSeoPolicy('home')}
         ogType="website"
         structuredData={homepageStructuredData}
       />

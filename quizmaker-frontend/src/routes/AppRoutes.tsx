@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import ProtectedRoute from '../components/layout/ProtectedRoute';
 import ErrorBoundary from '../components/common/ErrorBoundary';
@@ -34,6 +34,13 @@ import PrivacyPage from '../pages/PrivacyPage';
 import FaqPage from '../pages/FaqPage';
 import ValuesPage from '../pages/ValuesPage';
 import RoadmapPage from '../pages/RoadmapPage';
+import {
+  getAlternatePublicRoutePath,
+  publicRouteManifest,
+  resolvePublicRoutePath,
+  type PublicRouteDefinition,
+  type PublicRouteId,
+} from './publicRouteManifest.mjs';
 
 /* ----------  Deferred authenticated routes  ----------------------------- */
 const QuizDetailPage = lazy(() => import('../pages/QuizDetailPage'));
@@ -71,6 +78,25 @@ const protectedRoute = (page: React.ReactElement, requiredRoles?: string[]) => (
   </ProtectedRoute>
 );
 
+interface PublicRouteElementProps {
+  route: PublicRouteDefinition;
+  children: React.ReactElement;
+}
+
+const PublicRouteElement: React.FC<PublicRouteElementProps> = ({ route, children }) => {
+  const location = useLocation();
+  const params = useParams();
+
+  if (route.trailingSlash === 'canonical') {
+    const canonicalPath = resolvePublicRoutePath(route.path, params);
+    if (location.pathname !== canonicalPath) {
+      return <Navigate to={`${canonicalPath}${location.search}${location.hash}`} replace />;
+    }
+  }
+
+  return children;
+};
+
 const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
 
@@ -85,40 +111,73 @@ const AppRoutes: React.FC = () => {
       <RegisterPage />
     );
 
+  const publicRouteElement = (routeId: PublicRouteId): React.ReactElement => {
+    switch (routeId) {
+      case 'home':
+        return <HomePage />;
+      case 'login':
+        return authRedirect('login');
+      case 'register':
+        return authRedirect('register');
+      case 'forgotPassword':
+        return <ForgotPasswordPage />;
+      case 'resetPassword':
+        return <ResetPasswordPage />;
+      case 'verifyEmail':
+        return <EmailVerificationPage />;
+      case 'oauthCallback':
+      case 'oauth2Redirect':
+        return <OAuthCallbackPage />;
+      case 'themeDemo':
+        return <ThemeDemoPage />;
+      case 'terms':
+        return <TermsPage />;
+      case 'privacy':
+        return <PrivacyPage />;
+      case 'faq':
+        return <FaqPage />;
+      case 'values':
+        return <ValuesPage />;
+      case 'roadmap':
+        return <RoadmapPage />;
+      case 'blogIndex':
+        return <BlogIndexPage />;
+      case 'blogTemplate':
+        return <BlogArticleTemplatePage />;
+      case 'blogArticle':
+        return <BlogArticlePage />;
+      case 'articleSitemap':
+        return <SitemapArticlesPage />;
+      case 'notFound':
+      case 'sitemap':
+        throw new Error(`${routeId} is delivered outside the React route map.`);
+    }
+  };
+
   return (
     <ErrorBoundary>
       <Routes>
         <Route element={<Layout />}>
         {/* --------------------------  Public  ------------------------------ */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={authRedirect('login')} />
-        <Route path="/register" element={authRedirect('register')} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-        <Route path="/oauth2/redirect" element={<OAuthCallbackPage />} />
-        <Route path="/theme-demo" element={<ThemeDemoPage />} />
-        <Route path="/theme-demo/" element={<ThemeDemoPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/terms/" element={<TermsPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/privacy/" element={<PrivacyPage />} />
-        <Route path="/faq" element={<FaqPage />} />
-        <Route path="/faq/" element={<FaqPage />} />
-        <Route path="/values" element={<ValuesPage />} />
-        <Route path="/values/" element={<ValuesPage />} />
-        <Route path="/roadmap" element={<RoadmapPage />} />
-        <Route path="/roadmap/" element={<RoadmapPage />} />
-        <Route path="/blog" element={<BlogIndexPage />} />
-        <Route path="/blog/" element={<BlogIndexPage />} />
-        <Route path="/blog/retrieval-practice-template" element={<BlogArticleTemplatePage />} />
-        <Route path="/blog/retrieval-practice-template/" element={<BlogArticleTemplatePage />} />
-        <Route path="/blog/:slug" element={<BlogArticlePage />} />
-        <Route path="/blog/:slug/" element={<BlogArticlePage />} />
-        
-        {/* Sitemap routes */}
-        <Route path="/sitemap_articles.xml" element={<SitemapArticlesPage />} />
+        {publicRouteManifest
+          .filter((route) => route.router !== false)
+          .flatMap((route) => {
+            const routePaths = [route.path, getAlternatePublicRoutePath(route)].filter(
+              (path): path is string => Boolean(path),
+            );
+
+            return routePaths.map((path) => (
+              <Route
+                key={`${route.id}:${path}`}
+                path={path}
+                element={(
+                  <PublicRouteElement route={route}>
+                    {publicRouteElement(route.id)}
+                  </PublicRouteElement>
+                )}
+              />
+            ));
+          })}
 
         {/* -------------------------  Private  ------------------------------ */}
         <Route path="/quizzes" element={<Navigate to="/my-quizzes" replace />} />

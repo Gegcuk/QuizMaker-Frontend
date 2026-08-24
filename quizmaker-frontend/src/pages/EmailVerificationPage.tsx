@@ -6,6 +6,7 @@
 import React from 'react';
 import { EmailVerification } from '../features/auth';
 import { Seo } from '@/features/seo';
+import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const EmailVerificationPage: React.FC = () => {
   return (
@@ -13,9 +14,8 @@ const EmailVerificationPage: React.FC = () => {
       <Seo
         title="Verify Email | Quizzence"
         description="Verify your email address to activate your Quizzence account and start creating AI-powered quizzes."
-        canonicalPath="/verify-email"
+        {...getPublicRouteSeoPolicy('verifyEmail')}
         ogType="website"
-        noindex
       />
       <div className="min-h-screen bg-theme-bg-secondary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
