@@ -82,6 +82,19 @@ const waitForServer = async (url, timeoutMs = 30_000) => {
   throw lastError ?? new Error(`Server did not start at ${url}`);
 };
 
+const navigateToAppRoute = async (page, path) => {
+  const response = await page.goto(new URL(path, `${BASE_URL}/`).toString(), {
+    waitUntil: 'domcontentloaded',
+  });
+
+  assert.ok(response, `Expected a document response for ${path}`);
+  assert.equal(
+    response.ok(),
+    true,
+    `Expected ${path} to return a successful document response, got ${response.status()}`,
+  );
+};
+
 const user = {
   id: USER_ID,
   username: 'e2e-user',
@@ -496,7 +509,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await installUnexpectedApiBlock(page);
 
         for (const path of publicRoutes) {
-          await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' });
+          await navigateToAppRoute(page, path);
           const headings = page.locator('h1');
 
           await headings.waitFor({ state: 'visible' });
@@ -505,7 +518,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           assert.match(await page.title(), /Quizzence/i, `Expected Quizzence title at ${path}`);
         }
 
-        await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/');
         await Promise.all([
           page.waitForURL(`${BASE_URL}/login`),
           page.getByRole('button', { name: 'Login' }).click(),
@@ -540,7 +553,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           empty: true,
         }));
 
-        await successPage.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(successPage, '/login');
         await fillLoginForm(successPage);
         await Promise.all([
           successPage.waitForURL(`${BASE_URL}/my-quizzes`),
@@ -554,7 +567,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           detail: 'The supplied credentials are invalid.',
         }, 401));
 
-        await errorPage.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(errorPage, '/login');
         await fillLoginForm(errorPage);
         await errorPage.getByRole('button', { name: 'Sign in', exact: true }).click();
         await errorPage.getByText('Login failed. Please check your credentials and try again.').waitFor();
@@ -574,7 +587,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
       try {
         await installUnexpectedApiBlock(registerSuccessPage);
         await registerSuccessPage.route('**/api/v1/auth/register', (route) => fulfillJson(route, user, 201));
-        await registerSuccessPage.goto(`${BASE_URL}/register`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(registerSuccessPage, '/register');
         await fillRegistrationForm(registerSuccessPage);
         await Promise.all([
           registerSuccessPage.waitForURL(`${BASE_URL}/login`),
@@ -587,7 +600,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           status: 409,
           detail: 'Username is already in use.',
         }, 409));
-        await registerErrorPage.goto(`${BASE_URL}/register`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(registerErrorPage, '/register');
         await fillRegistrationForm(registerErrorPage);
         await registerErrorPage.getByRole('button', { name: 'Create account' }).click();
         await registerErrorPage.getByText('Registration failed. Please try again.').waitFor();
@@ -596,7 +609,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await resetSuccessPage.route('**/api/v1/auth/forgot-password', (route) => fulfillJson(route, {
           message: 'Password reset request accepted.',
         }, 202));
-        await resetSuccessPage.goto(`${BASE_URL}/forgot-password`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(resetSuccessPage, '/forgot-password');
         await resetSuccessPage.getByLabel('Email Address').fill('e2e.user@example.com');
         await resetSuccessPage.getByRole('button', { name: 'Send reset link' }).click();
         await resetSuccessPage.getByText('Password reset email sent').waitFor();
@@ -607,7 +620,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           status: 503,
           detail: 'Password reset is temporarily unavailable.',
         }, 503));
-        await resetErrorPage.goto(`${BASE_URL}/forgot-password`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(resetErrorPage, '/forgot-password');
         await resetErrorPage.getByLabel('Email Address').fill('e2e.user@example.com');
         await resetErrorPage.getByRole('button', { name: 'Send reset link' }).click();
         await resetErrorPage.getByText('Failed to send password reset email. Please try again.').waitFor();
@@ -648,7 +661,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           });
         });
 
-        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/quizzes/create');
         await page.getByText('Manual Creation', { exact: true }).click();
         await page.getByRole('heading', { name: 'Configure Your Manual Quiz' }).waitFor();
 
@@ -757,7 +770,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           });
         });
 
-        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/quizzes/create');
         await page.getByText('Generate from Text', { exact: true }).click();
         await page.getByRole('heading', { name: 'Configure Your Text-Based Quiz' }).waitFor();
 
@@ -849,7 +862,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           });
         });
 
-        await page.goto(`${BASE_URL}/quizzes/create`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/quizzes/create');
         await page.getByText('Generate from Document', { exact: true }).click();
         await page.getByRole('heading', { name: 'Configure Your Document-Based Quiz' }).waitFor();
 
@@ -945,9 +958,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           answers: [],
         }));
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${FILL_GAP_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${FILL_GAP_ATTEMPT_ID}`,
+        );
         await page.getByText('Answer pool', { exact: true }).waitFor();
         await page.getByText('Active gap: 1', { exact: true }).waitFor();
 
@@ -1039,9 +1053,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           answers: [],
         }));
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${MATCHING_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${MATCHING_ATTEMPT_ID}`,
+        );
         await page.getByText('0 of 4 matches completed', { exact: true }).waitFor();
 
         const matchPair = async (leftText, rightText) => {
@@ -1118,9 +1133,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           },
         });
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${MCQ_MULTI_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${MCQ_MULTI_ATTEMPT_ID}`,
+        );
         await page.getByRole('checkbox', { name: 'Select option A' }).check();
         await page.getByRole('checkbox', { name: 'Select option C' }).check();
         await page.getByRole('button', { name: 'Submit Answer' }).click();
@@ -1161,9 +1177,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           },
         });
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${TRUE_FALSE_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${TRUE_FALSE_ATTEMPT_ID}`,
+        );
         await page.getByRole('button', { name: /False/ }).click();
         await page.getByRole('button', { name: 'Submit Answer' }).click();
         await page.getByText('Explanation', { exact: true }).waitFor();
@@ -1203,9 +1220,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           },
         });
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${COMPLIANCE_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${COMPLIANCE_ATTEMPT_ID}`,
+        );
         await page.locator('label').filter({ hasText: 'Obtain explicit consent' }).locator('input').check();
         await page.locator('label').filter({ hasText: 'Allow recipients to unsubscribe' }).locator('input').check();
         await page.getByRole('button', { name: 'Submit Answer' }).click();
@@ -1246,9 +1264,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           },
         });
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${ORDERING_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${ORDERING_ATTEMPT_ID}`,
+        );
         await page.locator('[draggable="true"]').filter({ hasText: 'Review the proposed changes' }).getByTitle('Move up').click();
         await page.locator('[draggable="true"]').filter({ hasText: 'Approve the release candidate' }).getByTitle('Move up').click();
         await page.getByText(/Current Order:.*Review the proposed changes.*Approve the release candidate.*Deploy the approved release/).waitFor();
@@ -1290,9 +1309,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           },
         });
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${HOTSPOT_ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${HOTSPOT_ATTEMPT_ID}`,
+        );
         await page.getByRole('button', { name: 'Select region 2' }).click();
         await page.getByText('Region 2 selected', { exact: true }).waitFor();
         await page.getByRole('button', { name: 'Clear Selection' }).click();
@@ -1384,7 +1404,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           body: '<!doctype html><title>Mock checkout</title><h1>Mock checkout</h1>',
         }));
 
-        await page.goto(`${BASE_URL}/billing`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/billing');
         await page.getByRole('heading', { name: 'Billing & Tokens' }).waitFor();
         await page.getByText('1,200', { exact: true }).waitFor();
         await page.getByRole('button', { name: /Select Pro pack/ }).click();
@@ -1449,7 +1469,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           await route.abort('blockedbyclient');
         });
 
-        await page.goto(`${BASE_URL}/questions`, { waitUntil: 'networkidle' });
+        await navigateToAppRoute(page, '/questions');
         await page.getByRole('heading', { name: 'Question Management' }).waitFor();
 
         for (const question of editableQuestions) {
@@ -1576,9 +1596,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           answers: [],
         }));
 
-        await page.goto(`${BASE_URL}/quizzes/${QUIZ_ID}/attempt?attemptId=${ATTEMPT_ID}`, {
-          waitUntil: 'networkidle',
-        });
+        await navigateToAppRoute(
+          page,
+          `/quizzes/${QUIZ_ID}/attempt?attemptId=${ATTEMPT_ID}`,
+        );
         await page.getByText('What is the capital of France?').waitFor();
 
         assert.equal(
