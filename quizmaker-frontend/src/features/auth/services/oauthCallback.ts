@@ -1,4 +1,3 @@
-import { setTokens } from '@/utils';
 import {
   OAUTH_PENDING_MAX_AGE_MS,
   clearPendingOAuthFlow,
@@ -6,6 +5,7 @@ import {
 } from './oauthPkce';
 import { exchangeOAuthCode } from './oauthExchange';
 import { SENSITIVE_RETURN_STORAGE_KEYS } from '@/features/privacy/sensitiveReturn';
+import { establishSession } from './sessionLifecycle';
 
 export const OAUTH_CALLBACK_STORAGE_KEY = SENSITIVE_RETURN_STORAGE_KEYS.oauthCallback;
 
@@ -42,7 +42,7 @@ interface OAuthCallbackRuntime {
   now?: number;
   origin?: string;
   storage?: Storage;
-  storeTokens?: typeof setTokens;
+  storeTokens?: (accessToken: string, refreshToken: string) => void;
 }
 
 export class OAuthCallbackError extends Error {
@@ -122,7 +122,10 @@ const processCapturedCallback = async (
     redirectUri: pending.redirectUri,
     codeVerifier: pending.codeVerifier,
   });
-  const storeTokens = runtime.storeTokens ?? setTokens;
+  const storeTokens = runtime.storeTokens
+    ?? ((accessToken: string, refreshToken: string) => {
+      establishSession(accessToken, refreshToken, 'oauth-login');
+    });
   storeTokens(tokens.accessToken, tokens.refreshToken);
 
   return { returnPath: pending.returnPath };
