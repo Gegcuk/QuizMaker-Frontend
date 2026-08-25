@@ -131,7 +131,7 @@ describe('shared core controls', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it('selects dropdown options and does not open disabled dropdowns', async () => {
+  it('selects themed dropdown options and respects disabled state', async () => {
     const onChange = vi.fn();
     const { user, rerender } = renderWithProviders(
       <Dropdown
@@ -146,8 +146,8 @@ describe('shared core controls', () => {
       { withAuthProvider: false },
     );
 
-    await user.click(screen.getByRole('button', { name: 'Select difficulty' }));
-    await user.click(screen.getByRole('button', { name: 'Medium' }));
+    await user.click(screen.getByRole('combobox', { name: 'Difficulty' }));
+    await user.click(screen.getByRole('option', { name: 'Medium' }));
     expect(onChange).toHaveBeenCalledWith('MEDIUM');
 
     rerender(
@@ -158,10 +158,10 @@ describe('shared core controls', () => {
         onChange={onChange}
       />,
     );
-    const button = screen.getByRole('button', { name: 'Select difficulty' });
-    expect(button).toBeDisabled();
-    await user.click(button);
-    expect(screen.queryByRole('button', { name: 'Easy' })).not.toBeInTheDocument();
+    const combobox = screen.getByRole('combobox', { name: 'Select difficulty' });
+    expect(combobox).toBeDisabled();
+    await user.click(combobox);
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it('navigates pagination, ignores the current page, and hides a single-page control', async () => {

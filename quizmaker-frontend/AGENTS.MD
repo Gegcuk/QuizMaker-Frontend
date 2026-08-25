@@ -13,6 +13,7 @@ This document captures the conventions and guardrails that keep the Quizzence fr
 - **Tailwind + CSS variables**: Use Tailwind utility classes backed by the theme system. Prefer semantic theme classes (`theme-bg-*`, `theme-text-*`, `theme-border-*`, etc.) over hard-coded color tokens. Review `THEME_SYSTEM.md` before touching theme logic.
 - **Dark mode compatibility**: When custom CSS is unavoidable, scope it with theme variables or Tailwind `dark:` variants so all color schemes stay legible.
 - **Component APIs**: Extend existing primitives in `src/components/ui` before introducing new styling patterns. Reuse tokens (spacing, radii, shadows) already defined in the design system.
+- **No browser-default controls**: Every visible interactive control must use a reusable shared component with complete project styling, states, accessibility, and behavior. Shared components should use semantic native elements internally, but pages and features must not render unstyled browser-default form controls.
 - **No inline magic numbers**: Promote reusable spacing and sizing decisions into Tailwind classes or extracted constants.
 
 ## TypeScript & React Guidelines
@@ -31,6 +32,11 @@ This document captures the conventions and guardrails that keep the Quizzence fr
 - **HTTP clients**: Go through `axiosInstance` for all HTTP traffic so interceptors and configuration stay centralized.
 - **Error handling**: Surface user-facing errors with shared UI components (`Alert`, `Toast`, etc.) and let hooks throw for boundary components when appropriate.
 - **DTO transformation**: Normalize API responses in service helpers before exposing data to components. Keep parsing logic isolated for reuse.
+
+## Testing Behavior & Acceptance Criteria
+- **Intent before implementation**: Derive expected results from the intended user behavior, acceptance criteria, product rule, or verified API contract. Never copy the implementation's conditions, constants, transformation, or internal call sequence into a test merely to make the written code pass.
+- **Acceptance coverage**: Map every acceptance criterion to at least one focused automated test. If a criterion cannot reasonably be automated, document why and define a concrete manual or production verification step in the issue before treating it as complete.
+- **Meaningful failures**: Write tests that fail when behavior or a contract breaks. Avoid tautological assertions, implementation-only checks, and broad snapshots without a stated behavioral purpose.
 
 ## Tooling & Quality Gates
 - **Formatting**: Follow the existing code style (TypeScript + Tailwind). Use editor tooling to keep imports ordered and JSX formatted; do not disable ESLint without a compelling reason.

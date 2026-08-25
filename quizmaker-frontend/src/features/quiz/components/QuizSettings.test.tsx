@@ -34,8 +34,8 @@ describe('QuizSettings', () => {
   it('keeps settings controls disabled outside edit mode', () => {
     renderWithProviders(<SettingsHarness isEditing={false} />, { withAuthProvider: false });
 
-    expect(screen.getByRole('button', { name: /Private - Only you can see/ })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /Medium - Balanced difficulty/ })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Visibility' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Difficulty Level' })).toBeDisabled();
     expect(screen.getByRole('checkbox', { name: 'Enable Timer' })).toBeDisabled();
     expect(screen.getByLabelText(/Estimated Time/)).toBeDisabled();
   });
@@ -46,8 +46,8 @@ describe('QuizSettings', () => {
       withAuthProvider: false,
     });
 
-    await user.click(screen.getByRole('button', { name: /Private - Only you can see/ }));
-    await user.click(screen.getByRole('button', { name: /Public - Anyone can see/ }));
+    await user.click(screen.getByRole('combobox', { name: 'Visibility' }));
+    await user.click(screen.getByRole('option', { name: 'Public - Anyone can see and take this quiz' }));
     await user.click(screen.getByRole('checkbox', { name: 'Enable Timer' }));
 
     const timerDuration = screen.getByLabelText('Timer Duration (minutes)');

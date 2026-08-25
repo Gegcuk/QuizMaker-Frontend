@@ -52,8 +52,8 @@ describe('TransactionPagination', () => {
 
     expect(screen.getByRole('button', { name: 'Go to previous page' })).toBeDisabled();
 
-    await user.click(screen.getByRole('button', { name: '10' }));
-    await user.click(screen.getByRole('button', { name: '20' }));
+    await user.click(screen.getByRole('combobox', { name: 'Show:' }));
+    await user.click(screen.getByRole('option', { name: '20' }));
 
     expect(onPageSizeChange).toHaveBeenCalledWith(20);
   });
