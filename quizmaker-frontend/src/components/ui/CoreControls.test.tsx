@@ -49,9 +49,28 @@ describe('shared core controls', () => {
     expect(onChange).toHaveBeenCalled();
     expect(screen.getByText('Choose a clear title')).toBeInTheDocument();
 
-    rerender(<Input label="Quiz title" error="A title is required" disabled />);
-    expect(screen.getByRole('textbox', { name: 'Quiz title' })).toBeDisabled();
+    rerender(
+      <div>
+        <p id="title-context">Used on the public quiz page.</p>
+        <Input
+          id="quiz-title"
+          label="Quiz title"
+          helperText="Choose a clear title"
+          error="A title is required"
+          aria-describedby="title-context"
+          disabled
+        />
+      </div>,
+    );
+    const invalidInput = screen.getByRole('textbox', { name: 'Quiz title' });
+    expect(invalidInput).toBeDisabled();
+    expect(invalidInput).toHaveAttribute('aria-invalid', 'true');
+    expect(invalidInput).toHaveAttribute('aria-errormessage', 'quiz-title-error');
+    expect(invalidInput).toHaveAccessibleDescription(
+      'Used on the public quiz page. Choose a clear title A title is required',
+    );
     expect(screen.getByText('A title is required')).toBeInTheDocument();
+    expect(screen.getByText('Choose a clear title')).toBeInTheDocument();
   });
 
   it('updates textarea content and exposes its validation state', async () => {
@@ -210,8 +229,27 @@ describe('shared core controls', () => {
     );
 
     expect(screen.getByRole('status', { name: 'Loading' })).toHaveClass('w-12', 'h-12');
+    expect(screen.getByText('Review required').closest('[role="status"]')).toHaveAttribute(
+      'aria-live',
+      'polite',
+    );
     await user.click(screen.getByRole('button', { name: 'Close' }));
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(screen.queryByText('Review required')).not.toBeInTheDocument();
+  });
+
+  it('keeps critical errors assertive and visible while the user corrects input', async () => {
+    const { user } = renderWithProviders(
+      <>
+        <Alert type="error">The quiz could not be saved.</Alert>
+        <Input label="Quiz title" />
+      </>,
+      { withAuthProvider: false },
+    );
+
+    const errorAlert = screen.getByRole('alert');
+    expect(errorAlert).toHaveAttribute('aria-live', 'assertive');
+    await user.type(screen.getByRole('textbox', { name: 'Quiz title' }), 'Architecture');
+    expect(errorAlert).toHaveTextContent('The quiz could not be saved.');
   });
 });

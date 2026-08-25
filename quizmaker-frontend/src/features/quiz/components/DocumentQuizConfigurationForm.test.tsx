@@ -38,7 +38,12 @@ describe('DocumentQuizConfigurationForm', () => {
     const file = new File(['Architecture content'], 'architecture.txt', { type: 'text/plain' });
     const upload = document.getElementById('document-upload') as HTMLInputElement;
 
-    expect(screen.getByRole('button', { name: 'Generate Quiz from Document' })).toBeDisabled();
+    const generateButton = screen.getByRole('button', { name: 'Generate Quiz from Document' });
+    expect(generateButton).not.toBeDisabled();
+    expect(generateButton).toHaveAttribute('aria-disabled', 'true');
+    expect(generateButton).toHaveAccessibleDescription(expect.stringContaining('Document file is required'));
+    await user.click(generateButton);
+    expect(onCreateQuiz).not.toHaveBeenCalled();
 
     await user.upload(upload, file);
     await user.click(screen.getByRole('button', { name: 'Confirm page selection' }));

@@ -3,7 +3,7 @@
 // Shows current theme icon by default, expands to show all themes when clicked
 // ---------------------------------------------------------------------------
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
 interface ColorSchemeDropdownProps {
@@ -16,6 +16,8 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
   const { colorScheme, setColorScheme, availablePalettes } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const choicesId = useId();
 
   // Close when clicking outside
   useEffect(() => {
@@ -78,12 +80,25 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
   };
 
   return (
-    <div className={`relative ${className}`} ref={containerRef}>
+    <div
+      className={`relative ${className}`}
+      ref={containerRef}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !isExpanded) return;
+        event.preventDefault();
+        setIsExpanded(false);
+        triggerRef.current?.focus();
+      }}
+    >
       {/* Default collapsed state - shows only current theme */}
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-2 rounded-lg text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary transition-all duration-200"
         aria-label={`Current theme: ${currentPalette?.name || 'Theme'}. Click to see all themes.`}
+        aria-expanded={isExpanded}
+        aria-controls={choicesId}
         title={`Current: ${currentPalette?.name || 'Theme'}. Click to change theme.`}
       >
         {getSchemeIcon(colorScheme)}
@@ -91,10 +106,16 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
 
       {/* Expanded state - shows all themes */}
       {isExpanded && (
-        <div className="absolute right-0 top-full mt-1 flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-lg p-1 shadow-lg z-50 bg-theme-bg-primary text-theme-text-primary">
+        <div
+          id={choicesId}
+          role="group"
+          aria-label="Color schemes"
+          className="absolute right-0 top-full mt-1 flex items-center bg-theme-bg-primary border border-theme-border-primary rounded-lg p-1 shadow-lg z-50 bg-theme-bg-primary text-theme-text-primary"
+        >
           {availablePalettes.map((palette) => (
             <button
               key={palette.id}
+              type="button"
               onClick={() => handleThemeSelect(palette.id)}
               className={`p-1.5 rounded-md transition-all duration-200 ${
                 colorScheme === palette.id
@@ -102,6 +123,7 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
                   : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary'
               }`}
               aria-label={`Switch to ${palette.name} theme`}
+              aria-pressed={colorScheme === palette.id}
               title={palette.name}
             >
               {getSchemeIcon(palette.id)}

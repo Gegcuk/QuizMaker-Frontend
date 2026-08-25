@@ -108,37 +108,64 @@ const AttemptTimer: React.FC<AttemptTimerProps> = ({
     <div className={`border rounded-lg p-3 ${getTimerColor()} ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-lg">{getTimerIcon()}</span>
+          <span aria-hidden="true" className="text-lg">{getTimerIcon()}</span>
           <span className="text-sm font-medium">
             {isPaused ? 'Paused' : 'Time Remaining'}
           </span>
         </div>
         
         <div className="text-right">
-          <div className="text-xl font-bold font-mono">
+          <div
+            role="timer"
+            aria-label="Time remaining"
+            aria-live="off"
+            className="text-xl font-bold font-mono"
+          >
             {formatTime(timeRemaining)}
           </div>
           {isPaused && (
-            <div className="text-xs text-theme-text-tertiary">Timer paused</div>
+            <div role="status" aria-live="polite" className="text-xs text-theme-text-tertiary">
+              Timer paused
+            </div>
           )}
         </div>
       </div>
 
       {/* Warning messages */}
       {isCritical && (
-        <div className="mt-2 p-2 bg-theme-bg-danger border border-theme-border-danger rounded text-sm text-theme-interactive-danger">
-          ⚠️ Less than 1 minute remaining! Please submit your answers soon.
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mt-2 p-2 bg-theme-bg-danger border border-theme-border-danger rounded text-sm text-theme-interactive-danger"
+        >
+          <span aria-hidden="true">⚠️ </span>
+          {hasExpired
+            ? 'Time is up.'
+            : 'Less than 1 minute remaining! Please submit your answers soon.'}
         </div>
       )}
       
       {isWarning && !isCritical && (
-        <div className="mt-2 p-2 bg-theme-bg-warning border border-theme-border-warning rounded text-sm text-theme-interactive-warning">
-          ⚠️ Less than 5 minutes remaining. Please review your answers.
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-2 p-2 bg-theme-bg-warning border border-theme-border-warning rounded text-sm text-theme-interactive-warning"
+        >
+          <span aria-hidden="true">⚠️ </span>
+          Less than 5 minutes remaining. Please review your answers.
         </div>
       )}
 
       {/* Progress bar */}
-      <div className="mt-2 w-full bg-theme-bg-tertiary rounded-full h-1">
+      <div
+        role="progressbar"
+        aria-label="Time remaining progress"
+        aria-valuemin={0}
+        aria-valuemax={Math.max(durationSeconds, 1)}
+        aria-valuenow={timeRemaining}
+        aria-valuetext={formatTime(timeRemaining)}
+        className="mt-2 w-full bg-theme-bg-tertiary rounded-full h-1"
+      >
         <div
           className={`h-1 rounded-full transition-all duration-1000 ${
             isCritical ? 'bg-theme-interactive-danger' : isWarning ? 'bg-theme-interactive-warning' : 'bg-theme-interactive-info'

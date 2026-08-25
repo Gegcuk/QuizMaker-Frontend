@@ -3,19 +3,26 @@ import { renderWithProviders, screen } from '@/test/render';
 import { ManualQuizConfigurationForm } from './ManualQuizConfigurationForm';
 
 describe('ManualQuizConfigurationForm', () => {
-  it('keeps creation disabled until a title is supplied', () => {
-    renderWithProviders(
+  it('blocks creation while keeping missing title guidance keyboard reachable', async () => {
+    const onCreateQuiz = vi.fn();
+    const { user } = renderWithProviders(
       <ManualQuizConfigurationForm
         quizData={{}}
         onDataChange={vi.fn()}
         errors={{}}
-        onCreateQuiz={vi.fn()}
+        onCreateQuiz={onCreateQuiz}
         isCreating={false}
       />,
       { withAuthProvider: false },
     );
 
-    expect(screen.getByRole('button', { name: 'Create Quiz & Add Questions' })).toBeDisabled();
+    const createButton = screen.getByRole('button', { name: 'Create Quiz & Add Questions' });
+    expect(createButton).not.toBeDisabled();
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
+    expect(createButton).toHaveAccessibleDescription(expect.stringContaining('Quiz title is required'));
+
+    await user.click(createButton);
+    expect(onCreateQuiz).not.toHaveBeenCalled();
   });
 
   it('propagates changes and submits a valid manual quiz draft', async () => {

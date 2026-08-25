@@ -25,7 +25,12 @@ describe('CreateGroupModal', () => {
     );
 
     expect(screen.getByRole('dialog', { name: 'Create New Group' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create Group' })).toBeDisabled();
+    const createButton = screen.getByRole('button', { name: 'Create Group' });
+    expect(createButton).not.toBeDisabled();
+    expect(createButton).toHaveAttribute('aria-disabled', 'true');
+    expect(createButton).toHaveAccessibleDescription(expect.stringContaining('Group name is required'));
+    await user.click(createButton);
+    expect(onCreate).not.toHaveBeenCalled();
 
     await user.type(screen.getByLabelText(/Group Name/), '  Architecture  ');
     await user.type(screen.getByLabelText(/Description/), '  Engineering foundations  ');

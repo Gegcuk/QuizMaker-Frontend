@@ -1,6 +1,7 @@
+import type { FormEvent } from 'react';
 import { fireEvent } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen } from '@/test/render';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderWithProviders, screen } from '@/test/render';
 import ButtonWithValidationTooltip from './ButtonWithValidationTooltip';
 import ColorSchemeDropdown from './ColorSchemeDropdown';
 import ColorSchemeSelector from './ColorSchemeSelector';
@@ -24,23 +25,96 @@ const ToastTrigger = () => {
   );
 };
 
+const ErrorToastTrigger = () => {
+  const { addToast } = useToast();
+  return (
+    <button
+      type="button"
+      onClick={() => addToast({ id: 'failed', title: 'Save failed', message: 'Try again', type: 'error' })}
+    >
+      Show error toast
+    </button>
+  );
+};
+
 describe('shared overlay and theme components', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('shows validation guidance only for disabled buttons with errors', () => {
-    const { rerender } = renderWithProviders(
-      <ButtonWithValidationTooltip disabled validationErrors={['Add at least one question']}>Publish</ButtonWithValidationTooltip>,
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps validation-blocked actions keyboard reachable without allowing activation', async () => {
+    const onClick = vi.fn();
+    const onSubmit = vi.fn((event: FormEvent) => event.preventDefault());
+    const { user, rerender } = renderWithProviders(
+      <form onSubmit={onSubmit}>
+        <ButtonWithValidationTooltip
+          type="submit"
+          disabled
+          validationErrors={['Add at least one question']}
+          onClick={onClick}
+        >
+          Publish
+        </ButtonWithValidationTooltip>
+      </form>,
       { withAuthProvider: false },
     );
 
-    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
-    expect(screen.getByText('Please complete the following:')).toBeInTheDocument();
-    expect(screen.getByText('Add at least one question')).toBeInTheDocument();
+    const blockedButton = screen.getByRole('button', { name: 'Publish' });
+    expect(blockedButton).not.toBeDisabled();
+    expect(blockedButton).toHaveAttribute('aria-disabled', 'true');
+    expect(blockedButton).toHaveAccessibleDescription(
+      'Please complete the following: Add at least one question',
+    );
+
+    await user.tab();
+    expect(blockedButton).toHaveFocus();
+    expect(screen.getByRole('tooltip')).not.toHaveClass('sr-only');
+
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    await user.click(blockedButton);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('tooltip')).toHaveClass('sr-only');
+    blockedButton.blur();
+    expect(blockedButton).not.toHaveFocus();
 
     rerender(<ButtonWithValidationTooltip validationErrors={['Add at least one question']}>Publish</ButtonWithValidationTooltip>);
     expect(screen.queryByText('Please complete the following:')).not.toBeInTheDocument();
+  });
+
+  it('uses a native disabled state when no validation guidance is available', () => {
+    renderWithProviders(
+      <ButtonWithValidationTooltip disabled>Save</ButtonWithValidationTooltip>,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('keeps validation guidance visible while the pointer moves onto the panel', async () => {
+    const { user } = renderWithProviders(
+      <ButtonWithValidationTooltip disabled validationErrors={['Add a quiz title']}>
+        Create quiz
+      </ButtonWithValidationTooltip>,
+      { withAuthProvider: false },
+    );
+
+    await user.hover(screen.getByRole('button', { name: 'Create quiz' }));
+    const guidance = screen.getByRole('tooltip');
+    expect(guidance).not.toHaveClass('sr-only');
+
+    await user.hover(guidance);
+    expect(guidance).not.toHaveClass('sr-only');
+
+    await user.unhover(guidance);
+    expect(guidance).toHaveClass('sr-only');
   });
 
   it('closes modals by close button and Escape while restoring the previous page scroll state', async () => {
@@ -66,10 +140,14 @@ describe('shared overlay and theme components', () => {
       <Tooltip content="This setting is required" delay={0}><button type="button">More information</button></Tooltip>,
       { withAuthProvider: false },
     );
-    const trigger = screen.getByRole('button', { name: 'More information' }).parentElement!;
+    const trigger = screen.getByRole('button', { name: 'More information' });
+    expect(trigger.parentElement).not.toHaveAttribute('tabindex');
 
     fireEvent.focus(trigger);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('This setting is required');
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveTextContent('This setting is required');
+    expect(tooltip).toHaveClass('bg-theme-bg-overlay', 'text-theme-text-primary');
+    expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
     fireEvent.blur(trigger);
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -78,11 +156,24 @@ describe('shared overlay and theme components', () => {
     const { user } = renderWithProviders(<ToastTrigger />, { withAuthProvider: false });
 
     await user.click(screen.getByRole('button', { name: 'Show toast' }));
+    expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
     expect(screen.getByText('Saved')).toBeInTheDocument();
     expect(screen.getByText('Quiz updated')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await user.click(screen.getByRole('button', { name: 'Dismiss Saved notification' }));
     expect(screen.queryByText('Quiz updated')).not.toBeInTheDocument();
+  });
+
+  it('keeps assertive error notifications available until dismissed', () => {
+    vi.useFakeTimers();
+    renderWithProviders(<ErrorToastTrigger />, { withAuthProvider: false });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show error toast' }));
+    const errorToast = screen.getByRole('alert');
+    expect(errorToast).toHaveAttribute('aria-live', 'assertive');
+
+    act(() => vi.advanceTimersByTime(10_000));
+    expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
   it('renders instruction titles and consumer-provided guidance', () => {
@@ -97,7 +188,11 @@ describe('shared overlay and theme components', () => {
 
   it('updates the color scheme through radio selection and persists the selection', async () => {
     const { user, container } = renderWithProviders(<ColorSchemeSelector />, { withAuthProvider: false });
+    expect(screen.getByRole('group', { name: 'Color Scheme' })).toHaveAccessibleDescription(
+      'Choose a color scheme that matches your preference. Changes apply immediately.',
+    );
     const blue = container.querySelector<HTMLInputElement>('input[value="blue"]')!;
+    expect(blue).toHaveAccessibleName(/Ocean Blue/i);
 
     await user.click(blue);
     expect(blue).toBeChecked();
@@ -108,6 +203,10 @@ describe('shared overlay and theme components', () => {
     const { user } = renderWithProviders(<ColorSchemeDropdown />, { withAuthProvider: false });
 
     await user.click(screen.getByRole('button', { name: /Current theme: Light/ }));
+    expect(screen.getByRole('button', { name: /Current theme: Light/ })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
     await user.click(screen.getByRole('button', { name: 'Switch to Ocean Blue theme' }));
     expect(window.localStorage.getItem('quizmaker-color-scheme')).toBe('blue');
     expect(screen.getByRole('button', { name: /Current theme: Ocean Blue/ })).toBeInTheDocument();
@@ -116,10 +215,12 @@ describe('shared overlay and theme components', () => {
 
   it('updates the selected theme and publishes its current-theme guidance', async () => {
     const { user } = renderWithProviders(<ThemeSelector />, { withAuthProvider: false });
-    const selector = screen.getByRole('combobox');
+    const selector = screen.getByRole('combobox', { name: 'Theme' });
+    expect(selector).toHaveClass('bg-theme-bg-primary', 'text-theme-text-primary');
 
-    await user.selectOptions(selector, 'dark');
-    expect(selector).toHaveValue('dark');
+    await user.click(selector);
+    await user.click(screen.getByRole('option', { name: 'Dark' }));
+    expect(selector).toHaveTextContent('Dark');
     expect(screen.getByText('Always use dark theme')).toBeInTheDocument();
     expect(window.localStorage.getItem('quizmaker-theme')).toBe('dark');
   });

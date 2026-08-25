@@ -27,12 +27,21 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   className = '',
   id,
   onChange,
+  'aria-describedby': callerDescribedBy,
+  'aria-errormessage': callerErrorMessage,
+  'aria-invalid': callerInvalid,
   ...props
 }, ref) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const internalRef = useRef<HTMLInputElement>(null);
-  const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
+  const helperId = `${inputId}-helper`;
+  const errorId = `${inputId}-error`;
+  const describedBy = Array.from(new Set([
+    ...(callerDescribedBy?.split(/\s+/) ?? []),
+    helperText ? helperId : '',
+    error ? errorId : '',
+  ].filter(Boolean))).join(' ') || undefined;
   
   const isNumberInput = props.type === 'number' && !hideNumberSpinners;
 
@@ -100,6 +109,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
           id={inputId}
           className={inputClasses}
           onChange={onChange}
+          aria-describedby={describedBy}
+          aria-errormessage={error ? errorId : callerErrorMessage}
+          aria-invalid={error ? true : callerInvalid}
           {...props}
         />
         
@@ -172,6 +184,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                 document.addEventListener('mouseup', cleanup, { once: true });
               }}
               tabIndex={-1}
+              aria-label={`Increase ${typeof label === 'string' ? label : (props.name ?? 'value')}`}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -235,6 +248,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
                 document.addEventListener('mouseup', cleanup, { once: true });
               }}
               tabIndex={-1}
+              aria-label={`Decrease ${typeof label === 'string' ? label : (props.name ?? 'value')}`}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -245,13 +259,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       </div>
       
       {error && (
-        <p className="mt-1 text-sm text-theme-interactive-danger">
+        <p id={errorId} className="mt-1 text-sm text-theme-interactive-danger">
           {error}
         </p>
       )}
       
-      {helperText && !error && (
-        <p className="mt-1 text-sm text-theme-text-tertiary">
+      {helperText && (
+        <p id={helperId} className="mt-1 text-sm text-theme-text-tertiary">
           {helperText}
         </p>
       )}

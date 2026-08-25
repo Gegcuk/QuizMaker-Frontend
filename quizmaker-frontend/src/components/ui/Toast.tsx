@@ -71,12 +71,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
     
+    const type = opts.type || 'info';
     const toast: ToastInternal = {
       id,
       title,
       message,
-      type: opts.type || 'info',
-      duration: opts.duration ?? 3000,
+      type,
+      duration: opts.duration ?? (type === 'error' ? 0 : 3000),
     };
     setToasts((prev) => [...prev, toast]);
     if (toast.duration > 0) {
@@ -106,14 +107,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {/* Container */}
       <div className="fixed top-4 right-4 z-50 flex flex-col space-y-3 w-80 sm:w-96">
         {toasts.map((t) => (
-          <div key={t.id} className={`border rounded-lg shadow-lg p-4 ${typeStyles[t.type]}`}>
+          <div
+            key={t.id}
+            role={t.type === 'error' ? 'alert' : 'status'}
+            aria-live={t.type === 'error' ? 'assertive' : 'polite'}
+            aria-atomic="true"
+            className={`border rounded-lg shadow-lg p-4 ${typeStyles[t.type]}`}
+          >
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 {t.title && <p className="text-sm font-semibold mb-1">{t.title}</p>}
-                <p className="text-sm break-words">{t.message}</p>
+                {t.message && <p className="text-sm break-words">{t.message}</p>}
               </div>
               <button
-                aria-label="Close"
+                aria-label={`Dismiss ${t.title || t.type} notification`}
                 className="flex-shrink-0 text-theme-text-secondary hover:text-theme-text-primary transition-colors p-1 hover:bg-theme-bg-tertiary rounded-md"
                 onClick={() => removeToast(t.id)}
                 type="button"
@@ -127,4 +134,3 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     </ToastContext.Provider>
   );
 };
-
