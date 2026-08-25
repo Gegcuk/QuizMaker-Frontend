@@ -156,7 +156,9 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-theme-text-secondary">Time Range:</label>
+            <span id="question-analytics-time-range-label" className="text-sm font-medium text-theme-text-secondary">
+              Time Range:
+            </span>
             <Dropdown
               value={selectedTimeRange}
               onChange={(value) => setSelectedTimeRange((Array.isArray(value) ? value[0] : value) as '7d' | '30d' | '90d' | '1y')}
@@ -166,6 +168,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
                 { label: 'Last 90 days', value: '90d' },
                 { label: 'Last year', value: '1y' }
               ]}
+              ariaLabelledBy="question-analytics-time-range-label"
               size="sm"
             />
           </div>
@@ -339,4 +342,4 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
   );
 };
 
-export default QuestionAnalytics; 
+export default QuestionAnalytics;

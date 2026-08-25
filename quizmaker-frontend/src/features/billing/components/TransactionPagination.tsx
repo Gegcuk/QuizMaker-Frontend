@@ -72,7 +72,7 @@ const TransactionPagination: React.FC<TransactionPaginationProps> = ({
       <div className="hidden md:flex items-center space-x-2">
         {onPageSizeChange && (
           <>
-            <span className="text-sm text-theme-text-secondary">Show:</span>
+            <span id="transaction-page-size-label" className="text-sm text-theme-text-secondary">Show:</span>
             <div className="w-24">
               <Dropdown
                 options={[
@@ -82,6 +82,7 @@ const TransactionPagination: React.FC<TransactionPaginationProps> = ({
                 ]}
                 value={String(pageSize)}
                 onChange={(value) => onPageSizeChange(Number(Array.isArray(value) ? value[0] : value))}
+                ariaLabelledBy="transaction-page-size-label"
                 size="sm"
               />
             </div>
@@ -192,4 +193,3 @@ const TransactionPagination: React.FC<TransactionPaginationProps> = ({
 };
 
 export default TransactionPagination;
-

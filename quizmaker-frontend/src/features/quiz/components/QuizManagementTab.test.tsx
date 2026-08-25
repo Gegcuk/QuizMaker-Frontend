@@ -46,8 +46,8 @@ describe('QuizManagementTab', () => {
     expect(screen.getByLabelText('Quiz Title')).toBeDisabled();
     expect(screen.getByLabelText('Description')).toBeDisabled();
     expect(screen.getByLabelText('Estimated Time (minutes)')).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Private' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Medium' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Visibility' })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Difficulty Level' })).toBeDisabled();
   });
 
   it('updates basic details and quiz settings through controlled state', async () => {
@@ -61,10 +61,10 @@ describe('QuizManagementTab', () => {
     await user.type(screen.getByLabelText('Quiz Title'), 'Security Quiz');
     await user.clear(screen.getByLabelText('Description'));
     await user.type(screen.getByLabelText('Description'), 'A quiz about application security.');
-    await user.click(screen.getByRole('button', { name: 'Private' }));
-    await user.click(screen.getByRole('button', { name: 'Public' }));
-    await user.click(screen.getByRole('button', { name: 'Medium' }));
-    await user.click(screen.getByRole('button', { name: 'Hard' }));
+    await user.click(screen.getByRole('combobox', { name: 'Visibility' }));
+    await user.click(screen.getByRole('option', { name: 'Public' }));
+    await user.click(screen.getByRole('combobox', { name: 'Difficulty Level' }));
+    await user.click(screen.getByRole('option', { name: 'Hard' }));
     await user.clear(screen.getByLabelText('Estimated Time (minutes)'));
     await user.type(screen.getByLabelText('Estimated Time (minutes)'), '45');
 

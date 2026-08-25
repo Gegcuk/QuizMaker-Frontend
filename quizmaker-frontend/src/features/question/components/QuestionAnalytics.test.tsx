@@ -16,9 +16,9 @@ describe('QuestionAnalytics', () => {
     expect(screen.getByText('80%')).toBeInTheDocument();
     expect(screen.getByText('0m 45s')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Last 30 days' }));
-    await user.click(screen.getByRole('button', { name: 'Last 7 days' }));
+    await user.click(screen.getByRole('combobox', { name: 'Time Range:' }));
+    await user.click(screen.getByRole('option', { name: 'Last 7 days' }));
 
-    expect(screen.getByRole('button', { name: 'Last 7 days' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Time Range:' })).toHaveTextContent('Last 7 days');
   });
 });

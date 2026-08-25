@@ -217,6 +217,11 @@ appearance or abstraction when the new use case has different semantics.
 ## Components, Styling, And Accessibility
 
 - Prefer existing shared components before adding new controls.
+- Every visible interactive control must use a reusable shared component and the
+  application theme. Do not render browser-default form controls directly in a
+  page or feature. Shared components should still use the correct semantic
+  native element internally, but must provide the complete project styling,
+  states, accessibility contract, and interaction behavior themselves.
 - Use theme tokens and Tailwind utility classes already present in the app.
 - Do not hardcode colors in components. Add or reuse semantic theme variables in
   `src/context/ColorPalettes.ts`, `src/index.css`, and `tailwind.config.js` when a
@@ -300,6 +305,18 @@ appearance or abstraction when the new use case has different semantics.
 
 - Test behavior a user or API consumer can observe, not component implementation
   details.
+- Derive expected results from the issue's intended behavior, acceptance
+  criteria, product rule, or verified API contract. Do not make a test pass by
+  copying the implementation's conditions, constants, data transformation, or
+  internal call sequence into the test; that only proves the code agrees with
+  itself.
+- Map every acceptance criterion to at least one focused automated test. When a
+  criterion cannot reasonably be automated, record the reason and a concrete
+  manual or production verification step in the issue before considering the
+  implementation complete.
+- Prefer tests that would fail for a meaningful user-visible or contract-level
+  regression. Avoid tautological assertions, broad snapshots without behavioral
+  intent, and tests that only confirm that the newly written code was executed.
 - Use Vitest and Testing Library for components and hooks. Interact through
   `user-event` and query by role, label, or visible text where practical.
 - Use the shared render helpers under `src/test` so providers, routing, and query
@@ -369,6 +386,8 @@ not be run.
 - Verify that an issue still describes the current code and behavior before
   implementing it. Check for merged fixes, duplicate issues, and dependencies.
 - Record a clear acceptance outcome, not only a list of files or layers to edit.
+- Keep the acceptance criteria and their test coverage traceable in the issue.
+  Do not mark a criterion complete merely because related code exists.
 - Keep issue work vertical: implementation, focused tests, and user-visible error
   handling should normally be reviewable together.
 - Update an issue when meaningful portions are completed, but leave it open until
