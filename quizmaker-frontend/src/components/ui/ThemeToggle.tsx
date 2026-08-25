@@ -18,20 +18,13 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
   showLabel = false,
   size = 'md'
 }) => {
-  const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
+  const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   const sizeClasses = {
     sm: 'w-8 h-8 text-sm',
     md: 'w-10 h-10 text-base',
     lg: 'w-12 h-12 text-lg'
   };
-
-  const iconSizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
-  };
-
 
   const getThemeLabel = () => {
     switch (theme) {

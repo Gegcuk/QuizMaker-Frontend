@@ -78,6 +78,9 @@ describe('attempt display controls', () => {
     );
 
     expect(screen.getByText('0 of 0 questions answered')).toBeInTheDocument();
+    const progress = screen.getByRole('progressbar', { name: 'Quiz progress' });
+    expect(progress).toHaveAttribute('aria-valuenow', '0');
+    expect(progress).toHaveAttribute('aria-valuetext', '0 of 0 questions answered');
     expect(container.querySelector('[style="width: 0%;"]')).toBeInTheDocument();
 
     rerender(
@@ -88,6 +91,8 @@ describe('attempt display controls', () => {
         attemptMode="ONE_BY_ONE"
       />,
     );
+    expect(progress).toHaveAttribute('aria-valuenow', '100');
+    expect(progress).toHaveAttribute('aria-valuetext', 'Question 2 of 2');
     expect(container.querySelector('[style="width: 100%;"]')).toBeInTheDocument();
   });
 
@@ -144,6 +149,8 @@ describe('AttemptTimer', () => {
     });
 
     expect(screen.getByText('0:00')).toBeInTheDocument();
+    expect(screen.getByRole('timer', { name: 'Time remaining' })).toHaveAttribute('aria-live', 'off');
+    expect(screen.getByRole('alert')).toHaveTextContent('Time is up.');
     expect(onWarning).toHaveBeenCalledWith(1);
     expect(onTimeUp).toHaveBeenCalledOnce();
   });
@@ -164,6 +171,25 @@ describe('AttemptTimer', () => {
     expect(screen.getByText('1:00')).toBeInTheDocument();
     expect(screen.getByText('Timer paused')).toBeInTheDocument();
     expect(onTimeUp).not.toHaveBeenCalled();
+  });
+
+  it('announces only meaningful warning thresholds while the timer counts down', () => {
+    vi.useFakeTimers();
+
+    renderWithProviders(
+      <AttemptTimer durationMinutes={6} onTimeUp={vi.fn()} />,
+      { withAuthProvider: false },
+    );
+
+    const timer = screen.getByRole('timer', { name: 'Time remaining' });
+    expect(timer).toHaveAttribute('aria-live', 'off');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(60_000));
+    expect(screen.getByRole('status')).toHaveTextContent('Less than 5 minutes remaining');
+
+    act(() => vi.advanceTimersByTime(240_000));
+    expect(screen.getByRole('alert')).toHaveTextContent('Less than 1 minute remaining');
   });
 });
 

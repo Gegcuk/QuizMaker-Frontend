@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { getErrorMessage, getErrorTitle, isProblemDetails } from '@/utils/errorUtils';
+import { getErrorMessage, getErrorTitle } from '@/utils/errorUtils';
 
 export interface AlertProps {
   type?: 'success' | 'error' | 'warning' | 'info';
@@ -13,8 +13,9 @@ export interface AlertProps {
   className?: string;
   showIcon?: boolean;
   autoClearOnNavigation?: boolean; // Auto-dismiss when route changes
-  autoDismissOnInput?: boolean; // Auto-dismiss when user types in any input/textarea (default: true for errors)
+  autoDismissOnInput?: boolean; // Opt-in dismissal when the user edits another control
   autoDismissDelay?: number; // Auto-dismiss after X milliseconds (0 = disabled)
+  announcement?: 'polite' | 'assertive' | 'off';
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -27,8 +28,9 @@ const Alert: React.FC<AlertProps> = ({
   className = '',
   showIcon = true,
   autoClearOnNavigation = true, // Default to true for better UX
-  autoDismissOnInput = type === 'error', // Auto-dismiss on input for errors by default
-  autoDismissDelay = 0 // Disabled by default
+  autoDismissOnInput = false,
+  autoDismissDelay = 0, // Disabled by default
+  announcement = type === 'error' ? 'assertive' : 'polite',
 }) => {
   // Auto-format error if provided
   const errorMessage = error ? getErrorMessage(error) : null;
@@ -123,7 +125,7 @@ const Alert: React.FC<AlertProps> = ({
       }
     };
 
-    const handleFormSubmit = (e: Event) => {
+    const handleFormSubmit = () => {
       // Dismiss immediately on form submission
       dismissAlert();
     };
@@ -133,7 +135,7 @@ const Alert: React.FC<AlertProps> = ({
       const button = target.closest('button');
       
       // Skip if clicking inside the alert itself (e.g., dismiss button)
-      if (target.closest('[role="alert"]') || target.closest('.rounded-md.border')) {
+      if (target.closest('[data-shared-alert]')) {
         return;
       }
       
@@ -226,11 +228,17 @@ const Alert: React.FC<AlertProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className={`rounded-md p-4 border ${config.bg} ${config.border} ${className}`}>
+    <div
+      role={announcement === 'assertive' ? 'alert' : announcement === 'polite' ? 'status' : undefined}
+      aria-live={announcement}
+      aria-atomic="true"
+      data-shared-alert
+      className={`rounded-md p-4 border ${config.bg} ${config.border} ${className}`}
+    >
       <div className="flex">
         {showIcon && (
           <div className="flex-shrink-0">
-            {config.icon}
+            <span aria-hidden="true">{config.icon}</span>
           </div>
         )}
         <div className={`flex-1 ${showIcon ? 'ml-3' : ''}`}>
@@ -260,4 +268,4 @@ const Alert: React.FC<AlertProps> = ({
   );
 };
 
-export default Alert; 
+export default Alert;

@@ -1,6 +1,6 @@
 import { fireEvent } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen } from '@/test/render';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderWithProviders, screen } from '@/test/render';
 import ButtonWithValidationTooltip from './ButtonWithValidationTooltip';
 import ColorSchemeDropdown from './ColorSchemeDropdown';
 import ColorSchemeSelector from './ColorSchemeSelector';
@@ -24,9 +24,25 @@ const ToastTrigger = () => {
   );
 };
 
+const ErrorToastTrigger = () => {
+  const { addToast } = useToast();
+  return (
+    <button
+      type="button"
+      onClick={() => addToast({ id: 'failed', title: 'Save failed', message: 'Try again', type: 'error' })}
+    >
+      Show error toast
+    </button>
+  );
+};
+
 describe('shared overlay and theme components', () => {
   beforeEach(() => {
     window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('shows validation guidance only for disabled buttons with errors', () => {
@@ -66,10 +82,14 @@ describe('shared overlay and theme components', () => {
       <Tooltip content="This setting is required" delay={0}><button type="button">More information</button></Tooltip>,
       { withAuthProvider: false },
     );
-    const trigger = screen.getByRole('button', { name: 'More information' }).parentElement!;
+    const trigger = screen.getByRole('button', { name: 'More information' });
+    expect(trigger.parentElement).not.toHaveAttribute('tabindex');
 
     fireEvent.focus(trigger);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('This setting is required');
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveTextContent('This setting is required');
+    expect(tooltip).toHaveClass('bg-theme-bg-overlay', 'text-theme-text-primary');
+    expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
     fireEvent.blur(trigger);
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -78,11 +98,24 @@ describe('shared overlay and theme components', () => {
     const { user } = renderWithProviders(<ToastTrigger />, { withAuthProvider: false });
 
     await user.click(screen.getByRole('button', { name: 'Show toast' }));
+    expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
     expect(screen.getByText('Saved')).toBeInTheDocument();
     expect(screen.getByText('Quiz updated')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await user.click(screen.getByRole('button', { name: 'Dismiss Saved notification' }));
     expect(screen.queryByText('Quiz updated')).not.toBeInTheDocument();
+  });
+
+  it('keeps assertive error notifications available until dismissed', () => {
+    vi.useFakeTimers();
+    renderWithProviders(<ErrorToastTrigger />, { withAuthProvider: false });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show error toast' }));
+    const errorToast = screen.getByRole('alert');
+    expect(errorToast).toHaveAttribute('aria-live', 'assertive');
+
+    act(() => vi.advanceTimersByTime(10_000));
+    expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
   it('renders instruction titles and consumer-provided guidance', () => {
@@ -97,7 +130,11 @@ describe('shared overlay and theme components', () => {
 
   it('updates the color scheme through radio selection and persists the selection', async () => {
     const { user, container } = renderWithProviders(<ColorSchemeSelector />, { withAuthProvider: false });
+    expect(screen.getByRole('group', { name: 'Color Scheme' })).toHaveAccessibleDescription(
+      'Choose a color scheme that matches your preference. Changes apply immediately.',
+    );
     const blue = container.querySelector<HTMLInputElement>('input[value="blue"]')!;
+    expect(blue).toHaveAccessibleName(/Ocean Blue/i);
 
     await user.click(blue);
     expect(blue).toBeChecked();
@@ -108,6 +145,10 @@ describe('shared overlay and theme components', () => {
     const { user } = renderWithProviders(<ColorSchemeDropdown />, { withAuthProvider: false });
 
     await user.click(screen.getByRole('button', { name: /Current theme: Light/ }));
+    expect(screen.getByRole('button', { name: /Current theme: Light/ })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
     await user.click(screen.getByRole('button', { name: 'Switch to Ocean Blue theme' }));
     expect(window.localStorage.getItem('quizmaker-color-scheme')).toBe('blue');
     expect(screen.getByRole('button', { name: /Current theme: Ocean Blue/ })).toBeInTheDocument();
@@ -116,10 +157,12 @@ describe('shared overlay and theme components', () => {
 
   it('updates the selected theme and publishes its current-theme guidance', async () => {
     const { user } = renderWithProviders(<ThemeSelector />, { withAuthProvider: false });
-    const selector = screen.getByRole('combobox');
+    const selector = screen.getByRole('combobox', { name: 'Theme' });
+    expect(selector).toHaveClass('bg-theme-bg-primary', 'text-theme-text-primary');
 
-    await user.selectOptions(selector, 'dark');
-    expect(selector).toHaveValue('dark');
+    await user.click(selector);
+    await user.click(screen.getByRole('option', { name: 'Dark' }));
+    expect(selector).toHaveTextContent('Dark');
     expect(screen.getByText('Always use dark theme')).toBeInTheDocument();
     expect(window.localStorage.getItem('quizmaker-theme')).toBe('dark');
   });

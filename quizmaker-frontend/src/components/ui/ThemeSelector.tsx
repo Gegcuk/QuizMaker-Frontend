@@ -6,6 +6,7 @@
 import React from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { getThemeIcon } from '@/components';
+import Dropdown from './Dropdown';
 
 interface ThemeSelectorProps {
   className?: string;
@@ -40,36 +41,28 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
   return (
     <div className={className}>
-      {label && (
-        <label className="block text-sm font-medium text-theme-text-secondary mb-2">
-          {label}
-        </label>
-      )}
-      
-      <select
+      <Dropdown
+        label={label}
+        ariaLabel={label || 'Theme'}
         value={theme}
-        onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'auto')}
-        className="
-          block w-full px-3 py-2 pr-10
-          border border-theme-border-primary
-          rounded-md shadow-theme
-          bg-theme-bg-primary
-          text-theme-text-primary
-          focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:border-theme-focus-ring
-         bg-theme-bg-primary text-theme-text-primary"
-      >
-        {themeOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {showIcons ? `${option.label}` : option.label}
-          </option>
-        ))}
-      </select>
-      
-      <div className="mt-2 text-xs text-theme-text-tertiary">
-        {theme === 'auto' && 'Uses your system preference'}
-        {theme === 'light' && 'Always use light theme'}
-        {theme === 'dark' && 'Always use dark theme'}
-      </div>
+        options={themeOptions.map((option) => ({
+          value: option.value,
+          label: option.label,
+          icon: showIcons ? option.icon : undefined,
+        }))}
+        onChange={(nextTheme) => {
+          const selectedTheme = Array.isArray(nextTheme) ? nextTheme[0] : nextTheme;
+          setTheme(selectedTheme as 'light' | 'dark' | 'auto');
+        }}
+        helperText={
+          theme === 'auto'
+            ? 'Uses your system preference'
+            : theme === 'light'
+              ? 'Always use light theme'
+              : 'Always use dark theme'
+        }
+        fullWidth
+      />
     </div>
   );
 };

@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useId, useRef } from 'react';
 
 export interface FieldValues {
   [key: string]: any;
 }
+
+type FormFieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 export interface FormState {
   isSubmitting: boolean;
@@ -13,7 +15,9 @@ export interface FormState {
 
 export interface UseFormReturn<T extends FieldValues> {
   register: (name: string) => {
+    id: string;
     name: string;
+    ref: (element: FormFieldElement | null) => void;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur: (e?: React.FocusEvent<HTMLInputElement>) => void;
   };
@@ -24,6 +28,8 @@ export interface UseFormReturn<T extends FieldValues> {
   reset: (values?: Partial<T>) => void;
   setError: (name: string, error: { message: string }) => void;
   clearErrors: (name?: string) => void;
+  focusField: (name: string) => void;
+  getFieldId: (name: string) => string;
 }
 
 export type SubmitHandler<T> = (data: T) => void | Promise<void>;
@@ -46,10 +52,16 @@ export const useFormContext = () => {
 };
 
 const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormReturn<T> => {
+  const formId = useId();
   const [values, setValues] = useState<T>((defaultValues ?? {}) as T);
   const [errors, setErrors] = useState<Record<string, { message?: string }>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const fieldRefs = useRef<Record<string, FormFieldElement | null>>({});
+
+  const getFieldId = (name: string) => (
+    `${formId}-${name.replace(/[^a-zA-Z0-9_-]/g, '-')}`
+  );
 
   // Field validation function
   const validateField = (name: string, value: any) => {
@@ -76,7 +88,11 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
   };
 
   const register = (name: string) => ({
+    id: getFieldId(name),
     name,
+    ref: (element: FormFieldElement | null) => {
+      fieldRefs.current[name] = element;
+    },
     value: values[name] || '',
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -90,9 +106,8 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
         });
       }
     },
-    onBlur: (e?: React.FocusEvent<HTMLInputElement>) => {
+    onBlur: () => {
       // Trigger validation on blur
-      // Event parameter is optional for compatibility with React's event system
       validateField(name, values[name]);
     }
   });
@@ -142,6 +157,10 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
     }
   };
 
+  const focusField = (name: string) => {
+    fieldRefs.current[name]?.focus();
+  };
+
   return {
     register,
     handleSubmit,
@@ -155,7 +174,9 @@ const useForm = <T extends FieldValues>(defaultValues?: Partial<T>): UseFormRetu
     getValues,
     reset,
     setError,
-    clearErrors
+    clearErrors,
+    focusField,
+    getFieldId,
   };
 };
 
@@ -183,6 +204,7 @@ const Form = <T extends FieldValues = FieldValues>({
   name
 }: FormProps<T>) => {
   const form = useForm<T>(defaultValues);
+  const errorSummaryTitleId = useId();
 
   const {
     handleSubmit,
@@ -215,7 +237,11 @@ const Form = <T extends FieldValues = FieldValues>({
         {children}
         
         {showValidationErrors && Object.keys(errors).length > 0 && (
-          <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
+          <div
+            role="alert"
+            aria-labelledby={errorSummaryTitleId}
+            className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4"
+          >
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -231,14 +257,25 @@ const Form = <T extends FieldValues = FieldValues>({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-theme-interactive-danger">
+                <h3 id={errorSummaryTitleId} className="text-sm font-medium text-theme-interactive-danger">
                   Please fix the following errors:
                 </h3>
                 <div className="mt-2 text-sm text-theme-interactive-danger">
                   <ul className="list-disc pl-5 space-y-1">
                     {Object.entries(errors).map(([fieldName, error]) => (
                       <li key={fieldName}>
-                        {error?.message || `${fieldName} is invalid`}
+                        {fieldName === 'general' ? (
+                          error?.message || 'The form could not be submitted'
+                        ) : (
+                          <button
+                            type="button"
+                            aria-controls={form.getFieldId(fieldName)}
+                            className="text-left underline hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-danger"
+                            onClick={() => form.focusField(fieldName)}
+                          >
+                            {error?.message || `${fieldName} is invalid`}
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>

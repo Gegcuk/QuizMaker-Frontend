@@ -54,7 +54,15 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-3">
+      <div
+        role="progressbar"
+        aria-label="Quiz progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progressPercentage)}
+        aria-valuetext={getProgressText()}
+        className="w-full bg-theme-bg-tertiary rounded-full h-2 mb-3"
+      >
         <div
           className={`h-2 rounded-full transition-all duration-300 ease-in-out ${getProgressColor(progressPercentage)}`}
           style={{ width: `${progressPercentage}%` }}
@@ -63,7 +71,7 @@ const AttemptProgress: React.FC<AttemptProgressProps> = ({
 
       {/* Question Navigation Dots (for ONE_BY_ONE mode) */}
       {attemptMode === 'ONE_BY_ONE' && totalQuestions > 0 && (
-        <div className="flex justify-center space-x-1">
+        <div aria-hidden="true" className="flex justify-center space-x-1">
           {Array.from({ length: totalQuestions }, (_, index) => (
             <div
               key={index}

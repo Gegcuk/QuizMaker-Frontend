@@ -92,6 +92,10 @@ describe('shared workflow and data components', () => {
     await user.click(input);
     await user.tab();
     expect(screen.getAllByText('Quiz title is required')).toHaveLength(2);
+    const errorSummary = screen.getByRole('alert', { name: 'Please fix the following errors:' });
+    expect(errorSummary).toBeInTheDocument();
+    await user.click(within(errorSummary).getByRole('button', { name: 'Quiz title is required' }));
+    expect(input).toHaveFocus();
 
     await user.type(input, 'Architecture fundamentals');
     expect(screen.queryByText('Please fix the following errors:')).not.toBeInTheDocument();
@@ -186,9 +190,22 @@ describe('shared workflow and data components', () => {
       { withAuthProvider: false },
     );
 
-    expect(screen.getByText('Quiz details')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Questions' }));
+    const tablist = screen.getByRole('tablist', { name: 'Sections' });
+    const detailsTab = within(tablist).getByRole('tab', { name: 'Details' });
+    const questionsTab = within(tablist).getByRole('tab', { name: 'Questions' });
+    expect(detailsTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel', { name: 'Details' })).toHaveTextContent('Quiz details');
+
+    detailsTab.focus();
+    await user.keyboard('{ArrowRight}');
     expect(onValueChange).toHaveBeenCalledWith('questions');
-    expect(screen.getByText('Quiz details')).toBeInTheDocument();
+    expect(questionsTab).toHaveFocus();
+    expect(questionsTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel', { name: 'Questions' })).toHaveTextContent('Quiz questions');
+
+    await user.keyboard('{Home}');
+    expect(detailsTab).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(questionsTab).toHaveFocus();
   });
 });
