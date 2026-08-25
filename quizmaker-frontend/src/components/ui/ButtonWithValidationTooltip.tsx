@@ -1,162 +1,174 @@
-import React, { ReactNode, useRef, useState, useEffect } from 'react';
-import Button from './Button';
+import React, { ReactNode, useEffect, useId, useRef, useState } from 'react';
+import Button, { ButtonProps } from './Button';
 
-export interface ButtonWithValidationTooltipProps {
-  /** The button children/content */
+export interface ButtonWithValidationTooltipProps
+  extends Omit<ButtonProps, 'children' | 'disabled'> {
   children: ReactNode;
-  /** Whether the button is disabled */
   disabled?: boolean;
-  /** Array of validation error messages to display in the tooltip */
   validationErrors?: string[];
-  /** Button props to pass through */
-  [key: string]: any;
 }
 
 /**
- * A button component that displays a validation tooltip when disabled.
- * Shows a list of missing requirements/validation errors on hover.
- * 
- * Positioning logic:
- * - Starts at the top right corner of the button
- * - Extends to the left until hitting form/screen boundary
- * - If boundary is close, expands to the right as needed
+ * Keeps validation-blocked actions discoverable without allowing submission.
+ * Loading and other non-validation disabled states remain native disabled states.
  */
 const ButtonWithValidationTooltip: React.FC<ButtonWithValidationTooltipProps> = ({
   children,
   disabled = false,
   validationErrors = [],
+  loading = false,
+  className = '',
+  onBlur,
+  onClick,
+  onFocus,
+  onKeyDown,
+  onMouseEnter,
+  onMouseLeave,
+  'aria-describedby': describedBy,
   ...buttonProps
 }) => {
-  const shouldShowTooltip = disabled && validationErrors.length > 0;
+  const validationBlocked = disabled && !loading && validationErrors.length > 0;
+  const nativeDisabled = disabled && !validationBlocked;
+  const guidanceId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
-  const [arrowRightOffset, setArrowRightOffset] = useState<string>('0px');
-  const [buttonWidth, setButtonWidth] = useState<number>(0);
+  const [isGuidanceVisible, setIsGuidanceVisible] = useState(false);
+  const [guidanceStyle, setGuidanceStyle] = useState<React.CSSProperties>({});
+  const [arrowLeft, setArrowLeft] = useState('50%');
 
   useEffect(() => {
-    if (shouldShowTooltip && containerRef.current) {
-      const updatePosition = () => {
-        const container = containerRef.current;
-        if (!container) return;
-        
-        const buttonRect = container.getBoundingClientRect();
-        const formElement = container.closest('form') as HTMLElement | null;
-        const boundaryRect = formElement?.getBoundingClientRect() ?? document.body.getBoundingClientRect();
+    if (!validationBlocked || !containerRef.current) return;
 
-        const maxTooltipWidth = 500;
-        const minTooltipWidth = 300;
-        const padding = 16;
-        
-        // Get button position in viewport
-        const buttonLeft = buttonRect.left;
-        const buttonRight = buttonRect.right;
-        const buttonWidth = buttonRect.width;
-        setButtonWidth(buttonWidth);
+    const updatePosition = () => {
+      const container = containerRef.current;
+      if (!container) return;
 
-        // Form/boundary horizontal limits (slightly inset by padding)
-        const boundaryLeft = boundaryRect.left + padding;
-        const boundaryRight = boundaryRect.right - padding;
+      const buttonRect = container.getBoundingClientRect();
+      const form = container.closest('form');
+      const boundaryRect = form?.getBoundingClientRect() ?? document.documentElement.getBoundingClientRect();
+      const boundaryPadding = 16;
+      const boundaryLeft = boundaryRect.left + boundaryPadding;
+      const boundaryRight = boundaryRect.right - boundaryPadding;
+      const availableWidth = boundaryRight - boundaryLeft;
 
-        if (boundaryRight <= boundaryLeft) {
-          return;
-        }
+      if (availableWidth <= 0) return;
 
-        const maxPossibleWidth = Math.min(maxTooltipWidth, boundaryRight - boundaryLeft);
-        
-        // Step 1: Start with tooltip's right edge aligned with button's right edge
-        // Tooltip extends to the left from there
-        let tooltipRight = buttonRight;
-        let tooltipLeft = tooltipRight - maxPossibleWidth;
+      const guidanceWidth = Math.min(320, availableWidth);
+      const preferredLeft = buttonRect.right - guidanceWidth;
+      const guidanceLeft = Math.min(
+        Math.max(preferredLeft, boundaryLeft),
+        boundaryRight - guidanceWidth,
+      );
+      const buttonCenter = buttonRect.left + buttonRect.width / 2;
+      const arrowPosition = Math.min(
+        Math.max(buttonCenter - guidanceLeft, 12),
+        guidanceWidth - 12,
+      );
 
-        // Step 2: Clamp to the form/boundary's left edge
-        if (tooltipLeft < boundaryLeft) {
-          tooltipLeft = boundaryLeft;
-        }
+      setGuidanceStyle({
+        left: `${guidanceLeft - buttonRect.left}px`,
+        width: `${guidanceWidth}px`,
+      });
+      setArrowLeft(`${arrowPosition}px`);
+    };
 
-        let tooltipWidth = tooltipRight - tooltipLeft;
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [validationBlocked]);
 
-        // Step 3: If there's not enough space to the left, extend into the right side
-        if (tooltipWidth < minTooltipWidth) {
-          const requiredWidth = Math.min(minTooltipWidth, maxPossibleWidth);
-          const spaceOnRight = boundaryRight - buttonRight;
-          const additionalWidthNeeded = requiredWidth - tooltipWidth;
+  const showGuidance = () => {
+    if (validationBlocked) setIsGuidanceVisible(true);
+  };
 
-          if (spaceOnRight > 0 && additionalWidthNeeded > 0) {
-            const expansion = Math.min(spaceOnRight, additionalWidthNeeded);
-            tooltipRight = buttonRight + expansion;
-            tooltipWidth = tooltipRight - tooltipLeft;
-          }
-        }
+  const hideGuidance = () => setIsGuidanceVisible(false);
 
-        // Final clamp to boundary on the right
-        if (tooltipRight > boundaryRight) {
-          const shiftLeft = tooltipRight - boundaryRight;
-          tooltipRight -= shiftLeft;
-          tooltipLeft -= shiftLeft;
-          tooltipWidth = tooltipRight - tooltipLeft;
-        }
-
-        // Calculate position relative to button's left edge
-        const relativeLeft = tooltipLeft - buttonLeft;
-
-        setTooltipStyle({
-          left: `${relativeLeft}px`,
-          right: 'auto',
-          transform: 'none',
-          width: `${tooltipWidth}px`
-        });
-
-        // Position the arrow so it points to the button's right edge
-        const buttonRightFromTooltipLeft = buttonWidth - relativeLeft;
-        const arrowFromRight = Math.max(0, tooltipWidth - buttonRightFromTooltipLeft);
-        setArrowRightOffset(`${arrowFromRight}px`);
-      };
-
-      updatePosition();
-      
-      window.addEventListener('resize', updatePosition);
-      return () => window.removeEventListener('resize', updatePosition);
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    if (validationBlocked) {
+      event.preventDefault();
+      event.stopPropagation();
+      showGuidance();
+      return;
     }
-  }, [shouldShowTooltip]);
+
+    onClick?.(event);
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
+    if (validationBlocked && event.key === 'Escape') {
+      hideGuidance();
+      onKeyDown?.(event);
+      return;
+    }
+
+    if (validationBlocked && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      event.stopPropagation();
+      showGuidance();
+      return;
+    }
+
+    onKeyDown?.(event);
+  };
+
+  const mergedDescription = [describedBy, validationBlocked ? guidanceId : undefined]
+    .filter(Boolean)
+    .join(' ') || undefined;
 
   return (
-    <div ref={containerRef} className="relative group inline-block">
-      {/* Tooltip for disabled button */}
-      {shouldShowTooltip && (
-        <div 
-          ref={tooltipRef}
-          className="absolute bottom-full mb-2 hidden group-hover:block z-50 pointer-events-none whitespace-normal" 
-          style={{ 
-            ...tooltipStyle
-          }}
+    <div
+      ref={containerRef}
+      className="relative inline-block"
+      onMouseEnter={showGuidance}
+      onMouseLeave={hideGuidance}
+    >
+      {validationBlocked && (
+        <div
+          id={guidanceId}
+          role="tooltip"
+          className={
+            isGuidanceVisible
+              ? 'absolute bottom-full z-50 mb-2 whitespace-normal'
+              : 'sr-only'
+          }
+          style={isGuidanceVisible ? guidanceStyle : undefined}
         >
-          <div 
-            className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-lg p-3"
-            style={{ minWidth: '300px', maxWidth: '100%' }}
-          >
-            <div className="text-sm font-medium text-theme-text-primary mb-2">
+          <div className="relative w-full rounded-lg border border-theme-border-primary bg-theme-bg-primary p-3 shadow-lg">
+            <div className="mb-2 text-sm font-medium text-theme-text-primary">
               Please complete the following:
             </div>
-            <ul className="text-xs text-theme-text-secondary space-y-1 list-disc list-inside">
-              {validationErrors.map((error, index) => (
-                <li key={index}>{error}</li>
+            <ul className="list-inside list-disc space-y-1 text-xs text-theme-text-secondary">
+              {validationErrors.map((error) => (
+                <li key={error}>{error}</li>
               ))}
             </ul>
-            {/* Arrow pointing down - aligned with button's right edge */}
-            <div 
-              className="absolute bottom-0 transform translate-y-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-theme-border-primary"
-              style={{
-                right: arrowRightOffset,
-                transform: 'translateY(100%)'
-              }}
-            ></div>
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-1.5 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-theme-border-primary bg-theme-bg-primary"
+              style={{ left: arrowLeft }}
+            />
           </div>
         </div>
       )}
+
       <Button
         {...buttonProps}
-        disabled={disabled}
+        className={`${className} ${validationBlocked ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
+        disabled={nativeDisabled}
+        loading={loading}
+        aria-disabled={validationBlocked || undefined}
+        aria-describedby={mergedDescription}
+        onBlur={(event) => {
+          hideGuidance();
+          onBlur?.(event);
+        }}
+        onClick={handleClick}
+        onFocus={(event) => {
+          showGuidance();
+          onFocus?.(event);
+        }}
+        onKeyDown={handleKeyDown}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         {children}
       </Button>

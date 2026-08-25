@@ -315,6 +315,13 @@ const expectValidationMessage = (message: string) => {
   expect(screen.getAllByText(message).length).toBeGreaterThan(0);
 };
 
+const expectValidationBlocked = (name: 'Create Question' | 'Update Question') => {
+  const button = screen.getByRole('button', { name });
+  expect(button).not.toBeDisabled();
+  expect(button).toHaveAttribute('aria-disabled', 'true');
+  return button;
+};
+
 const makeHotspotQuestion = (): QuestionDto => ({
   id: 'hotspot-question',
   type: 'HOTSPOT',
@@ -390,7 +397,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use three options' }));
 
     expectValidationMessage('Single-choice questions must have exactly 4 options.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
@@ -404,7 +411,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use seven options' }));
 
     expectValidationMessage('Multiple-choice questions must have 4 to 6 options.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
@@ -418,7 +425,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use duplicate option ids' }));
 
     expectValidationMessage('Multiple-choice option IDs must be non-empty and unique.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
@@ -497,7 +504,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use two ordering items' }));
 
     expectValidationMessage('Ordering questions must have 3 to 10 items.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
@@ -511,7 +518,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use short ordering text' }));
 
     expectValidationMessage('Each ordering item must have text of at least 5 characters or an image.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
@@ -554,7 +561,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use one hotspot region' }));
 
     expectValidationMessage('Hotspot questions must have 2 to 6 regions.');
-    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Update Question'));
     expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
   });
 
@@ -564,7 +571,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use hotspot without image' }));
 
     expectValidationMessage('Hotspot questions must include an image URL.');
-    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Update Question'));
     expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
   });
 
@@ -574,12 +581,12 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use duplicate hotspot ids' }));
 
     expectValidationMessage('Hotspot region IDs must be unique positive integers.');
-    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Update Question'));
 
     await user.click(screen.getByRole('button', { name: 'Use invalid hotspot geometry' }));
 
     expectValidationMessage('Each hotspot region must use non-negative integer coordinates, dimensions, and a correct flag.');
-    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Update Question'));
     expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
   });
 
@@ -589,7 +596,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use hotspot without correct region' }));
 
     expectValidationMessage('At least one hotspot region must be marked correct.');
-    expect(screen.getByRole('button', { name: 'Update Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Update Question'));
     expect(questionServiceMocks.updateQuestion).not.toHaveBeenCalled();
   });
 
@@ -603,7 +610,7 @@ describe('QuestionForm', () => {
     await user.click(screen.getByRole('button', { name: 'Use invalid matching references' }));
 
     expectValidationMessage('Matching question matches must reference an existing right item.');
-    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    await user.click(expectValidationBlocked('Create Question'));
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 

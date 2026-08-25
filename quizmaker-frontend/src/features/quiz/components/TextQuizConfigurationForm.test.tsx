@@ -8,19 +8,27 @@ vi.mock('@/services', () => ({ tokenEstimationService }));
 vi.mock('@/features/ai', () => ({ TokenEstimationDisplay: () => null }));
 
 describe('TextQuizConfigurationForm', () => {
-  it('requires title and enough text before generation', () => {
-    renderWithProviders(
+  it('blocks generation while keeping its missing requirements keyboard reachable', async () => {
+    const onCreateQuiz = vi.fn();
+    const { user } = renderWithProviders(
       <TextQuizConfigurationForm
         quizData={{}}
         onDataChange={vi.fn()}
         errors={{}}
-        onCreateQuiz={vi.fn()}
+        onCreateQuiz={onCreateQuiz}
         isCreating={false}
       />,
       { withAuthProvider: false },
     );
 
-    expect(screen.getByRole('button', { name: 'Generate Quiz from Text' })).toBeDisabled();
+    const generateButton = screen.getByRole('button', { name: 'Generate Quiz from Text' });
+    expect(generateButton).not.toBeDisabled();
+    expect(generateButton).toHaveAttribute('aria-disabled', 'true');
+    expect(generateButton).toHaveAccessibleDescription(expect.stringContaining('Quiz title is required'));
+    expect(generateButton).toHaveAccessibleDescription(expect.stringContaining('Text content is required'));
+
+    await user.click(generateButton);
+    expect(onCreateQuiz).not.toHaveBeenCalled();
   });
 
   it('submits a filtered text-generation request after valid input', async () => {

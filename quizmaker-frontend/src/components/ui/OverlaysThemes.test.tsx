@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react';
 import { fireEvent } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderWithProviders, screen } from '@/test/render';
@@ -45,18 +46,75 @@ describe('shared overlay and theme components', () => {
     vi.useRealTimers();
   });
 
-  it('shows validation guidance only for disabled buttons with errors', () => {
-    const { rerender } = renderWithProviders(
-      <ButtonWithValidationTooltip disabled validationErrors={['Add at least one question']}>Publish</ButtonWithValidationTooltip>,
+  it('keeps validation-blocked actions keyboard reachable without allowing activation', async () => {
+    const onClick = vi.fn();
+    const onSubmit = vi.fn((event: FormEvent) => event.preventDefault());
+    const { user, rerender } = renderWithProviders(
+      <form onSubmit={onSubmit}>
+        <ButtonWithValidationTooltip
+          type="submit"
+          disabled
+          validationErrors={['Add at least one question']}
+          onClick={onClick}
+        >
+          Publish
+        </ButtonWithValidationTooltip>
+      </form>,
       { withAuthProvider: false },
     );
 
-    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
-    expect(screen.getByText('Please complete the following:')).toBeInTheDocument();
-    expect(screen.getByText('Add at least one question')).toBeInTheDocument();
+    const blockedButton = screen.getByRole('button', { name: 'Publish' });
+    expect(blockedButton).not.toBeDisabled();
+    expect(blockedButton).toHaveAttribute('aria-disabled', 'true');
+    expect(blockedButton).toHaveAccessibleDescription(
+      'Please complete the following: Add at least one question',
+    );
+
+    await user.tab();
+    expect(blockedButton).toHaveFocus();
+    expect(screen.getByRole('tooltip')).not.toHaveClass('sr-only');
+
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    await user.click(blockedButton);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('tooltip')).toHaveClass('sr-only');
+    blockedButton.blur();
+    expect(blockedButton).not.toHaveFocus();
 
     rerender(<ButtonWithValidationTooltip validationErrors={['Add at least one question']}>Publish</ButtonWithValidationTooltip>);
     expect(screen.queryByText('Please complete the following:')).not.toBeInTheDocument();
+  });
+
+  it('uses a native disabled state when no validation guidance is available', () => {
+    renderWithProviders(
+      <ButtonWithValidationTooltip disabled>Save</ButtonWithValidationTooltip>,
+      { withAuthProvider: false },
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('keeps validation guidance visible while the pointer moves onto the panel', async () => {
+    const { user } = renderWithProviders(
+      <ButtonWithValidationTooltip disabled validationErrors={['Add a quiz title']}>
+        Create quiz
+      </ButtonWithValidationTooltip>,
+      { withAuthProvider: false },
+    );
+
+    await user.hover(screen.getByRole('button', { name: 'Create quiz' }));
+    const guidance = screen.getByRole('tooltip');
+    expect(guidance).not.toHaveClass('sr-only');
+
+    await user.hover(guidance);
+    expect(guidance).not.toHaveClass('sr-only');
+
+    await user.unhover(guidance);
+    expect(guidance).toHaveClass('sr-only');
   });
 
   it('closes modals by close button and Escape while restoring the previous page scroll state', async () => {
