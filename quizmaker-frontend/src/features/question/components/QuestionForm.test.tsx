@@ -43,6 +43,13 @@ vi.mock('./McqQuestionEditor', async () => {
     option('d', 'Exclusively lays eggs'),
   ];
 
+  const duplicateIdOptions = [
+    option('a', 'Store genetic information'),
+    option('a', 'Produce ATP', true),
+    option('c', 'Transport proteins'),
+    option('d', 'Break down waste'),
+  ];
+
   const sevenOptions = [
     ...validMultiOptions,
     option('e', 'Breathes with lungs'),
@@ -79,6 +86,11 @@ vi.mock('./McqQuestionEditor', async () => {
         'button',
         { type: 'button', onClick: () => onChange({ options: validMultiOptions }) },
         'Use valid multi options',
+      ),
+      React.createElement(
+        'button',
+        { type: 'button', onClick: () => onChange({ options: duplicateIdOptions }) },
+        'Use duplicate option ids',
       ),
     );
 
@@ -324,6 +336,32 @@ const makeHotspotQuestion = (): QuestionDto => ({
   tagIds: [],
 });
 
+const makeFillGapQuestion = (distractorCount: number): QuestionDto => {
+  const distractors = Array.from(
+    { length: distractorCount },
+    (_, index) => `distractor-${index + 1}`,
+  );
+
+  return {
+    id: `fill-gap-${distractorCount}`,
+    type: 'FILL_GAP',
+    difficulty: 'MEDIUM',
+    questionText: 'Cellular respiration produces {1}.',
+    content: {
+      text: 'Cellular respiration produces {1}.',
+      gaps: [{ id: 1, answer: 'ATP' }],
+      options: ['ATP', ...distractors],
+    },
+    hint: '',
+    explanation: '',
+    attachmentUrl: null,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    quizIds: [],
+    tagIds: [],
+  };
+};
+
 const renderHotspotEditForm = async (onSuccess = vi.fn()) => {
   questionServiceMocks.getQuestionById.mockResolvedValue(makeHotspotQuestion());
   const renderResult = renderWithProviders(
@@ -370,6 +408,20 @@ describe('QuestionForm', () => {
     expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
   });
 
+  it('blocks MCQ submission when option ids are duplicated', async () => {
+    const { user } = renderWithProviders(<QuestionForm compact />, {
+      withAuthProvider: false,
+    });
+
+    await user.click(screen.getByRole('button', { name: /Single Choice/ }));
+    fillQuestionText();
+    await user.click(screen.getByRole('button', { name: 'Use duplicate option ids' }));
+
+    expectValidationMessage('Multiple-choice option IDs must be non-empty and unique.');
+    expect(screen.getByRole('button', { name: 'Create Question' })).toBeDisabled();
+    expect(questionServiceMocks.createQuestion).not.toHaveBeenCalled();
+  });
+
   it('submits schema-sized MCQ_SINGLE content after validation passes', async () => {
     const onSuccess = vi.fn();
     const { user } = renderWithProviders(<QuestionForm compact onSuccess={onSuccess} />, {
@@ -403,6 +455,37 @@ describe('QuestionForm', () => {
     });
     expect(onSuccess).toHaveBeenCalledWith({ questionId: 'question-1' });
   });
+
+  it.each([8, 9])(
+    'edits an existing fill-gap question with %i distractors without deleting pool options',
+    async (distractorCount) => {
+      const question = makeFillGapQuestion(distractorCount);
+      questionServiceMocks.getQuestionById.mockResolvedValue(question);
+      const { user } = renderWithProviders(
+        <QuestionForm compact questionId={question.id} onSuccess={vi.fn()} />,
+        { withAuthProvider: false },
+      );
+
+      await screen.findByDisplayValue('Cellular respiration produces {1}.');
+      expect(screen.getAllByPlaceholderText('Enter distractor...')).toHaveLength(distractorCount);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Update Question' })).toBeEnabled();
+      });
+      await user.click(screen.getByRole('button', { name: 'Update Question' }));
+
+      await waitFor(() => {
+        expect(questionServiceMocks.updateQuestion).toHaveBeenCalledWith(
+          question.id,
+          expect.objectContaining({
+            type: 'FILL_GAP',
+            content: expect.objectContaining({
+              options: question.content.options,
+            }),
+          }),
+        );
+      });
+    },
+  );
 
   it('blocks ORDERING submission outside the live 3 to 10 item range', async () => {
     const { user } = renderWithProviders(<QuestionForm compact />, {

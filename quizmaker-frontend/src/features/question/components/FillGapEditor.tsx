@@ -7,6 +7,12 @@ import React, { useState, useEffect } from 'react';
 import { FillGapContent } from '@/types';
 import { InstructionsModal, Hint, Textarea, Input, Button, Switch, Chip } from '@/components';
 import { dedupeFillGapOptions } from '../utils/contentSanitizer';
+import {
+  FILL_GAP_MIN_DISTRACTORS,
+  getFillGapOptionKey,
+  normalizeFillGapOption,
+  validateFillGapPool,
+} from '../utils/fillGapPoolValidation';
 
 interface FillGapEditorProps {
   content: FillGapContent;
@@ -40,7 +46,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
     setAnswerPoolEnabled(enabled);
 
     if (enabled && distractors.length === 0) {
-      setDistractors(Array.from({ length: MIN_FILL_GAP_DISTRACTORS }, () => ''));
+      setDistractors(Array.from({ length: FILL_GAP_MIN_DISTRACTORS }, () => ''));
     }
   };
 
@@ -95,9 +101,9 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
   };
 
   const answerPoolOptions = answerPoolEnabled ? buildFillGapOptions(gaps, distractors) : [];
-  const answerPoolCount = answerPoolOptions.length;
-  const answerPoolRequirements = getAnswerPoolRequirements(gaps, distractors);
-  const answerPoolIsSchemaSized = !answerPoolEnabled || answerPoolRequirements.isValid;
+  const answerPoolValidation = validateFillGapPool({ gaps, options: answerPoolOptions });
+  const answerPoolIsSchemaSized = !answerPoolEnabled || answerPoolValidation.isValid;
+  const answerPoolStatus = getAnswerPoolStatus(answerPoolValidation);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -242,7 +248,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                 <div>
                   <h5 className="text-sm font-medium text-theme-text-secondary">Distractors</h5>
                   <p className="text-xs text-theme-text-tertiary">
-                    Add 6-7 plausible wrong answers.
+                    Prefer 6-7 plausible wrong answers. More are valid while the pool stays within 10 total options.
                   </p>
                 </div>
                 <Button
@@ -250,7 +256,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
                   variant="secondary"
                   size="sm"
                   onClick={addDistractor}
-                  disabled={answerPoolRequirements.distractorCount >= MAX_FILL_GAP_DISTRACTORS}
+                  disabled={distractors.length >= answerPoolValidation.maxDistractorSlots}
                 >
                   Add Distractor
                 </Button>
@@ -292,10 +298,8 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
               <p className={`text-sm ${
                 answerPoolIsSchemaSized ? 'text-theme-text-secondary' : 'text-theme-interactive-warning'
               }`}>
-                Pool total: {answerPoolCount} option{answerPoolCount !== 1 ? 's' : ''}.
-                {answerPoolIsSchemaSized
-                  ? ' Ready for drag-option mode.'
-                  : ` Add ${answerPoolRequirements.minDistractorCount}-${answerPoolRequirements.maxDistractorCount} unique distractors for ${answerPoolRequirements.correctAnswerCount} correct answer${answerPoolRequirements.correctAnswerCount !== 1 ? 's' : ''}.`}
+                Pool total: {answerPoolValidation.optionCount} option{answerPoolValidation.optionCount !== 1 ? 's' : ''}.
+                {answerPoolStatus}
               </p>
             </div>
           </div>
@@ -307,7 +311,7 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
         <ul className="list-disc list-inside space-y-1">
           <li>Provide the correct answer for each gap</li>
           <li>Answer pool is optional; leave it disabled for typed-answer questions</li>
-          <li>If enabled, include every correct answer plus 6-7 distractors</li>
+          <li>If enabled, include every correct answer and prefer 6-7 distractors; larger pools remain valid up to 10 total options</li>
           <li>Maximum 3 gaps per question</li>
         </ul>
       </InstructionsModal>
@@ -367,11 +371,28 @@ const FillGapEditor: React.FC<FillGapEditorProps> = ({
   );
 };
 
-const normalizeOptionKey = (value: string) => value.trim().toLowerCase();
-
 const MAX_FILL_GAP_GAPS = 3;
-const MIN_FILL_GAP_DISTRACTORS = 6;
-const MAX_FILL_GAP_DISTRACTORS = 7;
+
+const getAnswerPoolStatus = (
+  validation: ReturnType<typeof validateFillGapPool>,
+): string => {
+  if (validation.isValid) return ' Ready for drag-option mode.';
+  if (validation.duplicateOptions.length > 0) {
+    return ' Remove duplicate options; values must be unique after trimming and ignoring letter case.';
+  }
+  if (validation.missingAnswers.length > 0) {
+    return ' Add every correct gap answer to the pool.';
+  }
+  if (validation.optionCount > validation.maximumOptionCount) {
+    return ` Remove options until the pool has at most ${validation.maximumOptionCount}.`;
+  }
+
+  const missingOptionCount = Math.max(
+    0,
+    validation.minimumOptionCount - validation.uniqueOptionCount,
+  );
+  return ` Add ${missingOptionCount} more unique option${missingOptionCount !== 1 ? 's' : ''}; this question needs at least ${validation.minimumOptionCount} total.`;
+};
 
 const extractGapMarkerIds = (value: string): number[] => {
   const seen = new Set<number>();
@@ -418,32 +439,28 @@ const getDistractorsFromOptions = (
   options: string[],
   gaps: Array<{ id: number; answer: string }>
 ): string[] => {
-  const gapAnswerKeys = new Set(getGapAnswerValues(gaps).map(normalizeOptionKey));
-  return dedupeFillGapOptions(options).filter(option => !gapAnswerKeys.has(normalizeOptionKey(option)));
+  const gapAnswerKeys = new Set(getGapAnswerValues(gaps).map(getFillGapOptionKey));
+  const representedAnswerKeys = new Set<string>();
+
+  return options
+    .map(normalizeFillGapOption)
+    .filter(Boolean)
+    .filter((option) => {
+      const key = getFillGapOptionKey(option);
+      if (gapAnswerKeys.has(key) && !representedAnswerKeys.has(key)) {
+        representedAnswerKeys.add(key);
+        return false;
+      }
+      return true;
+    });
 };
 
 const buildFillGapOptions = (
   gaps: Array<{ id: number; answer: string }>,
   distractors: string[]
-): string[] => dedupeFillGapOptions([...getGapAnswerValues(gaps), ...distractors]);
-
-const getAnswerPoolRequirements = (
-  gaps: Array<{ id: number; answer: string }>,
-  distractors: string[]
-) => {
-  const correctAnswerCount = getGapAnswerValues(gaps).length;
-  const distractorCount = getDistractorsFromOptions(distractors, gaps).length;
-
-  return {
-    correctAnswerCount,
-    distractorCount,
-    minDistractorCount: MIN_FILL_GAP_DISTRACTORS,
-    maxDistractorCount: MAX_FILL_GAP_DISTRACTORS,
-    isValid:
-      correctAnswerCount > 0 &&
-      distractorCount >= MIN_FILL_GAP_DISTRACTORS &&
-      distractorCount <= MAX_FILL_GAP_DISTRACTORS,
-  };
-};
+): string[] => [
+  ...getGapAnswerValues(gaps),
+  ...distractors.map(normalizeFillGapOption).filter(Boolean),
+];
 
 export default FillGapEditor;

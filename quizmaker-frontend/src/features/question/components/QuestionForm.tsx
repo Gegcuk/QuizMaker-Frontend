@@ -34,13 +34,14 @@ import { Spinner, Alert, Dropdown, Button, Textarea, ButtonWithValidationTooltip
 import { PlusIcon, XMarkIcon, QuestionMarkCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { MediaPicker } from '@/features/media';
 import {
-  dedupeFillGapOptions,
   sanitizeComplianceContentForSubmission,
   sanitizeFillGapContentForSubmission,
   sanitizeMatchingContentForSubmission,
   sanitizeMcqContentForSubmission,
   sanitizeOrderingContentForSubmission,
 } from '../utils/contentSanitizer';
+import { validateFillGapPool } from '../utils/fillGapPoolValidation';
+import { hasUniqueMcqOptionIds } from '../utils/mcqOptionIdentity';
 
 const MCQ_SINGLE_OPTION_COUNT = 4;
 const MCQ_MULTI_MIN_OPTIONS = 4;
@@ -203,6 +204,10 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         if (invalidOptions.length > 0) {
           errors.push('Each option must have text or an image.');
         }
+
+        if (!hasUniqueMcqOptionIds(options)) {
+          errors.push('Multiple-choice option IDs must be non-empty and unique.');
+        }
         
         // Check correct answers
         const correctOptions = validOptions.filter((opt: any) => opt.correct);
@@ -311,7 +316,6 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       case 'FILL_GAP': {
         const fillGapContent = formData.content as Partial<FillGapContent>;
         const gaps = Array.isArray(fillGapContent?.gaps) ? fillGapContent.gaps : [];
-        const gapAnswers = gaps.map((gap) => gap.answer?.trim() || '');
         const fillGapText = fillGapContent?.text || '';
 
         if (gaps.length === 0) {
@@ -327,20 +331,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           errors.push('Each gap answer must have a matching marker in the question text.');
         }
 
-        const options = dedupeFillGapOptions(fillGapContent?.options || []);
-        if (options.length > 0) {
-          const optionKeys = new Set(options.map((option) => option.toLowerCase()));
-          const missingAnswers = gapAnswers.filter((answer) => answer && !optionKeys.has(answer.toLowerCase()));
-          if (missingAnswers.length > 0) {
-            errors.push('Fill-in-the-gap answer pool must include every correct gap answer.');
-          }
-
-          const correctAnswerKeys = new Set(gapAnswers.filter(Boolean).map((answer) => answer.toLowerCase()));
-          const distractorCount = options.filter((option) => !correctAnswerKeys.has(option.toLowerCase())).length;
-          if (distractorCount < 6 || distractorCount > 7) {
-            errors.push('Fill-in-the-gap answer pool must include all correct answers plus 6 to 7 distractors.');
-          }
-        }
+        errors.push(...validateFillGapPool({ gaps, options: fillGapContent?.options }).errors);
         break;
       }
       
