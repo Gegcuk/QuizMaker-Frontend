@@ -192,15 +192,15 @@ test('production checkout recovery preserves privacy and backend authority on de
       let credited = false;
       let statusReads = 0;
       let balanceReads = 0;
-      // Every API/provider request is handled locally. No Stripe or live API calls.
+      // Match API paths on either the preview origin or a compiled absolute API
+      // origin. The shared context still blocks all unmocked external requests.
       await context.route('**/*', async route => {
         const request = route.request();
         const url = new URL(request.url());
-        if (url.origin !== BASE_URL) {
-          if (!url.hostname.includes('googletagmanager') && !url.hostname.includes('google-analytics')) unexpected.push(url.origin);
-          return route.fulfill({ status: 200, contentType: 'application/javascript', body: '' });
+        if (!url.pathname.startsWith('/api/')) {
+          if (url.origin !== BASE_URL && url.hostname !== 'www.googletagmanager.com') unexpected.push(url.origin);
+          return route.fallback();
         }
-        if (!url.pathname.startsWith('/api/')) return route.continue();
         const json = value => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(value) });
         if (url.pathname === '/api/v1/auth/me') return json({
           id: accountId, username: 'checkout-test', email: 'checkout@example.test', roles: ['ROLE_USER'], isActive: true,
