@@ -21,8 +21,8 @@ class ArtifactTests(unittest.TestCase):
         self.dist = self.app / 'dist'
         (self.dist / 'blog' / 'fixture').mkdir(parents=True)
         (self.dist / 'assets').mkdir()
-        for filename, content in [('index.html', '<h1>Working release</h1>'), ('404.html', '<h1>Not found</h1>'),
-                                  ('blog/fixture/index.html', '<h1>Article</h1>'), ('assets/app.js', '/* fixture */'),
+        for filename, content in [('index.html', '<title>Home</title><h1>Working release</h1>'), ('404.html', '<title>Not found</title><h1>Not found</h1>'),
+                                  ('blog/fixture/index.html', '<title>Article</title><h1>Article</h1>'), ('assets/app.js', '/* fixture */'),
                                   ('robots.txt', 'User-agent: *')]:
             (self.dist / filename).write_text(content)
         for filename, route in [('sitemap.xml', '/'), ('sitemap_articles.xml', '/blog/fixture/')]:
@@ -84,10 +84,16 @@ class ArtifactTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'Build changed'):
             artifact.seal(self.app, bundle, image_id)
 
-    def test_http_probe_rejects_wrong_bytes_even_when_status_is_healthy(self):
+    def test_http_probe_identifies_verifier_and_rejects_wrong_bytes_even_when_status_is_healthy(self):
         body = b'correct bytes'
         class Handler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
+                # The production edge rejects Python's default User-Agent. Keep
+                # a stable service identity instead of impersonating a browser.
+                if self.headers.get('User-Agent') != 'QuizzenceReleaseVerifier/1.0':
+                    self.send_response(403)
+                    self.end_headers()
+                    return
                 self.send_response(200)
                 self.end_headers()
                 self.wfile.write(body)
@@ -107,6 +113,41 @@ class ArtifactTests(unittest.TestCase):
         body = b'wrong release still returning 200'
         with self.assertRaisesRegex(RuntimeError, 'bytes mismatch'):
             artifact.probe(manifest, base)
+
+    def test_public_html_preserves_edge_email_filter_but_rejects_wrong_content_or_scripts(self):
+        original = b'<title>Release</title><meta name="description" content="Expected"><h1>Article</h1><p>hello@example.test</p><script src="/assets/app.js"></script><script>window.safe = true;</script>'
+        transformed = original.replace(b'hello@example.test', b'<span class="__cf_email__" data-cfemail="fixture">[email protected]</span>')
+        decoder = b'<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>'
+        self.assertEqual(artifact.html_contract(original), artifact.html_contract(transformed + decoder, public=True))
+        for changed in [transformed.replace(b'Article', b'Wrong page'), transformed.replace(b'Expected', b'Wrong metadata'), transformed.replace(b'app.js', b'old.js'), transformed.replace(b'true', b'false'), transformed + b'<script src="/unexpected.js"></script>']:
+            self.assertNotEqual(artifact.html_contract(original), artifact.html_contract(changed, public=True))
+        with self.assertRaisesRegex(RuntimeError, 'duplicate'):
+            artifact.html_contract(transformed + decoder + decoder, public=True)
+        # An identical-looking old page must still fail public release identity.
+        item = {'path': '/', 'status': 200, 'sha256': artifact.digest(original), 'public_html': artifact.html_contract(original)}
+        manifest = {'release_id': 'expected-release', 'probes': [item]}
+        with patch.object(artifact, 'request', return_value=(200, {'X-Quizzence-Release': 'older-release'}, transformed + decoder)):
+            with self.assertRaisesRegex(RuntimeError, 'release identity mismatch'):
+                artifact.probe(manifest, 'https://fixture.test', public=True, policies=True)
+        # CDN allowances never weaken the exact-byte origin gate.
+        with patch.object(artifact, 'request', return_value=(200, {}, transformed + decoder)):
+            with self.assertRaisesRegex(RuntimeError, 'bytes mismatch'):
+                artifact.probe(manifest, 'http://127.0.0.1')
+
+    def test_public_probes_use_release_cache_key_without_changing_origin_checks(self):
+        body = b'expected asset'
+        manifest = {'release_id': 'a' * 40 + '-123-1', 'probes': [{'path': '/assets/app.js', 'status': 200, 'sha256': artifact.digest(body)}]}
+        paths = []
+        def request(_base, route):
+            paths.append(route)
+            # Simulate a stale edge object at the ordinary public URL.
+            value = body if '?__release_probe=' in route else b'cached obsolete body'
+            return 200, {}, value
+        with patch.object(artifact, 'request', side_effect=request):
+            artifact.probe(manifest, 'https://fixture.test', public=True)
+            with self.assertRaisesRegex(RuntimeError, 'bytes mismatch'):
+                artifact.probe(manifest, 'http://127.0.0.1')
+        self.assertEqual(paths, ['/assets/app.js?__release_probe=' + manifest['release_id'], '/assets/app.js'])
 
 
 if __name__ == '__main__':

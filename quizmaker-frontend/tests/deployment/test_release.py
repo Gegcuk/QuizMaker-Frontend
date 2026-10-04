@@ -49,7 +49,6 @@ class FakeHost:
     def event(self, name):
         self.events.append(name)
         if self.fail == name:
-            self.fail = None
             raise RuntimeError('Injected ' + name)
 
     def baseline(self):
@@ -92,6 +91,9 @@ class ReleaseTests(unittest.TestCase):
         self.proxy_hash = patch.object(rollout, 'INSPECTED_PROXY_SHA', hashlib.sha256(PROXY).hexdigest())
         self.proxy_hash.start()
         self.addCleanup(self.proxy_hash.stop)
+        self.no_wait = patch.object(rollout.time, 'sleep')
+        self.no_wait.start()
+        self.addCleanup(self.no_wait.stop)
         self.bundle, self.digest = bundle_at(self.root)
 
     def test_archive_mismatch_prevents_all_host_actions(self):
@@ -204,6 +206,30 @@ class ReleaseTests(unittest.TestCase):
                 rollout.run_locked(host, self.bundle, self.digest)
         self.assertEqual(host.events, [])
         self.assertEqual(host.running, {'old'})
+
+    def test_reload_wait_keeps_old_serving_until_new_route_is_visible(self):
+        host = FakeHost(self.root)
+        original_check = host.check
+        checks = 0
+        def check(release, public=False):
+            nonlocal checks
+            if release['id'] != 'old' and public:
+                checks += 1
+                if checks == 1:
+                    self.assertIn('old', host.running)
+                    raise RuntimeError('Previous Nginx worker still responding')
+            return original_check(release, public)
+        host.check = check
+        result = rollout.rollout(host, self.bundle, self.digest)
+        self.assertEqual(checks, 3)  # Two after reload, one after old stops.
+        self.assertEqual(host.running, {result['release_id']})
+
+    def test_reload_wait_never_swallows_service_interruption(self):
+        host = FakeHost(self.root)
+        with patch.object(host, 'check', side_effect=rollout.RolloutInterrupted('stop')) as check:
+            with self.assertRaises(rollout.RolloutInterrupted):
+                rollout.wait_public(host, host.old)
+            check.assert_called_once()
 
     def test_stale_producer_cannot_replace_newer_release(self):
         host = FakeHost(self.root)

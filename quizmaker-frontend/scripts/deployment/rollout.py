@@ -10,13 +10,32 @@ import signal
 import subprocess
 import time
 
-from artifact import digest, probe, read_json, request, require, verify
+from artifact import digest, html_contract, probe, read_json, request, require, verify
 
 ROOT = Path('/var/lib/quizzence-releases')
 PROXY = Path('/etc/nginx/sites-available/quizzence.com')
 # Read-only inspection on 2026-10-04. Normalize only the two frontend ports.
 INSPECTED_PROXY_SHA = 'b62a7f9f5edd40071094a9acb1ab414c9a43844ca73db659b30c66ea4417e5ed'
 TARGET = re.compile(rb'proxy_pass http://127\.0\.0\.1:(3000|310[123])(/robots\.txt)?;')
+
+
+class RolloutInterrupted(RuntimeError):
+    pass
+
+
+def wait_public(host, release):
+    # A successful reload only signals Nginx; new workers may not accept traffic
+    # yet. Keep the recovery container available throughout this bounded wait.
+    for attempt in range(5):
+        try:
+            host.check(release, public=True)
+            return
+        except RolloutInterrupted:
+            raise
+        except Exception:
+            if attempt == 4:
+                raise
+            time.sleep(1)
 
 
 def atomic(path, data):
@@ -81,6 +100,8 @@ class Host:
             probes.append({'path': route, 'status': status, 'sha256': digest(body),
                            'noindex': route in ['/login', '/my-quizzes', '/oauth2/redirect', '/oauth/callback'],
                            'callback': route in ['/oauth2/redirect', '/oauth/callback']})
+            if 'text/html' in headers.get('Content-Type', ''):
+                probes[-1]['public_html'] = html_contract(body)
         manifest = {'release_id': 'legacy-' + info['Image'].split(':')[1][:12], 'site_url': 'https://www.quizzence.com', 'probes': probes}
         release = {'id': manifest['release_id'], 'container': name, 'port': 3000, 'image': info['Image'], 'legacy': True, 'manifest': manifest}
         self.check(release, public=False)
@@ -162,7 +183,7 @@ def restore(host, state):
         atomic(host.proxy, original)
         host.reload()
     host.check(old)
-    host.check(old, public=True)
+    wait_public(host, old)
     # A failed docker run may not have created a container. Cleanup is best effort;
     # routing restoration is the mandatory guarantee, never container deletion.
     try:
@@ -205,7 +226,7 @@ def rollout(host, bundle, expected_digest):
         require(host.proxy.read_bytes() == before, 'Proxy drift before switch')
         atomic(host.proxy, after)
         host.reload()
-        host.check(candidate, public=True)
+        wait_public(host, candidate)
         host.stop(old)
         # Confirm traffic still serves the tested candidate after the old container stops.
         host.check(candidate, public=True)
@@ -230,7 +251,7 @@ def rollout(host, bundle, expected_digest):
 
 
 def interrupted(_signum, _frame):
-    raise RuntimeError('Rollout interrupted; restoring serving release')
+    raise RolloutInterrupted('Rollout interrupted; restoring serving release')
 
 
 def run_locked(host, bundle, expected_digest):

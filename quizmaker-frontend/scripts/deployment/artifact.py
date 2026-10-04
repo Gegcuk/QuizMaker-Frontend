@@ -2,6 +2,7 @@
 """Build identity and read-only probes; Python standard library only on the host."""
 import argparse
 import hashlib
+from html.parser import HTMLParser
 import json
 import os
 from pathlib import Path
@@ -41,6 +42,66 @@ def helper_digest():
     return digest(b''.join((directory / name).read_bytes() for name in ['artifact.py', 'rollout.py', 'helper.py']))
 
 
+def html_contract(body, public=False):
+    """Compare meaningful HTML while preserving the existing edge email filter.
+
+    Origin HTML still requires its exact digest. Public HTML must retain title,
+    headings, metadata, resources, and every inline script. Only Cloudflare's
+    observed email decoder may be added; arbitrary injected scripts fail.
+    """
+    class Document(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.result = {'title': [], 'h1': [], 'metadata': [], 'links': [], 'scripts': []}
+            self.text_tag = None
+            self.text = []
+            self.script = None
+            self.email_decoders = 0
+
+        def handle_starttag(self, tag, attributes):
+            attrs = dict(attributes)
+            stable_attributes = [list(pair) for pair in sorted(attributes)]
+            if tag in ['title', 'h1']:
+                self.text_tag, self.text = tag, []
+            if tag == 'meta':
+                self.result['metadata'].append(stable_attributes)
+            if tag == 'link' and attrs.get('rel') in ['canonical', 'stylesheet', 'modulepreload', 'preload']:
+                self.result['links'].append(stable_attributes)
+            if tag == 'script':
+                src = attrs.get('src', '')
+                email_decoder = public and re.fullmatch(r'/cdn-cgi/scripts/[0-9a-f]+/cloudflare-static/email-decode\.min\.js', src)
+                if email_decoder:
+                    require(set(attrs) <= {'src', 'data-cfasync', 'defer'}, 'Unexpected email decoder attributes')
+                    self.email_decoders += 1
+                    require(self.email_decoders <= 1, 'Unexpected duplicate email decoder')
+                self.script = {'attributes': stable_attributes, 'body': '', 'email_decoder': bool(email_decoder)}
+
+        def handle_data(self, value):
+            if self.script is not None:
+                self.script['body'] += value
+            elif self.text_tag:
+                self.text.append(value)
+
+        def handle_endtag(self, tag):
+            if tag == 'script' and self.script is not None:
+                script = self.script
+                if script.pop('email_decoder'):
+                    require(not script['body'].strip(), 'Unexpected inline email decoder content')
+                else:
+                    script['body'] = digest(script['body'].encode())
+                    self.result['scripts'].append(script)
+                self.script = None
+            if tag == self.text_tag:
+                self.result[tag].append(' '.join(''.join(self.text).split()))
+                self.text_tag, self.text = None, []
+
+    document = Document()
+    document.feed(body.decode('utf-8'))
+    document.close()
+    require(document.result['title'], 'HTML must retain a page title')
+    return document.result
+
+
 def validate(manifest):
     require(manifest['format'] == 1, 'Unsupported release format')
     require(manifest['repository'] == 'Gegcuk/QuizMaker-Frontend', 'Wrong repository')
@@ -75,6 +136,8 @@ def prepare(app, revision, tree, run_id, run_attempt):
         probe = {'path': route, 'status': status, **extra}
         if filename:
             probe['sha256'] = file_digest(dist / filename)
+            if filename.endswith('.html'):
+                probe['public_html'] = html_contract((dist / filename).read_bytes())
         probes.append(probe)
 
     add('/__release.json', '__release.json', identity=True)
@@ -164,6 +227,7 @@ def request(base, route):
     # Do not print backend bodies, callback URLs or provider response content.
     req = urllib.request.Request(base.rstrip('/') + route, headers={
         'Cache-Control': 'no-cache', 'Accept-Encoding': 'identity', 'Host': 'www.quizzence.com',
+        'User-Agent': 'QuizzenceReleaseVerifier/1.0',
     })
     try:
         response = urllib.request.build_opener(NoRedirect).open(req, timeout=20)
@@ -175,12 +239,21 @@ def request(base, route):
 
 def probe(manifest, base, public=False, policies=False):
     for item in manifest['probes']:
-        status, headers, body = request(base, item['path'])
+        # A cached unchanged asset can have a previous release's response
+        # headers. Use a non-sensitive per-release cache key for public probes.
+        route = item['path']
+        if public:
+            route += '?__release_probe=' + urllib.parse.quote(manifest['release_id'], safe='')
+        status, headers, body = request(base, route)
         require(status == item['status'], f"Probe status failed: {item['path']}")
         if public and item.get('backend_owned'):
             require(b'<loc>' in body and 'xml' in headers.get('Content-Type', ''), 'Backend sitemap check failed')
             continue
-        if 'sha256' in item:
+        if public and policies:
+            require(headers.get('X-Quizzence-Release') == manifest['release_id'], 'Public response release identity mismatch')
+        if public and 'public_html' in item:
+            require(html_contract(body, public=True) == item['public_html'], f"Public HTML contract mismatch: {item['path']}")
+        elif 'sha256' in item:
             require(digest(body) == item['sha256'], f"Probe bytes mismatch: {item['path']}")
         if item.get('location'):
             require(headers.get('Location') == manifest['site_url'] + item['location'], 'Canonical redirect mismatch')

@@ -82,6 +82,23 @@ privacy, and byte-identity checks against one local container. It does not build
 another image. Browser provider requests are faked or blocked. The HTTP probes
 check assets, public article HTML, canonical redirects, private SPA routes,
 callbacks, and unknown routes; a different page returning HTTP 200 still fails.
+Public probes identify themselves as `QuizzenceReleaseVerifier/1.0`. Host
+preparation confirmed that the public edge rejects Python's default User-Agent;
+the explicit service identity works without changing edge security rules.
+Origin responses require exact body digests. Cloudflare's existing email
+obfuscation rewrites public HTML, so public HTML instead requires the expected
+title, headings, metadata, resource references, and inline-script hashes. Only
+the observed Cloudflare email-decoder script may be added. Every managed frontend
+response must also carry the image's `X-Quizzence-Release` identity; assets and
+`/__release.json` still require exact public bytes. Legacy bootstrap checks use
+the same HTML comparison without a release header, which the old image lacks.
+These checks preserve the existing email protection; they do not assert that
+Cloudflare delivers byte-identical HTML or disable its transformation rules.
+Public probes add a non-sensitive `__release_probe=<release-id>` query parameter
+so cached assets and redirects from earlier releases cannot supply stale headers.
+This requires the edge to include query parameters in its cache key; an edge
+rule that strips this parameter will fail verification rather than accept an
+unverified release. Normal visitor URLs and cache policy are unchanged.
 Image config and manifest identities are retained because Docker's classic and
 containerd storage engines identify the same exported image differently.
 
@@ -100,6 +117,9 @@ configuration. Failed restoration keeps the journal and both containers; an
 operator must resolve host/proxy health before trying another release. Proxy
 configuration drift fails closed and requires a fresh inspection. Only the two
 inspected frontend targets change; backend routing and TLS remain intact.
+After a proxy reload, up to five public checks one second apart allow Nginx's
+new workers to accept traffic. The recovery container remains available until
+verification succeeds; a persistent mismatch fails and restores the old release.
 
 After success, cleanup preserves the current and previous successful managed
 releases. The previous container stays stopped. Cleanup failures retain extra

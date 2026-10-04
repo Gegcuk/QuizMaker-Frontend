@@ -34,8 +34,10 @@ try {
       throw new Error(`${script} failed against the exported release image`, { cause: error });
     }
   }
-  const result = await run('python3', ['scripts/deployment/artifact.py', 'probe', '--digest', expectedDigest, '--base', base, '--policies']);
-  process.stdout.write(result.stdout);
+  for (const mode of [[], ['--public']]) {
+    const result = await run('python3', ['scripts/deployment/artifact.py', 'probe', '--digest', expectedDigest, '--base', base, '--policies', ...mode]);
+    process.stdout.write(result.stdout);
+  }
   // Detect accidental mutation by any validation step before upload.
   await run('python3', pythonArgs);
 } finally {
