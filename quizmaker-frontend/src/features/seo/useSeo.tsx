@@ -4,7 +4,7 @@
 // Avoids external deps while keeping SPA pages SEO-friendly.
 // ---------------------------------------------------------------------------
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { DEFAULT_LOCALE, GOOGLE_SITE_VERIFICATION, SITE_URL } from './siteMetadata';
 
 export type StructuredData = Record<string, unknown>;
@@ -15,6 +15,10 @@ export interface SeoConfig {
   canonicalPath?: string;
   canonicalUrl?: string;
   ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageType?: string;
+  ogImageAlt?: string;
   ogType?: 'website' | 'article';
   noindex?: boolean;
   structuredData?: StructuredData[];
@@ -46,19 +50,32 @@ const ensureLinkTag = (rel: string, href: string) => {
   tag.setAttribute('href', href);
 };
 
+const clearImageMetaTags = () => {
+  document.head.querySelectorAll(
+    'meta[property="og:image"], meta[property^="og:image:"], ' +
+    'meta[name="twitter:image"], meta[name^="twitter:image:"], meta[name="twitter:card"]',
+  ).forEach((tag) => tag.remove());
+};
+
+const imageDimension = (value?: number): string | undefined =>
+  value !== undefined && Number.isSafeInteger(value) && value > 0 ? String(value) : undefined;
+
 export const useSeo = ({
   title,
   description,
   canonicalPath,
   canonicalUrl,
   ogImage,
+  ogImageWidth,
+  ogImageHeight,
+  ogImageType,
+  ogImageAlt,
   ogType = 'website',
   noindex = false,
   structuredData = [],
 }: SeoConfig) => {
-  // Memoize to prevent re-injecting identical structured data on every render when callers pass inline arrays.
-  const structuredDataKey = useMemo(() => JSON.stringify(structuredData), [structuredData]);
-  const stableStructuredData = useMemo(() => structuredData, [structuredDataKey]);
+  // Equal JSON keeps the effect stable even when callers create a new array on render.
+  const structuredDataKey = JSON.stringify(structuredData);
 
   useEffect(() => {
     if (title) {
@@ -118,10 +135,18 @@ export const useSeo = ({
     ensureMetaTag('og:locale', DEFAULT_LOCALE, true);
     ensureMetaTag('robots', noindex ? 'noindex, nofollow' : 'index, follow');
 
+    clearImageMetaTags();
     if (ogImage) {
       ensureMetaTag('og:image', ogImage, true);
+      ensureMetaTag('og:image:width', imageDimension(ogImageWidth), true);
+      ensureMetaTag('og:image:height', imageDimension(ogImageHeight), true);
+      ensureMetaTag('og:image:type', ogImageType, true);
+      ensureMetaTag('og:image:alt', ogImageAlt, true);
       ensureMetaTag('twitter:image', ogImage);
+      ensureMetaTag('twitter:image:alt', ogImageAlt);
       ensureMetaTag('twitter:card', 'summary_large_image');
+    } else {
+      ensureMetaTag('twitter:card', 'summary');
     }
 
     if (GOOGLE_SITE_VERIFICATION) {
@@ -140,7 +165,8 @@ export const useSeo = ({
     });
 
     const injectedScripts: HTMLScriptElement[] = [];
-    stableStructuredData.forEach((entry, index) => {
+    const structuredDataEntries: StructuredData[] = JSON.parse(structuredDataKey);
+    structuredDataEntries.forEach((entry, index) => {
       const script = document.createElement('script');
       script.type = 'application/ld+json';
       script.dataset.seo = 'structured-data';
@@ -151,11 +177,12 @@ export const useSeo = ({
     });
 
     return () => {
+      clearImageMetaTags();
       injectedScripts.forEach(script => {
         if (script.parentNode) {
           script.parentNode.removeChild(script);
         }
       });
     };
-  }, [title, description, canonicalPath, canonicalUrl, ogImage, ogType, noindex, structuredDataKey]);
+  }, [title, description, canonicalPath, canonicalUrl, ogImage, ogImageWidth, ogImageHeight, ogImageType, ogImageAlt, ogType, noindex, structuredDataKey]);
 };

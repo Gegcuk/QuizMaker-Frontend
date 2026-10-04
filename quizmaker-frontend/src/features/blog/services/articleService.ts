@@ -27,6 +27,13 @@ const ADMIN_SLUG_PATH = (slug: string) => `/v1/articles/slug/${slug}`;
 const TAGS_PATH = '/v1/articles/tags';
 const SITEMAP_PATH = '/v1/articles/sitemap';
 
+// Renditions are read-only: an edit draft may originate from a full article response.
+const toAuthoringPayload = (payload: ArticleUpsertPayload): ArticleUpsertPayload => {
+  if (!payload.heroImage) return payload;
+  const { assetId, alt, caption } = payload.heroImage;
+  return { ...payload, heroImage: { assetId, alt, ...(caption !== undefined ? { caption } : {}) } };
+};
+
 const normalizePage = (data: any, page: number, size: number): ArticleListResponse => {
   const content = data?.content ?? data?.items ?? [];
   const total = data?.totalElements ?? data?.total ?? 0;
@@ -110,12 +117,12 @@ export const articleService = {
 
   // Admin (auth required)
   async create(payload: ArticleUpsertPayload): Promise<ArticleDto> {
-    const { data } = await api.post<ArticleDto>('/v1/articles', payload);
+    const { data } = await api.post<ArticleDto>('/v1/articles', toAuthoringPayload(payload));
     return data;
   },
 
   async update(articleId: string, payload: ArticleUpsertPayload): Promise<ArticleDto> {
-    const { data } = await api.put<ArticleDto>(`/v1/articles/${articleId}`, payload);
+    const { data } = await api.put<ArticleDto>(`/v1/articles/${articleId}`, toAuthoringPayload(payload));
     return data;
   },
 

@@ -10,7 +10,7 @@ import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRoute
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
-const distDir = path.join(rootDir, 'dist');
+const defaultDistDir = path.join(rootDir, 'dist');
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
 const rawApiBaseUrl = process.env.VITE_API_BASE_URL || '/api';
@@ -25,11 +25,11 @@ const normalizeApiBaseUrl = (value) => {
   const path = value.startsWith('/') ? value : `/${value}`;
   return `${base}${path}`.replace(/\/$/, '');
 };
-const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
+const defaultApiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const setupApiProxy = async (page) => {
+const setupApiProxy = async (page, apiBaseUrl) => {
   const isApiRequest = (requestUrl) => {
     try {
       const url = new URL(requestUrl);
@@ -97,7 +97,7 @@ const setupApiProxy = async (page) => {
   });
 };
 
-const resolveOutputPath = (route) => {
+const resolveOutputPath = (route, distDir) => {
   if (route === getPublicRoute('notFound').path) {
     return path.join(distDir, '404.html');
   }
@@ -142,14 +142,14 @@ const waitForPreviewServer = async (previewOrigin) => {
   throw new Error('Vite preview server did not start in time.');
 };
 
-const startPreviewServer = async () => {
+const startPreviewServer = async (distDir) => {
   const previewPort = await findAvailablePort();
   const previewOrigin = `http://127.0.0.1:${previewPort}`;
 
   return new Promise((resolve, reject) => {
     const preview = spawn(
       'npm',
-      ['run', 'preview', '--', '--port', String(previewPort), '--strictPort', '--host', '127.0.0.1'],
+      ['run', 'preview', '--', '--outDir', distDir, '--port', String(previewPort), '--strictPort', '--host', '127.0.0.1'],
       {
         cwd: rootDir,
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -213,7 +213,13 @@ const startPreviewServer = async () => {
   });
 };
 
-const prerender = async () => {
+// Importable so output checks can use the same renderer with an isolated build and local fixtures.
+export const prerender = async ({
+  distDir = defaultDistDir,
+  apiBaseUrl = defaultApiBaseUrl,
+  staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true',
+  setupPage,
+} = {}) => {
   const distExists = await fs
     .access(distDir)
     .then(() => true)
@@ -223,7 +229,6 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
-  const staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true';
   const articleRoutes = staticOnly ? [] : await loadArticleSitemapRoutes({ apiBaseUrl });
   const routesToPrerender = [
     ...new Set([
@@ -240,12 +245,16 @@ const prerender = async () => {
   let browser;
 
   try {
-    ({ preview, previewOrigin } = await startPreviewServer());
+    ({ preview, previewOrigin } = await startPreviewServer(distDir));
 
     browser = await chromium.launch();
     const page = await browser.newPage();
     if (!staticOnly) {
-      await setupApiProxy(page);
+      await setupApiProxy(page, apiBaseUrl);
+    }
+
+    if (setupPage) {
+      await setupPage(page, previewOrigin);
     }
 
     for (const route of routesToPrerender) {
@@ -261,11 +270,11 @@ const prerender = async () => {
         await page.waitForFunction(() => {
           const meta = document.querySelector('meta[property="og:type"]');
           return meta?.getAttribute('content') === 'article';
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
         await page.waitForFunction(() => {
           const heading = document.querySelector('h1');
           return heading && heading.textContent && heading.textContent.trim().length > 0;
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
       } else if (!staticOnly && route === blogIndexPath) {
         // Blog index page - wait for article links or empty state.
         await page.waitForFunction(() => {
@@ -275,17 +284,32 @@ const prerender = async () => {
           });
           const emptyState = document.body?.textContent?.includes('No articles found.');
           return hasArticleLink || emptyState;
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
       } else {
         // Other pages - wait for main content to render.
         await page.waitForSelector('main, h1', { timeout: 10000 });
       }
 
-      // Additional small delay to ensure all metadata is injected.
-      await delay(300);
+      if (articleRoutePaths.has(route)) {
+        // An image can fail after the article data arrives. Wait for the rendered
+        // image or its fallback to settle before saving the matching metadata.
+        try {
+          await page.waitForFunction(() => {
+            const image = document.querySelector('img[data-article-hero]');
+            return !image || (image.complete && image.naturalWidth > 0);
+          }, undefined, { timeout: 15000 });
+        } catch (error) {
+          if (error.name !== 'TimeoutError') throw error;
+          // A stalled CDN must not discard otherwise readable article output.
+          console.warn(`Article image still loading for ${route}; keeping its declared metadata.`);
+        }
+      } else {
+        // Allow static-page metadata effects to finish.
+        await delay(300);
+      }
 
       const html = await page.content();
-      const outputPath = resolveOutputPath(route);
+      const outputPath = resolveOutputPath(route, distDir);
 
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, html, 'utf8');
@@ -308,12 +332,13 @@ const prerender = async () => {
   }
 };
 
-prerender()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err) => {
-     
-    console.error('Prerender failed:', err);
-    process.exit(1);
-  });
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  prerender()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Prerender failed:', err);
+      process.exit(1);
+    });
+}

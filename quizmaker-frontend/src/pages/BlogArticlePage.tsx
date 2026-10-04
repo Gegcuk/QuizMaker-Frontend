@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -16,47 +16,17 @@ import SafeContent from '@/components/common/SafeContent';
 import { Seo } from '@/features/seo';
 import { useAuth } from '@/features/auth';
 import { articleService, buildArticleSeoConfig } from '@/features/blog';
-import { mediaService } from '@/features/media';
+import { ARTICLE_FALLBACK_IMAGE, getArticleHeroImage } from '@/features/blog/articleImages';
 import type { ArticleCtaDto, ArticleDto } from '@/features/blog/types';
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
-const HERO_IMAGE_CDN_BASE = 'https://cdn.quizzence.com/articles';
-const LIBRARY_CDN_BASE = 'https://cdn.quizzence.com/library';
-
-// Common image extensions in order of likelihood
-const IMAGE_EXTENSIONS = ['jpg', 'png', 'jpeg', 'webp'];
-
-const buildHeroImageCandidates = (articleId?: string, assetId?: string): string[] => {
-  if (!assetId) return [];
-  
-  const candidates: string[] = [];
-  
-  // Priority 1: Library CDN URLs (work in production for logged-out users)
-  // Format: https://cdn.quizzence.com/library/{assetId}.{ext}
-  // Try most common extensions first to reduce flickering
-  for (const ext of IMAGE_EXTENSIONS) {
-    candidates.push(`${LIBRARY_CDN_BASE}/${assetId}.${ext}`);
-  }
-  
-  // Priority 2: Article-specific CDN URLs (may work in some environments)
-  // Format: https://cdn.quizzence.com/articles/{articleId}/{assetId}.{ext}
-  if (articleId) {
-    const base = `${HERO_IMAGE_CDN_BASE}/${articleId}/${assetId}`;
-    for (const ext of IMAGE_EXTENSIONS) {
-      candidates.push(`${base}.${ext}`);
-    }
-  }
-  
-  return candidates;
-};
-
-const BlogArticlePage: React.FC = () => {
+const BlogArticleContent: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [heroImageSrc, setHeroImageSrc] = useState<string | null>(null);
+  const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(() => new Set());
   const [expandedFaqs, setExpandedFaqs] = useState<Set<string>>(new Set());
 
   const isAdmin = useMemo(
@@ -77,95 +47,12 @@ const BlogArticlePage: React.FC = () => {
     },
   });
 
-  // Preload image to find working URL without flickering
-  useEffect(() => {
-    let isActive = true;
-    let preloadImage: HTMLImageElement | null = null;
-
-    const heroImage = article?.heroImage;
-
-    if (!heroImage?.assetId) {
-      setHeroImageSrc(null);
-      return () => {
-        isActive = false;
-        if (preloadImage) {
-          preloadImage.onload = null;
-          preloadImage.onerror = null;
-        }
-      };
-    }
-
-    // Build CDN URL candidates and preload to find working one
-    // Note: Backend does NOT provide url field in ArticleImageDto, only assetId
-    const candidates = buildHeroImageCandidates(article?.id, heroImage.assetId);
-
-    if (candidates.length === 0) {
-      setHeroImageSrc(null);
-      return () => {
-        isActive = false;
-      };
-    }
-
-    // Preload strategy: test candidates in order, set src only when one loads successfully
-    const testCandidate = (index: number): void => {
-      if (!isActive || index >= candidates.length) {
-        return;
-      }
-
-      const url = candidates[index];
-      preloadImage = new Image();
-      
-      preloadImage.onload = () => {
-        if (!isActive) return;
-        setHeroImageSrc(url);
-        preloadImage = null;
-      };
-
-      preloadImage.onerror = () => {
-        if (!isActive) return;
-        // Try next candidate
-        testCandidate(index + 1);
-      };
-
-      preloadImage.src = url;
-    };
-
-    // Start testing from first candidate
-    testCandidate(0);
-
-    // Priority: Try to fetch CDN URL via searchAssets if user is logged in (requires auth)
-    // This can override the preload if it finds a URL faster
-    if (user) {
-      const loadHeroImage = async () => {
-        try {
-          const { items } = await mediaService.searchAssets({
-            type: 'IMAGE',
-            query: heroImage.assetId,
-            limit: 5,
-          });
-          if (!isActive) return;
-          const match = items.find((item) => item.assetId === heroImage.assetId);
-          if (match?.cdnUrl) {
-            // Use the authenticated URL immediately if found
-            setHeroImageSrc(match.cdnUrl);
-          }
-        } catch (err) {
-          // Silently fail - preload candidates should work
-        }
-      };
-
-      loadHeroImage();
-    }
-
-    return () => {
-      isActive = false;
-      if (preloadImage) {
-        preloadImage.onload = null;
-        preloadImage.onerror = null;
-        preloadImage = null;
-      }
-    };
-  }, [article?.id, article?.heroImage?.assetId, user]);
+  const preferredHeroImage = article ? getArticleHeroImage(article) : null;
+  const heroImage = preferredHeroImage && !failedImageUrls.has(preferredHeroImage.url)
+    ? preferredHeroImage
+    : article && !failedImageUrls.has(ARTICLE_FALLBACK_IMAGE.url)
+      ? ARTICLE_FALLBACK_IMAGE
+      : null;
 
   const breadcrumbItems = useMemo((): BreadcrumbItem[] => {
     const items: BreadcrumbItem[] = [
@@ -218,7 +105,7 @@ const BlogArticlePage: React.FC = () => {
   // Always provide canonicalPath even if article hasn't loaded yet
   // This prevents fallback to window.location.pathname or homepage
   const seoConfig = article 
-    ? buildArticleSeoConfig(article)
+    ? buildArticleSeoConfig(article, heroImage)
     : {
         title: 'Loading...',
         canonicalPath: `/blog/${normalizedSlug}/`, // Always use trailing slash
@@ -287,16 +174,21 @@ const BlogArticlePage: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    {article.heroImage && heroImageSrc && (
+                    {heroImage && (
                       <div className="w-full">
                         <img
-                          src={heroImageSrc}
-                          alt={article.heroImage.alt}
+                          data-article-hero
+                          key={heroImage.url}
+                          src={heroImage.url}
+                          alt={heroImage.alt || ''}
+                          width={heroImage.width}
+                          height={heroImage.height}
+                          onError={() => setFailedImageUrls(previous => new Set(previous).add(heroImage.url))}
                           className="w-full h-auto rounded-lg border border-theme-border-primary"
                         />
-                        {article.heroImage.caption && (
+                        {heroImage.caption && (
                           <p className="mt-2 text-sm text-theme-text-tertiary italic text-center">
-                            {article.heroImage.caption}
+                            {heroImage.caption}
                           </p>
                         )}
                       </div>
@@ -520,6 +412,12 @@ const BlogArticlePage: React.FC = () => {
       </div>
     </>
   );
+};
+
+const BlogArticlePage: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  // A new article gets a fresh image-loading lifecycle, including when revisited.
+  return <BlogArticleContent key={slug} />;
 };
 
 export default BlogArticlePage;
