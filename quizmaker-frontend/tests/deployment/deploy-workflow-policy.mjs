@@ -34,8 +34,16 @@ const main = async () => {
     ['deployment', workflow],
     ['pull request', prWorkflow],
   ]) {
+    const installIndex = validationWorkflow.indexOf('run: npm ci');
+    const auditIndex = validationWorkflow.indexOf('run: npm run audit:production');
     const validationBuildIndex = validationWorkflow.indexOf('run: npm run build:prerender:static');
     const privacyTestIndex = validationWorkflow.indexOf('run: npm run test:privacy:production');
+    assert.ok(installIndex >= 0, `Expected locked dependency installation in the ${name} workflow`);
+    assert.ok(auditIndex >= 0, `Expected the production dependency audit in the ${name} workflow`);
+    assert.ok(
+      installIndex < auditIndex && auditIndex < validationBuildIndex,
+      `Expected the ${name} workflow to audit installed dependencies before building`,
+    );
     assert.ok(validationBuildIndex >= 0, `Expected a production build in the ${name} workflow`);
     assert.ok(privacyTestIndex >= 0, `Expected the analytics privacy test in the ${name} workflow`);
     assert.ok(
