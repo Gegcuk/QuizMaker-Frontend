@@ -1,273 +1,84 @@
-// src/features/billing/components/BillingSuccessPage.tsx
-// ---------------------------------------------------------------------------
-// Handles the Stripe success redirect. Confirms checkout status via API,
-// polls while pending, and refreshes balance once credited.
-// ---------------------------------------------------------------------------
-
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  PageHeader,
-  Card,
-  CardBody,
-  Button,
-  Alert,
-  Spinner,
-} from '@/components';
-import { billingService } from '@/services';
-import type { CheckoutSessionStatus, BalanceDto } from '@/types';
+import { PageHeader, Card, CardBody, Button, Alert, Spinner } from '@/components';
+import { useAuth } from '@/features/auth';
 import { Seo } from '@/features/seo';
-import {
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-  ArrowPathIcon,
-} from '@heroicons/react/24/outline';
-import { useSensitiveReturn } from '@/features/privacy';
+import { MAX_CHECKOUT_CHECKS, useCheckoutReconciliation, type CheckoutPhase } from '../hooks/useCheckoutReconciliation';
 
-const POLL_DELAY_MS = 2000;
-const MAX_POLL_ATTEMPTS = 5;
+const messages: Record<CheckoutPhase, { title: string; detail: string }> = {
+  checking: { title: 'Checking checkout', detail: 'Requesting the latest payment and token credit status.' },
+  waiting: { title: 'Waiting for confirmation', detail: 'Another automatic check is scheduled. Confirmation can take a few minutes.' },
+  offline: { title: 'You’re offline', detail: 'Checks are paused. When you reconnect, we’ll check once for an update.' },
+  exhausted: { title: 'Automatic checks stopped', detail: 'Confirmation is taking longer than expected. Choose Check again to start another bounded check.' },
+  failed: { title: 'Payment failed', detail: 'This payment failed. Review your billing history before starting another purchase.' },
+  refunded: { title: 'Payment refunded', detail: 'This payment was fully refunded. Review your billing history for the current balance and transaction details.' },
+  'partially-refunded': { title: 'Payment partially refunded', detail: 'This payment was partially refunded. Review your billing history for the current balance and transaction details.' },
+  unknown: { title: 'Checkout status unavailable', detail: 'We could not confirm the latest checkout status. Automatic checks have stopped. You can check again.' },
+  credited: { title: 'Payment confirmed — tokens credited', detail: 'Your tokens have been credited.' },
+  unavailable: { title: 'Checkout recovery unavailable', detail: 'This checkout cannot be recovered for the current account. Review your billing history or contact support to confirm the purchase.' },
+  expired: { title: 'Checkout recovery expired', detail: 'The five-minute recovery window has ended. Review your billing history or contact support to confirm the purchase.' },
+};
+
+const CheckoutConfirmation = ({ accountId }: { accountId: string }) => {
+  const navigate = useNavigate();
+  const checkout = useCheckoutReconciliation(accountId);
+  const message = messages[checkout.phase];
+  const retryable = ['checking', 'waiting', 'offline', 'exhausted', 'unknown'].includes(checkout.phase);
+  return (
+    <Card variant="default" padding="lg">
+      <CardBody className="space-y-4">
+        <div role="status" aria-live="polite" aria-atomic="true" className="space-y-3">
+          <h2 className="text-lg font-semibold text-theme-text-primary">{message.title}</h2>
+          <p className="text-sm text-theme-text-secondary">{message.detail}</p>
+          {checkout.paymentConfirmed && checkout.phase !== 'credited' && (
+            <p className="text-sm text-theme-text-primary">Payment succeeded. Tokens are still awaiting credit.</p>
+          )}
+          {checkout.phase === 'credited' && checkout.creditedTokens !== null && (
+            <p className="text-sm text-theme-text-secondary">Credited: {checkout.creditedTokens.toLocaleString()} tokens</p>
+          )}
+          {retryable && <p className="text-xs text-theme-text-tertiary">Automatic checks: {checkout.checks} of {MAX_CHECKOUT_CHECKS}</p>}
+        </div>
+        {checkout.balanceState === 'loading' && <p className="text-sm text-theme-text-secondary">Refreshing your balance…</p>}
+        {checkout.balanceState === 'error' && (
+          <Alert type="warning">Tokens are credited, but the latest balance could not be loaded. Refresh the balance or review billing.</Alert>
+        )}
+        {checkout.balance && (
+          <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary p-4">
+            <p className="text-sm font-semibold text-theme-text-primary">Updated balance</p>
+            <p className="text-2xl font-bold text-theme-interactive-primary">{checkout.balance.availableTokens.toLocaleString()} tokens</p>
+            <p className="text-xs text-theme-text-tertiary">Reserved: {checkout.balance.reservedTokens.toLocaleString()}</p>
+          </div>
+        )}
+        <div className="flex flex-wrap gap-3">
+          {retryable && (
+            <Button variant="secondary" onClick={checkout.retry} disabled={checkout.phase === 'checking' || checkout.phase === 'offline'}>
+              {checkout.phase === 'checking' ? 'Checking…' : 'Check again'}
+            </Button>
+          )}
+          {checkout.balanceState === 'error' && <Button variant="secondary" onClick={checkout.refreshBalance}>Refresh balance</Button>}
+          <Button onClick={() => navigate('/billing')}>Go to billing</Button>
+        </div>
+        {checkout.phase !== 'credited' && (
+          <p className="text-sm text-theme-text-secondary">
+            If confirmation remains unresolved, contact support@quizzence.com with your purchase date and receipt.
+            Checking again does not make another purchase. Avoid purchasing again while confirmation is unresolved.
+          </p>
+        )}
+      </CardBody>
+    </Card>
+  );
+};
 
 const BillingSuccessPage: React.FC = () => {
-  const navigate = useNavigate();
-  const checkoutReturn = useSensitiveReturn('billingCheckout');
-  const sessionId = checkoutReturn?.sessionId ?? null;
-
-  const [checkoutStatus, setCheckoutStatus] = useState<CheckoutSessionStatus | null>(null);
-  const [balance, setBalance] = useState<BalanceDto | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPolling, setIsPolling] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cancelledRef = useRef(false);
-
-  const normalizedStatus = (checkoutStatus?.status ?? '').toUpperCase();
-  const isSuccess = normalizedStatus === 'SUCCEEDED' || checkoutStatus?.credited;
-  const isPending = normalizedStatus === 'PENDING' && !checkoutStatus?.credited;
-  const isFailure =
-    normalizedStatus === 'FAILED' ||
-    normalizedStatus === 'REFUNDED' ||
-    normalizedStatus === 'PARTIALLY_REFUNDED';
-  const creditedTokens = checkoutStatus?.creditedTokens;
-  const hasCreditedTokens = creditedTokens !== null && creditedTokens !== undefined;
-
-  const loadBalance = useCallback(async () => {
-    try {
-      const latestBalance = await billingService.getBalance();
-      if (!cancelledRef.current) {
-        setBalance(latestBalance);
-      }
-    } catch {
-      // Balance fetch failures are non-blocking here
-    }
-  }, []);
-
-  const pollStatus = useCallback(
-    async (attempt = 0) => {
-      if (!sessionId || cancelledRef.current) return;
-
-      setIsPolling(true);
-      setError(null);
-
-      try {
-        const statusResponse = await billingService.getCheckoutSessionStatus(sessionId);
-        if (cancelledRef.current) return;
-
-        setCheckoutStatus(statusResponse);
-        setAttempts(attempt + 1);
-
-        const statusUpper = (statusResponse.status ?? '').toUpperCase();
-        const succeeded = statusUpper === 'SUCCEEDED' || statusResponse.credited;
-        const stillPending = statusUpper === 'PENDING' && !statusResponse.credited;
-
-        if (succeeded) {
-          await loadBalance();
-          return;
-        }
-
-        if (stillPending && attempt < MAX_POLL_ATTEMPTS - 1) {
-          timeoutRef.current = setTimeout(() => {
-            void pollStatus(attempt + 1);
-          }, POLL_DELAY_MS);
-        }
-      } catch (err) {
-        if (cancelledRef.current) return;
-        const message =
-          (err as any)?.response?.data?.message ||
-          (err as Error)?.message ||
-          'Failed to confirm checkout status.';
-        setError(message);
-      } finally {
-        if (!cancelledRef.current) {
-          setIsPolling(false);
-        }
-      }
-    },
-    [loadBalance, sessionId],
-  );
-
-  useEffect(() => {
-    cancelledRef.current = false;
-
-    if (sessionId) {
-      void pollStatus(0);
-    } else {
-      setError('Missing Stripe session id. Please return to billing to retry.');
-    }
-
-    return () => {
-      cancelledRef.current = true;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [pollStatus, sessionId]);
-
-  const handleRetry = () => {
-    if (!sessionId) {
-      navigate('/billing');
-      return;
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setAttempts(0);
-    void pollStatus(0);
-  };
-
+  const { user, isLoading } = useAuth();
   return (
     <>
-      <Seo
-        title="Checkout Confirmation | Quizzence"
-        description="Confirm your Stripe checkout status and token crediting."
-        canonicalPath="/billing/success"
-        ogType="website"
-        noindex
-      />
-
-      <PageHeader
-        title="Checkout confirmation"
-        subtitle="We’re confirming your purchase and updating your token balance."
-        showBreadcrumb
-      />
-
+      <Seo title="Checkout Confirmation | Quizzence" description="Confirm your checkout status and token crediting." canonicalPath="/billing/success" ogType="website" noindex />
+      <PageHeader title="Checkout confirmation" subtitle="Check the latest payment, token credit, and balance information." showBreadcrumb />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Card variant="default" padding="lg">
-          <CardBody className="space-y-4">
-            {error && (
-              <Alert type="error">
-                {error}
-              </Alert>
-            )}
-
-            {!sessionId ? (
-              <div className="space-y-4">
-                <p className="text-sm text-theme-text-secondary">
-                  We couldn’t find your Stripe session. Return to billing to start a new checkout.
-                </p>
-                <Button type="button" variant="primary" onClick={() => navigate('/billing')}>
-                  Back to billing
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-end gap-3">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRetry}
-                    disabled={isPolling}
-                    leftIcon={<ArrowPathIcon className="w-4 h-4" />}
-                  >
-                    {isPolling ? 'Checking…' : 'Check again'}
-                  </Button>
-                </div>
-
-                <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    {isSuccess ? (
-                      <CheckCircleIcon className="h-6 w-6 text-theme-interactive-success" />
-                    ) : isFailure ? (
-                      <XCircleIcon className="h-6 w-6 text-theme-interactive-danger" />
-                    ) : (
-                      <ClockIcon className="h-6 w-6 text-theme-interactive-warning" />
-                    )}
-                    <div>
-                      <p className="text-sm font-semibold text-theme-text-primary">
-                        {isSuccess
-                          ? 'Payment confirmed'
-                          : isFailure
-                          ? 'Payment failed or refunded'
-                          : 'Payment processing'}
-                      </p>
-                      <p className="text-xs text-theme-text-secondary">
-                        {isSuccess
-                          ? checkoutStatus?.credited
-                            ? 'Tokens have been added to your balance.'
-                            : 'Payment succeeded. Waiting for tokens to credit...'
-                          : isFailure
-                          ? 'Please try again or contact support if this persists.'
-                          : 'This can take a few seconds. We’ll keep checking automatically.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-theme-text-secondary">
-                    <div className="rounded border border-theme-border-primary bg-theme-bg-secondary p-3">
-                      <p className="font-semibold text-theme-text-primary mb-1">Status</p>
-                      <p className="uppercase tracking-wide text-theme-interactive-primary">
-                        {normalizedStatus || 'UNKNOWN'}
-                      </p>
-                    </div>
-                    <div className="rounded border border-theme-border-primary bg-theme-bg-secondary p-3">
-                      <p className="font-semibold text-theme-text-primary mb-1">Credited</p>
-                      <p>
-                        {checkoutStatus?.credited
-                          ? `Yes${hasCreditedTokens ? ` (${creditedTokens!.toLocaleString()} tokens)` : ''}`
-                          : 'Not yet'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-theme-text-tertiary">
-                    <span>Attempt {attempts} of {MAX_POLL_ATTEMPTS}</span>
-                    {isPolling && (
-                      <span className="flex items-center gap-2">
-                        <Spinner size="sm" />
-                        Checking…
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {balance ? (
-                  <div className="rounded-md border border-theme-border-primary bg-theme-bg-primary p-4">
-                    <p className="text-sm font-semibold text-theme-text-primary">Updated balance</p>
-                    <p className="text-2xl font-bold text-theme-interactive-primary">
-                      {balance.availableTokens.toLocaleString()} tokens
-                    </p>
-                    <p className="text-xs text-theme-text-tertiary">
-                      Reserved: {balance.reservedTokens.toLocaleString()}
-                    </p>
-                  </div>
-                ) : null}
-
-                <div className="flex flex-wrap gap-3">
-                  <Button type="button" variant="primary" onClick={() => navigate('/billing')}>
-                    Go to billing
-                  </Button>
-                  {isFailure && (
-                    <Button type="button" variant="secondary" onClick={() => navigate('/billing')}>
-                      Try again
-                    </Button>
-                  )}
-                </div>
-              </>
-            )}
-          </CardBody>
-        </Card>
+        {isLoading ? <Spinner /> : user ? <CheckoutConfirmation key={user.id} accountId={user.id} /> : (
+          <Alert type="warning">Sign in to the account used for this purchase to view billing.</Alert>
+        )}
       </div>
     </>
   );

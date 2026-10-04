@@ -11,6 +11,7 @@ import { FeatureFlagProvider } from './utils';
 import { ThemeProvider } from './context/ThemeContext';
 import { AnalyticsProvider } from './features/analytics';
 import { SensitiveUrlBoundary } from './features/privacy';
+import { CheckoutRecoveryLifecycle } from './features/billing/components/CheckoutRecoveryLifecycle';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <FeatureFlagProvider>
             <QueryProvider>
               <AuthProvider>
+                <CheckoutRecoveryLifecycle />
                 <ToastProvider>
                   <AppRoutes />
                 </ToastProvider>

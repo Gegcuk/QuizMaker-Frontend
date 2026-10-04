@@ -1,4 +1,5 @@
 import { isAxiosError, type AxiosInstance } from 'axios';
+import { decodeCheckoutStatus } from './checkoutStatus';
 import { BILLING_ENDPOINTS } from './billing.endpoints';
 import type {
   BillingConfigResponse,
@@ -101,9 +102,9 @@ export class BillingService {
    * GET /api/v1/billing/balance
    * Returns the authenticated user's billing token balance
    */
-  async getBalance(): Promise<BalanceDto> {
+  async getBalance(signal?: AbortSignal): Promise<BalanceDto> {
     try {
-      const response = await this.axiosInstance.get<BalanceDto>(BILLING_ENDPOINTS.BALANCE);
+      const response = await this.axiosInstance.get<BalanceDto>(BILLING_ENDPOINTS.BALANCE, ...(signal ? [{ signal }] : []));
       return response.data;
     } catch (error) {
       throw this.handleBillingError(error);
@@ -199,12 +200,13 @@ export class BillingService {
    * GET /api/v1/billing/checkout-sessions/{sessionId}
    * Get checkout session status
    */
-  async getCheckoutSessionStatus(sessionId: string): Promise<CheckoutSessionStatus> {
+  async getCheckoutSessionStatus(sessionId: string, signal?: AbortSignal): Promise<CheckoutSessionStatus> {
     try {
-      const response = await this.axiosInstance.get<CheckoutSessionStatus>(
-        BILLING_ENDPOINTS.CHECKOUT_SESSION_BY_ID(sessionId)
+      const response = await this.axiosInstance.get<unknown>(
+        BILLING_ENDPOINTS.CHECKOUT_SESSION_BY_ID(sessionId),
+        ...(signal ? [{ signal }] : []),
       );
-      return response.data;
+      return decodeCheckoutStatus(response.data, sessionId);
     } catch (error) {
       throw this.handleBillingError(error);
     }

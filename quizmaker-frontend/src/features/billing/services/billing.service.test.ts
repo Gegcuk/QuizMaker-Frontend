@@ -177,6 +177,28 @@ describe('BillingService', () => {
     expect(axios.get).toHaveBeenCalledWith('/v1/billing/checkout-sessions/session-1');
   });
 
+  it.each([
+    null, {}, { sessionId: 'session-1', status: 42, credited: false, creditedTokens: null },
+    { sessionId: 'other-session', status: 'SUCCEEDED', credited: true, creditedTokens: 1000 },
+    { sessionId: 'session-1', status: 'SUCCEEDED', credited: 'true', creditedTokens: 1000 },
+    { sessionId: 'session-1', status: 'SUCCEEDED', credited: true, creditedTokens: -1 },
+    { sessionId: 'session-1', status: 'SUCCEEDED', credited: true, creditedTokens: '1000' },
+    { sessionId: 'session-1', status: 'SUCCEEDED', credited: true, creditedTokens: 1.5 },
+  ])('rejects malformed or mismatched checkout responses', async data => {
+    axios.get.mockResolvedValue({ data });
+    await expect(service.getCheckoutSessionStatus('session-1')).rejects.toThrow('Invalid checkout response');
+  });
+
+  it('passes cancellation to status and balance reads and encodes the checkout reference', async () => {
+    const controller = new AbortController();
+    axios.get.mockResolvedValueOnce({ data: { sessionId: 'session/1?', status: 'PENDING', credited: false, creditedTokens: null } })
+      .mockResolvedValueOnce({ data: balance });
+    await service.getCheckoutSessionStatus('session/1?', controller.signal);
+    await service.getBalance(controller.signal);
+    expect(axios.get).toHaveBeenNthCalledWith(1, '/v1/billing/checkout-sessions/session%2F1%3F', { signal: controller.signal });
+    expect(axios.get).toHaveBeenNthCalledWith(2, '/v1/billing/balance', { signal: controller.signal });
+  });
+
   it('creates and retrieves a Stripe customer', async () => {
     const request = { email: 'architect@example.com' };
     const customer: CustomerResponse = {

@@ -16,7 +16,7 @@ export const BILLING_ENDPOINTS = {
   
   // Stripe checkout
   CHECKOUT_SESSIONS: '/v1/billing/checkout-sessions',
-  CHECKOUT_SESSION_BY_ID: (sessionId: string) => `/v1/billing/checkout-sessions/${sessionId}`,
+  CHECKOUT_SESSION_BY_ID: (sessionId: string) => `/v1/billing/checkout-sessions/${encodeURIComponent(sessionId)}`,
   
   // Stripe customer management
   CREATE_CUSTOMER: '/v1/billing/create-customer',
