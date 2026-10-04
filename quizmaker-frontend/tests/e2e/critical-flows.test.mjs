@@ -4,10 +4,11 @@ import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
+import { createTestContext } from '../fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
 const PORT = 4181;
-const BASE_URL = `http://${HOST}:${PORT}`;
+const BASE_URL = process.env.RELEASE_BASE_URL || `http://${HOST}:${PORT}`;
 const USER_ID = '11111111-1111-4111-8111-111111111111';
 const QUIZ_ID = '22222222-2222-4222-8222-222222222222';
 const ATTEMPT_ID = '33333333-3333-4333-8333-333333333333';
@@ -53,6 +54,7 @@ const createDevServer = () =>
   );
 
 const stopDevServer = async (server) => {
+  if (!server) return;
   if (server.exitCode !== null || server.signalCode !== null) {
     return;
   }
@@ -494,7 +496,7 @@ const getHorizontalOverflowingElements = async (page) =>
   });
 
 test('critical frontend journeys use local mocked API responses', { timeout: 120_000 }, async () => {
-  const server = createDevServer();
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
 
   try {
@@ -502,8 +504,8 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     browser = await chromium.launch();
 
     {
-      const page = await (await browser.newContext()).newPage();
-      const publicRoutes = ['/', '/terms', '/privacy', '/faq', '/roadmap', '/values'];
+      const page = await (await createTestContext(browser)).newPage();
+      const publicRoutes = ['/', '/terms/', '/privacy/', '/faq/', '/roadmap/', '/values/'];
 
       try {
         await installUnexpectedApiBlock(page);
@@ -529,8 +531,8 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const successPage = await (await browser.newContext()).newPage();
-      const errorPage = await (await browser.newContext()).newPage();
+      const successPage = await (await createTestContext(browser)).newPage();
+      const errorPage = await (await createTestContext(browser)).newPage();
 
       try {
         await installUnexpectedApiBlock(successPage);
@@ -579,10 +581,10 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const registerSuccessPage = await (await browser.newContext()).newPage();
-      const registerErrorPage = await (await browser.newContext()).newPage();
-      const resetSuccessPage = await (await browser.newContext()).newPage();
-      const resetErrorPage = await (await browser.newContext()).newPage();
+      const registerSuccessPage = await (await createTestContext(browser)).newPage();
+      const registerErrorPage = await (await createTestContext(browser)).newPage();
+      const resetSuccessPage = await (await createTestContext(browser)).newPage();
+      const resetErrorPage = await (await createTestContext(browser)).newPage();
 
       try {
         await installUnexpectedApiBlock(registerSuccessPage);
@@ -633,7 +635,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let createdQuizRequest = null;
 
       try {
@@ -716,7 +718,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let generationRequest = null;
       let generationStatusRequests = 0;
 
@@ -803,7 +805,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let uploadRequest = null;
       let generationStatusRequests = 0;
 
@@ -900,7 +902,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedFillGapAnswer = null;
 
       try {
@@ -993,7 +995,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedMatchingAnswer = null;
 
       try {
@@ -1111,7 +1113,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedMultiChoiceAnswer = null;
 
       try {
@@ -1155,7 +1157,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedTrueFalseAnswer = null;
 
       try {
@@ -1198,7 +1200,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedComplianceAnswer = null;
 
       try {
@@ -1242,7 +1244,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedOrderingAnswer = null;
 
       try {
@@ -1287,7 +1289,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       let submittedHotspotAnswer = null;
 
       try {
@@ -1334,7 +1336,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       const proPackId = '60606060-6060-4060-8060-606060606060';
       let checkoutRequest = null;
       let packRequestCount = 0;
@@ -1424,7 +1426,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext()).newPage();
+      const page = await (await createTestContext(browser)).newPage();
       const updateRequests = new Map();
 
       try {
@@ -1503,7 +1505,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     }
 
     {
-      const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+      const page = await (await createTestContext(browser, { viewport: { width: 390, height: 844 } })).newPage();
       let submittedAnswer = null;
       let reviewQuery = null;
 

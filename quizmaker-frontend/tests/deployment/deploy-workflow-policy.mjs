@@ -20,42 +20,27 @@ const main = async () => {
     assert.match(dockerignore, new RegExp(`^${allowedPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'));
   }
 
-  assert.match(workflow, /cp quizmaker-frontend\/\.dockerignore deployment\//);
-  assert.match(workflow, /for attempt in 1 2 3;/);
-  assert.match(workflow, /compose up -d --no-build/);
-
-  const buildIndex = workflow.indexOf('compose build --no-cache');
-  const stopIndex = workflow.indexOf('compose down');
-  assert.ok(buildIndex >= 0, 'Expected deployment to build the replacement image');
-  assert.ok(stopIndex >= 0, 'Expected deployment to stop the previous container after a successful build');
-  assert.ok(buildIndex < stopIndex, 'Expected the replacement image to build before the previous container stops');
-
-  for (const [name, validationWorkflow] of [
-    ['deployment', workflow],
-    ['pull request', prWorkflow],
-  ]) {
-    const installIndex = validationWorkflow.indexOf('run: npm ci');
-    const auditIndex = validationWorkflow.indexOf('run: npm run audit:production');
-    const validationBuildIndex = validationWorkflow.indexOf('run: npm run build:prerender:static');
-    const privacyTestIndex = validationWorkflow.indexOf('run: npm run test:privacy:production');
-    assert.ok(installIndex >= 0, `Expected locked dependency installation in the ${name} workflow`);
-    assert.ok(auditIndex >= 0, `Expected the production dependency audit in the ${name} workflow`);
-    assert.ok(
-      installIndex < auditIndex && auditIndex < validationBuildIndex,
-      `Expected the ${name} workflow to audit installed dependencies before building`,
-    );
-    assert.ok(validationBuildIndex >= 0, `Expected a production build in the ${name} workflow`);
-    assert.ok(privacyTestIndex >= 0, `Expected the analytics privacy test in the ${name} workflow`);
-    assert.ok(
-      validationBuildIndex < privacyTestIndex,
-      `Expected the ${name} workflow to test analytics privacy against built assets`,
-    );
-  }
-
-  assert.match(workflow, /name: Verify public routes in production[\s\S]*run: npm run verify:public-routes/);
-  assert.match(workflow, /PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'/);
-  assert.match(workflow, /PUBLIC_ROUTE_SITEMAP_OWNER: 'backend'/);
-  assert.match(workflow, /REQUIRE_ARTICLE_ROUTES: 'true'/);
+  const buildScript = await fs.readFile(path.join(repositoryRoot, 'quizmaker-frontend/scripts/deployment/build-release.sh'), 'utf8');
+  const verifier = await fs.readFile(path.join(repositoryRoot, 'quizmaker-frontend/scripts/deployment/test-release.mjs'), 'utf8');
+  const producer = workflow.split('  deploy:')[0];
+  const consumer = workflow.split('  deploy:')[1];
+  assert.equal((buildScript.match(/npm run build:prerender/g) ?? []).length, 1);
+  assert.equal((buildScript.match(/docker build /g) ?? []).length, 1);
+  assert.ok(producer.indexOf('run: npm run audit:production') < producer.indexOf('run: bash scripts/deployment/build-release.sh'));
+  assert.ok(producer.indexOf('run: npm run test:release') < producer.indexOf('uses: actions/upload-artifact@'));
+  assert.match(consumer, /needs: validate/);
+  assert.match(consumer, /artifact-ids: \$\{\{ needs.validate.outputs.artifact_id \}\}/);
+  assert.match(consumer, /artifact.py verify --digest/);
+  assert.doesNotMatch(consumer, /npm (?:ci|run build)|docker (?:build|compose)|compose down|--delete|install-helper/);
+  assert.doesNotMatch(verifier, /\['build'|docker build|npm run build/);
+  for (const gate of ['test:nginx', 'test:smoke', 'test:e2e', 'test:privacy:production']) assert.ok(verifier.includes(gate));
+  assert.match(consumer, /consumer_completed=true/);
+  assert.match(workflow, /cancel-in-progress: false/);
+  assert.match(producer, /if: github.ref == 'refs\/heads\/main'/);
+  assert.match(consumer, /if: github.ref == 'refs\/heads\/main'/);
+  assert.doesNotMatch(workflow, /actions: write|id-token: write|contents: write/);
+  assert.doesNotMatch(prWorkflow, /secrets\.|ssh-action|rsync-deployments/);
+  assert.ok(prWorkflow.indexOf('run: npm run build:prerender:static') < prWorkflow.indexOf('run: npm run test:privacy:production'));
 
   const bootstrapMatch = indexHtml.match(
     /<script id="sensitive-url-bootstrap">([\s\S]*?)<\/script>/,

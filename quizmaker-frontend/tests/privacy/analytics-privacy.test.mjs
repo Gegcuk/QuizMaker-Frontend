@@ -4,10 +4,11 @@ import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
+import { createTestContext } from '../fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
 const PORT = 4184;
-const BASE_URL = `http://${HOST}:${PORT}`;
+const BASE_URL = process.env.RELEASE_BASE_URL || `http://${HOST}:${PORT}`;
 
 const createPreviewServer = () =>
   spawn(
@@ -21,6 +22,7 @@ const createPreviewServer = () =>
   );
 
 const stopPreviewServer = async (server) => {
+  if (!server) return;
   if (server.exitCode !== null || server.signalCode !== null) return;
   server.kill('SIGKILL');
   await Promise.race([once(server, 'exit'), delay(2_000)]);
@@ -66,7 +68,7 @@ const readPrivacyState = (page) =>
   }));
 
 test('production analytics never receives URL canaries', { timeout: 60_000 }, async () => {
-  const server = createPreviewServer();
+  const server = process.env.RELEASE_BASE_URL ? null : createPreviewServer();
   let browser;
 
   try {
@@ -101,7 +103,7 @@ test('production analytics never receives URL canaries', { timeout: 60_000 }, as
     ];
 
     for (const sensitiveReturn of sensitiveReturns) {
-      const context = await browser.newContext();
+      const context = await createTestContext(browser);
       await interceptGoogleTag(context);
       await context.route(`${BASE_URL}/assets/*.js`, (route) =>
         route.fulfill({ status: 200, contentType: 'application/javascript', body: '' }));
@@ -129,7 +131,7 @@ test('production analytics never receives URL canaries', { timeout: 60_000 }, as
       await context.close();
     }
 
-    const resetContext = await browser.newContext();
+    const resetContext = await createTestContext(browser);
     await interceptGoogleTag(resetContext);
     const resetPage = await resetContext.newPage();
     await resetPage.goto(
@@ -145,11 +147,11 @@ test('production analytics never receives URL canaries', { timeout: 60_000 }, as
     assert.doesNotMatch(consumedResetState.dataLayer, /consumed-reset-canary|unknown-canary|hash-canary/);
     await resetContext.close();
 
-    const context = await browser.newContext();
+    const context = await createTestContext(browser);
     await interceptGoogleTag(context);
     const page = await context.newPage();
     await page.goto(
-      `${BASE_URL}/blog/article-slug-canary?token=query-canary&email=email-canary#hash-canary`,
+      `${BASE_URL}/blog/article-slug-canary/?token=query-canary&email=email-canary#hash-canary`,
       { waitUntil: 'domcontentloaded' },
     );
     await page.waitForFunction(() =>
@@ -176,7 +178,7 @@ test('production analytics never receives URL canaries', { timeout: 60_000 }, as
 
 
 test('production checkout recovery preserves privacy and backend authority on desktop and mobile', { timeout: 60_000 }, async () => {
-  const server = createPreviewServer();
+  const server = process.env.RELEASE_BASE_URL ? null : createPreviewServer();
   let browser;
   const accountId = '11111111-1111-4111-8111-111111111111';
   const recoveryKey = 'quizzence:billing:checkout-recovery:v1';
@@ -185,7 +187,7 @@ test('production checkout recovery preserves privacy and backend authority on de
     await waitForServer(BASE_URL);
     browser = await chromium.launch();
     for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
-      const context = await browser.newContext({ viewport });
+      const context = await createTestContext(browser, { viewport });
       const unexpected = [];
       let credited = false;
       let statusReads = 0;
