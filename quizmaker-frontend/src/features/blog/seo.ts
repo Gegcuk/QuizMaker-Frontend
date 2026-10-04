@@ -1,6 +1,7 @@
 import type { ArticleData, ArticleDto } from './types';
 import { SITE_URL } from '@/features/seo';
 import type { SeoConfig, StructuredData } from '@/features/seo';
+import { getArticleSocialImage, type ArticlePresentationImage } from './articleImages';
 
 const getBaseSiteUrl = (): string => SITE_URL.replace(/\/$/, '');
 
@@ -15,9 +16,13 @@ export const getArticleCanonicalUrl = (article: { slug: string }): string => {
   return `${baseUrl}${getArticleCanonicalPath(article)}`;
 };
 
-export const buildArticleStructuredData = (article: ArticleInput): StructuredData[] => {
+export const buildArticleStructuredData = (
+  article: ArticleInput,
+  heroImage?: ArticlePresentationImage | null,
+): StructuredData[] => {
   const canonicalUrl = getArticleCanonicalUrl(article);
   const baseSiteUrl = getBaseSiteUrl();
+  const image = getArticleSocialImage('heroImage' in article || 'ogImage' in article ? article : {}, heroImage);
 
   const articleSchema: StructuredData = {
     '@context': 'https://schema.org',
@@ -32,6 +37,15 @@ export const buildArticleStructuredData = (article: ArticleInput): StructuredDat
     },
     mainEntityOfPage: canonicalUrl,
     articleSection: article.tags,
+    ...(image ? {
+      image: {
+        '@type': 'ImageObject',
+        url: image.url,
+        ...(image.width ? { width: image.width } : {}),
+        ...(image.height ? { height: image.height } : {}),
+        ...(image.mimeType ? { encodingFormat: image.mimeType } : {}),
+      },
+    } : {}),
   };
 
   const breadcrumbSchema: StructuredData = {
@@ -86,13 +100,17 @@ const normalizeCanonicalUrl = (url: string): string | undefined => {
   }
 };
 
-export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => {
+export const buildArticleSeoConfig = (
+  article: ArticleInput,
+  heroImage?: ArticlePresentationImage | null,
+): SeoConfig => {
   // Normalize DB canonicalUrl if present (add trailing slash for blog articles)
   // If invalid/empty, will be undefined and fall back to canonicalPath
   let canonicalUrl: string | undefined = undefined;
   if ('canonicalUrl' in article && article.canonicalUrl) {
     canonicalUrl = normalizeCanonicalUrl(article.canonicalUrl);
   }
+  const image = getArticleSocialImage('heroImage' in article || 'ogImage' in article ? article : {}, heroImage);
   
   return {
     title: `${article.title} | Quizzence`,
@@ -100,8 +118,12 @@ export const buildArticleSeoConfig = (article: ArticleInput): SeoConfig => {
     canonicalPath: getArticleCanonicalPath(article), // Always returns /blog/${slug}/
     canonicalUrl, // Normalized or undefined (will use canonicalPath)
     ogType: 'article',
-    ogImage: 'ogImage' in article ? (article.ogImage || undefined) : undefined,
+    ogImage: image?.url,
+    ogImageWidth: image?.width,
+    ogImageHeight: image?.height,
+    ogImageType: image?.mimeType,
+    ogImageAlt: image?.alt,
     noindex: 'noindex' in article ? !!article.noindex : false,
-    structuredData: buildArticleStructuredData(article),
+    structuredData: buildArticleStructuredData(article, heroImage),
   };
 };

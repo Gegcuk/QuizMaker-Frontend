@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
-import net from 'node:net';
+import { preview as startVitePreview } from 'vite';
 import { chromium } from 'playwright';
 import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
 import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRouteManifest.mjs';
@@ -10,7 +9,7 @@ import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRoute
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
-const distDir = path.join(rootDir, 'dist');
+const defaultDistDir = path.join(rootDir, 'dist');
 
 const SITE_URL = process.env.VITE_SITE_URL || 'https://www.quizzence.com';
 const rawApiBaseUrl = process.env.VITE_API_BASE_URL || '/api';
@@ -25,11 +24,11 @@ const normalizeApiBaseUrl = (value) => {
   const path = value.startsWith('/') ? value : `/${value}`;
   return `${base}${path}`.replace(/\/$/, '');
 };
-const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
+const defaultApiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const setupApiProxy = async (page) => {
+const setupApiProxy = async (page, apiBaseUrl) => {
   const isApiRequest = (requestUrl) => {
     try {
       const url = new URL(requestUrl);
@@ -97,7 +96,7 @@ const setupApiProxy = async (page) => {
   });
 };
 
-const resolveOutputPath = (route) => {
+const resolveOutputPath = (route, distDir) => {
   if (route === getPublicRoute('notFound').path) {
     return path.join(distDir, '404.html');
   }
@@ -109,111 +108,13 @@ const resolveOutputPath = (route) => {
   return path.join(distDir, cleaned, 'index.html');
 };
 
-const findAvailablePort = () => new Promise((resolve, reject) => {
-  const server = net.createServer();
-  server.unref();
-  server.once('error', reject);
-  server.listen(0, '127.0.0.1', () => {
-    const address = server.address();
-    if (!address || typeof address === 'string') {
-      server.close(() => reject(new Error('Unable to allocate a preview port.')));
-      return;
-    }
-    server.close(() => resolve(address.port));
-  });
-});
-
-const waitForPreviewServer = async (previewOrigin) => {
-  const maxAttempts = 30;
-  const url = `${previewOrigin}/`;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      const res = await fetch(url);
-      if (res.ok) {
-        return;
-      }
-    } catch {
-      // Ignore and retry.
-    }
-    await delay(1000);
-  }
-
-  throw new Error('Vite preview server did not start in time.');
-};
-
-const startPreviewServer = async () => {
-  const previewPort = await findAvailablePort();
-  const previewOrigin = `http://127.0.0.1:${previewPort}`;
-
-  return new Promise((resolve, reject) => {
-    const preview = spawn(
-      'npm',
-      ['run', 'preview', '--', '--port', String(previewPort), '--strictPort', '--host', '127.0.0.1'],
-      {
-        cwd: rootDir,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          NODE_ENV: 'production',
-        },
-      },
-    );
-    let output = '';
-    preview.stdout.on('data', (chunk) => {
-      output += chunk.toString();
-    });
-    preview.stderr.on('data', (chunk) => {
-      output += chunk.toString();
-    });
-
-    let settled = false;
-
-    const handleFailure = (error) => {
-      if (settled) {
-         
-        console.error('Vite preview process error after start:', error);
-        return;
-      }
-      settled = true;
-      reject(error);
-    };
-
-    const handleReady = () => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      resolve({ preview, previewOrigin });
-    };
-
-    preview.on('error', (err) => {
-      handleFailure(err);
-    });
-
-    // If preview dies before we're ready, fail fast. If it dies after ready, ignore.
-    preview.on('exit', (code) => {
-      if (!settled) {
-        handleFailure(new Error(
-          `Vite preview exited early with code ${code}.${output.trim() ? `\n${output.trim()}` : ''}`,
-        ));
-      }
-    });
-
-    const checkReady = async () => {
-      try {
-        await waitForPreviewServer(previewOrigin);
-        handleReady();
-      } catch (error) {
-        handleFailure(error);
-      }
-    };
-
-    void checkReady();
-  });
-};
-
-const prerender = async () => {
+// Importable so output checks can use the same renderer with an isolated build and local fixtures.
+export const prerender = async ({
+  distDir = defaultDistDir,
+  apiBaseUrl = defaultApiBaseUrl,
+  staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true',
+  setupPage,
+} = {}) => {
   const distExists = await fs
     .access(distDir)
     .then(() => true)
@@ -223,7 +124,6 @@ const prerender = async () => {
     throw new Error('dist directory not found. Run `npm run build` first.');
   }
 
-  const staticOnly = process.env.PUBLIC_ROUTES_STATIC_ONLY === 'true';
   const articleRoutes = staticOnly ? [] : await loadArticleSitemapRoutes({ apiBaseUrl });
   const routesToPrerender = [
     ...new Set([
@@ -235,17 +135,31 @@ const prerender = async () => {
   const articleRoutePaths = new Set(articleRoutes.map((route) => route.path));
   const blogIndexPath = getPublicRoute('blogIndex').path;
 
-  let preview;
-  let previewOrigin;
+  let previewServer;
   let browser;
 
   try {
-    ({ preview, previewOrigin } = await startPreviewServer());
+    // Own the server directly: signalling an npm wrapper can leave its shell
+    // and Vite descendants alive, keeping imported prerender runs from exiting.
+    previewServer = await startVitePreview({
+      root: rootDir,
+      build: { outDir: distDir },
+      preview: { host: '127.0.0.1', port: 0, strictPort: true, open: false },
+    });
+    const address = previewServer.httpServer.address();
+    if (!address || typeof address === 'string') {
+      throw new Error('Unable to determine the preview server port.');
+    }
+    const previewOrigin = `http://127.0.0.1:${address.port}`;
 
     browser = await chromium.launch();
     const page = await browser.newPage();
     if (!staticOnly) {
-      await setupApiProxy(page);
+      await setupApiProxy(page, apiBaseUrl);
+    }
+
+    if (setupPage) {
+      await setupPage(page, previewOrigin);
     }
 
     for (const route of routesToPrerender) {
@@ -261,11 +175,11 @@ const prerender = async () => {
         await page.waitForFunction(() => {
           const meta = document.querySelector('meta[property="og:type"]');
           return meta?.getAttribute('content') === 'article';
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
         await page.waitForFunction(() => {
           const heading = document.querySelector('h1');
           return heading && heading.textContent && heading.textContent.trim().length > 0;
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
       } else if (!staticOnly && route === blogIndexPath) {
         // Blog index page - wait for article links or empty state.
         await page.waitForFunction(() => {
@@ -275,17 +189,32 @@ const prerender = async () => {
           });
           const emptyState = document.body?.textContent?.includes('No articles found.');
           return hasArticleLink || emptyState;
-        }, { timeout: 15000 });
+        }, undefined, { timeout: 15000 });
       } else {
         // Other pages - wait for main content to render.
         await page.waitForSelector('main, h1', { timeout: 10000 });
       }
 
-      // Additional small delay to ensure all metadata is injected.
-      await delay(300);
+      if (articleRoutePaths.has(route)) {
+        // An image can fail after the article data arrives. Wait for the rendered
+        // image or its fallback to settle before saving the matching metadata.
+        try {
+          await page.waitForFunction(() => {
+            const image = document.querySelector('img[data-article-hero]');
+            return !image || (image.complete && image.naturalWidth > 0);
+          }, undefined, { timeout: 15000 });
+        } catch (error) {
+          if (error.name !== 'TimeoutError') throw error;
+          // A stalled CDN must not discard otherwise readable article output.
+          console.warn(`Article image still loading for ${route}; keeping its declared metadata.`);
+        }
+      } else {
+        // Allow static-page metadata effects to finish.
+        await delay(300);
+      }
 
       const html = await page.content();
-      const outputPath = resolveOutputPath(route);
+      const outputPath = resolveOutputPath(route, distDir);
 
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, html, 'utf8');
@@ -301,19 +230,19 @@ const prerender = async () => {
         // ignore close errors
       }
     }
-    if (preview && !preview.killed) {
-      preview.kill('SIGINT');
-      // Do not await child exit; allow process to exit once main work is done.
+    if (previewServer) {
+      await previewServer.close();
     }
   }
 };
 
-prerender()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err) => {
-     
-    console.error('Prerender failed:', err);
-    process.exit(1);
-  });
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  prerender()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Prerender failed:', err);
+      process.exit(1);
+    });
+}

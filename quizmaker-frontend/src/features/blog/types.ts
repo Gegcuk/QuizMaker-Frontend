@@ -64,11 +64,21 @@ export interface ArticleAuthorDto {
   title: string;
 }
 
-export interface ArticleImageDto {
+export interface ArticleImageReference {
   assetId: string;
   alt: string;
-  caption?: string;
-  url?: string; // CDN URL - NOT provided by backend API, frontend must construct from assetId
+  caption?: string | null;
+}
+
+export interface PublicImageRenditionDto {
+  url: string;
+  width: number | null;
+  height: number | null;
+  mimeType: string;
+}
+
+export interface ArticleImageDto extends ArticleImageReference {
+  readonly rendition?: PublicImageRenditionDto | null;
 }
 
 export interface ArticleCtaDto {
@@ -110,7 +120,7 @@ export interface ArticleDto {
   description: string;
   excerpt: string;
   heroKicker?: string;
-  heroImage?: ArticleImageDto;
+  heroImage?: ArticleImageDto | null;
   tags: string[];
   author: ArticleAuthorDto;
   readingTime: string;
@@ -118,7 +128,7 @@ export interface ArticleDto {
   updatedAt?: string;
   status: ArticleStatus;
   canonicalUrl?: string;
-  ogImage?: string;
+  ogImage?: string | null;
   noindex?: boolean;
   contentGroup?: string;
   primaryCta?: ArticleCtaDto;
@@ -138,7 +148,7 @@ export interface ArticleUpsertPayload {
   description: string;
   excerpt: string;
   heroKicker?: string;
-  heroImage?: ArticleImageDto;
+  heroImage?: ArticleImageReference | null;
   tags: string[];
   author: ArticleAuthorDto;
   readingTime: string;
@@ -146,7 +156,7 @@ export interface ArticleUpsertPayload {
   updatedAt?: string;
   status: ArticleStatus;
   canonicalUrl?: string;
-  ogImage?: string;
+  ogImage?: string | null;
   noindex?: boolean;
   contentGroup?: string;
   primaryCta?: ArticleCtaDto;

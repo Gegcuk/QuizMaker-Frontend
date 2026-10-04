@@ -76,6 +76,29 @@ curl --fail --silent --show-error --head https://www.quizzence.com/my-quizzes
 
 `npm run build:prerender` fails when the live article sitemap is unavailable, empty, malformed, or does not produce verified article metadata. The deployment workflow enforces the same sitemap and private-route header checks after rollout.
 
+### Article images
+
+Article pages use the public rendition returned by the live Articles API rather
+than constructing media URLs from asset IDs. Known intrinsic dimensions reserve
+space before the image loads; unknown dimensions are omitted.
+
+Social previews and Article JSON-LD use an explicitly authored `ogImage`, then
+the hero rendition, then the approved shared illustration:
+`https://cdn.quizzence.com/library/aec804f3-e4b3-430a-ba3e-109e819b3c56.png`.
+The fallback is a 1792 × 592 PNG with its own alt text and no article-specific
+caption. It is also displayed when the hero is missing, unavailable, or fails to
+load. If the fallback fails too, the article remains readable without an image;
+only an independently authored social image is retained. Navigation clears
+obsolete image metadata, including dimensions belonging to a previous image.
+Display fallbacks and read-only rendition metadata are never saved as authoring
+fields. Image selection lives in `src/features/blog/articleImages.ts`.
+
+`npm run test:seo` builds into a temporary directory and verifies actual
+prerendered article HTML using a local API and image fixtures. It covers image
+selection, unavailable media, browser load failures, and mobile/desktop article
+navigation without contacting production services. Static prerender checks alone
+do not cover article output.
+
 ## Dependency Maintenance
 
 - Dependabot opens weekly npm dependency PRs for `quizmaker-frontend`.
