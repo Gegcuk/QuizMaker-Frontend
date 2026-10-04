@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
-import net from 'node:net';
+import { preview as startVitePreview } from 'vite';
 import { chromium } from 'playwright';
 import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
 import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRouteManifest.mjs';
@@ -109,110 +108,6 @@ const resolveOutputPath = (route, distDir) => {
   return path.join(distDir, cleaned, 'index.html');
 };
 
-const findAvailablePort = () => new Promise((resolve, reject) => {
-  const server = net.createServer();
-  server.unref();
-  server.once('error', reject);
-  server.listen(0, '127.0.0.1', () => {
-    const address = server.address();
-    if (!address || typeof address === 'string') {
-      server.close(() => reject(new Error('Unable to allocate a preview port.')));
-      return;
-    }
-    server.close(() => resolve(address.port));
-  });
-});
-
-const waitForPreviewServer = async (previewOrigin) => {
-  const maxAttempts = 30;
-  const url = `${previewOrigin}/`;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      const res = await fetch(url);
-      if (res.ok) {
-        return;
-      }
-    } catch {
-      // Ignore and retry.
-    }
-    await delay(1000);
-  }
-
-  throw new Error('Vite preview server did not start in time.');
-};
-
-const startPreviewServer = async (distDir) => {
-  const previewPort = await findAvailablePort();
-  const previewOrigin = `http://127.0.0.1:${previewPort}`;
-
-  return new Promise((resolve, reject) => {
-    const preview = spawn(
-      'npm',
-      ['run', 'preview', '--', '--outDir', distDir, '--port', String(previewPort), '--strictPort', '--host', '127.0.0.1'],
-      {
-        cwd: rootDir,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          NODE_ENV: 'production',
-        },
-      },
-    );
-    let output = '';
-    preview.stdout.on('data', (chunk) => {
-      output += chunk.toString();
-    });
-    preview.stderr.on('data', (chunk) => {
-      output += chunk.toString();
-    });
-
-    let settled = false;
-
-    const handleFailure = (error) => {
-      if (settled) {
-         
-        console.error('Vite preview process error after start:', error);
-        return;
-      }
-      settled = true;
-      reject(error);
-    };
-
-    const handleReady = () => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      resolve({ preview, previewOrigin });
-    };
-
-    preview.on('error', (err) => {
-      handleFailure(err);
-    });
-
-    // If preview dies before we're ready, fail fast. If it dies after ready, ignore.
-    preview.on('exit', (code) => {
-      if (!settled) {
-        handleFailure(new Error(
-          `Vite preview exited early with code ${code}.${output.trim() ? `\n${output.trim()}` : ''}`,
-        ));
-      }
-    });
-
-    const checkReady = async () => {
-      try {
-        await waitForPreviewServer(previewOrigin);
-        handleReady();
-      } catch (error) {
-        handleFailure(error);
-      }
-    };
-
-    void checkReady();
-  });
-};
-
 // Importable so output checks can use the same renderer with an isolated build and local fixtures.
 export const prerender = async ({
   distDir = defaultDistDir,
@@ -240,12 +135,22 @@ export const prerender = async ({
   const articleRoutePaths = new Set(articleRoutes.map((route) => route.path));
   const blogIndexPath = getPublicRoute('blogIndex').path;
 
-  let preview;
-  let previewOrigin;
+  let previewServer;
   let browser;
 
   try {
-    ({ preview, previewOrigin } = await startPreviewServer(distDir));
+    // Own the server directly: signalling an npm wrapper can leave its shell
+    // and Vite descendants alive, keeping imported prerender runs from exiting.
+    previewServer = await startVitePreview({
+      root: rootDir,
+      build: { outDir: distDir },
+      preview: { host: '127.0.0.1', port: 0, strictPort: true, open: false },
+    });
+    const address = previewServer.httpServer.address();
+    if (!address || typeof address === 'string') {
+      throw new Error('Unable to determine the preview server port.');
+    }
+    const previewOrigin = `http://127.0.0.1:${address.port}`;
 
     browser = await chromium.launch();
     const page = await browser.newPage();
@@ -325,9 +230,8 @@ export const prerender = async ({
         // ignore close errors
       }
     }
-    if (preview && !preview.killed) {
-      preview.kill('SIGINT');
-      // Do not await child exit; allow process to exit once main work is done.
+    if (previewServer) {
+      await previewServer.close();
     }
   }
 };
