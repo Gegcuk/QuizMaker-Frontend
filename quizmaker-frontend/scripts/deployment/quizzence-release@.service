@@ -1,0 +1,15 @@
+[Unit]
+Description=Verified Quizzence frontend rollout %i
+After=docker.service nginx.service network-online.target
+Wants=network-online.target
+Requires=docker.service nginx.service
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/usr/bin/python3 -I /usr/local/lib/quizzence-release/helper.py run %i
+ExecStopPost=/usr/bin/python3 -I /usr/local/lib/quizzence-release/helper.py finish %i
+TimeoutStartSec=15min
+TimeoutStopSec=3min

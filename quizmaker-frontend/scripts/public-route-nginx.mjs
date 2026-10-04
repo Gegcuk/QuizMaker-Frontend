@@ -1,11 +1,8 @@
 import { getAlternatePublicRoutePath, publicRouteManifest } from '../src/routes/publicRouteManifest.mjs';
 
 const securityHeaders = [
-  'add_header X-Frame-Options "SAMEORIGIN" always;',
-  'add_header X-Content-Type-Options "nosniff" always;',
-  'add_header X-XSS-Protection "1; mode=block" always;',
+  'include /etc/nginx/includes/security-headers.conf;',
   'add_header Referrer-Policy "strict-origin-when-cross-origin" always;',
-  'add_header Strict-Transport-Security "max-age=2592000" always;',
 ];
 
 const noindexHeaders = [
@@ -69,9 +66,8 @@ const renderExactRoute = (route) => {
   if (route.delivery === 'callback') {
     const callbackLines = [
       'access_log off;',
-      ...securityHeaders.slice(0, 3),
+      securityHeaders[0],
       'add_header Referrer-Policy "no-referrer" always;',
-      securityHeaders[4],
       'add_header X-Robots-Tag "noindex, nofollow" always;',
       'add_header Cache-Control "no-store" always;',
       'try_files /index.html =404;',

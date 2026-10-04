@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,287 +14,154 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate frontend before deploy
+    name: Build and validate the production artifact
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
+    environment: production
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+      manifest_digest: ${{ steps.build.outputs.manifest_digest }}
+      release_id: ${{ steps.build.outputs.release_id }}
+      producer_run: ${{ steps.build.outputs.producer_run }}
+      producer_attempt: ${{ steps.build.outputs.producer_attempt }}
     defaults:
       run:
         working-directory: quizmaker-frontend
-
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: quizmaker-frontend/package-lock.json
-
       - name: Install deps
         run: npm ci
-
       - name: Audit production dependencies
         run: npm run audit:production
-
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
-
       - name: Lint
-        run: npm run lint
-
+        run: npm run lint -- --quiet
       - name: Test
         run: npm test
-
-      - name: SEO build contract test
+      - name: SEO source contract tests with local fixtures
         run: npm run test:seo
-
-      - name: Browser smoke test
-        run: npm run test:smoke
-
-      - name: Critical E2E tests
-        run: npm run test:e2e
-
-      - name: Build
-        run: npm run build:prerender:static
-
-      - name: Production analytics privacy test
-        run: npm run test:privacy:production
-
-      - name: Validate deployment workflow policy
+      - name: Validate deployment workflow and failure recovery
         run: npm run test:deployment-policy
-
-      - name: Validate Nginx route policy
-        run: npm run test:nginx
+      - name: Build production artifact once
+        id: build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+        run: bash scripts/deployment/build-release.sh
+      - name: Validate the exported image
+        env:
+          RELEASE_MANIFEST_DIGEST: ${{ steps.build.outputs.manifest_digest }}
+        run: npm run test:release
+      - name: Upload the validated image and provenance
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: frontend-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: quizmaker-frontend/release-bundle/
+          if-no-files-found: error
+          compression-level: 0
 
   deploy:
-    name: Deploy frontend to production
+    name: Activate verified frontend candidate
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: validate
     environment: production
-
+    outputs:
+      consumer_completed: ${{ steps.completed.outputs.consumer_completed }}
+      consumed_artifact_id: ${{ needs.validate.outputs.artifact_id }}
+      consumed_manifest_digest: ${{ needs.validate.outputs.manifest_digest }}
+      producer_run: ${{ needs.validate.outputs.producer_run }}
+      producer_attempt: ${{ needs.validate.outputs.producer_attempt }}
     steps:
-      - name: Checkout
+      - name: Checkout verifier from the same revision
         uses: actions/checkout@v7
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Download the exact validated artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: quizmaker-frontend/package-lock.json
-
-      - name: Install deps
-        working-directory: quizmaker-frontend
-        run: npm ci
-
-      - name: Install Playwright Chromium
-        working-directory: quizmaker-frontend
-        run: npx playwright install --with-deps chromium
-
-      - name: Validate deployment configuration
+          artifact-ids: ${{ needs.validate.outputs.artifact_id }}
+          path: release-bundle
+          digest-mismatch: error
+      - name: Verify downloaded provenance and image digest
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: |
-          set -euo pipefail
-          missing=0
-
-          for name in VITE_API_BASE_URL VITE_SITE_URL SERVER_HOST SERVER_USER SERVER_SSH_KEY; do
-            if [ -z "${!name}" ]; then
-              echo "❌ Missing ${name} secret"
-              missing=1
-            fi
-          done
-
-          if [ "$missing" -ne 0 ]; then
-            exit 1
-          fi
-
-      - name: Build (with prerender)
-        working-directory: quizmaker-frontend
-        env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
-        run: |
-          set -euo pipefail
-          npm run build:prerender
-
-      - name: Prepare deployment bundle
-        run: |
-          rm -rf deployment && mkdir -p deployment
-          cp -r quizmaker-frontend/dist deployment/
-          cp quizmaker-frontend/Dockerfile deployment/
-          cp quizmaker-frontend/docker-compose.yml deployment/
-          cp quizmaker-frontend/nginx.conf deployment/
-          cp quizmaker-frontend/.dockerignore deployment/
-
-      - name: Prepare deployment directory
+          MANIFEST_DIGEST: ${{ needs.validate.outputs.manifest_digest }}
+        run: python3 quizmaker-frontend/scripts/deployment/artifact.py verify --digest "$MANIFEST_DIGEST"
+      - name: Prepare isolated incoming directory
         uses: appleboy/ssh-action@v1.2.5
+        env:
+          RELEASE_RUN: ${{ needs.validate.outputs.producer_run }}
+          RELEASE_ATTEMPT: ${{ needs.validate.outputs.producer_attempt }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: RELEASE_RUN,RELEASE_ATTEMPT
           script: |
-            mkdir -p /var/www/quizzence
-
-      - name: Copy deployment bundle
+            set -eu
+            test -x /usr/local/sbin/quizzence-release
+            mkdir -p "/var/www/quizzence/incoming/${RELEASE_RUN}-${RELEASE_ATTEMPT}"
+      - name: Transfer verified image without touching serving files
         uses: burnett01/rsync-deployments@9.0.0
         with:
-          switches: -avzr --delete
-          path: deployment/
-          remote_path: /var/www/quizzence/
+          switches: -avz
+          path: release-bundle/
+          remote_path: /var/www/quizzence/incoming/${{ needs.validate.outputs.producer_run }}-${{ needs.validate.outputs.producer_attempt }}/
           remote_host: ${{ secrets.SERVER_HOST }}
           remote_user: ${{ secrets.SERVER_USER }}
           remote_key: ${{ secrets.SERVER_SSH_KEY }}
-
-      - name: Verify deployment files
+      - name: Submit rollout and wait for verified consumer receipt
         uses: appleboy/ssh-action@v1.2.5
+        env:
+          RELEASE_RUN: ${{ needs.validate.outputs.producer_run }}
+          RELEASE_ATTEMPT: ${{ needs.validate.outputs.producer_attempt }}
+          RELEASE_REVISION: ${{ github.sha }}
+          MANIFEST_DIGEST: ${{ needs.validate.outputs.manifest_digest }}
+          ARTIFACT_ID: ${{ needs.validate.outputs.artifact_id }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 22m
+          envs: RELEASE_RUN,RELEASE_ATTEMPT,RELEASE_REVISION,MANIFEST_DIGEST,ARTIFACT_ID
           script: |
-            set -e
-            cd /var/www/quizzence
-            echo "=== Deployment directory contents ==="
-            ls -la
-            echo ""
-            echo "=== Verifying required files ==="
-            test -f dist/index.html || { echo "❌ dist/index.html missing"; exit 1; }
-            test -f Dockerfile || { echo "❌ Dockerfile missing"; exit 1; }
-            test -f docker-compose.yml || { echo "❌ docker-compose.yml missing"; exit 1; }
-            test -f nginx.conf || { echo "❌ nginx.conf missing"; exit 1; }
-            test -f .dockerignore || { echo "❌ .dockerignore missing"; exit 1; }
-            echo "✅ All required files present"
-            
-      - name: Build and start containers
-        uses: appleboy/ssh-action@v1.2.5
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            cd /var/www/quizzence
-
-            if docker compose version >/dev/null 2>&1; then
-              compose() { docker compose "$@"; }
-            else
-              compose() { docker-compose "$@"; }
+            set -eu
+            helper=/usr/local/sbin/quizzence-release
+            if ! sudo -n "$helper" status "$RELEASE_RUN" "$RELEASE_ATTEMPT" >/dev/null 2>&1; then
+              sudo -n "$helper" submit "$RELEASE_RUN" "$RELEASE_ATTEMPT" "$RELEASE_REVISION" "$MANIFEST_DIGEST" "$ARTIFACT_ID"
             fi
-
-            build_succeeded=0
-            for attempt in 1 2 3; do
-              echo "Building frontend image (attempt ${attempt}/3)"
-              if compose build --no-cache; then
-                build_succeeded=1
-                break
-              fi
-
-              if [ "$attempt" -lt 3 ]; then
-                echo "Frontend image build failed; waiting 15 seconds before retrying."
-                sleep 15
-              fi
+            for attempt in $(seq 1 240); do
+              receipt="$(sudo -n "$helper" status "$RELEASE_RUN" "$RELEASE_ATTEMPT")"
+              status="$(printf '%s' "$receipt" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
+              case "$status" in
+                succeeded)
+                  printf '%s' "$receipt" | python3 -c 'import json,sys; r=json.load(sys.stdin); assert r.get("consumer_completed") is True; assert (r["manifest_digest"],r["artifact_id"],r["revision"]) == tuple(sys.argv[1:]); print("Verified consumer receipt:", r["release_id"], r["image_sha256"])' "$MANIFEST_DIGEST" "$ARTIFACT_ID" "$RELEASE_REVISION"
+                  # Only this attempt's upload copy; root-owned recovery images remain.
+                  if ! rm -f -- "/var/www/quizzence/incoming/${RELEASE_RUN}-${RELEASE_ATTEMPT}/image.tar" "/var/www/quizzence/incoming/${RELEASE_RUN}-${RELEASE_ATTEMPT}/provenance.json" || ! rmdir -- "/var/www/quizzence/incoming/${RELEASE_RUN}-${RELEASE_ATTEMPT}"; then
+                    echo 'Verified release active; incoming upload copy retained for operator cleanup'
+                  fi
+                  exit 0 ;;
+                failed|recovery-required) echo "Rollout $status; inspect the durable host receipt"; exit 1 ;;
+                queued|running) sleep 5 ;;
+                *) echo 'Invalid consumer status'; exit 1 ;;
+              esac
             done
-
-            if [ "$build_succeeded" -ne 1 ]; then
-              echo "❌ Frontend image build failed; keeping the current production container running."
-              exit 1
-            fi
-
-            compose down
-            compose up -d --no-build
-            echo ""
-            echo "=== Container status ==="
-            compose ps
-
-            container_id="$(compose ps -q quizzence-frontend)"
-            if [ -z "$container_id" ]; then
-              echo "❌ quizzence-frontend container was not created"
-              exit 1
-            fi
-
-            ready=0
-            for attempt in $(seq 1 30); do
-              health="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id")"
-              echo "Frontend health (${attempt}/30): ${health}"
-
-              if [ "$health" = "healthy" ]; then
-                ready=1
-                break
-              fi
-
-              if [ "$health" = "unhealthy" ] || [ "$health" = "exited" ]; then
-                docker logs --tail 100 "$container_id"
-                exit 1
-              fi
-
-              sleep 2
-            done
-
-            if [ "$ready" -ne 1 ]; then
-              echo "❌ quizzence-frontend did not become healthy"
-              docker logs --tail 100 "$container_id"
-              exit 1
-            fi
-
-            assert_status() {
-              expected="$1"
-              path="$2"
-              status="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:3000${path}")"
-
-              if [ "$status" != "$expected" ]; then
-                echo "❌ Expected ${path} to return ${expected}, got ${status}"
-                exit 1
-              fi
-            }
-
-            assert_status 200 "/"
-            assert_status 200 "/login"
-            assert_status 200 "/quizzes/22222222-2222-4222-8222-222222222222/attempt?attemptId=33333333-3333-4333-8333-333333333333"
-            assert_status 200 "/sitemap_articles.xml"
-            assert_status 404 "/this-route-should-not-exist"
-            assert_status 404 "/assets/this-asset-does-not-exist.js"
-
-            private_robots="$(curl --silent --show-error --head "http://127.0.0.1:3000/my-quizzes" | tr -d '\r' | awk 'tolower($1) == "x-robots-tag:" { print $2 " " $3; exit }')"
-            if [ "$private_robots" != "noindex, nofollow" ]; then
-              echo "❌ Expected /my-quizzes to return X-Robots-Tag noindex, nofollow"
-              exit 1
-            fi
-
-            article_sitemap="$(curl --fail --silent --show-error "http://127.0.0.1:3000/sitemap_articles.xml")"
-            if ! printf '%s' "$article_sitemap" | grep -q '<loc>'; then
-              echo "❌ Expected sitemap_articles.xml to contain an article URL"
-              exit 1
-            fi
-
-      - name: Verify public routes in production
-        working-directory: quizmaker-frontend
-        env:
-          PUBLIC_ROUTE_BASE_URL: ${{ secrets.VITE_SITE_URL }}
-          PUBLIC_ROUTE_CANONICAL_ORIGIN: ${{ secrets.VITE_SITE_URL }}
-          PUBLIC_ROUTE_RETRY_ATTEMPTS: '5'
-          PUBLIC_ROUTE_SITEMAP_OWNER: 'backend'
-          REQUIRE_ARTICLE_ROUTES: 'true'
-        run: npm run verify:public-routes
-
-      - name: Verify production transport policy
-        env:
-          VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
-        run: |
-          set -euo pipefail
-          site_url="${VITE_SITE_URL%/}"
-
-          hsts_policy="$(curl --fail --silent --show-error --head \
-            --retry 5 --retry-delay 10 --retry-all-errors \
-            --max-time 30 \
-            "${site_url}/" | tr -d '\r' | awk 'tolower($1) == "strict-transport-security:" { print $2; exit }')"
-          if [ "$hsts_policy" != "max-age=2592000" ]; then
-            echo "❌ Expected production HSTS policy max-age=2592000, got ${hsts_policy:-missing}"
+            echo 'Consumer completion is unverified; the host service and recovery journal remain authoritative'
             exit 1
-          fi
+      - name: Record successful consumption
+        id: completed
+        env:
+          ARTIFACT_ID: ${{ needs.validate.outputs.artifact_id }}
+          MANIFEST_DIGEST: ${{ needs.validate.outputs.manifest_digest }}
+          RELEASE_ID: ${{ needs.validate.outputs.release_id }}
+        run: |
+          echo 'consumer_completed=true' >> "$GITHUB_OUTPUT"
+          printf 'Verified release `%s`; consumed artifact `%s`; provenance SHA256 `%s`.\n' "$RELEASE_ID" "$ARTIFACT_ID" "$MANIFEST_DIGEST" >> "$GITHUB_STEP_SUMMARY"

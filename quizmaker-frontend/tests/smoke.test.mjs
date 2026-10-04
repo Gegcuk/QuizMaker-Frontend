@@ -4,10 +4,11 @@ import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
+import { createTestContext } from './fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
 const PORT = 4179;
-const BASE_URL = `http://${HOST}:${PORT}`;
+const BASE_URL = process.env.RELEASE_BASE_URL || `http://${HOST}:${PORT}`;
 const PALETTES = ['light', 'dark', 'blue', 'purple', 'green'];
 
 const createDevServer = () =>
@@ -22,6 +23,7 @@ const createDevServer = () =>
   );
 
 const stopDevServer = async (server) => {
+  if (!server) return;
   if (server.exitCode !== null || server.signalCode !== null) {
     return;
   }
@@ -280,7 +282,7 @@ const applyPalette = async (page, palette) => {
 };
 
 test('home page passes styling, theme, and responsive smoke checks', { timeout: 60_000 }, async () => {
-  const server = createDevServer();
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
 
   let browser;
 
@@ -288,7 +290,7 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
     await waitForServer(BASE_URL);
     browser = await chromium.launch();
 
-    const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 720 } })).newPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 
     const appleTouchIcon = page.locator('link[rel="apple-touch-icon"]');
