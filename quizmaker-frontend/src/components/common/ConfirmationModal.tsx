@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
-import { Button } from '@/components';
+import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/Modal';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   variant = 'danger',
   isLoading = false
 }) => {
-  const titleId = useId();
+  const messageId = useId();
 
   if (!isOpen) return null;
 
@@ -76,36 +77,25 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const styles = getVariantStyles();
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div 
-          className="fixed inset-0 z-0 bg-theme-bg-overlay bg-opacity-75 transition-opacity"
-          data-testid="confirmation-modal-backdrop"
-          aria-hidden="true"
-          onClick={() => {
-            if (!isLoading) onClose();
-          }}
-        ></div>
-
-        {/* Modal panel */}
-        <div
-          className="relative z-10 inline-block align-bottom bg-theme-bg-primary rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-        >
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      showCloseButton={false}
+      closeOnEscape={!isLoading}
+      closeOnBackdrop={!isLoading}
+      ariaDescribedBy={messageId}
+      initialFocusSelector="[data-confirmation-cancel]"
+      backdropTestId="confirmation-modal-backdrop"
+    >
           <div className="bg-theme-bg-primary px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
               <div className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${styles.iconBg} sm:mx-0 sm:h-10 sm:w-10`}>
                 {styles.icon}
               </div>
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 id={titleId} className="text-lg leading-6 font-medium text-theme-text-primary">
-                  {title}
-                </h3>
                 <div className="mt-2">
-                  <p className="text-sm text-theme-text-tertiary">
+                  <p id={messageId} className="text-sm text-theme-text-tertiary">
                     {message}
                   </p>
                 </div>
@@ -126,6 +116,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </Button>
             <Button
               type="button"
+              data-confirmation-cancel
               onClick={onClose}
               disabled={isLoading}
               variant="secondary"
@@ -135,9 +126,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               {cancelText}
             </Button>
           </div>
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

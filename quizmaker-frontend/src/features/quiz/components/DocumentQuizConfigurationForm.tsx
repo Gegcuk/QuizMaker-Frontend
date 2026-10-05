@@ -3,6 +3,7 @@
 // Includes document upload, page selection, and AI generation parameters
 // ---------------------------------------------------------------------------
 
+import { useUnsavedChanges } from '@/features/navigation/useUnsavedChanges';
 import React, { useState, useMemo } from 'react';
 import { CreateQuizRequest, Difficulty, QuestionType } from '@/types';
 import { Button, Input, useToast, Dropdown, Hint, ButtonWithValidationTooltip } from '@/components';
@@ -66,6 +67,10 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   const [selectedPageNumbers, setSelectedPageNumbers] = useState<number[]>([]);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  const inputSnapshot = JSON.stringify([localData, { ...generationConfig, file: generationConfig.file ? [generationConfig.file.name, generationConfig.file.size, generationConfig.file.lastModified] : null }, selectedPageNumbers, selectedContent]);
+  const [initialSnapshot] = useState(inputSnapshot);
+  useUnsavedChanges(inputSnapshot !== initialSnapshot, { losesInputOnStepChange: true, revision: inputSnapshot });
 
   const handleInputChange = <K extends keyof CreateQuizRequest>(field: K, value: CreateQuizRequest[K]) => {
     setLocalData(prev => ({ ...prev, [field]: value }));
@@ -371,7 +376,8 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit}>
+        <fieldset disabled={isCreating} className="min-w-0 space-y-8">
         {/* Basic Quiz Settings */}
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg p-6 bg-theme-bg-primary text-theme-text-primary">
           <h4 className="text-lg font-medium text-theme-text-primary mb-4">Basic Quiz Settings</h4>
@@ -618,6 +624,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
             {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Document'}
           </ButtonWithValidationTooltip>
         </div>
+        </fieldset>
       </form>
     </div>
   );

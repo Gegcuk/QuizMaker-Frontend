@@ -2,7 +2,8 @@ import React from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { UnsavedChangesProvider } from '@/features/navigation/UnsavedChangesProvider';
 import { ToastProvider } from '@/components/ui';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/features/auth';
@@ -11,6 +12,8 @@ import { SensitiveUrlBoundary } from '@/features/privacy';
 
 interface AppRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   route?: string;
+  initialEntries?: string[];
+  initialIndex?: number;
   queryClient?: QueryClient;
   withAuthProvider?: boolean;
 }
@@ -53,12 +56,16 @@ export const renderWithProviders = (
   ui: React.ReactElement,
   {
     route = '/',
+    initialEntries = [route],
+    initialIndex,
     queryClient = createTestQueryClient(),
     withAuthProvider = true,
     ...renderOptions
   }: AppRenderOptions = {},
 ) => {
-  const Providers = ({ children }: { children: React.ReactNode }) => {
+  const ContentContext = React.createContext<React.ReactNode>(null);
+  const RouteContent = () => {
+    const children = React.useContext(ContentContext);
     const content = withAuthProvider ? (
       <AuthProvider>
         <ToastProvider>{children}</ToastProvider>
@@ -68,8 +75,8 @@ export const renderWithProviders = (
     );
 
     return (
-      <MemoryRouter initialEntries={[route]}>
-        <SensitiveUrlBoundary>
+      <SensitiveUrlBoundary>
+        <UnsavedChangesProvider>
           <ThemeProvider defaultTheme="light" defaultColorScheme="light">
             <FeatureFlagProvider>
               <QueryClientProvider client={queryClient}>
@@ -77,12 +84,19 @@ export const renderWithProviders = (
               </QueryClientProvider>
             </FeatureFlagProvider>
           </ThemeProvider>
-        </SensitiveUrlBoundary>
-      </MemoryRouter>
+        </UnsavedChangesProvider>
+      </SensitiveUrlBoundary>
     );
   };
 
+  const router = createMemoryRouter([{ path: '*', element: <RouteContent /> }], { initialEntries, initialIndex });
+  const Providers = ({ children }: { children: React.ReactNode }) => (
+    <ContentContext.Provider value={children}>
+      <RouterProvider router={router} />
+    </ContentContext.Provider>
+  );
   return {
+    router,
     user: userEvent.setup(),
     queryClient,
     ...render(ui, { wrapper: Providers, ...renderOptions }),

@@ -12,6 +12,7 @@ import { Form, FormField, Button, Checkbox, Alert } from '@/components';
 import { commonRules } from '@/utils';
 import type { AxiosError } from 'axios';
 import OAuthButton from './OAuthButton';
+import { validateOAuthReturnPath } from '../services/oauthPkce';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -34,6 +35,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const returnPath = validateOAuthReturnPath(redirectTo, window.location.origin);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [oauthError, setOAuthError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       }
 
       // Navigate to redirect path
-      navigate(redirectTo, { replace: true });
+      navigate(returnPath, { replace: true, state: null });
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
@@ -78,14 +80,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
           provider="GOOGLE"
           fullWidth={false}
           actionText="Sign in with"
-          returnPath={redirectTo}
+          returnPath={returnPath}
           onStartError={setOAuthError}
         />
         <OAuthButton
           provider="GITHUB"
           fullWidth={false}
           actionText="Sign in with"
-          returnPath={redirectTo}
+          returnPath={returnPath}
           onStartError={setOAuthError}
         />
       </div>

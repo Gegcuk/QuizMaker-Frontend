@@ -26,10 +26,11 @@
 // ---------------------------------------------------------------------------
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { Spinner } from '@/components';
 import { logger } from '@/utils';
+import { validateOAuthReturnPath } from '@/features/auth/services/oauthPkce';
 
 /** Expected prop shape for ProtectedRoute */
 export type ProtectedRouteProps = {
@@ -41,6 +42,7 @@ export type ProtectedRouteProps = {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const { isLoggedIn, user, isLoading } = useAuth();
+  const location = useLocation();
 
   logger.debug('ProtectedRoute render', 'ProtectedRoute', {
     isLoggedIn,
@@ -64,7 +66,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles
     logger.info('User not authenticated, redirecting to login', 'ProtectedRoute');
     /* `replace` prevents the protected URL from sticking around in history,
        so hitting "Back" after logging in won't send the user back here. */
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{
+      returnTo: validateOAuthReturnPath(`${location.pathname}${location.search}${location.hash}`, window.location.origin),
+    }} />;
   }
 
   // If required roles are specified, check if user has any of them

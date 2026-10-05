@@ -1660,3 +1660,125 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
     await stopDevServer(server);
   }
 });
+
+
+test('authoring navigation guards preserve input on desktop and mobile', { timeout: 90_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await chromium.launch();
+    // #207: use real browser history and native reload prompts with local APIs.
+    for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+      const context = await createTestContext(browser, { viewport });
+      const page = await context.newPage();
+      let savedQuiz = { ...quiz };
+      let failQuestionSave = true;
+      const savedQuestions = [];
+      try {
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/auth/login', (route) => fulfillJson(route, tokens));
+        await page.route('**/api/v1/quizzes**', async (route) => {
+          const path = new URL(route.request().url()).pathname;
+          if (path.endsWith('/leaderboard')) return fulfillJson(route, []);
+          if (path.endsWith('/results')) return fulfillJson(route, null);
+          if (path.endsWith('/status')) return fulfillJson(route, savedQuiz);
+          if (path === `/api/v1/quizzes/${QUIZ_ID}`) {
+            if (route.request().method() === 'PATCH') {
+              savedQuiz = { ...savedQuiz, ...JSON.parse(route.request().postData() ?? '{}') };
+            }
+            return fulfillJson(route, savedQuiz);
+          }
+          return fulfillJson(route, { content: [], totalPages: 0, totalElements: 0, number: 0, size: 10, empty: true });
+        });
+        await page.route('**/api/v1/questions**', async (route) => {
+          if (route.request().method() === 'POST') {
+            if (failQuestionSave) {
+              failQuestionSave = false;
+              return fulfillJson(route, { message: 'Fixture question save failed' }, 503);
+            }
+            savedQuestions.push({ ...editableQuestions[2], id: QUESTION_ID, questionText: 'Unsaved browser question', quizIds: [QUIZ_ID] });
+            return fulfillJson(route, { questionId: QUESTION_ID });
+          }
+          if (new URL(route.request().url()).pathname.endsWith(`/${QUESTION_ID}`)) return fulfillJson(route, savedQuestions[0]);
+          return fulfillJson(route, { content: savedQuestions, totalPages: savedQuestions.length ? 1 : 0, totalElements: savedQuestions.length, number: 0, size: 50, empty: savedQuestions.length === 0 });
+        });
+
+        await navigateToAppRoute(page, `/quizzes/${QUIZ_ID}/questions`);
+        await page.getByLabel('Username or Email').waitFor();
+        await fillLoginForm(page);
+        await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+        await page.waitForURL(`${BASE_URL}/quizzes/${QUIZ_ID}?tab=questions`);
+        await page.getByRole('tab', { name: 'Questions', exact: true }).waitFor();
+        assert.equal(await page.getByRole('tab', { name: 'Questions', exact: true }).getAttribute('aria-selected'), 'true');
+        assert.equal(await page.evaluate(() => window.history.state.usr), null);
+
+        await page.getByRole('tab', { name: 'Settings', exact: true }).click();
+        await page.getByLabel('Quiz Title', { exact: true }).fill('Unsaved navigation quiz');
+        await page.getByRole('tab', { name: 'Questions', exact: true }).click();
+        assert.equal(await page.getByRole('dialog').count(), 0, 'Settings tab navigation preserves the draft');
+        await page.goBack();
+        await page.getByLabel('Quiz Title', { exact: true }).waitFor();
+        assert.equal(await page.getByLabel('Quiz Title', { exact: true }).inputValue(), 'Unsaved navigation quiz');
+        await page.goForward();
+        await page.getByRole('tab', { name: 'Questions', exact: true }).waitFor();
+        assert.equal(await page.getByRole('tab', { name: 'Questions', exact: true }).getAttribute('aria-selected'), 'true');
+        await page.getByRole('tab', { name: 'Settings', exact: true }).click();
+        if (viewport.width < 640) await page.getByRole('button', { name: 'Toggle navigation menu' }).click();
+        await page.getByRole('banner').getByRole('link', { name: 'My Quizzes', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Leave without saving?' }).waitFor();
+        await page.getByRole('button', { name: 'Stay', exact: true }).click();
+        assert.equal(await page.getByLabel('Quiz Title', { exact: true }).inputValue(), 'Unsaved navigation quiz');
+        await page.getByRole('button', { name: 'Save Changes', exact: true }).click();
+        await page.getByRole('button', { name: 'Save Changes', exact: true }).waitFor();
+        await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent.trim() === 'Save Changes' && button.disabled));
+        await page.getByRole('tab', { name: 'Questions', exact: true }).click();
+
+        await page.getByRole('button', { name: 'Add Question', exact: true }).first().click();
+        await page.getByRole('button', { name: /True.*False/ }).click();
+        await page.getByLabel('Question Text', { exact: true }).fill('Unsaved browser question');
+        await page.keyboard.press('Escape');
+        const warning = page.getByRole('dialog', { name: 'Leave without saving?' });
+        await warning.waitFor();
+        await page.screenshot({ path: `/private/tmp/issue-207-modal-${viewport.width}.png` });
+        const bounds = await warning.boundingBox();
+        assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= viewport.width, 'Confirmation fits the viewport');
+        await page.keyboard.press('Escape');
+        assert.equal(await page.getByLabel('Question Text', { exact: true }).inputValue(), 'Unsaved browser question');
+
+        const back = page.goBack();
+        await warning.waitFor();
+        await page.getByRole('button', { name: 'Stay', exact: true }).click();
+        await back;
+
+        const unloadDialog = page.waitForEvent('dialog');
+        const reloadAttempt = page.evaluate(() => window.location.reload());
+        const dialog = await unloadDialog;
+        assert.equal(dialog.type(), 'beforeunload');
+        await dialog.dismiss();
+        await reloadAttempt;
+        assert.equal(await page.getByLabel('Question Text', { exact: true }).inputValue(), 'Unsaved browser question');
+        await page.getByRole('button', { name: 'Create Question', exact: true }).click();
+        await page.getByText('Failed to save question', { exact: true }).waitFor();
+        await page.keyboard.press('Escape');
+        await warning.waitFor();
+        await page.getByRole('button', { name: 'Stay', exact: true }).click();
+        await page.getByRole('button', { name: 'Save & Add Another', exact: true }).click();
+        await page.waitForFunction(() => document.querySelector('textarea[placeholder="Enter your question here..."]')?.value === '');
+        await page.keyboard.press('Escape');
+        await page.getByRole('dialog').waitFor({ state: 'hidden' });
+
+        if (viewport.width < 640) await page.getByRole('button', { name: 'Toggle navigation menu' }).click();
+        await page.getByRole('banner').getByRole('link', { name: 'My Quizzes', exact: true }).click();
+        await page.waitForURL(`${BASE_URL}/my-quizzes`);
+        assert.equal(await page.getByRole('dialog').count(), 0, 'Saved settings and reset question are clean');
+      } finally {
+        await context.close();
+      }
+    }
+  } finally {
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});

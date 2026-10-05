@@ -4,11 +4,12 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { CreateQuizRequest, UpdateQuizRequest, QuizStatus } from '@/types';
 import { createQuiz, updateQuizStatus } from '@/services';
 import { QuizManagementTab } from './';
 import { useToast, Alert } from '@/components';
+import { useUnsavedChanges } from '@/features/navigation/useUnsavedChanges';
 import type { AxiosError } from 'axios';
 
 interface QuizFormProps {
@@ -28,6 +29,7 @@ interface FormErrors {
 const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const isEditing = Boolean(quizId);
   const { addToast } = useToast();
   
@@ -44,15 +46,17 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
     tagIds: []
   });
   
+  const [initialData] = useState(() => JSON.stringify(quizData));
+  const { markClean } = useUnsavedChanges(!isEditing && JSON.stringify(quizData) !== initialData, { revision: quizData });
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
   // Redirect to quiz detail page if trying to edit
   useEffect(() => {
     if (isEditing && quizId) {
-      navigate(`/quizzes/${quizId}`);
+      navigate(`/quizzes/${quizId}${location.search}${location.hash}`, { replace: true });
     }
-  }, [isEditing, quizId, navigate]);
+  }, [isEditing, quizId, navigate, location.search, location.hash]);
 
   // Validation function
   const validateForm = (): FormErrors => {
@@ -133,6 +137,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       // Success toast
       addToast({ type: 'success', message: status === 'PUBLISHED' ? 'Quiz created and published.' : 'Quiz draft created.' });
 
+      markClean();
       // Navigate to the quiz detail page Settings tab
       navigate(`/quizzes/${resultQuizId}?tab=management`);
     } catch (error) {

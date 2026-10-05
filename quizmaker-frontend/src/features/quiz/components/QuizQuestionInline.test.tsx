@@ -1,3 +1,4 @@
+import { useImperativeHandle, type Ref } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen, waitFor } from '@/test/render';
 import type { QuestionDto } from '@/types';
@@ -23,19 +24,23 @@ vi.mock('@/services', () => ({
 }));
 
 vi.mock('@/features/question', () => ({
-  QuestionForm: ({
+  QuestionForm: function QuestionFormDouble({
+    ref,
     questionId,
     quizId,
     defaultDifficulty,
     onCancel,
     onSuccess,
   }: {
+    ref?: Ref<{ requestCancel: () => void }>;
     questionId?: string;
     quizId?: string;
     defaultDifficulty?: string;
     onCancel: () => void;
     onSuccess?: (result?: { questionId?: string }) => void;
-  }) => (
+  }) {
+    useImperativeHandle(ref, () => ({ requestCancel: onCancel }));
+    return (
     <section aria-label="Question form">
       <p>{`Question form quiz: ${quizId ?? 'none'}`}</p>
       <p>{`Question form difficulty: ${defaultDifficulty ?? 'none'}`}</p>
@@ -50,7 +55,8 @@ vi.mock('@/features/question', () => ({
         Cancel question form
       </button>
     </section>
-  ),
+    );
+  },
 }));
 
 const createQuestion = (overrides: Partial<QuestionDto> = {}): QuestionDto => ({

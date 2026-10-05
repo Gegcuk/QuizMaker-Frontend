@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
+import { act, fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
 import type { HotspotContent, HotspotRegion, McqOption, OrderingItem, QuestionDto } from '@/types';
 import QuestionForm from './QuestionForm';
 
@@ -643,4 +643,86 @@ describe('QuestionForm', () => {
     });
     expect(onSuccess).toHaveBeenCalled();
   });
+});
+
+const questionUnloadBlocked = () => {
+  const event = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(event);
+  return event.defaultPrevented;
+};
+
+describe('QuestionForm unsaved input', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    questionServiceMocks.createQuestion.mockResolvedValue({ questionId: 'question-1' });
+  });
+
+  it('keeps edits on cancel dismissal and protects failed saves', async () => {
+    const onCancel = vi.fn();
+    const { user } = renderWithProviders(<QuestionForm compact onCancel={onCancel} />, { withAuthProvider: false });
+    await user.click(screen.getByRole('button', { name: /Single Choice/ }));
+    fillQuestionText();
+    await user.click(screen.getByRole('button', { name: 'Use valid single options' }));
+    expect(questionUnloadBlocked()).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Stay' }));
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Question Text')).toHaveValue('What is the main function of mitochondria?');
+    questionServiceMocks.createQuestion.mockRejectedValueOnce(new Error('Offline'));
+    await user.click(screen.getByRole('button', { name: 'Create Question' }));
+    expect(await screen.findByText('Failed to save question')).toBeInTheDocument();
+    expect(questionUnloadBlocked()).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Leave without saving' }));
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it('clears successful save-and-reset and protects the next question', async () => {
+    const onSuccess = vi.fn();
+    const { user } = renderWithProviders(<QuestionForm compact onSuccess={onSuccess} />, { withAuthProvider: false });
+    await user.click(screen.getByRole('button', { name: /Single Choice/ }));
+    fillQuestionText();
+    await user.click(screen.getByRole('button', { name: 'Use valid single options' }));
+    await user.click(screen.getByRole('button', { name: 'Save & Add Another' }));
+    await waitFor(() => expect(screen.getByLabelText('Question Text')).toHaveValue(''));
+    expect(onSuccess).toHaveBeenCalledWith({ questionId: 'question-1', keepOpen: true });
+    expect(questionUnloadBlocked()).toBe(false);
+    fillQuestionText('The next unsaved question');
+    expect(questionUnloadBlocked()).toBe(true);
+  });
+
+  it('loads an edit cleanly, then clears protection after successful update', async () => {
+    const { user } = await renderHotspotEditForm();
+    expect(questionUnloadBlocked()).toBe(false);
+    fillQuestionText('Click the membrane in this cell diagram.');
+    expect(questionUnloadBlocked()).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Update Question' }));
+    await waitFor(() => expect(questionUnloadBlocked()).toBe(false));
+    expect(questionServiceMocks.updateQuestion).toHaveBeenCalledOnce();
+  });
+});
+
+it('retains later typing when save-and-add completes an earlier question', async () => {
+  let completeSave: ((result: { questionId: string }) => void) | undefined;
+  questionServiceMocks.createQuestion.mockImplementationOnce(() => new Promise((resolve) => { completeSave = resolve; }));
+  const { user } = renderWithProviders(<QuestionForm compact onSuccess={vi.fn()} />, { withAuthProvider: false });
+  await user.click(screen.getByRole('button', { name: /Single Choice/ }));
+  fillQuestionText('Submitted question');
+  await user.click(screen.getByRole('button', { name: 'Use valid single options' }));
+  await user.click(screen.getByRole('button', { name: 'Save & Add Another' }));
+  fillQuestionText('Later unsaved typing');
+  completeSave?.({ questionId: 'question-1' });
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save & Add Another' })).toBeEnabled());
+  expect(screen.getByLabelText('Question Text')).toHaveValue('Later unsaved typing');
+  expect(questionUnloadBlocked()).toBe(true);
+});
+
+it('lets standalone question query changes preserve input without a warning', async () => {
+  const { user, router } = renderWithProviders(<QuestionForm compact />, { route: '/questions?tab=questions', withAuthProvider: false });
+  await user.click(screen.getByRole('button', { name: /Single Choice/ }));
+  fillQuestionText('Preserved standalone question');
+  await act(async () => { await router.navigate('/questions?tab=overview'); });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Question Text')).toHaveValue('Preserved standalone question');
+  expect(questionUnloadBlocked()).toBe(true);
 });

@@ -4,7 +4,7 @@
 // Integrates all components from section 3.3 Quiz Details & Analytics
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ChartBarIcon,
   Cog6ToothIcon,
@@ -40,19 +40,20 @@ import QuizGenerationJobs from '@/features/quiz/components/QuizGenerationJobs';
 import QuizManagementTab from '@/features/quiz/components/QuizManagementTab';
 import QuizPublishModal from '@/features/quiz/components/QuizPublishModal';
 import QuizQuestionInline from '@/features/quiz/components/QuizQuestionInline';
+import { useUnsavedChanges } from '@/features/navigation/useUnsavedChanges';
 import type { QuizStatus, QuestionDifficulty } from '@/types';
 
 const QuizDetailPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const questionService = new QuestionService(api);
   
-  // Initialize tab from query parameter if present, otherwise default to 'overview'
-  const initialTab = (searchParams.get('tab') as 'overview' | 'management' | 'questions' | 'export') || 'overview';
-  const [activeTab, setActiveTab] = useState<'overview' | 'management' | 'questions' | 'export'>(initialTab);
+  const tab = searchParams.get('tab');
+  const activeTab = tab === 'management' || tab === 'questions' || tab === 'export' ? tab : 'overview';
+  const initializedQuizId = useRef<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [managementData, setManagementData] = useState<Partial<import('@/types').CreateQuizRequest | import('@/types').UpdateQuizRequest>>();
@@ -101,14 +102,16 @@ const QuizDetailPage: React.FC = () => {
 
   const handleSaveManagement = async () => {
     if (!quizId || !managementData || !quiz) return;
+    if (isSavingManagement) return;
+    const submittedData = { ...managementData };
     setIsSavingManagement(true);
     try {
       // Step 1: Save changes
-      await updateQuiz(quizId, managementData as import('@/types').UpdateQuizRequest);
+      await updateQuiz(quizId, submittedData as import('@/types').UpdateQuizRequest);
       
       // Step 2: Handle status based on visibility change
       const oldVisibility = initialManagementData?.visibility;
-      const newVisibility = managementData.visibility;
+      const newVisibility = submittedData.visibility;
       const isChangingToPublic = newVisibility === 'PUBLIC' && oldVisibility === 'PRIVATE';
       const isPrivate = newVisibility === 'PRIVATE';
       
@@ -126,7 +129,7 @@ const QuizDetailPage: React.FC = () => {
       }
       
       // Reset initial data to mark form as pristine after successful save
-      setInitialManagementData({ ...managementData });
+      setInitialManagementData(submittedData);
       // Refetch quiz data to get updated status from backend
       refetch();
     } catch (e) {
@@ -157,7 +160,8 @@ const QuizDetailPage: React.FC = () => {
 
   // Initialize local management form data when quiz loads
   useEffect(() => {
-    if (quiz) {
+    if (quiz && initializedQuizId.current !== quiz.id) {
+      initializedQuizId.current = quiz.id;
       const initialData = {
         title: quiz.title,
         description: quiz.description,
@@ -196,6 +200,8 @@ const QuizDetailPage: React.FC = () => {
     if (!managementData || !initialManagementData) return false;
     return JSON.stringify(managementData) !== JSON.stringify(initialManagementData);
   }, [managementData, initialManagementData]);
+
+  useUnsavedChanges(isDirty, { revision: managementData });
 
   if (quizLoading) {
     return (
@@ -240,7 +246,11 @@ const QuizDetailPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-theme-bg-primary border border-theme-border-primary rounded-lg shadow-theme">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+          <Tabs value={activeTab} onValueChange={(value) => {
+            const next = new URLSearchParams(searchParams);
+            next.set('tab', value);
+            setSearchParams(next);
+          }}>
             {/* Tabs header attached to content */}
             <div className="px-4 sm:px-6 lg:px-8 border-b border-theme-border-primary overflow-x-auto">
               <TabsList>

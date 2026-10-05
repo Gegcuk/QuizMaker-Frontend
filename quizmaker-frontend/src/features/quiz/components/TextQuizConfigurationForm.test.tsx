@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen, waitFor } from '@/test/render';
 import { TextQuizConfigurationForm } from './TextQuizConfigurationForm';
@@ -67,4 +68,26 @@ describe('TextQuizConfigurationForm', () => {
     });
     expect(onDataChange).toHaveBeenCalledOnce();
   });
+});
+
+it('protects local text before the parent receives a submission', async () => {
+  const onDataChange = vi.fn();
+  const { user } = renderWithProviders(<>
+    <TextQuizConfigurationForm quizData={{}} onDataChange={onDataChange} errors={{}} onCreateQuiz={vi.fn()} isCreating={false} />
+    <Link to="/other">Leave wizard</Link>
+  </>, { route: '/quizzes/create', withAuthProvider: false });
+    await user.type(screen.getByLabelText('Text Content *'), 'Unsaved generation source');
+  expect(onDataChange).not.toHaveBeenCalled();
+  const event = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(event);
+  expect(event.defaultPrevented).toBe(true);
+  await user.click(screen.getByRole('link', { name: 'Leave wizard' }));
+  await user.click(screen.getByRole('button', { name: 'Stay' }));
+  expect(screen.getByLabelText('Text Content *')).toHaveValue('Unsaved generation source');
+});
+
+it('freezes submitted generation inputs until the wizard can advance safely', () => {
+  renderWithProviders(<TextQuizConfigurationForm quizData={{}} onDataChange={vi.fn()} errors={{}} onCreateQuiz={vi.fn()} isCreating={true} />, { withAuthProvider: false });
+  expect(screen.getByLabelText('Text Content *')).toBeDisabled();
+  expect(screen.getByPlaceholderText('Enter quiz title...')).toBeDisabled();
 });
