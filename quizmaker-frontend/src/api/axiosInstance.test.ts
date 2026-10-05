@@ -45,17 +45,28 @@ describe('authenticated Axios session handling', () => {
   });
 
   it('does not replace cleared credentials when logout happens during refresh', async () => {
-    let releaseRefresh: (() => void) | undefined;
+    let signalRefreshStarted: (() => void) | undefined;
     const refreshStarted = new Promise<void>((resolve) => {
-      releaseRefresh = resolve;
+      signalRefreshStarted = resolve;
     });
+    let releaseRefreshResponse: (() => void) | undefined;
+    const refreshResponseGate = new Promise<void>((resolve) => {
+      releaseRefreshResponse = resolve;
+    });
+    let refreshResponseDelivered = false;
+    const onMockedResponse = ({ request }: { request: Request }) => {
+      if (request.method === 'POST' && request.url === refreshEndpoint) {
+        refreshResponseDelivered = true;
+      }
+    };
+    server.events.on('response:mocked', onMockedResponse);
     establishSession('old-access', 'old-refresh');
 
     server.use(
       http.get(privateEndpoint, () => new HttpResponse(null, { status: 401 })),
       http.post(refreshEndpoint, async () => {
-        releaseRefresh?.();
-        await delay(100);
+        signalRefreshStarted?.();
+        await refreshResponseGate;
         return HttpResponse.json({
           accessToken: 'late-access',
           refreshToken: 'late-refresh',
@@ -63,11 +74,23 @@ describe('authenticated Axios session handling', () => {
       }),
     );
 
-    const request = api.get('/v1/private/session-test');
-    await refreshStarted;
-    terminateSession('logout');
+    try {
+      // Observe rejection before logout cancels the in-flight refresh.
+      const rejectedRequest = expect(api.get('/v1/private/session-test')).rejects.toBeDefined();
+      await refreshStarted;
+      terminateSession('logout');
+      await rejectedRequest;
+    } finally {
+      // Axios cancellation settles before MSW finishes delivering its response.
+      // Drain that response before assertions and JSDOM teardown, even on failure.
+      releaseRefreshResponse?.();
+      try {
+        await vi.waitFor(() => expect(refreshResponseDelivered).toBe(true));
+      } finally {
+        server.events.removeListener('response:mocked', onMockedResponse);
+      }
+    }
 
-    await expect(request).rejects.toBeDefined();
     expect(getAccessToken()).toBeNull();
     expect(getRefreshToken()).toBeNull();
   });

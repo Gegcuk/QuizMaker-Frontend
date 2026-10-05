@@ -28,7 +28,9 @@ try {
   await prerender({ apiBaseUrl, staticOnly: false, setupPage: async (page, origin) => {
     await page.route('**/*', route => {
       const url = new URL(route.request().url());
-      if (url.origin === origin) return route.fallback();
+      // Let the prerender API proxy resolve both relative and compiled absolute
+      // API URLs against the local fixture server.
+      if (url.origin === origin || url.pathname.startsWith('/api/')) return route.fallback();
       if (url.hostname === 'www.googletagmanager.com') return route.fulfill({ contentType: 'application/javascript', body: '' });
       if (route.request().resourceType() === 'image') return route.fulfill({
         contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"></svg>',
@@ -36,7 +38,7 @@ try {
       return route.abort('blockedbyclient');
     });
   } });
-  await createSecurityHeaders('dist');
+  await createSecurityHeaders('dist', process.env.VITE_API_BASE_URL);
 } finally {
   server.closeAllConnections();
   await new Promise(resolve => server.close(resolve));
