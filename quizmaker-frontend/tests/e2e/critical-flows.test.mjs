@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
@@ -1663,6 +1666,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
 
 
 test('authoring navigation guards preserve input on desktop and mobile', { timeout: 90_000 }, async () => {
+  const screenshotDir = await mkdtemp(join(tmpdir(), 'quizmaker-navigation-'));
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
   try {
@@ -1741,7 +1745,7 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
         await page.keyboard.press('Escape');
         const warning = page.getByRole('dialog', { name: 'Leave without saving?' });
         await warning.waitFor();
-        await page.screenshot({ path: `/private/tmp/issue-207-modal-${viewport.width}.png` });
+        await page.screenshot({ path: join(screenshotDir, `modal-${viewport.width}.png`) });
         const bounds = await warning.boundingBox();
         assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= viewport.width, 'Confirmation fits the viewport');
         await page.keyboard.press('Escape');
@@ -1780,5 +1784,6 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
   } finally {
     await browser?.close();
     await stopDevServer(server);
+    await rm(screenshotDir, { recursive: true, force: true });
   }
 });
