@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -1741,6 +1741,9 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
 
         await page.getByRole('button', { name: 'Add Question', exact: true }).first().click();
         await page.getByRole('button', { name: /True.*False/ }).click();
+        const editorClose = page.getByRole('dialog').getByRole('button', { name: 'Close modal' });
+        const closeBounds = await editorClose.boundingBox();
+        assert.ok(closeBounds && closeBounds.width >= 44 && closeBounds.height >= 44, 'Shared close button is usable by touch');
         await page.getByLabel('Question Text', { exact: true }).fill('Unsaved browser question');
         await page.keyboard.press('Escape');
         const warning = page.getByRole('dialog', { name: 'Leave without saving?' });
@@ -1785,5 +1788,119 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
     await browser?.close();
     await stopDevServer(server);
     await rm(screenshotDir, { recursive: true, force: true });
+  }
+});
+
+test('confirmation design follows themes and balances responsive actions', { timeout: 120_000 }, async () => {
+  const screenshotDir = process.env.E2E_SCREENSHOT_DIR ?? await mkdtemp(join(tmpdir(), 'quizmaker-dialog-design-'));
+  await mkdir(screenshotDir, { recursive: true });
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await chromium.launch();
+    const scenarios = ['light', 'dark', 'blue', 'purple', 'green'].flatMap(palette =>
+      [1280, 390].map(width => ({ palette, width })));
+    // 640 CSS pixels also represents a 1280 px viewport at 200% browser zoom.
+    scenarios.push({ palette: 'light', width: 320 }, { palette: 'light', width: 640 });
+    for (const { palette, width } of scenarios) {
+      const context = await createTestContext(browser, { viewport: { width, height: 900 } });
+      try {
+        await context.addInitScript((scheme) => {
+          localStorage.setItem('quizmaker-theme', scheme === 'dark' || scheme === 'purple' ? 'dark' : 'light');
+          localStorage.setItem('quizmaker-color-scheme', scheme);
+        }, palette);
+        const page = await context.newPage();
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        await page.route('**/api/v1/auth/login', route => fulfillJson(route, tokens));
+        await page.route('**/api/v1/quizzes**', route => fulfillJson(route,
+          new URL(route.request().url()).pathname === `/api/v1/quizzes/${QUIZ_ID}`
+            ? quiz : { content: [], totalPages: 0, totalElements: 0, number: 0, size: 10, empty: true }));
+        await page.route('**/api/v1/questions**', route => fulfillJson(route,
+          { content: [], totalPages: 0, totalElements: 0, number: 0, size: 50, empty: true }));
+        await navigateToAppRoute(page, `/quizzes/${QUIZ_ID}?tab=questions`);
+        await fillLoginForm(page);
+        await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+        await page.getByRole('tab', { name: 'Settings', exact: true }).click();
+        await page.getByLabel('Quiz Title', { exact: true }).fill('Unsaved design fixture');
+        const menuToggle = page.getByRole('button', { name: 'Toggle navigation menu' });
+        if (await menuToggle.isVisible()) await menuToggle.click();
+        await page.getByRole('banner').getByRole('link', { name: 'My Quizzes', exact: true }).click();
+        const warning = page.getByRole('dialog', { name: 'Leave without saving?' });
+        await warning.waitFor();
+        const stay = warning.getByRole('button', { name: 'Stay', exact: true });
+        const leave = warning.getByRole('button', { name: 'Leave without saving', exact: true });
+        await page.waitForFunction(() => document.activeElement?.textContent === 'Stay');
+        const layout = await warning.evaluate(dialog => {
+          const buttons = [...dialog.querySelectorAll('button')];
+          const actions = buttons[0].parentElement;
+          const content = actions.parentElement.parentElement;
+          const message = dialog.querySelector('p');
+          const header = dialog.querySelector('h3').parentElement;
+          const box = element => {
+            const { x, y, width, height } = element.getBoundingClientRect();
+            return { x, y, width, height };
+          };
+          const themeColor = token => {
+            const probe = document.createElement('span');
+            probe.style.color = `var(${token})`;
+            dialog.append(probe);
+            const color = getComputedStyle(probe).color;
+            probe.remove();
+            return color;
+          };
+          return {
+            panel: box(dialog), actions: box(actions), buttons: buttons.map(box),
+            message: box(message), content: box(content),
+            padding: Number.parseFloat(getComputedStyle(content).paddingLeft),
+            headerPadding: Number.parseFloat(getComputedStyle(header).paddingLeft),
+            panelColor: getComputedStyle(dialog).backgroundColor,
+            actionsColor: getComputedStyle(actions).backgroundColor,
+            messageColor: getComputedStyle(message).color,
+            confirmColor: getComputedStyle(buttons[1]).backgroundColor,
+            cancelColor: getComputedStyle(buttons[0]).backgroundColor,
+            themeSurface: themeColor('--color-bg-primary'),
+            themeMessage: themeColor('--color-text-secondary'),
+            themePrimary: themeColor('--color-interactive-primary'),
+            scheme: document.documentElement.classList.contains(`theme-${localStorage.getItem('quizmaker-color-scheme')}`),
+            horizontalOverflow: dialog.scrollWidth > dialog.clientWidth,
+          };
+        });
+        const label = `${palette} at ${width}px`;
+        assert.ok(layout.scheme, label);
+        assert.equal(layout.panelColor, layout.themeSurface, `${label}: shared theme surface`);
+        assert.equal(layout.actionsColor, 'rgba(0, 0, 0, 0)', `${label}: no colored action strip`);
+        assert.equal(layout.cancelColor, 'rgba(0, 0, 0, 0)', `${label}: quiet outline cancellation`);
+        assert.equal(layout.messageColor, layout.themeMessage, `${label}: readable theme message`);
+        assert.equal(layout.confirmColor, layout.themePrimary, `${label}: shared primary action`);
+        assert.equal(layout.padding, layout.headerPadding, `${label}: consistent header/body inset`);
+        assert.ok(!layout.horizontalOverflow, `${label}: no horizontal overflow`);
+        assert.ok(layout.panel.x >= 0 && layout.panel.x + layout.panel.width <= width, `${label}: panel fits`);
+        const [cancelBox, confirmBox] = layout.buttons;
+        assert.ok(cancelBox.height >= 44 && confirmBox.height >= 44, `${label}: touch targets`);
+        assert.ok(Math.abs(cancelBox.width - confirmBox.width) < 1, `${label}: equal action widths`);
+        assert.ok(Math.abs(cancelBox.x - layout.content.x - layout.padding) < 1, `${label}: one layer of body spacing`);
+        assert.ok(Math.abs(confirmBox.x + confirmBox.width - layout.actions.x - layout.actions.width) < 1, `${label}: actions fill content`);
+        if (width >= 640) {
+          assert.ok(cancelBox.x < confirmBox.x && Math.abs(cancelBox.y - confirmBox.y) < 1, `${label}: safe action first in balanced row`);
+        } else {
+          assert.ok(cancelBox.y + cancelBox.height <= confirmBox.y, `${label}: safe action first in stack`);
+        }
+        await page.keyboard.press('Tab');
+        assert.ok(await leave.evaluate(button => button === document.activeElement), `${label}: keyboard follows visual order`);
+        await page.keyboard.press('Tab');
+        assert.ok(await stay.evaluate(button => button === document.activeElement), `${label}: focus stays in dialog`);
+        await page.screenshot({ path: join(screenshotDir, `${palette}-${width}.png`) });
+        await page.keyboard.press('Escape');
+        assert.equal(await page.getByLabel('Quiz Title', { exact: true }).inputValue(), 'Unsaved design fixture');
+      } finally {
+        await context.close();
+      }
+    }
+  } finally {
+    await browser?.close();
+    await stopDevServer(server);
+    if (!process.env.E2E_SCREENSHOT_DIR) await rm(screenshotDir, { recursive: true, force: true });
   }
 });

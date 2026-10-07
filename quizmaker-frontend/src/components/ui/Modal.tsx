@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import Button from './Button';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -58,7 +59,7 @@ const Modal: React.FC<ModalProps> = ({
     lg: 'max-w-lg',
     xl: 'max-w-xl',
     '2xl': 'max-w-3xl',
-    full: 'max-w-full mx-4'
+    full: 'max-w-full'
   };
 
   useEffect(() => {
@@ -160,30 +161,12 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
   
   const modalContent = (
-    <div 
-      className="fixed inset-0 z-[9999] overflow-y-auto" 
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0,
-        zIndex: 9999,
-        WebkitOverflowScrolling: 'touch'
-      }}
-    >
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4 md:p-6">
         {/* Backdrop */}
         <div
           data-testid={backdropTestId}
           className="fixed inset-0 z-0 bg-theme-bg-overlay bg-opacity-50 transition-opacity"
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0
-          }}
           onClick={handleBackdropClick}
           aria-hidden="true"
         />
@@ -191,15 +174,7 @@ const Modal: React.FC<ModalProps> = ({
         {/* Modal */}
         <div
           ref={modalRef}
-          className={`relative z-10 bg-theme-bg-primary rounded-lg shadow-theme w-full mx-2 sm:mx-4 ${sizeClasses[size]} ${className}`}
-          style={{ 
-            position: 'relative',
-            maxHeight: 'calc(100vh - 3rem)',
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            marginTop: 'auto',
-            marginBottom: 'auto'
-          }}
+          className={`relative z-10 my-auto max-h-[calc(100vh-3rem)] w-full overflow-y-auto rounded-lg border border-theme-border-primary bg-theme-bg-primary shadow-theme ${sizeClasses[size]} ${className}`}
           role="dialog"
           aria-modal="true"
           aria-describedby={ariaDescribedBy}
@@ -209,24 +184,26 @@ const Modal: React.FC<ModalProps> = ({
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-theme-border-primary bg-theme-bg-primary text-theme-text-primary bg-theme-bg-primary text-theme-text-primary">
+            <div className="flex items-center justify-between gap-3 border-b border-theme-border-primary p-4 sm:p-6">
               {title && (
                 <h3
                   id={titleId}
-                  className="text-lg font-medium text-theme-text-primary"
+                  className="min-w-0 break-words text-lg font-medium text-theme-text-primary"
                 >
                   {title}
                 </h3>
               )}
               {showCloseButton && (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={onClose}
-                  className="text-theme-text-tertiary hover:text-theme-text-secondary transition-colors duration-200"
+                  className="ml-auto min-h-11 min-w-11 shrink-0"
                   aria-label="Close modal"
                 >
                   <svg
-                    className="h-6 w-6"
+                    className="h-5 w-5"
+                    aria-hidden="true"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -238,13 +215,13 @@ const Modal: React.FC<ModalProps> = ({
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               )}
             </div>
           )}
           
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {children}
           </div>
         </div>

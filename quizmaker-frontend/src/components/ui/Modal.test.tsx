@@ -41,3 +41,16 @@ describe('nested authoring confirmation', () => {
     expect(open).toHaveFocus();
   });
 });
+
+describe('Modal header', () => {
+  it('closes through the reusable keyboard control and restores its focus after cancellation', async () => {
+    const { user } = renderWithProviders(<NestedEditor />, { withAuthProvider: false });
+    await user.click(screen.getByRole('button', { name: 'Open editor' }));
+    const close = screen.getByRole('button', { name: 'Close modal' });
+    await waitFor(() => expect(close).toHaveFocus());
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('dialog', { name: 'Leave without saving?' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(close).toHaveFocus();
+  });
+});
