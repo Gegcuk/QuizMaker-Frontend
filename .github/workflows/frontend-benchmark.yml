@@ -1,0 +1,148 @@
+name: Frontend Fixture Benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prime:
+    name: Prepare verified tooling cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      cache_artifact: ${{ steps.upload.outputs.artifact-id }}
+      cache_sha256: ${{ steps.export.outputs.archive_sha256 }}
+    defaults:
+      run:
+        working-directory: quizmaker-frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: quizmaker-frontend/package-lock.json
+      - run: npm ci
+      - name: Prepare browser with one complete deadline
+        id: browser
+        timeout-minutes: 6
+        run: node scripts/browser/environment.mjs prepare "$RUNNER_TEMP/browser-state.json"
+      - name: Export only the immutable tooling image
+        id: export
+        run: node scripts/browser/environment.mjs export-cache "$RUNNER_TEMP/browser-state.json" "$RUNNER_TEMP/prepared-image.tar"
+      - name: Upload prepared tooling cache
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: prepared-browser-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/prepared-image.tar
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+      - name: Stop task-owned browser
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        timeout-minutes: 1
+        run: node scripts/browser/environment.mjs stop "$RUNNER_TEMP/browser-state.json"
+
+  validate:
+    name: ${{ matrix.path }} ${{ matrix.cache }} sample ${{ matrix.sample }}
+    needs: prime
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        path: [pr, producer]
+        cache: [cold, warm]
+        sample: [1, 2, 3]
+    env:
+      BENCHMARK_JOB_NAME: ${{ matrix.path }} ${{ matrix.cache }} sample ${{ matrix.sample }}
+      BENCHMARK_CACHE: ${{ matrix.cache }}
+      BENCHMARK_SAMPLE: ${{ matrix.sample }}
+    defaults:
+      run:
+        working-directory: quizmaker-frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        id: node
+        with:
+          node-version-file: .nvmrc
+          cache: ${{ matrix.cache == 'warm' && 'npm' || '' }}
+          cache-dependency-path: quizmaker-frontend/package-lock.json
+      - name: Use an empty task-owned npm cache for cold measurements
+        if: matrix.cache == 'cold'
+        run: echo "npm_config_cache=$RUNNER_TEMP/npm-cold" >> "$GITHUB_ENV"
+      - name: Locked dependency installation
+        env:
+          BENCHMARK_NPM_CACHE_RESTORED: ${{ steps.node.outputs.cache-hit }}
+        run: |
+          echo "BENCHMARK_NPM_CACHE_RESTORED=$BENCHMARK_NPM_CACHE_RESTORED" >> "$GITHUB_ENV"
+          if [ "$BENCHMARK_CACHE" = warm ]; then
+            test "$BENCHMARK_NPM_CACHE_RESTORED" = true
+            npm ci --offline
+          else
+            test ! -d "$npm_config_cache"
+            npm ci
+          fi
+      - name: Prepare browser including verified warm-cache restoration
+        id: browser
+        timeout-minutes: 6
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BROWSER_CACHE_ARTIFACT_ID: ${{ matrix.cache == 'warm' && needs.prime.outputs.cache_artifact || '' }}
+          BROWSER_CACHE_ARCHIVE_SHA256: ${{ needs.prime.outputs.cache_sha256 }}
+        run: node scripts/browser/environment.mjs prepare "$RUNNER_TEMP/browser-state.json"
+      - name: Run the shared validation path against fixtures
+        env:
+          VALIDATION_METRICS_FILE: ${{ runner.temp }}/validation.json
+        run: |
+          if [ "$BENCHMARK_JOB_NAME" = "pr $BENCHMARK_CACHE sample $BENCHMARK_SAMPLE" ]; then
+            node scripts/deployment/validate-frontend.mjs pr
+          else
+            node scripts/deployment/validate-frontend.mjs producer-fixture
+          fi
+      - name: Upload timing evidence only
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: benchmark-timing-${{ matrix.path }}-${{ matrix.cache }}-${{ matrix.sample }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/validation.json
+            ${{ runner.temp }}/browser-state.json.metrics.json
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Stop task-owned browser
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        timeout-minutes: 1
+        run: node scripts/browser/environment.mjs stop "$RUNNER_TEMP/browser-state.json"
+
+  summarize:
+    name: Reconcile actual job timing and cache cohorts
+    if: always()
+    needs: [prime, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        working-directory: quizmaker-frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - name: Fetch safe timing evidence and job timestamps
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'benchmark-timing-*' --dir "$RUNNER_TEMP/timings"
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?filter=all&per_page=100" > "$RUNNER_TEMP/jobs.json"
+          node scripts/browser/summarize-benchmark.mjs "$RUNNER_TEMP/timings" "$RUNNER_TEMP/jobs.json"

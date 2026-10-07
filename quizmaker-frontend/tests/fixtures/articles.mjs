@@ -2,10 +2,10 @@
 // responses, including bytes for these external-looking URLs, stay local in tests.
 export const SITE_URL = 'https://www.quizzence.com';
 export const FALLBACK_URL = 'https://cdn.quizzence.com/library/aec804f3-e4b3-430a-ba3e-109e819b3c56.png';
-export const HERO_URL = 'https://images.example.test/published-cover.jpg';
-export const SOCIAL_URL = 'https://images.example.test/authored-social.png';
-export const UNKNOWN_SIZE_URL = 'https://images.example.test/legacy-cover.webp';
-export const FAILED_HERO_URL = 'https://images.example.test/deleted-cover.png';
+export const HERO_URL = 'https://cdn.quizzence.com/fixtures/published-cover.jpg';
+export const SOCIAL_URL = 'https://cdn.quizzence.com/fixtures/authored-social.png';
+export const UNKNOWN_SIZE_URL = 'https://cdn.quizzence.com/fixtures/legacy-cover.webp';
+export const FAILED_HERO_URL = 'https://cdn.quizzence.com/fixtures/deleted-cover.png';
 
 const hero = {
   assetId: '11111111-1111-4111-8111-111111111111',

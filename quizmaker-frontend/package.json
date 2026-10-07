@@ -20,7 +20,7 @@
     "test:e2e": "node --test tests/e2e/critical-flows.test.mjs",
     "test:nginx": "node tests/deployment/nginx-route-policy.mjs",
     "verify:public-routes": "node scripts/verify-public-route-delivery.mjs",
-    "test:deployment-policy": "python3 -B -m unittest discover -s tests/deployment -p \"test_*.py\" && node tests/deployment/deploy-workflow-policy.mjs && node --test tests/deployment/security-headers.test.mjs tests/deployment/node-runtime-policy.test.mjs",
+    "test:deployment-policy": "python3 -B -m unittest discover -s tests/deployment -p \"test_*.py\" && node tests/deployment/deploy-workflow-policy.mjs && node --test tests/deployment/security-headers.test.mjs tests/deployment/node-runtime-policy.test.mjs tests/deployment/browser-*.test.mjs",
     "test:seo": "node --test tests/seo/*.test.mjs",
     "audit:production": "npm audit --omit=dev",
     "browserslist:update": "npx update-browserslist-db@latest",

@@ -10,7 +10,16 @@ test -z "$(git status --porcelain)"
 test "$VITE_SITE_URL" = 'https://www.quizzence.com'
 test ! -e release-bundle
 test ! -e release-manifest.json
-npm run build:prerender
+case "${RELEASE_FIXTURE_MODE:-false}" in
+  true)
+    test "$VITE_API_BASE_URL" = 'https://api.fixture.test/api'
+    npm run build
+    node tests/fixtures/prepare-release.mjs
+    REQUIRE_ARTICLE_ROUTES=true npm run verify:prerender
+    ;;
+  false) npm run build:prerender ;;
+  *) echo 'Invalid release fixture mode'; exit 1 ;;
+esac
 node scripts/deployment/security-headers.mjs
 python3 scripts/deployment/artifact.py prepare
 release_id="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"

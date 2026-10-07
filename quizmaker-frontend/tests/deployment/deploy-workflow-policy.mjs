@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkValidationWorkflow, checkValidationPlan } from './browser-policy.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,8 +27,9 @@ const main = async () => {
   const consumer = workflow.split('  deploy:')[1];
   assert.equal((buildScript.match(/npm run build:prerender/g) ?? []).length, 1);
   assert.equal((buildScript.match(/docker build /g) ?? []).length, 1);
-  assert.ok(producer.indexOf('run: npm run audit:production') < producer.indexOf('run: bash scripts/deployment/build-release.sh'));
-  assert.ok(producer.indexOf('run: npm run test:release') < producer.indexOf('uses: actions/upload-artifact@'));
+  checkValidationWorkflow(workflow, 'producer');
+  checkValidationWorkflow(prWorkflow, 'pr');
+  checkValidationPlan(JSON.parse(await fs.readFile(path.join(repositoryRoot, 'quizmaker-frontend/scripts/deployment/validation-plan.json'), 'utf8')));
   assert.match(consumer, /needs: validate/);
   assert.match(consumer, /artifact-ids: \$\{\{ needs.validate.outputs.artifact_id \}\}/);
   assert.match(consumer, /artifact.py verify --digest/);
@@ -40,7 +42,6 @@ const main = async () => {
   assert.match(consumer, /if: github.ref == 'refs\/heads\/main'/);
   assert.doesNotMatch(workflow, /actions: write|id-token: write|contents: write/);
   assert.doesNotMatch(prWorkflow, /secrets\.|ssh-action|rsync-deployments/);
-  assert.ok(prWorkflow.indexOf('run: npm run build:prerender:static') < prWorkflow.indexOf('run: npm run test:privacy:production'));
 
   const bootstrapMatch = indexHtml.match(
     /<script id="sensitive-url-bootstrap">([\s\S]*?)<\/script>/,

@@ -1,0 +1,23 @@
+{
+  "pr": [
+    ["audit", "npm", "run", "audit:production"],
+    ["lint", "npm", "run", "lint"],
+    ["unit", "npm", "test"],
+    ["seo", "npm", "run", "test:seo"],
+    ["smoke", "npm", "run", "test:smoke"],
+    ["e2e", "npm", "run", "test:e2e"],
+    ["build", "npm", "run", "build:prerender:static"],
+    ["privacy", "npm", "run", "test:privacy:production"],
+    ["deployment-policy", "npm", "run", "test:deployment-policy"],
+    ["nginx", "npm", "run", "test:nginx"]
+  ],
+  "producer": [
+    ["audit", "npm", "run", "audit:production"],
+    ["lint", "npm", "run", "lint", "--", "--quiet"],
+    ["unit", "npm", "test"],
+    ["seo", "npm", "run", "test:seo"],
+    ["deployment-policy", "npm", "run", "test:deployment-policy"],
+    ["build", "bash", "scripts/deployment/build-release.sh"],
+    ["release", "npm", "run", "test:release"]
+  ]
+}

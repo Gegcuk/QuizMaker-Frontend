@@ -16,6 +16,7 @@ jobs:
   validate:
     name: Lint, test, and build frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     defaults:
       run:
@@ -37,38 +38,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Audit production dependencies
-        run: npm run audit:production
+      - name: Prepare immutable browser environment
+        id: browser
+        timeout-minutes: 6
+        run: node scripts/browser/environment.mjs prepare "$RUNNER_TEMP/browser-state.json"
 
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
-      - name: SEO build contract test
-        run: npm run test:seo
-
-      - name: Browser smoke test
-        run: npm run test:smoke
-
-      - name: Critical E2E tests
-        run: npm run test:e2e
-
-      - name: Build
+      - name: Validate frontend gates
         env:
-          # Exercise production-style absolute API URLs without production access.
-          VITE_API_BASE_URL: https://api.fixture.test/api
-        run: npm run build:prerender:static
+          VALIDATION_METRICS_FILE: ${{ runner.temp }}/frontend-validation.json
+        run: node scripts/deployment/validate-frontend.mjs pr
 
-      - name: Production analytics privacy test
-        run: npm run test:privacy:production
-
-      - name: Validate deployment workflow policy
-        run: npm run test:deployment-policy
-
-      - name: Validate Nginx route policy
-        run: npm run test:nginx
+      - name: Stop task-owned browser environment
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        timeout-minutes: 1
+        run: node scripts/browser/environment.mjs stop "$RUNNER_TEMP/browser-state.json"

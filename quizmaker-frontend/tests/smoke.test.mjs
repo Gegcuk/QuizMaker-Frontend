@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
-import { chromium } from 'playwright';
+import { launchBrowser } from '../scripts/browser/launch-browser.mjs';
 import { createTestContext } from './fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
@@ -288,7 +288,7 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
 
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
 
     const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 720 } })).newPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });

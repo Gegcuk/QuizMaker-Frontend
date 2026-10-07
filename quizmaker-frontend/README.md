@@ -5,7 +5,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 ## Local frontend checks
 
 Use Node **24.21.0** and its bundled npm **11.19.0**. The repository-root
-`.nvmrc` is the shared pin for development and all three Node-based workflows.
+`.nvmrc` is the shared pin for development and all Node-based workflows.
 With nvm installed, activate it from the repository root before installing:
 
 ```bash
@@ -332,6 +332,98 @@ prerendered article HTML using a local API and image fixtures. It covers image
 selection, unavailable media, browser load failures, and mobile/desktop article
 navigation without contacting production services. Static prerender checks alone
 do not cover article output.
+
+## Prepared browser environment and validation timing
+
+PR checks and the release producer use the official Playwright 1.61.1 image,
+with reviewed architecture-specific SHA256 digests in
+`scripts/browser/environment.json`. Chromium, native libraries and fonts are
+already inside that image. No workflow runs an APT/browser installer. Builds,
+tests and the browser service all use the exact Node patch from `.nvmrc`; the
+Linux runner's Node directory is mounted read-only into the browser container.
+The image's own Node installation is not used.
+
+Preparation starts its single **300-second** deadline before image inspection,
+cache restoration or registry pull. Acquisition, service compatibility, actual
+Chromium launch and rendering a local HTTP fixture share the remaining budget.
+The six-minute Actions step allowance includes bounded cleanup after the
+five-minute preparation deadline; it is not six minutes of provisioning.
+Failure reports the phase and elapsed time and does not retry or fall back to a
+host browser. Cleanup removes only UUID-named, ownership-labelled resources.
+Services have a 25-minute watchdog in case their runner disappears. Exported-image
+tests also label their own UUID container and clean it within a separate
+10-second budget on failure/cancellation, without deleting transport archives.
+Validation cancellation first allows this cleanup, then stops the remaining
+command process group after 11 seconds.
+
+The browser has a read-only filesystem, an internal task-owned Docker network,
+no published ports, no production environment or token mounts, dropped Linux
+capabilities and no new privileges. A private loopback proxy carries the
+Playwright connection through Docker exec streams. Playwright's supported
+`exposeNetwork: '<loopback>'` relay reaches the runner's local Vite and exact
+exported Nginx image. External browser connections have no route. Production prerender relays image
+bytes on the host only for `https://cdn.quizzence.com`, using anonymous GET
+without browser cookies, authorization or referrer headers. Redirects and
+unknown image origins fail the build, including forbidden heroes that would
+otherwise become fallbacks and lazy images below the viewport. No host image
+relay is installed in smoke/E2E/privacy browser tests; fixture prerender uses
+provider fakes and never requests the production CDN. Changing the CDN boundary
+requires an explicit security-policy review. The internal
+interface preserves native online/offline behavior, including billing retry
+behavior. The capability-bearing WebSocket URL stays in a mode-0600 state file,
+is masked when exported to Actions and is excluded from metrics/cache uploads.
+
+Both paths run `scripts/deployment/validate-frontend.mjs` with executable gates
+listed in `validation-plan.json`. PR and producer jobs each have a 25-minute
+limit. The producer builds once, seals and tests its exported image, then
+uploads that same archive. Activation keeps the existing 22-minute SSH rollout
+budget and has a separate 40-minute job allowance (10 minutes for SSH preparation
+and 8 minutes for artifact/receipt overhead). Artifact identity, rollback and
+consumer completion checks remain required.
+
+The manually dispatched **Frontend Fixture Benchmark** workflow runs three cold
+and three warm samples for each PR and complete fixture-producer path (12 jobs).
+It cannot activate production: it has no activation job, production environment,
+deployment secrets or write permissions. Fixture producer mode uses a fixed
+local-fixture API and the same build/export/seal/release verification code as the
+production producer. It never uploads an application release; only timing
+metadata and the immutable tooling image are uploaded.
+
+Cold samples use an empty task-owned npm cache and must observe the selected
+prepared-image digest absent. Shared runner Docker layers may exist and are
+reported as unmeasured; this is not a claim of zero cached bytes. Warm samples
+require an exact npm cache hit with offline installation and restore the
+captured tooling archive within the preparation deadline. The archive SHA256
+comes from a separate producer output and is checked before Docker load; its
+layers must match the immutable registry digest. A missing, late or invalid
+cache fails the measurement rather than becoming a successful cold sample.
+There is no separate browser cache. Cache priming is reported as a separate
+setup job and is not one of the 12 validation samples.
+
+The summary reconciles safe timing records with actual GitHub job start times,
+including runtime setup, npm installation, acquisition, build and all gates.
+Artifact upload duration is reported separately. All attempts, failures and
+cache misses stay in the evidence. Comparable runner image, architecture,
+Node, Playwright, Chromium and tooling digest are required. Each cohort needs
+three distinct successful samples: readiness must be at most two minutes and
+the complete producer median at most eight minutes. Missing evidence or failed
+targets fail the summary; local Docker timings do not prove hosted-runner targets.
+
+Ordinary local commands still launch a locally installed Chromium when no
+prepared environment is requested. To use preparation on a Linux host:
+
+```bash
+node scripts/browser/environment.mjs prepare /tmp/quizmaker-browser-state.json
+# Read the private state's endpoint into BROWSER_WS_ENDPOINT without logging it.
+# REQUIRE_PREPARED_BROWSER=true makes a missing endpoint fail instead of falling back.
+node scripts/deployment/validate-frontend.mjs pr
+node scripts/browser/environment.mjs stop /tmp/quizmaker-browser-state.json
+```
+
+Non-Linux probes must pass a verified Linux Node runtime directory as a third
+argument to `prepare`; no system runtime is changed. Browser image updates need
+a lockfile/Chromium compatibility review, new architecture digests and focused
+negative policy tests before rerunning both paths and hosted benchmarks.
 
 ## Dependency Maintenance
 

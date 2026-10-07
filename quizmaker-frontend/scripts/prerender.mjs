@@ -2,7 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview as startVitePreview } from 'vite';
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser/launch-browser.mjs';
+import { setupPrerenderImages } from './browser/prerender-images.mjs';
 import { loadArticleSitemapRoutes } from './article-sitemap.mjs';
 import { getPublicRoute, staticPrerenderRoutes } from '../src/routes/publicRouteManifest.mjs';
 
@@ -137,6 +138,7 @@ export const prerender = async ({
 
   let previewServer;
   let browser;
+  let imageBoundary;
 
   try {
     // Own the server directly: signalling an npm wrapper can leave its shell
@@ -152,11 +154,13 @@ export const prerender = async ({
     }
     const previewOrigin = `http://127.0.0.1:${address.port}`;
 
-    browser = await chromium.launch();
+    browser = await launchBrowser();
     const page = await browser.newPage();
     if (!staticOnly) {
       await setupApiProxy(page, apiBaseUrl);
     }
+
+    imageBoundary = await setupPrerenderImages(page, previewOrigin);
 
     if (setupPage) {
       await setupPage(page, previewOrigin);
@@ -213,6 +217,7 @@ export const prerender = async ({
         await delay(300);
       }
 
+      await imageBoundary.assertAllowedImages();
       const html = await page.content();
       const outputPath = resolveOutputPath(route, distDir);
 
@@ -223,6 +228,7 @@ export const prerender = async ({
     }
   } finally {
     // Ensure the browser and preview server are stopped even on failure.
+    if (imageBoundary) await imageBoundary.dispose().catch(() => undefined);
     if (browser) {
       try {
         await browser.close();

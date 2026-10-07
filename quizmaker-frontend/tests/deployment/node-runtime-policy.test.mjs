@@ -67,3 +67,15 @@ test('the runtime policy is required by the deployment gate and production remai
   assert.match(dockerfile, /^FROM nginx:/m);
   assert.doesNotMatch(dockerfile, /^FROM node:|RUN npm |COPY.*node_modules/m);
 });
+
+
+test('every benchmark job selects the same runtime without production dependencies', async () => {
+  const content = await read('.github/workflows/frontend-benchmark.yml');
+  const jobs = content.split(/^  (?:prime|validate|summarize):/m).slice(1);
+  assert.equal(jobs.length, 3);
+  for (const job of jobs) {
+    assert.equal((job.match(/uses: actions\/setup-node@/g) ?? []).length, 1);
+    assert.match(job, /node-version-file: \.nvmrc/);
+    assert.doesNotMatch(job, /node-version:|engine-strict[=: ]+false|--force/);
+  }
+});

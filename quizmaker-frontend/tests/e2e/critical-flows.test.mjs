@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
-import { chromium } from 'playwright';
+import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { createTestContext } from '../fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
@@ -504,7 +504,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
 
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
 
     {
       const page = await (await createTestContext(browser)).newPage();
@@ -1671,7 +1671,7 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
   let browser;
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
     // #207: use real browser history and native reload prompts with local APIs.
     for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
       const context = await createTestContext(browser, { viewport });
@@ -1798,7 +1798,7 @@ test('confirmation design follows themes and balances responsive actions', { tim
   let browser;
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
     const scenarios = ['light', 'dark', 'blue', 'purple', 'green'].flatMap(palette =>
       [1280, 390].map(width => ({ palette, width })));
     // 640 CSS pixels also represents a 1280 px viewport at 200% browser zoom.
