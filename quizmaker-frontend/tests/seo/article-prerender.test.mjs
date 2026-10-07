@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
-import { chromium } from 'playwright';
+import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { build } from 'vite';
 import { prerender } from '../../scripts/prerender.mjs';
 import {
@@ -25,7 +25,7 @@ const articleSchema = (document) => [...document.querySelectorAll('script[type="
   .find((schema) => schema['@type'] === 'Article');
 const articleHero = (document) => document.querySelector('img[data-article-hero]');
 
-const startFixtureServer = async (distDir) => {
+const startFixtureServer = async (distDir, articleData = articles) => {
   const apiRequests = [];
   const unexpectedApiRequests = [];
   const server = http.createServer(async (request, response) => {
@@ -39,11 +39,11 @@ const startFixtureServer = async (distDir) => {
       if (url.pathname === '/api/v1/articles/sitemap') return sendJson(sitemapEntries);
       if (url.pathname === '/api/v1/articles/tags') return sendJson([{ tag: 'Learning', count: articles.length }]);
       if (url.pathname === '/api/v1/articles/public') {
-        return sendJson({ content: articles, totalElements: articles.length, size: 20, number: 0 });
+        return sendJson({ content: articleData, totalElements: articleData.length, size: 20, number: 0 });
       }
       const match = url.pathname.match(/^\/api\/v1\/articles\/public\/slug\/([^/]+)$/);
       if (match) {
-        const result = articles.find((article) => article.slug === match[1]);
+        const result = articleData.find((article) => article.slug === match[1]);
         return sendJson(result ?? { detail: 'Article not found' }, result ? 200 : 404);
       }
       unexpectedApiRequests.push(`${request.method} ${url.pathname}`);
@@ -169,6 +169,27 @@ test('article output and browser navigation use local rendition fixtures', { tim
     setupPage: (page, previewOrigin) => installLocalRoutes(page, previewOrigin, unexpectedRemoteRequests),
   });
 
+  await t.test('unknown hero origin stops real prerender before replacing published HTML with fallback', async () => {
+    const rejectedDist = path.join(temporaryDir, 'rejected-dist');
+    await fs.cp(distDir, rejectedDist, { recursive: true });
+    const target = articles.find(article => article.slug === 'hero-rendition');
+    const changed = articles.map(article => article === target ? {
+      ...article, heroImage: { ...article.heroImage, rendition: {
+        ...article.heroImage.rendition, url: 'https://unknown.example.test/forbidden-hero',
+      } },
+    } : article);
+    const rejectedServer = await startFixtureServer(rejectedDist, changed);
+    const output = path.join(rejectedDist, 'blog/hero-rendition/index.html');
+    const original = await fs.readFile(output, 'utf8');
+    try {
+      await assert.rejects(prerender({
+        distDir: rejectedDist, apiBaseUrl: `${rejectedServer.origin}/api`, staticOnly: false,
+        setupPage: (page, previewOrigin) => installLocalRoutes(page, previewOrigin, []),
+      }), /image origin rejected/);
+      assert.equal(await fs.readFile(output, 'utf8'), original);
+    } finally { await rejectedServer.close(); }
+  });
+
   await t.test('saved HTML preserves each canonical URL and complete article body', async () => {
     for (const article of articles) {
       const document = await readArticleDocument(distDir, article.slug);
@@ -234,7 +255,7 @@ test('article output and browser navigation use local rendition fixtures', { tim
     assert.equal(articleSchema(document).image, undefined);
   });
 
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   t.after(() => browser.close());
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
     await t.test(`browser transitions remove stale image tags at ${viewport.width}px`, async () => {

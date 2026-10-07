@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
-import { chromium } from 'playwright';
+import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { createTestContext } from '../fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
@@ -73,7 +73,7 @@ test('production analytics never receives URL canaries', { timeout: 60_000 }, as
 
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
 
     const sensitiveReturns = [
       {
@@ -185,7 +185,7 @@ test('production checkout recovery preserves privacy and backend authority on de
   const sessionId = 'cs_test_recovery_canary';
   try {
     await waitForServer(BASE_URL);
-    browser = await chromium.launch();
+    browser = await launchBrowser();
     for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
       const context = await createTestContext(browser, { viewport });
       const unexpected = [];

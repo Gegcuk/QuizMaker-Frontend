@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { chromium } from 'playwright';
+import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { createTestContext } from '../fixtures/browser-context.mjs';
 
 export const verifyBrowserPolicies = async base => {
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   try {
     // The shipped image is report-only. A test-only response override checks the
     // future enforcement boundary without changing application or image bytes.

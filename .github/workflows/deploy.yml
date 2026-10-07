@@ -17,6 +17,7 @@ jobs:
     name: Build and validate the production artifact
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     environment: production
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
@@ -39,28 +40,22 @@ jobs:
           cache-dependency-path: quizmaker-frontend/package-lock.json
       - name: Install deps
         run: npm ci
-      - name: Audit production dependencies
-        run: npm run audit:production
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Lint
-        run: npm run lint -- --quiet
-      - name: Test
-        run: npm test
-      - name: SEO source contract tests with local fixtures
-        run: npm run test:seo
-      - name: Validate deployment workflow and failure recovery
-        run: npm run test:deployment-policy
-      - name: Build production artifact once
+      - name: Prepare immutable browser environment
+        id: browser
+        timeout-minutes: 6
+        run: node scripts/browser/environment.mjs prepare "$RUNNER_TEMP/browser-state.json"
+      - name: Build and validate frontend gates
         id: build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
-        run: bash scripts/deployment/build-release.sh
-      - name: Validate the exported image
-        env:
-          RELEASE_MANIFEST_DIGEST: ${{ steps.build.outputs.manifest_digest }}
-        run: npm run test:release
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/host-browser-cache-empty
+          VALIDATION_METRICS_FILE: ${{ runner.temp }}/frontend-validation.json
+        run: node scripts/deployment/validate-frontend.mjs producer
+      - name: Stop task-owned browser environment
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        timeout-minutes: 1
+        run: node scripts/browser/environment.mjs stop "$RUNNER_TEMP/browser-state.json"
       - name: Upload the validated image and provenance
         id: upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -74,6 +69,7 @@ jobs:
     name: Activate verified frontend candidate
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     needs: validate
     environment: production
     outputs:
