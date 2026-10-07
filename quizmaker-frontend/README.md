@@ -4,6 +4,31 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 ## Local frontend checks
 
+Use Node **24.21.0** and its bundled npm **11.19.0**. The repository-root
+`.nvmrc` is the shared pin for development and all three Node-based workflows.
+With nvm installed, activate it from the repository root before installing:
+
+```bash
+nvm install
+nvm use
+node --version
+npm --version
+```
+
+Other version managers should select the same versions. The app's engines
+policy supports Node 24 from this patch and npm 11 from this version;
+`.npmrc` makes unsupported installations fail rather than just warn.
+`packageManager` records the npm baseline; it does not automatically install npm.
+Do not use `--force` or disable engine checks to bypass a runtime mismatch.
+
+For deliberate runtime updates, review an official Node 24 LTS patch, its bundled
+npm and release notes. Update `.nvmrc`, the package engines/npm baseline and
+lockfile metadata together, then rerun clean installation, all required checks
+and exported-image validation. Keep `@types/node` on major 24. Playwright
+environment updates must also preserve this declared runtime.
+Node is used for development, builds and validation; production serves the
+resulting static files through Nginx.
+
 From the repository root:
 
 ```bash
