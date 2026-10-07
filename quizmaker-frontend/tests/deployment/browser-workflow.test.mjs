@@ -27,7 +27,8 @@ test('workflow bypasses, missing preparation and premature artifact upload are r
       source.replace(`run: node scripts/deployment/validate-frontend.mjs ${mode}`, `if: always()\n        run: node scripts/deployment/validate-frontend.mjs ${mode}`),
       source.replace('timeout-minutes: 25', 'timeout-minutes: 60'),
       source.replace('timeout-minutes: 6', 'timeout-minutes: 10'),
-      source.replace('id: browser', 'continue-on-error: true\n        id: browser')]) {
+      source.replace('id: browser', 'continue-on-error: true\n        id: browser'),
+      source.replace('PLAYWRIGHT_BROWSERS_PATH:', 'UNUSED_BROWSER_PATH:')]) {
       assert.throws(() => checkValidationWorkflow(broken, mode));
     }
   }
@@ -35,7 +36,7 @@ test('workflow bypasses, missing preparation and premature artifact upload are r
   const premature = deployment.replace(upload, '').replace('      - name: Prepare immutable', `${upload}\n      - name: Prepare immutable`);
   assert.throws(() => checkValidationWorkflow(premature, 'producer'));
 });
-test('benchmark cannot activate production or upload application/private state', () => {
+test('benchmark uploads a fixture image after validation without production handoff or private state', () => {
   checkBenchmarkWorkflow(benchmark);
   for (const addition of ['\n  deploy: {}', '\n  push: {}', '\n  schedule: []', '\n  workflow_run: {}', '\n  repository_dispatch: {}', '\n  actions: write',
     '\n  environment: production', '\n  run: ssh host', '\n  env: ${{ secrets.SECRET }}',
@@ -43,4 +44,17 @@ test('benchmark cannot activate production or upload application/private state',
   for (const replacement of ['${{ runner.temp }}/*', 'quizmaker-frontend/release-bundle/', '${{ runner.temp }}/browser-state.json']) {
     assert.throws(() => checkBenchmarkWorkflow(benchmark.replace('${{ runner.temp }}/prepared-image.tar', replacement)));
   }
+});
+
+test('fixture image timing requires the actual image upload after successful producer validation', () => {
+  const imageStep = benchmark.match(/      - name: Upload validated fixture image only[\s\S]*?(?=      - name: Upload timing evidence only)/)[0];
+  for (const broken of [
+    benchmark.replace(imageStep, ''),
+    benchmark.replace(imageStep, '').replace('      - name: Run the shared validation path against fixtures', `${imageStep}      - name: Run the shared validation path against fixtures`),
+    benchmark.replace("if: matrix.path == 'producer'", 'if: always()'),
+    benchmark.replace('path: quizmaker-frontend/release-bundle/image.tar', 'path: quizmaker-frontend/release-bundle/'),
+    benchmark.replace('name: benchmark-fixture-image-', 'name: frontend-'),
+    benchmark.replace('compression-level: 0\n          retention-days: 1\n          if-no-files-found: error\n      - name: Upload timing', 'compression-level: 6\n          retention-days: 1\n          if-no-files-found: error\n      - name: Upload timing'),
+    benchmark.replace('PLAYWRIGHT_BROWSERS_PATH:', 'UNUSED_BROWSER_PATH:'),
+  ]) assert.throws(() => checkBenchmarkWorkflow(broken));
 });

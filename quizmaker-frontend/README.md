@@ -386,8 +386,11 @@ and three warm samples for each PR and complete fixture-producer path (12 jobs).
 It cannot activate production: it has no activation job, production environment,
 deployment secrets or write permissions. Fixture producer mode uses a fixed
 local-fixture API and the same build/export/seal/release verification code as the
-production producer. It never uploads an application release; only timing
-metadata and the immutable tooling image are uploaded.
+production producer. After successful producer validation, it uploads only the
+fixture `image.tar` under a `benchmark-fixture-image-` name, with no provenance
+or activation output. This measures exported-image transfer separately; it
+cannot satisfy the production consumer handoff. Timing metadata and the immutable
+tooling image have separate artifacts.
 
 Cold samples use an empty task-owned npm cache and must observe the selected
 prepared-image digest absent. Shared runner Docker layers may exist and are
@@ -402,15 +405,21 @@ setup job and is not one of the 12 validation samples.
 
 The summary reconciles safe timing records with actual GitHub job start times,
 including runtime setup, npm installation, acquisition, build and all gates.
-Artifact upload duration is reported separately. All attempts, failures and
-cache misses stay in the evidence. Comparable runner image, architecture,
+`artifact_upload_seconds` measures the successful fixture-image upload after
+validation; `timing_evidence_upload_seconds` measures JSON evidence separately.
+PR samples have no exported-image upload and report that metric as null. Missing
+or failed fixture-image uploads cannot satisfy producer benchmark acceptance.
+Production handoff upload and activation timing still require deployed-run
+evidence. All attempts, failures and cache misses stay in the evidence. Comparable runner image, architecture,
 Node, Playwright, Chromium and tooling digest are required. Each cohort needs
 three distinct successful samples: readiness must be at most two minutes and
 the complete producer median at most eight minutes. Missing evidence or failed
 targets fail the summary; local Docker timings do not prove hosted-runner targets.
 
 Ordinary local commands still launch a locally installed Chromium when no
-prepared environment is requested. To use preparation on a Linux host:
+prepared environment is requested. CI validation explicitly points host browser
+lookup to an empty cache so an accidental direct launch fails instead of being
+masked by a runner installation. To use preparation on a Linux host:
 
 ```bash
 node scripts/browser/environment.mjs prepare /tmp/quizmaker-browser-state.json

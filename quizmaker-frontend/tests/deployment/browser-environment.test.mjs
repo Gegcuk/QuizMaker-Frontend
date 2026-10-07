@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { launchBrowser, validateBrowserEndpoint } from '../../scripts/browser/launch-browser.mjs';
 import { stopBrowserEnvironment, validateEnvironmentConfiguration } from '../../scripts/browser/environment.mjs';
 
@@ -62,4 +64,19 @@ test('cleanup is idempotent for missing state and refuses unrelated container na
   await stopBrowserEnvironment(state);
   await fs.writeFile(state, JSON.stringify({ name: 'production-container' }));
   await assert.rejects(stopBrowserEnvironment(state), /unrelated browser resource/);
+});
+
+test('Nginx browser policies require the prepared endpoint even with an empty host browser cache', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'nginx-empty-browser-cache-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const module = new URL('./browser-policies.mjs', import.meta.url).href;
+  await assert.rejects(promisify(execFile)(process.execPath, ['--input-type=module', '-e',
+    `import { verifyBrowserPolicies } from ${JSON.stringify(module)}; await verifyBrowserPolicies('http://127.0.0.1:1');`], {
+    env: { ...process.env, BROWSER_WS_ENDPOINT: '', REQUIRE_PREPARED_BROWSER: 'true', PLAYWRIGHT_BROWSERS_PATH: root },
+    timeout: 5000,
+  }), error => {
+    assert.match(error.stderr, /Required prepared browser endpoint is missing/);
+    assert.doesNotMatch(error.stderr, /Executable doesn't exist/);
+    return true;
+  });
 });

@@ -100,6 +100,7 @@ jobs:
         run: node scripts/browser/environment.mjs prepare "$RUNNER_TEMP/browser-state.json"
       - name: Run the shared validation path against fixtures
         env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/host-browser-cache-empty
           VALIDATION_METRICS_FILE: ${{ runner.temp }}/validation.json
         run: |
           if [ "$BENCHMARK_JOB_NAME" = "pr $BENCHMARK_CACHE sample $BENCHMARK_SAMPLE" ]; then
@@ -107,6 +108,15 @@ jobs:
           else
             node scripts/deployment/validate-frontend.mjs producer-fixture
           fi
+      - name: Upload validated fixture image only
+        if: matrix.path == 'producer'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: benchmark-fixture-image-${{ github.sha }}-${{ matrix.cache }}-${{ matrix.sample }}-${{ github.run_attempt }}
+          path: quizmaker-frontend/release-bundle/image.tar
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
       - name: Upload timing evidence only
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

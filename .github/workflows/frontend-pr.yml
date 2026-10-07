@@ -45,6 +45,7 @@ jobs:
 
       - name: Validate frontend gates
         env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/host-browser-cache-empty
           VALIDATION_METRICS_FILE: ${{ runner.temp }}/frontend-validation.json
         run: node scripts/deployment/validate-frontend.mjs pr
 

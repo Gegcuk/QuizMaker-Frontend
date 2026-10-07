@@ -14,6 +14,7 @@ export function checkValidationWorkflow(source, mode) {
   assert.match(steps[prepare], /timeout-minutes: 6\n/);
   assert.doesNotMatch(steps[prepare], /\bif:/);
   assert.doesNotMatch(steps[validate], /\bif:|continue-on-error/);
+  assert.match(steps[validate], /PLAYWRIGHT_BROWSERS_PATH: \$\{\{ runner.temp \}\}\/host-browser-cache-empty/);
   assert.equal(steps.filter(step => step.includes('validate-frontend.mjs')).length, 1);
   const cleanup = steps.findIndex(step => step.includes('run: node scripts/browser/environment.mjs stop'));
   assert.ok(cleanup > validate, 'Cleanup must run after validation');
@@ -55,11 +56,26 @@ export function checkBenchmarkWorkflow(source) {
   assert.match(source, /test "\$BENCHMARK_NPM_CACHE_RESTORED" = true/);
   assert.match(source, /producer-fixture/);
   assert.match(source, /filter=all/);
-  assert.doesNotMatch(source, /release-bundle\/|(?<!prepared-)image\.tar\n|provenance\.json|continue-on-error|\|\| true/);
+  assert.doesNotMatch(source, /provenance\.json|continue-on-error|\|\| true/);
+  const steps = source.split(/^      - /m).slice(1);
+  const validate = steps.findIndex(step => step.startsWith('name: Run the shared validation path against fixtures\n'));
+  const upload = steps.findIndex(step => step.startsWith('name: Upload validated fixture image only\n'));
+  const evidence = steps.findIndex(step => step.startsWith('name: Upload timing evidence only\n'));
+  assert.ok(validate >= 0 && upload > validate && evidence > upload, 'Fixture image upload must follow passed validation and precede evidence');
+  assert.match(steps[validate], /PLAYWRIGHT_BROWSERS_PATH: \$\{\{ runner.temp \}\}\/host-browser-cache-empty/);
+  assert.match(steps[upload], /\n        if: matrix.path == 'producer'\n/);
+  assert.match(steps[upload], /\n          name: benchmark-fixture-image-/);
+  assert.match(steps[upload], /\n          compression-level: 0\n/);
+  assert.match(steps[upload], /\n          retention-days: 1\n/);
+  assert.match(steps[upload], /\n          if-no-files-found: error\n/);
   for (const step of source.split(/^      - /m).filter(step => step.includes('uses: actions/upload-artifact@'))) {
     const paths = step.match(/\n          path: ([\s\S]*?)(?=\n          [a-z-]+:|$)/)?.[1];
     assert.ok(paths, 'Each benchmark upload must declare safe explicit files');
-    assert.doesNotMatch(paths, /\*|release|provenance|browser-state\.json(?:\s|$)/);
+    assert.doesNotMatch(paths, /\*|provenance|browser-state\.json(?:\s|$)/);
+    if (step.startsWith('name: Upload validated fixture image only\n')) {
+      assert.equal(paths.trim(), 'quizmaker-frontend/release-bundle/image.tar');
+      continue;
+    }
     assert.ok(paths.trim() === '${{ runner.temp }}/prepared-image.tar' || paths.trim() === '|\n            ${{ runner.temp }}/validation.json\n            ${{ runner.temp }}/browser-state.json.metrics.json');
   }
 }

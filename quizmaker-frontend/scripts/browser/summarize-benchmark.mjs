@@ -2,6 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+function stepDuration(job, name) {
+  const step = job.steps.find(step => step.name === name);
+  if (step?.conclusion !== 'success') return null;
+  const start = Date.parse(step.started_at);
+  const end = Date.parse(step.completed_at);
+  return Number.isFinite(start) && Number.isFinite(end) && end >= start ? (end - start) / 1000 : null;
+}
+
 export function reconcileMeasurements(records, jobs) {
   const rows = [];
   for (const { validation, preparation } of records) {
@@ -14,14 +22,14 @@ export function reconcileMeasurements(records, jobs) {
     let cacheVerified = false;
     if (cache === 'warm') cacheVerified = validation.npm_cache_restored === 'true' && preparation.verifiedImageCacheRestored === true;
     if (cache === 'cold') cacheVerified = preparation.imageReferenceCache === 'absent' && preparation.verifiedImageCacheRestored === false;
-    const upload = job.steps.find(step => step.name === 'Upload timing evidence only');
     rows.push({ ...validation, preparation, actual_job_started_at: job.started_at,
       complete_validation_seconds: (end - start) / 1000,
       producer_validation_seconds: validation.mode === 'producer-fixture' ? (end - start) / 1000 : null,
       pr_validation_seconds: validation.mode === 'pr' ? (end - start) / 1000 : null,
       browser_preparation_seconds: preparation.milliseconds / 1000, cache_verified: cacheVerified,
-      artifact_upload_seconds: upload?.completed_at && upload?.started_at
-        ? (Date.parse(upload.completed_at) - Date.parse(upload.started_at)) / 1000 : null,
+      timing_evidence_upload_seconds: stepDuration(job, 'Upload timing evidence only'),
+      artifact_upload_seconds: validation.mode === 'producer-fixture'
+        ? stepDuration(job, 'Upload validated fixture image only') : null,
       job_conclusion: job.conclusion });
   }
   return rows;
@@ -35,6 +43,9 @@ export function assessCohorts(rows) {
   for (const mode of ['pr', 'producer-fixture']) for (const cache of ['cold', 'warm']) {
     const cohort = rows.filter(row => row.mode === mode && row.expected_cache === cache);
     const valid = cohort.filter(row => Number.isFinite(row.preparation.milliseconds) && row.preparation.fixtureRendered === true && row.validation_status === 'passed' && row.job_conclusion === 'success' && row.cache_verified);
+    if (mode === 'producer-fixture' && valid.some(row => !Number.isFinite(row.artifact_upload_seconds) || row.artifact_upload_seconds < 0)) {
+      failures.push(`${mode}/${cache} needs successful fixture-image upload timing separate from JSON evidence`);
+    }
     const samples = new Set(valid.map(row => row.sample));
     if (valid.length !== 3 || samples.size !== 3) failures.push(`${mode}/${cache} needs three verified successful samples`);
     const durations = valid.map(row => row.complete_validation_seconds).sort((a, b) => a - b);

@@ -49,6 +49,7 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/host-browser-cache-empty
           VALIDATION_METRICS_FILE: ${{ runner.temp }}/frontend-validation.json
         run: node scripts/deployment/validate-frontend.mjs producer
       - name: Stop task-owned browser environment
