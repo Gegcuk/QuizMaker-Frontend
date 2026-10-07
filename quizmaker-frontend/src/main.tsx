@@ -1,7 +1,8 @@
 // src/main.tsx (minimal example – adjust if you already have code here)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { UnsavedChangesProvider } from './features/navigation/UnsavedChangesProvider';
 
 import AppRoutes from './routes/AppRoutes';
 import { ToastProvider } from './components/ui';
@@ -14,8 +15,9 @@ import { SensitiveUrlBoundary } from './features/privacy';
 import { CheckoutRecoveryLifecycle } from './features/billing/components/CheckoutRecoveryLifecycle';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
+const router = createBrowserRouter([{
+  path: '*',
+  element: (
     <SensitiveUrlBoundary>
       <AnalyticsProvider>
         <ThemeProvider>
@@ -24,7 +26,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <AuthProvider>
                 <CheckoutRecoveryLifecycle />
                 <ToastProvider>
-                  <AppRoutes />
+                  <UnsavedChangesProvider>
+                    <AppRoutes />
+                  </UnsavedChangesProvider>
                 </ToastProvider>
               </AuthProvider>
             </QueryProvider>
@@ -32,5 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </ThemeProvider>
       </AnalyticsProvider>
     </SensitiveUrlBoundary>
-  </BrowserRouter>
-);
+  ),
+}]);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(<RouterProvider router={router} />);

@@ -12,7 +12,13 @@ export interface ModalProps {
   showCloseButton?: boolean;
   className?: string;
   ariaLabel?: string;
+  ariaDescribedBy?: string;
+  initialFocusSelector?: string;
+  backdropTestId?: string;
 }
+
+const modalStack: { id: symbol; element: HTMLDivElement | null }[] = [];
+let unlockedBodyOverflow = '';
 
 const focusableSelector = [
   'a[href]',
@@ -36,8 +42,12 @@ const Modal: React.FC<ModalProps> = ({
   closeOnEscape = true,
   showCloseButton = true,
   className = '',
-  ariaLabel
+  ariaLabel,
+  ariaDescribedBy,
+  initialFocusSelector,
+  backdropTestId
 }) => {
+  const modalId = useRef(Symbol('modal'));
   const modalRef = useRef<HTMLDivElement>(null);
   const lastActiveElementRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -54,30 +64,48 @@ const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
+    const id = modalId.current;
+    if (modalStack.length === 0) unlockedBodyOverflow = document.body.style.overflow;
+    const previousModal = modalStack.at(-1)?.element;
+    if (previousModal) {
+      previousModal.inert = true;
+      previousModal.setAttribute('aria-hidden', 'true');
+    }
+    modalStack.push({ id, element: modalRef.current });
     const activeElement = document.activeElement;
     lastActiveElementRef.current = activeElement instanceof HTMLElement ? activeElement : null;
     document.body.style.overflow = 'hidden';
 
     const focusTimer = window.setTimeout(() => {
       const [firstFocusable] = getFocusableElements(modalRef.current);
-      (firstFocusable || modalRef.current)?.focus();
+      const preferred = initialFocusSelector
+        ? modalRef.current?.querySelector<HTMLElement>(initialFocusSelector) : null;
+      if (modalStack.at(-1)?.id === id) (preferred || firstFocusable || modalRef.current)?.focus();
     }, 0);
 
     return () => {
+      const index = modalStack.findIndex((modal) => modal.id === id);
+      if (index !== -1) modalStack.splice(index, 1);
       window.clearTimeout(focusTimer);
-      document.body.style.overflow = previousOverflow;
+      const remainingModal = modalStack.at(-1)?.element;
+      if (remainingModal) {
+        remainingModal.inert = false;
+        remainingModal.removeAttribute('aria-hidden');
+      }
+      document.body.style.overflow = modalStack.length ? 'hidden' : unlockedBodyOverflow;
       if (lastActiveElementRef.current?.isConnected) {
         lastActiveElementRef.current.focus();
       }
     };
-  }, [isOpen]);
+  }, [isOpen, initialFocusSelector]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (modalStack.at(-1)?.id !== modalId.current) return;
       if (event.key === 'Escape' && closeOnEscape) {
+        event.preventDefault();
         onClose();
         return;
       }
@@ -104,12 +132,22 @@ const Modal: React.FC<ModalProps> = ({
       }
     };
 
+    const containFocus = (event: FocusEvent) => {
+      if (modalStack.at(-1)?.id !== modalId.current || !(event.target instanceof Node)) return;
+      if (!modalRef.current?.contains(event.target)) {
+        const preferred = initialFocusSelector
+          ? modalRef.current?.querySelector<HTMLElement>(initialFocusSelector) : null;
+        (preferred || getFocusableElements(modalRef.current)[0] || modalRef.current)?.focus();
+      }
+    };
+    document.addEventListener('focusin', containFocus);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('focusin', containFocus);
     };
-  }, [isOpen, onClose, closeOnEscape]);
+  }, [isOpen, onClose, closeOnEscape, initialFocusSelector]);
 
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget && closeOnBackdrop) {
@@ -137,7 +175,8 @@ const Modal: React.FC<ModalProps> = ({
       <div className="flex min-h-screen items-start sm:items-center justify-center p-3 sm:p-4 md:p-6">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-theme-bg-overlay bg-opacity-50 transition-opacity"
+          data-testid={backdropTestId}
+          className="fixed inset-0 z-0 bg-theme-bg-overlay bg-opacity-50 transition-opacity"
           style={{ 
             position: 'fixed', 
             top: 0, 
@@ -152,7 +191,7 @@ const Modal: React.FC<ModalProps> = ({
         {/* Modal */}
         <div
           ref={modalRef}
-          className={`relative bg-theme-bg-primary rounded-lg shadow-theme w-full mx-2 sm:mx-4 ${sizeClasses[size]} ${className}`}
+          className={`relative z-10 bg-theme-bg-primary rounded-lg shadow-theme w-full mx-2 sm:mx-4 ${sizeClasses[size]} ${className}`}
           style={{ 
             position: 'relative',
             maxHeight: 'calc(100vh - 3rem)',
@@ -163,6 +202,7 @@ const Modal: React.FC<ModalProps> = ({
           }}
           role="dialog"
           aria-modal="true"
+          aria-describedby={ariaDescribedBy}
           aria-labelledby={title ? titleId : undefined}
           aria-label={title ? undefined : ariaLabel || 'Dialog'}
           tabIndex={-1}

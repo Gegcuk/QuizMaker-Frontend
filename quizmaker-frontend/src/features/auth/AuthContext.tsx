@@ -11,10 +11,12 @@ import React, {
   ReactNode,
   useMemo,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '@/services';
 import { getAccessToken } from '@/utils';
 import { UserDto } from '@/types';
+import { validateOAuthReturnPath } from './services/oauthPkce';
+import { getLoginReturnPath } from './services/loginReturn';
 import { revokeAccessToken } from '@/api/axiosInstance';
 import {
   establishSession,
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   /* Helper – centralises GET /auth/me + generation-safe state sync */
   const fetchCurrentUser = useCallback(async (
@@ -89,7 +92,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (transition.status === 'anonymous') {
         setUser(null);
         setIsLoading(false);
-        navigate('/login', { replace: true });
+        navigate('/login', {
+          replace: true,
+          state: transition.reason === 'logout' ? null : {
+            returnTo: location.pathname === '/login'
+              ? getLoginReturnPath(location.state)
+              : validateOAuthReturnPath(`${location.pathname}${location.search}${location.hash}`, window.location.origin),
+          },
+        });
         return;
       }
 
@@ -99,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         void fetchCurrentUser(transition.generation);
       }
     });
-  }, [fetchCurrentUser, navigate]);
+  }, [fetchCurrentUser, navigate, location]);
 
   /* -------------------------------------------------------------------- */
   /* On mount: if an accessToken is lying around try to resurrect session */
@@ -122,14 +132,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const transition = establishSession(data.accessToken, data.refreshToken, 'login');
       setUser(null);
       const restored = await fetchCurrentUser(transition.generation);
-      if (!restored) {
+      if (!restored || !isCurrentSessionGeneration(transition.generation)) {
         throw new Error('Unable to validate the new session. Please sign in again.');
       }
-      if (isCurrentSessionGeneration(transition.generation)) {
-        navigate('/quizzes', { replace: true });
-      }
     },
-    [fetchCurrentUser, navigate],
+    [fetchCurrentUser],
   );
 
   const register = useCallback(

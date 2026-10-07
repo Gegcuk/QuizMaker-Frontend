@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Spinner, Button, Modal, PageContainer, ConfirmationModal, Alert } from '@/components';
+import type { QuestionFormHandle } from '@/features/question/components/QuestionForm';
 import { Seo } from '@/features/seo';
 import { QuestionDto, QuestionType, QuestionService } from '../features/question';
 import { api } from '@/services';
@@ -17,6 +18,7 @@ import {
 } from '../features/question';
 
 const QuestionManagementPage: React.FC = () => {
+  const questionFormRef = useRef<QuestionFormHandle>(null);
   const questionService = new QuestionService(api);
   const [questions, setQuestions] = useState<QuestionDto[]>([]);
   const [page, setPage] = useState<number>(0);
@@ -441,17 +443,17 @@ const QuestionManagementPage: React.FC = () => {
         {/* Question Form Modal */}
         <Modal
           isOpen={showForm}
-          onClose={() => { setShowForm(false); setEditing(null); }}
+          onClose={() => questionFormRef.current?.requestCancel()}
           title={editing ? 'Edit Question' : 'Create New Question'}
           size="2xl"
         >
           <QuestionForm
+            ref={questionFormRef}
             questionId={editing ? editing.id : undefined}
             onSuccess={(res) => {
               fetchQuestions();
               if (!res?.keepOpen) {
-                setShowForm(false);
-                setEditing(null);
+                questionFormRef.current?.requestCancel();
               }
             }}
             onCancel={() => { setShowForm(false); setEditing(null); }}

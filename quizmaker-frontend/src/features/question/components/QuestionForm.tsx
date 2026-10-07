@@ -3,7 +3,7 @@
 // Based on CreateQuestionRequest from API documentation
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ComplianceContent,
@@ -41,6 +41,7 @@ import {
   sanitizeOrderingContentForSubmission,
 } from '../utils/contentSanitizer';
 import { validateFillGapPool } from '../utils/fillGapPoolValidation';
+import { useUnsavedChanges, type NavigationAttempt } from '@/features/navigation/useUnsavedChanges';
 import { hasUniqueMcqOptionIds } from '../utils/mcqOptionIdentity';
 
 const MCQ_SINGLE_OPTION_COUNT = 4;
@@ -53,7 +54,18 @@ const HOTSPOT_MIN_REGIONS = 2;
 const HOTSPOT_MAX_REGIONS = 6;
 const MATCHING_MIN_ITEMS = 4;
 
+export interface QuestionFormHandle {
+  requestCancel: () => void;
+}
+
+const losesQuestionInput = ({ currentLocation, nextLocation }: NavigationAttempt, hasQuizRoute: boolean) =>
+  currentLocation.pathname !== nextLocation.pathname
+  || (hasQuizRoute && /^\/quizzes\/[^/]+\/?$/.test(currentLocation.pathname)
+    && new URLSearchParams(currentLocation.search).get('tab') === 'questions'
+    && new URLSearchParams(nextLocation.search).get('tab') !== 'questions');
+
 interface QuestionFormProps {
+  ref?: React.Ref<QuestionFormHandle>;
   questionId?: string; // If provided, we're editing an existing question
   quizId?: string; // If provided, we're creating a question for a specific quiz
   onSuccess?: (res?: { questionId?: string; keepOpen?: boolean }) => void;
@@ -70,12 +82,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
   onCancel,
   className = '',
   compact = false,
-  defaultDifficulty
+  defaultDifficulty,
+  ref
 }) => {
   const questionService = new QuestionService(api);
   const navigate = useNavigate();
   const { quizId: urlQuizId } = useParams<{ quizId: string }>();
   const actualQuizId = quizId || urlQuizId;
+  const losesInput = useCallback((navigation: NavigationAttempt) =>
+    losesQuestionInput(navigation, Boolean(urlQuizId)), [urlQuizId]);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -109,6 +124,16 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     tagIds: []
   });
 
+  const snapshot = JSON.stringify([formData, attachment, legacyAttachmentUrl, clearAttachment]);
+  const [cleanSnapshot, setCleanSnapshot] = useState(snapshot);
+  const latestSnapshot = useRef(snapshot);
+  useLayoutEffect(() => { latestSnapshot.current = snapshot; }, [snapshot]);
+  const { markClean, confirmDiscard } = useUnsavedChanges(snapshot !== cleanSnapshot, { losesInput, losesInputOnStepChange: true, revision: snapshot });
+  const markSaved = () => {
+    setCleanSnapshot(snapshot);
+    markClean();
+  };
+
   // Load existing question data if editing
   useEffect(() => {
     if (questionId) {
@@ -123,7 +148,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     setError(null);
     try {
       const question = await questionService.getQuestionById(questionId);
-      setFormData({
+      const loadedData = {
         type: question.type,
         questionText: question.questionText,
         content: question.content,
@@ -131,7 +156,9 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         explanation: question.explanation || '',
         hint: question.hint || '',
         tagIds: question.tagIds || []
-      });
+      };
+      setFormData(loadedData);
+      setCleanSnapshot(JSON.stringify([loadedData, question.attachment || null, question.attachmentUrl || null, false]));
       setAttachment(question.attachment || null);
       setLegacyAttachmentUrl(question.attachmentUrl || null);
       setClearAttachment(false);
@@ -437,6 +464,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           ...clearPayload
         };
         await questionService.updateQuestion(questionId, updateData);
+        markSaved();
         if (onSuccess) {
           onSuccess();
         } else if (actualQuizId) {
@@ -452,6 +480,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
           quizIds: actualQuizId ? [actualQuizId] : []
         };
         const res = await questionService.createQuestion(questionData);
+        markSaved();
         if (onSuccess) {
           onSuccess({ questionId: res.questionId });
         } else if (actualQuizId) {
@@ -529,9 +558,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
 
   // Handle type selection in step 1 and proceed to step 2
   const handleTypeSelect = useCallback((type: QuestionType) => {
-    handleTypeChange(type);
-    setStep('formCreation');
-  }, [handleTypeChange]);
+    if (type === formData.type) {
+      setStep('formCreation');
+      return;
+    }
+    confirmDiscard(() => {
+      handleTypeChange(type);
+      setStep('formCreation');
+    });
+  }, [handleTypeChange, formData.type, confirmDiscard]);
 
   // Handle back button to return to type selection
   const handleBackToTypeSelection = useCallback(() => {
@@ -661,14 +696,17 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         quizIds: actualQuizId ? [actualQuizId] : []
       };
       const res = await questionService.createQuestion(questionData);
-      // Inform parent but keep the modal open
-      if (onSuccess) {
-        onSuccess({ questionId: res.questionId, keepOpen: true });
+      if (latestSnapshot.current !== snapshot) {
+        // A successful request saved the submitted values, not later typing.
+        // Keep those later edits instead of resetting them away.
+        markSaved();
+        onSuccess?.({ questionId: res.questionId, keepOpen: true });
+        return;
       }
       // Reset inputs for a new question, preserving type and difficulty
       const prevType = formData.type;
       const prevDifficulty = formData.difficulty;
-      setFormData({
+      const resetData = {
         type: prevType || undefined,
         questionText: '',
         content: prevType ? initContentForType(prevType) : {
@@ -683,7 +721,11 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         hint: '',
         explanation: '',
         tagIds: []
-      });
+      };
+      setFormData(resetData);
+      setCleanSnapshot(JSON.stringify([resetData, null, null, false]));
+      markClean();
+      onSuccess?.({ questionId: res.questionId, keepOpen: true });
       // Reset hint/explanation visibility, preview answer, error state, and force editor remount
       setShowHint(false);
       setShowExplanation(false);
@@ -700,7 +742,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = () => confirmDiscard(() => {
     if (onCancel) {
       onCancel();
     } else if (actualQuizId) {
@@ -708,7 +750,8 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
     } else {
       navigate('/questions');
     }
-  };
+  });
+  useImperativeHandle(ref, () => ({ requestCancel: handleCancel }));
 
   if (loading) {
     return (

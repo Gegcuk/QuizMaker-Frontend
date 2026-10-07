@@ -21,6 +21,7 @@ import { QuizQuestionManager } from './QuizQuestionManager';
 import { QuizAIGenerationStep } from './QuizAIGenerationStep';
 import { QuizGenerationStatus as QuizGenerationStatusComponent } from './QuizGenerationStatus';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
+import { useUnsavedChanges, useUnsavedChangesController } from '@/features/navigation/useUnsavedChanges';
 import type { AxiosError } from 'axios';
 
 export type CreationMethod = 'manual' | 'text' | 'document';
@@ -33,6 +34,19 @@ interface FormErrors {
   [key: string]: string | undefined;
 }
 
+const createEmptyDraft = (): QuizWizardDraft => ({
+  title: '',
+  description: '',
+  visibility: 'PRIVATE',
+  difficulty: 'MEDIUM',
+  isRepetitionEnabled: false,
+  timerEnabled: false,
+  estimatedTime: 30,
+  timerDuration: 30,
+  categoryId: undefined,
+  tagIds: []
+});
+
 const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,18 +56,10 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   // Wizard state
   const [currentStep, setCurrentStep] = useState(1);
   const [creationMethod, setCreationMethod] = useState<CreationMethod | null>(null);
-  const [quizData, setQuizData] = useState<QuizWizardDraft>({
-    title: '',
-    description: '',
-    visibility: 'PRIVATE',
-    difficulty: 'MEDIUM',
-    isRepetitionEnabled: false,
-    timerEnabled: false,
-    estimatedTime: 30,
-    timerDuration: 30,
-    categoryId: undefined,
-    tagIds: []
-  });
+  const [quizData, setQuizData] = useState<QuizWizardDraft>(createEmptyDraft);
+  const [initialDraft, setInitialDraft] = useState(() => JSON.stringify(quizData));
+  const { markClean } = useUnsavedChanges(JSON.stringify(quizData) !== initialDraft, { revision: quizData });
+  const { confirmDiscard } = useUnsavedChangesController();
   const [createdQuiz, setCreatedQuiz] = useState<QuizDto | null>(null);
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -159,6 +165,8 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       if (creationMethod === 'manual') {
         // Manual creation - create quiz directly
         const result = await createQuiz(submissionData as CreateQuizRequest);
+        setInitialDraft(JSON.stringify(submissionData));
+        markClean();
         setCreatedQuiz({ 
           id: result.quizId,
           ...submissionData,
@@ -183,6 +191,8 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           return;
         }
         const response = await quizService.generateQuizFromText(generationRequest);
+        setInitialDraft(JSON.stringify(submissionData));
+        markClean();
 
         setCreatedQuiz({ 
           id: response.jobId!,
@@ -218,6 +228,8 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           return;
         }
         const response = await quizService.generateQuizFromUpload(generationRequest);
+        setInitialDraft(JSON.stringify(submissionData));
+        markClean();
 
         setCreatedQuiz({ 
           id: response.jobId!,
@@ -303,12 +315,19 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
   // Navigation helpers
   const canGoBack = currentStep > 1;
-  const goBack = () => {
+  const goBack = () => confirmDiscard(() => {
     if (currentStep > 1) {
+      if (currentStep === 2 && creationMethod !== 'manual') {
+        // These forms keep their input locally. Confirmed departure also clears
+        // a submission snapshot left in the parent by an earlier failed request.
+        const emptyDraft = createEmptyDraft();
+        setQuizData(emptyDraft);
+        setInitialDraft(JSON.stringify(emptyDraft));
+      }
       setCurrentStep(currentStep - 1);
       setErrors({});
     }
-  };
+  });
 
   const renderStepContent = () => {
     switch (currentStep) {

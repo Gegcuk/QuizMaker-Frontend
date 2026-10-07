@@ -1,9 +1,12 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { getLoginReturnPath } from '@/features/auth/services/loginReturn';
 import { LoginForm } from '../features/auth';
 import { Seo } from '@/features/seo';
 import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const LoginPage: React.FC = () => {
+  const location = useLocation();
   return (
     <>
       <Seo
@@ -25,15 +28,7 @@ const LoginPage: React.FC = () => {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <LoginForm 
-              redirectTo="/my-quizzes"
-              onSuccess={() => {
-                console.log('Login successful');
-              }}
-              onError={(error) => {
-                console.error('Login error:', error);
-              }}
-            />
+            <LoginForm redirectTo={getLoginReturnPath(location.state)} />
           </div>
         </div>
       </div>

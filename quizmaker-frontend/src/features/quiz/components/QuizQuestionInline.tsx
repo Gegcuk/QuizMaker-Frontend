@@ -6,10 +6,11 @@
 // - Remove association (or from local selection for new quiz)
 // ---------------------------------------------------------------------------
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { QuestionDto, QuestionDifficulty } from '@/types';
 import { QuestionService, QuizService } from '@/services';
 import { Button, Modal, Spinner, Alert, useToast, Badge, ConfirmationModal } from '@/components';
+import type { QuestionFormHandle } from '@/features/question/components/QuestionForm';
 import { QuestionForm } from '@/features/question';
 import { api } from '@/services';
 import { PencilSquareIcon, TrashIcon, PlusIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
@@ -29,6 +30,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
   className = '',
   defaultDifficulty,
 }) => {
+  const questionFormRef = useRef<QuestionFormHandle>(null);
   const questionService = new QuestionService(api);
   const quizService = new QuizService(api);
   const { addToast } = useToast();
@@ -210,7 +212,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       if (!newId) {
         // Fallback: just reload from backend if we’re editing an existing quiz
         if (quizId) await loadForExistingQuiz(quizId);
-        if (!keepOpen) closeModal();
+        if (!keepOpen) questionFormRef.current?.requestCancel();
         return;
       }
       const q = await questionService.getQuestionById(newId);
@@ -230,7 +232,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       if (quizId) await loadForExistingQuiz(quizId);
       addToast({ type: 'error', message: 'Failed to add question to quiz.' });
     } finally {
-      if (!keepOpen) closeModal();
+      if (!keepOpen) questionFormRef.current?.requestCancel();
     }
   };
 
@@ -244,7 +246,7 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       }
       addToast({ type: 'success', message: 'Question updated.' });
     } finally {
-      closeModal();
+      questionFormRef.current?.requestCancel();
     }
   };
 
@@ -349,11 +351,12 @@ const QuizQuestionInline: React.FC<QuizQuestionInlineProps> = ({
       {/* Modal for create/edit */}
       <Modal
         isOpen={isModalOpen}
-        onClose={closeModal}
+        onClose={() => questionFormRef.current?.requestCancel()}
         title={editingQuestionId ? 'Edit Question' : 'Create New Question'}
         size="2xl"
       >
         <QuestionForm
+          ref={questionFormRef}
           questionId={editingQuestionId || undefined}
           quizId={quizId}
           compact

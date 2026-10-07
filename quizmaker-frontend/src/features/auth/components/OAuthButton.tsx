@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { OAuthProvider } from '../types/auth.types';
 import type { OAuthFlowPurpose } from '../services/oauthPkce';
 import { startOAuthAuthorization } from '../services/oauthPkce';
@@ -97,12 +98,25 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({
   onStartError,
 }) => {
   const config = providerConfig[provider];
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isStarting, setIsStarting] = useState(false);
 
   const handleOAuthLogin = async () => {
     setIsStarting(true);
     try {
-      await startOAuthAuthorization({ provider, purpose, returnPath });
+      const options = { provider, purpose, returnPath };
+      if (purpose === 'login') {
+        await startOAuthAuthorization(options, {
+          // The pending PKCE flow now owns the return target. Remove the login
+          // history copy before leaving for the provider so Back cannot replay it.
+          beforeNavigate: async () => {
+            await navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+          },
+        });
+      } else {
+        await startOAuthAuthorization(options);
+      }
     } catch {
       onStartError?.('Secure sign-in could not start. Please try again.');
       setIsStarting(false);

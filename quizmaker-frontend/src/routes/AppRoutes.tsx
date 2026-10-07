@@ -15,6 +15,7 @@ import ErrorBoundary from '../components/common/ErrorBoundary';
 import LazyRouteBoundary from './LazyRouteBoundary';
 
 import { useAuth } from '../features/auth';
+import { getLoginReturnPath } from '@/features/auth/services/loginReturn';
 
 /* ----------  Public pages  ------------------------------------------------ */
 import HomePage from '../pages/HomePage';
@@ -97,14 +98,23 @@ const PublicRouteElement: React.FC<PublicRouteElementProps> = ({ route, children
   return children;
 };
 
+const QuizQuestionsRedirect = () => {
+  const { quizId } = useParams<{ quizId: string }>();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  params.set('tab', 'questions');
+  return <Navigate to={`/quizzes/${encodeURIComponent(quizId ?? '')}?${params}${location.hash}`} replace />;
+};
+
 const AppRoutes: React.FC = () => {
   const { isLoggedIn } = useAuth();
+  const location = useLocation();
 
   /* Helper: if an authenticated user hits /login or /register, bounce them
      to /my-quizzes instead of showing the auth form again. */
   const authRedirect = (page: 'login' | 'register') =>
     isLoggedIn ? (
-      <Navigate to="/my-quizzes" replace />
+      <Navigate to={page === 'login' ? getLoginReturnPath(location.state) : '/my-quizzes'} replace state={null} />
     ) : page === 'login' ? (
       <LoginPage />
     ) : (
@@ -216,7 +226,7 @@ const AppRoutes: React.FC = () => {
         />
         <Route
           path="/quizzes/:quizId/questions"
-          element={<Navigate to="/quizzes/:quizId/edit?tab=questions" replace />}
+          element={protectedRoute(<QuizQuestionsRedirect />)}
         />
         <Route
           path="/quizzes/:quizId/generation"

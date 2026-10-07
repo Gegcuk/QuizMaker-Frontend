@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen, waitFor } from '@/test/render';
 import { DocumentQuizConfigurationForm } from './DocumentQuizConfigurationForm';
@@ -62,4 +63,28 @@ describe('DocumentQuizConfigurationForm', () => {
     });
     expect(onDataChange).toHaveBeenCalledOnce();
   });
+});
+
+it('protects local document selection before the parent receives a submission', async () => {
+  const onDataChange = vi.fn();
+  const { user } = renderWithProviders(<>
+    <DocumentQuizConfigurationForm quizData={{}} onDataChange={onDataChange} errors={{}} onCreateQuiz={vi.fn()} isCreating={false} />
+    <Link to="/other">Leave wizard</Link>
+  </>, { route: '/quizzes/create', withAuthProvider: false });
+    const upload = document.getElementById('document-upload');
+    if (!(upload instanceof HTMLInputElement)) throw new Error('Upload control is missing');
+    await user.upload(upload, new File(['Unsaved document'], 'draft.txt', { type: 'text/plain' }));
+  expect(onDataChange).not.toHaveBeenCalled();
+  const event = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(event);
+  expect(event.defaultPrevented).toBe(true);
+  await user.click(screen.getByRole('link', { name: 'Leave wizard' }));
+  await user.click(screen.getByRole('button', { name: 'Stay' }));
+  expect(upload.files?.[0]?.name).toBe('draft.txt');
+});
+
+it('freezes submitted generation inputs until the wizard can advance safely', () => {
+  renderWithProviders(<DocumentQuizConfigurationForm quizData={{}} onDataChange={vi.fn()} errors={{}} onCreateQuiz={vi.fn()} isCreating={true} />, { withAuthProvider: false });
+  expect(document.getElementById('document-upload')).toBeDisabled();
+  expect(screen.getByPlaceholderText('Title is auto-generated from filename if empty')).toBeDisabled();
 });

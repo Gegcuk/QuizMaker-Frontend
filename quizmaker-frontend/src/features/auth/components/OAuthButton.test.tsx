@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen } from '@/test/render';
+import { act, renderWithProviders, screen } from '@/test/render';
 import OAuthButton from './OAuthButton';
 
 const authMocks = vi.hoisted(() => ({
@@ -29,7 +29,7 @@ describe('OAuthButton', () => {
       provider: 'GOOGLE',
       purpose: 'login',
       returnPath: '/quizzes',
-    });
+    }, { beforeNavigate: expect.any(Function) });
   });
 
   it('keeps the pre-cutover compact mobile and labeled desktop treatment', () => {
@@ -87,4 +87,20 @@ describe('OAuthButton', () => {
     expect(onStartError).toHaveBeenCalledWith('Secure sign-in could not start. Please try again.');
     expect(JSON.stringify(onStartError.mock.calls)).not.toContain('secret crypto detail');
   });
+});
+
+it('transfers ownership from login history only after PKCE setup succeeds', async () => {
+  authMocks.startOAuthAuthorization.mockImplementation(async (_options, runtime) => {
+    await runtime.beforeNavigate();
+  });
+  const { user, router } = renderWithProviders(<OAuthButton provider="GOOGLE" returnPath="/quizzes/quiz-123?tab=questions" />, {
+    route: '/login', withAuthProvider: false,
+  });
+  await act(async () => { await router.navigate('/login', { replace: true, state: { returnTo: '/quizzes/quiz-123?tab=questions' } }); });
+  await user.click(screen.getByRole('button', { name: 'Continue with Google' }));
+  expect(router.state.location.pathname).toBe('/login');
+  expect(router.state.location.state).toBeNull();
+  expect(authMocks.startOAuthAuthorization).toHaveBeenCalledWith({
+    provider: 'GOOGLE', purpose: 'login', returnPath: '/quizzes/quiz-123?tab=questions',
+  }, { beforeNavigate: expect.any(Function) });
 });

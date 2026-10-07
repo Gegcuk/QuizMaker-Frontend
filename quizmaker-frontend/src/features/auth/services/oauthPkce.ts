@@ -30,6 +30,7 @@ interface OAuthAuthorizationRuntime {
   cryptoImpl?: Crypto;
   location?: Pick<Location, 'origin'>;
   navigate?: (authorizationUrl: string) => void;
+  beforeNavigate?: () => void | Promise<void>;
   now?: number;
   storage?: Storage;
 }
@@ -72,23 +73,22 @@ export const createCodeChallenge = async (
 
 export const validateOAuthReturnPath = (value: string | undefined, origin: string): string => {
   const fallback = '/my-quizzes';
-  const hasControlCharacter = value
-    ? Array.from(value).some((character) => {
-        const codePoint = character.codePointAt(0) ?? 0;
-        return codePoint <= 31 || codePoint === 127;
-      })
-    : false;
-
-  if (!value || value.length > 2048 || hasControlCharacter) {
+  if (!value || value.length > 2048 || !value.startsWith('/') || value.startsWith('//')) {
     return fallback;
   }
-  if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
-    return fallback;
-  }
-
   try {
+    // Validate decoded characters too: URL parsing otherwise normalizes some
+    // controls and encoded callback paths can bypass literal path checks.
+    const decoded = decodeURIComponent(value);
+    const hasControlCharacter = Array.from(decoded).some((character) => {
+      const code = character.codePointAt(0) ?? 0;
+      return code <= 31 || (code >= 127 && code <= 159);
+    });
+    if (hasControlCharacter || decoded.includes('\\') || decoded.startsWith('//')) return fallback;
     const parsed = new URL(value, origin);
-    if (parsed.origin !== origin || CALLBACK_PATHS.has(parsed.pathname)) {
+    const decodedPath = new URL(decodeURIComponent(parsed.pathname), origin).pathname.replace(/\/+$/, '').toLowerCase() || '/';
+    if (parsed.origin !== origin || CALLBACK_PATHS.has(decodedPath)
+      || decodedPath === '/login' || decodedPath === '/register') {
       return fallback;
     }
     return `${parsed.pathname}${parsed.search}${parsed.hash}`;
@@ -174,6 +174,7 @@ export const startOAuthAuthorization = async (
     now: runtime.now,
   });
   storePendingOAuthFlow(prepared.pending, runtime.storage);
+  await runtime.beforeNavigate?.();
   const navigate = runtime.navigate ?? ((authorizationUrl: string) => window.location.assign(authorizationUrl));
   navigate(prepared.authorizationUrl);
 };
