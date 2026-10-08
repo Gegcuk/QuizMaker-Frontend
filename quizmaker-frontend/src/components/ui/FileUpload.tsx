@@ -139,7 +139,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const baseClasses = [
     'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200',
-    isDragOver ? 'border-theme-border-info bg-theme-bg-info' : 'border-theme-border-primary hover:border-theme-border-secondary',
+    isDragOver ? 'border-theme-border-info bg-theme-bg-info' : 'border-theme-border-control hover:border-theme-border-focus',
     disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
     error ? 'border-theme-border-danger bg-theme-bg-danger' : '',
     className

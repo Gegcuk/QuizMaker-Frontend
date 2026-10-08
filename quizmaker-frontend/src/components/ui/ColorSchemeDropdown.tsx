@@ -119,7 +119,7 @@ const ColorSchemeDropdown: React.FC<ColorSchemeDropdownProps> = ({
               onClick={() => handleThemeSelect(palette.id)}
               className={`p-1.5 rounded-md transition-all duration-200 ${
                 colorScheme === palette.id
-                  ? 'bg-theme-interactive-primary text-theme-text-inverse shadow-sm'
+                  ? 'bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground shadow-sm'
                   : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-tertiary'
               }`}
               aria-label={`Switch to ${palette.name} theme`}

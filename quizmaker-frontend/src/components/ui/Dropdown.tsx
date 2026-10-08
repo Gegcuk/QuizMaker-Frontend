@@ -56,7 +56,7 @@ const getControlClasses = ({
   size,
   className,
 }: Pick<DropdownProps, 'error' | 'fullWidth' | 'size' | 'className'>) => [
-  'block w-full border border-theme-border-primary bg-theme-bg-primary text-theme-text-primary shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed rounded-md',
+  'block w-full border border-theme-border-control bg-theme-bg-primary text-theme-text-primary shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed rounded-md',
   sizeClasses[size ?? 'md'],
   error
     ? 'border-theme-border-danger focus:ring-theme-interactive-danger focus:border-theme-border-danger'
@@ -501,7 +501,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           aria-label={label || ariaLabelledBy ? undefined : `${ariaLabel ?? placeholder} options`}
           aria-labelledby={label ? ids.label : ariaLabelledBy}
           aria-multiselectable={multiple || undefined}
-          className={`absolute z-50 w-full max-h-60 overflow-auto rounded-md border border-theme-border-primary bg-theme-bg-primary py-1 text-theme-text-primary shadow-theme-lg ${
+          className={`absolute z-50 w-full max-h-60 overflow-auto rounded-md border border-theme-border-control bg-theme-bg-primary py-1 text-theme-text-primary shadow-theme-lg ${
             placement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
           }`}
         >

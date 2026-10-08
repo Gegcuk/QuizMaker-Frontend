@@ -114,28 +114,76 @@
   scroll-margin-top: 5rem;
 }
 
-/* Theme CSS Custom Properties Fallbacks */
+/* Complete light startup fallback, also usable when JavaScript is unavailable. */
 :root {
-  /* Light theme defaults */
+  color-scheme: light;
+  --color-control-primary-default-fill: #2563eb;
+  --color-control-primary-default-foreground: #ffffff;
+  --color-control-primary-hover-fill: #1d4ed8;
+  --color-control-primary-hover-foreground: #ffffff;
+  --color-control-secondary-default-fill: #475569;
+  --color-control-secondary-default-foreground: #ffffff;
+  --color-control-secondary-hover-fill: #334155;
+  --color-control-secondary-hover-foreground: #ffffff;
+  --color-control-success-default-fill: #166534;
+  --color-control-success-default-foreground: #ffffff;
+  --color-control-success-hover-fill: #14532d;
+  --color-control-success-hover-foreground: #ffffff;
+  --color-control-danger-default-fill: #b91c1c;
+  --color-control-danger-default-foreground: #ffffff;
+  --color-control-danger-hover-fill: #991b1b;
+  --color-control-danger-hover-foreground: #ffffff;
+  --color-control-warning-default-fill: #92400e;
+  --color-control-warning-default-foreground: #ffffff;
+  --color-control-warning-hover-fill: #78350f;
+  --color-control-warning-hover-foreground: #ffffff;
+  --color-control-info-default-fill: #0369a1;
+  --color-control-info-default-foreground: #ffffff;
+  --color-control-info-hover-fill: #075985;
+  --color-control-info-hover-foreground: #ffffff;
+  --color-matching-pair-1-foreground: #0f172a;
+  --color-matching-pair-1-badge-foreground: #ffffff;
+  --color-matching-pair-2-foreground: #0f172a;
+  --color-matching-pair-2-badge-foreground: #ffffff;
+  --color-matching-pair-3-foreground: #0f172a;
+  --color-matching-pair-3-badge-foreground: #ffffff;
+  --color-matching-pair-4-foreground: #0f172a;
+  --color-matching-pair-4-badge-foreground: #ffffff;
+  --color-disabled-fill: #e2e8f0;
+  --color-disabled-foreground: #334155;
+  --color-tooltip-fill: #0f172a;
+  --color-tooltip-foreground: #f8fafc;
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8fafc;
   --color-bg-tertiary: #f1f5f9;
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-tertiary: #64748b;
+  --color-text-tertiary: #475569;
   --color-text-inverse: #ffffff;
+  --color-border-control: #64748b;
   --color-border-primary: #e2e8f0;
   --color-border-secondary: #f1f5f9;
-  --color-border-focus: #3b82f6;
-  --color-interactive-primary: #3b82f6;
+  --color-border-focus: #1d4ed8;
+  --color-interactive-primary: #1d4ed8;
   --color-interactive-primary-hover: #2563eb;
-  --color-interactive-secondary: #64748b;
+  --color-interactive-secondary: #475569;
   --color-interactive-secondary-hover: #475569;
-  --color-interactive-danger: #ef4444;
-  --color-interactive-success: #22c55e;
-  --color-interactive-warning: #f59e0b;
-  --color-accent: #3b82f6;
-  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-interactive-danger: #b91c1c;
+  --color-interactive-success: #166534;
+  --color-interactive-warning: #92400e;
+  --color-interactive-info: #0369a1;
+  --color-status-success: #166534;
+  --color-status-warning: #92400e;
+  --color-status-danger: #b91c1c;
+  --color-status-info: #0369a1;
+  --color-status-success-bg: #f0fdf4;
+  --color-status-warning-bg: #fffbeb;
+  --color-status-danger-bg: #fef2f2;
+  --color-status-info-bg: #f0f9ff;
+  --color-focus-ring: #1d4ed8;
+  --color-focus-ring-offset: #ffffff;
+  --color-neutral-muted: #f8fafc;
+  --color-neutral-subtle: #f1f5f9;
   --color-matching-pair-1-bg: #dbeafe;
   --color-matching-pair-1-border: #2563eb;
   --color-matching-pair-1-badge: #2563eb;
@@ -148,4 +196,68 @@
   --color-matching-pair-4-bg: #e2e8f0;
   --color-matching-pair-4-border: #475569;
   --color-matching-pair-4-badge: #475569;
+  --color-accent: #1d4ed8;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Explicit disabled pairs retain readable text instead of fading the whole control. */
+.theme-control-disabled {
+  background-color: var(--color-disabled-fill);
+  color: var(--color-disabled-foreground);
+  border-color: var(--color-disabled-foreground);
+}
+
+/* Native choice inputs keep semantics; selection marks use their authored fill pair. */
+.theme-choice:checked {
+  background-color: var(--color-control-primary-default-fill);
+  border-color: var(--color-control-primary-default-fill);
+  background-image: none;
+}
+.theme-choice[type="radio"]:checked {
+  background-image: radial-gradient(circle, var(--color-control-primary-default-foreground) 0 25%, transparent 26%);
+}
+.theme-choice:disabled {
+  background-color: var(--color-disabled-fill);
+  border-color: var(--color-disabled-foreground);
+}
+.theme-choice[type="radio"]:checked:disabled {
+  background-image: radial-gradient(circle, var(--color-disabled-foreground) 0 25%, transparent 26%);
+}
+
+@media (forced-colors: active) {
+  .theme-control, button, input, textarea, select, [role="combobox"] {
+    forced-color-adjust: auto;
+    border-color: ButtonText;
+  }
+  .theme-control-disabled, button:disabled, .theme-choice:disabled {
+    background-color: ButtonFace;
+    color: GrayText;
+    border-color: GrayText;
+  }
+  .theme-choice {
+    appearance: auto;
+  }
+  .theme-choice[type="radio"]:checked, .theme-choice[type="radio"]:checked:disabled {
+    background-image: none;
+  }
+  .theme-choice-mark {
+    display: none;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  [aria-pressed="true"], input:checked {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

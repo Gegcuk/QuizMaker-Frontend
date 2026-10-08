@@ -3,14 +3,15 @@
 // Useful for testing and demonstrating the theme system
 // ---------------------------------------------------------------------------
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
 import { Seo } from '@/features/seo';
 import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ThemeDemoPage: React.FC = () => {
+  const [sampleChecked, setSampleChecked] = useState(false);
   const { currentPalette, colorScheme } = useTheme();
 
   return (
@@ -179,6 +180,17 @@ const ThemeDemoPage: React.FC = () => {
                   <Button variant="danger">Danger</Button>
                   <Button variant="info">Info</Button>
                 </div>
+                <div className="flex flex-wrap gap-2" aria-label="Disabled button examples">
+                  <Button variant="primary" disabled>Disabled Primary</Button>
+                  <Button variant="secondary" disabled>Disabled Secondary</Button>
+                  <Button variant="success" disabled>Disabled Success</Button>
+                  <Button variant="danger" disabled>Disabled Danger</Button>
+                  <Button variant="warning" disabled>Disabled Warning</Button>
+                  <Button variant="info" disabled>Disabled Info</Button>
+                  <Button variant="outline" disabled>Disabled Outline</Button>
+                  <Button variant="ghost" disabled>Disabled Ghost</Button>
+                  <Button loading>Saving example</Button>
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -223,6 +235,8 @@ const ThemeDemoPage: React.FC = () => {
                 placeholder="Enter your message..."
                 fullWidth
               />
+              <Checkbox id="sample-checkbox" checked={sampleChecked} onChange={setSampleChecked} label="Sample checkbox" />
+              <Checkbox id="sample-disabled-checkbox" checked disabled onChange={setSampleChecked} label="Disabled checked example" />
             </div>
           </CardBody>
         </Card>

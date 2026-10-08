@@ -13,7 +13,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AnalyticsProvider } from './features/analytics';
 import { SensitiveUrlBoundary } from './features/privacy';
 import { CheckoutRecoveryLifecycle } from './features/billing/components/CheckoutRecoveryLifecycle';
-import './index.css';
 
 const router = createBrowserRouter([{
   path: '*',

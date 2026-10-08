@@ -320,7 +320,7 @@ const BugReportEditModal: React.FC<BugReportEditModalProps> = ({
             <Button
               type="submit"
               loading={submitting}
-              className="bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover"
+              className="bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground hover:bg-theme-control-primary-hover-fill hover:text-theme-control-primary-hover-foreground"
             >
               Update report
             </Button>

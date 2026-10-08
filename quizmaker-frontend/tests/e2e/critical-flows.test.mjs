@@ -1862,7 +1862,7 @@ test('confirmation design follows themes and balances responsive actions', { tim
             cancelColor: getComputedStyle(buttons[0]).backgroundColor,
             themeSurface: themeColor('--color-bg-primary'),
             themeMessage: themeColor('--color-text-secondary'),
-            themePrimary: themeColor('--color-interactive-primary'),
+            themePrimary: themeColor('--color-control-primary-default-fill'),
             scheme: document.documentElement.classList.contains(`theme-${localStorage.getItem('quizmaker-color-scheme')}`),
             horizontalOverflow: dialog.scrollWidth > dialog.clientWidth,
           };

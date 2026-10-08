@@ -143,15 +143,15 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
           if (isCorrectRegion) {
             regionClasses = 'border-theme-interactive-success bg-theme-bg-success';
             badgeClasses =
-              'border-theme-interactive-success bg-theme-interactive-success text-theme-text-inverse';
+              'border-theme-interactive-success bg-theme-control-success-default-fill text-theme-control-success-default-foreground';
           } else if (isIncorrectSelection) {
             regionClasses = 'border-theme-interactive-danger bg-theme-bg-danger';
             badgeClasses =
-              'border-theme-interactive-danger bg-theme-interactive-danger text-theme-text-inverse';
+              'border-theme-interactive-danger bg-theme-control-danger-default-fill text-theme-control-danger-default-foreground';
           } else if (isSelected) {
             regionClasses = 'border-theme-interactive-primary bg-theme-bg-info';
             badgeClasses =
-              'border-theme-interactive-primary bg-theme-interactive-primary text-theme-text-inverse';
+              'border-theme-interactive-primary bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground';
           }
 
           return (
@@ -162,7 +162,7 @@ const HotspotAnswer: React.FC<HotspotAnswerProps> = ({
               disabled={disabled}
               aria-label={`Select region ${region.id}`}
               aria-pressed={isSelected}
-              className={`absolute border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-interactive-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 ${regionClasses}`}
+              className={`absolute border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary disabled:cursor-not-allowed ${regionClasses}`}
               style={{
                 left: `${region.x}%`,
                 top: `${region.y}%`,
