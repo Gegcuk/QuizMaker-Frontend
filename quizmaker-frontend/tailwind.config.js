@@ -16,7 +16,7 @@ export default {
       colors: {
         ...Object.fromEntries(
           ['primary', 'secondary', 'success', 'danger', 'warning', 'info'].flatMap(tone =>
-            ['default', 'hover'].flatMap(state => ['fill', 'foreground'].map(role => [
+            ['default', 'hover', 'disabled'].flatMap(state => ['fill', 'foreground'].map(role => [
               `theme-control-${tone}-${state}-${role}`, `var(--color-control-${tone}-${state}-${role})`,
             ])),
           ),

@@ -149,6 +149,18 @@
   --color-matching-pair-3-badge-foreground: #ffffff;
   --color-matching-pair-4-foreground: #0f172a;
   --color-matching-pair-4-badge-foreground: #ffffff;
+  --color-control-primary-disabled-fill: #a8c1f7;
+  --color-control-primary-disabled-foreground: #0f172a;
+  --color-control-secondary-disabled-fill: #b5bbc3;
+  --color-control-secondary-disabled-foreground: #0f172a;
+  --color-control-success-disabled-fill: #a2c1ae;
+  --color-control-success-disabled-foreground: #0f172a;
+  --color-control-danger-disabled-fill: #e3a4a4;
+  --color-control-danger-disabled-foreground: #0f172a;
+  --color-control-warning-disabled-fill: #d3b39f;
+  --color-control-warning-disabled-foreground: #0f172a;
+  --color-control-info-disabled-fill: #9ac3d9;
+  --color-control-info-disabled-foreground: #0f172a;
   --color-disabled-fill: #e2e8f0;
   --color-disabled-foreground: #334155;
   --color-tooltip-fill: #0f172a;
@@ -206,6 +218,37 @@
   background-color: var(--color-disabled-fill);
   color: var(--color-disabled-foreground);
   border-color: var(--color-disabled-foreground);
+}
+
+.theme-control-disabled-primary {
+  background-color: var(--color-control-primary-disabled-fill);
+  color: var(--color-control-primary-disabled-foreground);
+  border-color: var(--color-control-primary-disabled-foreground);
+}
+.theme-control-disabled-secondary {
+  background-color: var(--color-control-secondary-disabled-fill);
+  color: var(--color-control-secondary-disabled-foreground);
+  border-color: var(--color-control-secondary-disabled-foreground);
+}
+.theme-control-disabled-success {
+  background-color: var(--color-control-success-disabled-fill);
+  color: var(--color-control-success-disabled-foreground);
+  border-color: var(--color-control-success-disabled-foreground);
+}
+.theme-control-disabled-danger {
+  background-color: var(--color-control-danger-disabled-fill);
+  color: var(--color-control-danger-disabled-foreground);
+  border-color: var(--color-control-danger-disabled-foreground);
+}
+.theme-control-disabled-warning {
+  background-color: var(--color-control-warning-disabled-fill);
+  color: var(--color-control-warning-disabled-foreground);
+  border-color: var(--color-control-warning-disabled-foreground);
+}
+.theme-control-disabled-info {
+  background-color: var(--color-control-info-disabled-fill);
+  color: var(--color-control-info-disabled-foreground);
+  border-color: var(--color-control-info-disabled-foreground);
 }
 
 /* Native choice inputs keep semantics; selection marks use their authored fill pair. */

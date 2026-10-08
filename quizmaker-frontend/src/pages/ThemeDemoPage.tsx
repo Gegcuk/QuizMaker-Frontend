@@ -5,13 +5,14 @@
 
 import React, { useState } from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox, Chip } from '@/components/ui';
 import { useTheme } from '@/context/ThemeContext';
 import { Seo } from '@/features/seo';
 import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ThemeDemoPage: React.FC = () => {
   const [sampleChecked, setSampleChecked] = useState(false);
+  const [selectedChips, setSelectedChips] = useState({ default: true, primary: true, success: true, warning: true, danger: true });
   const { currentPalette, colorScheme } = useTheme();
 
   return (
@@ -191,6 +192,10 @@ const ThemeDemoPage: React.FC = () => {
                   <Button variant="ghost" disabled>Disabled Ghost</Button>
                   <Button loading>Saving example</Button>
                 </div>
+                <div className="flex flex-wrap gap-2" aria-label="Answer submission examples">
+                  <Button disabled>Inactive Submit Answer</Button>
+                  <Button>Active Submit Answer</Button>
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -237,6 +242,33 @@ const ThemeDemoPage: React.FC = () => {
               />
               <Checkbox id="sample-checkbox" checked={sampleChecked} onChange={setSampleChecked} label="Sample checkbox" />
               <Checkbox id="sample-disabled-checkbox" checked disabled onChange={setSampleChecked} label="Disabled checked example" />
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Filter chips</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter chip examples">
+              {(['default', 'primary', 'success', 'warning', 'danger'] as const).map(variant => (
+                <React.Fragment key={variant}>
+                  <Chip
+                    label={`Filter ${variant}`}
+                    variant={variant}
+                    selected={selectedChips[variant]}
+                    onClick={() => setSelectedChips(previous => ({ ...previous, [variant]: !previous[variant] }))}
+                  />
+                  <Chip
+                    label={`Disabled filter ${variant}`}
+                    variant={variant}
+                    selected
+                    disabled
+                    onClick={() => setSelectedChips(previous => ({ ...previous, [variant]: !previous[variant] }))}
+                  />
+                </React.Fragment>
+              ))}
             </div>
           </CardBody>
         </Card>

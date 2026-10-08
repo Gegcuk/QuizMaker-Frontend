@@ -1142,9 +1142,23 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           page,
           `/quizzes/${QUIZ_ID}/attempt?attemptId=${MCQ_MULTI_ATTEMPT_ID}`,
         );
+        const submit = page.getByRole('button', { name: 'Submit Answer' });
+        assert.equal(await submit.isDisabled(), true, 'An unanswered question must remain blocked');
+        const inactive = await submit.evaluate(element => {
+          const style = getComputedStyle(element);
+          const probe = document.createElement('span');
+          probe.style.backgroundColor = 'var(--color-control-primary-disabled-fill)';
+          document.body.append(probe);
+          const expectedFill = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return { fill: style.backgroundColor, expectedFill, opacity: style.opacity };
+        });
+        assert.equal(inactive.fill, inactive.expectedFill, 'Submit Answer retains its subdued primary appearance');
+        assert.equal(inactive.opacity, '1', 'The text must retain its independent contrast');
         await page.getByRole('checkbox', { name: 'Select option A' }).check();
         await page.getByRole('checkbox', { name: 'Select option C' }).check();
-        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        assert.equal(await submit.isDisabled(), false, 'Selecting a valid answer enables submission');
+        await submit.click();
         await page.getByText('Explanation', { exact: true }).waitFor();
 
         assert.deepEqual(submittedMultiChoiceAnswer, {

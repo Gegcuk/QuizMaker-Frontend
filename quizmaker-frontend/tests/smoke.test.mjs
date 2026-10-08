@@ -406,7 +406,8 @@ test('theme controls retain contrast across all palettes, states and accessibili
           assert.ok(contrastRatio(...resolved) >= 3, `${palette} focus ring`);
           const disabled = page.getByRole('button', { name: `Disabled ${variant}`, exact: true });
           assert.equal(await disabled.isDisabled(), true);
-          await readableButton(disabled, `${palette}/${variant}/disabled`);
+          const inactive = await readableButton(disabled, `${palette}/${variant}/disabled`);
+          assert.ok(contrastRatio(inactive.borderColor, inactive.backgroundColor) >= 3, `${palette}/${variant}/disabled boundary`);
         }
         for (const field of [page.getByRole('textbox', { name: 'Sample Input', exact: true }), page.getByRole('textbox', { name: 'Sample Textarea', exact: true })]) {
           const style = await buttonStyles(field);
@@ -437,6 +438,11 @@ test('theme controls retain contrast across all palettes, states and accessibili
         const disabledMark = await disabledChoice.evaluate(element => getComputedStyle(element.parentElement.querySelector('svg')).color);
         assert.equal(disabledStyle.opacity, '1');
         assert.ok(contrastRatio(disabledMark, disabledStyle.backgroundColor) >= 3, `${palette} disabled checked mark`);
+        const loading = page.getByRole('button', { name: /Saving example/ });
+        assert.equal(await loading.isDisabled(), true);
+        const loadingStyle = await readableButton(loading, `${palette}/loading`);
+        const spinnerColor = await loading.getByRole('status', { name: 'Loading' }).evaluate(element => getComputedStyle(element).borderTopColor);
+        assert.ok(contrastRatio(spinnerColor, loadingStyle.backgroundColor) >= 3, `${palette} loading indicator`);
         const dimensions = await page.evaluate(() => ({ viewport: innerWidth, content: document.documentElement.scrollWidth }));
         assert.ok(dimensions.content <= dimensions.viewport + 1, `${palette}/${viewport.width} theme-demo overflow`);
         if (screenshots) await page.screenshot({ path: `${screenshots}/${palette}-${viewport.width}.png`, fullPage: true });
@@ -471,6 +477,84 @@ test('theme controls retain contrast across all palettes, states and accessibili
       assert.ok((await selected.getAttribute('aria-label')) || (await selected.evaluate(element => element.labels?.length > 0)));
     }
     assert.deepEqual(errors, [], 'Theme startup and switching must not throw browser errors');
+  } finally {
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});
+
+test('filter chips and inactive actions remain readable across palettes and responsive layouts', { timeout: 120_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 900 } })).newPage();
+    await page.goto(`${BASE_URL}/theme-demo`, { waitUntil: 'networkidle' });
+    const variants = ['default', 'primary', 'success', 'warning', 'danger'];
+    for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const palette of PALETTES) {
+        await applyPalette(page, palette);
+        const filters = page.getByRole('group', { name: 'Filter chip examples' });
+        for (const variant of variants) {
+          const chip = filters.getByRole('button', { name: `Filter ${variant}`, exact: true });
+          assert.equal(await chip.getAttribute('aria-pressed'), 'true');
+          await page.mouse.move(0, 0);
+          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await readableButton(chip, `${palette}/${width}/${variant}/selected`);
+          await chip.hover();
+          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await readableButton(chip, `${palette}/${width}/${variant}/hover`);
+          await chip.focus();
+          const focused = await readableButton(chip, `${palette}/${width}/${variant}/focus`);
+          assert.notEqual(focused.boxShadow, 'none', 'Selected filters need visible keyboard focus');
+          await page.keyboard.press('Space');
+          assert.equal(await chip.getAttribute('aria-pressed'), 'false');
+          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await readableButton(chip, `${palette}/${width}/${variant}/unselected`);
+          await page.keyboard.press('Enter');
+          assert.equal(await chip.getAttribute('aria-pressed'), 'true');
+          const disabled = filters.getByRole('button', { name: `Disabled filter ${variant}`, exact: true });
+          assert.equal(await disabled.isDisabled(), true);
+          assert.equal(await disabled.getAttribute('aria-pressed'), 'true');
+          const disabledStyle = await readableButton(disabled, `${palette}/${width}/${variant}/disabled`);
+          assert.ok(contrastRatio(disabledStyle.borderColor, disabledStyle.backgroundColor) >= 3, `${palette}/${variant}/disabled filter boundary`);
+        }
+        const inactive = page.getByRole('button', { name: 'Inactive Submit Answer', exact: true });
+        assert.equal(await inactive.isDisabled(), true);
+        const inactiveStyle = await readableButton(inactive, `${palette}/${width}/inactive submission`);
+        const activeStyle = await readableButton(page.getByRole('button', { name: 'Active Submit Answer', exact: true }), `${palette}/${width}/active submission`);
+        assert.notEqual(inactiveStyle.backgroundColor, activeStyle.backgroundColor, 'Inactive actions retain a distinct subdued appearance');
+        const surface = parseRgb(activeStyle.surface);
+        const activeDirection = parseRgb(activeStyle.backgroundColor).map((channel, index) => channel - surface[index]);
+        const inactiveDirection = parseRgb(inactiveStyle.backgroundColor).map((channel, index) => channel - surface[index]);
+        const magnitude = channels => Math.hypot(...channels);
+        assert.ok(magnitude(inactiveDirection) < magnitude(activeDirection), 'Inactive primary fill must be closer to the surrounding surface');
+        const alignment = activeDirection.reduce((sum, channel, index) => sum + channel * inactiveDirection[index], 0)
+          / (magnitude(activeDirection) * magnitude(inactiveDirection));
+        assert.ok(alignment > 0.98, 'Inactive primary fill must retain the active color family');
+        const dimensions = await filters.evaluate(element => ({ left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right, viewport: innerWidth }));
+        assert.ok(dimensions.left >= 0 && dimensions.right <= dimensions.viewport, 'Filter controls must fit the viewport');
+        if (process.env.THEME_SCREENSHOT_DIR) {
+          await mkdir(process.env.THEME_SCREENSHOT_DIR, { recursive: true });
+          await filters.screenshot({ path: `${process.env.THEME_SCREENSHOT_DIR}/filters-${palette}-${width}.png` });
+        }
+      }
+    }
+    await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+    for (const palette of PALETTES) {
+      await applyPalette(page, palette);
+      const selected = page.getByRole('button', { name: 'Filter primary', exact: true });
+      await selected.focus();
+      const style = await buttonStyles(selected);
+      assert.equal(await selected.getAttribute('aria-pressed'), 'true');
+      assert.equal(style.transitionDuration, '0s');
+      assert.equal(style.outlineStyle, 'solid');
+      assert.notEqual(style.color, style.backgroundColor);
+      const inactive = await buttonStyles(page.getByRole('button', { name: 'Inactive Submit Answer', exact: true }));
+      assert.notEqual(inactive.color, inactive.backgroundColor);
+    }
   } finally {
     await browser?.close();
     await stopDevServer(server);

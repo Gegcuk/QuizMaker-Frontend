@@ -38,8 +38,19 @@ const Button: React.FC<ButtonProps> = ({
     ghost: 'border-2 border-transparent text-theme-interactive-primary enabled:hover:bg-theme-bg-tertiary',
   };
 
+  const disabledVariantClasses = {
+    primary: 'theme-control-disabled-primary',
+    secondary: 'theme-control-disabled-secondary',
+    success: 'theme-control-disabled-success',
+    danger: 'theme-control-disabled-danger',
+    warning: 'theme-control-disabled-warning',
+    info: 'theme-control-disabled-info',
+    outline: 'theme-control-disabled-primary',
+    ghost: 'theme-control-disabled-primary',
+  };
+
   const disabledClasses = disabled || loading || props['aria-disabled'] === true || props['aria-disabled'] === 'true'
-    ? 'theme-control-disabled' : '';
+    ? `theme-control-disabled ${disabledVariantClasses[variant]}` : '';
 
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
@@ -69,7 +80,7 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading && (
-        <Spinner size="sm" className="mr-2" />
+        <Spinner size="sm" className="mr-2" inheritColor />
       )}
       {!loading && leftIcon && (
         <span className="mr-2">{leftIcon}</span>

@@ -28,8 +28,8 @@ describe.each(colorPalettes)('$name contrast contract', palette => {
     for (const [tone, control] of Object.entries(palette.colors.controls)) {
       for (const [state, pair] of Object.entries(control)) {
         readable(pair.foreground, pair.fill, `${tone} ${state}`);
-        // Focus retains the fill/text pair and has a separate visible focus affordance.
-        for (const surface of Object.values(palette.colors.bg)) readable(pair.fill, surface, `${tone} boundary`, 3);
+        // Pale inactive fills use their readable foreground for the visible boundary.
+        for (const surface of Object.values(palette.colors.bg)) readable(state === 'disabled' ? pair.foreground : pair.fill, surface, `${tone} boundary`, 3);
       }
     }
     readable(palette.colors.disabled.foreground, palette.colors.disabled.fill, 'disabled');

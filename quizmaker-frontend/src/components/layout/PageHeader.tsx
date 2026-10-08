@@ -138,7 +138,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       success: "bg-theme-control-success-default-fill text-theme-control-success-default-foreground hover:bg-theme-control-success-hover-fill hover:text-theme-control-success-hover-foreground",
     };
 
-    const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'theme-control-disabled cursor-not-allowed' : ''}`;
+    const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? `theme-control-disabled theme-control-disabled-${action.variant || 'secondary'} cursor-not-allowed` : ''}`;
 
     const buttonContent = (
       <>

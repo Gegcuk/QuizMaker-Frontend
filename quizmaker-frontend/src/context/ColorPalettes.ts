@@ -13,6 +13,7 @@ export type ControlTone = 'primary' | 'secondary' | 'success' | 'danger' | 'warn
 export interface ControlColors {
   default: ColorPair;
   hover: ColorPair;
+  disabled: ColorPair;
 }
 
 export interface ColorPalette {
@@ -125,26 +126,32 @@ export const lightPalette: ColorPalette = {
       primary: {
         default: { fill: '#2563eb', foreground: '#ffffff' },
         hover: { fill: '#1d4ed8', foreground: '#ffffff' },
+        disabled: { fill: '#a8c1f7', foreground: '#0f172a' },
       },
       secondary: {
         default: { fill: '#475569', foreground: '#ffffff' },
         hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#b5bbc3', foreground: '#0f172a' },
       },
       success: {
         default: { fill: '#166534', foreground: '#ffffff' },
         hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#a2c1ae', foreground: '#0f172a' },
       },
       danger: {
         default: { fill: '#b91c1c', foreground: '#ffffff' },
         hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#e3a4a4', foreground: '#0f172a' },
       },
       warning: {
         default: { fill: '#92400e', foreground: '#ffffff' },
         hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#d3b39f', foreground: '#0f172a' },
       },
       info: {
         default: { fill: '#0369a1', foreground: '#ffffff' },
         hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#9ac3d9', foreground: '#0f172a' },
       },
     },
     disabled: { fill: '#e2e8f0', foreground: '#334155' },
@@ -217,26 +224,32 @@ export const darkPalette: ColorPalette = {
       primary: {
         default: { fill: '#93c5fd', foreground: '#0f172a' },
         hover: { fill: '#60a5fa', foreground: '#0f172a' },
+        disabled: { fill: '#445d7e', foreground: '#f8fafc' },
       },
       secondary: {
         default: { fill: '#cbd5e1', foreground: '#0f172a' },
         hover: { fill: '#94a3b8', foreground: '#0f172a' },
+        disabled: { fill: '#5a6373', foreground: '#f8fafc' },
       },
       success: {
         default: { fill: '#86efac', foreground: '#0f172a' },
         hover: { fill: '#4ade80', foreground: '#0f172a' },
+        disabled: { fill: '#3f6d5e', foreground: '#f8fafc' },
       },
       danger: {
         default: { fill: '#fca5a5', foreground: '#0f172a' },
         hover: { fill: '#f87171', foreground: '#0f172a' },
+        disabled: { fill: '#6e505b', foreground: '#f8fafc' },
       },
       warning: {
         default: { fill: '#fde68a', foreground: '#0f172a' },
         hover: { fill: '#fbbf24', foreground: '#0f172a' },
+        disabled: { fill: '#6e6a50', foreground: '#f8fafc' },
       },
       info: {
         default: { fill: '#a5f3fc', foreground: '#0f172a' },
         hover: { fill: '#67e8f9', foreground: '#0f172a' },
+        disabled: { fill: '#4b6f7e', foreground: '#f8fafc' },
       },
     },
     disabled: { fill: '#334155', foreground: '#f8fafc' },
@@ -309,26 +322,32 @@ export const bluePalette: ColorPalette = {
       primary: {
         default: { fill: '#1d4ed8', foreground: '#ffffff' },
         hover: { fill: '#1e40af', foreground: '#ffffff' },
+        disabled: { fill: '#8aa6ed', foreground: '#1e293b' },
       },
       secondary: {
         default: { fill: '#475569', foreground: '#ffffff' },
         hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#9aa8c1', foreground: '#1e293b' },
       },
       success: {
         default: { fill: '#166534', foreground: '#ffffff' },
         hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#87afab', foreground: '#1e293b' },
       },
       danger: {
         default: { fill: '#b91c1c', foreground: '#ffffff' },
         hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#c892a2', foreground: '#1e293b' },
       },
       warning: {
         default: { fill: '#92400e', foreground: '#ffffff' },
         hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#b8a09c', foreground: '#1e293b' },
       },
       info: {
         default: { fill: '#0369a1', foreground: '#ffffff' },
         hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#7fb0d7', foreground: '#1e293b' },
       },
     },
     disabled: { fill: '#dee5d4', foreground: '#334155' },
@@ -401,26 +420,32 @@ export const purplePalette: ColorPalette = {
       primary: {
         default: { fill: '#c4b5fd', foreground: '#17133b' },
         hover: { fill: '#a78bfa', foreground: '#17133b' },
+        disabled: { fill: '#5c5489', foreground: '#f8fafc' },
       },
       secondary: {
         default: { fill: '#c8acd6', foreground: '#17133b' },
         hover: { fill: '#a78bfa', foreground: '#17133b' },
+        disabled: { fill: '#5e5079', foreground: '#f8fafc' },
       },
       success: {
         default: { fill: '#86efac', foreground: '#17133b' },
         hover: { fill: '#4ade80', foreground: '#17133b' },
+        disabled: { fill: '#436b68', foreground: '#f8fafc' },
       },
       danger: {
         default: { fill: '#fca5a5', foreground: '#17133b' },
         hover: { fill: '#f87171', foreground: '#17133b' },
+        disabled: { fill: '#734d65', foreground: '#f8fafc' },
       },
       warning: {
         default: { fill: '#fde68a', foreground: '#17133b' },
         hover: { fill: '#fbbf24', foreground: '#17133b' },
+        disabled: { fill: '#73675b', foreground: '#f8fafc' },
       },
       info: {
         default: { fill: '#a5f3fc', foreground: '#17133b' },
         hover: { fill: '#67e8f9', foreground: '#17133b' },
+        disabled: { fill: '#506d88', foreground: '#f8fafc' },
       },
     },
     disabled: { fill: '#433d8b', foreground: '#f8fafc' },
@@ -493,26 +518,32 @@ export const greenPalette: ColorPalette = {
       primary: {
         default: { fill: '#166534', foreground: '#ffffff' },
         hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#99c0a7', foreground: '#052e16' },
       },
       secondary: {
         default: { fill: '#475569', foreground: '#ffffff' },
         hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#acbabc', foreground: '#052e16' },
       },
       success: {
         default: { fill: '#166534', foreground: '#ffffff' },
         hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#99c0a7', foreground: '#052e16' },
       },
       danger: {
         default: { fill: '#b91c1c', foreground: '#ffffff' },
         hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#daa39e', foreground: '#052e16' },
       },
       warning: {
         default: { fill: '#92400e', foreground: '#ffffff' },
         hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#cab198', foreground: '#052e16' },
       },
       info: {
         default: { fill: '#0369a1', foreground: '#ffffff' },
         hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#91c2d3', foreground: '#052e16' },
       },
     },
     disabled: { fill: '#bbf7d0', foreground: '#14532d' },
