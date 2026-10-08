@@ -262,8 +262,14 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
         setBalanceErrorData({ message: errorMessage, ...safe.balance });
         setShowInsufficientBalanceModal(true);
       } else {
+        const fields = Object.fromEntries(Object.entries(safe.fieldErrors ?? {}).map(([field, messages]) => [field, messages[0]]));
+        // Generation DTO names differ from the title/description controls in this form.
+        if (creationMethod !== 'manual') {
+          if (fields.quizTitle) fields.title = fields.quizTitle;
+          if (fields.quizDescription) fields.description = fields.quizDescription;
+        }
         setErrors({
-          ...Object.fromEntries(Object.entries(safe.fieldErrors ?? {}).map(([field, messages]) => [field, messages[0]])),
+          ...fields,
           general: errorMessage,
         });
         addToast({ type: 'error', message: errorMessage });

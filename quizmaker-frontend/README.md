@@ -245,6 +245,11 @@ available HTTP status, allowlisted code/type, field associations, validated
 fixed recovery guidance. Arbitrary backend detail, validation text, error causes,
 transport objects, and original stacks are discarded. Field errors keep their
 allowlisted field names with safe messages; unknown metadata is omitted.
+The field-name list includes request properties verified in the live API groups.
+Local media validation uses explicit reasons and validated size/type options,
+so file-size, empty-file, format, and image-decoding guidance survives this
+boundary without accepting arbitrary exception messages. Alert titles contain
+only a short category label; recovery and support references appear once.
 
 Diagnostics are memory-only in the current tab: at most 20 events, at most
 30 minutes of retention, and one event per error category per 60 seconds.

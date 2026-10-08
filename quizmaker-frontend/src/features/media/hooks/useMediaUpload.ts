@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import type { MediaAssetType, MediaRefDto } from '../types/media.types';
 import { mediaService } from '../services/media.service';
-import { getErrorMessage, logger } from '@/utils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
+import { diagnostics } from '@/features/diagnostics/reporter';
 
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const DEFAULT_IMAGE_MIME_TYPES = [
@@ -32,50 +33,49 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to read image dimensions.'));
+      reject(new ApplicationError({ category: 'validation', localMediaValidation: { reason: 'image-unreadable' } }));
     };
 
     img.src = url;
   });
 
-const formatBytes = (value: number): string => {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
-};
-
 export const useMediaUpload = (options: MediaUploadOptions = {}) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const validateFile = useCallback(
-    (file: File): string | null => {
+  const getFileValidationError = useCallback(
+    (file: File): ApplicationError | null => {
       const maxSize = options.maxSizeBytes ?? DEFAULT_MAX_SIZE_BYTES;
       const allowedMimeTypes =
         options.allowedMimeTypes ??
         ((options.type ?? 'IMAGE') === 'IMAGE' ? DEFAULT_IMAGE_MIME_TYPES : []);
 
       if (!file) {
-        return 'No file selected.';
+        return new ApplicationError({ category: 'validation', localMediaValidation: { reason: 'no-file' } });
       }
 
       if (file.size <= 0) {
-        return 'File is empty.';
+        return new ApplicationError({ category: 'validation', localMediaValidation: { reason: 'empty-file' } });
       }
 
       if (maxSize && file.size > maxSize) {
-        return `File is too large. Max size is ${formatBytes(maxSize)}.`;
+        return new ApplicationError({ category: 'validation', localMediaValidation: { reason: 'file-too-large', maxSizeBytes: maxSize } });
       }
 
       if (allowedMimeTypes.length > 0) {
         if (!file.type || !allowedMimeTypes.includes(file.type)) {
-          return `Unsupported file type. Allowed: ${allowedMimeTypes.join(', ')}.`;
+          return new ApplicationError({ category: 'validation', localMediaValidation: { reason: 'unsupported-file-type', allowedMimeTypes } });
         }
       }
 
       return null;
     },
     [options.allowedMimeTypes, options.maxSizeBytes, options.type]
+  );
+
+  const validateFile = useCallback(
+    (file: File): string | null => getFileValidationError(file)?.message ?? null,
+    [getFileValidationError],
   );
 
   const clearError = useCallback(() => {
@@ -88,9 +88,9 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
       setIsUploading(true);
 
       try {
-        const validationError = validateFile(file);
+        const validationError = getFileValidationError(file);
         if (validationError) {
-          throw new Error(validationError);
+          throw validationError;
         }
 
         const type = options.type ?? 'IMAGE';
@@ -119,7 +119,7 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to upload file: ${response.statusText}`);
+          throw toApplicationError({ status: response.status });
         }
 
         const asset = await mediaService.finalizeUpload(uploadIntent.assetId, {
@@ -135,15 +135,15 @@ export const useMediaUpload = (options: MediaUploadOptions = {}) => {
           mimeType: asset.mimeType,
         };
       } catch (err: unknown) {
-        const message = getErrorMessage(err) || 'Failed to upload media.';
-        setError(message);
-        logger.error(message, 'useMediaUpload');
-        throw err instanceof Error ? err : new Error(message);
+        const safe = toApplicationError(err);
+        setError(safe.message);
+        diagnostics.report(safe, 'application');
+        throw safe;
       } finally {
         setIsUploading(false);
       }
     },
-    [options.articleId, options.type, validateFile]
+    [options.articleId, options.type, getFileValidationError]
   );
 
   return {

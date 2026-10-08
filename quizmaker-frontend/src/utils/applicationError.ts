@@ -39,7 +39,67 @@ const safeFieldNames = new Set([
   'file', 'text', 'questionText', 'type', 'categoryId', 'tagIds', 'questionsPerType',
   'estimatedTime', 'options', 'gaps', 'answer', 'answers', 'id', 'MCQ_SINGLE',
   'MCQ_MULTI', 'TRUE_FALSE', 'FILL_GAP', 'MATCHING', 'ORDERING', 'COMPLIANCE', 'HOTSPOT',
+  // Request-property names verified in the live group specifications. Values are never retained.
+  'action', 'aggressiveCombinationThreshold', 'align', 'alt', 'articleId', 'assetId',
+  'attachmentAssetId', 'attachmentUrl', 'author', 'autoCreateCategory', 'autoCreateTags',
+  'blocks', 'canonicalUrl', 'caption', 'chapterNumber', 'chapterTitle', 'checklist',
+  'chunkIndices', 'chunkingStrategy', 'clearAttachment', 'clientId', 'clientVersion',
+  'code', 'codeVerifier', 'color', 'contentGroup', 'detail', 'documentId', 'dryRun',
+  'estimatedTimePerQuestion', 'eventName', 'excerpt', 'expiresAt', 'explanation', 'faqs',
+  'format', 'height', 'heroImage', 'heroKicker', 'hint', 'href', 'icon',
+  'includeCorrectAnswer', 'includeCorrectness', 'includeExplanation', 'internalNote',
+  'isDefault', 'isPublic', 'isRepetitionEnabled', 'keyPoints', 'label', 'language', 'link',
+  'maxChunkSize', 'message', 'mimeType', 'minChunkSize', 'mode', 'newPriceLookupKey',
+  'noindex', 'ogImage', 'oneTime', 'orderedQuizIds', 'originalFilename', 'packId',
+  'packReferenceProvided', 'pageUrl', 'payload', 'permissionName', 'position', 'priceId',
+  'primaryCta', 'provider', 'publishedAt', 'question', 'questionId', 'quizDescription',
+  'quizIds', 'quizScope', 'quizTitle', 'readingTime', 'redirectUri', 'references',
+  'refreshToken', 'rendition', 'reporterEmail', 'reporterName', 'resource', 'roleName',
+  'scope', 'secondaryCta', 'sectionId', 'sections', 'severity', 'sha256', 'sizeBytes',
+  'slug', 'sourceType', 'stats', 'status', 'stepsToReproduce', 'storeChunks', 'strategy',
+  'subscriptionId', 'summary', 'tags', 'timerDuration', 'timerEnabled', 'token', 'update',
+  'url', 'value', 'width',
 ]);
+
+interface LocalMediaValidation {
+  reason: 'no-file' | 'empty-file' | 'file-too-large' | 'unsupported-file-type' | 'image-unreadable';
+  maxSizeBytes?: number;
+  allowedMimeTypes?: readonly string[];
+}
+
+const safeMediaMimeTypes = new Set([
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/avif', 'image/bmp', 'image/tiff', 'image/heic', 'image/heif',
+  'application/pdf', 'text/plain', 'text/csv', 'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
+
+/** Only locally selected reasons and validated configuration can supply this text. */
+const localMediaMessage = (validation: LocalMediaValidation | undefined): string | undefined => {
+  switch (validation?.reason) {
+    case 'no-file': return 'No file selected.';
+    case 'empty-file': return 'File is empty.';
+    case 'image-unreadable': return 'Failed to read image dimensions. Choose another image.';
+    case 'file-too-large': {
+      const limit = validation.maxSizeBytes;
+      if (typeof limit !== 'number' || !Number.isSafeInteger(limit) || limit <= 0) {
+        return 'File is too large. Choose a smaller file.';
+      }
+      const size = limit < 1024 ? `${limit} B`
+        : limit < 1024 * 1024 ? `${(limit / 1024).toFixed(1)} KB`
+        : `${(limit / (1024 * 1024)).toFixed(1)} MB`;
+      return `File is too large. Max size is ${size}.`;
+    }
+    case 'unsupported-file-type': {
+      const types = validation.allowedMimeTypes;
+      return Array.isArray(types) && types.length > 0 && types.length <= 20
+        && types.every(type => safeMediaMimeTypes.has(type))
+        ? `Unsupported file type. Allowed: ${types.join(', ')}.`
+        : 'Unsupported file type. Choose a supported file format.';
+    }
+    default: return undefined;
+  }
+};
 
 const record = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -87,7 +147,7 @@ const fieldErrors = (value: unknown): Record<string, string[]> | undefined => {
   const fields = record(value);
   if (!fields) return undefined;
   const result: Record<string, string[]> = {};
-  for (const [field, messages] of Object.entries(fields).slice(0, 20)) {
+  for (const [field, messages] of Object.entries(fields)) {
     if (field.length > 100 || !/^[A-Za-z]\w*(?:\.\w+|\[\d{1,4}\])*$/.test(field)
       || !field.split(/[.[\]]/).filter(Boolean).every(
       part => safeFieldNames.has(part) || /^\d{1,4}$/.test(part),
@@ -96,6 +156,7 @@ const fieldErrors = (value: unknown): Record<string, string[]> | undefined => {
       && messages.every(message => typeof message === 'string'))) continue;
     // Keep the field association without echoing submitted values in server text.
     result[field] = ['Check this field and try again.'];
+    if (Object.keys(result).length === 20) break;
   }
   return Object.keys(result).length ? result : undefined;
 };
@@ -124,6 +185,7 @@ interface ErrorMetadata {
   correlationId?: string;
   balance?: { requiredTokens?: number; currentBalance?: number };
   invalidCheckout?: boolean;
+  localMediaValidation?: LocalMediaValidation;
 }
 
 /** No Axios config, request, body, original stack, or cause survives this boundary. */
@@ -152,7 +214,7 @@ export class ApplicationError extends Error {
     const specific = metadata.invalidCheckout ? 'Invalid checkout response. Refresh payment status before trying again.'
       : metadata.status === 413 ? 'File size exceeds maximum allowed size. Choose a smaller file.'
       : metadata.status === 415 ? 'Unsupported document format. Choose a supported file type.' : undefined;
-    super(`${balanceMessage ?? specific ?? guidance[category]}${wait}${support}`);
+    super(`${localMediaMessage(metadata.localMediaValidation) ?? balanceMessage ?? specific ?? guidance[category]}${wait}${support}`);
     this.name = 'ApplicationError';
     this.stack = undefined;
     this.category = category;

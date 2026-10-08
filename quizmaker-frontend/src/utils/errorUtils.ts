@@ -1,5 +1,5 @@
 import type { ProblemDetails } from '@/types';
-import { getSafeErrorMessage, toApplicationError } from './applicationError';
+import { getSafeErrorMessage, toApplicationError, type ErrorCategory } from './applicationError';
 
 export const getErrorMessage = getSafeErrorMessage;
 
@@ -15,7 +15,15 @@ export function formatProblemDetails(problem: ProblemDetails): string {
 }
 
 export function getErrorTitle(error: unknown): string {
-  return toApplicationError(error).message;
+  const titles: Record<ErrorCategory, string> = {
+    validation: 'Invalid input', authentication: 'Sign-in required',
+    authorization: 'Access denied', 'not-found': 'Item not found',
+    conflict: 'Conflict', gone: 'Item unavailable', precondition: 'Item changed',
+    'rate-limit': 'Too many requests', server: 'Service unavailable',
+    offline: 'Offline', network: 'Connection problem', timeout: 'Request timed out',
+    cancelled: 'Request cancelled', unexpected: 'Something went wrong',
+  };
+  return titles[toApplicationError(error).category];
 }
 
 export function getValidationErrors(error: unknown): Record<string, string[]> | undefined {

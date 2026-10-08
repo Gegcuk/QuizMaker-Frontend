@@ -5,12 +5,13 @@ import type {
   MediaUploadResponse,
 } from '../types/media.types';
 import { useMediaUpload } from './useMediaUpload';
+import { getErrorMessage } from '@/utils/errorUtils';
+import { diagnostics } from '@/features/diagnostics/reporter';
 
 const mocks = vi.hoisted(() => ({
   createObjectURL: vi.fn(() => 'blob:media'),
   createUploadIntent: vi.fn(),
   finalizeUpload: vi.fn(),
-  loggerError: vi.fn(),
   revokeObjectURL: vi.fn(),
 }));
 
@@ -19,12 +20,6 @@ vi.mock('../services/media.service', () => ({
     createUploadIntent: mocks.createUploadIntent,
     finalizeUpload: mocks.finalizeUpload,
   },
-}));
-
-vi.mock('@/utils', () => ({
-  getErrorMessage: (error: unknown) =>
-    error instanceof Error ? error.message : 'Failed to upload media.',
-  logger: { error: mocks.loggerError },
 }));
 
 const uploadIntent: MediaUploadResponse = {
@@ -85,6 +80,7 @@ describe('useMediaUpload', () => {
   });
 
   afterEach(() => {
+    diagnostics.clear();
     vi.clearAllMocks();
     vi.unstubAllGlobals();
   });
@@ -205,9 +201,9 @@ describe('useMediaUpload', () => {
     expect(result.current.isUploading).toBe(false);
   });
 
-  it('stores upload failures, logs them, and can clear the error', async () => {
+  it('stores safe upload recovery guidance and can clear the error', async () => {
     const file = new File([new Uint8Array(10)], 'diagram.png', { type: 'image/png' });
-    vi.mocked(fetch).mockResolvedValue({ ok: false, statusText: 'Forbidden' } as Response);
+    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 403, statusText: 'seeded-provider-secret' } as Response);
     const { result } = renderHook(() => useMediaUpload());
 
     let uploadError: unknown;
@@ -221,20 +217,52 @@ describe('useMediaUpload', () => {
 
     expect(uploadError).toEqual(
       expect.objectContaining({
-        message: 'Failed to upload file: Forbidden',
+        message: 'Insufficient permissions. Ask the owner for access.',
       }),
     );
     await waitFor(() =>
-      expect(result.current.error).toBe('Failed to upload file: Forbidden'),
+      expect(result.current.error).toBe('Insufficient permissions. Ask the owner for access.'),
     );
     expect(result.current.isUploading).toBe(false);
     expect(mocks.finalizeUpload).not.toHaveBeenCalled();
-    expect(mocks.loggerError).toHaveBeenCalledWith(
-      'Failed to upload file: Forbidden',
-      'useMediaUpload',
-    );
+    expect(JSON.stringify(uploadError)).not.toContain('seeded-provider-secret');
+    expect(JSON.stringify(diagnostics.read())).not.toContain('seeded-provider-secret');
 
     act(() => result.current.clearError());
     expect(result.current.error).toBeNull();
+  });
+
+  it.each([
+    ['empty', () => new File([], 'seeded-secret.png', { type: 'image/png' }), 'File is empty.'],
+    ['oversized', () => new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'seeded-secret.png', { type: 'image/png' }), 'File is too large. Max size is 10.0 MB.'],
+    ['unsupported', () => new File(['seeded-secret'], 'seeded-secret.svg', { type: 'image/svg+xml' }), 'Unsupported file type. Allowed: image/jpeg, image/png, image/gif, image/webp.'],
+  ] as const)('preserves %s local guidance through the real error helper without starting an upload', async (_kind, createFile, message) => {
+    const { result } = renderHook(() => useMediaUpload());
+    let failure: unknown;
+    await act(async () => {
+      try { await result.current.uploadMedia(createFile()); } catch (error) { failure = error; }
+    });
+    expect(result.current.error).toBe(message);
+    expect(getErrorMessage(failure)).toBe(message);
+    expect(result.current.isUploading).toBe(false);
+    expect(mocks.createUploadIntent).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(JSON.stringify(failure)).not.toContain('seeded-secret');
+    expect(JSON.stringify(diagnostics.read())).not.toContain('seeded-secret');
+  });
+
+  it('keeps image decoding failures actionable and revokes the object URL', async () => {
+    class BrokenImage extends ImageMock {
+      set src(_value: string) { queueMicrotask(() => this.onerror?.(new Event('error'))); }
+    }
+    vi.stubGlobal('Image', BrokenImage);
+    const { result } = renderHook(() => useMediaUpload());
+    await act(async () => {
+      await expect(result.current.uploadMedia(new File(['broken'], 'private.png', { type: 'image/png' })))
+        .rejects.toThrow('Failed to read image dimensions. Choose another image.');
+    });
+    expect(result.current.error).toBe('Failed to read image dimensions. Choose another image.');
+    expect(mocks.revokeObjectURL).toHaveBeenCalledWith('blob:media');
+    expect(mocks.createUploadIntent).not.toHaveBeenCalled();
   });
 });

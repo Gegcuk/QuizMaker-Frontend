@@ -7,6 +7,7 @@ import { articleService } from '@/features/blog/services/articleService';
 import { mediaService } from '@/features/media';
 import type { ArticleDto } from '@/features/blog/types';
 import BlogArticlePage from './BlogArticlePage';
+import { toApplicationError } from '@/utils/applicationError';
 
 const fallbackUrl = 'https://cdn.quizzence.com/library/aec804f3-e4b3-430a-ba3e-109e819b3c56.png';
 const fallbackAlt = 'Illustration of a document turning into quiz questions and a study plan';
@@ -43,6 +44,19 @@ const imageMeta = () => document.head.querySelector('meta[property="og:image"]')
 afterEach(() => vi.restoreAllMocks());
 
 describe('public article hero images', () => {
+  it('shows one recovery message and one support reference beneath a short error title', async () => {
+    const reference = '12345678-1234-4234-8234-123456789abc';
+    vi.spyOn(articleService, 'getBySlug').mockRejectedValue(toApplicationError({
+      response: { status: 503, data: { detail: 'seeded-secret', correlationId: reference } },
+    }));
+    renderArticle();
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Service unavailable');
+    expect(alert.textContent?.match(/Server error occurred/g)).toHaveLength(1);
+    expect(alert.textContent?.match(/Support reference:/g)).toHaveLength(1);
+    expect(alert).toHaveTextContent(reference);
+    expect(alert).not.toHaveTextContent('seeded-secret');
+  });
   it('renders the documented URL with intrinsic dimensions, article alt and caption', async () => {
     vi.spyOn(articleService, 'getBySlug').mockResolvedValue(article);
     renderArticle();

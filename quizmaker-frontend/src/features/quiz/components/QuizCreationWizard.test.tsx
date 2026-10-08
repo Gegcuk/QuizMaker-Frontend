@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import QuizCreationWizard from './QuizCreationWizard';
+import { toApplicationError } from '@/utils/applicationError';
 
 const quizService = vi.hoisted(() => ({ createQuiz: vi.fn(), generateFromText: vi.fn() }));
 
@@ -98,4 +99,26 @@ it('guards losing local wizard text on Back, preserves it on Stay, and clears di
   const event = new Event('beforeunload', { cancelable: true });
   window.dispatchEvent(event);
   expect(event.defaultPrevented).toBe(false);
+});
+
+it('renders a generation API quizTitle error beside the real title control and preserves entered text', async () => {
+  quizService.generateFromText.mockRejectedValueOnce(toApplicationError({ response: { status: 422, data: {
+    errors: { quizTitle: ['seeded-private-backend-value'], quizDescription: ['seeded-private-backend-value'], text: ['seeded-private-backend-value'], language: ['seeded-private-backend-value'] },
+  } } }));
+  const { user } = renderWithProviders(<QuizCreationWizard />, { withAuthProvider: false });
+  await user.click(screen.getByRole('button', { name: 'Choose text' }));
+  const title = screen.getByPlaceholderText('Enter quiz title...');
+  await user.type(title, 'My generation quiz');
+  const text = 'A source passage about photosynthesis and cellular respiration. '.repeat(6);
+  await user.type(screen.getByLabelText('Text Content *'), text);
+  await user.click(screen.getByRole('button', { name: 'Generate Quiz from Text' }));
+  const titleGroup = title.closest('[data-field="title"]');
+  expect(titleGroup).not.toBeNull();
+  expect(await within(titleGroup as HTMLElement).findByText('Check this field and try again.')).toBeInTheDocument();
+  const description = screen.getByPlaceholderText('Brief description...');
+  expect(description).toHaveAttribute('aria-invalid', 'true');
+  expect(screen.getByLabelText('Text Content *')).toHaveAttribute('aria-invalid', 'true');
+  expect(title).toHaveValue('My generation quiz');
+  expect(screen.getByLabelText('Text Content *')).toHaveValue(text);
+  expect(document.body).not.toHaveTextContent('seeded-private-backend-value');
 });

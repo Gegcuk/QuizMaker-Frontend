@@ -118,4 +118,39 @@ describe('application error boundary', () => {
     expect(JSON.stringify(toApplicationError(raw, { balanceConflict: true }))).not.toContain(secret);
     expect(toApplicationError(raw).code).toBeUndefined();
   });
+
+  it('preserves verified quiz, generation, document, and media field associations', () => {
+    const error = toApplicationError(failure(422, { errors: {
+      timerDuration: [secret], timerEnabled: [secret], quizTitle: [secret], quizDescription: [secret],
+      language: [secret], estimatedTimePerQuestion: [secret], chunkIndices: [secret],
+      maxChunkSize: [secret], chunkingStrategy: [secret], 'blocks[0].assetId': [secret],
+      sizeBytes: [secret], mimeType: [secret], originalFilename: [secret], [secret]: [secret],
+    } }));
+    expect(error.fieldErrors).toMatchObject({
+      timerDuration: ['Check this field and try again.'], timerEnabled: ['Check this field and try again.'],
+      quizTitle: ['Check this field and try again.'], quizDescription: ['Check this field and try again.'],
+      language: ['Check this field and try again.'], estimatedTimePerQuestion: ['Check this field and try again.'],
+      chunkIndices: ['Check this field and try again.'], maxChunkSize: ['Check this field and try again.'],
+      chunkingStrategy: ['Check this field and try again.'], 'blocks[0].assetId': ['Check this field and try again.'],
+      sizeBytes: ['Check this field and try again.'], mimeType: ['Check this field and try again.'],
+      originalFilename: ['Check this field and try again.'],
+    });
+    expect(JSON.stringify(error)).not.toContain(secret);
+  });
+
+  it('does not let rejected field names displace valid field errors', () => {
+    const errors = Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`seed-secret-${i}`, [secret]]));
+    errors.timerDuration = [secret];
+    expect(getValidationErrors(failure(422, { errors }))).toEqual({ timerDuration: ['Check this field and try again.'] });
+  });
+
+  it('does not trust raw local-looking messages or arbitrary local metadata', () => {
+    expect(getSafeErrorMessage(new Error('File is empty.'))).toContain('unexpected error');
+    expect(getSafeErrorMessage({ localMediaValidation: { reason: 'empty-file' }, message: secret })).toContain('unexpected error');
+    const error = new ApplicationError({ category: 'validation', localMediaValidation: {
+      reason: 'unsupported-file-type', allowedMimeTypes: [`image/${secret}`],
+    } });
+    expect(error.message).toBe('Unsupported file type. Choose a supported file format.');
+    expect(JSON.stringify(error)).not.toContain(secret);
+  });
 });

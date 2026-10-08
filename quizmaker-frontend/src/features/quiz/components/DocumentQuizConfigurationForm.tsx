@@ -412,6 +412,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Brief description..."
                 className="w-full"
+                error={errors.description}
               />
             </div>
 
