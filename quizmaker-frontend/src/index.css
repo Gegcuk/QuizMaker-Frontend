@@ -161,6 +161,20 @@
   --color-control-warning-disabled-foreground: #0f172a;
   --color-control-info-disabled-fill: #9ac3d9;
   --color-control-info-disabled-foreground: #0f172a;
+  --color-button-disabled-primary-fill: #3b82f6;
+  --color-button-disabled-primary-foreground: #ffffff;
+  --color-button-disabled-secondary-fill: #64748b;
+  --color-button-disabled-secondary-foreground: #ffffff;
+  --color-button-disabled-success-fill: #22c55e;
+  --color-button-disabled-success-foreground: #ffffff;
+  --color-button-disabled-danger-fill: #ef4444;
+  --color-button-disabled-danger-foreground: #ffffff;
+  --color-button-disabled-warning-fill: #f59e0b;
+  --color-button-disabled-warning-foreground: #ffffff;
+  --color-button-disabled-info-fill: #06b6d4;
+  --color-button-disabled-info-foreground: #ffffff;
+  --color-button-disabled-header-secondary-fill: #f1f5f9;
+  --color-button-disabled-header-secondary-foreground: #0f172a;
   --color-disabled-fill: #e2e8f0;
   --color-disabled-foreground: #334155;
   --color-tooltip-fill: #0f172a;
@@ -211,6 +225,47 @@
   --color-accent: #1d4ed8;
   --color-shadow: rgba(0, 0, 0, 0.1);
   --color-bg-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Unavailable buttons retain the pre-issue colors and whole-control fading. */
+.theme-button-disabled {
+  opacity: 0.5;
+  border-color: transparent;
+}
+.theme-button-disabled-primary {
+  background-color: var(--color-button-disabled-primary-fill);
+  color: var(--color-button-disabled-primary-foreground);
+}
+.theme-button-disabled-secondary {
+  background-color: var(--color-button-disabled-secondary-fill);
+  color: var(--color-button-disabled-secondary-foreground);
+}
+.theme-button-disabled-success {
+  background-color: var(--color-button-disabled-success-fill);
+  color: var(--color-button-disabled-success-foreground);
+}
+.theme-button-disabled-danger {
+  background-color: var(--color-button-disabled-danger-fill);
+  color: var(--color-button-disabled-danger-foreground);
+}
+.theme-button-disabled-warning {
+  background-color: var(--color-button-disabled-warning-fill);
+  color: var(--color-button-disabled-warning-foreground);
+}
+.theme-button-disabled-info {
+  background-color: var(--color-button-disabled-info-fill);
+  color: var(--color-button-disabled-info-foreground);
+}
+.theme-button-disabled-outline, .theme-button-disabled-ghost {
+  background-color: transparent;
+  color: var(--color-button-disabled-primary-fill);
+}
+.theme-button-disabled-outline {
+  border-color: var(--color-button-disabled-primary-fill);
+}
+.theme-button-disabled-header-secondary {
+  background-color: var(--color-button-disabled-header-secondary-fill);
+  color: var(--color-button-disabled-header-secondary-foreground);
 }
 
 /* Explicit disabled pairs retain readable text instead of fading the whole control. */
@@ -273,7 +328,8 @@
     forced-color-adjust: auto;
     border-color: ButtonText;
   }
-  .theme-control-disabled, button:disabled, .theme-choice:disabled {
+  .theme-control-disabled, .theme-button-disabled, button:disabled, .theme-choice:disabled {
+    opacity: 1;
     background-color: ButtonFace;
     color: GrayText;
     border-color: GrayText;

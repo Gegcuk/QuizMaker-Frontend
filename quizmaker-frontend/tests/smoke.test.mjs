@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { test } from 'node:test';
 import { mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
+import { originalDisabledButtonColors } from './fixtures/disabled-button-colors.mjs';
 import { launchBrowser } from '../scripts/browser/launch-browser.mjs';
 import { createTestContext } from './fixtures/browser-context.mjs';
 
@@ -365,6 +366,19 @@ const readableButton = async (button, label) => {
   return style;
 };
 
+const rgbFromHex = hex => `rgb(${hex.slice(1).match(/../g).map(channel => Number.parseInt(channel, 16)).join(', ')})`;
+const originalInactiveButton = async (button, palette, variant) => {
+  const style = await buttonStyles(button);
+  const expected = originalDisabledButtonColors[palette];
+  const transparent = variant === 'outline' || variant === 'ghost';
+  const headerSecondary = variant === 'header-secondary';
+  assert.equal(style.opacity, '0.5', `${palette}/${variant} uses the original whole-button fading`);
+  assert.equal(style.color, rgbFromHex(transparent ? expected.fills.primary : headerSecondary ? expected.headerSecondaryForeground : expected.foreground));
+  assert.equal(style.backgroundColor, transparent ? style.surface : rgbFromHex(headerSecondary ? expected.headerSecondaryFill : expected.fills[variant]));
+  assert.equal(style.borderColor, variant === 'outline' ? rgbFromHex(expected.fills.primary) : 'rgba(0, 0, 0, 0)', 'No added dark border on an inactive button');
+  return style;
+};
+
 test('theme controls retain contrast across all palettes, states and accessibility preferences', { timeout: 120_000 }, async () => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
@@ -406,8 +420,12 @@ test('theme controls retain contrast across all palettes, states and accessibili
           assert.ok(contrastRatio(...resolved) >= 3, `${palette} focus ring`);
           const disabled = page.getByRole('button', { name: `Disabled ${variant}`, exact: true });
           assert.equal(await disabled.isDisabled(), true);
-          const inactive = await readableButton(disabled, `${palette}/${variant}/disabled`);
-          assert.ok(contrastRatio(inactive.borderColor, inactive.backgroundColor) >= 3, `${palette}/${variant}/disabled boundary`);
+          await originalInactiveButton(disabled, palette, variant.toLowerCase());
+          if (viewport.width === 1280) {
+            await disabled.hover({ force: true });
+            await disabled.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+            await originalInactiveButton(disabled, palette, variant.toLowerCase());
+          }
         }
         for (const field of [page.getByRole('textbox', { name: 'Sample Input', exact: true }), page.getByRole('textbox', { name: 'Sample Textarea', exact: true })]) {
           const style = await buttonStyles(field);
@@ -440,12 +458,35 @@ test('theme controls retain contrast across all palettes, states and accessibili
         assert.ok(contrastRatio(disabledMark, disabledStyle.backgroundColor) >= 3, `${palette} disabled checked mark`);
         const loading = page.getByRole('button', { name: /Saving example/ });
         assert.equal(await loading.isDisabled(), true);
-        const loadingStyle = await readableButton(loading, `${palette}/loading`);
+        const loadingStyle = await originalInactiveButton(loading, palette, 'primary');
         const spinnerColor = await loading.getByRole('status', { name: 'Loading' }).evaluate(element => getComputedStyle(element).borderTopColor);
-        assert.ok(contrastRatio(spinnerColor, loadingStyle.backgroundColor) >= 3, `${palette} loading indicator`);
+        assert.equal(spinnerColor, loadingStyle.color, 'Loading spinner fades with the original text color');
+        const blocked = page.getByRole('button', { name: 'Validation-blocked example', exact: true });
+        assert.equal(await blocked.evaluate(element => element.disabled), false, 'Validation guidance remains keyboard reachable');
+        assert.equal(await blocked.getAttribute('aria-disabled'), 'true');
+        await blocked.focus();
+        await originalInactiveButton(blocked, palette, 'primary');
+        await page.getByRole('tooltip').waitFor();
+        await readableButton(page.getByRole('tooltip'), `${palette}/validation guidance`);
+        await blocked.hover();
+        await blocked.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+        await originalInactiveButton(blocked, palette, 'primary');
+        await page.keyboard.press('Escape');
+        for (const variant of ['Primary', 'Secondary', 'Success', 'Danger']) {
+          const header = page.getByRole('button', { name: `Disabled header ${variant}`, exact: true });
+          assert.equal(await header.isDisabled(), true);
+          const headerStyle = await buttonStyles(header);
+          const expected = originalDisabledButtonColors[palette];
+          assert.equal(headerStyle.opacity, '0.5');
+          assert.equal(headerStyle.color, rgbFromHex(variant === 'Secondary' ? expected.headerSecondaryForeground : expected.foreground));
+          assert.equal(headerStyle.backgroundColor, rgbFromHex(variant === 'Secondary' ? expected.headerSecondaryFill : expected.fills[variant.toLowerCase()]));
+        }
         const dimensions = await page.evaluate(() => ({ viewport: innerWidth, content: document.documentElement.scrollWidth }));
         assert.ok(dimensions.content <= dimensions.viewport + 1, `${palette}/${viewport.width} theme-demo overflow`);
-        if (screenshots) await page.screenshot({ path: `${screenshots}/${palette}-${viewport.width}.png`, fullPage: true });
+        if (screenshots) {
+          await page.screenshot({ path: `${screenshots}/${palette}-${viewport.width}.png`, fullPage: true });
+          await page.locator('[aria-label="Disabled button examples"]').screenshot({ path: `${screenshots}/inactive-${palette}-${viewport.width}.png` });
+        }
       }
     }
     // Text resizing complements the 400% reflow-equivalent viewport above.
@@ -483,7 +524,7 @@ test('theme controls retain contrast across all palettes, states and accessibili
   }
 });
 
-test('filter chips and inactive actions remain readable across palettes and responsive layouts', { timeout: 120_000 }, async () => {
+test('filter chips retain contrast and inactive actions restore their original appearance across palettes and layouts', { timeout: 120_000 }, async () => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
   try {
@@ -523,17 +564,8 @@ test('filter chips and inactive actions remain readable across palettes and resp
         }
         const inactive = page.getByRole('button', { name: 'Inactive Submit Answer', exact: true });
         assert.equal(await inactive.isDisabled(), true);
-        const inactiveStyle = await readableButton(inactive, `${palette}/${width}/inactive submission`);
-        const activeStyle = await readableButton(page.getByRole('button', { name: 'Active Submit Answer', exact: true }), `${palette}/${width}/active submission`);
-        assert.notEqual(inactiveStyle.backgroundColor, activeStyle.backgroundColor, 'Inactive actions retain a distinct subdued appearance');
-        const surface = parseRgb(activeStyle.surface);
-        const activeDirection = parseRgb(activeStyle.backgroundColor).map((channel, index) => channel - surface[index]);
-        const inactiveDirection = parseRgb(inactiveStyle.backgroundColor).map((channel, index) => channel - surface[index]);
-        const magnitude = channels => Math.hypot(...channels);
-        assert.ok(magnitude(inactiveDirection) < magnitude(activeDirection), 'Inactive primary fill must be closer to the surrounding surface');
-        const alignment = activeDirection.reduce((sum, channel, index) => sum + channel * inactiveDirection[index], 0)
-          / (magnitude(activeDirection) * magnitude(inactiveDirection));
-        assert.ok(alignment > 0.98, 'Inactive primary fill must retain the active color family');
+        await originalInactiveButton(inactive, palette, 'primary');
+        await readableButton(page.getByRole('button', { name: 'Active Submit Answer', exact: true }), `${palette}/${width}/active submission`);
         const dimensions = await filters.evaluate(element => ({ left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right, viewport: innerWidth }));
         assert.ok(dimensions.left >= 0 && dimensions.right <= dimensions.viewport, 'Filter controls must fit the viewport');
         if (process.env.THEME_SCREENSHOT_DIR) {
@@ -554,6 +586,7 @@ test('filter chips and inactive actions remain readable across palettes and resp
       assert.notEqual(style.color, style.backgroundColor);
       const inactive = await buttonStyles(page.getByRole('button', { name: 'Inactive Submit Answer', exact: true }));
       assert.notEqual(inactive.color, inactive.backgroundColor);
+      assert.equal(inactive.opacity, '1', 'Forced colors use unfaded system colors');
     }
   } finally {
     await browser?.close();

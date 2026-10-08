@@ -23,6 +23,9 @@ export interface ColorPalette {
   description: string;
   colors: {
     controls: Record<ControlTone, ControlColors>;
+    // Historical button colors, painted at 50% opacity only while unavailable.
+    disabledButton: Record<ControlTone, ColorPair>;
+    disabledHeaderSecondary: ColorPair;
     disabled: ColorPair;
     tooltip: ColorPair;
     // Background colors
@@ -122,6 +125,15 @@ export const lightPalette: ColorPalette = {
   name: 'Light',
   description: 'Clean light theme with blue accents',
   colors: {
+    disabledHeaderSecondary: { fill: '#f1f5f9', foreground: '#0f172a' },
+    disabledButton: {
+      primary: { fill: '#3b82f6', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
     controls: {
       primary: {
         default: { fill: '#2563eb', foreground: '#ffffff' },
@@ -220,6 +232,15 @@ export const darkPalette: ColorPalette = {
   name: 'Dark',
   description: 'Modern dark theme with blue accents',
   colors: {
+    disabledHeaderSecondary: { fill: '#334155', foreground: '#f8fafc' },
+    disabledButton: {
+      primary: { fill: '#60a5fa', foreground: '#0f172a' },
+      secondary: { fill: '#64748b', foreground: '#0f172a' },
+      success: { fill: '#4ade80', foreground: '#0f172a' },
+      danger: { fill: '#f87171', foreground: '#0f172a' },
+      warning: { fill: '#fbbf24', foreground: '#0f172a' },
+      info: { fill: '#67e8f9', foreground: '#0f172a' },
+    },
     controls: {
       primary: {
         default: { fill: '#93c5fd', foreground: '#0f172a' },
@@ -318,6 +339,15 @@ export const bluePalette: ColorPalette = {
   name: 'Ocean Blue',
   description: 'Calming blue theme inspired by ocean colors',
   colors: {
+    disabledHeaderSecondary: { fill: '#dee5d4', foreground: '#1e293b' },
+    disabledButton: {
+      primary: { fill: '#1d4ed8', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
     controls: {
       primary: {
         default: { fill: '#1d4ed8', foreground: '#ffffff' },
@@ -416,6 +446,15 @@ export const purplePalette: ColorPalette = {
   name: 'Royal Purple',
   description: 'Rich purple theme with deep tones',
   colors: {
+    disabledHeaderSecondary: { fill: '#433d8b', foreground: '#f8fafc' },
+    disabledButton: {
+      primary: { fill: '#a78bfa', foreground: '#17133b' },
+      secondary: { fill: '#c8acd6', foreground: '#17133b' },
+      success: { fill: '#4ade80', foreground: '#17133b' },
+      danger: { fill: '#f87171', foreground: '#17133b' },
+      warning: { fill: '#fbbf24', foreground: '#17133b' },
+      info: { fill: '#67e8f9', foreground: '#17133b' },
+    },
     controls: {
       primary: {
         default: { fill: '#c4b5fd', foreground: '#17133b' },
@@ -514,6 +553,15 @@ export const greenPalette: ColorPalette = {
   name: 'Forest Green',
   description: 'Natural green theme with earthy tones',
   colors: {
+    disabledHeaderSecondary: { fill: '#bbf7d0', foreground: '#14532d' },
+    disabledButton: {
+      primary: { fill: '#15803d', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
     controls: {
       primary: {
         default: { fill: '#166534', foreground: '#ffffff' },
@@ -637,6 +685,12 @@ export const generateCSSVariables = (palette: ColorPalette): Record<string, stri
   );
   return {
     ...controls,
+    ...Object.fromEntries(Object.entries(palette.colors.disabledButton).flatMap(([tone, pair]) => [
+      [`--color-button-disabled-${tone}-fill`, pair.fill],
+      [`--color-button-disabled-${tone}-foreground`, pair.foreground],
+    ])),
+    '--color-button-disabled-header-secondary-fill': palette.colors.disabledHeaderSecondary.fill,
+    '--color-button-disabled-header-secondary-foreground': palette.colors.disabledHeaderSecondary.foreground,
     ...matching,
     '--color-disabled-fill': palette.colors.disabled.fill,
     '--color-disabled-foreground': palette.colors.disabled.foreground,

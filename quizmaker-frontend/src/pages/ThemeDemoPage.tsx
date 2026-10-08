@@ -5,7 +5,8 @@
 
 import React, { useState } from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox, Chip } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox, Chip, ButtonWithValidationTooltip } from '@/components/ui';
+import PageHeader from '@/components/layout/PageHeader';
 import { useTheme } from '@/context/ThemeContext';
 import { Seo } from '@/features/seo';
 import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
@@ -192,8 +193,19 @@ const ThemeDemoPage: React.FC = () => {
                   <Button variant="ghost" disabled>Disabled Ghost</Button>
                   <Button loading>Saving example</Button>
                 </div>
+                <div>
+                  <PageHeader title="Header action examples" actions={[
+                    { label: 'Disabled header Primary', variant: 'primary', disabled: true },
+                    { label: 'Disabled header Secondary', variant: 'secondary', disabled: true },
+                    { label: 'Disabled header Success', variant: 'success', disabled: true },
+                    { label: 'Disabled header Danger', variant: 'danger', disabled: true },
+                  ]} />
+                </div>
                 <div className="flex flex-wrap gap-2" aria-label="Answer submission examples">
                   <Button disabled>Inactive Submit Answer</Button>
+                  <ButtonWithValidationTooltip disabled validationErrors={['Select an answer']}>
+                    Validation-blocked example
+                  </ButtonWithValidationTooltip>
                   <Button>Active Submit Answer</Button>
                 </div>
               </div>

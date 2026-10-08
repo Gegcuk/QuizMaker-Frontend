@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
+import { originalDisabledButtonColors } from '../fixtures/disabled-button-colors.mjs';
 import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { createTestContext } from '../fixtures/browser-context.mjs';
 
@@ -1146,15 +1147,15 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         assert.equal(await submit.isDisabled(), true, 'An unanswered question must remain blocked');
         const inactive = await submit.evaluate(element => {
           const style = getComputedStyle(element);
-          const probe = document.createElement('span');
-          probe.style.backgroundColor = 'var(--color-control-primary-disabled-fill)';
-          document.body.append(probe);
-          const expectedFill = getComputedStyle(probe).backgroundColor;
-          probe.remove();
-          return { fill: style.backgroundColor, expectedFill, opacity: style.opacity };
+          return { fill: style.backgroundColor, foreground: style.color, border: style.borderColor, opacity: style.opacity, palette: [...document.documentElement.classList].find(name => name.startsWith('theme-'))?.slice(6) };
         });
-        assert.equal(inactive.fill, inactive.expectedFill, 'Submit Answer retains its subdued primary appearance');
-        assert.equal(inactive.opacity, '1', 'The text must retain its independent contrast');
+        const rgb = hex => `rgb(${hex.slice(1).match(/../g).map(channel => Number.parseInt(channel, 16)).join(', ')})`;
+        const expected = originalDisabledButtonColors[inactive.palette];
+        assert.ok(expected, 'The attempt uses a supported theme');
+        assert.equal(inactive.fill, rgb(expected.fills.primary), 'Submit Answer restores its original fill');
+        assert.equal(inactive.foreground, rgb(expected.foreground), 'Submit Answer restores its original text color');
+        assert.equal(inactive.border, 'rgba(0, 0, 0, 0)', 'No added dark border');
+        assert.equal(inactive.opacity, '0.5', 'Submit Answer restores its original fading');
         await page.getByRole('checkbox', { name: 'Select option A' }).check();
         await page.getByRole('checkbox', { name: 'Select option C' }).check();
         assert.equal(await submit.isDisabled(), false, 'Selecting a valid answer enables submission');
