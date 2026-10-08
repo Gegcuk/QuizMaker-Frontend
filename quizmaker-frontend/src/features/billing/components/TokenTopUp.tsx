@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { AxiosError } from 'axios';
 import { billingService } from '@/services';
@@ -46,8 +47,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
         setError('Token purchases are not yet available in this environment.');
       } else {
         const message =
-          axiosError.response?.data?.message ||
-          (err as Error)?.message ||
+          getErrorMessage(axiosError) || (err as Error)?.message ||
           'Failed to load token packs.';
         setError(message || 'Failed to load token packs.');
       }
@@ -117,8 +117,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
           setError('Token purchases are not yet available in this environment.');
         } else {
           const message =
-            axiosError.response?.data?.message ||
-            (err as Error)?.message ||
+            getErrorMessage(axiosError) || (err as Error)?.message ||
             'Failed to refresh token packs. Please try again later.';
           setError(message);
         }
@@ -134,8 +133,7 @@ const TokenTopUp: React.FC<TokenTopUpProps> = ({ className = '', refreshKey = 0 
         setError('You are making requests too quickly. Please wait a moment and try again.');
       } else {
         const message =
-          axiosError.response?.data?.message ||
-          (err as Error)?.message ||
+          getErrorMessage(axiosError) || (err as Error)?.message ||
           'Failed to start checkout session. Please try again later.';
         setError(message);
       }

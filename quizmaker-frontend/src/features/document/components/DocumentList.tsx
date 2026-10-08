@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/document/components/DocumentList.tsx
 // ---------------------------------------------------------------------------
 // Document list component for viewing and managing uploaded documents.
@@ -83,8 +84,9 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
       
       setAllDocuments(response.content);
     } catch (err) {
+      diagnostics.report(err, 'application');
       setError('Failed to load documents');
-      console.error('Error loading documents:', err);
+
     } finally {
       setLoading(false);
     }
@@ -133,7 +135,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete document';
       setError(errorMessage);
-      console.error('Error deleting document:', err);
+
       
       // Reload documents to sync with backend state (document might not exist)
       loadDocuments();
@@ -157,8 +159,9 @@ const DocumentList: React.FC<DocumentListProps> = ({ className = '' }) => {
         doc.id === documentId ? { ...doc, status: 'PROCESSING' } : doc
       ));
     } catch (err) {
+      diagnostics.report(err, 'application');
       setError('Failed to reprocess document');
-      console.error('Error reprocessing document:', err);
+
     }
   };
 

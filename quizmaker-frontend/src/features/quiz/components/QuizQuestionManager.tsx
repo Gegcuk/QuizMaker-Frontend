@@ -1,3 +1,5 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/quiz/components/QuizQuestionManager.tsx
 // ---------------------------------------------------------------------------
 // Component for managing questions in a created quiz.
@@ -42,7 +44,8 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
         const existingIds = response.content.map(q => q.id);
         setSelectedQuestionIds(existingIds);
       } catch (error) {
-        console.warn('No existing questions found for quiz:', error);
+        diagnostics.report(error, 'application');
+
         // This is normal for new quizzes
       } finally {
         setIsLoading(false);
@@ -77,10 +80,10 @@ export const QuizQuestionManager: React.FC<QuizQuestionManagerProps> = ({
       
       onComplete();
     } catch (error: any) {
-      console.error('Failed to publish quiz:', error);
+
       addToast({
         type: 'error',
-        message: error?.response?.data?.message || 'Failed to publish quiz. Please try again.'
+        message: getErrorMessage(error) || 'Failed to publish quiz. Please try again.'
       });
     } finally {
       setIsCompleting(false);

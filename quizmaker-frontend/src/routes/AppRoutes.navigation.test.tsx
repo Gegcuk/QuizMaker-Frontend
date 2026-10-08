@@ -56,7 +56,7 @@ describe('protected Questions destination through login', () => {
     await user.type(await screen.findByLabelText('Username or Email'), 'author');
     await user.type(screen.getByLabelText('Password'), 'FixturePassword1!');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(await screen.findByText('Login failed. Please check your credentials and try again.')).toBeInTheDocument();
+    expect(await screen.findByText('Authentication required. Please sign in again.')).toBeInTheDocument();
     expect(router.state.location.state).toEqual({ returnTo: '/quizzes/quiz-123?tab=questions#question-4' });
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Quiz quiz-123?tab=questions')).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe('protected Questions destination through login', () => {
     await user.type(await screen.findByLabelText('Username or Email'), 'author');
     await user.type(screen.getByLabelText('Password'), 'FixturePassword1!');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(await screen.findByText('Login failed. Please check your credentials and try again.')).toBeInTheDocument();
+    expect(await screen.findByText('Authentication required. Please sign in again.')).toBeInTheDocument();
     expect(router.state.location.state).toEqual({ returnTo: '/quizzes/quiz-123?tab=questions#question-4' });
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Quiz quiz-123?tab=questions')).toBeInTheDocument();

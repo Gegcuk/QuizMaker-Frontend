@@ -75,20 +75,20 @@ describe('ResultService', () => {
     });
   });
 
-  it('preserves live ProblemDetail detail for validation failures', async () => {
+  it('provides safe validation recovery guidance', async () => {
     axios.get.mockRejectedValue(problemError(400, 'Top must be greater than zero.'));
 
     await expect(service.getQuizLeaderboard('quiz-1', 0)).rejects.toThrow(
-      'Validation error: Top must be greater than zero.',
+      'Validation error',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
-    [403, 'Insufficient permissions to view quiz results'],
-    [404, 'Quiz results not found'],
-    [429, 'Too many requests. Please try again later.'],
-    [500, 'Server error occurred while loading quiz results'],
+    [403, 'Insufficient permissions'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
+    [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
 
@@ -103,11 +103,9 @@ describe('ResultService', () => {
     });
   });
 
-  it('preserves network failure context', async () => {
+  it('does not expose arbitrary network-like error text', async () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
-    await expect(service.getQuizResults('quiz-1')).rejects.toThrow(
-      'Network unavailable',
-    );
+    await expect(service.getQuizResults('quiz-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

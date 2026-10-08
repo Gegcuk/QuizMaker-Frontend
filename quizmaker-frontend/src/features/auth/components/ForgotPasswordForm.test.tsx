@@ -50,7 +50,7 @@ describe('ForgotPasswordForm', () => {
   it('renders a returned request error and notifies the caller', async () => {
     const onError = vi.fn();
     authMocks.forgotPassword.mockRejectedValue({
-      response: { data: { message: 'Password reset is temporarily unavailable' } },
+      response: { status: 503, data: { message: 'Password reset is temporarily unavailable' } },
     });
     const { user } = renderWithProviders(<ForgotPasswordForm onError={onError} />, {
       withAuthProvider: false,
@@ -60,8 +60,8 @@ describe('ForgotPasswordForm', () => {
     await user.click(screen.getByRole('button', { name: 'Send reset link' }));
 
     expect(
-      await screen.findByText('Password reset is temporarily unavailable'),
+      await screen.findByText("Server error occurred. Please try again later."),
     ).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledWith('Password reset is temporarily unavailable');
+    expect(onError).toHaveBeenCalledWith("Server error occurred. Please try again later.");
   });
 });

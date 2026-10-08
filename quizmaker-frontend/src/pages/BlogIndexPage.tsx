@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -582,7 +583,8 @@ const BlogIndexPage: React.FC = () => {
               return;
             }
           } catch (slugErr) {
-            console.warn('Failed to fetch article by slug, falling back to search:', slugErr);
+            diagnostics.report(slugErr, 'application');
+
           }
         }
 
@@ -629,13 +631,8 @@ const BlogIndexPage: React.FC = () => {
           page++;
         }
 
-        if (!found && !searchCancelled) {
-          console.warn(`Article with ID ${editArticleId} not found after searching ${page + 1} pages`);
-        }
       } catch (err) {
-        if (!searchCancelled) {
-          console.error('Failed to fetch article for editing:', err);
-        }
+        diagnostics.report(err, 'application');
       }
     };
 

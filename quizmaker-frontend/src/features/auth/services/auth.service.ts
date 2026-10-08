@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 import type { AxiosInstance } from 'axios';
 import { AUTH_ENDPOINTS } from './auth.endpoints';
 import { 
@@ -21,7 +22,7 @@ import {
   UnlinkAccountRequest
 } from '@/types';
 import { BaseService } from '../../../api/base.service';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 /**
  * Authentication service for handling user authentication operations
@@ -79,8 +80,9 @@ export class AuthService extends BaseService<UserDto> {
     try {
       await this.axiosInstance.post(AUTH_ENDPOINTS.LOGOUT);
     } catch (error) {
+      diagnostics.report(error, 'application');
       // Don't throw error on logout failure, just log it
-      console.warn('Logout request failed:', error);
+
     }
   }
 
@@ -195,31 +197,8 @@ export class AuthService extends BaseService<UserDto> {
   /**
    * Handle auth-specific errors
    */
-  private handleAuthError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-
-      switch (status) {
-        case 400:
-          return new Error(`Validation error: ${message}`);
-        case 401:
-          return new Error('Authentication failed');
-        case 409:
-          return new Error('Username or email already exists');
-        case 429:
-          return new Error('Too many requests. Please try again later.');
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return new Error('Server error occurred');
-        default:
-          return new Error(message || 'Authentication operation failed');
-      }
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleAuthError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

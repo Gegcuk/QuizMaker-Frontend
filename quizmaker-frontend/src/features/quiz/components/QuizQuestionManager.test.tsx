@@ -125,7 +125,7 @@ describe('QuizQuestionManager', () => {
   it('keeps the manager open and reports a publishing failure', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     mocks.updateQuizStatus.mockRejectedValue({
-      response: { data: { message: 'Publishing is unavailable.' } },
+      response: { status: 503, data: { message: 'Publishing is unavailable.' } },
     });
     const onComplete = vi.fn();
     const { user } = renderManager(onComplete);
@@ -133,7 +133,7 @@ describe('QuizQuestionManager', () => {
     await screen.findByText('Question editor has 1 questions');
     await user.click(screen.getByRole('button', { name: 'Complete Quiz Creation' }));
 
-    expect(await screen.findByText('Publishing is unavailable.')).toBeInTheDocument();
+    expect(await screen.findByText("Server error occurred. Please try again later.")).toBeInTheDocument();
     expect(onComplete).not.toHaveBeenCalled();
     consoleError.mockRestore();
   });

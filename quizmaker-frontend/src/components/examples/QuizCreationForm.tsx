@@ -12,7 +12,7 @@ interface QuizFormData {
 
 const QuizCreationForm: React.FC = () => {
   const handleSubmit = async (data: QuizFormData) => {
-    console.log('Quiz creation form submitted with data:', data);
+
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));

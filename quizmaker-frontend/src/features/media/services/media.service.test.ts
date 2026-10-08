@@ -141,30 +141,30 @@ describe('MediaService', () => {
         mimeType: 'image/png',
         sizeBytes: 0,
       }),
-    ).rejects.toThrow('Validation error: File size must be greater than zero.');
+    ).rejects.toThrow('Validation error');
     await expect(service.finalizeUpload('asset-1', {})).rejects.toThrow(
-      'Conflict: Asset is already finalized.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Media asset not found'],
+    [404, 'not found'],
     [429, 'Too many requests'],
-    [500, 'Server error occurred while managing media assets'],
+    [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
 
     await expect(service.getAsset('asset-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.delete
       .mockRejectedValueOnce(problemError(403, 'Forbidden'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.deleteAsset('asset-1')).rejects.toMatchObject({ status: 403 });
-    await expect(service.deleteAsset('asset-1')).rejects.toThrow('Network unavailable');
+    await expect(service.deleteAsset('asset-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

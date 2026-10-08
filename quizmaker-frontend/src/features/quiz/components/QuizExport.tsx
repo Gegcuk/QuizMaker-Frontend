@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/QuizExport.tsx
 // ---------------------------------------------------------------------------
 // Export quiz results based on RESULT_ENDPOINTS
@@ -126,7 +127,8 @@ const QuizExport: React.FC<QuizExportProps> = ({ quiz, className = '' }) => {
       addToast({ type: 'success', message: `Quiz "${quiz.title}" exported successfully` });
       setShowExportModal(false);
     } catch (error) {
-      console.error('Export failed:', error);
+      diagnostics.report(error, 'application');
+
       addToast({ type: 'error', message: 'Failed to export quiz. Please try again.' });
     }
   };

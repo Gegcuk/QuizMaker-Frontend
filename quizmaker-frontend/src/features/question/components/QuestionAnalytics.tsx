@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // ---------------------------------------------------------------------------
 // QuestionAnalytics.tsx - Question performance analytics component
 // Based on QUESTION_ENDPOINTS from API documentation
@@ -93,7 +94,7 @@ const QuestionAnalytics: React.FC<QuestionAnalyticsProps> = ({
         ]
       });
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load analytics');
+      setError(getErrorMessage(err) || 'Failed to load analytics');
     } finally {
       setLoading(false);
     }

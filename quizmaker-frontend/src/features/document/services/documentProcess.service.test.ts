@@ -215,33 +215,33 @@ describe('DocumentProcessService', () => {
       .mockRejectedValueOnce(problemError(422, 'Document normalization failed.'));
 
     await expect(service.ingestText({ text: '' })).rejects.toThrow(
-      'Validation error: Text must not be blank.',
+      'Validation error',
     );
     await expect(service.ingestText({ text: 'content' })).rejects.toThrow(
-      'Document normalization failed: Document normalization failed.',
+      'Validation error',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
-    [403, 'Insufficient permissions to process this document'],
-    [404, 'Document or structure node not found'],
+    [403, 'Insufficient permissions'],
+    [404, 'not found'],
     [413, 'File size exceeds maximum allowed size'],
-    [415, 'Unsupported document format: Only text files are supported.'],
-    [429, 'Too many document requests. Please try again later.'],
-    [500, 'Server error occurred while processing the document'],
+    [415, 'Unsupported document format'],
+    [429, 'Too many requests'],
+    [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Only text files are supported.'));
 
     await expect(service.getDocumentById(documentId)).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.get
       .mockRejectedValueOnce(problemError(404, 'Document does not exist.'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.getDocumentById(documentId)).rejects.toMatchObject({ status: 404 });
-    await expect(service.getDocumentById(documentId)).rejects.toThrow('Network unavailable');
+    await expect(service.getDocumentById(documentId)).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Spinner, Button, Modal, PageContainer, ConfirmationModal, Alert } from '@/components';
 import type { QuestionFormHandle } from '@/features/question/components/QuestionForm';
@@ -101,7 +102,7 @@ const QuestionManagementPage: React.FC = () => {
       setQuestions(response.content || []);
       setTotalPages(response.totalPages || 1);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to fetch questions.');
+      setError(getErrorMessage(err) || 'Failed to fetch questions.');
       setQuestions([]); // Ensure questions is always an array
       setTotalPages(1);
     } finally {
@@ -167,7 +168,7 @@ const QuestionManagementPage: React.FC = () => {
       setShowForm(false);
       await fetchQuestions();
     } catch (err: any) {
-      setFormError(err.response?.data?.error || 'Failed to save question.');
+      setFormError(getErrorMessage(err) || 'Failed to save question.');
     } finally {
       setFormSubmitting(false);
     }
@@ -186,7 +187,7 @@ const QuestionManagementPage: React.FC = () => {
       await questionService.deleteQuestion(questionToDelete);
       await fetchQuestions();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete question.');
+      setError(getErrorMessage(err) || 'Failed to delete question.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);

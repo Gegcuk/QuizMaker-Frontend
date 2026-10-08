@@ -315,23 +315,23 @@ describe('AttemptService', () => {
     );
   });
 
-  it('preserves live ProblemDetail detail text for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Answer payload does not match the schema.'))
       .mockRejectedValueOnce(problemError(409, 'Attempt has already been completed.'));
 
     await expect(service.submitAnswer('attempt-1', answerRequest)).rejects.toThrow(
-      'Validation error: Answer payload does not match the schema.',
+      'Validation error',
     );
     await expect(service.completeAttempt('attempt-1')).rejects.toThrow(
-      'Conflict: Attempt has already been completed.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Attempt not found'],
+    [404, 'not found'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -339,11 +339,9 @@ describe('AttemptService', () => {
     await expect(service.getAttemptDetails('attempt-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves network failure context', async () => {
+  it('does not expose arbitrary network-like error text', async () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
-    await expect(service.getAttemptStats('attempt-1')).rejects.toThrow(
-      'Network unavailable',
-    );
+    await expect(service.getAttemptStats('attempt-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

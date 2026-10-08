@@ -1,3 +1,5 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/MyQuizzesPage.tsx
 // ---------------------------------------------------------------------------
 // Shows all quizzes created by the logged-in user with CRUD actions
@@ -430,7 +432,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
         setQuizzes(response.content || []);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        setError(axiosError.response?.data?.message || 'Failed to load your quizzes');
+        setError(getErrorMessage(axiosError) || 'Failed to load your quizzes');
       } finally {
         setIsLoading(false);
       }
@@ -452,7 +454,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       });
       setQuizGroups(response.content || []);
     } catch (error) {
-      console.error('Failed to load quiz groups:', error);
+      diagnostics.report(error, 'application');
+
       // Don't show error to user, just log it
     } finally {
       setIsLoadingGroups(false);
@@ -495,7 +498,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       // Remove from selected if present
       setSelectedQuizzes(prev => prev.filter(id => id !== quizToDelete));
     } catch (error) {
-      console.error('Failed to delete quiz:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to delete quiz. Please try again.');
     } finally {
       setShowDeleteModal(false);
@@ -518,7 +522,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setQuizzes(prev => prev.filter(quiz => !selectedQuizzes.includes(quiz.id)));
       setSelectedQuizzes([]);
     } catch (error) {
-      console.error('Failed to delete quizzes:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to delete some quizzes. Please try again.');
     } finally {
       setIsBulkDeleting(false);
@@ -559,7 +564,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setSelectedQuizzes([]);
       setShowAddToGroupModal(false);
     } catch (error: any) {
-      console.error('Failed to add quizzes to group:', error);
+
       addToast({
         type: 'error',
         message: error.message || 'Failed to add quizzes to group. Please try again.'
@@ -647,7 +652,8 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
       setShowExportModal(false);
       setQuizToExport(null);
     } catch (error) {
-      console.error('Export failed:', error);
+      diagnostics.report(error, 'application');
+
       addToast({
         type: 'error',
         message: 'Failed to export quiz. Please try again.'

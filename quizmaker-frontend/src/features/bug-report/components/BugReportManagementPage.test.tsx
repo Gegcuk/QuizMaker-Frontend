@@ -86,11 +86,11 @@ describe('BugReportManagementPage', () => {
 
   it('keeps a load failure visible to the administrator', async () => {
     serviceMocks.listBugReports.mockRejectedValue({
-      response: { data: { message: 'Reports are unavailable.' } },
+      response: { status: 503, data: { message: 'Reports are unavailable.' } },
     });
 
     renderWithProviders(<BugReportManagementPage />, { withAuthProvider: false });
 
-    expect(await screen.findByText('Reports are unavailable.')).toBeInTheDocument();
+    expect(await screen.findByText("Server error occurred. Please try again later.")).toBeInTheDocument();
   });
 });

@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // DocumentQuizConfigurationFormWithPageSelector.tsx
 // Enhanced document-based quiz configuration with page selection support
 
@@ -158,7 +159,8 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
         localData.difficulty || 'MEDIUM'
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [generationConfig.selectedChunks, generationConfig.questionsPerType, localData.difficulty]);

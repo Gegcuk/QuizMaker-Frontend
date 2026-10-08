@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/pages/QuizResultPage.tsx
 // ---------------------------------------------------------------------------
 // Displays the outcome of a completed quiz attempt with detailed question information.
@@ -55,7 +56,7 @@ const QuizResultPage: React.FC = () => {
         setReview(reviewData);
       } catch (e: any) {
         setError(
-          e?.response?.data?.error || 'Failed to fetch results. Please retry.',
+          getErrorMessage(e) || 'Failed to fetch results. Please retry.',
         );
       } finally {
         setLoading(false);
@@ -106,7 +107,7 @@ const QuizResultPage: React.FC = () => {
           try {
             const asset = await mediaService.getAsset(assetId);
             return { assetId, cdnUrl: asset.cdnUrl };
-          } catch (error) {
+          } catch  {
             return { assetId, cdnUrl: null };
           }
         })

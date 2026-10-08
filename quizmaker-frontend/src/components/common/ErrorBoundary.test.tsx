@@ -1,20 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
-import { logger } from '@/utils';
+import { diagnostics } from '@/features/diagnostics/reporter';
 import ErrorBoundary from './ErrorBoundary';
 
 const ThrowError = () => {
-  throw new Error('Rendering failed');
+  throw new Error('seeded-render-token-secret');
 };
 
 describe('ErrorBoundary', () => {
   afterEach(() => {
+    diagnostics.clear();
     vi.restoreAllMocks();
   });
 
   it('renders the supplied fallback and reports the rendering error', () => {
     const onError = vi.fn();
-    const loggerError = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+    const reporter = vi.spyOn(diagnostics, 'report');
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     renderWithProviders(
@@ -25,19 +26,17 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText('Recovery content')).toBeInTheDocument();
-    expect(loggerError).toHaveBeenCalledWith(
-      'Error boundary caught an error',
-      'ErrorBoundary',
-      expect.objectContaining({ error: 'Rendering failed' }),
-    );
+    expect(reporter).toHaveBeenCalledWith(expect.any(Error), 'render');
+    expect(JSON.stringify(diagnostics.read())).not.toContain('seeded-render-token-secret');
     expect(onError).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Rendering failed' }),
-      expect.objectContaining({ componentStack: expect.any(String) }),
+      expect.objectContaining({ category: 'unexpected', stack: undefined }),
+      { componentStack: '' },
     );
+    expect(JSON.stringify(onError.mock.calls)).not.toContain('seeded-render-token-secret');
   });
 
   it('renders the standard recovery UI when no fallback is supplied', () => {
-    vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+    diagnostics.clear();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     renderWithProviders(
@@ -49,5 +48,7 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByRole('heading', { name: 'Something went wrong' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Refresh Page' })).toBeInTheDocument();
+    expect(screen.getByText(/Support reference:/)).toBeInTheDocument();
+    expect(screen.queryByText('seeded-render-token-secret')).not.toBeInTheDocument();
   });
 });

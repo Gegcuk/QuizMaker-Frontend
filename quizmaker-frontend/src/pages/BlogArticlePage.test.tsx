@@ -133,7 +133,7 @@ describe('public article hero images', () => {
     renderArticle();
     expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(await screen.findByRole('alert')).toHaveTextContent('Article unavailable');
+    expect(await screen.findByRole('alert')).toHaveTextContent("An unexpected error occurred. Please refresh the page and try again.");
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(imageMeta()).toBeUndefined();
   });

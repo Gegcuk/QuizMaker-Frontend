@@ -273,3 +273,93 @@ test('production checkout recovery preserves privacy and backend authority on de
     await stopPreviewServer(server);
   }
 });
+
+test('production error recovery excludes seeded secrets on desktop and mobile', { timeout: 90_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createPreviewServer();
+  let browser;
+  const reference = '01234567-0123-4123-8123-0123456789ab';
+  const secret = 'diagnostic-token-answer-question-document-prompt-payment-canary';
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
+      for (const status of [200, 409, 410, 412, 422, 429, 503]) {
+        const context = await createTestContext(browser, { viewport });
+        const messages = [];
+        const unexpectedRequests = [];
+        await context.route('**/*', async route => {
+          const request = route.request();
+          const url = new URL(request.url());
+          if (!url.pathname.startsWith('/api/')) return route.fallback();
+          const json = value => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(value) });
+          if (url.pathname === '/api/v1/auth/me') return json({
+            id: '11111111-1111-4111-8111-111111111111', username: 'privacy-test',
+            email: 'privacy@example.test', roles: ['ROLE_USER'], isActive: true,
+            createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+          });
+          if (url.pathname === '/api/v1/billing/balance') return json({ availableTokens: 100, reservedTokens: 0 });
+          if (url.pathname === '/api/v1/quizzes' && status === 200) return json({
+            content: [{
+              id: '22222222-2222-4222-8222-222222222222', creatorId: '11111111-1111-4111-8111-111111111111',
+              title: { [secret]: secret }, description: '', visibility: 'PRIVATE', difficulty: 'MEDIUM',
+              status: 'DRAFT', estimatedTime: 10, tagIds: [], createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+            }], totalElements: 1, totalPages: 1, size: 1000, number: 0,
+          });
+          if (url.pathname === '/api/v1/quizzes') return route.fulfill({
+            status, contentType: 'application/problem+json',
+            headers: { 'X-Correlation-ID': reference, 'Retry-After': '20' },
+            body: JSON.stringify({ status, title: secret, detail: secret, instance: `/${secret}`,
+              code: secret, type: `https://example.test/${secret}`, errors: { title: [secret], [secret]: [secret] } }),
+          });
+          if (url.pathname === '/api/v1/quiz-groups' || url.pathname === '/api/v1/attempts') return json({
+            content: [], totalElements: 0, totalPages: 0, size: 20, number: 0,
+          });
+          unexpectedRequests.push(`${request.method()} ${url.pathname}`);
+          return json({});
+        });
+        await context.addInitScript(() => {
+          localStorage.setItem('accessToken', 'fake-diagnostic-access');
+          localStorage.setItem('refreshToken', 'fake-diagnostic-refresh');
+          window.__diagnosticStorageWrites = [];
+          const original = Storage.prototype.setItem;
+          Storage.prototype.setItem = function (key, value) {
+            window.__diagnosticStorageWrites.push([key, value]);
+            return original.call(this, key, value);
+          };
+        });
+        const page = await context.newPage();
+        page.on('console', message => messages.push(message.text()));
+        page.on('pageerror', error => messages.push(error.message));
+        await page.goto(`${BASE_URL}/my-quizzes?unknown=url-canary#fragment-canary`, { waitUntil: 'domcontentloaded' });
+        if (status === 200) {
+          await page.getByRole('heading', { name: 'Something went wrong' }).waitFor();
+          await page.getByText(/Support reference: [a-f0-9-]{36}/).waitFor();
+        } else {
+          await page.getByText(new RegExp(`Support reference: ${reference}`)).waitFor();
+        }
+        const body = await page.locator('body').innerText();
+        assert.doesNotMatch(body, /diagnostic-.*canary/);
+        assert.doesNotMatch(messages.join('\n'), /diagnostic-.*canary|fake-diagnostic-access|fake-diagnostic-refresh|url-canary|fragment-canary/);
+        assert.doesNotMatch(await page.evaluate(() => JSON.stringify(window.__diagnosticStorageWrites)), /canary|diagnostic|ProblemDetail/);
+        assert.deepEqual(unexpectedRequests, []);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        if (process.env.DIAGNOSTIC_SCREENSHOT_DIR && status === 503) {
+          await page.screenshot({ path: `${process.env.DIAGNOSTIC_SCREENSHOT_DIR}/diagnostics-${viewport.width}.png`, fullPage: true });
+        }
+        // Native unhandled rejection and runtime error defaults must not print reasons.
+        await page.evaluate(value => {
+          const rejection = new PromiseRejectionEvent('unhandledrejection', {
+            promise: Promise.resolve(), reason: new Error(value), cancelable: true,
+          });
+          const runtime = new ErrorEvent('error', { error: new Error(value), message: value, cancelable: true });
+          if (window.dispatchEvent(rejection) || window.dispatchEvent(runtime)) throw new Error('Raw default output was not prevented');
+        }, secret);
+        assert.doesNotMatch(messages.join('\n'), /diagnostic-.*canary/);
+        await context.close();
+      }
+    }
+  } finally {
+    await browser?.close();
+    await stopPreviewServer(server);
+  }
+});

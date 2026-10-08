@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { BUG_REPORT_ADMIN_ENDPOINTS, BUG_REPORT_ENDPOINTS } from './bug-report.endpoints';
 import {
   BugReportDto,
@@ -9,12 +9,8 @@ import {
   UpdateBugReportRequest,
 } from '../types/bug-report.types';
 import api from '@/api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type BugReportServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Service for bug report submission and admin management
@@ -138,47 +134,8 @@ export class BugReportService {
   /**
    * Handle bug-report-specific API errors
    */
-  private handleBugReportError(error: unknown): BugReportServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const bugReportError: BugReportServiceError = new Error(message);
-      bugReportError.status = status;
-      bugReportError.response = error.response;
-
-      switch (status) {
-        case 400:
-          bugReportError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          bugReportError.message = 'Authentication required';
-          break;
-        case 403:
-          bugReportError.message = 'Insufficient permissions to manage bug reports';
-          break;
-        case 404:
-          bugReportError.message = 'Bug report not found';
-          break;
-        case 409:
-          bugReportError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          bugReportError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          bugReportError.message = 'Server error occurred while processing bug reports';
-          break;
-        default:
-          bugReportError.message = message || 'Bug report operation failed';
-      }
-
-      return bugReportError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleBugReportError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

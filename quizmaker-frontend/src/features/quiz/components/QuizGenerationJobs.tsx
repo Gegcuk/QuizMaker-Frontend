@@ -1,3 +1,5 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizGenerationJobs.tsx
 // ---------------------------------------------------------------------------
 // Manage AI generation jobs based on QUIZ_ENDPOINTS
@@ -111,7 +113,7 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
         setJobs(mockJobs);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        setError(axiosError.response?.data?.message || 'Failed to load generation jobs');
+        setError(getErrorMessage(axiosError) || 'Failed to load generation jobs');
       } finally {
         setIsLoading(false);
       }
@@ -167,7 +169,8 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
           : job
       ));
     } catch (error) {
-      console.error('Failed to cancel job:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to cancel job. Please try again.');
     }
   };
@@ -183,7 +186,8 @@ const QuizGenerationJobs: React.FC<QuizGenerationJobsProps> = ({ quizId, classNa
           : job
       ));
     } catch (error) {
-      console.error('Failed to retry job:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to retry job. Please try again.');
     }
   };

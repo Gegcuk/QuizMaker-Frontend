@@ -67,7 +67,7 @@ describe('BlogIndexPage', () => {
     const { user } = renderWithProviders(<BlogIndexPage />);
 
     expect(await screen.findByText('Unable to load articles')).toBeInTheDocument();
-    expect(screen.getByText('Articles are temporarily unavailable.')).toBeInTheDocument();
+    expect(screen.getByText("An unexpected error occurred. Please refresh the page and try again.")).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 

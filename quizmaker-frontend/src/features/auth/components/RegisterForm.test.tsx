@@ -79,7 +79,7 @@ describe('RegisterForm', () => {
   it('shows a registration error returned by the service', async () => {
     const onError = vi.fn();
     authMocks.register.mockRejectedValue({
-      response: { data: { message: 'Username or email already exists' } },
+      response: { status: 409, data: { message: 'Username or email already exists' } },
     });
     const { user } = renderWithProviders(<RegisterForm onError={onError} />, {
       withAuthProvider: false,
@@ -89,7 +89,7 @@ describe('RegisterForm', () => {
     await user.click(screen.getByRole('checkbox', { name: /I agree to the Terms and Conditions/i }));
     await user.click(screen.getByRole('button', { name: 'Create account' }));
 
-    expect(await screen.findByText('Username or email already exists')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledWith('Username or email already exists');
+    expect(await screen.findByText("Conflict. Refresh the latest state before trying again.")).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith("Conflict. Refresh the latest state before trying again.");
   });
 });

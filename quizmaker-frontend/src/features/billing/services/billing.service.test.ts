@@ -261,18 +261,18 @@ describe('BillingService', () => {
     expect(service.getBalanceStatus({ ...balance, availableTokens: 500 })).toBe('high');
   });
 
-  it('preserves live ProblemDetail detail text for validation failures', async () => {
+  it('provides safe validation recovery guidance', async () => {
     axios.post.mockRejectedValue(problemError(400, 'Price ID must not be blank.'));
 
     await expect(
       service.createCheckoutSession({ priceId: '' }),
-    ).rejects.toThrow('Validation error: Price ID must not be blank.');
+    ).rejects.toThrow('Validation error');
   });
 
   it.each([
-    [401, 'Authentication failed'],
+    [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Billing feature is not available'],
+    [404, 'not found'],
     [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
@@ -281,12 +281,12 @@ describe('BillingService', () => {
     await expect(service.getBalance()).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.get
       .mockRejectedValueOnce(problemError(429, 'Rate limit exceeded.'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.getPacks()).rejects.toMatchObject({ status: 429 });
-    await expect(service.getConfig()).rejects.toThrow('Network unavailable');
+    await expect(service.getConfig()).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

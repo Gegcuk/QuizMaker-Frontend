@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/pages/QuizAttemptFlowPage.tsx
 // ---------------------------------------------------------------------------
 // Quiz attempt flow page - handles the complete attempt lifecycle
@@ -46,7 +47,8 @@ const QuizAttemptFlowPage: React.FC = () => {
           setCurrentStep('continuation');
         }
       } catch (error) {
-        console.error('Failed to load quiz details:', error);
+        diagnostics.report(error, 'application');
+
         setError('Failed to load quiz details. Please try again.');
       } finally {
         setLoading(false);

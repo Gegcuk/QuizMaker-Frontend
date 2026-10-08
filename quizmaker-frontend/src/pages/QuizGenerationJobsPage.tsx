@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // ---------------------------------------------------------------------------
 // Quiz Generation Jobs Management Page
 // Route: /quizzes/:quizId/generation
@@ -32,7 +33,7 @@ const QuizGenerationJobsPage: React.FC = () => {
         const quizData = await getQuizById(quizId);
         setQuiz(quizData);
       } catch (err: any) {
-        setError(err?.response?.data?.message || 'Quiz not found.');
+        setError(getErrorMessage(err) || 'Quiz not found.');
       } finally {
         setLoading(false);
       }

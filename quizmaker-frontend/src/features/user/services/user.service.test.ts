@@ -106,24 +106,24 @@ describe('UserService', () => {
     expect(serviceSurface.export).toBeUndefined();
   });
 
-  it('preserves ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.patch
       .mockRejectedValueOnce(problemError(400, 'Display name is too long.'))
       .mockRejectedValueOnce(problemError(409, 'Profile was updated by another request.'));
 
     await expect(service.updateUserProfile({ displayName: 'x'.repeat(300) })).rejects.toThrow(
-      'Validation error: Display name is too long.',
+      'Validation error',
     );
     await expect(service.updateUserProfile({ displayName: 'Architect' })).rejects.toThrow(
-      'Conflict: Profile was updated by another request.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'User not found'],
-    [429, 'Too many requests. Please try again later.'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -131,12 +131,12 @@ describe('UserService', () => {
     await expect(service.getUserProfile()).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(401, 'Login required'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.uploadAvatar(new File(['x'], 'x.png'))).rejects.toMatchObject({ status: 401 });
-    await expect(service.uploadAvatar(new File(['x'], 'x.png'))).rejects.toThrow('Network unavailable');
+    await expect(service.uploadAvatar(new File(['x'], 'x.png'))).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

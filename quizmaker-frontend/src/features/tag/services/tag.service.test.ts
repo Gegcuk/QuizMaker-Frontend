@@ -106,24 +106,24 @@ describe('TagService', () => {
     expect(serviceSurface.export).toBeUndefined();
   });
 
-  it('preserves ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Name must be between 3 and 50 characters.'))
       .mockRejectedValueOnce(problemError(409, 'Tag name already exists.'));
 
     await expect(service.createTag({ name: 'A' })).rejects.toThrow(
-      'Validation error: Name must be between 3 and 50 characters.',
+      'Validation error',
     );
     await expect(service.createTag({ name: 'Architecture' })).rejects.toThrow(
-      'Conflict: Tag name already exists.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Tag not found'],
-    [429, 'Too many requests. Please try again later.'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -131,12 +131,12 @@ describe('TagService', () => {
     await expect(service.getTagById('tag-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.delete
       .mockRejectedValueOnce(problemError(403, 'Forbidden'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.deleteTag('tag-1')).rejects.toMatchObject({ status: 403 });
-    await expect(service.deleteTag('tag-1')).rejects.toThrow('Network unavailable');
+    await expect(service.deleteTag('tag-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

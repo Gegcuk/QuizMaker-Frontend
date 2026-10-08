@@ -22,6 +22,9 @@ const themeBootstrap = () => ({
 
 export default defineConfig({
   plugins: [themeBootstrap(), react()],
+  define: {
+    'import.meta.env.VITE_RELEASE_REVISION': JSON.stringify(process.env.GITHUB_SHA ?? process.env.VITE_RELEASE_REVISION ?? 'unknown'),
+  },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),

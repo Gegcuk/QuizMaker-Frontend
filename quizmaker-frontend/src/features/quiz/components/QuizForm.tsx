@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizForm.tsx
 // ---------------------------------------------------------------------------
 // Main quiz creation/editing form based on CreateQuizRequest/UpdateQuizRequest
@@ -142,7 +143,7 @@ const QuizForm: React.FC<QuizFormProps> = ({ className = '', defaultTab }) => {
       navigate(`/quizzes/${resultQuizId}?tab=management`);
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to create quiz';
+      const errorMessage = getErrorMessage(axiosError) || 'Failed to create quiz';
       setErrors({ general: errorMessage });
       addToast({ type: 'error', message: errorMessage });
     } finally {

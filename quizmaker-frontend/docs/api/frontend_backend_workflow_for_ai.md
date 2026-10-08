@@ -297,9 +297,28 @@ Then decide whether the frontend should:
 - update generated content handling, or
 - leave the backend error visible because the constraint is server-owned.
 
-For question validation, backend error messages often contain the exact rule,
-such as required distractor counts or valid field names. Prefer preserving and
-surfacing those messages over introducing independent frontend-only rules.
+For question validation, inspect the live schema or validation response to
+understand rules such as required distractor counts or valid field names.
+Use those verified rules for validation; display safe field guidance rather
+than arbitrary backend text that may contain submitted content.
+
+## Frontend Error Boundary
+
+Use `toApplicationError` from `src/utils/applicationError.ts` for service mapping
+and `getErrorMessage` / `getValidationErrors` for presentation. Preserve a mapped
+error instead of wrapping it in `new Error`, which loses HTTP status and safe
+metadata. The compatibility `response` contains only status, never backend data.
+Do not inspect `error.response.data` in a component.
+
+Live ProblemDetail extension properties are loosely typed. The mapper validates
+both top-level and nested extensions, omits unknown code/type/field names, and
+replaces arbitrary validation text with safe field guidance. Update allowlists
+only with verified live evidence; never add arbitrary strings or whole payloads
+to diagnostics. `Retry-After` is guidance for manual recovery and does not alter
+any automatic retry policy.
+
+Render and rejection reporting uses the bounded tab-local reporter under
+`src/features/diagnostics`. Its policy and kill switch are documented in README.
 
 ## Docs to Update With API Changes
 

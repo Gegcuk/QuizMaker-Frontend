@@ -8,7 +8,7 @@ import {
   QuestionType,
   Page
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 /**
  * Question service for handling question operations
@@ -144,30 +144,7 @@ export class QuestionService {
   /**
    * Handle question-specific errors
    */
-  private handleQuestionError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-
-      switch (status) {
-        case 400:
-          return new Error(`Validation error: ${message}`);
-        case 401:
-          return new Error('Authentication required');
-        case 403:
-          return new Error('Insufficient permissions - check QUESTION_CREATE, QUESTION_UPDATE, or QUESTION_DELETE permissions');
-        case 404:
-          return new Error('Question not found');
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return new Error('Server error occurred');
-        default:
-          return new Error(message || 'Question operation failed');
-      }
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleQuestionError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }

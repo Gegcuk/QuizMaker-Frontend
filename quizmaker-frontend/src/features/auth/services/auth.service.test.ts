@@ -90,10 +90,7 @@ describe('AuthService', () => {
     axios.post.mockRejectedValue(new Error('Network unavailable'));
 
     await expect(service.logout()).resolves.toBeUndefined();
-    expect(warning).toHaveBeenCalledWith(
-      'Logout request failed:',
-      expect.any(Error),
-    );
+    expect(warning).not.toHaveBeenCalled();
   });
 
   it('retrieves the current authenticated user', async () => {
@@ -191,7 +188,7 @@ describe('AuthService', () => {
     });
   });
 
-  it('preserves live ProblemDetail detail text for validation failures', async () => {
+  it('provides safe validation recovery guidance', async () => {
     axios.post.mockRejectedValue(
       problemError(400, 'Current password is incorrect.'),
     );
@@ -201,12 +198,12 @@ describe('AuthService', () => {
         currentPassword: 'wrong-password',
         newPassword: 'NewSecurePassword1!',
       }),
-    ).rejects.toThrow('Validation error: Current password is incorrect.');
+    ).rejects.toThrow('Validation error');
   });
 
   it.each([
-    [401, 'Authentication failed'],
-    [409, 'Username or email already exists'],
+    [401, 'Authentication required'],
+    [409, 'Conflict'],
     [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
@@ -217,9 +214,9 @@ describe('AuthService', () => {
     ).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves network failure context', async () => {
+  it('does not expose arbitrary network-like error text', async () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
-    await expect(service.getCurrentUser()).rejects.toThrow('Network unavailable');
+    await expect(service.getCurrentUser()).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

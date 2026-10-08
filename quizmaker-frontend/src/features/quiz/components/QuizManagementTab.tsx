@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/QuizManagementTab.tsx
 // ---------------------------------------------------------------------------
 // Combined quiz management component with single form layout:
@@ -70,7 +71,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
         setAvailableTags(tagsResponse.content);
         setAvailableCategories(categoriesResponse.content);
       } catch (error) {
-        console.error('Failed to load tags/categories:', error);
+        diagnostics.report(error, 'application');
+
       }
     };
     loadData();
@@ -198,7 +200,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
       setNewTagDescription('');
       setShowCreateTagForm(false);
     } catch (error) {
-      console.error('Failed to create tag:', error);
+      diagnostics.report(error, 'application');
+
     } finally {
       setIsCreatingTag(false);
     }
@@ -227,7 +230,8 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
       setShowCreateCategoryForm(false);
       setShowCategoryModal(false);
     } catch (error) {
-      console.error('Failed to create category:', error);
+      diagnostics.report(error, 'application');
+
     } finally {
       setIsCreatingCategory(false);
     }

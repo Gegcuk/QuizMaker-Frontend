@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/QuizListPage.tsx
 // ---------------------------------------------------------------------------
 // Comprehensive quiz list page demonstrating integration of all quiz display components
@@ -107,7 +108,8 @@ const QuizListPage: React.FC<QuizListPageProps> = ({ className = '' }) => {
       // Remove from local state
       setQuizzes(prev => prev.filter(quiz => quiz.id !== quizToDelete));
     } catch (error) {
-      console.error('Failed to delete quiz:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to delete quiz. Please try again.');
     } finally {
       setIsDeleting(false);

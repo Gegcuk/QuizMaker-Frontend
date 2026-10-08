@@ -73,7 +73,7 @@ it('protects unsaved manual wizard input after failure and clears after successf
   await user.click(screen.getByRole('button', { name: 'Edit wizard title' }));
   expect(blocked()).toBe(true);
   await user.click(screen.getByRole('button', { name: 'Create manual quiz' }));
-  expect((await screen.findAllByText('Creation failed')).length).toBeGreaterThan(0);
+  expect((await screen.findAllByText(/An unexpected error occurred/)).length).toBeGreaterThan(0);
   expect(blocked()).toBe(true);
   await user.click(screen.getByRole('button', { name: 'Create manual quiz' }));
   expect(await screen.findByRole('button', { name: 'Complete questions' })).toBeInTheDocument();
@@ -88,7 +88,7 @@ it('guards losing local wizard text on Back, preserves it on Stay, and clears di
   const source = 'A local source passage about photosynthesis and cellular respiration. '.repeat(6);
   await user.type(screen.getByLabelText('Text Content *'), source);
   await user.click(screen.getByRole('button', { name: 'Generate Quiz from Text' }));
-  expect((await screen.findAllByText('Generation failed')).length).toBeGreaterThan(0);
+  expect((await screen.findAllByText(/An unexpected error occurred/)).length).toBeGreaterThan(0);
   await user.click(screen.getAllByRole('button', { name: '← Back' })[0]);
   await user.click(screen.getByRole('button', { name: 'Stay' }));
   expect(screen.getByLabelText('Text Content *')).toHaveValue(source);

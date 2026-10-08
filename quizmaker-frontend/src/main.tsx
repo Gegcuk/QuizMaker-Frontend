@@ -1,7 +1,11 @@
+import { diagnostics } from './features/diagnostics/reporter';
+import { startDiagnostics } from './features/diagnostics/lifecycle';
 // src/main.tsx (minimal example – adjust if you already have code here)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import RouteFailure from './routes/RouteFailure';
 import { UnsavedChangesProvider } from './features/navigation/UnsavedChangesProvider';
 
 import AppRoutes from './routes/AppRoutes';
@@ -16,6 +20,7 @@ import { CheckoutRecoveryLifecycle } from './features/billing/components/Checkou
 
 const router = createBrowserRouter([{
   path: '*',
+  errorElement: <ErrorBoundary><RouteFailure /></ErrorBoundary>,
   element: (
     <SensitiveUrlBoundary>
       <AnalyticsProvider>
@@ -38,4 +43,10 @@ const router = createBrowserRouter([{
   ),
 }]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<RouterProvider router={router} />);
+const stopDiagnostics = startDiagnostics();
+import.meta.hot?.dispose(stopDiagnostics);
+
+ReactDOM.createRoot(document.getElementById('root')!, {
+  onCaughtError: (error) => { diagnostics.report(error, 'render'); },
+  onUncaughtError: (error) => { diagnostics.report(error, 'render'); },
+}).render(<RouterProvider router={router} onError={(error) => { diagnostics.report(error, 'render'); }} />);

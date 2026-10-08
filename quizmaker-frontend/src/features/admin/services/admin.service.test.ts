@@ -347,24 +347,24 @@ describe('AdminService', () => {
     expect(serviceSurface.performBulkOperations).toBeUndefined();
   });
 
-  it('preserves ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Role name is required.'))
       .mockRejectedValueOnce(problemError(409, 'Role already exists.'));
 
     await expect(service.createRole({ roleName: '' })).rejects.toThrow(
-      'Validation error: Role name is required.',
+      'Validation error',
     );
     await expect(service.createRole({ roleName: 'ROLE_ADMIN' })).rejects.toThrow(
-      'Conflict: Role already exists.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Resource not found'],
-    [429, 'Too many requests. Please try again later.'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -372,12 +372,12 @@ describe('AdminService', () => {
     await expect(service.getAllRoles()).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.get
       .mockRejectedValueOnce(problemError(403, 'Admin role required.'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.getAllRoles()).rejects.toMatchObject({ status: 403 });
-    await expect(service.getAllRoles()).rejects.toThrow('Network unavailable');
+    await expect(service.getAllRoles()).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

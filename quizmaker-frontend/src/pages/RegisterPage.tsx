@@ -33,10 +33,10 @@ const RegisterPage: React.FC = () => {
             <RegisterForm 
               redirectTo="/login"
               onSuccess={() => {
-                console.log('Registration successful');
+
               }}
-              onError={(error) => {
-                console.error('Registration error:', error);
+              onError={() => {
+
               }}
             />
           </div>

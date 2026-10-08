@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { MEDIA_ENDPOINTS } from './media.endpoints';
 import {
   MediaAssetListResponse,
@@ -10,12 +10,8 @@ import {
   MediaUploadResponse,
 } from '../types/media.types';
 import api from '@/api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type MediaServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Media library service for presigned uploads and asset management
@@ -167,41 +163,8 @@ export class MediaService {
   /**
    * Handle media-specific API errors
    */
-  private handleMediaError(error: unknown): MediaServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const buildError = (errorMessage: string): MediaServiceError => {
-        const mediaError: MediaServiceError = new Error(errorMessage);
-        mediaError.status = status;
-        mediaError.response = error.response;
-        return mediaError;
-      };
-
-      switch (status) {
-        case 400:
-          return buildError(`Validation error: ${message}`);
-        case 401:
-          return buildError('Authentication required');
-        case 403:
-          return buildError('Insufficient permissions to manage media assets');
-        case 404:
-          return buildError('Media asset not found');
-        case 409:
-          return buildError(`Conflict: ${message}`);
-        case 429:
-          return buildError('Too many requests. Please try again later.');
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return buildError('Server error occurred while managing media assets');
-        default:
-          return buildError(message || 'Media operation failed');
-      }
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleMediaError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

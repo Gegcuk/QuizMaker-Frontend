@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/ResetPasswordForm.tsx
 // ---------------------------------------------------------------------------
 // Password reset form component for setting new password with reset token
@@ -150,9 +151,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Failed to reset password. Please try again.';
+        getErrorMessage(axiosError) || 'Failed to reset password. Please try again.';
       
       setErrors({ general: errorMessage });
       

@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/quiz/TextGenerationTab.tsx
 // ---------------------------------------------------------------------------
 // Text-based quiz generation tab
@@ -149,7 +150,8 @@ export const TextGenerationTab: React.FC = () => {
         quizConfig.difficulty
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [text, quizConfig.questionTypes, quizConfig.difficulty]);

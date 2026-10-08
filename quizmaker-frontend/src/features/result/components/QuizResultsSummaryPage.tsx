@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/pages/QuizResultsSummaryPage.tsx
 // ---------------------------------------------------------------------------
 // Aggregated statistics for a single quiz.
@@ -35,8 +36,7 @@ const QuizResultsSummaryPage: React.FC = () => {
         setResults(results);
       } catch (e: any) {
         setError(
-          e?.response?.data?.error ||
-            'Failed to load results. Please try again later.',
+          getErrorMessage(e) || 'Failed to load results. Please try again later.',
         );
       } finally {
         setLoading(false);

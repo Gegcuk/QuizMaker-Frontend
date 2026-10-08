@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, TagService, api } from '@/services';
@@ -63,7 +64,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
         setCategories(categoriesResponse.content);
         setTags(tagsResponse.content);
       } catch (err) {
-        console.error('Failed to load filters:', err);
+        diagnostics.report(err, 'application');
+
       }
     };
 
@@ -77,7 +79,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       try {
         setSearchHistory(JSON.parse(savedHistory));
       } catch (err) {
-        console.error('Failed to parse search history:', err);
+        diagnostics.report(err, 'application');
+
       }
     }
   }, []);
@@ -166,7 +169,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       if (err.name === 'AbortError') return;
       
       setError(err.message || 'Search failed. Please try again.');
-      console.error('Search error:', err);
+
     } finally {
       setIsSearching(false);
     }

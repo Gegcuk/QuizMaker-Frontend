@@ -101,10 +101,10 @@ describe('UserProfile', () => {
   });
 
   it('renders the service error when profile loading fails', async () => {
-    authMocks.getUserProfile.mockRejectedValue({ response: { data: { message: 'Profile unavailable' } } });
+    authMocks.getUserProfile.mockRejectedValue({ response: { status: 503, data: { message: 'Profile unavailable' } } });
 
     renderWithProviders(<UserProfile />, { withAuthProvider: false });
 
-    expect(await screen.findByText('Profile unavailable')).toBeInTheDocument();
+    expect(await screen.findByText("Server error occurred. Please try again later.")).toBeInTheDocument();
   });
 });

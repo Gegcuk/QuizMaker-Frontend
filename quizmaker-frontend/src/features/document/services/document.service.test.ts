@@ -180,33 +180,33 @@ describe('DocumentService', () => {
       .mockRejectedValueOnce(problemError(422, 'PDF text extraction failed.'));
 
     await expect(service.reprocessDocument(documentId, reprocessRequest)).rejects.toThrow(
-      'Validation error: Chunk size must be positive.',
+      'Validation error',
     );
     await expect(service.reprocessDocument(documentId, reprocessRequest)).rejects.toThrow(
-      'Document processing failed: PDF text extraction failed.',
+      'Validation error',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
-    [403, 'Insufficient permissions - only the document uploader may access this document'],
-    [404, 'Document not found'],
+    [403, 'Insufficient permissions'],
+    [404, 'not found'],
     [413, 'File size exceeds maximum allowed size'],
-    [415, 'Unsupported document format: Unsupported MIME type.'],
-    [429, 'Too many document requests. Please try again later.'],
-    [500, 'Server error occurred while processing the document'],
+    [415, 'Unsupported document format'],
+    [429, 'Too many requests'],
+    [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Unsupported MIME type.'));
 
     await expect(service.getDocumentById(documentId)).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.delete
       .mockRejectedValueOnce(problemError(403, 'Owner access required.'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.deleteDocument(documentId)).rejects.toMatchObject({ status: 403 });
-    await expect(service.deleteDocument(documentId)).rejects.toThrow('Network unavailable');
+    await expect(service.deleteDocument(documentId)).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

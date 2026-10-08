@@ -32,10 +32,10 @@ const ResetPasswordPage: React.FC = () => {
           <div className="bg-theme-bg-primary py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <ResetPasswordForm 
               onSuccess={() => {
-                console.log('Password reset successfully');
+
               }}
-              onError={(error) => {
-                console.error('Password reset error:', error);
+              onError={() => {
+
               }}
             />
           </div>

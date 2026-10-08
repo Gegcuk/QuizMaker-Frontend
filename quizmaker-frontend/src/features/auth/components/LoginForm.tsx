@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/LoginForm.tsx
 // ---------------------------------------------------------------------------
 // Enhanced login form component with comprehensive validation and error handling
@@ -55,9 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Login failed. Please check your credentials and try again.';
+        getErrorMessage(axiosError) || 'Login failed. Please check your credentials and try again.';
       
       // Call error callback if provided
       if (onError) {

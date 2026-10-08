@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/pages/AiAnalysisPage.tsx
 // ---------------------------------------------------------------------------
 // A simple page that calls /api/v1/ai-analysis and displays the received JSON
@@ -8,25 +9,25 @@ import { Seo } from '@/features/seo';
 import { api } from '@/services';
 
 const AiAnalysisPage: React.FC = () => {
-  console.log('AiAnalysisPage: Component rendering');
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('AiAnalysisPage: Component mounted, starting API call');
+
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        console.log('AiAnalysisPage: Making POST request to /v1/ai-analysis/analyze');
+
         const response = await api.post('/v1/ai-analysis/analyze');
-        console.log('AiAnalysisPage: Response received:', response.data);
+
         setData(response.data);
       } catch (err: any) {
-        console.error('AiAnalysisPage: Error occurred:', err);
-        setError(err.message || 'Failed to fetch data');
+
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }

@@ -163,37 +163,37 @@ describe('BugReportService', () => {
     expect(axios.post).toHaveBeenNthCalledWith(2, '/v1/admin/bug-reports/bulk-delete', [bugReport.id]);
   });
 
-  it('preserves ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Message is required.'))
       .mockRejectedValueOnce(problemError(409, 'Bug report was already updated.'));
 
     await expect(service.submitBugReport({ message: '' })).rejects.toThrow(
-      'Validation error: Message is required.',
+      'Validation error',
     );
     await expect(service.createBugReport(createPayload)).rejects.toThrow(
-      'Conflict: Bug report was already updated.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
-    [403, 'Insufficient permissions to manage bug reports'],
-    [404, 'Bug report not found'],
-    [429, 'Too many requests. Please try again later.'],
-    [500, 'Server error occurred while processing bug reports'],
+    [403, 'Insufficient permissions'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
+    [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
 
     await expect(service.getBugReport(bugReport.id)).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.patch
       .mockRejectedValueOnce(problemError(403, 'Admin role required.'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.updateBugReport(bugReport.id, updatePayload)).rejects.toMatchObject({ status: 403 });
-    await expect(service.updateBugReport(bugReport.id, updatePayload)).rejects.toThrow('Network unavailable');
+    await expect(service.updateBugReport(bugReport.id, updatePayload)).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/UserStats.tsx
 // ---------------------------------------------------------------------------
 // User statistics and achievements component
@@ -116,7 +117,7 @@ const UserStats: React.FC<UserStatsProps> = ({
         });
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load user statistics';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load user statistics';
         setErrors(errorMessage);
         if (onError) onError(errorMessage);
       } finally {

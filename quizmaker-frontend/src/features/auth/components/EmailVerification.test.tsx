@@ -71,7 +71,7 @@ describe('EmailVerification', () => {
     });
 
     expect(await screen.findByText('Verification failed')).toBeInTheDocument();
-    expect(screen.getByText('Verification service is unavailable')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledWith('Verification service is unavailable');
+    expect(screen.getByText("Server error occurred. Please try again later.")).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith("Server error occurred. Please try again later.");
   });
 });

@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { logger } from '@/utils';
+import { diagnostics } from '@/features/diagnostics/reporter';
+import { toApplicationError } from '@/utils/applicationError';
 import { Button } from '@/components';
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error?: Error;
+  reference?: string;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -19,19 +20,16 @@ class ErrorBoundary extends Component<Props, State> {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    logger.error('Error boundary caught an error', 'ErrorBoundary', {
-      error: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack
-    });
+  componentDidCatch(error: Error) {
+    const reference = diagnostics.report(error, 'render');
+    if (reference) this.setState({ reference });
 
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
+      this.props.onError(toApplicationError(error), { componentStack: '' });
     }
   }
 
@@ -70,6 +68,9 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-sm text-theme-text-tertiary">
                 We're sorry, but something unexpected happened. Please try refreshing the page.
               </p>
+              {this.state.reference && <p className="mt-2 text-sm text-theme-text-tertiary">
+                Support reference: {this.state.reference}
+              </p>}
             </div>
             <div className="mt-4">
               <Button

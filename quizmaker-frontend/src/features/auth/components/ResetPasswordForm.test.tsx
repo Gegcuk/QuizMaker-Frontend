@@ -67,7 +67,7 @@ describe('ResetPasswordForm', () => {
   it('shows a reset failure returned by the service', async () => {
     const onError = vi.fn();
     authMocks.resetPassword.mockRejectedValue({
-      response: { data: { message: 'This reset link has expired' } },
+      response: { status: 410, data: { message: 'This reset link has expired' } },
     });
     const { user } = renderWithProviders(<ResetPasswordForm onError={onError} />, {
       route: '/reset-password?token=reset-token',
@@ -77,7 +77,7 @@ describe('ResetPasswordForm', () => {
     await fillValidPassword(user);
     await user.click(screen.getByRole('button', { name: 'Reset password' }));
 
-    expect(await screen.findByText('This reset link has expired')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledWith('This reset link has expired');
+    expect(await screen.findByText("This item is no longer available. Return to the list.")).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith("This item is no longer available. Return to the list.");
   });
 });

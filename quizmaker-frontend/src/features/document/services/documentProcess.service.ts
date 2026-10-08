@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { DOCUMENT_PROCESS_ENDPOINTS } from './documentProcess.endpoints';
 import { 
   DocumentProcessDto,
@@ -12,12 +12,8 @@ import {
   ExtractResponseDto,
   StructureFormat
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type DocumentProcessServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 type FileUploadConfig = AxiosRequestConfig & {
   _isFileUpload: true;
@@ -219,52 +215,7 @@ export class DocumentProcessService {
   /**
    * Handle document process specific errors
    */
-  private handleError(error: unknown): DocumentProcessServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const documentError: DocumentProcessServiceError = new Error(message);
-      documentError.status = status;
-      documentError.response = error.response;
-
-      switch (status) {
-        case 400:
-          documentError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          documentError.message = 'Authentication required';
-          break;
-        case 403:
-          documentError.message = 'Insufficient permissions to process this document';
-          break;
-        case 404:
-          documentError.message = 'Document or structure node not found';
-          break;
-        case 413:
-          documentError.message = 'File size exceeds maximum allowed size';
-          break;
-        case 415:
-          documentError.message = `Unsupported document format: ${message}`;
-          break;
-        case 422:
-          documentError.message = `Document normalization failed: ${message}`;
-          break;
-        case 429:
-          documentError.message = 'Too many document requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          documentError.message = 'Server error occurred while processing the document';
-          break;
-        default:
-          documentError.message = message || 'Document process operation failed';
-      }
-
-      return documentError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Document process operation failed');
+  private handleError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Textarea } from '@/components';
 import { Seo } from '@/features/seo';
@@ -34,7 +35,7 @@ const CategoryManagementPage: React.FC = () => {
       const response = await getAllCategories({ page: 0, size: 100 });
       setCategories(response.content);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to fetch categories.');
+      setError(getErrorMessage(err) || 'Failed to fetch categories.');
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ const CategoryManagementPage: React.FC = () => {
       setShowForm(false);
       await fetchCategories();
     } catch (err: any) {
-      setFormError(err.response?.data?.error || 'Failed to save category.');
+      setFormError(getErrorMessage(err) || 'Failed to save category.');
     } finally {
       setFormSubmitting(false);
     }
@@ -99,7 +100,7 @@ const CategoryManagementPage: React.FC = () => {
       await deleteCategory(categoryToDelete);
       await fetchCategories();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete category.');
+      setError(getErrorMessage(err) || 'Failed to delete category.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);

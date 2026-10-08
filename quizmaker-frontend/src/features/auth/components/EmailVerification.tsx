@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/EmailVerification.tsx
 // ---------------------------------------------------------------------------
 // Email verification component for handling email verification after registration
@@ -76,9 +77,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Email verification failed. Please try again.';
+        getErrorMessage(axiosError) || 'Email verification failed. Please try again.';
       
       const status = axiosError.response?.status;
       
@@ -118,9 +117,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Failed to resend verification email. Please try again.';
+        getErrorMessage(axiosError) || 'Failed to resend verification email. Please try again.';
       
       setVerificationStatus({
         status: 'error',

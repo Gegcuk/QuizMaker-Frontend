@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // ---------------------------------------------------------------------------
 // QuestionForm.tsx - Main question creation form
 // Based on CreateQuestionRequest from API documentation
@@ -167,7 +168,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       if (question.hint) setShowHint(true);
       if (question.explanation) setShowExplanation(true);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load question');
+      setError(getErrorMessage(err) || 'Failed to load question');
     } finally {
       setLoading(false);
     }
@@ -490,7 +491,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
         }
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to save question');
+      setError(getErrorMessage(err) || 'Failed to save question');
     } finally {
       setSaving(false);
     }
@@ -736,7 +737,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({
       setLegacyAttachmentUrl(null);
       setClearAttachment(false);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to save question');
+      setError(getErrorMessage(err) || 'Failed to save question');
     } finally {
       setSaving(false);
     }

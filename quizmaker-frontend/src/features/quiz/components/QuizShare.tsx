@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/QuizShare.tsx
 // ---------------------------------------------------------------------------
 // Social sharing functionality
@@ -35,7 +36,8 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      diagnostics.report(err, 'application');
+
     }
   };
 
@@ -79,7 +81,8 @@ const QuizShare: React.FC<QuizShareProps> = ({ quiz, className = '' }) => {
           url: getShareUrl(),
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        diagnostics.report(err, 'application');
+
       }
     } else {
       setShowShareModal(true);

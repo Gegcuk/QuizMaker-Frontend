@@ -84,11 +84,11 @@ describe('QuestionBank', () => {
 
   it('shows the service error when questions cannot be loaded', async () => {
     questionServiceMocks.getQuestions.mockRejectedValueOnce({
-      response: { data: { message: 'Question library is unavailable.' } },
+      response: { status: 503, data: { message: 'Question library is unavailable.' } },
     });
 
     renderWithProviders(<QuestionBank />, { withAuthProvider: false });
 
-    expect(await screen.findByText('Question library is unavailable.')).toBeInTheDocument();
+    expect(await screen.findByText("Server error occurred. Please try again later.")).toBeInTheDocument();
   });
 });

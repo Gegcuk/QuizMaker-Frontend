@@ -1,3 +1,4 @@
+import { toApplicationError } from '@/utils/applicationError';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen, waitFor } from '@/test/render';
 import ChangePasswordForm from './ChangePasswordForm';
@@ -68,7 +69,7 @@ describe('ChangePasswordForm', () => {
 
   it('preserves a failed authenticated request message for the user', async () => {
     authMocks.changePassword.mockRejectedValue(
-      new Error('Validation error: Current password is incorrect.'),
+      toApplicationError({ status: 400 }),
     );
     const { user } = renderWithProviders(<ChangePasswordForm />, { withAuthProvider: false });
 
@@ -76,13 +77,13 @@ describe('ChangePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: 'Update password' }));
 
     expect(
-      await screen.findByText('Validation error: Current password is incorrect.'),
+      await screen.findByText("Validation error. Check your entries and try again."),
     ).toBeInTheDocument();
   });
 
   it('shows the rate-limit response without retaining a password value in feedback', async () => {
     authMocks.changePassword.mockRejectedValue(
-      new Error('Too many requests. Please try again later.'),
+      toApplicationError({ status: 429 }),
     );
     const { user } = renderWithProviders(<ChangePasswordForm />, { withAuthProvider: false });
 
@@ -90,7 +91,7 @@ describe('ChangePasswordForm', () => {
     await user.click(screen.getByRole('button', { name: 'Update password' }));
 
     expect(
-      await screen.findByText('Too many requests. Please try again later.'),
+      await screen.findByText("Too many requests. Please wait before trying again."),
     ).toBeInTheDocument();
     expect(screen.queryByText('CurrentPassword1!')).not.toBeInTheDocument();
     expect(screen.queryByText('NewSecurePassword1!')).not.toBeInTheDocument();

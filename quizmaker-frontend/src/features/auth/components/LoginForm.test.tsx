@@ -65,7 +65,7 @@ describe('LoginForm', () => {
   it('keeps the authentication failure visible to the user', async () => {
     const onError = vi.fn();
     authMocks.login.mockRejectedValue({
-      response: { data: { message: 'Invalid credentials' } },
+      response: { status: 401, data: { message: 'Invalid credentials' } },
     });
     const { user } = renderWithProviders(<LoginForm onError={onError} />, {
       withAuthProvider: false,
@@ -75,7 +75,7 @@ describe('LoginForm', () => {
     await user.type(screen.getByLabelText('Password'), 'SecurePassword1!');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledWith('Invalid credentials');
+    expect(await screen.findByText("Authentication required. Please sign in again.")).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith("Authentication required. Please sign in again.");
   });
 });

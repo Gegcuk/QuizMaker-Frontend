@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // ---------------------------------------------------------------------------
 // Enhanced Quiz Detail Page with all analytics and management components
 // Route: /quizzes/:quizId
@@ -85,8 +86,9 @@ const QuizDetailPage: React.FC = () => {
       await deleteQuizMutation.mutateAsync(quizId);
       navigate('/quizzes');
     } catch (err: any) {
+      diagnostics.report(err, 'application');
       // Error is handled by the mutation's onError callback
-      console.error('Delete failed:', err);
+
     } finally {
       setShowDeleteModal(false);
     }
@@ -154,6 +156,7 @@ const QuizDetailPage: React.FC = () => {
       // Refetch quiz data to update UI with new status
       refetch();
     } catch (e) {
+      diagnostics.report(e, 'application');
       addToast({ type: 'error', message: 'Failed to update quiz status.' });
     }
   };
@@ -188,7 +191,8 @@ const QuizDetailPage: React.FC = () => {
           const existingIds = questions.content.map((q: any) => q.id);
           setSelectedQuestionIds(existingIds);
         } catch (error) {
-          console.error('Failed to load questions:', error);
+          diagnostics.report(error, 'application');
+
         }
       };
       loadQuestions();
