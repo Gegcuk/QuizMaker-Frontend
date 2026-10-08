@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/UserActivity.tsx
 // ---------------------------------------------------------------------------
 // User activity history component
@@ -147,7 +148,7 @@ const UserActivity: React.FC<UserActivityProps> = ({
         setActivities(mockActivities);
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load user activity';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load user activity';
         setErrors(errorMessage);
         if (onError) onError(errorMessage);
       } finally {

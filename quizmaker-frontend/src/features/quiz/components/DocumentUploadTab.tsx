@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/quiz/DocumentUploadTab.tsx
 // ---------------------------------------------------------------------------
 // Document upload and quiz generation tab
@@ -238,7 +239,8 @@ export const DocumentUploadTab: React.FC = () => {
         quizConfig.difficulty
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [selectedFile, quizConfig.questionTypes, quizConfig.difficulty]);

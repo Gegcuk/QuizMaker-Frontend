@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/document/components/DocumentUpload.tsx
 // ---------------------------------------------------------------------------
 // Component for uploading documents with drag-and-drop support
@@ -94,7 +95,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           maxChunkSize: config.defaultMaxChunkSize
         }));
       } catch (err) {
-        console.error('Failed to load document config:', err);
+        diagnostics.report(err, 'application');
+
       }
     };
     loadConfig();
@@ -502,10 +504,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="mt-6">
           <GenerationProgress
             jobId={activeGenerationJob}
-            onGenerationComplete={(quizId) => {
+            onGenerationComplete={() => {
               setActiveGenerationJob(null);
               // You can navigate to the quiz or show a success message
-              console.log('Quiz generation completed! Quiz ID:', quizId);
+
             }}
             onGenerationError={(error) => {
               setActiveGenerationJob(null);

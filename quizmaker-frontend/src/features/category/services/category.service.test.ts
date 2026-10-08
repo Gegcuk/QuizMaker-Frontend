@@ -91,24 +91,24 @@ describe('CategoryService', () => {
     expect(axios.delete).toHaveBeenCalledWith('/v1/categories/category-1');
   });
 
-  it('preserves ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Name must be between 3 and 100 characters.'))
       .mockRejectedValueOnce(problemError(409, 'Category name already exists.'));
 
     await expect(service.createCategory({ name: 'A' })).rejects.toThrow(
-      'Validation error: Name must be between 3 and 100 characters.',
+      'Validation error',
     );
     await expect(service.createCategory({ name: 'Architecture' })).rejects.toThrow(
-      'Conflict: Category name already exists.',
+      'Conflict',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
-    [403, 'Insufficient permissions - Admin role required'],
-    [404, 'Category not found'],
-    [429, 'Too many requests. Please try again later.'],
+    [403, 'Insufficient permissions'],
+    [404, 'not found'],
+    [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -116,12 +116,12 @@ describe('CategoryService', () => {
     await expect(service.getCategoryById('category-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.delete
       .mockRejectedValueOnce(problemError(403, 'Forbidden'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.deleteCategory('category-1')).rejects.toMatchObject({ status: 403 });
-    await expect(service.deleteCategory('category-1')).rejects.toThrow('Network unavailable');
+    await expect(service.deleteCategory('category-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

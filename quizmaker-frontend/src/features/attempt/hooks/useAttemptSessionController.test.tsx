@@ -221,7 +221,7 @@ describe('useAttemptSessionController', () => {
     }));
 
     await waitFor(() => expect(result.current.state.phase).toBe('initialization-error'));
-    expect(result.current.state.initializationError).toMatch(/Resume unavailable/);
+    expect(result.current.state.initializationError).toMatch(/An unexpected error occurred/);
     expect(services.attempt.startAttempt).not.toHaveBeenCalled();
   });
 
@@ -251,7 +251,7 @@ describe('useAttemptSessionController', () => {
       }, { answer: true })).rejects.toThrow('Submission unavailable');
     });
     expect(result.current.state.currentQuestion?.id).toBe('question-quiz-1');
-    expect(result.current.state.actionError).toBe('Submission unavailable');
+    expect(result.current.state.actionError).toBe("An unexpected error occurred. Please refresh the page and try again.");
 
     await act(() => result.current.actions.submitAnswer({
       questionId: 'question-quiz-1',
@@ -327,7 +327,7 @@ describe('useAttemptSessionController', () => {
     });
     expect(result.current.state.phase).toBe('ready');
     expect(result.current.state.currentQuestion?.id).toBe('question-quiz-1');
-    expect(result.current.state.actionError).toBe('Completion unavailable');
+    expect(result.current.state.actionError).toBe("An unexpected error occurred. Please refresh the page and try again.");
 
     await act(() => result.current.actions.completeAttempt());
     expect(services.attempt.completeAttempt).toHaveBeenCalledTimes(2);
@@ -361,7 +361,7 @@ describe('useAttemptSessionController', () => {
       await expect(result.current.actions.pauseAttempt()).rejects.toThrow('Pause unavailable');
     });
     expect(result.current.state.phase).toBe('ready');
-    expect(result.current.state.actionError).toBe('Pause unavailable');
+    expect(result.current.state.actionError).toBe("An unexpected error occurred. Please refresh the page and try again.");
     await act(() => result.current.actions.refreshStats());
     expect(result.current.state.questionsAnswered).toBe(1);
   });

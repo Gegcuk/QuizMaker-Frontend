@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizCategoryManager.tsx
 // ---------------------------------------------------------------------------
 // Change quiz category based on QUIZ_ENDPOINTS
@@ -44,7 +45,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
         setCategories(response.content);
       } catch (err) {
         const axiosError = err as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load categories';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load categories';
         setError(errorMessage);
       } finally {
         setIsLoading(false);
@@ -83,7 +84,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
       setShowCreateForm(false);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to create category';
+      const errorMessage = getErrorMessage(axiosError) || 'Failed to create category';
       setError(errorMessage);
     } finally {
       setIsCreating(false);

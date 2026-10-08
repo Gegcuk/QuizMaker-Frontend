@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/pages/MyAttemptsPage.tsx
 // ---------------------------------------------------------------------------
 // User attempts management page
@@ -86,7 +87,7 @@ const MyAttemptsPage: React.FC = () => {
 
         setAttempts(response.content);
       } catch (err: any) {
-        console.error('Failed to load attempts:', err);
+
         setError(err.message || 'Failed to load your attempts. Please try again.');
       } finally {
         setIsLoading(false);
@@ -417,7 +418,8 @@ const MyAttemptsPage: React.FC = () => {
       }
       navigate(`/quizzes/${attempt.quizId}/attempt?attemptId=${attempt.attemptId}`);
     } catch (error) {
-      console.error('Failed to resume attempt:', error);
+      diagnostics.report(error, 'application');
+
       addToast({
         type: 'error',
         title: 'Resume Failed',
@@ -456,7 +458,8 @@ const MyAttemptsPage: React.FC = () => {
         duration: 3000
       });
     } catch (error) {
-      console.error('Failed to delete attempt:', error);
+      diagnostics.report(error, 'application');
+
       addToast({
         type: 'error',
         title: 'Delete Failed',

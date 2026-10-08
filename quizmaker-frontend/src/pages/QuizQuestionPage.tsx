@@ -1,3 +1,5 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
+import { getErrorMessage } from '@/utils/errorUtils';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Spinner, Button, Modal, Alert, Badge, useToast, Breadcrumb, PageHeader, Textarea, Dropdown, ButtonWithValidationTooltip } from '@/components';
@@ -41,7 +43,8 @@ const createQuestion = async (data: any) => {
 
 const addQuestionToQuiz = async (quizId: string, questionId: string) => {
   // TODO: Implement addQuestionToQuiz in QuizService
-  console.log('Adding question', questionId, 'to quiz', quizId);
+  void quizId;
+  void questionId;
 };
 
 const QuizQuestionsPage: React.FC = () => {
@@ -126,7 +129,7 @@ const QuizQuestionsPage: React.FC = () => {
       setQuiz(quizRes);
       setQuestions(qRes.content);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load questions.');
+      setError(getErrorMessage(err) || 'Failed to load questions.');
     } finally {
       setLoading(false);
     }
@@ -145,7 +148,7 @@ const QuizQuestionsPage: React.FC = () => {
       loadData();
       addToast({ type: 'success', message: 'Question removed from quiz.' });
     } catch (err: any) {
-      addToast({ type: 'error', message: err.response?.data?.error || 'Failed to remove question.' });
+      addToast({ type: 'error', message: getErrorMessage(err) || 'Failed to remove question.' });
     }
   };
 
@@ -187,7 +190,7 @@ const QuizQuestionsPage: React.FC = () => {
       setShowForm(false);
       await loadData();
     } catch (err: any) {
-      setFormError(err.response?.data?.error || 'Failed to create question.');
+      setFormError(getErrorMessage(err) || 'Failed to create question.');
     } finally {
       setFormSubmitting(false);
     }
@@ -200,7 +203,8 @@ const QuizQuestionsPage: React.FC = () => {
       setAllQuestions(response.content || []);
       setQTotalPages(response.totalPages || 1);
     } catch (err: any) {
-      console.error('Failed to fetch all questions:', err);
+      diagnostics.report(err, 'application');
+
     } finally {
       setLoadingAll(false);
     }
@@ -217,7 +221,7 @@ const QuizQuestionsPage: React.FC = () => {
       loadData();
       addToast({ type: 'success', message: 'Question added to quiz.' });
     } catch (err: any) {
-      addToast({ type: 'error', message: err.response?.data?.error || 'Failed to add question.' });
+      addToast({ type: 'error', message: getErrorMessage(err) || 'Failed to add question.' });
     }
   };
 

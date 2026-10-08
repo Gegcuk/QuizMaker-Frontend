@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/document/components/DocumentProcessor.tsx
 // ---------------------------------------------------------------------------
 // Component for displaying document processing status and progress
@@ -92,7 +93,8 @@ const DocumentProcessor: React.FC<DocumentProcessorProps> = ({
           handleProcessingError(doc.processingError || 'Processing failed');
         }
       } catch (err: any) {
-        console.error('Polling error:', err);
+        diagnostics.report(err, 'application');
+
       }
     }, 2000); // Poll every 2 seconds
   };

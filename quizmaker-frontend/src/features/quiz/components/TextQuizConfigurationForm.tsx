@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // ---------------------------------------------------------------------------
 // TextQuizConfigurationForm.tsx - Configuration form for text-based quiz generation
 // Includes text input and AI generation parameters
@@ -254,7 +255,8 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
         localData.difficulty || generationConfig.difficulty || 'MEDIUM'
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [generationConfig.text, generationConfig.questionsPerType, localData.difficulty, generationConfig.difficulty]);
@@ -303,6 +305,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Brief description..."
                 className="w-full"
+                error={localErrors.description || errors.description}
               />
             </div>
 
@@ -339,7 +342,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
               showCharCount
               maxLength={100000}
               helperText={localErrors.text || "The AI will analyze your text and generate relevant questions"}
-              error={localErrors.text}
+              error={localErrors.text || errors.text}
               fullWidth
             />
           </div>

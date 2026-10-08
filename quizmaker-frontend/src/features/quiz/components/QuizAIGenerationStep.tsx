@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/quiz/components/QuizAIGenerationStep.tsx
 // ---------------------------------------------------------------------------
 // Component for handling AI generation of questions after quiz creation.
@@ -100,7 +101,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
       }, 3000);
 
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to generate quiz from text');
+      setError(getErrorMessage(error) || 'Failed to generate quiz from text');
       setIsGenerating(false);
     }
   };

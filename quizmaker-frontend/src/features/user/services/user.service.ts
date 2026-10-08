@@ -1,14 +1,10 @@
 // src/api/user.service.ts
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { USER_ENDPOINTS } from '@/api/endpoints';
 import { UserProfileResponse, AvatarUploadResponse } from '@/types';
 import api from '@/api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type UserServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * User service for handling user profile operations
@@ -73,47 +69,8 @@ export class UserService {
   /**
    * Handle user-specific errors
    */
-  private handleUserError(error: unknown): UserServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const userError: UserServiceError = new Error(message);
-      userError.status = status;
-      userError.response = error.response;
-
-      switch (status) {
-        case 400:
-          userError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          userError.message = 'Authentication required';
-          break;
-        case 403:
-          userError.message = 'Insufficient permissions';
-          break;
-        case 404:
-          userError.message = 'User not found';
-          break;
-        case 409:
-          userError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          userError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          userError.message = 'Server error occurred';
-          break;
-        default:
-          userError.message = message || 'User operation failed';
-      }
-
-      return userError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleUserError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

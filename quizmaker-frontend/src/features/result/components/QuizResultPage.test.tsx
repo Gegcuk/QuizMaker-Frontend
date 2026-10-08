@@ -41,11 +41,11 @@ describe('QuizResultPage', () => {
   });
 
   it('renders the backend review failure from the attempt route', async () => {
-    resultMocks.getAttemptReview.mockRejectedValue({ response: { data: { error: 'Review unavailable' } } });
+    resultMocks.getAttemptReview.mockRejectedValue({ response: { status: 503, data: { error: 'Review unavailable' } } });
 
     renderPage('/quizzes/quiz-1/results?attemptId=attempt-1');
 
-    expect(await screen.findByText('Review unavailable')).toBeInTheDocument();
+    expect(await screen.findByText("Server error occurred. Please try again later.")).toBeInTheDocument();
     expect(resultMocks.getAttemptReview).toHaveBeenCalledWith('attempt-1', {
       includeUserAnswers: true,
       includeCorrectAnswers: true,

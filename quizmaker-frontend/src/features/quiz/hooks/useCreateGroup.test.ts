@@ -60,8 +60,7 @@ describe('useCreateGroup', () => {
   it('keeps the created group and reports a partial quiz-add failure', async () => {
     mocks.createQuizGroup.mockResolvedValue('group-1');
     mocks.addQuizzesToGroup.mockRejectedValue({
-      response: {
-        data: {
+      response: { status: 400, data: {
           title: 'Validation Failed',
           status: 400,
           detail: 'Quiz is already in this group.',
@@ -80,7 +79,7 @@ describe('useCreateGroup', () => {
     expect(mocks.addToast).toHaveBeenCalledWith({
       type: 'warning',
       message:
-        'Group created but failed to add quiz: Quiz is already in this group. You can add it manually.',
+        "Group created but failed to add quiz: Validation error. Check your entries and try again. You can add it manually.",
     });
     expect(onSuccess).toHaveBeenCalledWith('group-1');
   });

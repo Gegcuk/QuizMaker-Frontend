@@ -114,7 +114,7 @@ describe('QuizGroupService', () => {
     axios.post.mockResolvedValue({ data: {} });
 
     await expect(service.createQuizGroup({ name: 'Architecture' })).rejects.toThrow(
-      'Invalid response format from createQuizGroup API',
+      'An unexpected error occurred',
     );
   });
 
@@ -194,26 +194,26 @@ describe('QuizGroupService', () => {
     await expect(service.getGroupsForQuiz('quiz-1')).resolves.toEqual([groupSummary]);
     await expect(service.getGroupsForQuiz('quiz-1')).resolves.toEqual([]);
     await expect(service.isQuizInGroup('group-1', 'quiz-1')).resolves.toBe(false);
-    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError).not.toHaveBeenCalled();
   });
 
-  it('preserves live ProblemDetail detail for validation and conflict failures', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Group name must not be blank.'))
       .mockRejectedValueOnce(problemError(409, 'Quiz order changed concurrently.'));
 
     await expect(service.createQuizGroup({ name: '' })).rejects.toThrow(
-      'Validation error: Group name must not be blank.',
+      'Validation error',
     );
     await expect(
       service.addQuizzesToGroup('group-1', { quizIds: ['quiz-1'] }),
-    ).rejects.toThrow('Conflict: Quiz order changed concurrently.');
+    ).rejects.toThrow('Conflict');
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Quiz group not found'],
+    [404, 'not found'],
     [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
@@ -222,12 +222,12 @@ describe('QuizGroupService', () => {
     await expect(service.getQuizGroupById('group-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves status metadata and network failure context', async () => {
+  it('preserves status metadata without arbitrary error text', async () => {
     axios.get
       .mockRejectedValueOnce(problemError(403, 'Forbidden'))
       .mockRejectedValueOnce(new Error('Network unavailable'));
 
     await expect(service.getQuizGroupById('group-1')).rejects.toMatchObject({ status: 403 });
-    await expect(service.getQuizGroupById('group-1')).rejects.toThrow('Network unavailable');
+    await expect(service.getQuizGroupById('group-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

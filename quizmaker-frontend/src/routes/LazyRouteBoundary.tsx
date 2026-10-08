@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, Suspense, useEffect } from 'react';
+import React, { Component, Suspense, useEffect } from 'react';
 import { Button } from '@/components';
-import { logger } from '@/utils';
+import { diagnostics } from '@/features/diagnostics/reporter';
 import Spinner from '../components/ui/Spinner';
 
 interface LazyRouteBoundaryProps {
@@ -83,20 +83,13 @@ class LazyRouteErrorBoundary extends Component<LazyRouteBoundaryProps, LazyRoute
     return { error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error) {
     if (!isLazyRouteLoadError(error)) {
       return;
     }
 
-    const reloading = startLazyRouteRecovery(() => window.location.reload());
-    logger.warn(
-      reloading ? 'Reloading after lazy route load failure' : 'Lazy route load failure requires manual refresh',
-      'LazyRouteBoundary',
-      {
-        error: error.message,
-        componentStack: errorInfo.componentStack,
-      },
-    );
+    startLazyRouteRecovery(() => window.location.reload());
+    diagnostics.report(error, 'route-load');
   }
 
   render() {

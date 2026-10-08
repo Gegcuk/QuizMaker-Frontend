@@ -439,17 +439,17 @@ describe('QuizService', () => {
     await expect(service.archiveQuiz('quiz-1')).rejects.toThrow('Insufficient permissions');
   });
 
-  it('preserves validation and conflict ProblemDetail text', async () => {
+  it('provides safe validation and conflict recovery guidance', async () => {
     axios.post
       .mockRejectedValueOnce(problemError(400, 'Quiz title must contain at least 3 characters.'))
       .mockRejectedValueOnce(problemError(409, 'Generation job is already complete.'));
 
     await expect(service.createQuiz({ title: 'A' })).rejects.toThrow(
-      'Validation error: Quiz title must contain at least 3 characters.',
+      'Validation error',
     );
     await expect(
       service.generateQuizFromText({ text: 'text', questionsPerType: { MCQ_SINGLE: 1 } }),
-    ).rejects.toThrow('Conflict: Generation job is already complete.');
+    ).rejects.toThrow('Conflict');
   });
 
   it('marks insufficient-balance conflicts for the creation flow', async () => {
@@ -464,15 +464,15 @@ describe('QuizService', () => {
       }),
     ).rejects.toMatchObject({
       code: 'INSUFFICIENT_BALANCE',
-      isBalanceError: true,
-      userMessage: 'Insufficient token balance for generation.',
+      category: 'conflict',
+      message: expect.stringContaining('Add tokens'),
     });
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Quiz not found'],
+    [404, 'not found'],
     [429, 'Too many requests'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
@@ -481,9 +481,9 @@ describe('QuizService', () => {
     await expect(service.getQuizById('quiz-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves network failure context', async () => {
+  it('does not expose arbitrary network-like error text', async () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
-    await expect(service.getQuizById('quiz-1')).rejects.toThrow('Network unavailable');
+    await expect(service.getQuizById('quiz-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

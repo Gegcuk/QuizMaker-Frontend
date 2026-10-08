@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // Token storage abstraction for future-proof token management
 // This allows us to easily switch between localStorage, sessionStorage, or other storage mechanisms
 
@@ -23,7 +24,8 @@ export class LocalStorageTokenStorage implements TokenStorage {
     try {
       return localStorage.getItem(this.ACCESS_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to get access token from localStorage:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -32,7 +34,8 @@ export class LocalStorageTokenStorage implements TokenStorage {
     try {
       return localStorage.getItem(this.REFRESH_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to get refresh token from localStorage:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -42,7 +45,7 @@ export class LocalStorageTokenStorage implements TokenStorage {
       localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
       localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     } catch (error) {
-      console.error('Failed to set tokens in localStorage:', error);
+
       throw new Error('Failed to store authentication tokens', { cause: error });
     }
   }
@@ -52,7 +55,8 @@ export class LocalStorageTokenStorage implements TokenStorage {
       localStorage.removeItem(this.ACCESS_TOKEN_KEY);
       localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to clear tokens from localStorage:', error);
+      diagnostics.report(error, 'application');
+
     }
   }
 
@@ -72,7 +76,8 @@ export class SessionStorageTokenStorage implements TokenStorage {
     try {
       return sessionStorage.getItem(this.ACCESS_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to get access token from sessionStorage:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -81,7 +86,8 @@ export class SessionStorageTokenStorage implements TokenStorage {
     try {
       return sessionStorage.getItem(this.REFRESH_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to get refresh token from sessionStorage:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -91,7 +97,7 @@ export class SessionStorageTokenStorage implements TokenStorage {
       sessionStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
       sessionStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     } catch (error) {
-      console.error('Failed to set tokens in sessionStorage:', error);
+
       throw new Error('Failed to store authentication tokens', { cause: error });
     }
   }
@@ -101,7 +107,8 @@ export class SessionStorageTokenStorage implements TokenStorage {
       sessionStorage.removeItem(this.ACCESS_TOKEN_KEY);
       sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
     } catch (error) {
-      console.warn('Failed to clear tokens from sessionStorage:', error);
+      diagnostics.report(error, 'application');
+
     }
   }
 
@@ -159,7 +166,8 @@ export class SecureTokenStorage implements TokenStorage {
       // TODO: Implement decryption
       return encryptedToken;
     } catch (error) {
-      console.error('Failed to decrypt access token:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -172,7 +180,8 @@ export class SecureTokenStorage implements TokenStorage {
       // TODO: Implement decryption
       return encryptedToken;
     } catch (error) {
-      console.error('Failed to decrypt refresh token:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }
@@ -185,7 +194,7 @@ export class SecureTokenStorage implements TokenStorage {
       
       this.storage.setTokens(encryptedAccessToken, encryptedRefreshToken);
     } catch (error) {
-      console.error('Failed to encrypt tokens:', error);
+
       throw new Error('Failed to securely store authentication tokens', { cause: error });
     }
   }

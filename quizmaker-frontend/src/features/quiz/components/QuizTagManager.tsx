@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizTagManager.tsx
 // ---------------------------------------------------------------------------
 // Add/remove tags from quiz based on QUIZ_ENDPOINTS
@@ -53,7 +54,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
         setTags(tagsWithStatus);
       } catch (err) {
         const axiosError = err as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load tags';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load tags';
         setError(errorMessage);
       } finally {
         setIsLoading(false);
@@ -119,7 +120,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
       setShowCreateForm(false);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to create tag';
+      const errorMessage = getErrorMessage(axiosError) || 'Failed to create tag';
       setError(errorMessage);
     } finally {
       setIsCreating(false);

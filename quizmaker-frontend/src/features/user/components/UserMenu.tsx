@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
@@ -59,8 +60,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ className = '' }) => {
       await logout();
       setIsOpen(false);
     } catch (err) {
+      diagnostics.report(err, 'application');
       setError('Logout failed. Please try again.');
-      console.error('Logout error:', err);
+
     } finally {
       setIsLoading(false);
     }

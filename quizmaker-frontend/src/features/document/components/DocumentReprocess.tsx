@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 import React, { useState, useEffect } from 'react';
 import { DocumentService } from '@/services';
 import { api } from '@/services';
@@ -68,7 +69,8 @@ const DocumentReprocess: React.FC<DocumentReprocessProps> = ({
         maxChunkSize: docConfig.defaultMaxChunkSize
       }));
     } catch (err) {
-      console.error('Failed to load document config:', err);
+      diagnostics.report(err, 'application');
+
     }
   };
 

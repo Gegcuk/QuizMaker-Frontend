@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/quiz/components/QuizExportModal.tsx
 // ---------------------------------------------------------------------------
 // Modal for exporting quiz with options
@@ -54,7 +55,8 @@ const QuizExportModal: React.FC<QuizExportModalProps> = ({
       await onExport(format, { ...options, format });
       onClose();
     } catch (error) {
-      console.error('Export failed:', error);
+      diagnostics.report(error, 'application');
+
     } finally {
       setIsExporting(false);
     }

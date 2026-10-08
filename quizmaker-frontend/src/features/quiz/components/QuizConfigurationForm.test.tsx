@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen } from '@/test/render';
+import { renderWithProviders, screen, within } from '@/test/render';
+import { http, HttpResponse } from 'msw';
+import { server } from '@/test/msw/server';
+import api from '@/api/axiosInstance';
+import { QuizService } from '../services/quiz.service';
+import { getValidationErrors } from '@/utils/errorUtils';
 import type { CreateQuizRequest } from '@/types';
 import { QuizConfigurationForm } from './QuizConfigurationForm';
 
@@ -13,6 +18,27 @@ const quizData: Partial<CreateQuizRequest> = {
 };
 
 describe('QuizConfigurationForm', () => {
+  it('renders the timerDuration error preserved by the real HTTP and service boundary in its existing field slot', async () => {
+    server.use(http.post('*/api/v1/quizzes', () => HttpResponse.json({
+      status: 422, errors: { timerDuration: ['seeded-private-value'], language: ['seeded-private-value'] },
+    }, { status: 422 })));
+    const failure: unknown = await new QuizService(api).createQuiz({
+      title: 'Architecture foundations', visibility: 'PRIVATE', difficulty: 'MEDIUM',
+      estimatedTime: 30, timerEnabled: true, timerDuration: 30, isRepetitionEnabled: false,
+    }).catch((error: unknown) => error);
+    const fieldErrors = getValidationErrors(failure);
+    expect(fieldErrors?.language).toEqual(['Check this field and try again.']);
+    renderWithProviders(<QuizConfigurationForm
+      quizData={{ ...quizData, timerEnabled: true, timerDuration: 30 }}
+      onDataChange={vi.fn()}
+      errors={Object.fromEntries(Object.entries(fieldErrors ?? {}).map(([field, messages]) => [field, messages[0]]))}
+      creationMethod="manual" onCreateQuiz={vi.fn()} isCreating={false}
+    />, { withAuthProvider: false });
+    const timerGroup = screen.getByText('Timer Duration (minutes) *').parentElement;
+    expect(timerGroup).not.toBeNull();
+    expect(within(timerGroup as HTMLElement).getByText('Check this field and try again.')).toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent('seeded-private-value');
+  });
   it('shows manual creation guidance and propagates changed quiz settings', async () => {
     const onDataChange = vi.fn();
     const onCreateQuiz = vi.fn();

@@ -576,7 +576,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await navigateToAppRoute(errorPage, '/login');
         await fillLoginForm(errorPage);
         await errorPage.getByRole('button', { name: 'Sign in', exact: true }).click();
-        await errorPage.getByText('Login failed. Please check your credentials and try again.').waitFor();
+        await errorPage.getByText('Authentication required. Please sign in again.').waitFor();
         assert.equal(errorPage.url(), `${BASE_URL}/login`);
       } finally {
         await successPage.close();
@@ -609,7 +609,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await navigateToAppRoute(registerErrorPage, '/register');
         await fillRegistrationForm(registerErrorPage);
         await registerErrorPage.getByRole('button', { name: 'Create account' }).click();
-        await registerErrorPage.getByText('Registration failed. Please try again.').waitFor();
+        await registerErrorPage.getByText('Conflict. Refresh the latest state before trying again.').waitFor();
 
         await installUnexpectedApiBlock(resetSuccessPage);
         await resetSuccessPage.route('**/api/v1/auth/forgot-password', (route) => fulfillJson(route, {
@@ -629,7 +629,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await navigateToAppRoute(resetErrorPage, '/forgot-password');
         await resetErrorPage.getByLabel('Email Address').fill('e2e.user@example.com');
         await resetErrorPage.getByRole('button', { name: 'Send reset link' }).click();
-        await resetErrorPage.getByText('Failed to send password reset email. Please try again.').waitFor();
+        await resetErrorPage.getByText('Server error occurred. Please try again later.').waitFor();
       } finally {
         await registerSuccessPage.close();
         await registerErrorPage.close();
@@ -1782,7 +1782,7 @@ test('authoring navigation guards preserve input on desktop and mobile', { timeo
         await reloadAttempt;
         assert.equal(await page.getByLabel('Question Text', { exact: true }).inputValue(), 'Unsaved browser question');
         await page.getByRole('button', { name: 'Create Question', exact: true }).click();
-        await page.getByText('Failed to save question', { exact: true }).waitFor();
+        await page.getByText('Server error occurred. Please try again later.', { exact: true }).waitFor();
         await page.keyboard.press('Escape');
         await warning.waitFor();
         await page.getByRole('button', { name: 'Stay', exact: true }).click();

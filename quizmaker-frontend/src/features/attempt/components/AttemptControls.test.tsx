@@ -229,7 +229,7 @@ describe('attempt persistence controls', () => {
 
     await user.click(screen.getByRole('button', { name: /pause/i }));
     await user.click(screen.getByRole('button', { name: 'Pause' }));
-    expect(await screen.findByText('Pause unavailable')).toBeInTheDocument();
+    expect(await screen.findByText("An unexpected error occurred. Please refresh the page and try again.")).toBeInTheDocument();
     expect(screen.getByText('Pause Attempt?')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Pause' }));

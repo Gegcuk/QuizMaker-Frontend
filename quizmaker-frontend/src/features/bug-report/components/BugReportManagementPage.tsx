@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/bug-report/components/BugReportManagementPage.tsx
 // ---------------------------------------------------------------------------
 // Admin page for managing bug reports (super_admin only)
@@ -81,7 +82,7 @@ const BugReportManagementPage: React.FC = () => {
       setTotalElements(response.totalElements || 0);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      setError(axiosError.response?.data?.message || 'Failed to load bug reports');
+      setError(getErrorMessage(axiosError) || 'Failed to load bug reports');
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +113,7 @@ const BugReportManagementPage: React.FC = () => {
       loadBugReports();
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      setError(axiosError.response?.data?.message || 'Failed to delete bug report');
+      setError(getErrorMessage(axiosError) || 'Failed to delete bug report');
     } finally {
       setIsDeleting(false);
     }

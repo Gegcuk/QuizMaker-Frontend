@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/pages/DocumentViewPage.tsx
 // ---------------------------------------------------------------------------
 // Document view page that wraps DocumentViewer component with standardized layout
@@ -27,7 +28,8 @@ const DocumentViewPage: React.FC = () => {
         const doc = await documentService.getDocumentById(documentId);
         setDocument(doc);
       } catch (error) {
-        console.error('Failed to load document:', error);
+        diagnostics.report(error, 'application');
+
       } finally {
         setIsLoading(false);
       }

@@ -237,6 +237,43 @@ after fixing the cause. A successful receipt records the release, archive digest
 manifest digest, and GitHub artifact ID; verify the public `/__release.json`
 against that identity.
 
+### Private application diagnostics
+
+API failures cross one validated `ApplicationError` boundary. Services preserve
+available HTTP status, allowlisted code/type, field associations, validated
+`Retry-After` guidance, and an opaque correlation reference. UI messages use
+fixed recovery guidance. Arbitrary backend detail, validation text, error causes,
+transport objects, and original stacks are discarded. Field errors keep their
+allowlisted field names with safe messages; unknown metadata is omitted.
+The field-name list includes request properties verified in the live API groups.
+Local media validation uses explicit reasons and validated size/type options,
+so file-size, empty-file, format, and image-decoding guidance survives this
+boundary without accepting arbitrary exception messages. Alert titles contain
+only a short category label; recovery and support references appear once.
+
+Diagnostics are memory-only in the current tab: at most 20 events, at most
+30 minutes of retention, and one event per error category per 60 seconds.
+Logout, login/account transitions, page exit, and disabling diagnostics clear
+both events and suppression state. Records contain only category, source,
+HTTP status, a known route template (or `unknown`), build revision (or `unknown`),
+time, and a locally generated reference. They have no request/response bodies,
+headers, content, identifiers from routes, backend correlation IDs, or stacks.
+
+The reporter neither writes storage nor sends network requests. There is no
+additional VPS process, database, queue, or telemetry endpoint. A local render
+reference identifies an event in that tab only; it is not a remotely searchable
+support record. Reloading or closing the tab loses the records.
+
+Set `VITE_DIAGNOSTICS_ENABLED=false` when building to disable collection.
+The reporter also provides `setEnabled(false)` for immediate in-memory disabling
+and clearing. `read()` returns an immutable record snapshot for local consumers;
+it is not connected to analytics or the bug-report submission flow.
+GitHub builds embed `GITHUB_SHA`; other builds may supply a validated
+`VITE_RELEASE_REVISION` commit SHA. Unknown or malformed values become `unknown`.
+Changing the transport, event dimensions, or retention requires a separate
+review. Auth refresh, query retry limits, mutation retry behavior, billing
+reconciliation, and attempt progression retain their existing policies.
+
 ### Staged browser policies
 
 Every frontend response family receives `Content-Security-Policy-Report-Only`.

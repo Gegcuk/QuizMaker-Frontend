@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/attempt/AttemptContinuation.tsx
 // ---------------------------------------------------------------------------
 // Component for handling paused and in-progress attempts
@@ -65,7 +66,8 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
                 quiz
               };
             } catch (error) {
-              console.warn(`Could not fetch details for attempt ${attempt.attemptId}:`, error);
+              diagnostics.report(error, 'application');
+
               return {
                 ...attempt,
                 stats: undefined,
@@ -77,7 +79,8 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
 
         setExistingAttempts(attemptsWithDetails);
       } catch (error) {
-        console.error('Failed to load existing attempts:', error);
+        diagnostics.report(error, 'application');
+
         setError('Failed to load existing attempts. Please try again.');
       } finally {
         setIsLoading(false);
@@ -104,7 +107,8 @@ const AttemptContinuation: React.FC<AttemptContinuationProps> = ({
       // Navigate to the attempt page
       navigate(`/quizzes/${quizId}/attempt?attemptId=${attempt.attemptId}`);
     } catch (error) {
-      console.error('Failed to resume attempt:', error);
+      diagnostics.report(error, 'application');
+
       setError('Failed to resume attempt. Please try again.');
     } finally {
       setResumingAttempt(null);

@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // ---------------------------------------------------------------------------
 // QuizGenerationStatus.tsx - Component for tracking quiz generation job status
 // Shows progress, allows cancellation, and links to completed quiz
@@ -109,7 +110,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
           addToast({ message: 'Quiz generation failed' });
         }
       } catch (error: any) {
-        console.error('Error polling generation status:', error);
+
         setIsPolling(false);
         onError?.(error.message || 'Failed to check generation status');
       }
@@ -127,6 +128,7 @@ export const QuizGenerationStatus: React.FC<QuizGenerationStatusProps> = ({
       onCancel?.();
       addToast({ message: 'Generation cancelled' });
     } catch (error: any) {
+      diagnostics.report(error, 'application');
       addToast({ message: 'Failed to cancel generation' });
     }
   };

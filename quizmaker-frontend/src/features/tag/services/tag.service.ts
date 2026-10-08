@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { TAG_ENDPOINTS } from '@/api/endpoints';
 import type {
   TagDto,
@@ -7,12 +7,8 @@ import type {
   UpdateTagRequest,
 } from '@/types';
 import api from '@/api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type TagServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Tag service for handling tag operations
@@ -102,47 +98,8 @@ export class TagService {
   /**
    * Handle tag-specific errors
    */
-  private handleTagError(error: unknown): TagServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const tagError: TagServiceError = new Error(message);
-      tagError.status = status;
-      tagError.response = error.response;
-
-      switch (status) {
-        case 400:
-          tagError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          tagError.message = 'Authentication required';
-          break;
-        case 403:
-          tagError.message = 'Insufficient permissions';
-          break;
-        case 404:
-          tagError.message = 'Tag not found';
-          break;
-        case 409:
-          tagError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          tagError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          tagError.message = 'Server error occurred';
-          break;
-        default:
-          tagError.message = message || 'Tag operation failed';
-      }
-
-      return tagError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleTagError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

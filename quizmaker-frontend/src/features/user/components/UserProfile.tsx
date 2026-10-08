@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/UserProfile.tsx
 // ---------------------------------------------------------------------------
 // User profile display and editing component based on UserDto
@@ -29,7 +30,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   onError,
   className = ''
 }) => {
-  console.log('🚀 UserProfile component is rendering!');
+
   const { user: currentUser } = useAuth();
   const [user, setUser] = useState<UserProfileResponse | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -71,7 +72,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         }
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load user profile';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load user profile';
         setErrors({ general: errorMessage });
         if (onError) onError(errorMessage);
       } finally {
@@ -137,7 +138,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to update profile';
+      const errorMessage = getErrorMessage(axiosError) || 'Failed to update profile';
       setErrors({ general: errorMessage });
       if (onError) onError(errorMessage);
     } finally {
@@ -151,7 +152,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     if (!user || !isAdminView) return;
     
     // TODO: Implement when backend endpoints are available
-    console.warn('Admin user management not yet implemented');
+
   };
 
   // Handle resend verification email
@@ -171,9 +172,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Failed to resend verification email. Please try again.';
+        getErrorMessage(axiosError) || 'Failed to resend verification email. Please try again.';
       
       setVerificationMessage({
         type: 'error',

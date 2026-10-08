@@ -670,7 +670,7 @@ describe('QuestionForm unsaved input', () => {
     expect(screen.getByLabelText('Question Text')).toHaveValue('What is the main function of mitochondria?');
     questionServiceMocks.createQuestion.mockRejectedValueOnce(new Error('Offline'));
     await user.click(screen.getByRole('button', { name: 'Create Question' }));
-    expect(await screen.findByText('Failed to save question')).toBeInTheDocument();
+    expect(await screen.findByText("An unexpected error occurred. Please refresh the page and try again.")).toBeInTheDocument();
     expect(questionUnloadBlocked()).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     await user.click(screen.getByRole('button', { name: 'Leave without saving' }));

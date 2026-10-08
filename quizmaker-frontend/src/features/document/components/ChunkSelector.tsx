@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/document/components/ChunkSelector.tsx
 // ---------------------------------------------------------------------------
 // Component for selecting document chunks for quiz generation
@@ -179,7 +180,8 @@ const ChunkSelector: React.FC<ChunkSelectorProps> = ({
         difficulty
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [chunks, selectedChunks, questionsPerType, difficulty]);

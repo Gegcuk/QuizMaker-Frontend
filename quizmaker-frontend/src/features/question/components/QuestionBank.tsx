@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // ---------------------------------------------------------------------------
 // QuestionBank.tsx - Reusable question library component
 // Browse and select questions from a question bank
@@ -51,7 +52,7 @@ const QuestionBank: React.FC<QuestionBankProps> = ({
       setQuestions(response.content);
       setTotalPages(response.totalPages);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load questions');
+      setError(getErrorMessage(err) || 'Failed to load questions');
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,12 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
+import type { AxiosInstance } from 'axios';
 import { 
   ApiResponse, 
   Paginated, 
   PaginationParams, 
   BaseEntity, 
   QueryParams,
-  BulkOperationResponse,
-  ApiError
+  BulkOperationResponse
 } from '@/types';
 
 /**
@@ -188,59 +188,7 @@ export abstract class BaseService<T extends BaseEntity> {
   /**
    * Handle API errors consistently
    */
-  protected handleError(error: any): ApiError {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
-      const status = error.response?.status;
-      const message = error.response?.data?.message || error.message;
-
-      switch (status) {
-        case 400:
-          return {
-            type: 'VALIDATION_ERROR',
-            details: error.response?.data?.details || {}
-          };
-        case 401:
-          return {
-            type: 'AUTHENTICATION_ERROR',
-            message
-          };
-        case 403:
-          return {
-            type: 'AUTHORIZATION_ERROR',
-            message
-          };
-        case 404:
-          return {
-            type: 'NOT_FOUND_ERROR',
-            resource: this.basePath,
-            id: 'unknown'
-          };
-        case 409:
-          return {
-            type: 'CONFLICT_ERROR',
-            message
-          };
-        case 429:
-          return {
-            type: 'RATE_LIMIT_ERROR',
-            retryAfter: parseInt(error.response?.headers?.['retry-after'] || '60')
-          };
-        case 500:
-          return {
-            type: 'SERVER_ERROR',
-            message
-          };
-        default:
-          return {
-            type: 'UNKNOWN_ERROR',
-            message
-          };
-      }
-    }
-
-    return {
-      type: 'NETWORK_ERROR',
-      message: error.message || 'Network error occurred'
-    };
+  protected handleError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
-} 
+}

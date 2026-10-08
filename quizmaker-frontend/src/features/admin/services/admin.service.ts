@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { ADMIN_ENDPOINTS, SUPER_ADMIN_ENDPOINTS } from './admin.endpoints';
 import {
   RoleDto,
@@ -15,12 +15,8 @@ import {
   PendingReviewQuizDto,
   QuizModerationAuditDto,
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type AdminServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Admin service for handling administrative operations
@@ -473,47 +469,8 @@ export class AdminService {
   /**
    * Handle admin-specific errors
    */
-  private handleAdminError(error: unknown): AdminServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const adminError: AdminServiceError = new Error(message);
-      adminError.status = status;
-      adminError.response = error.response;
-
-      switch (status) {
-        case 400:
-          adminError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          adminError.message = 'Authentication required';
-          break;
-        case 403:
-          adminError.message = 'Insufficient permissions';
-          break;
-        case 404:
-          adminError.message = 'Resource not found';
-          break;
-        case 409:
-          adminError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          adminError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          adminError.message = 'Server error occurred';
-          break;
-        default:
-          adminError.message = message || 'Admin operation failed';
-      }
-
-      return adminError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleAdminError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 } 
 

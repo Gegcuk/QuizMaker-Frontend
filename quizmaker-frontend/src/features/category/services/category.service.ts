@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { CATEGORY_ENDPOINTS } from './category.endpoints';
 import type {
   CategoryDto,
@@ -7,12 +7,8 @@ import type {
   CategoryPage,
   CreateCategoryResponse,
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type CategoryServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Category service for handling category operations
@@ -102,47 +98,8 @@ export class CategoryService {
   /**
    * Handle category-specific errors
    */
-  private handleCategoryError(error: unknown): CategoryServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const categoryError: CategoryServiceError = new Error(message);
-      categoryError.status = status;
-      categoryError.response = error.response;
-
-      switch (status) {
-        case 400:
-          categoryError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          categoryError.message = 'Authentication required';
-          break;
-        case 403:
-          categoryError.message = 'Insufficient permissions - Admin role required';
-          break;
-        case 404:
-          categoryError.message = 'Category not found';
-          break;
-        case 409:
-          categoryError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          categoryError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          categoryError.message = 'Server error occurred';
-          break;
-        default:
-          categoryError.message = message || 'Category operation failed';
-      }
-
-      return categoryError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleCategoryError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

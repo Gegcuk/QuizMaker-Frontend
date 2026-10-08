@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/UserSettings.tsx
 // ---------------------------------------------------------------------------
 // User preferences and settings component
@@ -93,7 +94,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
         await new Promise(resolve => setTimeout(resolve, 500));
       } catch (error) {
         const axiosError = error as AxiosError<{ message?: string }>;
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load settings';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load settings';
         setErrors({ general: errorMessage });
         if (onError) onError(errorMessage);
       } finally {
@@ -131,7 +132,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({
       if (onSave) onSave();
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || 'Failed to save settings';
+      const errorMessage = getErrorMessage(axiosError) || 'Failed to save settings';
       setErrors({ general: errorMessage });
       if (onError) onError(errorMessage);
     } finally {

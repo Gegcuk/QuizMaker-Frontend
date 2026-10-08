@@ -84,8 +84,8 @@ const SitemapArticlesPage: React.FC = () => {
         setXmlContent(generateSitemapXml(entries));
         document.title = 'Articles Sitemap';
       })
-      .catch((error) => {
-        console.error('Failed to fetch article sitemap:', error);
+      .catch(() => {
+
         // Return empty sitemap on error
         const emptySitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

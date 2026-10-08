@@ -1,9 +1,7 @@
 // src/api/quiz.service.ts
 import {
-  isAxiosError,
   type AxiosInstance,
   type AxiosRequestConfig,
-  type AxiosResponse,
 } from 'axios';
 import { QUIZ_ENDPOINTS, RESULT_ENDPOINTS } from '../../../api/endpoints';
 import { 
@@ -32,7 +30,7 @@ import {
 } from '@/types';
 import { BaseService } from '../../../api/base.service';
 import api from '../../../api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 type QuizListParams = {
   page?: number;
@@ -46,14 +44,6 @@ type QuizListParams = {
   scope?: 'public' | 'me' | 'all';
 };
 
-type QuizServiceError = Error & {
-  response?: AxiosResponse;
-  isAxiosError?: boolean;
-  status?: number;
-  code?: string;
-  isBalanceError?: boolean;
-  userMessage?: string;
-};
 
 type UploadGenerationQueryParams = Record<string, string | string[]>;
 
@@ -613,68 +603,8 @@ export class QuizService extends BaseService<QuizDto> {
   /**
    * Handle quiz-specific errors
    */
-  private handleQuizError(error: unknown): QuizServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-
-      // For 409 errors, preserve the full axios error with enhanced properties
-      if (status === 409) {
-        // Check if this is an insufficient balance error
-        const messageText = message.toLowerCase();
-        
-        const isBalanceError = 
-          messageText.includes('insufficient') ||
-          messageText.includes('balance') ||
-          messageText.includes('token');
-
-        if (isBalanceError) {
-          const balanceError = error as QuizServiceError;
-          balanceError.code = 'INSUFFICIENT_BALANCE';
-          balanceError.isBalanceError = true;
-          balanceError.userMessage = message;
-          return balanceError;
-        }
-      }
-
-      const enhancedError: QuizServiceError = new Error(message);
-      enhancedError.response = error.response;
-      enhancedError.isAxiosError = true;
-      enhancedError.status = status;
-
-      switch (status) {
-        case 400:
-          enhancedError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          enhancedError.message = 'Authentication required';
-          break;
-        case 403:
-          enhancedError.message = 'Insufficient permissions';
-          break;
-        case 404:
-          enhancedError.message = 'Quiz not found';
-          break;
-        case 409:
-          enhancedError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          enhancedError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          enhancedError.message = 'Server error occurred';
-          break;
-        default:
-          enhancedError.message = message || 'Quiz operation failed';
-      }
-      
-      return enhancedError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleQuizError(error: unknown): ApplicationError {
+    return toApplicationError(error, { balanceConflict: true });
   }
 }
 

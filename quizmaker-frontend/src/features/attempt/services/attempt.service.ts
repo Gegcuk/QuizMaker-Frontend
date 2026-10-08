@@ -17,7 +17,7 @@ import {
   CurrentQuestionDto,
   Page
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 /**
  * Attempt service for handling quiz attempts and answer submissions
@@ -297,32 +297,7 @@ export class AttemptService {
   /**
    * Handle attempt-specific errors
    */
-  private handleAttemptError(error: any): Error {
-    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-
-      switch (status) {
-        case 400:
-          return new Error(`Validation error: ${message}`);
-        case 401:
-          return new Error('Authentication required');
-        case 403:
-          return new Error('Insufficient permissions - users can only access their own attempts');
-        case 404:
-          return new Error('Attempt not found');
-        case 409:
-          return new Error(`Conflict: ${message}`);
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return new Error('Server error occurred');
-        default:
-          return new Error(message || 'Attempt operation failed');
-      }
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleAttemptError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }

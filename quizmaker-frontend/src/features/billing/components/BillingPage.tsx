@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/billing/components/BillingPage.tsx
 // ---------------------------------------------------------------------------
 // Billing page for managing tokens, viewing balance, and transaction history
@@ -49,7 +50,7 @@ const BillingPage: React.FC = () => {
       } else if (status === 403) {
         setBalanceError('You do not have permission to view billing information.');
       } else {
-        const errorMessage = axiosError.response?.data?.message || 'Failed to load billing information';
+        const errorMessage = getErrorMessage(axiosError) || 'Failed to load billing information';
         setBalanceError(errorMessage);
       }
     } finally {

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/RegisterForm.tsx
 // ---------------------------------------------------------------------------
 // Enhanced registration form component with comprehensive validation and error handling
@@ -99,9 +100,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Registration failed. Please try again.';
+        getErrorMessage(axiosError) || 'Registration failed. Please try again.';
       
       // Call error callback if provided
       if (onError) {

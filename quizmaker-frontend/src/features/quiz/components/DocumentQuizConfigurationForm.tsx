@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // ---------------------------------------------------------------------------
 // DocumentQuizConfigurationForm.tsx - Configuration form for document-based quiz generation
 // Includes document upload, page selection, and AI generation parameters
@@ -231,7 +232,8 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
         generationConfig.difficulty || localData.difficulty || 'MEDIUM'
       );
     } catch (error) {
-      console.error('Token estimation error:', error);
+      diagnostics.report(error, 'application');
+
       return null;
     }
   }, [generationConfig.file, selectedPageNumbers.length, selectedContent, generationConfig.questionsPerType, generationConfig.difficulty, localData.difficulty]);
@@ -410,6 +412,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Brief description..."
                 className="w-full"
+                error={errors.description}
               />
             </div>
 

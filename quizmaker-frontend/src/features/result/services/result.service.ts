@@ -1,16 +1,12 @@
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import {
   QuizResultSummaryDto,
   LeaderboardEntryDto,
 } from '@/types';
 import { RESULT_ENDPOINTS } from '@/api/endpoints';
 import api from '@/api/axiosInstance';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type ResultServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Result service for handling result operations
@@ -57,46 +53,8 @@ export class ResultService {
     }
   }
 
-  private handleResultError(error: unknown): ResultServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const resultError: ResultServiceError = new Error(message);
-      resultError.status = status;
-      resultError.response = error.response;
-
-      switch (status) {
-        case 400:
-          resultError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          resultError.message = 'Authentication required';
-          break;
-        case 403:
-          resultError.message = 'Insufficient permissions to view quiz results';
-          break;
-        case 404:
-          resultError.message = 'Quiz results not found';
-          break;
-        case 429:
-          resultError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          resultError.message = 'Server error occurred while loading quiz results';
-          break;
-        default:
-          resultError.message = message || 'Failed to load quiz results';
-      }
-
-      return resultError;
-    }
-
-    return new Error(
-      error instanceof Error ? error.message : 'Network error occurred',
-    );
+  private handleResultError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

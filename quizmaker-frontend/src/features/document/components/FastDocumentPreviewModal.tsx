@@ -112,7 +112,7 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
         await loadTextFile();
       }
     } catch (err: any) {
-      console.error('Error loading document:', err);
+
       addToast({ type: 'error', message: err.message || 'Failed to load document' });
       await loadTextFile();
     } finally {

@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosInstance } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { decodeCheckoutStatus } from './checkoutStatus';
 import { BILLING_ENDPOINTS } from './billing.endpoints';
 import type {
@@ -20,7 +20,7 @@ import type {
   TokenTransactionSource,
   TokenTransactionType,
 } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 const DEFAULT_BILLING_CONFIG_MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -29,7 +29,6 @@ type BillingConfigCacheEntry = {
   fetchedAt: number;
 };
 
-type BillingError = Error & { status?: number };
 
 export class BillingService {
   private axiosInstance: AxiosInstance;
@@ -294,40 +293,8 @@ export class BillingService {
   /**
    * Handle billing-specific errors
    */
-  private handleBillingError(error: unknown): BillingError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const buildError = (msg: string): BillingError => {
-        const err: BillingError = new Error(msg);
-        if (status) {
-          err.status = status;
-        }
-        return err;
-      };
-
-      switch (status) {
-        case 400:
-          return buildError(`Validation error: ${message}`);
-        case 401:
-          return buildError('Authentication failed');
-        case 403:
-          return buildError('Insufficient permissions to access this resource');
-        case 404:
-          return buildError('Billing feature is not available');
-        case 429:
-          return buildError('Too many requests. Please try again later.');
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return buildError('Server error occurred');
-        default:
-          return buildError(message || 'Billing operation failed');
-      }
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleBillingError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

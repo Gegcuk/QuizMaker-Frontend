@@ -1,5 +1,6 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/api/quiz-group.service.ts
-import { isAxiosError, type AxiosInstance, type AxiosResponse } from 'axios';
+import { type AxiosInstance } from 'axios';
 import { QUIZ_ENDPOINTS } from '../../../api/endpoints';
 import type {
   QuizGroupDto,
@@ -12,12 +13,8 @@ import type {
 } from '../types/quiz.types';
 import { BaseService } from '../../../api/base.service';
 import { Paginated } from '@/types';
-import { getErrorMessage } from '@/utils/errorUtils';
+import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
-type QuizGroupServiceError = Error & {
-  status?: number;
-  response?: AxiosResponse;
-};
 
 /**
  * Quiz Group service for handling quiz group operations
@@ -102,12 +99,12 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
         groupId = String(responseData.id);
       }
       else {
-        throw new Error(`Invalid response format from createQuizGroup API. Expected string or object with groupId/id, got: ${JSON.stringify(responseData)}`);
+        throw new Error('Invalid quiz group response');
       }
       
       // Validate that we got a valid ID
       if (!groupId || groupId.trim() === '' || groupId === 'undefined' || groupId === 'null') {
-        throw new Error(`Invalid group ID returned from API: ${groupId}`);
+        throw new Error('Invalid quiz group response');
       }
       
       return groupId;
@@ -252,7 +249,8 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
       const quizzes = await this.getQuizzesInGroup(groupId, { size: 1000 });
       return quizzes.content.some(q => q.id === quizId);
     } catch (error) {
-      console.error('Error checking quiz group membership:', error);
+      diagnostics.report(error, 'application');
+
       return false;
     }
   }
@@ -272,7 +270,8 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
         group.quizPreviews?.some(q => q.id === quizId)
       );
     } catch (error) {
-      console.error('Error getting groups for quiz:', error);
+      diagnostics.report(error, 'application');
+
       return [];
     }
   }
@@ -280,47 +279,8 @@ export class QuizGroupService extends BaseService<QuizGroupDto> {
   /**
    * Handle quiz group specific errors
    */
-  private handleQuizGroupError(error: unknown): QuizGroupServiceError {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-      const message = getErrorMessage(error);
-      const enhancedError: QuizGroupServiceError = new Error(message);
-      enhancedError.status = status;
-      enhancedError.response = error.response;
-
-      switch (status) {
-        case 400:
-          enhancedError.message = `Validation error: ${message}`;
-          break;
-        case 401:
-          enhancedError.message = 'Authentication required';
-          break;
-        case 403:
-          enhancedError.message = 'Insufficient permissions';
-          break;
-        case 404:
-          enhancedError.message = 'Quiz group not found';
-          break;
-        case 409:
-          enhancedError.message = `Conflict: ${message}`;
-          break;
-        case 429:
-          enhancedError.message = 'Too many requests. Please try again later.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          enhancedError.message = 'Server error occurred';
-          break;
-        default:
-          enhancedError.message = message || 'Quiz group operation failed';
-      }
-      
-      return enhancedError;
-    }
-
-    return new Error(error instanceof Error ? error.message : 'Network error occurred');
+  private handleQuizGroupError(error: unknown): ApplicationError {
+    return toApplicationError(error);
   }
 }
 

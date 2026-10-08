@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/attempt/AttemptStart.tsx
 // ---------------------------------------------------------------------------
 // Component for starting a new quiz attempt
@@ -49,7 +50,8 @@ const AttemptStart: React.FC<AttemptStartProps> = ({
           setSelectedMode('ONE_BY_ONE');
         }
       } catch (error) {
-        console.warn('Could not load quiz details:', error);
+        diagnostics.report(error, 'application');
+
         // Continue with default mode
       } finally {
         setIsLoadingQuiz(false);

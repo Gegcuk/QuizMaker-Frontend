@@ -1,3 +1,5 @@
+import { toApplicationError } from '@/utils/applicationError';
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/quiz/components/QuizCreationWizard.tsx
 // ---------------------------------------------------------------------------
 // Multi-step wizard for quiz creation with the following flow:
@@ -22,7 +24,6 @@ import { QuizAIGenerationStep } from './QuizAIGenerationStep';
 import { QuizGenerationStatus as QuizGenerationStatusComponent } from './QuizGenerationStatus';
 import { QuizWizardDraft } from '@/features/quiz/types/quizWizard.types';
 import { useUnsavedChanges, useUnsavedChangesController } from '@/features/navigation/useUnsavedChanges';
-import type { AxiosError } from 'axios';
 
 export type CreationMethod = 'manual' | 'text' | 'document';
 
@@ -254,58 +255,23 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
         setCurrentStep(3);
       }
-    } catch (error: any) {
-      // Check if this is an insufficient balance error (enhanced by quiz service)
-      const axiosError = error as AxiosError<any>;
-      const status = axiosError.response?.status || error.status;
-      const responseData = axiosError.response?.data || error.data || {};
-      
-      // Support RFC 7807 Problem Details format (detail, title) and standard format (message)
-      const errorMessage = error.userMessage || 
-                          responseData.detail || 
-                          responseData.title || 
-                          responseData.message || 
-                          error.message || 
-                          'Failed to create quiz';
-      
-      console.log('🔴 Quiz creation error - isBalanceError:', error.isBalanceError);
-      console.log('🔴 Error message:', errorMessage);
-      console.log('🔴 Response data:', responseData);
-
-      // Check for insufficient balance - either via enhanced flag from service
-      const isBalanceError = error.isBalanceError || error.code === 'INSUFFICIENT_BALANCE';
-
-      if (isBalanceError) {
-        console.log('✅ Showing insufficient balance modal');
-        
-        // Try to extract token counts from the detail message
-        // Format: "required=6, available=0"
-        let requiredTokens: number | undefined;
-        let currentBalance: number | undefined;
-        
-        const detail = responseData.detail || '';
-        const requiredMatch = detail.match(/required[=:]?\s*(\d+)/i);
-        const availableMatch = detail.match(/available[=:]?\s*(\d+)/i);
-        
-        if (requiredMatch) requiredTokens = parseInt(requiredMatch[1]);
-        if (availableMatch) currentBalance = parseInt(availableMatch[1]);
-        
-        // Also check if backend provides them directly
-        requiredTokens = requiredTokens || responseData.requiredTokens || responseData.required;
-        currentBalance = currentBalance || responseData.currentBalance || responseData.available;
-        
-        console.log('📊 Token data - required:', requiredTokens, 'available:', currentBalance);
-        
-        setBalanceErrorData({
-          message: errorMessage,
-          requiredTokens,
-          currentBalance
-        });
+    } catch (error: unknown) {
+      const safe = toApplicationError(error, { balanceConflict: true });
+      const errorMessage = getErrorMessage(safe);
+      if (safe.code === 'INSUFFICIENT_BALANCE') {
+        setBalanceErrorData({ message: errorMessage, ...safe.balance });
         setShowInsufficientBalanceModal(true);
       } else {
-        // Handle other errors normally
-        console.log('⚠️ Showing generic error');
-        setErrors({ general: errorMessage });
+        const fields = Object.fromEntries(Object.entries(safe.fieldErrors ?? {}).map(([field, messages]) => [field, messages[0]]));
+        // Generation DTO names differ from the title/description controls in this form.
+        if (creationMethod !== 'manual') {
+          if (fields.quizTitle) fields.title = fields.quizTitle;
+          if (fields.quizDescription) fields.description = fields.quizDescription;
+        }
+        setErrors({
+          ...fields,
+          general: errorMessage,
+        });
         addToast({ type: 'error', message: errorMessage });
       }
     } finally {

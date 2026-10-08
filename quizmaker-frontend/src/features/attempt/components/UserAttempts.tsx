@@ -1,3 +1,4 @@
+import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/attempt/UserAttempts.tsx
 // ---------------------------------------------------------------------------
 // Component to display user's attempts that can be resumed
@@ -74,7 +75,8 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
                 currentQuestion
               };
             } catch (error) {
-              console.warn(`Could not fetch data for attempt ${attempt.attemptId}:`, error);
+              diagnostics.report(error, 'application');
+
               return {
                 ...attempt,
                 stats: undefined,
@@ -87,7 +89,8 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
 
         setAttempts(attemptsWithStats);
       } catch (error) {
-        console.error('Failed to load attempts:', error);
+        diagnostics.report(error, 'application');
+
         setError('Failed to load your attempts. Please try again.');
       } finally {
         setIsLoading(false);
@@ -108,24 +111,22 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
     setResumingAttempt(attempt.attemptId);
     
     try {
-      console.log(`Resuming attempt ${attempt.attemptId} with status: ${attempt.status}`);
+
       
       if (attempt.status === 'PAUSED') {
         // Resume the paused attempt first
-        console.log('Attempt is paused, calling resume API...');
+
         await attemptService.resumeAttempt(attempt.attemptId);
-        console.log('Attempt resumed successfully');
-      } else {
-        console.log('Attempt is in progress, navigating directly...');
       }
-      
+
       // For both PAUSED and IN_PROGRESS, navigate to the quiz attempt page
       // Pass the attempt ID as a query parameter so the quiz page can resume properly
       const navigateUrl = `/quizzes/${attempt.quizId}/attempt?attemptId=${attempt.attemptId}`;
-      console.log(`Navigating to: ${navigateUrl}`);
+
       navigate(navigateUrl);
     } catch (error) {
-      console.error('Failed to resume attempt:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to resume attempt. Please try again.');
     } finally {
       setResumingAttempt(null);
@@ -145,7 +146,8 @@ const UserAttempts: React.FC<UserAttemptsProps> = ({ className = '', onAttemptsL
       await attemptService.deleteAttempt(attemptToDelete.attemptId);
       setAttempts(attempts.filter(attempt => attempt.attemptId !== attemptToDelete.attemptId));
     } catch (error) {
-      console.error('Failed to delete attempt:', error);
+      diagnostics.report(error, 'application');
+
       alert('Failed to delete attempt. Please try again.');
     } finally {
       setDeletingAttempt(null);

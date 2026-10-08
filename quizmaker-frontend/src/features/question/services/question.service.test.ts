@@ -162,20 +162,20 @@ describe('QuestionService', () => {
     expect(axios.get).toHaveBeenNthCalledWith(2, '/v1/questions/schemas/FILL_GAP');
   });
 
-  it('preserves live ProblemDetail detail text for validation failures', async () => {
+  it('provides safe validation recovery guidance', async () => {
     axios.post.mockRejectedValue(
       problemError(400, 'Options array should contain the required distractors.'),
     );
 
     await expect(service.createQuestion(createRequest)).rejects.toThrow(
-      'Validation error: Options array should contain the required distractors.',
+      'Validation error',
     );
   });
 
   it.each([
     [401, 'Authentication required'],
     [403, 'Insufficient permissions'],
-    [404, 'Question not found'],
+    [404, 'not found'],
     [500, 'Server error occurred'],
   ])('normalizes HTTP %i failures', async (status, expectedMessage) => {
     axios.get.mockRejectedValue(problemError(status, 'Backend detail'));
@@ -183,9 +183,9 @@ describe('QuestionService', () => {
     await expect(service.getQuestionById('question-1')).rejects.toThrow(expectedMessage);
   });
 
-  it('preserves network failure context', async () => {
+  it('does not expose arbitrary network-like error text', async () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
-    await expect(service.getAllSchemas()).rejects.toThrow('Network unavailable');
+    await expect(service.getAllSchemas()).rejects.toMatchObject({ category: 'unexpected' });
   });
 });

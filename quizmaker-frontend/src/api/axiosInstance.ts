@@ -24,7 +24,8 @@ import {
   getAccessToken,
   getRefreshToken,
 } from '../utils/tokenUtils';
-import { getSafeRequestTarget } from './requestDiagnostics';
+import { toApplicationError } from '@/utils/applicationError';
+import { diagnostics } from '@/features/diagnostics/reporter';
 import {
   assertCurrentSessionGeneration,
   getSessionGeneration,
@@ -74,8 +75,6 @@ const api = axios.create({
   }
 });
 
-// Development diagnostics intentionally omit headers and bodies because they can contain credentials.
-const isDevelopment = import.meta.env.DEV;
 
 /* ------------------------------------------------------------------------ */
 /* 2. Types                                                                 */
@@ -165,14 +164,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     } as any;
   }
 
-  // Request logging in development
-  if (isDevelopment) {
-    console.group(
-      `🚀 API Request: ${enhancedConfig.method?.toUpperCase()} ${getSafeRequestTarget(enhancedConfig.url)}`,
-    );
-    console.log('Timeout:', enhancedConfig.timeout);
-    console.groupEnd();
-  }
 
   return enhancedConfig;
 });
@@ -281,56 +272,46 @@ api.interceptors.response.use(
     releaseSessionRequest(config);
     assertCurrentSessionGeneration(config._sessionGeneration ?? getSessionGeneration());
 
-    // Response logging in development
-    if (isDevelopment) {
-      console.group(
-        `✅ API Response: ${response.config.method?.toUpperCase()} ${getSafeRequestTarget(response.config.url)}`,
-      );
-      console.log('Status:', response.status);
-      console.groupEnd();
-    }
     return response;
   },
 
   async (error: AxiosError) => {
-    // Error logging in development
-    if (isDevelopment) {
-      console.group(
-        `❌ API Error: ${error.config?.method?.toUpperCase()} ${getSafeRequestTarget(error.config?.url)}`,
-      );
-      console.log('Status:', error.response?.status);
-      console.groupEnd();
-    }
-    const original = error.config as RetryConfig | undefined;
-    releaseSessionRequest(original);
+    try {
+      const original = error.config as RetryConfig | undefined;
+      releaseSessionRequest(original);
 
-    const requestGeneration = original?._sessionGeneration ?? getSessionGeneration();
-    if (!isCurrentSessionGeneration(requestGeneration)) {
-      return Promise.reject(new SessionChangedError());
-    }
-
-    if (error.response?.status !== 401 || !original || !isRefreshableRequest(original.url)) {
-      return Promise.reject(error);
-    }
-
-    if (original._retry) {
-      terminateSession('forced-logout');
-      return Promise.reject(error);
-    }
-
-    if (!getRefreshToken()) {
-      if (getAccessToken() || original.headers?.get?.('Authorization')) {
-        terminateSession('forced-logout');
+      const requestGeneration = original?._sessionGeneration ?? getSessionGeneration();
+      if (!isCurrentSessionGeneration(requestGeneration)) {
+        return Promise.reject(new SessionChangedError());
       }
-      return Promise.reject(error);
+
+      if (error.response?.status !== 401 || !original || !isRefreshableRequest(original.url)) {
+        throw error;
+      }
+
+      if (original._retry) {
+        terminateSession('forced-logout');
+        throw error;
+      }
+
+      if (!getRefreshToken()) {
+        if (getAccessToken() || original.headers?.get?.('Authorization')) {
+          terminateSession('forced-logout');
+        }
+        throw error;
+      }
+
+      original._retry = true;
+      const newAccessToken = await getRefreshFlight(requestGeneration);
+      assertCurrentSessionGeneration(requestGeneration);
+
+      original.headers.set('Authorization', `Bearer ${newAccessToken}`);
+      return api(original);
+    } catch (failure) {
+      const safe = toApplicationError(failure, { balanceConflict: error.config?.url?.startsWith('/v1/quizzes/') });
+      diagnostics.report(safe, 'request');
+      throw safe;
     }
-
-    original._retry = true;
-    const newAccessToken = await getRefreshFlight(requestGeneration);
-    assertCurrentSessionGeneration(requestGeneration);
-
-    original.headers.set('Authorization', `Bearer ${newAccessToken}`);
-    return api(original);
   },
 );
 
@@ -392,39 +373,8 @@ export const createLongRunningRequest = (
 };
 
 /** Enhanced error handler with detailed error information */
-export const handleApiError = (error: AxiosError): never => {
-  if (error.response) {
-    // Server responded with error status
-    const status = error.response.status;
-    const data = error.response.data as any;
-    
-    switch (status) {
-      case 400:
-        throw new Error(data?.message || 'Bad request');
-      case 401:
-        throw new Error('Authentication required');
-      case 403:
-        throw new Error('Access denied');
-      case 404:
-        throw new Error('Resource not found');
-      case 409:
-        throw new Error(data?.message || 'Conflict occurred');
-      case 422:
-        throw new Error(data?.message || 'Validation failed');
-      case 429:
-        throw new Error('Too many requests. Please try again later.');
-      case 500:
-        throw new Error('Internal server error');
-      default:
-        throw new Error(data?.message || `HTTP ${status} error`);
-    }
-  } else if (error.request) {
-    // Network error
-    throw new Error('Network error. Please check your connection.');
-  } else {
-    // Other error
-    throw new Error(error.message || 'An unexpected error occurred');
-  }
+export const handleApiError = (error: unknown): never => {
+  throw toApplicationError(error);
 };
 
 /**

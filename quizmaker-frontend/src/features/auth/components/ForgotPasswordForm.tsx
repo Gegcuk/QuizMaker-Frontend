@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/ForgotPasswordForm.tsx
 // ---------------------------------------------------------------------------
 // Password recovery form component for requesting password reset
@@ -89,9 +90,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; error?: string }>;
       const errorMessage = 
-        axiosError.response?.data?.message || 
-        axiosError.response?.data?.error || 
-        'Failed to send password reset email. Please try again.';
+        getErrorMessage(axiosError) || 'Failed to send password reset email. Please try again.';
       
       setErrors({ general: errorMessage });
       
