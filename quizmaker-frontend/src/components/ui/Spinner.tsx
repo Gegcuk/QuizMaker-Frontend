@@ -3,9 +3,10 @@ import React from 'react';
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  inheritColor?: boolean;
 }
 
-const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className = '' }) => {
+const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className = '', inheritColor = false }) => {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
@@ -15,7 +16,7 @@ const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className = '' }) => {
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div
-        className={`${sizeClasses[size]} border-2 border-theme-border-primary border-t-theme-interactive-primary rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-2 ${inheritColor ? 'border-transparent border-t-current' : 'border-theme-border-primary border-t-theme-interactive-primary'} rounded-full animate-spin`}
         role="status"
         aria-label="Loading"
       />

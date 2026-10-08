@@ -45,6 +45,7 @@ interface ChosenPair {
 }
 
 interface PairStyle {
+  textColor: string;
   borderColor: string;
   bgColor: string;
   badgeColor: string;
@@ -63,24 +64,28 @@ interface MatchingAnswerProps {
 
 const PAIR_STYLES: PairStyle[] = [
   {
+    textColor: 'text-theme-matching-pair-1-foreground',
     borderColor: 'border-theme-matching-pair-1-border',
     bgColor: 'bg-theme-matching-pair-1-bg',
-    badgeColor: 'bg-theme-matching-pair-1-badge text-theme-text-inverse',
+    badgeColor: 'bg-theme-matching-pair-1-badge text-theme-matching-pair-1-badge-foreground',
   },
   {
+    textColor: 'text-theme-matching-pair-2-foreground',
     borderColor: 'border-theme-matching-pair-2-border',
     bgColor: 'bg-theme-matching-pair-2-bg',
-    badgeColor: 'bg-theme-matching-pair-2-badge text-theme-text-inverse',
+    badgeColor: 'bg-theme-matching-pair-2-badge text-theme-matching-pair-2-badge-foreground',
   },
   {
+    textColor: 'text-theme-matching-pair-3-foreground',
     borderColor: 'border-theme-matching-pair-3-border',
     bgColor: 'bg-theme-matching-pair-3-bg',
-    badgeColor: 'bg-theme-matching-pair-3-badge text-theme-text-inverse',
+    badgeColor: 'bg-theme-matching-pair-3-badge text-theme-matching-pair-3-badge-foreground',
   },
   {
+    textColor: 'text-theme-matching-pair-4-foreground',
     borderColor: 'border-theme-matching-pair-4-border',
     bgColor: 'bg-theme-matching-pair-4-bg',
-    badgeColor: 'bg-theme-matching-pair-4-badge text-theme-text-inverse',
+    badgeColor: 'bg-theme-matching-pair-4-badge text-theme-matching-pair-4-badge-foreground',
   },
 ];
 
@@ -384,7 +389,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     const mediaUrl = getMediaUrl(item.media);
     const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
 
-    let borderColor = 'border-theme-border-primary';
+    let textColor = 'text-theme-text-primary';
+    let borderColor = 'border-theme-border-control';
     let bgColor = 'bg-theme-bg-primary';
     let badgeColor = 'bg-theme-bg-tertiary text-theme-text-secondary';
 
@@ -392,25 +398,26 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
       if (matchIsCorrect) {
         borderColor = 'border-theme-interactive-success';
         bgColor = 'bg-theme-bg-success';
-        badgeColor = 'bg-theme-interactive-success text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-success-default-fill text-theme-control-success-default-foreground';
       } else if (isMatched) {
         borderColor = 'border-theme-interactive-danger';
         bgColor = 'bg-theme-bg-danger';
-        badgeColor = 'bg-theme-interactive-danger text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-danger-default-fill text-theme-control-danger-default-foreground';
       } else if (isCorrect === false && correctRightId !== null) {
         borderColor = 'border-theme-interactive-success';
         bgColor = 'bg-theme-bg-success';
-        badgeColor = 'bg-theme-interactive-success text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-success-default-fill text-theme-control-success-default-foreground';
       }
     } else if (pairIndex !== null) {
       const pairStyle = getPairStyle(pairIndex);
+      textColor = pairStyle.textColor;
       borderColor = pairStyle.borderColor;
       bgColor = pairStyle.bgColor;
       badgeColor = pairStyle.badgeColor;
     } else if (isSelected) {
       borderColor = 'border-theme-interactive-primary';
       bgColor = 'bg-theme-bg-tertiary';
-      badgeColor = 'bg-theme-interactive-primary text-theme-text-inverse';
+      badgeColor = 'bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground';
     }
 
     return (
@@ -423,8 +430,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         onClick={() => handleLeftItemClick(item.id)}
         disabled={disabled}
         title={isMatched && !disabled ? 'Click to remove this match' : undefined}
-        className={`w-full p-3 text-left border-2 rounded-lg transition-colors ${
-          disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
+        className={`w-full p-3 text-left border-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary ${
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer'
         } ${borderColor} ${bgColor} ${!isSelected && !isMatched && !showFeedback ? 'hover:bg-theme-bg-secondary' : ''}`}
       >
         <div className="flex items-center justify-between gap-3">
@@ -432,7 +439,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
             <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${badgeColor}`}>
               {getLeftNumber(item.id)}
             </span>
-            <div className="min-w-0 space-y-2 text-sm text-theme-text-primary">
+            <div className={`min-w-0 space-y-2 text-sm ${textColor}`}>
               {mediaUrl && (
                 <img
                   src={mediaUrl}
@@ -441,7 +448,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                 />
               )}
               {!mediaUrl && isMediaMissing && !item.text?.trim() && (
-                <div className="text-theme-text-tertiary">Image unavailable.</div>
+                <div className={textColor}>Image unavailable.</div>
               )}
               <div>{item.text || (mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : `Left item ${getLeftNumber(item.id)}`)}</div>
             </div>
@@ -470,7 +477,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
     const mediaUrl = getMediaUrl(item.media);
     const isMediaMissing = !!(item.media?.assetId && !mediaUrl);
 
-    let borderColor = 'border-theme-border-primary';
+    let textColor = 'text-theme-text-primary';
+    let borderColor = 'border-theme-border-control';
     let bgColor = selectedLeft !== null ? 'bg-theme-bg-primary' : 'bg-theme-bg-secondary';
     let badgeColor = 'bg-theme-bg-tertiary text-theme-text-secondary';
 
@@ -478,18 +486,19 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
       if (matchIsCorrect) {
         borderColor = 'border-theme-interactive-success';
         bgColor = 'bg-theme-bg-success';
-        badgeColor = 'bg-theme-interactive-success text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-success-default-fill text-theme-control-success-default-foreground';
       } else if (isMatched) {
         borderColor = 'border-theme-interactive-danger';
         bgColor = 'bg-theme-bg-danger';
-        badgeColor = 'bg-theme-interactive-danger text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-danger-default-fill text-theme-control-danger-default-foreground';
       } else if (isCorrect === false && correctRightItem) {
         borderColor = 'border-theme-interactive-success';
         bgColor = 'bg-theme-bg-success';
-        badgeColor = 'bg-theme-interactive-success text-theme-text-inverse';
+        badgeColor = 'bg-theme-control-success-default-fill text-theme-control-success-default-foreground';
       }
     } else if (pairIndex !== null) {
       const pairStyle = getPairStyle(pairIndex);
+      textColor = pairStyle.textColor;
       borderColor = pairStyle.borderColor;
       bgColor = pairStyle.bgColor;
       badgeColor = pairStyle.badgeColor;
@@ -505,8 +514,8 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
         onClick={() => handleRightItemClick(item.id)}
         disabled={disabled || (!showFeedback && selectedLeft === null && !isMatched)}
         title={isMatched && !disabled ? 'Click to remove this match' : undefined}
-        className={`w-full p-3 text-left border-2 rounded-lg transition-colors ${
-          disabled || (!showFeedback && selectedLeft === null && !isMatched) ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
+        className={`w-full p-3 text-left border-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-theme-bg-primary ${
+          disabled || (!showFeedback && selectedLeft === null && !isMatched) ? 'cursor-not-allowed' : 'cursor-pointer'
         } ${borderColor} ${bgColor} ${!isMatched && selectedLeft !== null && !showFeedback ? 'hover:bg-theme-bg-secondary' : ''}`}
       >
         <div className="flex items-center justify-between gap-3">
@@ -514,7 +523,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
             <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${badgeColor}`}>
               {getRightOptionLabel(item.id)}
             </span>
-            <div className="min-w-0 space-y-2 text-sm text-theme-text-primary">
+            <div className={`min-w-0 space-y-2 text-sm ${textColor}`}>
               {mediaUrl && (
                 <img
                   src={mediaUrl}
@@ -523,7 +532,7 @@ export const MatchingAnswer: React.FC<MatchingAnswerProps> = ({
                 />
               )}
               {!mediaUrl && isMediaMissing && !item.text?.trim() && (
-                <div className="text-theme-text-tertiary">Image unavailable.</div>
+                <div className={textColor}>Image unavailable.</div>
               )}
               <div>{item.text || (mediaUrl ? 'Image item' : isMediaMissing ? 'Image unavailable' : `Option ${getRightOptionLabel(item.id)}`)}</div>
             </div>

@@ -14,6 +14,21 @@ export default {
   theme: {
     extend: {
       colors: {
+        ...Object.fromEntries(
+          ['primary', 'secondary', 'success', 'danger', 'warning', 'info'].flatMap(tone =>
+            ['default', 'hover', 'disabled'].flatMap(state => ['fill', 'foreground'].map(role => [
+              `theme-control-${tone}-${state}-${role}`, `var(--color-control-${tone}-${state}-${role})`,
+            ])),
+          ),
+        ),
+        'theme-disabled-fill': 'var(--color-disabled-fill)',
+        'theme-disabled-foreground': 'var(--color-disabled-foreground)',
+        'theme-tooltip-fill': 'var(--color-tooltip-fill)',
+        'theme-tooltip-foreground': 'var(--color-tooltip-foreground)',
+        ...Object.fromEntries([1, 2, 3, 4].flatMap(pair => [
+          [`theme-matching-pair-${pair}-foreground`, `var(--color-matching-pair-${pair}-foreground)`],
+          [`theme-matching-pair-${pair}-badge-foreground`, `var(--color-matching-pair-${pair}-badge-foreground)`],
+        ])),
         // CSS Custom Properties for dynamic theming
         'theme-bg-primary': 'var(--color-bg-primary)',
         'theme-bg-secondary': 'var(--color-bg-secondary)',
@@ -22,6 +37,7 @@ export default {
         'theme-text-secondary': 'var(--color-text-secondary)',
         'theme-text-tertiary': 'var(--color-text-tertiary)',
         'theme-text-inverse': 'var(--color-text-inverse)',
+        'theme-border-control': 'var(--color-border-control)',
         'theme-border-primary': 'var(--color-border-primary)',
         'theme-border-secondary': 'var(--color-border-secondary)',
         'theme-border-focus': 'var(--color-border-focus)',

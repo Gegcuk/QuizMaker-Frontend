@@ -23,6 +23,7 @@ The theme system provides:
    - Handles theme persistence in localStorage
    - Manages system theme detection
    - Applies CSS custom properties to document root
+   - Shares resolution with the synchronous, CSP-hashed startup script
 
 2. **ColorPalettes** (`src/context/ColorPalettes.ts`)
    - Defines all available color schemes
@@ -169,25 +170,16 @@ function LegacyCard() {
 4. **Royal Purple** - Rich purple theme (your RGB colors)
 5. **Forest Green** - Natural green theme with earthy tones
 
-### Theme Types
-- `'light'`: Always use light theme
-- `'dark'`: Always use dark theme  
-- `'auto'`: Follow system preference
+### Preference precedence
 
-### Color Scheme
-The `colorScheme` determines which color palette to use:
-- `'light'` - Light color scheme
-- `'dark'` - Dark color scheme
-- `'blue'` - Ocean Blue color scheme
-- `'purple'` - Royal Purple color scheme
-- `'green'` - Forest Green color scheme
+- Light and Dark mode select the built-in Light and Dark palettes.
+- Auto mode selects the built-in palette matching the operating system and follows later system changes.
+- Ocean Blue and Forest Green have a fixed light appearance. Royal Purple has a fixed dark appearance. These named palettes override the remembered mode while selected.
+- Selecting Light or Dark in the palette picker also sets that explicit mode.
+- While a named palette is active, the mode selector displays its palette name, so choosing any mode can leave it even if that mode was previously remembered. Choosing a mode, or using the quick toggle, leaves a named palette and selects a built-in palette. The toggle chooses the opposite of the currently rendered appearance.
+- `colorScheme` and `currentPalette` describe the actual displayed palette; `resolvedTheme` describes its light or dark appearance. The root `dark` class and native browser control `color-scheme` always agree with that appearance.
 
-### Resolved Theme
-The `resolvedTheme` is always either `'light'` or `'dark'` - it's the actual theme being applied.
-
-For example:
-- If `theme` is `'auto'` and system is dark → `resolvedTheme` is `'dark'`
-- If `theme` is `'light'` → `resolvedTheme` is `'light'`
+For example, saved Dark mode plus Ocean Blue displays Ocean Blue with light browser controls. Choosing Dark mode then displays the built-in Dark palette. Auto plus a neutral palette follows system changes; Auto plus Royal Purple remains purple.
 
 ## Implementation Details
 
@@ -220,12 +212,31 @@ Each color scheme defines CSS custom properties:
 }
 ```
 
-### Storage
-- Theme preference: `localStorage.getItem('quizmaker-theme')`
-- Color scheme preference: `localStorage.getItem('quizmaker-color-scheme')`
+### Storage and pre-paint startup
 
-### System Theme Detection
-Uses `window.matchMedia('(prefers-color-scheme: dark)')` to detect system preference.
+The existing keys remain `quizmaker-theme` and `quizmaker-color-scheme`. Values are validated independently against supported modes and palette IDs; malformed values fall back to Auto and Light (or validated provider defaults). Storage access, reads, and writes may throw. Every operation is guarded, and a failed write leaves the current React preference usable in memory. No theme failure is logged with saved values or URL data.
+
+`src/context/themeRuntime.ts` owns preference validation, appearance resolution, variable application, and safe persistence. Vite embeds that same self-contained resolver synchronously in the head, after the encoding and theme-color metadata and before body content. The security-header generator includes a hash of the final executable bytes; it does not add script `unsafe-inline`, evaluation, reporting collectors, or callback data. Prerendered content therefore receives the saved/system appearance before it can paint. React synchronizes subsequent changes in a layout effect.
+
+Missing or throwing media detection falls back to light. The provider subscribes to system changes and cleans up its listener; named palettes remain pinned. The stylesheet is linked directly from the HTML head, so complete light CSS defaults keep every semantic variable available even if JavaScript cannot run.
+
+### Explicit semantic pairs
+
+`colors.controls` defines each filled control's default, hover, and opaque disabled `fill`/`foreground`; focus keeps that text pair and uses the separate focus ring. `colors.disabled` supplies an opaque disabled pair. Disabled chips and choice controls keep readable opaque colors. Unavailable buttons instead restore the appearance from main before #202: `colors.disabledButton` explicitly supplies those historical fill/foreground colors, the whole button uses 50% opacity, and filled buttons keep transparent borders. Outline and ghost buttons retain their original transparent fills and primary-colored text; only outline has a colored border. Header secondary actions retain their historical surface/text pair in `colors.disabledHeaderSecondary`. This applies to native disabled, loading, and validation-blocked actions. Native blocking and keyboard-reachable validation guidance remain unchanged; guidance itself stays opaque. Forced colors override fading with system colors. Status text/background pairs, matching card and badge foregrounds, and an opaque tooltip pair remain explicit. Enabled controls must not infer a foreground from `text.inverse`.
+
+Use `bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground`, together with its matching hover tokens, for a primary filled control. Use the shared `Button` for button actions. Selected `Chip` variants use these same authored control pairs, including hover. Their `aria-pressed` state exposes selection without relying on color. Existing interactive colors remain available for readable links, icons, and outlines; they are separate from button fills. Each matching pair has `foreground` and `badgeForeground` tokens.
+
+Enabled normal text, opaque disabled chips/choices, and validation guidance must meet 4.5:1. Unavailable buttons retain historical colors and 50% opacity and are exempt from the text/boundary contrast thresholds used for enabled actions. Large text can use 3:1 only at 24 CSS px, or at least 18.667 CSS px with font weight 700 or greater. Required control boundaries and focus indicators meet 3:1. Inputs and choice controls use `border.control`, while decorative card borders keep their separate subtle tokens. Radio dots and checkbox marks use the explicit primary fill/foreground pair; forced colors restore native rendering. Forced colors use operating-system colors with visible borders, focus outlines, and non-color selection states. Reduced motion suppresses animations, transitions, and smooth scrolling; loading/status semantics remain available.
+
+### Acceptance verification
+
+- `ColorPalettes.test.ts`: every palette's surface, interactive default/hover, disabled, focus, status, matching card/badge, and tooltip contrast.
+- `themeRuntime.test.ts` and `ThemeContext.test.tsx`: validated preferences, denied storage getters/readers/writers, in-memory updates, precedence, missing media APIs, system changes, and subscription cleanup. `tokenUtils.test.ts` covers the existing authentication fallback when a successful write probe is followed by a denied read.
+- `OverlaysThemes.test.tsx` and matching component tests: retained accessible interactions and paired foreground consumers.
+- `tests/smoke.test.mjs`: rendered default/hover/focus controls, exact historical unavailable button colors and 50% opacity (including loading, validation guidance, header actions and Submit Answer), every interactive Chip variant and selection state, and homepage contrast across all palettes, desktop/mobile/320 CSS px reflow, 200% text resizing, forced colors, reduced motion, bootstrap resolution with application modules blocked, storage failures, and startup CSS fallbacks. The 320 CSS px viewport represents the layout reflow of a 1280px desktop at 400% browser zoom; it does not simulate a browser's toolbar zoom control.
+- The theme-demo matrix selects palettes through the actual radio controls. Final state colors are measured under the real reduced-motion preference; default/hover contrast with normal animated motion is checked separately for every palette and Button/Chip variant. Homepage reloads and the standalone bootstrap scenarios retain startup coverage. Focus-ring contrast is measured once per palette/viewport, with visible focus still checked on each control.
+- `tests/deployment/browser-smoke-lifecycle.test.mjs`: an intentionally timed-out test still fails, cleanup finishes before the next test reuses the same server port, cleanup runs once, and cleanup errors remain visible. Smoke tests register cancellation cleanup and an awaited runner after hook in addition to `finally`.
+- `tests/seo/theme-startup.test.mjs`: delivered standalone bootstrap, early encoding, exact CSP hash, complete fallback variables, and callback-cleanup ordering. Existing SEO and production privacy gates verify prerender and callback behavior.
 
 ## Component Updates
 

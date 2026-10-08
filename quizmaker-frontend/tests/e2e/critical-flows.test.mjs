@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
+import { originalDisabledButtonColors } from '../fixtures/disabled-button-colors.mjs';
 import { launchBrowser } from '../../scripts/browser/launch-browser.mjs';
 import { createTestContext } from '../fixtures/browser-context.mjs';
 
@@ -1142,9 +1143,23 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           page,
           `/quizzes/${QUIZ_ID}/attempt?attemptId=${MCQ_MULTI_ATTEMPT_ID}`,
         );
+        const submit = page.getByRole('button', { name: 'Submit Answer' });
+        assert.equal(await submit.isDisabled(), true, 'An unanswered question must remain blocked');
+        const inactive = await submit.evaluate(element => {
+          const style = getComputedStyle(element);
+          return { fill: style.backgroundColor, foreground: style.color, border: style.borderColor, opacity: style.opacity, palette: [...document.documentElement.classList].find(name => name.startsWith('theme-'))?.slice(6) };
+        });
+        const rgb = hex => `rgb(${hex.slice(1).match(/../g).map(channel => Number.parseInt(channel, 16)).join(', ')})`;
+        const expected = originalDisabledButtonColors[inactive.palette];
+        assert.ok(expected, 'The attempt uses a supported theme');
+        assert.equal(inactive.fill, rgb(expected.fills.primary), 'Submit Answer restores its original fill');
+        assert.equal(inactive.foreground, rgb(expected.foreground), 'Submit Answer restores its original text color');
+        assert.equal(inactive.border, 'rgba(0, 0, 0, 0)', 'No added dark border');
+        assert.equal(inactive.opacity, '0.5', 'Submit Answer restores its original fading');
         await page.getByRole('checkbox', { name: 'Select option A' }).check();
         await page.getByRole('checkbox', { name: 'Select option C' }).check();
-        await page.getByRole('button', { name: 'Submit Answer' }).click();
+        assert.equal(await submit.isDisabled(), false, 'Selecting a valid answer enables submission');
+        await submit.click();
         await page.getByText('Explanation', { exact: true }).waitFor();
 
         assert.deepEqual(submittedMultiChoiceAnswer, {
@@ -1862,7 +1877,7 @@ test('confirmation design follows themes and balances responsive actions', { tim
             cancelColor: getComputedStyle(buttons[0]).backgroundColor,
             themeSurface: themeColor('--color-bg-primary'),
             themeMessage: themeColor('--color-text-secondary'),
-            themePrimary: themeColor('--color-interactive-primary'),
+            themePrimary: themeColor('--color-control-primary-default-fill'),
             scheme: document.documentElement.classList.contains(`theme-${localStorage.getItem('quizmaker-color-scheme')}`),
             horizontalOverflow: dialog.scrollWidth > dialog.clientWidth,
           };

@@ -129,16 +129,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   const renderActionButton = (action: ActionButton, index: number) => {
     const ActionIcon = action.icon || (action.type ? ActionIcons[action.type] : null);
     
-    const baseClasses = "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    const baseClasses = "theme-control inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-focus-ring focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
     
     const variantClasses = {
-      primary: "bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:ring-theme-interactive-primary",
-      secondary: "bg-theme-bg-tertiary text-theme-text-primary hover:bg-theme-bg-secondary focus:ring-theme-border-primary",
-      danger: "bg-theme-interactive-danger text-theme-text-inverse hover:bg-theme-bg-overlay focus:ring-theme-interactive-danger",
-      success: "bg-theme-interactive-success text-theme-text-inverse hover:bg-theme-bg-overlay focus:ring-theme-interactive-success",
+      primary: "bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground hover:bg-theme-control-primary-hover-fill hover:text-theme-control-primary-hover-foreground",
+      secondary: "bg-theme-bg-tertiary text-theme-text-primary hover:bg-theme-bg-secondary",
+      danger: "bg-theme-control-danger-default-fill text-theme-control-danger-default-foreground hover:bg-theme-control-danger-hover-fill hover:text-theme-control-danger-hover-foreground",
+      success: "bg-theme-control-success-default-fill text-theme-control-success-default-foreground hover:bg-theme-control-success-hover-fill hover:text-theme-control-success-hover-foreground",
     };
 
-    const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+    const buttonClasses = `${baseClasses} ${variantClasses[action.variant || 'secondary']} ${action.disabled ? `theme-button-disabled theme-button-disabled-${action.variant === undefined || action.variant === 'secondary' ? 'header-secondary' : action.variant} cursor-not-allowed` : ''}`;
 
     const buttonContent = (
       <>

@@ -36,12 +36,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   const internalRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
-  const baseClasses = 'block w-full border-theme-border-primary rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed resize-y min-h-[44px]';
+  const baseClasses = 'block w-full border-theme-border-control rounded-md shadow-sm bg-theme-bg-primary text-theme-text-primary placeholder:text-theme-text-tertiary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:border-theme-interactive-primary disabled:bg-theme-bg-secondary disabled:text-theme-text-tertiary disabled:cursor-not-allowed resize-y min-h-[44px]';
   
   const variantClasses = {
-    default: 'border-theme-border-primary bg-theme-bg-primary',
+    default: 'border-theme-border-control bg-theme-bg-primary',
     filled: 'border-transparent bg-theme-bg-secondary focus:bg-theme-bg-primary',
-    outlined: 'border-2 border-theme-border-primary bg-theme-bg-primary'
+    outlined: 'border-2 border-theme-border-control bg-theme-bg-primary'
   };
 
   const sizeClasses = {

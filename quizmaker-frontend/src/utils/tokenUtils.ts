@@ -25,8 +25,12 @@ const isLocalStorageAvailable = (): boolean => {
 
 // Safe localStorage operations with in-memory fallback
 const safeGetItem = (key: string): string | null => {
-  if (isLocalStorageAvailable()) {
-    return localStorage.getItem(key);
+  try {
+    if (isLocalStorageAvailable()) {
+      return localStorage.getItem(key);
+    }
+  } catch {
+    // A successful write probe does not guarantee that storage reads are allowed.
   }
   return key === ACCESS_TOKEN_KEY ? inMemoryTokens.accessToken : inMemoryTokens.refreshToken;
 };

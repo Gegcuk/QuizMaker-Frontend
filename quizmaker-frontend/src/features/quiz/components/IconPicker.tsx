@@ -80,7 +80,7 @@ const IconPicker: React.FC<IconPickerProps> = ({
           className={`
             px-2 py-1 text-xs rounded transition-colors
             ${showAll 
-              ? 'bg-theme-interactive-primary text-theme-text-inverse' 
+              ? 'bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground'
               : 'text-theme-text-secondary hover:bg-theme-bg-tertiary'
             }
           `}
@@ -98,7 +98,7 @@ const IconPicker: React.FC<IconPickerProps> = ({
             className={`
               px-2 py-1 text-xs rounded transition-colors truncate max-w-[100px]
               ${!showAll && selectedCategory === index 
-                ? 'bg-theme-interactive-primary text-theme-text-inverse' 
+                ? 'bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground'
                 : 'text-theme-text-secondary hover:bg-theme-bg-tertiary'
               }
             `}

@@ -146,7 +146,7 @@ describe('shared overlay and theme components', () => {
     fireEvent.focus(trigger);
     const tooltip = screen.getByRole('tooltip');
     expect(tooltip).toHaveTextContent('This setting is required');
-    expect(tooltip).toHaveClass('bg-theme-bg-overlay', 'text-theme-text-primary');
+    expect(tooltip).toHaveClass('bg-theme-tooltip-fill', 'text-theme-tooltip-foreground');
     expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
     fireEvent.blur(trigger);
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();

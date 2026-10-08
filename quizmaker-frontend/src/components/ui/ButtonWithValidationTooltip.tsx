@@ -152,7 +152,7 @@ const ButtonWithValidationTooltip: React.FC<ButtonWithValidationTooltipProps> = 
 
       <Button
         {...buttonProps}
-        className={`${className} ${validationBlocked ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
+        className={`${className} ${validationBlocked ? 'cursor-not-allowed' : ''}`.trim()}
         disabled={nativeDisabled}
         loading={loading}
         aria-disabled={validationBlocked || undefined}

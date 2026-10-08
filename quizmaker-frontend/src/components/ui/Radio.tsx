@@ -53,19 +53,18 @@ const Radio: React.FC<RadioProps> = ({
           onChange={() => onChange(value)}
           disabled={disabled}
           className={`
-            ${sizeClasses[size]}
+            theme-choice ${sizeClasses[size]}
             text-theme-interactive-primary
             focus:ring-theme-interactive-primary
             focus:ring-2
             focus:ring-offset-0
-            border-theme-border-primary
+            border-theme-border-control
             bg-theme-bg-primary
             checked:bg-current
             transition-colors
             duration-150
             cursor-pointer
             disabled:cursor-not-allowed
-            disabled:opacity-50
             ${error ? 'border-theme-interactive-danger' : ''}
           `}
           aria-invalid={error ? 'true' : 'false'}

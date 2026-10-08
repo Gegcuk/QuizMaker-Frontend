@@ -134,7 +134,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         <div
           ref={tooltipRef}
           id={tooltipId}
-          className="fixed z-50 px-3 py-2 text-sm text-theme-text-primary bg-theme-bg-overlay rounded-md shadow-lg pointer-events-none"
+          className="fixed z-50 px-3 py-2 text-sm text-theme-tooltip-foreground bg-theme-tooltip-fill rounded-md shadow-lg pointer-events-none"
           style={{
             left: coords.x,
             top: coords.y,
@@ -145,7 +145,7 @@ const Tooltip: React.FC<TooltipProps> = ({
           <div className="relative">
             {content}
             {/* Arrow */}
-            <div className={`absolute h-2 w-2 rotate-45 bg-theme-bg-overlay ${arrowClasses[position]}`} />
+            <div className={`absolute h-2 w-2 rotate-45 bg-theme-tooltip-fill ${arrowClasses[position]}`} />
           </div>
         </div>
       )}

@@ -2,9 +2,26 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { createThemeRuntime, startupPalettes } from './src/context/themeRuntime';
+
+// Executes synchronously in the head, before prerendered content can paint.
+// The existing header generator hashes this exact body; no script unsafe-inline.
+const themeBootstrap = () => ({
+  name: 'theme-bootstrap',
+  transformIndexHtml: {
+    order: 'pre' as const,
+    handler(html: string) {
+      const data = JSON.stringify(startupPalettes).replace(/</g, '\\u003c');
+      const bootstrap = `<script id="theme-bootstrap">(() => { const runtime = (${createThemeRuntime.toString()})(${data}, window, document); runtime.apply(runtime.readPreferences()); })();</script>`;
+      const marker = '<meta name="theme-color" content="#113F71" />';
+      if (!html.includes(marker)) throw new Error('Theme bootstrap requires the reviewed head insertion point');
+      return html.replace(marker, `${marker}\n    ${bootstrap}`);
+    },
+  },
+});
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [themeBootstrap(), react()],
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),

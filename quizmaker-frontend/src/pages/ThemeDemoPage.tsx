@@ -3,14 +3,17 @@
 // Useful for testing and demonstrating the theme system
 // ---------------------------------------------------------------------------
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PageContainer } from '@/components';
-import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea } from '@/components/ui';
+import { ColorSchemeSelector, Button, Card, CardBody, CardHeader, Input, Textarea, Checkbox, Chip, ButtonWithValidationTooltip } from '@/components/ui';
+import PageHeader from '@/components/layout/PageHeader';
 import { useTheme } from '@/context/ThemeContext';
 import { Seo } from '@/features/seo';
 import { getPublicRouteSeoPolicy } from '@/routes/publicRouteManifest.mjs';
 
 const ThemeDemoPage: React.FC = () => {
+  const [sampleChecked, setSampleChecked] = useState(false);
+  const [selectedChips, setSelectedChips] = useState({ default: true, primary: true, success: true, warning: true, danger: true });
   const { currentPalette, colorScheme } = useTheme();
 
   return (
@@ -179,6 +182,32 @@ const ThemeDemoPage: React.FC = () => {
                   <Button variant="danger">Danger</Button>
                   <Button variant="info">Info</Button>
                 </div>
+                <div className="flex flex-wrap gap-2" aria-label="Disabled button examples">
+                  <Button variant="primary" disabled>Disabled Primary</Button>
+                  <Button variant="secondary" disabled>Disabled Secondary</Button>
+                  <Button variant="success" disabled>Disabled Success</Button>
+                  <Button variant="danger" disabled>Disabled Danger</Button>
+                  <Button variant="warning" disabled>Disabled Warning</Button>
+                  <Button variant="info" disabled>Disabled Info</Button>
+                  <Button variant="outline" disabled>Disabled Outline</Button>
+                  <Button variant="ghost" disabled>Disabled Ghost</Button>
+                  <Button loading>Saving example</Button>
+                </div>
+                <div>
+                  <PageHeader title="Header action examples" actions={[
+                    { label: 'Disabled header Primary', variant: 'primary', disabled: true },
+                    { label: 'Disabled header Secondary', variant: 'secondary', disabled: true },
+                    { label: 'Disabled header Success', variant: 'success', disabled: true },
+                    { label: 'Disabled header Danger', variant: 'danger', disabled: true },
+                  ]} />
+                </div>
+                <div className="flex flex-wrap gap-2" aria-label="Answer submission examples">
+                  <Button disabled>Inactive Submit Answer</Button>
+                  <ButtonWithValidationTooltip disabled validationErrors={['Select an answer']}>
+                    Validation-blocked example
+                  </ButtonWithValidationTooltip>
+                  <Button>Active Submit Answer</Button>
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -223,6 +252,35 @@ const ThemeDemoPage: React.FC = () => {
                 placeholder="Enter your message..."
                 fullWidth
               />
+              <Checkbox id="sample-checkbox" checked={sampleChecked} onChange={setSampleChecked} label="Sample checkbox" />
+              <Checkbox id="sample-disabled-checkbox" checked disabled onChange={setSampleChecked} label="Disabled checked example" />
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-theme-text-primary">Filter chips</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter chip examples">
+              {(['default', 'primary', 'success', 'warning', 'danger'] as const).map(variant => (
+                <React.Fragment key={variant}>
+                  <Chip
+                    label={`Filter ${variant}`}
+                    variant={variant}
+                    selected={selectedChips[variant]}
+                    onClick={() => setSelectedChips(previous => ({ ...previous, [variant]: !previous[variant] }))}
+                  />
+                  <Chip
+                    label={`Disabled filter ${variant}`}
+                    variant={variant}
+                    selected
+                    disabled
+                    onClick={() => setSelectedChips(previous => ({ ...previous, [variant]: !previous[variant] }))}
+                  />
+                </React.Fragment>
+              ))}
             </div>
           </CardBody>
         </Card>

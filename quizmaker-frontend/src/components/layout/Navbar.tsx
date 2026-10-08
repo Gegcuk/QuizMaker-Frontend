@@ -56,9 +56,9 @@ const Navbar: React.FC = () => {
   /*  Link groups – modern styling with consistent design                 */
   /* -------------------------------------------------------------------- */
   const linkClasses = "relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-tertiary text-theme-text-secondary hover:text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
-  const primaryLinkClasses = "relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
+  const primaryLinkClasses = "relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground hover:bg-theme-control-primary-hover-fill hover:text-theme-control-primary-hover-foreground focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2 focus:ring-offset-theme-bg-primary";
   const mobileLinkClasses = "block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-theme-bg-tertiary text-theme-text-secondary hover:text-theme-text-primary focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2";
-  const mobilePrimaryLinkClasses = "block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-interactive-primary text-theme-text-inverse hover:bg-theme-interactive-primary-hover focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2";
+  const mobilePrimaryLinkClasses = "block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 bg-theme-control-primary-default-fill text-theme-control-primary-default-foreground hover:bg-theme-control-primary-hover-fill hover:text-theme-control-primary-hover-foreground focus:outline-none focus:ring-2 focus:ring-theme-interactive-primary focus:ring-offset-2";
   
   const guestLinks = (
     <>
@@ -226,7 +226,7 @@ const Navbar: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 {balance && balance.availableTokens > 0 && (
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold text-theme-text-inverse bg-theme-interactive-primary rounded-full">
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold text-theme-control-primary-default-foreground bg-theme-control-primary-default-fill rounded-full">
                     {balance.availableTokens >= 1000 
                       ? `${Math.floor(balance.availableTokens / 1000)}k` 
                       : balance.availableTokens}

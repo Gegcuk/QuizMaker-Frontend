@@ -43,8 +43,8 @@ const Checkbox: React.FC<CheckboxProps> = ({
 
   const checkboxClasses = [
     sizeClasses[size],
-    'rounded',
-    'border-theme-border-primary',
+    'rounded theme-choice',
+    'border-theme-border-control',
     'text-theme-interactive-primary',
     'focus:ring-theme-interactive-primary',
     'focus:ring-2',
@@ -53,13 +53,13 @@ const Checkbox: React.FC<CheckboxProps> = ({
     'checked:bg-current',
     'transition-colors',
     'duration-150',
-    disabled ? (checked ? 'opacity-100 cursor-not-allowed' : 'opacity-50 cursor-not-allowed') : 'cursor-pointer',
+    disabled ? 'cursor-not-allowed' : 'cursor-pointer',
     error ? 'border-theme-border-danger focus:ring-theme-interactive-danger' : ''
   ].filter(Boolean).join(' ');
 
   return (
     <div className={`flex items-start ${className}`}>
-      <div className="flex items-center h-5">
+      <div className="relative flex items-center h-5">
         <input
           id={id}
           name={name}
@@ -71,6 +71,16 @@ const Checkbox: React.FC<CheckboxProps> = ({
           aria-describedby={description && id ? `${id}-description` : undefined}
           aria-invalid={error ? 'true' : 'false'}
         />
+        {checked && (
+          <svg
+            className={`theme-choice-mark pointer-events-none absolute ${sizeClasses[size]} ${disabled ? 'text-theme-disabled-foreground' : 'text-theme-control-primary-default-foreground'}`}
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="M4 10l4 4 8-8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
       </div>
       {(label || description) && (
         <div className="ml-3">

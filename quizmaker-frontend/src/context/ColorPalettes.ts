@@ -3,11 +3,31 @@
 // Supports multiple color schemes beyond just light/dark
 // ---------------------------------------------------------------------------
 
+export interface ColorPair {
+  fill: string;
+  foreground: string;
+}
+
+export type ControlTone = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+
+export interface ControlColors {
+  default: ColorPair;
+  hover: ColorPair;
+  disabled: ColorPair;
+}
+
 export interface ColorPalette {
   id: string;
+  appearance: 'light' | 'dark';
   name: string;
   description: string;
   colors: {
+    controls: Record<ControlTone, ControlColors>;
+    // Historical button colors, painted at 50% opacity only while unavailable.
+    disabledButton: Record<ControlTone, ColorPair>;
+    disabledHeaderSecondary: ColorPair;
+    disabled: ColorPair;
+    tooltip: ColorPair;
     // Background colors
     bg: {
       primary: string;    // Main background
@@ -19,10 +39,11 @@ export interface ColorPalette {
       primary: string;    // Main text
       secondary: string;  // Secondary text
       tertiary: string;   // Muted text
-      inverse: string;    // Text on primary background
+      inverse: string;    // Legacy compatibility; use an explicit fill/foreground pair
     };
     // Border colors
     border: {
+      control: string;    // Required input/choice boundaries
       primary: string;    // Main borders
       secondary: string;  // Subtle borders
       focus: string;      // Focus borders
@@ -65,21 +86,29 @@ export interface ColorPalette {
         bg: string;
         border: string;
         badge: string;
+        foreground: string;
+        badgeForeground: string;
       };
       pair2: {
         bg: string;
         border: string;
         badge: string;
+        foreground: string;
+        badgeForeground: string;
       };
       pair3: {
         bg: string;
         border: string;
         badge: string;
+        foreground: string;
+        badgeForeground: string;
       };
       pair4: {
         bg: string;
         border: string;
         badge: string;
+        foreground: string;
+        badgeForeground: string;
       };
     };
     // Special colors
@@ -92,9 +121,53 @@ export interface ColorPalette {
 // Light theme (default)
 export const lightPalette: ColorPalette = {
   id: 'light',
+  appearance: 'light',
   name: 'Light',
   description: 'Clean light theme with blue accents',
   colors: {
+    disabledHeaderSecondary: { fill: '#f1f5f9', foreground: '#0f172a' },
+    disabledButton: {
+      primary: { fill: '#3b82f6', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
+    controls: {
+      primary: {
+        default: { fill: '#2563eb', foreground: '#ffffff' },
+        hover: { fill: '#1d4ed8', foreground: '#ffffff' },
+        disabled: { fill: '#a8c1f7', foreground: '#0f172a' },
+      },
+      secondary: {
+        default: { fill: '#475569', foreground: '#ffffff' },
+        hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#b5bbc3', foreground: '#0f172a' },
+      },
+      success: {
+        default: { fill: '#166534', foreground: '#ffffff' },
+        hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#a2c1ae', foreground: '#0f172a' },
+      },
+      danger: {
+        default: { fill: '#b91c1c', foreground: '#ffffff' },
+        hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#e3a4a4', foreground: '#0f172a' },
+      },
+      warning: {
+        default: { fill: '#92400e', foreground: '#ffffff' },
+        hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#d3b39f', foreground: '#0f172a' },
+      },
+      info: {
+        default: { fill: '#0369a1', foreground: '#ffffff' },
+        hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#9ac3d9', foreground: '#0f172a' },
+      },
+    },
+    disabled: { fill: '#e2e8f0', foreground: '#334155' },
+    tooltip: { fill: '#0f172a', foreground: '#f8fafc' },
     bg: {
       primary: '#ffffff',
       secondary: '#f8fafc',
@@ -103,28 +176,29 @@ export const lightPalette: ColorPalette = {
     text: {
       primary: '#0f172a',
       secondary: '#475569',
-      tertiary: '#64748b',
+      tertiary: '#475569',
       inverse: '#ffffff',
     },
     border: {
+      control: '#64748b',
       primary: '#e2e8f0',
       secondary: '#f1f5f9',
-      focus: '#3b82f6',
+      focus: '#1d4ed8',
     },
     interactive: {
-      primary: '#3b82f6',
+      primary: '#1d4ed8',
       primaryHover: '#2563eb',
-      secondary: '#64748b',
+      secondary: '#475569',
       secondaryHover: '#475569',
-      danger: '#ef4444',
-      success: '#22c55e',
-      warning: '#f59e0b',
-      info: '#06b6d4',
+      danger: '#b91c1c',
+      success: '#166534',
+      warning: '#92400e',
+      info: '#0369a1',
     },
     status: {
       success: '#166534',
       warning: '#92400e',
-      danger: '#dc2626',
+      danger: '#b91c1c',
       info: '#0369a1',
       successBg: '#f0fdf4',
       warningBg: '#fffbeb',
@@ -132,7 +206,7 @@ export const lightPalette: ColorPalette = {
       infoBg: '#f0f9ff',
     },
     focus: {
-      ring: '#3b82f6',
+      ring: '#1d4ed8',
       ringOffset: '#ffffff',
     },
     neutral: {
@@ -140,12 +214,12 @@ export const lightPalette: ColorPalette = {
       subtle: '#f1f5f9',
     },
     matching: {
-      pair1: { bg: '#dbeafe', border: '#2563eb', badge: '#2563eb' },
-      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
-      pair3: { bg: '#e0e7ff', border: '#4f46e5', badge: '#4f46e5' },
-      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+      pair1: { bg: '#dbeafe', border: '#2563eb', badge: '#2563eb', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair3: { bg: '#e0e7ff', border: '#4f46e5', badge: '#4f46e5', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569', foreground: '#0f172a', badgeForeground: '#ffffff' },
     },
-    accent: '#3b82f6',
+    accent: '#1d4ed8',
     shadow: 'rgba(0, 0, 0, 0.1)',
     overlay: 'rgba(0, 0, 0, 0.5)',
   },
@@ -154,9 +228,53 @@ export const lightPalette: ColorPalette = {
 // Dark theme
 export const darkPalette: ColorPalette = {
   id: 'dark',
+  appearance: 'dark',
   name: 'Dark',
   description: 'Modern dark theme with blue accents',
   colors: {
+    disabledHeaderSecondary: { fill: '#334155', foreground: '#f8fafc' },
+    disabledButton: {
+      primary: { fill: '#60a5fa', foreground: '#0f172a' },
+      secondary: { fill: '#64748b', foreground: '#0f172a' },
+      success: { fill: '#4ade80', foreground: '#0f172a' },
+      danger: { fill: '#f87171', foreground: '#0f172a' },
+      warning: { fill: '#fbbf24', foreground: '#0f172a' },
+      info: { fill: '#67e8f9', foreground: '#0f172a' },
+    },
+    controls: {
+      primary: {
+        default: { fill: '#93c5fd', foreground: '#0f172a' },
+        hover: { fill: '#60a5fa', foreground: '#0f172a' },
+        disabled: { fill: '#445d7e', foreground: '#f8fafc' },
+      },
+      secondary: {
+        default: { fill: '#cbd5e1', foreground: '#0f172a' },
+        hover: { fill: '#94a3b8', foreground: '#0f172a' },
+        disabled: { fill: '#5a6373', foreground: '#f8fafc' },
+      },
+      success: {
+        default: { fill: '#86efac', foreground: '#0f172a' },
+        hover: { fill: '#4ade80', foreground: '#0f172a' },
+        disabled: { fill: '#3f6d5e', foreground: '#f8fafc' },
+      },
+      danger: {
+        default: { fill: '#fca5a5', foreground: '#0f172a' },
+        hover: { fill: '#f87171', foreground: '#0f172a' },
+        disabled: { fill: '#6e505b', foreground: '#f8fafc' },
+      },
+      warning: {
+        default: { fill: '#fde68a', foreground: '#0f172a' },
+        hover: { fill: '#fbbf24', foreground: '#0f172a' },
+        disabled: { fill: '#6e6a50', foreground: '#f8fafc' },
+      },
+      info: {
+        default: { fill: '#a5f3fc', foreground: '#0f172a' },
+        hover: { fill: '#67e8f9', foreground: '#0f172a' },
+        disabled: { fill: '#4b6f7e', foreground: '#f8fafc' },
+      },
+    },
+    disabled: { fill: '#334155', foreground: '#f8fafc' },
+    tooltip: { fill: '#0f172a', foreground: '#f8fafc' },
     bg: {
       primary: '#0f172a',
       secondary: '#1e293b',
@@ -165,36 +283,37 @@ export const darkPalette: ColorPalette = {
     text: {
       primary: '#f8fafc',
       secondary: '#cbd5e1',
-      tertiary: '#94a3b8',
+      tertiary: '#cbd5e1',
       inverse: '#0f172a',
     },
     border: {
+      control: '#94a3b8',
       primary: '#334155',
-      secondary: '#475569',
-      focus: '#60a5fa',
+      secondary: '#94a3b8',
+      focus: '#93c5fd',
     },
     interactive: {
-      primary: '#60a5fa',
-      primaryHover: '#3b82f6',
-      secondary: '#64748b',
-      secondaryHover: '#475569',
-      danger: '#f87171',
-      success: '#4ade80',
-      warning: '#fbbf24',
-      info: '#67e8f9',
+      primary: '#93c5fd',
+      primaryHover: '#93c5fd',
+      secondary: '#cbd5e1',
+      secondaryHover: '#cbd5e1',
+      danger: '#fca5a5',
+      success: '#86efac',
+      warning: '#fde68a',
+      info: '#a5f3fc',
     },
     status: {
-      success: '#4ade80',
-      warning: '#fbbf24',
-      danger: '#f87171',
-      info: '#67e8f9',
+      success: '#86efac',
+      warning: '#fde68a',
+      danger: '#fca5a5',
+      info: '#a5f3fc',
       successBg: '#064e3b',
       warningBg: '#451a03',
       dangerBg: '#450a0a',
       infoBg: '#0c4a6e',
     },
     focus: {
-      ring: '#60a5fa',
+      ring: '#93c5fd',
       ringOffset: '#0f172a',
     },
     neutral: {
@@ -202,12 +321,12 @@ export const darkPalette: ColorPalette = {
       subtle: '#334155',
     },
     matching: {
-      pair1: { bg: '#1e3a8a', border: '#60a5fa', badge: '#60a5fa' },
-      pair2: { bg: '#134e4a', border: '#2dd4bf', badge: '#2dd4bf' },
-      pair3: { bg: '#312e81', border: '#818cf8', badge: '#818cf8' },
-      pair4: { bg: '#334155', border: '#94a3b8', badge: '#94a3b8' },
+      pair1: { bg: '#1e3a8a', border: '#93c5fd', badge: '#93c5fd', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair2: { bg: '#134e4a', border: '#2dd4bf', badge: '#2dd4bf', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair3: { bg: '#312e81', border: '#818cf8', badge: '#818cf8', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair4: { bg: '#334155', border: '#cbd5e1', badge: '#cbd5e1', foreground: '#f8fafc', badgeForeground: '#0f172a' },
     },
-    accent: '#60a5fa',
+    accent: '#93c5fd',
     shadow: 'rgba(0, 0, 0, 0.3)',
     overlay: 'rgba(0, 0, 0, 0.7)',
   },
@@ -216,9 +335,53 @@ export const darkPalette: ColorPalette = {
 // Blue theme (your first color scheme)
 export const bluePalette: ColorPalette = {
   id: 'blue',
+  appearance: 'light',
   name: 'Ocean Blue',
   description: 'Calming blue theme inspired by ocean colors',
   colors: {
+    disabledHeaderSecondary: { fill: '#dee5d4', foreground: '#1e293b' },
+    disabledButton: {
+      primary: { fill: '#1d4ed8', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
+    controls: {
+      primary: {
+        default: { fill: '#1d4ed8', foreground: '#ffffff' },
+        hover: { fill: '#1e40af', foreground: '#ffffff' },
+        disabled: { fill: '#8aa6ed', foreground: '#1e293b' },
+      },
+      secondary: {
+        default: { fill: '#475569', foreground: '#ffffff' },
+        hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#9aa8c1', foreground: '#1e293b' },
+      },
+      success: {
+        default: { fill: '#166534', foreground: '#ffffff' },
+        hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#87afab', foreground: '#1e293b' },
+      },
+      danger: {
+        default: { fill: '#b91c1c', foreground: '#ffffff' },
+        hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#c892a2', foreground: '#1e293b' },
+      },
+      warning: {
+        default: { fill: '#92400e', foreground: '#ffffff' },
+        hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#b8a09c', foreground: '#1e293b' },
+      },
+      info: {
+        default: { fill: '#0369a1', foreground: '#ffffff' },
+        hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#7fb0d7', foreground: '#1e293b' },
+      },
+    },
+    disabled: { fill: '#dee5d4', foreground: '#334155' },
+    tooltip: { fill: '#0f172a', foreground: '#f8fafc' },
     bg: {
       primary: '#d2e0fb',      // rgb(210, 224, 251)
       secondary: '#fef9d9',    // rgb(254, 249, 217)
@@ -227,36 +390,37 @@ export const bluePalette: ColorPalette = {
     text: {
       primary: '#1e293b',
       secondary: '#475569',
-      tertiary: '#64748b',
+      tertiary: '#475569',
       inverse: '#ffffff',
     },
     border: {
+      control: '#475569',
       primary: '#8eaccd',      // rgb(142, 172, 205)
       secondary: '#cbd5e1',
-      focus: '#3b82f6',
+      focus: '#1d4ed8',
     },
     interactive: {
       primary: '#1d4ed8',
       primaryHover: '#1e40af',
-      secondary: '#64748b',
+      secondary: '#475569',
       secondaryHover: '#475569',
-      danger: '#ef4444',
-      success: '#22c55e',
-      warning: '#f59e0b',
-      info: '#06b6d4',
+      danger: '#b91c1c',
+      success: '#166534',
+      warning: '#92400e',
+      info: '#075985',
     },
     status: {
       success: '#166534',
       warning: '#92400e',
-      danger: '#dc2626',
-      info: '#0369a1',
+      danger: '#b91c1c',
+      info: '#075985',
       successBg: '#f0fdf4',
       warningBg: '#fffbeb',
       dangerBg: '#fef2f2',
       infoBg: '#f0f9ff',
     },
     focus: {
-      ring: '#3b82f6',
+      ring: '#1d4ed8',
       ringOffset: '#d2e0fb',
     },
     neutral: {
@@ -264,10 +428,10 @@ export const bluePalette: ColorPalette = {
       subtle: '#dee5d4',
     },
     matching: {
-      pair1: { bg: '#bfdbfe', border: '#1d4ed8', badge: '#2563eb' },
-      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
-      pair3: { bg: '#e0e7ff', border: '#4338ca', badge: '#4f46e5' },
-      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+      pair1: { bg: '#bfdbfe', border: '#1d4ed8', badge: '#2563eb', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair3: { bg: '#e0e7ff', border: '#4338ca', badge: '#4f46e5', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569', foreground: '#0f172a', badgeForeground: '#ffffff' },
     },
     accent: '#8eaccd',
     shadow: 'rgba(142, 172, 205, 0.2)',
@@ -278,9 +442,53 @@ export const bluePalette: ColorPalette = {
 // Purple theme (your second color scheme)
 export const purplePalette: ColorPalette = {
   id: 'purple',
+  appearance: 'dark',
   name: 'Royal Purple',
   description: 'Rich purple theme with deep tones',
   colors: {
+    disabledHeaderSecondary: { fill: '#433d8b', foreground: '#f8fafc' },
+    disabledButton: {
+      primary: { fill: '#a78bfa', foreground: '#17133b' },
+      secondary: { fill: '#c8acd6', foreground: '#17133b' },
+      success: { fill: '#4ade80', foreground: '#17133b' },
+      danger: { fill: '#f87171', foreground: '#17133b' },
+      warning: { fill: '#fbbf24', foreground: '#17133b' },
+      info: { fill: '#67e8f9', foreground: '#17133b' },
+    },
+    controls: {
+      primary: {
+        default: { fill: '#c4b5fd', foreground: '#17133b' },
+        hover: { fill: '#a78bfa', foreground: '#17133b' },
+        disabled: { fill: '#5c5489', foreground: '#f8fafc' },
+      },
+      secondary: {
+        default: { fill: '#c8acd6', foreground: '#17133b' },
+        hover: { fill: '#a78bfa', foreground: '#17133b' },
+        disabled: { fill: '#5e5079', foreground: '#f8fafc' },
+      },
+      success: {
+        default: { fill: '#86efac', foreground: '#17133b' },
+        hover: { fill: '#4ade80', foreground: '#17133b' },
+        disabled: { fill: '#436b68', foreground: '#f8fafc' },
+      },
+      danger: {
+        default: { fill: '#fca5a5', foreground: '#17133b' },
+        hover: { fill: '#f87171', foreground: '#17133b' },
+        disabled: { fill: '#734d65', foreground: '#f8fafc' },
+      },
+      warning: {
+        default: { fill: '#fde68a', foreground: '#17133b' },
+        hover: { fill: '#fbbf24', foreground: '#17133b' },
+        disabled: { fill: '#73675b', foreground: '#f8fafc' },
+      },
+      info: {
+        default: { fill: '#a5f3fc', foreground: '#17133b' },
+        hover: { fill: '#67e8f9', foreground: '#17133b' },
+        disabled: { fill: '#506d88', foreground: '#f8fafc' },
+      },
+    },
+    disabled: { fill: '#433d8b', foreground: '#f8fafc' },
+    tooltip: { fill: '#0f172a', foreground: '#f8fafc' },
     bg: {
       primary: '#17133b',      // rgb(23, 21, 59)
       secondary: '#2e236c',    // rgb(46, 35, 108)
@@ -289,36 +497,37 @@ export const purplePalette: ColorPalette = {
     text: {
       primary: '#f8fafc',
       secondary: '#c8acd6',    // rgb(200, 172, 214)
-      tertiary: '#a78bfa',
+      tertiary: '#c4b5fd',
       inverse: '#17133b',
     },
     border: {
+      control: '#c4b5fd',
       primary: '#433d8b',
       secondary: '#6366f1',
-      focus: '#a78bfa',
+      focus: '#c4b5fd',
     },
     interactive: {
-      primary: '#a78bfa',
-      primaryHover: '#8b5cf6',
+      primary: '#c4b5fd',
+      primaryHover: '#c4b5fd',
       secondary: '#c8acd6',
-      secondaryHover: '#a78bfa',
-      danger: '#f87171',
-      success: '#4ade80',
-      warning: '#fbbf24',
-      info: '#67e8f9',
+      secondaryHover: '#c4b5fd',
+      danger: '#fca5a5',
+      success: '#86efac',
+      warning: '#fde68a',
+      info: '#a5f3fc',
     },
     status: {
-      success: '#4ade80',
-      warning: '#fbbf24',
-      danger: '#f87171',
-      info: '#67e8f9',
+      success: '#86efac',
+      warning: '#fde68a',
+      danger: '#fca5a5',
+      info: '#a5f3fc',
       successBg: '#064e3b',
       warningBg: '#451a03',
       dangerBg: '#450a0a',
       infoBg: '#0c4a6e',
     },
     focus: {
-      ring: '#a78bfa',
+      ring: '#c4b5fd',
       ringOffset: '#17133b',
     },
     neutral: {
@@ -326,10 +535,10 @@ export const purplePalette: ColorPalette = {
       subtle: '#433d8b',
     },
     matching: {
-      pair1: { bg: '#312e81', border: '#93c5fd', badge: '#93c5fd' },
-      pair2: { bg: '#164e63', border: '#67e8f9', badge: '#67e8f9' },
-      pair3: { bg: '#4c1d95', border: '#c4b5fd', badge: '#c4b5fd' },
-      pair4: { bg: '#334155', border: '#cbd5e1', badge: '#cbd5e1' },
+      pair1: { bg: '#312e81', border: '#93c5fd', badge: '#93c5fd', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair2: { bg: '#164e63', border: '#a5f3fc', badge: '#a5f3fc', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair3: { bg: '#4c1d95', border: '#c4b5fd', badge: '#c4b5fd', foreground: '#f8fafc', badgeForeground: '#0f172a' },
+      pair4: { bg: '#334155', border: '#cbd5e1', badge: '#cbd5e1', foreground: '#f8fafc', badgeForeground: '#0f172a' },
     },
     accent: '#c8acd6',
     shadow: 'rgba(23, 21, 59, 0.4)',
@@ -340,9 +549,53 @@ export const purplePalette: ColorPalette = {
 // Green theme (additional option)
 export const greenPalette: ColorPalette = {
   id: 'green',
+  appearance: 'light',
   name: 'Forest Green',
   description: 'Natural green theme with earthy tones',
   colors: {
+    disabledHeaderSecondary: { fill: '#bbf7d0', foreground: '#14532d' },
+    disabledButton: {
+      primary: { fill: '#15803d', foreground: '#ffffff' },
+      secondary: { fill: '#64748b', foreground: '#ffffff' },
+      success: { fill: '#22c55e', foreground: '#ffffff' },
+      danger: { fill: '#ef4444', foreground: '#ffffff' },
+      warning: { fill: '#f59e0b', foreground: '#ffffff' },
+      info: { fill: '#06b6d4', foreground: '#ffffff' },
+    },
+    controls: {
+      primary: {
+        default: { fill: '#166534', foreground: '#ffffff' },
+        hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#99c0a7', foreground: '#052e16' },
+      },
+      secondary: {
+        default: { fill: '#475569', foreground: '#ffffff' },
+        hover: { fill: '#334155', foreground: '#ffffff' },
+        disabled: { fill: '#acbabc', foreground: '#052e16' },
+      },
+      success: {
+        default: { fill: '#166534', foreground: '#ffffff' },
+        hover: { fill: '#14532d', foreground: '#ffffff' },
+        disabled: { fill: '#99c0a7', foreground: '#052e16' },
+      },
+      danger: {
+        default: { fill: '#b91c1c', foreground: '#ffffff' },
+        hover: { fill: '#991b1b', foreground: '#ffffff' },
+        disabled: { fill: '#daa39e', foreground: '#052e16' },
+      },
+      warning: {
+        default: { fill: '#92400e', foreground: '#ffffff' },
+        hover: { fill: '#78350f', foreground: '#ffffff' },
+        disabled: { fill: '#cab198', foreground: '#052e16' },
+      },
+      info: {
+        default: { fill: '#0369a1', foreground: '#ffffff' },
+        hover: { fill: '#075985', foreground: '#ffffff' },
+        disabled: { fill: '#91c2d3', foreground: '#052e16' },
+      },
+    },
+    disabled: { fill: '#bbf7d0', foreground: '#14532d' },
+    tooltip: { fill: '#0f172a', foreground: '#f8fafc' },
     bg: {
       primary: '#f0fdf4',
       secondary: '#dcfce7',
@@ -351,28 +604,29 @@ export const greenPalette: ColorPalette = {
     text: {
       primary: '#14532d',
       secondary: '#166534',
-      tertiary: '#16a34a',
+      tertiary: '#166534',
       inverse: '#ffffff',
     },
     border: {
+      control: '#166534',
       primary: '#bbf7d0',
       secondary: '#dcfce7',
-      focus: '#22c55e',
+      focus: '#166534',
     },
     interactive: {
-      primary: '#15803d',
+      primary: '#166534',
       primaryHover: '#166534',
-      secondary: '#64748b',
+      secondary: '#475569',
       secondaryHover: '#475569',
-      danger: '#ef4444',
-      success: '#22c55e',
-      warning: '#f59e0b',
-      info: '#06b6d4',
+      danger: '#b91c1c',
+      success: '#166534',
+      warning: '#92400e',
+      info: '#0369a1',
     },
     status: {
       success: '#166534',
       warning: '#92400e',
-      danger: '#dc2626',
+      danger: '#b91c1c',
       info: '#0369a1',
       successBg: '#f0fdf4',
       warningBg: '#fffbeb',
@@ -380,7 +634,7 @@ export const greenPalette: ColorPalette = {
       infoBg: '#f0f9ff',
     },
     focus: {
-      ring: '#22c55e',
+      ring: '#166534',
       ringOffset: '#f0fdf4',
     },
     neutral: {
@@ -388,12 +642,12 @@ export const greenPalette: ColorPalette = {
       subtle: '#bbf7d0',
     },
     matching: {
-      pair1: { bg: '#bbf7d0', border: '#15803d', badge: '#15803d' },
-      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e' },
-      pair3: { bg: '#dbeafe', border: '#1d4ed8', badge: '#2563eb' },
-      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569' },
+      pair1: { bg: '#bbf7d0', border: '#166534', badge: '#166534', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair2: { bg: '#ccfbf1', border: '#0f766e', badge: '#0f766e', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair3: { bg: '#dbeafe', border: '#1d4ed8', badge: '#2563eb', foreground: '#0f172a', badgeForeground: '#ffffff' },
+      pair4: { bg: '#e2e8f0', border: '#475569', badge: '#475569', foreground: '#0f172a', badgeForeground: '#ffffff' },
     },
-    accent: '#22c55e',
+    accent: '#166534',
     shadow: 'rgba(34, 197, 94, 0.2)',
     overlay: 'rgba(34, 197, 94, 0.6)',
   },
@@ -415,7 +669,33 @@ export const getPaletteById = (id: string): ColorPalette => {
 
 // Helper function to generate CSS custom properties
 export const generateCSSVariables = (palette: ColorPalette): Record<string, string> => {
+  const controls = Object.fromEntries(
+    Object.entries(palette.colors.controls).flatMap(([tone, states]) =>
+      Object.entries(states).flatMap(([state, pair]) => [
+        [`--color-control-${tone}-${state}-fill`, pair.fill],
+        [`--color-control-${tone}-${state}-foreground`, pair.foreground],
+      ]),
+    ),
+  );
+  const matching = Object.fromEntries(
+    Object.entries(palette.colors.matching).flatMap(([name, pair]) => [
+      [`--color-matching-pair-${name.slice(-1)}-foreground`, pair.foreground],
+      [`--color-matching-pair-${name.slice(-1)}-badge-foreground`, pair.badgeForeground],
+    ]),
+  );
   return {
+    ...controls,
+    ...Object.fromEntries(Object.entries(palette.colors.disabledButton).flatMap(([tone, pair]) => [
+      [`--color-button-disabled-${tone}-fill`, pair.fill],
+      [`--color-button-disabled-${tone}-foreground`, pair.foreground],
+    ])),
+    '--color-button-disabled-header-secondary-fill': palette.colors.disabledHeaderSecondary.fill,
+    '--color-button-disabled-header-secondary-foreground': palette.colors.disabledHeaderSecondary.foreground,
+    ...matching,
+    '--color-disabled-fill': palette.colors.disabled.fill,
+    '--color-disabled-foreground': palette.colors.disabled.foreground,
+    '--color-tooltip-fill': palette.colors.tooltip.fill,
+    '--color-tooltip-foreground': palette.colors.tooltip.foreground,
     '--color-bg-primary': palette.colors.bg.primary,
     '--color-bg-secondary': palette.colors.bg.secondary,
     '--color-bg-tertiary': palette.colors.bg.tertiary,
@@ -423,6 +703,7 @@ export const generateCSSVariables = (palette: ColorPalette): Record<string, stri
     '--color-text-secondary': palette.colors.text.secondary,
     '--color-text-tertiary': palette.colors.text.tertiary,
     '--color-text-inverse': palette.colors.text.inverse,
+    '--color-border-control': palette.colors.border.control,
     '--color-border-primary': palette.colors.border.primary,
     '--color-border-secondary': palette.colors.border.secondary,
     '--color-border-focus': palette.colors.border.focus,

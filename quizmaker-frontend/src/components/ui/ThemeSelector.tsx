@@ -19,7 +19,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   label = 'Theme',
   showIcons = true
 }) => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, colorScheme, currentPalette, resolvedTheme } = useTheme();
+
+  const namedPalette = colorScheme !== 'light' && colorScheme !== 'dark';
 
   const themeOptions = [
     {
@@ -44,7 +46,8 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       <Dropdown
         label={label}
         ariaLabel={label || 'Theme'}
-        value={theme}
+        value={namedPalette ? '' : theme}
+        placeholder={namedPalette ? `${currentPalette.name} palette` : undefined}
         options={themeOptions.map((option) => ({
           value: option.value,
           label: option.label,
@@ -55,7 +58,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           setTheme(selectedTheme as 'light' | 'dark' | 'auto');
         }}
         helperText={
-          theme === 'auto'
+          namedPalette
+            ? `${currentPalette.name} uses a ${resolvedTheme} appearance. Choosing a mode switches to Light or Dark.`
+            : theme === 'auto'
             ? 'Uses your system preference'
             : theme === 'light'
               ? 'Always use light theme'

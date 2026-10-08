@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { test } from 'node:test';
+import { mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
+import { originalDisabledButtonColors } from './fixtures/disabled-button-colors.mjs';
 import { launchBrowser } from '../scripts/browser/launch-browser.mjs';
+import { registerSmokeCleanup } from './fixtures/smoke-cleanup.mjs';
 import { createTestContext } from './fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
@@ -32,22 +35,24 @@ const stopDevServer = async (server) => {
   await Promise.race([once(server, 'exit'), delay(2_000)]);
 };
 
-const waitForServer = async (url, timeoutMs = 30_000) => {
+const waitForServer = async (url, timeoutMs = 30_000, signal) => {
   const startedAt = Date.now();
   let lastError;
 
   while (Date.now() - startedAt < timeoutMs) {
+    signal?.throwIfAborted();
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal });
       if (response.ok) {
         return;
       }
       lastError = new Error(`Server responded with ${response.status}`);
     } catch (error) {
+      signal?.throwIfAborted();
       lastError = error;
     }
 
-    await delay(500);
+    await delay(500, undefined, { signal });
   }
 
   throw lastError ?? new Error(`Server did not start at ${url}`);
@@ -62,7 +67,7 @@ const parseRgb = (value) => {
 const relativeLuminance = ([red, green, blue]) => {
   const [r, g, b] = [red, green, blue].map((channel) => {
     const normalized = channel / 255;
-    return normalized <= 0.03928
+    return normalized <= 0.04045
       ? normalized / 12.92
       : ((normalized + 0.055) / 1.055) ** 2.4;
   });
@@ -242,6 +247,10 @@ const assertHomeDoesNotOverflow = (styles) => {
   }
 };
 
+// WCAG large text means >=24px, or >=18.667px at weight >=700.
+const textContrastThreshold = ({ fontSize, fontWeight }) =>
+  fontSize >= 24 || (fontSize >= 18.667 && fontWeight >= 700) ? 3 : 4.5;
+
 const assertThemeContrast = (styles, palette) => {
   assert(styles.paragraph, 'Expected hero paragraph styles');
 
@@ -259,8 +268,8 @@ const assertThemeContrast = (styles, palette) => {
 
   const buttonRatio = contrastRatio(styles.primaryButton.color, styles.primaryButton.backgroundColor);
   assert.ok(
-    buttonRatio >= 3,
-    `${palette} CTA contrast should be at least 3:1, got ${buttonRatio.toFixed(2)}:1`,
+    buttonRatio >= textContrastThreshold(styles.primaryButton),
+    `${palette} CTA contrast should meet its font-size/weight threshold, got ${buttonRatio.toFixed(2)}:1`,
   );
 };
 
@@ -281,14 +290,46 @@ const applyPalette = async (page, palette) => {
   );
 };
 
-test('home page passes styling, theme, and responsive smoke checks', { timeout: 60_000 }, async () => {
+const waitForTransitions = target => target.evaluate(element => new Promise(resolve => {
+  const sample = () => {
+    // CSS transitions can be replaced while the theme and hover state change.
+    // Inspect the current animations instead of awaiting a cancelled one's promise.
+    const active = (element ?? document).getAnimations().some(animation =>
+      animation.effect?.getComputedTiming().iterations !== Infinity
+      && (animation.pending || animation.playState === 'running'));
+    if (active) requestAnimationFrame(sample);
+    else resolve();
+  };
+  requestAnimationFrame(sample);
+}));
+
+const selectPalette = async (page, palette) => {
+  const names = { light: 'Light', dark: 'Dark', blue: 'Ocean Blue', purple: 'Royal Purple', green: 'Forest Green' };
+  const radio = page.getByRole('group', { name: 'Color Scheme', exact: true })
+    .getByRole('radio', { name: new RegExp(`^${names[palette]}\\b`) });
+  const changed = !await radio.isChecked();
+  await radio.check();
+  await page.waitForFunction(scheme => document.documentElement.classList.contains(`theme-${scheme}`), palette);
+  if (changed) assert.equal(await page.evaluate(() => localStorage.getItem('quizmaker-color-scheme')), palette);
+  await waitForTransitions(page);
+};
+
+test('home page passes styling, theme, and responsive smoke checks', { timeout: 60_000 }, async t => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
 
   let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
 
   try {
-    await waitForServer(BASE_URL);
+    await waitForServer(BASE_URL, 30_000, t.signal);
     browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
 
     const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 720 } })).newPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
@@ -317,21 +358,399 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
     assertTailwindLayoutIsApplied(desktopStyles);
     assertHomeDoesNotOverflow(desktopStyles);
 
+    for (const viewport of [{ width: 1280, height: 720 }, { width: 390, height: 844 }, { width: 320, height: 720 }]) {
+      // 320 CSS px is the reflow width of a 1280px desktop at 400% browser zoom.
+      await page.setViewportSize(viewport);
+      for (const palette of PALETTES) {
+        await applyPalette(page, palette);
+        const paletteStyles = await collectHomeStyles(page);
+        assertTailwindLayoutIsApplied(paletteStyles);
+        assertThemeContrast(paletteStyles, palette);
+        assertHomeDoesNotOverflow(paletteStyles);
+      }
+    }
+  } finally {
+    await finish();
+  }
+});
+
+const buttonStyles = async button => button.evaluate(element => {
+  const style = getComputedStyle(element);
+  // Transparent outline/ghost controls are read against the actual painted ancestor.
+  let ancestor = element.parentElement;
+  let surfaceColor = 'rgba(0, 0, 0, 0)';
+  while (ancestor && surfaceColor === 'rgba(0, 0, 0, 0)') {
+    surfaceColor = getComputedStyle(ancestor).backgroundColor;
+    ancestor = ancestor.parentElement;
+  }
+  if (surfaceColor === 'rgba(0, 0, 0, 0)') throw new Error('Expected an opaque theme surface');
+  return {
+    color: style.color, backgroundColor: style.backgroundColor === 'rgba(0, 0, 0, 0)' ? surfaceColor : style.backgroundColor, backgroundImage: style.backgroundImage, opacity: style.opacity,
+    fontSize: Number.parseFloat(style.fontSize), fontWeight: Number.parseInt(style.fontWeight, 10),
+    outlineStyle: style.outlineStyle, outlineColor: style.outlineColor, outlineWidth: style.outlineWidth,
+    boxShadow: style.boxShadow, transitionDuration: style.transitionDuration,
+    surface: surfaceColor, borderColor: style.borderColor,
+  };
+});
+const readableButton = async (button, label) => {
+  const style = await buttonStyles(button);
+  assert.equal(style.opacity, '1', `${label} must not fade readable text`);
+  const ratio = contrastRatio(style.color, style.backgroundColor);
+  assert.ok(ratio >= textContrastThreshold(style), `${label} contrast ${ratio.toFixed(2)}:1`);
+  return style;
+};
+
+const keyboardFocus = async (page, control) => {
+  // Real keyboard navigation enables :focus-visible after a mouse palette choice.
+  await control.press('Tab');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await control.evaluate(element => element === document.activeElement), true, 'Keyboard navigation returns focus to the control');
+};
+
+const rgbFromHex = hex => `rgb(${hex.slice(1).match(/../g).map(channel => Number.parseInt(channel, 16)).join(', ')})`;
+const originalInactiveButton = async (button, palette, variant) => {
+  const style = await buttonStyles(button);
+  const expected = originalDisabledButtonColors[palette];
+  const transparent = variant === 'outline' || variant === 'ghost';
+  const headerSecondary = variant === 'header-secondary';
+  assert.equal(style.opacity, '0.5', `${palette}/${variant} uses the original whole-button fading`);
+  assert.equal(style.color, rgbFromHex(transparent ? expected.fills.primary : headerSecondary ? expected.headerSecondaryForeground : expected.foreground));
+  assert.equal(style.backgroundColor, transparent ? style.surface : rgbFromHex(headerSecondary ? expected.headerSecondaryFill : expected.fills[variant]));
+  assert.equal(style.borderColor, variant === 'outline' ? rgbFromHex(expected.fills.primary) : 'rgba(0, 0, 0, 0)', 'No added dark border on an inactive button');
+  return style;
+};
+
+test('theme controls retain contrast across all palettes, states and accessibility preferences', { timeout: 120_000 }, async t => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
+  try {
+    await waitForServer(BASE_URL, 30_000, t.signal);
+    browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
+    const context = await createTestContext(browser, { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(`${BASE_URL}/theme-demo`, { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Theme System Demo' }).waitFor();
+    const variants = ['Primary', 'Secondary', 'Success', 'Danger', 'Warning', 'Info', 'Outline', 'Ghost'];
+    const screenshots = process.env.THEME_SCREENSHOT_DIR;
+    if (screenshots) await mkdir(screenshots, { recursive: true });
+    for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 720 }]) {
+      await page.setViewportSize(viewport);
+      for (const palette of PALETTES) {
+        await selectPalette(page, palette);
+        const ring = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-focus-ring'));
+        const offset = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary'));
+        // CSS-variable hex values are converted by the browser to sRGB.
+        const resolved = await page.evaluate(([a, b]) => {
+          const probe = document.createElement('span'); probe.style.color = a; probe.style.backgroundColor = b;
+          document.body.append(probe); const style = getComputedStyle(probe); const result = [style.color, style.backgroundColor]; probe.remove(); return result;
+        }, [ring, offset]);
+        assert.ok(contrastRatio(...resolved) >= 3, `${palette} focus ring`);
+        for (const variant of variants) {
+          const button = page.getByRole('button', { name: variant, exact: true });
+          // Move off any previous hover before measuring default colors.
+          await page.mouse.move(0, 0);
+          await readableButton(button, `${palette}/${variant}/default`);
+          await button.hover();
+          // Allow the actual transition to complete, without arbitrary sleeps.
+          await waitForTransitions(button);
+          await readableButton(button, `${palette}/${variant}/hover`);
+          await keyboardFocus(page, button);
+          const focused = await readableButton(button, `${palette}/${variant}/focus`);
+          assert.notEqual(focused.boxShadow, 'none', `${palette}/${variant} needs visible focus`);
+          const disabled = page.getByRole('button', { name: `Disabled ${variant}`, exact: true });
+          assert.equal(await disabled.isDisabled(), true);
+          await originalInactiveButton(disabled, palette, variant.toLowerCase());
+          if (viewport.width === 1280) {
+            await disabled.hover({ force: true });
+            await waitForTransitions(disabled);
+            await originalInactiveButton(disabled, palette, variant.toLowerCase());
+          }
+        }
+        for (const field of [page.getByRole('textbox', { name: 'Sample Input', exact: true }), page.getByRole('textbox', { name: 'Sample Textarea', exact: true })]) {
+          const style = await buttonStyles(field);
+          assert.ok(contrastRatio(style.borderColor, style.backgroundColor) >= 3, `${palette} field boundary`);
+          const placeholder = await field.evaluate(element => getComputedStyle(element, '::placeholder').color);
+          assert.ok(contrastRatio(placeholder, style.backgroundColor) >= 4.5, `${palette} placeholder text`);
+        }
+        for (const radio of await page.getByRole('radio').all()) {
+          const style = await buttonStyles(radio);
+          // Compare a checked fill or an unchecked border with the containing surface.
+          const surface = await radio.evaluate(element => getComputedStyle(document.body).backgroundColor);
+          assert.ok(contrastRatio(style.borderColor, surface) >= 3, `${palette} radio boundary`);
+          if (await radio.isChecked()) {
+            const dot = style.backgroundImage.match(/rgba?\([^)]+\)/)?.[0];
+            assert.ok(dot, `${palette} selected radio needs a visible dot`);
+            assert.ok(contrastRatio(dot, style.backgroundColor) >= 3, `${palette} radio dot`);
+          }
+        }
+        const checkbox = page.getByRole('checkbox', { name: 'Sample checkbox', exact: true });
+        await checkbox.check();
+        await waitForTransitions(checkbox);
+        const choice = await buttonStyles(checkbox);
+        const mark = await checkbox.evaluate(element => getComputedStyle(element.parentElement.querySelector('svg')).color);
+        assert.ok(contrastRatio(mark, choice.backgroundColor) >= 3, `${palette} checked mark`);
+        const disabledChoice = page.getByRole('checkbox', { name: 'Disabled checked example' });
+        assert.equal(await disabledChoice.isChecked(), true);
+        const disabledStyle = await buttonStyles(disabledChoice);
+        const disabledMark = await disabledChoice.evaluate(element => getComputedStyle(element.parentElement.querySelector('svg')).color);
+        assert.equal(disabledStyle.opacity, '1');
+        assert.ok(contrastRatio(disabledMark, disabledStyle.backgroundColor) >= 3, `${palette} disabled checked mark`);
+        const loading = page.getByRole('button', { name: /Saving example/ });
+        assert.equal(await loading.isDisabled(), true);
+        const loadingStyle = await originalInactiveButton(loading, palette, 'primary');
+        const spinnerColor = await loading.getByRole('status', { name: 'Loading' }).evaluate(element => getComputedStyle(element).borderTopColor);
+        assert.equal(spinnerColor, loadingStyle.color, 'Loading spinner fades with the original text color');
+        const blocked = page.getByRole('button', { name: 'Validation-blocked example', exact: true });
+        assert.equal(await blocked.evaluate(element => element.disabled), false, 'Validation guidance remains keyboard reachable');
+        assert.equal(await blocked.getAttribute('aria-disabled'), 'true');
+        await blocked.focus();
+        await originalInactiveButton(blocked, palette, 'primary');
+        await page.getByRole('tooltip').waitFor();
+        await readableButton(page.getByRole('tooltip'), `${palette}/validation guidance`);
+        await blocked.hover();
+        await waitForTransitions(blocked);
+        await originalInactiveButton(blocked, palette, 'primary');
+        await page.keyboard.press('Escape');
+        for (const variant of ['Primary', 'Secondary', 'Success', 'Danger']) {
+          const header = page.getByRole('button', { name: `Disabled header ${variant}`, exact: true });
+          assert.equal(await header.isDisabled(), true);
+          const headerStyle = await buttonStyles(header);
+          const expected = originalDisabledButtonColors[palette];
+          assert.equal(headerStyle.opacity, '0.5');
+          assert.equal(headerStyle.color, rgbFromHex(variant === 'Secondary' ? expected.headerSecondaryForeground : expected.foreground));
+          assert.equal(headerStyle.backgroundColor, rgbFromHex(variant === 'Secondary' ? expected.headerSecondaryFill : expected.fills[variant.toLowerCase()]));
+        }
+        const dimensions = await page.evaluate(() => ({ viewport: innerWidth, content: document.documentElement.scrollWidth }));
+        assert.ok(dimensions.content <= dimensions.viewport + 1, `${palette}/${viewport.width} theme-demo overflow`);
+        if (screenshots) {
+          await page.screenshot({ path: `${screenshots}/${palette}-${viewport.width}.png`, fullPage: true });
+          await page.locator('[aria-label="Disabled button examples"]').screenshot({ path: `${screenshots}/inactive-${palette}-${viewport.width}.png` });
+        }
+      }
+    }
+    // Text resizing complements the 400% reflow-equivalent viewport above.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const resized = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
+    assert.ok(resized, '200% text resizing must preserve reflow');
+    await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
+
+    // Exercise real animated hover states too; the full matrix above uses reduced
+    // motion so repeated color measurements do not wait on cosmetic transitions.
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
     for (const palette of PALETTES) {
-      await applyPalette(page, palette);
-      const paletteStyles = await collectHomeStyles(page);
-      assertTailwindLayoutIsApplied(paletteStyles);
-      assertThemeContrast(paletteStyles, palette);
+      await selectPalette(page, palette);
+      for (const variant of variants) {
+        const button = page.getByRole('button', { name: variant, exact: true });
+        await page.mouse.move(0, 0);
+        await waitForTransitions(button);
+        await readableButton(button, `${palette}/${variant}/animated default`);
+        await button.hover();
+        await waitForTransitions(button);
+        const style = await readableButton(button, `${palette}/${variant}/animated hover`);
+        assert.ok(Number.parseFloat(style.transitionDuration) > 0, 'Normal motion retains the color transition');
+      }
     }
 
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload({ waitUntil: 'networkidle' });
-
-    const mobileStyles = await collectHomeStyles(page);
-    assertTailwindLayoutIsApplied(mobileStyles);
-    assertHomeDoesNotOverflow(mobileStyles);
+    await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+    for (const palette of PALETTES) {
+      await selectPalette(page, palette);
+      const button = page.getByRole('button', { name: 'Primary', exact: true });
+      await keyboardFocus(page, button);
+      const style = await buttonStyles(button);
+      assert.equal(style.transitionDuration, '0s');
+      assert.equal(style.outlineStyle, 'solid');
+      assert.ok(Number.parseFloat(style.outlineWidth) >= 2);
+      assert.notEqual(style.color, style.backgroundColor);
+      assert.notEqual(style.borderColor, style.backgroundColor);
+      assert.equal(await page.getByRole('status', { name: 'Loading', exact: true }).evaluate(element => getComputedStyle(element).animationName), 'none');
+      assert.equal(await page.getByRole('button', { name: /Saving example/ }).isDisabled(), true);
+      const nativeChoice = page.getByRole('checkbox', { name: 'Disabled checked example' });
+      assert.equal(await nativeChoice.evaluate(element => getComputedStyle(element).appearance), 'auto');
+      assert.equal(await nativeChoice.evaluate(element => getComputedStyle(element.parentElement.querySelector('svg')).display), 'none');
+      assert.equal(await nativeChoice.isChecked(), true);
+      const selected = page.getByRole('radio', { checked: true });
+      assert.equal(await selected.count(), 1, 'Palette selection retains its non-color state');
+      assert.ok((await selected.getAttribute('aria-label')) || (await selected.evaluate(element => element.labels?.length > 0)));
+    }
+    assert.deepEqual(errors, [], 'Theme startup and switching must not throw browser errors');
   } finally {
-    await browser?.close();
-    await stopDevServer(server);
+    await finish();
+  }
+});
+
+test('filter chips retain contrast and inactive actions restore their original appearance across palettes and layouts', { timeout: 120_000 }, async t => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
+  try {
+    await waitForServer(BASE_URL, 30_000, t.signal);
+    browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
+    const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })).newPage();
+    await page.goto(`${BASE_URL}/theme-demo`, { waitUntil: 'networkidle' });
+    const variants = ['default', 'primary', 'success', 'warning', 'danger'];
+    for (const width of [1280, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const palette of PALETTES) {
+        await selectPalette(page, palette);
+        const filters = page.getByRole('group', { name: 'Filter chip examples' });
+        for (const variant of variants) {
+          const chip = filters.getByRole('button', { name: `Filter ${variant}`, exact: true });
+          assert.equal(await chip.getAttribute('aria-pressed'), 'true');
+          await page.mouse.move(0, 0);
+          await waitForTransitions(chip);
+          await readableButton(chip, `${palette}/${width}/${variant}/selected`);
+          await chip.hover();
+          await waitForTransitions(chip);
+          await readableButton(chip, `${palette}/${width}/${variant}/hover`);
+          await keyboardFocus(page, chip);
+          const focused = await readableButton(chip, `${palette}/${width}/${variant}/focus`);
+          assert.notEqual(focused.boxShadow, 'none', 'Selected filters need visible keyboard focus');
+          await page.keyboard.press('Space');
+          assert.equal(await chip.getAttribute('aria-pressed'), 'false');
+          await waitForTransitions(chip);
+          await readableButton(chip, `${palette}/${width}/${variant}/unselected`);
+          await page.keyboard.press('Enter');
+          assert.equal(await chip.getAttribute('aria-pressed'), 'true');
+          const disabled = filters.getByRole('button', { name: `Disabled filter ${variant}`, exact: true });
+          assert.equal(await disabled.isDisabled(), true);
+          assert.equal(await disabled.getAttribute('aria-pressed'), 'true');
+          const disabledStyle = await readableButton(disabled, `${palette}/${width}/${variant}/disabled`);
+          assert.ok(contrastRatio(disabledStyle.borderColor, disabledStyle.backgroundColor) >= 3, `${palette}/${variant}/disabled filter boundary`);
+        }
+        const inactive = page.getByRole('button', { name: 'Inactive Submit Answer', exact: true });
+        assert.equal(await inactive.isDisabled(), true);
+        await originalInactiveButton(inactive, palette, 'primary');
+        await readableButton(page.getByRole('button', { name: 'Active Submit Answer', exact: true }), `${palette}/${width}/active submission`);
+        const dimensions = await filters.evaluate(element => ({ left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right, viewport: innerWidth }));
+        assert.ok(dimensions.left >= 0 && dimensions.right <= dimensions.viewport, 'Filter controls must fit the viewport');
+        if (process.env.THEME_SCREENSHOT_DIR) {
+          await mkdir(process.env.THEME_SCREENSHOT_DIR, { recursive: true });
+          await filters.screenshot({ path: `${process.env.THEME_SCREENSHOT_DIR}/filters-${palette}-${width}.png` });
+        }
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    for (const palette of PALETTES) {
+      await selectPalette(page, palette);
+      for (const variant of variants) {
+        const chip = page.getByRole('button', { name: `Filter ${variant}`, exact: true });
+        await page.mouse.move(0, 0);
+        await waitForTransitions(chip);
+        await readableButton(chip, `${palette}/${variant}/animated selected`);
+        await chip.hover();
+        await waitForTransitions(chip);
+        const style = await readableButton(chip, `${palette}/${variant}/animated hover`);
+        assert.ok(Number.parseFloat(style.transitionDuration) > 0, 'Normal motion retains filter transitions');
+      }
+    }
+
+    await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+    for (const palette of PALETTES) {
+      await selectPalette(page, palette);
+      const selected = page.getByRole('button', { name: 'Filter primary', exact: true });
+      await keyboardFocus(page, selected);
+      const style = await buttonStyles(selected);
+      assert.equal(await selected.getAttribute('aria-pressed'), 'true');
+      assert.equal(style.transitionDuration, '0s');
+      assert.equal(style.outlineStyle, 'solid');
+      assert.notEqual(style.color, style.backgroundColor);
+      const inactive = await buttonStyles(page.getByRole('button', { name: 'Inactive Submit Answer', exact: true }));
+      assert.notEqual(inactive.color, inactive.backgroundColor);
+      assert.equal(inactive.opacity, '1', 'Forced colors use unfaded system colors');
+    }
+  } finally {
+    await finish();
+  }
+});
+
+test('theme bootstrap resolves before application code and survives inaccessible or malformed storage', { timeout: 90_000 }, async t => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
+  try {
+    await waitForServer(BASE_URL, 30_000, t.signal);
+    browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
+    const scenarios = [
+      { theme: 'auto', scheme: 'light', system: 'dark', expected: 'dark' },
+      { theme: 'dark', scheme: 'blue', system: 'dark', expected: 'blue' },
+      { theme: 'light', scheme: 'purple', system: 'light', expected: 'purple' },
+      { theme: '"dark"', scheme: '__proto__', system: 'light', expected: 'light' },
+      { failure: 'getter', system: 'dark', expected: 'dark' },
+      { failure: 'getItem', system: 'light', expected: 'light' },
+      { failure: 'setItem', system: 'light', expected: 'light' },
+      { failure: 'matchMedia', system: 'dark', expected: 'light' },
+    ];
+    for (const scenario of scenarios) {
+      const context = await createTestContext(browser, { colorScheme: scenario.system });
+      const page = await context.newPage();
+      const failures = [];
+      page.on('pageerror', error => failures.push(error.message));
+      await page.addInitScript(options => {
+        if (options.theme) localStorage.setItem('quizmaker-theme', options.theme);
+        if (options.scheme) localStorage.setItem('quizmaker-color-scheme', options.scheme);
+        if (options.failure === 'getter') Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } });
+        if (options.failure === 'getItem' || options.failure === 'setItem') Storage.prototype[options.failure] = () => { throw new DOMException('Denied', 'SecurityError'); };
+        if (options.failure === 'matchMedia') Object.defineProperty(window, 'matchMedia', { value: undefined });
+      }, scenario);
+      // With all application modules blocked, only the synchronous head bootstrap can resolve appearance.
+      await page.route('**/*', route => {
+        const url = new URL(route.request().url());
+        return url.pathname.endsWith('.js') || url.pathname.endsWith('.tsx') || url.pathname.endsWith('.ts')
+          ? route.abort('blockedbyclient') : route.fallback();
+      });
+      await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+      const initial = await page.evaluate(() => ({ classes: document.documentElement.className, color: document.documentElement.style.colorScheme, rootChildren: document.getElementById('root')?.childElementCount }));
+      assert.ok(initial.classes.split(' ').includes(`theme-${scenario.expected}`), JSON.stringify(scenario));
+      assert.equal(initial.color, ['dark', 'purple'].includes(scenario.expected) ? 'dark' : 'light');
+      if (!process.env.RELEASE_BASE_URL) assert.equal(initial.rootChildren, 0, 'React must remain blocked during the startup assertion');
+      await page.unroute('**/*');
+      // Reinstall provider fakes after removing the page-owned module blocker.
+      await page.reload({ waitUntil: 'networkidle' });
+      try {
+        await page.getByRole('heading', { name: /create ai quizzes/i }).waitFor();
+      } catch (error) {
+        throw new Error(`Startup scenario ${JSON.stringify(scenario)} failed; browser errors: ${JSON.stringify(failures)}`, { cause: error });
+      }
+      await page.getByRole('button', { name: /Current theme:/ }).click();
+      await page.getByRole('button', { name: 'Switch to Royal Purple theme', exact: true }).click();
+      assert.ok(await page.evaluate(() => document.documentElement.classList.contains('theme-purple')), 'In-memory palette update must work after startup failures');
+      await context.close();
+    }
+    // With JavaScript disabled, every semantic CSS token must still have a usable fallback.
+    const context = await createTestContext(browser, { javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto(BASE_URL, { waitUntil: 'load' });
+    const fallback = await page.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, text: getComputedStyle(document.body).color, info: getComputedStyle(document.documentElement).getPropertyValue('--color-control-info-hover-foreground'), status: getComputedStyle(document.documentElement).getPropertyValue('--color-status-info-bg'), overlay: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-overlay') }));
+    assert.ok(contrastRatio(fallback.text, fallback.bg) >= 4.5);
+    assert.ok(fallback.info && fallback.status && fallback.overlay, 'Complete startup fallbacks must survive missing JavaScript');
+    await context.close();
+  } finally {
+    await finish();
   }
 });

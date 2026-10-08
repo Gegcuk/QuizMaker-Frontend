@@ -1,12 +1,8 @@
-// ---------------------------------------------------------------------------
-// ThemeContext.tsx - Multi-color scheme theme management
-// Provides theme state and utilities throughout the app
-// ---------------------------------------------------------------------------
-
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ColorPalette, colorPalettes, getPaletteById, generateCSSVariables } from './ColorPalettes';
-
-type Theme = 'light' | 'dark' | 'auto';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { colorPalettes, getPaletteById } from './ColorPalettes';
+import type { ColorPalette } from './ColorPalettes';
+import { createThemeRuntime, startupPalettes } from './themeRuntime';
+import type { Theme, ThemePreferences } from './themeRuntime';
 
 interface ThemeContextType {
   theme: Theme;
@@ -20,147 +16,61 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
 interface ThemeProviderProps {
   children: React.ReactNode;
   defaultTheme?: Theme;
   defaultColorScheme?: string;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
-  children, 
-  defaultTheme = 'auto',
-  defaultColorScheme = 'light'
-}) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('quizmaker-theme') as Theme;
-      return (saved && ['light', 'dark', 'auto'].includes(saved)) ? saved : defaultTheme;
-    }
-    return defaultTheme;
-  });
-  
-  const [colorScheme, setColorScheme] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('quizmaker-color-scheme');
-      return (saved && colorPalettes.find(p => p.id === saved)) ? saved : defaultColorScheme;
-    }
-    return defaultColorScheme;
-  });
-  
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
-  const [currentPalette, setCurrentPalette] = useState<ColorPalette>(getPaletteById(colorScheme));
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, defaultTheme = 'auto', defaultColorScheme = 'light' }) => {
+  const runtime = createThemeRuntime(startupPalettes, window, document);
+  const [preferences, setPreferences] = useState<ThemePreferences>(() => runtime.readPreferences({ theme: defaultTheme, colorScheme: defaultColorScheme }));
+  // A media subscription represents an external browser preference, not derived React state.
+  const [systemDark, setSystemDark] = useState(() => runtime.resolve({ theme: 'auto', colorScheme: 'light' }).resolvedTheme === 'dark');
+  const { resolvedTheme, colorScheme } = runtime.resolve(preferences, systemDark ? 'dark' : 'light');
+  const currentPalette = getPaletteById(colorScheme);
 
-  // Get system theme preference
-  const getSystemTheme = (): 'light' | 'dark' => {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
-  };
-
-  // Resolve the actual theme based on user preference
-  const resolveTheme = (userTheme: Theme): 'light' | 'dark' => {
-    if (userTheme === 'auto') {
-      return getSystemTheme();
-    }
-    return userTheme;
-  };
-
-  // Apply theme to document
-  const applyTheme = (palette: ColorPalette) => {
-    const root = document.documentElement;
-    
-    // Apply color scheme class - remove any existing theme classes first
-    const existingThemeClasses = Array.from(root.classList).filter(cls => cls.startsWith('theme-'));
-    existingThemeClasses.forEach(cls => root.classList.remove(cls));
-    root.classList.add(`theme-${palette.id}`);
-    
-    // Apply dark mode class for Tailwind CSS
-    // This is critical for dark: classes to work
-    if (resolvedTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    
-    // Apply CSS custom properties
-    const cssVariables = generateCSSVariables(palette);
-    Object.entries(cssVariables).forEach(([property, value]) => {
-      root.style.setProperty(property, value);
-    });
-    
-    // Update meta theme-color for mobile browsers
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', palette.colors.bg.primary);
-    }
-  };
-
-  // Update current palette when color scheme changes
   useEffect(() => {
-    const palette = getPaletteById(colorScheme);
-    setCurrentPalette(palette);
-  }, [colorScheme]);
-
-  // Update resolved theme when theme or system preference changes
-  useEffect(() => {
-    const newResolvedTheme = resolveTheme(theme);
-    setResolvedTheme(newResolvedTheme);
-
-    // Listen for system theme changes when using 'auto'
-    if (theme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => {
-        const autoResolvedTheme = resolveTheme('auto');
-        setResolvedTheme(autoResolvedTheme);
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    let media: MediaQueryList;
+    try { media = window.matchMedia('(prefers-color-scheme: dark)'); } catch { return; }
+    const update = () => setSystemDark(media.matches);
+    update();
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', update);
+      return () => media.removeEventListener('change', update);
     }
-  }, [theme]);
+    // Older engines may only implement the legacy MediaQueryList subscription.
+    if (typeof media.addListener === 'function') {
+      media.addListener(update);
+      return () => media.removeListener(update);
+    }
+  }, []);
 
-  // Apply theme whenever resolvedTheme or colorScheme changes
-  useEffect(() => {
-    const palette = getPaletteById(colorScheme);
-    applyTheme(palette);
+  useLayoutEffect(() => {
+    // The head bootstrap owns first paint; this synchronizes later React updates.
+    createThemeRuntime(startupPalettes, window, document).apply({ theme: resolvedTheme, colorScheme });
   }, [resolvedTheme, colorScheme]);
 
-  const handleSetTheme = (newTheme: Theme) => {
-    setTheme(newTheme);
-    localStorage.setItem('quizmaker-theme', newTheme);
+  const updatePreferences = (next: ThemePreferences) => {
+    setPreferences(next);
+    runtime.persist(next);
   };
-
-  const handleSetColorScheme = (newScheme: string) => {
-    setColorScheme(newScheme);
-    localStorage.setItem('quizmaker-color-scheme', newScheme);
+  const setTheme = (theme: Theme) => {
+    if (theme !== 'light' && theme !== 'dark' && theme !== 'auto') return;
+    updatePreferences({ theme, colorScheme: theme === 'dark' ? 'dark' : 'light' });
   };
-
-  const toggleTheme = () => {
-    const newTheme = resolvedTheme === 'light' ? 'dark' : 'light';
-    handleSetTheme(newTheme);
-    
-    // Also toggle color scheme if it's currently light/dark
-    if (colorScheme === 'light' || colorScheme === 'dark') {
-      const newColorScheme = colorScheme === 'light' ? 'dark' : 'light';
-      handleSetColorScheme(newColorScheme);
-    }
-  };
-
-  const value: ThemeContextType = {
-    theme,
-    resolvedTheme,
-    colorScheme,
-    currentPalette,
-    setTheme: handleSetTheme,
-    setColorScheme: handleSetColorScheme,
-    toggleTheme,
-    availablePalettes: colorPalettes,
+  const setColorScheme = (scheme: string) => {
+    if (!Object.prototype.hasOwnProperty.call(startupPalettes, scheme)) return;
+    updatePreferences({ theme: scheme === 'light' || scheme === 'dark' ? scheme : preferences.theme, colorScheme: scheme });
   };
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{
+      theme: preferences.theme, resolvedTheme, colorScheme, currentPalette,
+      setTheme, setColorScheme,
+      toggleTheme: () => setTheme(resolvedTheme === 'light' ? 'dark' : 'light'),
+      availablePalettes: colorPalettes,
+    }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -168,10 +78,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider');
   return context;
 };
-
 export default ThemeProvider;
