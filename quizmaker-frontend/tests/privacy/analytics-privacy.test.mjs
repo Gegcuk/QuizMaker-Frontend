@@ -307,7 +307,12 @@ test('production error recovery excludes seeded secrets on desktop and mobile', 
           });
           if (url.pathname === '/api/v1/quizzes') return route.fulfill({
             status, contentType: 'application/problem+json',
-            headers: { 'X-Correlation-ID': reference, 'Retry-After': '20' },
+            // PR builds use an absolute fake API origin. Custom response headers
+            // must be explicitly exposed before the browser can give them to Axios.
+            headers: {
+              'X-Correlation-ID': reference, 'Retry-After': '20',
+              'Access-Control-Expose-Headers': 'X-Correlation-ID, Retry-After',
+            },
             body: JSON.stringify({ status, title: secret, detail: secret, instance: `/${secret}`,
               code: secret, type: `https://example.test/${secret}`, errors: { title: [secret], [secret]: [secret] } }),
           });
@@ -336,6 +341,7 @@ test('production error recovery excludes seeded secrets on desktop and mobile', 
           await page.getByText(/Support reference: [a-f0-9-]{36}/).waitFor();
         } else {
           await page.getByText(new RegExp(`Support reference: ${reference}`)).waitFor();
+          await page.getByText(/Wait at least 20 seconds/).waitFor();
         }
         const body = await page.locator('body').innerText();
         assert.doesNotMatch(body, /diagnostic-.*canary/);
