@@ -6,6 +6,7 @@ import { mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { originalDisabledButtonColors } from './fixtures/disabled-button-colors.mjs';
 import { launchBrowser } from '../scripts/browser/launch-browser.mjs';
+import { registerSmokeCleanup } from './fixtures/smoke-cleanup.mjs';
 import { createTestContext } from './fixtures/browser-context.mjs';
 
 const HOST = '127.0.0.1';
@@ -34,22 +35,24 @@ const stopDevServer = async (server) => {
   await Promise.race([once(server, 'exit'), delay(2_000)]);
 };
 
-const waitForServer = async (url, timeoutMs = 30_000) => {
+const waitForServer = async (url, timeoutMs = 30_000, signal) => {
   const startedAt = Date.now();
   let lastError;
 
   while (Date.now() - startedAt < timeoutMs) {
+    signal?.throwIfAborted();
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal });
       if (response.ok) {
         return;
       }
       lastError = new Error(`Server responded with ${response.status}`);
     } catch (error) {
+      signal?.throwIfAborted();
       lastError = error;
     }
 
-    await delay(500);
+    await delay(500, undefined, { signal });
   }
 
   throw lastError ?? new Error(`Server did not start at ${url}`);
@@ -287,14 +290,46 @@ const applyPalette = async (page, palette) => {
   );
 };
 
-test('home page passes styling, theme, and responsive smoke checks', { timeout: 60_000 }, async () => {
+const waitForTransitions = target => target.evaluate(element => new Promise(resolve => {
+  const sample = () => {
+    // CSS transitions can be replaced while the theme and hover state change.
+    // Inspect the current animations instead of awaiting a cancelled one's promise.
+    const active = (element ?? document).getAnimations().some(animation =>
+      animation.effect?.getComputedTiming().iterations !== Infinity
+      && (animation.pending || animation.playState === 'running'));
+    if (active) requestAnimationFrame(sample);
+    else resolve();
+  };
+  requestAnimationFrame(sample);
+}));
+
+const selectPalette = async (page, palette) => {
+  const names = { light: 'Light', dark: 'Dark', blue: 'Ocean Blue', purple: 'Royal Purple', green: 'Forest Green' };
+  const radio = page.getByRole('group', { name: 'Color Scheme', exact: true })
+    .getByRole('radio', { name: new RegExp(`^${names[palette]}\\b`) });
+  const changed = !await radio.isChecked();
+  await radio.check();
+  await page.waitForFunction(scheme => document.documentElement.classList.contains(`theme-${scheme}`), palette);
+  if (changed) assert.equal(await page.evaluate(() => localStorage.getItem('quizmaker-color-scheme')), palette);
+  await waitForTransitions(page);
+};
+
+test('home page passes styling, theme, and responsive smoke checks', { timeout: 60_000 }, async t => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
 
   let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
 
   try {
-    await waitForServer(BASE_URL);
+    await waitForServer(BASE_URL, 30_000, t.signal);
     browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
 
     const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 720 } })).newPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
@@ -335,8 +370,7 @@ test('home page passes styling, theme, and responsive smoke checks', { timeout: 
       }
     }
   } finally {
-    await browser?.close();
-    await stopDevServer(server);
+    await finish();
   }
 });
 
@@ -366,6 +400,13 @@ const readableButton = async (button, label) => {
   return style;
 };
 
+const keyboardFocus = async (page, control) => {
+  // Real keyboard navigation enables :focus-visible after a mouse palette choice.
+  await control.press('Tab');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await control.evaluate(element => element === document.activeElement), true, 'Keyboard navigation returns focus to the control');
+};
+
 const rgbFromHex = hex => `rgb(${hex.slice(1).match(/../g).map(channel => Number.parseInt(channel, 16)).join(', ')})`;
 const originalInactiveButton = async (button, palette, variant) => {
   const style = await buttonStyles(button);
@@ -379,13 +420,21 @@ const originalInactiveButton = async (button, palette, variant) => {
   return style;
 };
 
-test('theme controls retain contrast across all palettes, states and accessibility preferences', { timeout: 120_000 }, async () => {
+test('theme controls retain contrast across all palettes, states and accessibility preferences', { timeout: 120_000 }, async t => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
   try {
-    await waitForServer(BASE_URL);
+    await waitForServer(BASE_URL, 30_000, t.signal);
     browser = await launchBrowser();
-    const context = await createTestContext(browser, { viewport: { width: 1280, height: 900 } });
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
+    const context = await createTestContext(browser, { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -397,7 +446,15 @@ test('theme controls retain contrast across all palettes, states and accessibili
     for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 720 }]) {
       await page.setViewportSize(viewport);
       for (const palette of PALETTES) {
-        await applyPalette(page, palette);
+        await selectPalette(page, palette);
+        const ring = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-focus-ring'));
+        const offset = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary'));
+        // CSS-variable hex values are converted by the browser to sRGB.
+        const resolved = await page.evaluate(([a, b]) => {
+          const probe = document.createElement('span'); probe.style.color = a; probe.style.backgroundColor = b;
+          document.body.append(probe); const style = getComputedStyle(probe); const result = [style.color, style.backgroundColor]; probe.remove(); return result;
+        }, [ring, offset]);
+        assert.ok(contrastRatio(...resolved) >= 3, `${palette} focus ring`);
         for (const variant of variants) {
           const button = page.getByRole('button', { name: variant, exact: true });
           // Move off any previous hover before measuring default colors.
@@ -405,25 +462,17 @@ test('theme controls retain contrast across all palettes, states and accessibili
           await readableButton(button, `${palette}/${variant}/default`);
           await button.hover();
           // Allow the actual transition to complete, without arbitrary sleeps.
-          await button.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await waitForTransitions(button);
           await readableButton(button, `${palette}/${variant}/hover`);
-          await button.focus();
+          await keyboardFocus(page, button);
           const focused = await readableButton(button, `${palette}/${variant}/focus`);
           assert.notEqual(focused.boxShadow, 'none', `${palette}/${variant} needs visible focus`);
-          const ring = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-focus-ring'));
-          const offset = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary'));
-          // CSS-variable hex values are converted by the browser to sRGB.
-          const resolved = await page.evaluate(([a, b]) => {
-            const probe = document.createElement('span'); probe.style.color = a; probe.style.backgroundColor = b;
-            document.body.append(probe); const style = getComputedStyle(probe); const result = [style.color, style.backgroundColor]; probe.remove(); return result;
-          }, [ring, offset]);
-          assert.ok(contrastRatio(...resolved) >= 3, `${palette} focus ring`);
           const disabled = page.getByRole('button', { name: `Disabled ${variant}`, exact: true });
           assert.equal(await disabled.isDisabled(), true);
           await originalInactiveButton(disabled, palette, variant.toLowerCase());
           if (viewport.width === 1280) {
             await disabled.hover({ force: true });
-            await disabled.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+            await waitForTransitions(disabled);
             await originalInactiveButton(disabled, palette, variant.toLowerCase());
           }
         }
@@ -446,7 +495,7 @@ test('theme controls retain contrast across all palettes, states and accessibili
         }
         const checkbox = page.getByRole('checkbox', { name: 'Sample checkbox', exact: true });
         await checkbox.check();
-        await checkbox.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+        await waitForTransitions(checkbox);
         const choice = await buttonStyles(checkbox);
         const mark = await checkbox.evaluate(element => getComputedStyle(element.parentElement.querySelector('svg')).color);
         assert.ok(contrastRatio(mark, choice.backgroundColor) >= 3, `${palette} checked mark`);
@@ -469,7 +518,7 @@ test('theme controls retain contrast across all palettes, states and accessibili
         await page.getByRole('tooltip').waitFor();
         await readableButton(page.getByRole('tooltip'), `${palette}/validation guidance`);
         await blocked.hover();
-        await blocked.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+        await waitForTransitions(blocked);
         await originalInactiveButton(blocked, palette, 'primary');
         await page.keyboard.press('Escape');
         for (const variant of ['Primary', 'Secondary', 'Success', 'Danger']) {
@@ -496,11 +545,28 @@ test('theme controls retain contrast across all palettes, states and accessibili
     assert.ok(resized, '200% text resizing must preserve reflow');
     await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
 
+    // Exercise real animated hover states too; the full matrix above uses reduced
+    // motion so repeated color measurements do not wait on cosmetic transitions.
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    for (const palette of PALETTES) {
+      await selectPalette(page, palette);
+      for (const variant of variants) {
+        const button = page.getByRole('button', { name: variant, exact: true });
+        await page.mouse.move(0, 0);
+        await waitForTransitions(button);
+        await readableButton(button, `${palette}/${variant}/animated default`);
+        await button.hover();
+        await waitForTransitions(button);
+        const style = await readableButton(button, `${palette}/${variant}/animated hover`);
+        assert.ok(Number.parseFloat(style.transitionDuration) > 0, 'Normal motion retains the color transition');
+      }
+    }
+
     await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
     for (const palette of PALETTES) {
-      await applyPalette(page, palette);
+      await selectPalette(page, palette);
       const button = page.getByRole('button', { name: 'Primary', exact: true });
-      await button.focus();
+      await keyboardFocus(page, button);
       const style = await buttonStyles(button);
       assert.equal(style.transitionDuration, '0s');
       assert.equal(style.outlineStyle, 'solid');
@@ -519,40 +585,47 @@ test('theme controls retain contrast across all palettes, states and accessibili
     }
     assert.deepEqual(errors, [], 'Theme startup and switching must not throw browser errors');
   } finally {
-    await browser?.close();
-    await stopDevServer(server);
+    await finish();
   }
 });
 
-test('filter chips retain contrast and inactive actions restore their original appearance across palettes and layouts', { timeout: 120_000 }, async () => {
+test('filter chips retain contrast and inactive actions restore their original appearance across palettes and layouts', { timeout: 120_000 }, async t => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
   try {
-    await waitForServer(BASE_URL);
+    await waitForServer(BASE_URL, 30_000, t.signal);
     browser = await launchBrowser();
-    const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 900 } })).newPage();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
+    const page = await (await createTestContext(browser, { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })).newPage();
     await page.goto(`${BASE_URL}/theme-demo`, { waitUntil: 'networkidle' });
     const variants = ['default', 'primary', 'success', 'warning', 'danger'];
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
       for (const palette of PALETTES) {
-        await applyPalette(page, palette);
+        await selectPalette(page, palette);
         const filters = page.getByRole('group', { name: 'Filter chip examples' });
         for (const variant of variants) {
           const chip = filters.getByRole('button', { name: `Filter ${variant}`, exact: true });
           assert.equal(await chip.getAttribute('aria-pressed'), 'true');
           await page.mouse.move(0, 0);
-          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await waitForTransitions(chip);
           await readableButton(chip, `${palette}/${width}/${variant}/selected`);
           await chip.hover();
-          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await waitForTransitions(chip);
           await readableButton(chip, `${palette}/${width}/${variant}/hover`);
-          await chip.focus();
+          await keyboardFocus(page, chip);
           const focused = await readableButton(chip, `${palette}/${width}/${variant}/focus`);
           assert.notEqual(focused.boxShadow, 'none', 'Selected filters need visible keyboard focus');
           await page.keyboard.press('Space');
           assert.equal(await chip.getAttribute('aria-pressed'), 'false');
-          await chip.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+          await waitForTransitions(chip);
           await readableButton(chip, `${palette}/${width}/${variant}/unselected`);
           await page.keyboard.press('Enter');
           assert.equal(await chip.getAttribute('aria-pressed'), 'true');
@@ -574,11 +647,27 @@ test('filter chips retain contrast and inactive actions restore their original a
         }
       }
     }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    for (const palette of PALETTES) {
+      await selectPalette(page, palette);
+      for (const variant of variants) {
+        const chip = page.getByRole('button', { name: `Filter ${variant}`, exact: true });
+        await page.mouse.move(0, 0);
+        await waitForTransitions(chip);
+        await readableButton(chip, `${palette}/${variant}/animated selected`);
+        await chip.hover();
+        await waitForTransitions(chip);
+        const style = await readableButton(chip, `${palette}/${variant}/animated hover`);
+        assert.ok(Number.parseFloat(style.transitionDuration) > 0, 'Normal motion retains filter transitions');
+      }
+    }
+
     await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
     for (const palette of PALETTES) {
-      await applyPalette(page, palette);
+      await selectPalette(page, palette);
       const selected = page.getByRole('button', { name: 'Filter primary', exact: true });
-      await selected.focus();
+      await keyboardFocus(page, selected);
       const style = await buttonStyles(selected);
       assert.equal(await selected.getAttribute('aria-pressed'), 'true');
       assert.equal(style.transitionDuration, '0s');
@@ -589,17 +678,24 @@ test('filter chips retain contrast and inactive actions restore their original a
       assert.equal(inactive.opacity, '1', 'Forced colors use unfaded system colors');
     }
   } finally {
-    await browser?.close();
-    await stopDevServer(server);
+    await finish();
   }
 });
 
-test('theme bootstrap resolves before application code and survives inaccessible or malformed storage', { timeout: 90_000 }, async () => {
+test('theme bootstrap resolves before application code and survives inaccessible or malformed storage', { timeout: 90_000 }, async t => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;
+  const finish = registerSmokeCleanup(t, async () => {
+    try { await browser?.close(); }
+    finally { await stopDevServer(server); }
+  });
   try {
-    await waitForServer(BASE_URL);
+    await waitForServer(BASE_URL, 30_000, t.signal);
     browser = await launchBrowser();
+    if (t.signal.aborted) {
+      await browser.close();
+      t.signal.throwIfAborted();
+    }
     const scenarios = [
       { theme: 'auto', scheme: 'light', system: 'dark', expected: 'dark' },
       { theme: 'dark', scheme: 'blue', system: 'dark', expected: 'blue' },
@@ -655,7 +751,6 @@ test('theme bootstrap resolves before application code and survives inaccessible
     assert.ok(fallback.info && fallback.status && fallback.overlay, 'Complete startup fallbacks must survive missing JavaScript');
     await context.close();
   } finally {
-    await browser?.close();
-    await stopDevServer(server);
+    await finish();
   }
 });
