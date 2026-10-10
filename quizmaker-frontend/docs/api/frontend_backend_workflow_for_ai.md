@@ -120,6 +120,17 @@ these layers.
    state. They should not duplicate endpoint paths or invent backend validation
    rules.
 
+## Taxonomy reads and writes
+
+Use the existing metadata Query hooks and shared taxonomy mutation hooks under
+`src/features/quiz/hooks` for tag/category consumers. Preserve list parameters in
+canonical keys and keep the complete backend page response. Forms own drafts;
+Query owns records. Confirmed changes cancel old reads and reconcile only the
+affected taxonomy. A successful create followed by a failed detail read must not
+replay the create; retry only the read. See README's taxonomy ownership section for
+session boundaries and regression coverage. Request and response contracts still
+come exclusively from the live API, not from these frontend implementation notes.
+
 ## Auth and Request Behavior
 
 `axiosInstance` is the default API client exported through `src/services/index.ts`.

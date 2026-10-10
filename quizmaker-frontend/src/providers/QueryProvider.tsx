@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { subscribeToSessionTransitions } from '@/features/auth/services/sessionLifecycle';
+import { getSessionGeneration, subscribeToSessionTransitions } from '@/features/auth/services/sessionLifecycle';
 
 export const createQueryClient = () => new QueryClient({
   defaultOptions: {
@@ -28,17 +28,19 @@ interface QueryProviderProps {
 }
 
 export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
-  const [queryClient, setQueryClient] = useState(createQueryClient);
+  const [{ queryClient, generation }, setSessionClient] = useState(() => ({
+    queryClient: createQueryClient(), generation: getSessionGeneration(),
+  }));
   const clientRef = useRef(queryClient);
 
-  useEffect(() => subscribeToSessionTransitions(() => {
+  useEffect(() => subscribeToSessionTransitions(transition => {
     const previousClient = clientRef.current;
     void previousClient.cancelQueries();
     previousClient.clear();
 
     const nextClient = createQueryClient();
     clientRef.current = nextClient;
-    setQueryClient(nextClient);
+    setSessionClient({ queryClient: nextClient, generation: transition.generation });
   }), []);
 
   useEffect(() => () => {
@@ -48,7 +50,7 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider key={generation} client={queryClient}>
       {children}
     </QueryClientProvider>
   );

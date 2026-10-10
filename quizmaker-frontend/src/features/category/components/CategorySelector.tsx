@@ -1,6 +1,8 @@
+import { useQueries } from '@tanstack/react-query';
+import { useCategoryPage, useDeletedCategories, categoryDetailOptions } from '@/features/quiz/hooks/useQuizMetadataQueries';
 import React, { useState, useEffect, useRef } from 'react';
 import { CategoryDto } from '@/types';
-import { categoryService } from '@/services';
+
 import { Button, Input, Alert } from '@/components';
 
 interface CategorySelectorProps {
@@ -24,30 +26,28 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   maxSelections,
   showSearch = true
 }) => {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [filteredCategories, setFilteredCategories] = useState<CategoryDto[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   
 
-  // Load categories on component mount
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  // Filter categories based on search term
-  useEffect(() => {
-    const filtered = categories.filter(category =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredCategories(filtered);
-  }, [categories, searchTerm]);
+  const taxonomyQuery = useCategoryPage({ page: 0, size: 100, sort: 'name,asc' });
+  const categories = taxonomyQuery.data?.content ?? [];
+  const deleted = useDeletedCategories();
+  const selectedRecords = useQueries({
+    queries: selectedCategories.map(item => ({ ...categoryDetailOptions(item.id), enabled: false })),
+  });
+  const loading = taxonomyQuery.isLoading;
+  const error = taxonomyQuery.error?.message;
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    category.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const selectionLabel = (category: CategoryDto) => deleted[category.id]
+    ? `${deleted[category.id].name} (unavailable)`
+    : categories.find(item => item.id === category.id)?.name ?? selectedRecords.find(query => query.data?.id === category.id)?.data?.name ?? category.name;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -61,38 +61,19 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await categoryService.getCategories({
-        page: 0,
-        size: 100, // Load more categories for better selection
-        sort: 'name,asc'
-      });
-
-      setCategories(response.content);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load categories');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (isOpen && showSearch) searchInputRef.current?.focus();
+  }, [isOpen, showSearch]);
 
   const handleToggleDropdown = () => {
     if (disabled) return;
     
     setIsOpen(!isOpen);
-    if (!isOpen && showSearch) {
-      // Focus search input when opening
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 100);
-    }
+
   };
 
   const handleCategorySelect = (category: CategoryDto) => {
+    if (deleted[category.id]) return;
     if (multiple) {
       const isSelected = selectedCategories.some(cat => cat.id === category.id);
       
@@ -135,11 +116,11 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     }
     
     if (!multiple) {
-      return selectedCategories[0].name;
+      return selectionLabel(selectedCategories[0]);
     }
     
     if (selectedCategories.length === 1) {
-      return selectedCategories[0].name;
+      return selectionLabel(selectedCategories[0]);
     }
     
     return `${selectedCategories.length} categories selected`;
@@ -165,10 +146,11 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     key={category.id}
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
-                    {category.name}
+                    {selectionLabel(category)}
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label={`Remove ${selectionLabel(category)}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveCategory(category.id);
@@ -222,6 +204,15 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
           </div>
         </div>
       </Button>
+
+      {selectedCategories.filter(item => deleted[item.id]).map(item => (
+        <div key={item.id} className="mt-1 flex items-center gap-2 text-sm text-theme-text-secondary">
+          <span>{selectionLabel(item)}</span>
+          <Button variant="ghost" size="sm" disabled={disabled} onClick={() => handleRemoveCategory(item.id)}>
+            Remove unavailable category
+          </Button>
+        </div>
+      ))}
 
       {/* Dropdown Menu */}
       {isOpen && (

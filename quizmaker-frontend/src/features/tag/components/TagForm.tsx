@@ -1,6 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { tagDetailOptions } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useTagMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
+import { assertCurrentSessionGeneration, getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import React, { useState, useEffect } from 'react';
 import { TagDto, CreateTagRequest, UpdateTagRequest } from '@/types';
-import { TagService, api } from '@/services';
+
 import { Button, Input, Textarea, Alert } from '@/components';
 
 interface TagFormProps {
@@ -24,7 +28,9 @@ export const TagForm: React.FC<TagFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
-  const tagService = new TagService(api);
+  const writes = useTagMutations();
+  const queryClient = useQueryClient();
+  const createdId = tag ? undefined : writes.create.data?.tagId;
   const isEditing = !!tag;
 
   useEffect(() => {
@@ -75,11 +81,14 @@ export const TagForm: React.FC<TagFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (loading) return;
+    if (!createdId && !validateForm()) {
       return;
     }
 
     setLoading(true);
+    const generation = getSessionGeneration();
+    let committed = Boolean(createdId);
     try {
       let savedTag: TagDto;
 
@@ -88,19 +97,23 @@ export const TagForm: React.FC<TagFormProps> = ({
           name: formData.name,
           description: formData.description
         };
-        savedTag = await tagService.updateTag(tag.id, updateData);
+        savedTag = await writes.update.mutateAsync({ id: tag.id, data: updateData });
       } else {
-        const result = await tagService.createTag(formData);
-        // Fetch the created tag to get full details
-        savedTag = await tagService.getTagById(result.tagId);
+        const id = createdId ?? (await writes.create.mutateAsync(formData)).tagId;
+        committed = true;
+        savedTag = await queryClient.fetchQuery(tagDetailOptions(id));
       }
 
+      assertCurrentSessionGeneration(generation);
+      writes.create.reset();
       onSave(savedTag);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to save tag';
-      setErrors({ submit: errorMessage });
+      if (isCurrentSessionGeneration(generation)) {
+        setErrors({ submit: committed ? 'Tag was saved, but could not be loaded. Retry loading it. ' + errorMessage : errorMessage });
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentSessionGeneration(generation)) setLoading(false);
     }
   };
 
@@ -167,6 +180,7 @@ export const TagForm: React.FC<TagFormProps> = ({
               type="text"
               id="name"
               name="name"
+              disabled={Boolean(createdId)}
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter tag name (3-50 characters)"
@@ -188,6 +202,7 @@ export const TagForm: React.FC<TagFormProps> = ({
             </div>
             <Textarea
               id="description"
+              disabled={Boolean(createdId)}
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
@@ -223,11 +238,11 @@ export const TagForm: React.FC<TagFormProps> = ({
               disabled={loading || !formData.name || !formData.name.trim()}
               loading={loading}
             >
-              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Tag' : 'Create Tag')}
+              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Tag' : createdId ? 'Retry loading tag' : 'Create Tag')}
             </Button>
           </div>
         </form>
       )}
     </div>
   );
-}; 
+};

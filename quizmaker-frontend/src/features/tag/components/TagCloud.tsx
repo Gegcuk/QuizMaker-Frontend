@@ -1,6 +1,8 @@
+import { useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import React, { useState, useEffect } from 'react';
 import { TagDto, QuizDto } from '@/types';
-import { TagService, QuizService, api } from '@/services';
+import { QuizService, api } from '@/services';
 import { Spinner, Alert } from '@/components';
 
 interface TagCloudProps {
@@ -27,81 +29,43 @@ export const TagCloud: React.FC<TagCloudProps> = ({
   showCounts = true,
   interactive = true
 }) => {
-  const [tags, setTags] = useState<TagWithUsage[]>([]);
+  const taxonomyQuery = useTagPage({ page: 0, size: 1000, sort: 'name,asc' });
+  const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
 
-  const tagService = new TagService(api);
-  const quizService = new QuizService(api);
 
   useEffect(() => {
-    loadTagCloud();
+    let active = true;
+    const generation = getSessionGeneration();
+    setLoading(true);
+    setError(null);
+    void new QuizService(api).getQuizzes({ page: 0, size: 1000 }).then(response => {
+      if (active && isCurrentSessionGeneration(generation)) setQuizzes(response.content);
+    }).catch(error => {
+      if (active && isCurrentSessionGeneration(generation)) {
+        setError(error instanceof Error ? error.message : 'Failed to load tag cloud');
+      }
+    }).finally(() => {
+      if (active && isCurrentSessionGeneration(generation)) setLoading(false);
+    });
+    return () => { active = false; };
   }, []);
 
-  const loadTagCloud = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load all tags
-      const tagsResponse = await tagService.getTags({
-        page: 0,
-        size: 1000,
-        sort: 'name,asc'
-      });
-
-      // Load all quizzes to calculate usage
-      const quizzesResponse = await quizService.getQuizzes({
-        page: 0,
-        size: 1000
-      });
-
-      const allTags = tagsResponse.content;
-      const allQuizzes = quizzesResponse.content;
-
-      // Calculate usage count for each tag
-      const tagUsageMap = new Map<string, number>();
-      
-      allQuizzes.forEach(quiz => {
-        quiz.tagIds.forEach(tagId => {
-          tagUsageMap.set(tagId, (tagUsageMap.get(tagId) || 0) + 1);
-        });
-      });
-
-      // Create tag cloud data with usage counts
-      const tagsWithUsage = allTags
-        .map(tag => ({
-          ...tag,
-          usageCount: tagUsageMap.get(tag.id) || 0,
-          fontSize: minFontSize // Default fontSize, will be calculated later
-        }))
-        .filter(tag => tag.usageCount > 0) // Only show tags that are actually used
-        .sort((a, b) => b.usageCount - a.usageCount) // Sort by usage
-        .slice(0, maxTags) as TagWithUsage[]; // Limit to max tags
-
-      // Calculate font sizes based on usage
-      if (tagsWithUsage.length > 0) {
-        const maxUsage = Math.max(...tagsWithUsage.map(t => t.usageCount));
-        const minUsage = Math.min(...tagsWithUsage.map(t => t.usageCount));
-
-        tagsWithUsage.forEach(tag => {
-          if (maxUsage === minUsage) {
-            tag.fontSize = (minFontSize + maxFontSize) / 2;
-          } else {
-            const normalizedUsage = (tag.usageCount - minUsage) / (maxUsage - minUsage);
-            tag.fontSize = minFontSize + (normalizedUsage * (maxFontSize - minFontSize));
-          }
-        });
-      }
-
-      setTags(tagsWithUsage);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tag cloud');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const usage = new Map<string, number>();
+  quizzes.forEach(quiz => quiz.tagIds.forEach(id => usage.set(id, (usage.get(id) ?? 0) + 1)));
+  const tags: TagWithUsage[] = (taxonomyQuery.data?.content ?? [])
+    .map(tag => ({ ...tag, usageCount: usage.get(tag.id) ?? 0, fontSize: minFontSize }))
+    .filter(tag => tag.usageCount > 0)
+    .sort((a, b) => b.usageCount - a.usageCount)
+    .slice(0, maxTags);
+  const max = Math.max(...tags.map(tag => tag.usageCount), 0);
+  const min = tags.length ? Math.min(...tags.map(tag => tag.usageCount)) : 0;
+  tags.forEach(tag => {
+    tag.fontSize = max === min ? (minFontSize + maxFontSize) / 2
+      : minFontSize + ((tag.usageCount - min) / (max - min)) * (maxFontSize - minFontSize);
+  });
 
   const getTagColor = (usageCount: number, maxUsage: number) => {
     if (usageCount === 0) return 'text-theme-text-tertiary';
@@ -127,7 +91,7 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     return 'bg-theme-bg-info hover:bg-theme-bg-tertiary';
   };
 
-  if (loading) {
+  if (loading || taxonomyQuery.isLoading) {
     return (
       <div className={`flex justify-center items-center p-8 ${className}`}>
         <Spinner />
@@ -135,11 +99,11 @@ export const TagCloud: React.FC<TagCloudProps> = ({
     );
   }
 
-  if (error) {
+  if (error || taxonomyQuery.error) {
     return (
       <div className={className}>
         <Alert type="error">
-          {error}
+          {error ?? taxonomyQuery.error?.message}
         </Alert>
       </div>
     );

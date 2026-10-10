@@ -8,7 +8,11 @@ const serviceMocks = vi.hoisted(() => ({
   getAllTags: vi.fn(),
 }));
 
-vi.mock('@/services', () => serviceMocks);
+vi.mock('@/services', () => ({
+  api: {},
+  TagService: class { getTags = serviceMocks.getAllTags; },
+  categoryService: { getCategories: serviceMocks.getAllCategories },
+}));
 
 const tag = {
   id: 'tag-1',
@@ -50,8 +54,8 @@ describe('quiz metadata hooks', () => {
     await waitFor(() => expect(tagsHook.result.current.data).toEqual([tag]));
     await waitFor(() => expect(categoriesHook.result.current.data).toEqual([category]));
 
-    expect(serviceMocks.getAllTags).toHaveBeenCalledWith({ page: 0, size: 1000 });
-    expect(serviceMocks.getAllCategories).toHaveBeenCalledWith({ page: 0, size: 1000 });
+    expect(serviceMocks.getAllTags).toHaveBeenCalledWith({ page: 0, size: 1000 }, expect.any(AbortSignal));
+    expect(serviceMocks.getAllCategories).toHaveBeenCalledWith({ page: 0, size: 1000 }, expect.any(AbortSignal));
   });
 
   it('combines metadata and exposes memoized lookup helpers', async () => {

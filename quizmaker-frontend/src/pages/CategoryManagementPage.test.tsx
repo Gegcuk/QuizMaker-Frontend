@@ -9,11 +9,14 @@ const mocks = vi.hoisted(() => ({
   updateCategory: vi.fn(),
 }));
 
-vi.mock('../features/category', () => ({
+vi.mock('@/services', () => ({
+  categoryService: {
+    getCategories: mocks.getAllCategories,
   createCategory: mocks.createCategory,
   deleteCategory: mocks.deleteCategory,
   getAllCategories: mocks.getAllCategories,
   updateCategory: mocks.updateCategory,
+  },
 }));
 
 describe('CategoryManagementPage', () => {

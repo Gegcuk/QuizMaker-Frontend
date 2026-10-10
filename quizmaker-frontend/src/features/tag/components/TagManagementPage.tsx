@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import { useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useTagMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
+import { getErrorMessage } from '@/utils/errorUtils';
+import React, { useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Alert, Textarea } from '@/components';
 import { Seo } from '@/features/seo';
 import { TagDto } from '@/types';
-import { TagService, api } from '@/services';
 
 const TagManagementPage: React.FC = () => {
-  const tagService = new TagService(api);
+
   
   /* ---------------------------- state --------------------------------- */
-  const [tags, setTags] = useState<TagDto[]>([]);
+  const taxonomyQuery = useTagPage({ page: 0, size: 100 });
+  const tags = taxonomyQuery.data?.content ?? [];
+  const loading = taxonomyQuery.isLoading;
+  const writes = useTagMutations();
   const [displayedCount, setDisplayedCount] = useState<number>(5);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -26,30 +30,12 @@ const TagManagementPage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   /* -------------------------- data fetch ------------------------------ */
-  const fetchTags = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await tagService.getTags({ page: 0, size: 100 });
-      setTags(response.content);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch tags.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTags();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* --------------------------- form logic ----------------------------- */
   const openCreateForm = () => {
     setEditingTag(null);
     setTagName('');
     setTagDesc('');
     setFormError(null);
+    writes.create.reset();
     setShowForm(true);
   };
 
@@ -58,11 +44,13 @@ const TagManagementPage: React.FC = () => {
     setTagName(tag.name);
     setTagDesc(tag.description || '');
     setFormError(null);
+    writes.create.reset();
     setShowForm(true);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSubmitting) return;
     setFormError(null);
     setFormSubmitting(true);
 
@@ -74,17 +62,16 @@ const TagManagementPage: React.FC = () => {
 
     try {
       if (editingTag) {
-        await tagService.updateTag(editingTag.id, {
+        await writes.update.mutateAsync({ id: editingTag.id, data: {
           name: tagName.trim(),
           description: tagDesc.trim(),
-        });
+        } });
       } else {
-        await tagService.createTag({ name: tagName.trim(), description: tagDesc.trim() });
+        await writes.create.mutateAsync({ name: tagName.trim(), description: tagDesc.trim() });
       }
       setShowForm(false);
-      await fetchTags();
-    } catch (err: any) {
-      setFormError(err.message || 'Failed to save tag.');
+    } catch (err: unknown) {
+      setFormError(getErrorMessage(err) || 'Failed to save tag.');
     } finally {
       setFormSubmitting(false);
     }
@@ -100,10 +87,9 @@ const TagManagementPage: React.FC = () => {
     
     setIsDeleting(true);
     try {
-      await tagService.deleteTag(tagToDelete);
-      await fetchTags();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete tag.');
+      await writes.remove.mutateAsync(tagToDelete);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || 'Failed to delete tag.');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -112,6 +98,8 @@ const TagManagementPage: React.FC = () => {
   };
 
   /* ------------------------------ JSX -------------------------------- */
+  const displayedError = error ?? taxonomyQuery.error?.message;
+
   return (
     <>
       <Seo title="Manage Tags | Quizzence" noindex />
@@ -133,9 +121,9 @@ const TagManagementPage: React.FC = () => {
         <div className="flex justify-center py-8">
           <Spinner size="lg" />
         </div>
-      ) : error ? (
+      ) : displayedError ? (
         <Alert type="error">
-          {error}
+          {displayedError}
         </Alert>
       ) : tags.length === 0 ? (
         <div className="text-center py-8">

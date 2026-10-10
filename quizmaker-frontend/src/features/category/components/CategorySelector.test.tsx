@@ -48,7 +48,7 @@ describe('CategorySelector', () => {
       { withAuthProvider: false },
     );
 
-    await user.click(screen.getByRole('button', { name: /Architecture/ }));
+    await user.click(screen.getByRole('button', { name: /^Architecture/ }));
     await screen.findByRole('button', { name: /Security Application security/ });
     await user.click(screen.getByRole('button', { name: /Security Application security/ }));
 

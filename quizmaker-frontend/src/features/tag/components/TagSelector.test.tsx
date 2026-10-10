@@ -46,7 +46,7 @@ describe('TagSelector', () => {
       { withAuthProvider: false },
     );
 
-    await user.click(screen.getByRole('button', { name: /Architecture/ }));
+    await user.click(screen.getByRole('button', { name: /^Architecture/ }));
     await screen.findByRole('button', { name: /Security Security Security topics/ });
     await user.click(screen.getByRole('button', { name: /Security Security Security topics/ }));
 

@@ -1,6 +1,8 @@
+import { useQueries } from '@tanstack/react-query';
+import { useTagPage, useDeletedTags, tagDetailOptions } from '@/features/quiz/hooks/useQuizMetadataQueries';
 import React, { useState, useEffect, useRef } from 'react';
 import { TagDto } from '@/types';
-import { TagService, api } from '@/services';
+
 import { Button, Input, Alert } from '@/components';
 
 interface TagSelectorProps {
@@ -24,31 +26,28 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   maxSelections,
   showSearch = true
 }) => {
-  const [tags, setTags] = useState<TagDto[]>([]);
-  const [filteredTags, setFilteredTags] = useState<TagDto[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   
-  const tagService = new TagService(api);
 
-  // Load tags on component mount
-  useEffect(() => {
-    loadTags();
-  }, []);
-
-  // Filter tags based on search term
-  useEffect(() => {
-    const filtered = tags.filter(tag =>
-      tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tag.description && tag.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredTags(filtered);
-  }, [tags, searchTerm]);
+  const taxonomyQuery = useTagPage({ page: 0, size: 100, sort: 'name,asc' });
+  const tags = taxonomyQuery.data?.content ?? [];
+  const deleted = useDeletedTags();
+  const selectedRecords = useQueries({
+    queries: selectedTags.map(item => ({ ...tagDetailOptions(item.id), enabled: false })),
+  });
+  const loading = taxonomyQuery.isLoading;
+  const error = taxonomyQuery.error?.message;
+  const filteredTags = tags.filter(tag =>
+    tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tag.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const selectionLabel = (tag: TagDto) => deleted[tag.id]
+    ? `${deleted[tag.id].name} (unavailable)`
+    : tags.find(item => item.id === tag.id)?.name ?? selectedRecords.find(query => query.data?.id === tag.id)?.data?.name ?? tag.name;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -62,38 +61,19 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const loadTags = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await tagService.getTags({
-        page: 0,
-        size: 100, // Load more tags for better selection
-        sort: 'name,asc'
-      });
-
-      setTags(response.content);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tags');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (isOpen && showSearch) searchInputRef.current?.focus();
+  }, [isOpen, showSearch]);
 
   const handleToggleDropdown = () => {
     if (disabled) return;
     
     setIsOpen(!isOpen);
-    if (!isOpen && showSearch) {
-      // Focus search input when opening
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 100);
-    }
+
   };
 
   const handleTagSelect = (tag: TagDto) => {
+    if (deleted[tag.id]) return;
     if (multiple) {
       const isSelected = selectedTags.some(t => t.id === tag.id);
       
@@ -136,11 +116,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
     }
     
     if (!multiple) {
-      return selectedTags[0].name;
+      return selectionLabel(selectedTags[0]);
     }
     
     if (selectedTags.length === 1) {
-      return selectedTags[0].name;
+      return selectionLabel(selectedTags[0]);
     }
     
     return `${selectedTags.length} tags selected`;
@@ -166,10 +146,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
                     key={tag.id}
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-bg-info text-theme-interactive-info"
                   >
-                    {tag.name}
+                    {selectionLabel(tag)}
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label={`Remove ${selectionLabel(tag)}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveTag(tag.id);
@@ -223,6 +204,15 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
           </div>
         </div>
       </Button>
+
+      {selectedTags.filter(item => deleted[item.id]).map(item => (
+        <div key={item.id} className="mt-1 flex items-center gap-2 text-sm text-theme-text-secondary">
+          <span>{selectionLabel(item)}</span>
+          <Button variant="ghost" size="sm" disabled={disabled} onClick={() => handleRemoveTag(item.id)}>
+            Remove unavailable tag
+          </Button>
+        </div>
+      ))}
 
       {/* Dropdown Menu */}
       {isOpen && (

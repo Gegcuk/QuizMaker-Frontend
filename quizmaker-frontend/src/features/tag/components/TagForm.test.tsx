@@ -57,8 +57,8 @@ describe('TagForm', () => {
     await waitFor(() => {
       expect(tagMocks.createTag).toHaveBeenCalledWith({ name: 'Architecture', description: 'Design topics' });
     });
-    expect(tagMocks.getTagById).toHaveBeenCalledWith('tag-1');
-    expect(onSave).toHaveBeenCalledWith(tag());
+    expect(tagMocks.getTagById).toHaveBeenCalledWith('tag-1', expect.any(AbortSignal));
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(tag()));
   });
 
   it('updates an existing tag without creating a replacement', async () => {
@@ -81,6 +81,6 @@ describe('TagForm', () => {
         description: 'Design topics',
       });
     });
-    expect(onSave).toHaveBeenCalledWith(updatedTag);
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(updatedTag));
   });
 });

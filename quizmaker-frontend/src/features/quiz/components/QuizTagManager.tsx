@@ -1,12 +1,14 @@
+import { useTagPage, useDeletedTags } from '../hooks/useQuizMetadataQueries';
+import { useTagMutations } from '../hooks/useTaxonomyMutations';
 import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizTagManager.tsx
 // ---------------------------------------------------------------------------
 // Add/remove tags from quiz based on QUIZ_ENDPOINTS
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TagDto } from '@/types';
-import { TagService, api } from '@/services';
+
 import type { AxiosError } from 'axios';
 import { Button, Input, Textarea, Checkbox, Alert } from '@/components';
 
@@ -27,42 +29,24 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   onTagsChange,
   className = ''
 }) => {
-  const tagService = new TagService(api);
 
-  const [tags, setTags] = useState<TagWithStatus[]>([]);
   const [displayedCount, setDisplayedCount] = useState<number>(5);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedReadError, setDismissedReadError] = useState<Error | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [newTagDescription, setNewTagDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  // Load available tags
-  useEffect(() => {
-    const loadTags = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await tagService.getTags();
-        const tagsWithStatus = response.content.map(tag => ({
-          ...tag,
-          isSelected: currentTagIds.includes(tag.id)
-        }));
-        setTags(tagsWithStatus);
-      } catch (err) {
-        const axiosError = err as AxiosError<{ message?: string }>;
-        const errorMessage = getErrorMessage(axiosError) || 'Failed to load tags';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTags();
-  }, [currentTagIds]);
+  const taxonomyQuery = useTagPage();
+  const deleted = useDeletedTags();
+  const writes = useTagMutations();
+  const isLoading = taxonomyQuery.isLoading;
+  const tags: TagWithStatus[] = (taxonomyQuery.data?.content ?? []).map(tag => ({
+    ...tag, isSelected: currentTagIds.includes(tag.id),
+  }));
+  const displayedError = error ?? (taxonomyQuery.error === dismissedReadError ? null : taxonomyQuery.error?.message);
 
   // Filter tags based on search
   const filteredTags = tags.filter(tag =>
@@ -72,49 +56,30 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
   // Handle tag selection
   const handleTagToggle = (tagId: string) => {
-    const updatedTags = tags.map(t =>
-      t.id === tagId ? { ...t, isSelected: !t.isSelected } : t
-    );
-    setTags(updatedTags);
-
-    const selectedIds = updatedTags
-      .filter(t => t.isSelected)
-      .map(t => t.id);
-
-    onTagsChange(selectedIds);
+    if (deleted[tagId]) return;
+    onTagsChange(currentTagIds.includes(tagId)
+      ? currentTagIds.filter(id => id !== tagId)
+      : [...currentTagIds, tagId]);
   };
 
-  // Handle bulk selection
+  // Explicit bulk actions may change selection, but cache refresh never does.
   const handleBulkSelect = (selectAll: boolean) => {
-    const updatedTags = tags.map(t => ({ ...t, isSelected: selectAll }));
-    setTags(updatedTags);
-
-    const selectedIds = selectAll ? tags.map(t => t.id) : [];
-    onTagsChange(selectedIds);
+    onTagsChange(selectAll ? Array.from(new Set([...currentTagIds, ...tags.map(tag => tag.id)])) : []);
   };
 
   // Handle creating new tag
   const handleCreateTag = async () => {
-    if (!newTagName.trim()) return;
+    if (!newTagName.trim() || isCreating) return;
 
     try {
       setIsCreating(true);
       setError(null);
 
-      const response = await tagService.createTag({
+      await writes.create.mutateAsync({
         name: newTagName.trim(),
         description: newTagDescription.trim()
       });
 
-      // Create the new tag object with the response
-      const newTag: TagWithStatus = {
-        id: response.tagId,
-        name: newTagName.trim(),
-        description: newTagDescription.trim(),
-        isSelected: false
-      };
-
-      setTags(prev => [...prev, newTag]);
       setNewTagName('');
       setNewTagDescription('');
       setShowCreateForm(false);
@@ -165,9 +130,9 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
       </div>
 
       <div className="px-6 py-4">
-        {error && (
-          <Alert type="error" dismissible onDismiss={() => setError(null)} className="mb-4">
-            {error}
+        {displayedError && (
+          <Alert type="error" dismissible onDismiss={() => { setError(null); setDismissedReadError(taxonomyQuery.error); }} className="mb-4">
+            {displayedError}
           </Alert>
         )}
 
@@ -222,6 +187,15 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
             </div>
           </div>
         )}
+
+        {currentTagIds.filter(id => deleted[id]).map(id => (
+          <div key={id} className="mb-2 flex items-center gap-2 text-theme-text-secondary">
+            <span>{deleted[id].name} (unavailable)</span>
+            <Button variant="ghost" size="sm" onClick={() => onTagsChange(currentTagIds.filter(value => value !== id))}>
+              Remove unavailable tag
+            </Button>
+          </div>
+        ))}
 
         {/* Search and filters */}
         <div className="mb-4">

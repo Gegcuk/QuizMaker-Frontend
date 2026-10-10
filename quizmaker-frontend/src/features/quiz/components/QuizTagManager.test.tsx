@@ -49,7 +49,10 @@ describe('QuizTagManager', () => {
   });
 
   it('creates a tag and makes it available for later selection', async () => {
-    tagService.createTag.mockResolvedValue({ tagId: 'tag-3' });
+    tagService.createTag.mockImplementation(async () => {
+      tagService.getTags.mockResolvedValue({ content: [...tags, { id: 'tag-3', name: 'data', description: 'Data platform architecture' }] });
+      return { tagId: 'tag-3' };
+    });
     const { user } = renderWithProviders(
       <QuizTagManager quizId="quiz-1" currentTagIds={[]} onTagsChange={vi.fn()} />,
       { withAuthProvider: false },
@@ -67,6 +70,6 @@ describe('QuizTagManager', () => {
         description: 'Data platform architecture',
       });
     });
-    expect(screen.getByText('#data')).toBeInTheDocument();
+    expect(await screen.findByText('#data')).toBeInTheDocument();
   });
 });

@@ -57,8 +57,8 @@ describe('CategoryForm', () => {
         description: 'Software architecture topics',
       });
     });
-    expect(categoryMocks.getCategoryById).toHaveBeenCalledWith('category-1');
-    expect(onSave).toHaveBeenCalledWith(category());
+    expect(categoryMocks.getCategoryById).toHaveBeenCalledWith('category-1', expect.any(AbortSignal));
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(category()));
   });
 
   it('updates an existing category instead of creating a second one', async () => {
@@ -81,6 +81,6 @@ describe('CategoryForm', () => {
         description: 'Software architecture topics',
       });
     });
-    expect(onSave).toHaveBeenCalledWith(updatedCategory);
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(updatedCategory));
   });
 });
