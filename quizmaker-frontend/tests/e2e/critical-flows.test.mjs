@@ -540,7 +540,13 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
 
       try {
         await installUnexpectedApiBlock(successPage);
-        await installAuthMeMock(successPage);
+        let currentUserRequests = 0;
+        await successPage.route('**/api/v1/auth/me', route => {
+          currentUserRequests += 1;
+          return currentUserRequests === 1
+            ? fulfillJson(route, user)
+            : fulfillJson(route, { title: 'Service unavailable', status: 503 }, 503);
+        });
         await successPage.route('**/api/v1/auth/login', async (route) => {
           assert.deepEqual(JSON.parse(route.request().postData() ?? '{}'), {
             username: 'e2e-user',
@@ -565,6 +571,8 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           successPage.waitForURL(`${BASE_URL}/my-quizzes`),
           successPage.getByRole('button', { name: 'Sign in', exact: true }).click(),
         ]);
+        await successPage.getByRole('heading', { name: 'My Quizzes', exact: true }).waitFor();
+        assert.equal(currentUserRequests, 1, 'A successful credential login must validate the current user once');
 
         await installUnexpectedApiBlock(errorPage);
         await errorPage.route('**/api/v1/auth/login', (route) => fulfillJson(route, {

@@ -69,6 +69,7 @@ const TagManagementPage: React.FC = () => {
       } else {
         await writes.create.mutateAsync({ name: tagName.trim(), description: tagDesc.trim() });
       }
+      setError(null);
       setShowForm(false);
     } catch (err: unknown) {
       setFormError(getErrorMessage(err) || 'Failed to save tag.');
@@ -88,6 +89,7 @@ const TagManagementPage: React.FC = () => {
     setIsDeleting(true);
     try {
       await writes.remove.mutateAsync(tagToDelete);
+      setError(null);
     } catch (err: unknown) {
       setError(getErrorMessage(err) || 'Failed to delete tag.');
     } finally {

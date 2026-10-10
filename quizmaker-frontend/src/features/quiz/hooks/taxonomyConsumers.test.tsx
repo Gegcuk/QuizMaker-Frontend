@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { createTestQueryClient, renderWithProviders, screen, waitFor } from '@/test/render';
 import { within } from '@testing-library/react';
 import { server } from '@/test/msw/server';
 import type { QuizDto, TagDto } from '@/types';
@@ -18,6 +18,8 @@ import QuizList from '@/features/quiz/components/QuizList';
 import QuizFilters from '@/features/quiz/components/QuizFilters';
 import QuizTagManager from '@/features/quiz/components/QuizTagManager';
 import QuizCategoryManager from '@/features/quiz/components/QuizCategoryManager';
+import { metadataKeys } from './useQuizMetadataQueries';
+import { useTagMutations } from './useTaxonomyMutations';
 
 const original = { id: '11111111-1111-4111-8111-111111111111', name: 'Architecture', description: 'Design' };
 const createdId = '22222222-2222-4222-8222-222222222222';
@@ -29,6 +31,102 @@ const quiz: QuizDto = {
 const backendPage = (rows: TagDto[], size: number) => ({
   content: rows.slice(0, size), totalElements: rows.length, totalPages: Math.ceil(rows.length / size),
   first: true, last: rows.length <= size, number: 0, size, numberOfElements: Math.min(rows.length, size), empty: !rows.length,
+});
+
+function CreatedTagConsumers({ onChange }: { onChange: (ids: string[]) => void }) {
+  const [ids, setIds] = useState<string[]>([]);
+  const writes = useTagMutations();
+  return <>
+    <QuizTagManager quizId={quiz.id} currentTagIds={ids} onTagsChange={value => { setIds(value); onChange(value); }} />
+    <Button onClick={() => void writes.update.mutateAsync({ id: createdId, data: { name: 'Zoology renamed', description: 'Confirmed rename' } })}>Rename from another consumer</Button>
+    <Button onClick={() => void writes.remove.mutateAsync(createdId)}>Delete from another consumer</Button>
+  </>;
+}
+
+describe('created tags outside the manager first page', () => {
+  const endpoint = 'http://localhost:3000/api/v1/tags';
+  const firstPage = Array.from({ length: 20 }, (_, index) => ({ id: `fixture-tag-${index}`, name: `Architecture ${index.toString().padStart(2, '0')}` }));
+
+  it('offers the canonical created record without extending the server page, and follows shared renames/deletions', async () => {
+    let rows: TagDto[] = [...firstPage];
+    const pageRequests: string[][] = [];
+    server.use(
+      http.get(endpoint, ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        pageRequests.push([params.get('page') ?? '', params.get('size') ?? '', params.get('sort') ?? '']);
+        return HttpResponse.json(backendPage(rows, 20));
+      }),
+      http.post(endpoint, () => {
+        rows = [...rows, { id: createdId, name: 'Zoology canonical', description: 'Server description' }];
+        return HttpResponse.json({ tagId: createdId }, { status: 201 });
+      }),
+      http.get(`${endpoint}/${createdId}`, () => HttpResponse.json(rows.find(row => row.id === createdId))),
+      http.patch(`${endpoint}/${createdId}`, async ({ request }) => {
+        const data = await request.json() as { name: string; description: string };
+        const record = { id: createdId, ...data };
+        rows = rows.map(row => row.id === createdId ? record : row);
+        return HttpResponse.json(record);
+      }),
+      http.delete(`${endpoint}/${createdId}`, () => {
+        rows = rows.filter(row => row.id !== createdId);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const queryClient = createTestQueryClient();
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(<CreatedTagConsumers onChange={onChange} />, { queryClient, withAuthProvider: false });
+    await screen.findByText('#Architecture 00');
+    await user.click(screen.getByRole('button', { name: '+ Add New Tag' }));
+    await user.type(screen.getByLabelText(/Tag Name/), 'Zoology input');
+    await user.click(screen.getByRole('button', { name: 'Create Tag' }));
+    await screen.findByText('21 tags found');
+    expect(onChange).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText('Search Tags'), 'Zoology');
+    const choice = await screen.findByRole('checkbox', { name: /Zoology canonical Server description/ });
+    expect(screen.queryByText('#Zoology input')).not.toBeInTheDocument();
+    expect(queryClient.getQueryData(metadataKeys.tagList())).toMatchObject({ content: firstPage, totalElements: 21, size: 20, numberOfElements: 20 });
+    expect(pageRequests.every(params => params.join('|') === '0|20|name,ASC')).toBe(true);
+    await user.click(choice);
+    expect(onChange).toHaveBeenLastCalledWith([createdId]);
+    await user.click(screen.getByRole('button', { name: 'Rename from another consumer' }));
+    await screen.findByRole('checkbox', { name: /Zoology renamed Confirmed rename/ });
+    expect(screen.queryByRole('checkbox', { name: /Zoology canonical/ })).not.toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Delete from another consumer' }));
+    await screen.findByText('Zoology renamed (unavailable)');
+    expect(screen.queryByRole('checkbox', { name: /Zoology/ })).not.toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Remove unavailable tag' }));
+    expect(onChange).toHaveBeenLastCalledWith([]);
+  });
+
+  it('retries a failed detail read without creating a second tag', async () => {
+    let posts = 0;
+    let failDetail = true;
+    server.use(
+      http.get(endpoint, () => HttpResponse.json(backendPage(firstPage, 20))),
+      http.post(endpoint, () => { posts += 1; return HttpResponse.json({ tagId: createdId }, { status: 201 }); }),
+      http.get(`${endpoint}/${createdId}`, () => failDetail
+        ? new HttpResponse(null, { status: 503 }) : HttpResponse.json({ id: createdId, name: 'Zoology canonical' })),
+    );
+    const onChange = vi.fn();
+    const { user } = renderWithProviders(<QuizTagManager quizId={quiz.id} currentTagIds={[]} onTagsChange={onChange} />, { withAuthProvider: false });
+    await screen.findByText('#Architecture 00');
+    await user.click(screen.getByRole('button', { name: '+ Add New Tag' }));
+    await user.type(screen.getByLabelText(/Tag Name/), 'Zoology input');
+    await user.click(screen.getByRole('button', { name: 'Create Tag' }));
+    await screen.findByText(/Tag was saved, but could not be loaded/);
+    expect(posts).toBe(1);
+    expect(screen.getByLabelText(/Tag Name/)).toBeDisabled();
+    expect(onChange).not.toHaveBeenCalled();
+    failDetail = false;
+    await user.click(screen.getByRole('button', { name: 'Retry loading tag' }));
+    await screen.findByText('21 tags found');
+    await user.type(screen.getByLabelText('Search Tags'), 'Zoology');
+    await screen.findByRole('checkbox', { name: '#Zoology canonical' });
+    expect(posts).toBe(1);
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });
 
 beforeEach(() => {
@@ -89,6 +187,56 @@ function CrossRoute({ kind }: { kind: 'Tag' | 'Category' }) {
 }
 
 describe.each(['Tag', 'Category'] as const)('%s consumer convergence', kind => {
+  it('restores the management list after a failed delete and a later successful save', async () => {
+    const endpoint = `http://localhost:3000/api/v1/${kind === 'Tag' ? 'tags' : 'categories'}`;
+    let saveFailed = true;
+    server.use(
+      http.delete(`${endpoint}/:id`, () => HttpResponse.json({ message: 'Delete denied' }, { status: 403 })),
+      http.post(endpoint, async ({ request }) => {
+        if (saveFailed) return new HttpResponse(null, { status: 503 });
+        const data = await request.json() as { name: string; description: string };
+        server.use(http.get(endpoint, () => HttpResponse.json(backendPage([original, { id: createdId, ...data }], 100))));
+        return HttpResponse.json(kind === 'Tag' ? { tagId: createdId } : { categoryId: createdId }, { status: 201 });
+      }),
+    );
+    const { user } = renderWithProviders(kind === 'Tag' ? <TagManagementPage /> : <CategoryManagementPage />, { withAuthProvider: false });
+    await user.click(await screen.findByRole('button', { name: `Delete ${kind.toLowerCase()}` }));
+    await user.click(screen.getByRole('button', { name: `Delete ${kind}` }));
+    await screen.findByText('Insufficient permissions. Ask the owner for access.');
+    await user.click(screen.getByRole('button', { name: new RegExp(`^Create ${kind}`) }));
+    await user.type(screen.getByLabelText(/Name/), 'Security');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+    await screen.findByText('Server error occurred. Please try again later.');
+    expect(screen.getByText('Insufficient permissions. Ask the owner for access.')).toBeInTheDocument();
+    saveFailed = false;
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+    await screen.findByRole('row', { name: /^Security/ });
+    expect(screen.getByRole('row', { name: /^Architecture Design/ })).toBeInTheDocument();
+    expect(screen.queryByText('Insufficient permissions. Ask the owner for access.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Server error occurred. Please try again later.')).not.toBeInTheDocument();
+  });
+
+  it('retains a current list read error after a successful write clears an older delete error', async () => {
+    const endpoint = `http://localhost:3000/api/v1/${kind === 'Tag' ? 'tags' : 'categories'}`;
+    server.use(
+      http.delete(`${endpoint}/:id`, () => new HttpResponse(null, { status: 403 })),
+      http.post(endpoint, () => {
+        server.use(http.get(endpoint, () => new HttpResponse(null, { status: 503 })));
+        return HttpResponse.json(kind === 'Tag' ? { tagId: createdId } : { categoryId: createdId }, { status: 201 });
+      }),
+    );
+    const { user } = renderWithProviders(kind === 'Tag' ? <TagManagementPage /> : <CategoryManagementPage />, { withAuthProvider: false });
+    await user.click(await screen.findByRole('button', { name: `Delete ${kind.toLowerCase()}` }));
+    await user.click(screen.getByRole('button', { name: `Delete ${kind}` }));
+    await screen.findByText('Insufficient permissions. Ask the owner for access.');
+    await user.click(screen.getByRole('button', { name: new RegExp(`^Create ${kind}`) }));
+    await user.type(screen.getByLabelText(/Name/), 'Security');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+    await screen.findByText('Server error occurred. Please try again later.');
+    expect(screen.queryByText('Insufficient permissions. Ask the owner for access.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Create$/ })).not.toBeInTheDocument();
+  });
+
   it('converges create, rename and delete after navigating from a warm metadata cache', async () => {
     const { user } = renderWithProviders(<CrossRoute kind={kind} />, { route: '/consumers', withAuthProvider: false });
     const card = within(screen.getByRole('region', { name: 'Quiz card' }));

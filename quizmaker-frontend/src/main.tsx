@@ -10,8 +10,7 @@ import { UnsavedChangesProvider } from './features/navigation/UnsavedChangesProv
 
 import AppRoutes from './routes/AppRoutes';
 import { ToastProvider } from './components/ui';
-import { AuthProvider } from './features/auth';
-import { QueryProvider } from './providers/QueryProvider';
+import { SessionProviders } from './providers/SessionProviders';
 import { FeatureFlagProvider } from './utils';
 import { ThemeProvider } from './context/ThemeContext';
 import { AnalyticsProvider } from './features/analytics';
@@ -26,16 +25,14 @@ const router = createBrowserRouter([{
       <AnalyticsProvider>
         <ThemeProvider>
           <FeatureFlagProvider>
-            <QueryProvider>
-              <AuthProvider>
-                <CheckoutRecoveryLifecycle />
-                <ToastProvider>
-                  <UnsavedChangesProvider>
-                    <AppRoutes />
-                  </UnsavedChangesProvider>
-                </ToastProvider>
-              </AuthProvider>
-            </QueryProvider>
+            <SessionProviders>
+              <CheckoutRecoveryLifecycle />
+              <ToastProvider>
+                <UnsavedChangesProvider>
+                  <AppRoutes />
+                </UnsavedChangesProvider>
+              </ToastProvider>
+            </SessionProviders>
           </FeatureFlagProvider>
         </ThemeProvider>
       </AnalyticsProvider>

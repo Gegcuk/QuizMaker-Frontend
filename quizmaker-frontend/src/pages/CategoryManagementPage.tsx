@@ -62,6 +62,7 @@ const CategoryManagementPage: React.FC = () => {
       } else {
         await writes.create.mutateAsync({ name: name.trim(), description: desc.trim() });
       }
+      setError(null);
       setShowForm(false);
     } catch (err: unknown) {
       setFormError(getErrorMessage(err) || 'Failed to save category.');
@@ -81,6 +82,7 @@ const CategoryManagementPage: React.FC = () => {
     setIsDeleting(true);
     try {
       await writes.remove.mutateAsync(categoryToDelete);
+      setError(null);
     } catch (err: unknown) {
       setError(getErrorMessage(err) || 'Failed to delete category.');
     } finally {
