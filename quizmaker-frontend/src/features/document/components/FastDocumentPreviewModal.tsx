@@ -147,7 +147,13 @@ export const FastDocumentPreviewModal: React.FC<FastDocumentPreviewModalProps> =
       
       // Extract text content from PDF page
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      // PDF font mappings can emit control characters for decorative glyphs.
+      // Preserve word boundaries and the whitespace accepted in UTF-8 text uploads.
+      const pageText = textContent.items.map((item: any) => item.str).join(' ')
+        .replace(/\p{Cc}/gu, (character: string) => {
+          const code = character.charCodeAt(0);
+          return code < 0x09 || (code > 0x0d && code < 0x20) ? ' ' : character;
+        });
       
       pdfPages.push({
         pageNum,

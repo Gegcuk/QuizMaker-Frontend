@@ -1919,3 +1919,76 @@ test('confirmation design follows themes and balances responsive actions', { tim
     if (!process.env.E2E_SCREENSHOT_DIR) await rm(screenshotDir, { recursive: true, force: true });
   }
 });
+
+test('selected PDF text uploads replace rejected control glyphs and preserve content and generation parameters', { timeout: 60_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  let context;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    context = await createTestContext(browser);
+    await context.addInitScript(() => {
+      localStorage.setItem('accessToken', 'e2e-access-token');
+      localStorage.setItem('refreshToken', 'e2e-refresh-token');
+      // Reproduce PDF font-mapping output without a remote library or the reported book.
+      const pageItems = [['Предисловие', '\u0002', 'До\u0000после. Текст\tс переносом\nстроки 🎮.'], ['Unselected page']];
+      window.pdfjsLib = {
+        getDocument: () => ({ promise: Promise.resolve({ numPages: 2, getPage: async pageNum => ({
+          getViewport: () => ({ width: 100, height: 100 }),
+          render: () => ({ promise: Promise.resolve() }),
+          getTextContent: async () => ({ items: pageItems[pageNum - 1].map(str => ({ str })) }),
+        }) }) }),
+      };
+    });
+    const page = await context.newPage();
+    await installUnexpectedApiBlock(page);
+    await installAuthMeMock(page);
+    let uploadRequest;
+    await page.route('**/api/v1/quizzes/generate-from-upload**', async route => {
+      uploadRequest = {
+        method: route.request().method(),
+        query: Object.fromEntries(new URL(route.request().url()).searchParams),
+        contentType: route.request().headers()['content-type'],
+        body: route.request().postDataBuffer()?.toString('utf8'),
+      };
+      await fulfillJson(route, {
+        jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PENDING',
+        message: 'Document processing and quiz generation started', estimatedTimeSeconds: 10,
+      }, 202);
+    });
+    await page.route(`**/api/v1/quizzes/generation-status/${DOCUMENT_GENERATION_JOB_ID}`, route => fulfillJson(route, {
+      jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PROCESSING', totalChunks: 1, processedChunks: 0,
+      progressPercentage: 50, currentChunk: 'Processing selected document content',
+      totalQuestionsGenerated: 0, elapsedTimeSeconds: 5, estimatedTimeRemainingSeconds: 5,
+      generatedQuizId: null, startedAt: '2026-01-01T00:00:00Z', completedAt: null,
+    }));
+    await navigateToAppRoute(page, '/quizzes/create');
+    await page.getByText('Generate from Document', { exact: true }).click();
+    await page.locator('#document-upload').setInputFiles({
+      name: 'local-preface.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7 local fixture'),
+    });
+    await page.getByRole('img', { name: 'Page 1', exact: true }).click();
+    await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
+    await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
+    await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+    await page.getByText('PROCESSING', { exact: true }).waitFor();
+    assert.ok(uploadRequest, 'The active wizard sent the upload');
+    assert.equal(uploadRequest.method, 'POST');
+    assert.match(uploadRequest.contentType, /^multipart\/form-data; boundary=/);
+    assert.match(uploadRequest.body, /filename="selected-local-preface\.pdf\.txt"/);
+    assert.match(uploadRequest.body, /Content-Type: text\/plain/);
+    assert.ok(uploadRequest.body.includes('Предисловие   До после. Текст\tс переносом\nстроки 🎮.'));
+    assert.ok(!uploadRequest.body.includes('\u0002'));
+    assert.ok(!uploadRequest.body.includes('\u0000'));
+    assert.ok(!uploadRequest.body.includes('Unselected page'));
+    assert.deepEqual(uploadRequest.query, {
+      quizScope: 'ENTIRE_DOCUMENT', chunkingStrategy: 'SIZE_BASED', maxChunkSize: '100000',
+      quizTitle: 'local-preface', questionsPerType: '{"MCQ_SINGLE":10,"MCQ_MULTI":5,"FILL_GAP":5,"MATCHING":5}', difficulty: 'MEDIUM',
+    });
+  } finally {
+    await context?.close();
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});
