@@ -81,9 +81,9 @@ Tags and categories share the existing `metadataKeys` family. List keys include
 page, size, and ordered sort criteria; detail keys use the record ID. Management,
 selectors, quiz cards/lists/filters/managers, search filters, and tag usage displays
 read through the same Query hooks. Page limits and server ordering remain intact.
-Legacy readers still fetch on mount and recover manually; metadata readers retain
-15-minute freshness and the provider's retry/focus defaults. Mutations never retry
-automatically.
+Legacy readers still fetch on mount and on list-parameter changes, including a
+return to a cached page, and recover manually. Metadata readers retain 15-minute
+freshness and the provider's retry/focus defaults. Mutations never retry automatically.
 
 Shared mutation hooks apply server-confirmed renames/deletions, cancel older
 reads, and invalidate only that taxonomy's list variants. Active pages refetch;
@@ -120,6 +120,7 @@ Regression coverage for #205:
 | Deleted choices disappear; selected draft IDs remain removable | Consumer integration tests, selectors, quiz managers |
 | Late reads/writes and account changes cannot restore old data | Mutation session tests with `QueryProvider`, existing session/HTTP suites |
 | Shared parameter keys, pagination, manual retry, existing UI | Metadata hooks, paginated list/form/selector tests, desktop/mobile browser gates |
+| Returning to visited pages reads current server data; failed reads retain cache and recover manually | `taxonomyPagination.test.tsx` for both lists; metadata hook tests preserve fresh-card/filter reuse |
 | Login validates once while account caches still reset | `AuthContext.test.tsx` using the production `SessionProviders`, existing Query/session tests |
 | Management recovers after failed deletion; created tags beyond page one remain selectable | `taxonomyConsumers.test.tsx`, including failed-save retention, canonical details, read-only retry, shared rename/delete |
 

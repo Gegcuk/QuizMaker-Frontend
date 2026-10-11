@@ -74,6 +74,9 @@ export const useTagPage = (params?: MetadataListParams, enabled = true, metadata
     retry: metadataDefaults ? client.getDefaultOptions().queries?.retry : false,
     refetchOnMount: metadataDefaults ? true : 'always',
     ...metadataTimes,
+    // Parameter changes can revisit a cached page without remounting the screen.
+    // Legacy readers refresh on navigation; cards/filters keep metadata freshness.
+    staleTime: metadataDefaults ? metadataTimes.staleTime : 0,
   });
 };
 
@@ -94,6 +97,7 @@ export const useCategoryPage = (params?: MetadataListParams, enabled = true, met
     retry: metadataDefaults ? client.getDefaultOptions().queries?.retry : false,
     refetchOnMount: metadataDefaults ? true : 'always',
     ...metadataTimes,
+    staleTime: metadataDefaults ? metadataTimes.staleTime : 0,
   });
 };
 

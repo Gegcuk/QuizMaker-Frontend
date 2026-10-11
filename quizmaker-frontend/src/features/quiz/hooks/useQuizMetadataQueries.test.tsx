@@ -89,6 +89,26 @@ describe('quiz metadata hooks', () => {
     expect(result.current.getCategoryById).toBe(helpers.getCategoryById);
   });
 
+  it.each([
+    { name: 'tags', useMetadata: useTags, service: serviceMocks.getAllTags, record: tag },
+    { name: 'categories', useMetadata: useCategories, service: serviceMocks.getAllCategories, record: category },
+  ])('reuses fresh $name metadata when a later consumer mounts', async ({ useMetadata, service, record }) => {
+    service.mockResolvedValue({ content: [record] });
+    const queryClient = createTestQueryClient();
+    const wrapper = createQueryWrapper(queryClient);
+    const first = renderHook(() => useMetadata(), { wrapper });
+    await waitFor(() => expect(first.result.current.data).toEqual([record]));
+    first.unmount();
+
+    // The convenience readers retain their existing freshness despite list navigation refreshes.
+    service.mockResolvedValue({ content: [{ ...record, name: 'Changed elsewhere' }] });
+    const later = renderHook(() => useMetadata(), { wrapper });
+    await act(async () => later.rerender());
+    expect(later.result.current.data).toEqual([record]);
+    expect(later.result.current.isFetching).toBe(false);
+    expect(service).toHaveBeenCalledTimes(1);
+  });
+
   it('surfaces a metadata query error after the combined loading state settles', async () => {
     serviceMocks.getAllTags.mockRejectedValue(new Error('Tags unavailable'));
     serviceMocks.getAllCategories.mockResolvedValue({ content: [category] });
