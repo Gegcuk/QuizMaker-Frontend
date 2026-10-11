@@ -540,7 +540,13 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
 
       try {
         await installUnexpectedApiBlock(successPage);
-        await installAuthMeMock(successPage);
+        let currentUserRequests = 0;
+        await successPage.route('**/api/v1/auth/me', route => {
+          currentUserRequests += 1;
+          return currentUserRequests === 1
+            ? fulfillJson(route, user)
+            : fulfillJson(route, { title: 'Service unavailable', status: 503 }, 503);
+        });
         await successPage.route('**/api/v1/auth/login', async (route) => {
           assert.deepEqual(JSON.parse(route.request().postData() ?? '{}'), {
             username: 'e2e-user',
@@ -565,6 +571,8 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
           successPage.waitForURL(`${BASE_URL}/my-quizzes`),
           successPage.getByRole('button', { name: 'Sign in', exact: true }).click(),
         ]);
+        await successPage.getByRole('heading', { name: 'My Quizzes', exact: true }).waitFor();
+        assert.equal(currentUserRequests, 1, 'A successful credential login must validate the current user once');
 
         await installUnexpectedApiBlock(errorPage);
         await errorPage.route('**/api/v1/auth/login', (route) => fulfillJson(route, {
@@ -1988,6 +1996,113 @@ test('selected PDF text uploads replace rejected control glyphs and preserve con
     });
   } finally {
     await context?.close();
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});
+
+test('taxonomy mutations reconcile warm quiz cards on desktop and mobile', { timeout: 90_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  const screenshotDir = process.env.E2E_SCREENSHOT_DIR;
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    if (screenshotDir) await mkdir(screenshotDir, { recursive: true });
+    for (const width of [1280, 360]) {
+      const context = await createTestContext(browser, { viewport: { width, height: 900 } });
+      try {
+        await context.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+          localStorage.setItem('quizmaker-my-quizzes-view-mode', 'grid');
+        });
+        const page = await context.newPage();
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        const tagId = 'abababab-abab-4bab-8bab-abababababab';
+        const newId = 'cdcdcdcd-cdcd-4dcd-8dcd-cdcdcdcdcdcd';
+        let tags = [{ id: tagId, name: 'Original taxonomy', description: 'Local fixture' }];
+        let failedWrite = false;
+        const taxonomyPage = rows => ({ content: rows, totalElements: rows.length,
+          totalPages: rows.length ? 1 : 0, size: 1000, number: 0, numberOfElements: rows.length,
+          empty: rows.length === 0, first: true, last: true });
+        await page.route('**/api/v1/categories**', route => fulfillJson(route, taxonomyPage([])));
+        await page.route('**/api/v1/quiz-groups**', route => fulfillJson(route, taxonomyPage([])));
+        await page.route('**/api/v1/attempts**', route => {
+          assert.equal(route.request().method(), 'GET');
+          return fulfillJson(route, taxonomyPage([]));
+        });
+        await page.route('**/api/v1/quizzes**', route => fulfillJson(route, taxonomyPage([{ ...quiz, tagIds: [tagId] }])));
+        await page.route('**/api/v1/tags**', async route => {
+          const method = route.request().method();
+          const url = new URL(route.request().url());
+          if (method === 'GET') return fulfillJson(route, taxonomyPage(tags));
+          if (method === 'POST') {
+            const payload = route.request().postDataJSON();
+            assert.deepEqual(payload, { name: 'Science taxonomy', description: '' });
+            tags = [...tags, { id: newId, ...payload }];
+            return fulfillJson(route, { tagId: newId }, 201);
+          }
+          if (method === 'PATCH') {
+            if (failedWrite) return fulfillJson(route, { status: 403, title: 'Forbidden' }, 403);
+            const payload = route.request().postDataJSON();
+            const record = { id: tagId, ...payload };
+            tags = tags.map(tag => tag.id === tagId ? record : tag);
+            return fulfillJson(route, record);
+          }
+          if (method === 'DELETE') {
+            tags = tags.filter(tag => !url.pathname.endsWith(`/${tag.id}`));
+            return route.fulfill({ status: 204 });
+          }
+          return route.abort('blockedbyclient');
+        });
+        const moveWithinApp = async path => {
+          // Exercise SPA history transitions; a document reload would discard the warm Query cache.
+          await page.evaluate(next => {
+            history.pushState({}, '', next);
+            dispatchEvent(new PopStateEvent('popstate'));
+          }, path);
+        };
+        await navigateToAppRoute(page, '/my-quizzes');
+        const cardLabelState = width >= 768 ? 'visible' : 'attached';
+        // The existing compact mobile card hides tag chips; its metadata still converges.
+        await page.getByText('#Original taxonomy', { exact: true }).waitFor({ state: cardLabelState });
+        await moveWithinApp('/tags');
+        await page.getByRole('heading', { name: 'Manage Tags' }).waitFor();
+        await page.getByRole('button', { name: 'Create Tag', exact: true }).click();
+        await page.getByLabel('Name', { exact: false }).fill('Science taxonomy');
+        await page.getByRole('button', { name: 'Create', exact: true }).click();
+        await page.getByRole('cell', { name: 'Science taxonomy', exact: true }).waitFor();
+        let row = page.getByRole('row').filter({ hasText: 'Original taxonomy' });
+        await row.getByRole('button', { name: 'Edit tag', exact: true }).click();
+        await page.getByLabel('Name', { exact: false }).fill('Renamed taxonomy');
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+        await page.getByRole('cell', { name: 'Renamed taxonomy', exact: true }).waitFor();
+        await moveWithinApp('/my-quizzes');
+        await page.getByText('#Renamed taxonomy', { exact: true }).waitFor({ state: cardLabelState });
+        assert.equal(await page.getByText('#Original taxonomy', { exact: true }).count(), 0);
+        if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `taxonomy-${width}.png`), fullPage: true });
+        await moveWithinApp('/tags');
+        row = page.getByRole('row').filter({ hasText: 'Renamed taxonomy' });
+        await row.getByRole('button', { name: 'Edit tag', exact: true }).click();
+        await page.getByLabel('Name', { exact: false }).fill('Rejected taxonomy');
+        failedWrite = true;
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+        await page.getByText('Insufficient permissions. Ask the owner for access.', { exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+        assert.equal(await page.getByRole('cell', { name: 'Rejected taxonomy', exact: true }).count(), 0);
+        await row.getByRole('button', { name: 'Delete tag', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Delete Tag' }).getByRole('button', { name: 'Delete Tag' }).click();
+        await page.getByRole('cell', { name: 'Renamed taxonomy', exact: true }).waitFor({ state: 'detached' });
+        await moveWithinApp('/my-quizzes');
+        await page.getByText(`##${tagId}`, { exact: true }).waitFor({ state: cardLabelState });
+        assert.equal(await page.getByText('#Renamed taxonomy', { exact: true }).count(), 0);
+      } finally {
+        await context.close();
+      }
+    }
+  } finally {
     await browser?.close();
     await stopDevServer(server);
   }

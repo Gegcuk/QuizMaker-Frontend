@@ -1,12 +1,16 @@
+import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { useTagPage, useDeletedTags, tagDetailOptions } from '../hooks/useQuizMetadataQueries';
+import { useTagMutations } from '../hooks/useTaxonomyMutations';
+import { assertCurrentSessionGeneration, getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizTagManager.tsx
 // ---------------------------------------------------------------------------
 // Add/remove tags from quiz based on QUIZ_ENDPOINTS
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TagDto } from '@/types';
-import { TagService, api } from '@/services';
+
 import type { AxiosError } from 'axios';
 import { Button, Input, Textarea, Checkbox, Alert } from '@/components';
 
@@ -27,42 +31,34 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
   onTagsChange,
   className = ''
 }) => {
-  const tagService = new TagService(api);
 
-  const [tags, setTags] = useState<TagWithStatus[]>([]);
   const [displayedCount, setDisplayedCount] = useState<number>(5);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedReadError, setDismissedReadError] = useState<Error | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [newTagDescription, setNewTagDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [createdTagIds, setCreatedTagIds] = useState<string[]>([]);
 
-  // Load available tags
-  useEffect(() => {
-    const loadTags = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await tagService.getTags();
-        const tagsWithStatus = response.content.map(tag => ({
-          ...tag,
-          isSelected: currentTagIds.includes(tag.id)
-        }));
-        setTags(tagsWithStatus);
-      } catch (err) {
-        const axiosError = err as AxiosError<{ message?: string }>;
-        const errorMessage = getErrorMessage(axiosError) || 'Failed to load tags';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTags();
-  }, [currentTagIds]);
+  const taxonomyQuery = useTagPage();
+  const deleted = useDeletedTags();
+  const writes = useTagMutations();
+  const queryClient = useQueryClient();
+  const createdId = writes.create.data?.tagId;
+  // Keep authoring intent as IDs; canonical records remain owned by shared Query.
+  const createdRecords = useQueries({ queries: createdTagIds.map(id => ({ ...tagDetailOptions(id), enabled: false })) });
+  const pageTags = taxonomyQuery.data?.content ?? [];
+  const additionalTags = createdRecords.flatMap(record => {
+    const tag = record.data;
+    return tag && !deleted[tag.id] && !pageTags.some(pageTag => pageTag.id === tag.id) ? [tag] : [];
+  });
+  const isLoading = taxonomyQuery.isLoading;
+  const tags: TagWithStatus[] = [...pageTags, ...additionalTags].map(tag => ({
+    ...tag, isSelected: currentTagIds.includes(tag.id),
+  }));
+  const displayedError = error ?? (taxonomyQuery.error === dismissedReadError ? null : taxonomyQuery.error?.message);
 
   // Filter tags based on search
   const filteredTags = tags.filter(tag =>
@@ -72,56 +68,46 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
 
   // Handle tag selection
   const handleTagToggle = (tagId: string) => {
-    const updatedTags = tags.map(t =>
-      t.id === tagId ? { ...t, isSelected: !t.isSelected } : t
-    );
-    setTags(updatedTags);
-
-    const selectedIds = updatedTags
-      .filter(t => t.isSelected)
-      .map(t => t.id);
-
-    onTagsChange(selectedIds);
+    if (deleted[tagId]) return;
+    onTagsChange(currentTagIds.includes(tagId)
+      ? currentTagIds.filter(id => id !== tagId)
+      : [...currentTagIds, tagId]);
   };
 
-  // Handle bulk selection
+  // Explicit bulk actions may change selection, but cache refresh never does.
   const handleBulkSelect = (selectAll: boolean) => {
-    const updatedTags = tags.map(t => ({ ...t, isSelected: selectAll }));
-    setTags(updatedTags);
-
-    const selectedIds = selectAll ? tags.map(t => t.id) : [];
-    onTagsChange(selectedIds);
+    onTagsChange(selectAll ? Array.from(new Set([...currentTagIds, ...tags.map(tag => tag.id)])) : []);
   };
 
   // Handle creating new tag
   const handleCreateTag = async () => {
-    if (!newTagName.trim()) return;
+    if (isCreating || (!createdId && !newTagName.trim())) return;
 
+    const generation = getSessionGeneration();
+    let committed = Boolean(createdId);
     try {
       setIsCreating(true);
       setError(null);
 
-      const response = await tagService.createTag({
+      const id = createdId ?? (await writes.create.mutateAsync({
         name: newTagName.trim(),
         description: newTagDescription.trim()
-      });
+      })).tagId;
+      committed = true;
+      const tag = await queryClient.fetchQuery(tagDetailOptions(id));
+      assertCurrentSessionGeneration(generation);
+      setCreatedTagIds(previous => previous.includes(tag.id) ? previous : [...previous, tag.id]);
+      writes.create.reset();
 
-      // Create the new tag object with the response
-      const newTag: TagWithStatus = {
-        id: response.tagId,
-        name: newTagName.trim(),
-        description: newTagDescription.trim(),
-        isSelected: false
-      };
-
-      setTags(prev => [...prev, newTag]);
       setNewTagName('');
       setNewTagDescription('');
       setShowCreateForm(false);
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
       const errorMessage = getErrorMessage(axiosError) || 'Failed to create tag';
-      setError(errorMessage);
+      if (isCurrentSessionGeneration(generation)) {
+        setError(committed ? 'Tag was saved, but could not be loaded. Retry loading it. ' + errorMessage : errorMessage);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -157,7 +143,8 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowCreateForm(!showCreateForm)}
+            onClick={() => { writes.create.reset(); setShowCreateForm(!showCreateForm); }}
+            disabled={isCreating}
           >
             {showCreateForm ? 'Cancel' : '+ Add New Tag'}
           </Button>
@@ -165,9 +152,9 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
       </div>
 
       <div className="px-6 py-4">
-        {error && (
-          <Alert type="error" dismissible onDismiss={() => setError(null)} className="mb-4">
-            {error}
+        {displayedError && (
+          <Alert type="error" dismissible onDismiss={() => { setError(null); setDismissedReadError(taxonomyQuery.error); }} className="mb-4">
+            {displayedError}
           </Alert>
         )}
 
@@ -178,6 +165,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
             <div className="space-y-3">
               <Input
                 id="new-tag-name"
+                disabled={isCreating || Boolean(createdId)}
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
                 placeholder="Enter tag name..."
@@ -190,6 +178,7 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
               />
               <Textarea
                 id="new-tag-description"
+                disabled={isCreating || Boolean(createdId)}
                 value={newTagDescription}
                 onChange={(e) => setNewTagDescription(e.target.value)}
                 placeholder="Enter tag description..."
@@ -205,12 +194,14 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
                   disabled={!newTagName.trim() || isCreating}
                   loading={isCreating}
                 >
-                  Create Tag
+                  {createdId ? 'Retry loading tag' : 'Create Tag'}
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
+                  disabled={isCreating}
                   onClick={() => {
+                    writes.create.reset();
                     setShowCreateForm(false);
                     setNewTagName('');
                     setNewTagDescription('');
@@ -222,6 +213,15 @@ const QuizTagManager: React.FC<QuizTagManagerProps> = ({
             </div>
           </div>
         )}
+
+        {currentTagIds.filter(id => deleted[id]).map(id => (
+          <div key={id} className="mb-2 flex items-center gap-2 text-theme-text-secondary">
+            <span>{deleted[id].name} (unavailable)</span>
+            <Button variant="ghost" size="sm" onClick={() => onTagsChange(currentTagIds.filter(value => value !== id))}>
+              Remove unavailable tag
+            </Button>
+          </div>
+        ))}
 
         {/* Search and filters */}
         <div className="mb-4">

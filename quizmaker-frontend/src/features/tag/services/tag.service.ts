@@ -29,9 +29,10 @@ export class TagService {
     page?: number;
     size?: number;
     sort?: string | string[];
-  }): Promise<TagPage> {
+  }, signal?: AbortSignal): Promise<TagPage> {
     try {
       const response = await this.axiosInstance.get<TagPage>(TAG_ENDPOINTS.TAGS, {
+        ...(signal ? { signal } : {}),
         params: {
           page: params?.page ?? 0,
           size: params?.size ?? 20,
@@ -61,9 +62,11 @@ export class TagService {
    * Get tag by ID
    * GET /api/v1/tags/{tagId}
    */
-  async getTagById(tagId: string): Promise<TagDto> {
+  async getTagById(tagId: string, signal?: AbortSignal): Promise<TagDto> {
     try {
-      const response = await this.axiosInstance.get<TagDto>(TAG_ENDPOINTS.TAG_BY_ID(tagId));
+      const response = signal
+        ? await this.axiosInstance.get<TagDto>(TAG_ENDPOINTS.TAG_BY_ID(tagId), { signal })
+        : await this.axiosInstance.get<TagDto>(TAG_ENDPOINTS.TAG_BY_ID(tagId));
       return response.data;
     } catch (error) {
       throw this.handleTagError(error);

@@ -1,3 +1,5 @@
+import { useTagPage, useCategoryPage } from '../hooks/useQuizMetadataQueries';
+import { useTagMutations, useCategoryMutations } from '../hooks/useTaxonomyMutations';
 import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/QuizManagementTab.tsx
 // ---------------------------------------------------------------------------
@@ -7,13 +9,10 @@ import { diagnostics } from '@/features/diagnostics/reporter';
 // - Modern tag and category selection buttons
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { Input, Button, Dropdown, Textarea, Checkbox } from '@/components';
 import { CreateQuizRequest, UpdateQuizRequest } from '@/types';
-import { TagDto } from '@/types';
-import { CategoryDto } from '@/types';
-import { TagService, api } from '@/services';
-import { categoryService } from '@/services';
+
 import type { AxiosError } from 'axios';
 
 interface QuizManagementTabProps {
@@ -41,42 +40,24 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
   className = ''
 }) => {
   const ENABLE_TAGS_AND_CATEGORY = false;
-  const tagService = new TagService(api);
 
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
   const [showTagModal, setShowTagModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCreateTagForm, setShowCreateTagForm] = useState(false);
   const [showCreateCategoryForm, setShowCreateCategoryForm] = useState(false);
-  const [availableTags, setAvailableTags] = useState<TagDto[]>([]);
-  const [availableCategories, setAvailableCategories] = useState<CategoryDto[]>([]);
-  const [loadingTags, setLoadingTags] = useState(false);
-  const [loadingCategories, setLoadingCategories] = useState(false);
+  const tagQuery = useTagPage(undefined, ENABLE_TAGS_AND_CATEGORY);
+  const availableTags = tagQuery.data?.content ?? [];
+  const tagWrites = useTagMutations();
+  const categoryQuery = useCategoryPage(undefined, ENABLE_TAGS_AND_CATEGORY);
+  const availableCategories = categoryQuery.data?.content ?? [];
+  const categoryWrites = useCategoryMutations();
   const [newTagName, setNewTagName] = useState('');
   const [newTagDescription, setNewTagDescription] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-
-  // Load tags and categories
-  useEffect(() => {
-    if (!ENABLE_TAGS_AND_CATEGORY) return;
-    const loadData = async () => {
-      try {
-        const [tagsResponse, categoriesResponse] = await Promise.all([
-          tagService.getTags().catch(() => ({ content: [] })),
-          categoryService.getCategories().catch(() => ({ content: [] }))
-        ]);
-        setAvailableTags(tagsResponse.content);
-        setAvailableCategories(categoriesResponse.content);
-      } catch (error) {
-        diagnostics.report(error, 'application');
-
-      }
-    };
-    loadData();
-  }, []);
 
   // Clear field errors when user starts typing
   const clearFieldError = (field: keyof FormErrors) => {
@@ -176,24 +157,14 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
   // Handle creating new tag
   const handleCreateTag = async () => {
-    if (!newTagName.trim()) return;
+    if (!newTagName.trim() || isCreatingTag) return;
 
     try {
       setIsCreatingTag(true);
-      const response = await tagService.createTag({ 
+      await tagWrites.create.mutateAsync({
         name: newTagName.trim(), 
         description: newTagDescription.trim() 
       });
-      
-      // Create the new tag object
-      const newTag: TagDto = {
-        id: response.tagId,
-        name: newTagName.trim(),
-        description: newTagDescription.trim()
-      };
-      
-      // Add to available tags only (don't automatically select it)
-      setAvailableTags(prev => [...prev, newTag]);
       
       // Reset form
       setNewTagName('');
@@ -209,20 +180,16 @@ const QuizManagementTab: React.FC<QuizManagementTabProps> = ({
 
   // Handle creating new category
   const handleCreateCategory = async () => {
-    if (!newCategoryName.trim()) return;
+    if (!newCategoryName.trim() || isCreatingCategory) return;
 
     try {
       setIsCreatingCategory(true);
-      const response = await categoryService.createCategory({ 
+      await categoryWrites.create.mutateAsync({
         name: newCategoryName.trim(), 
         description: newCategoryDescription.trim() 
       });
       
-      // Fetch the full category data
-      const newCategory = await categoryService.getCategoryById(response.categoryId);
-      
-      // Add to available categories only (don't automatically select it)
-      setAvailableCategories(prev => [...prev, newCategory]);
+      // Shared list reconciliation makes the saved category available without selecting it.
       
       // Reset form and close modals
       setNewCategoryName('');

@@ -1,19 +1,17 @@
+import { useCategoryPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useCategoryMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
 import { getErrorMessage } from '@/utils/errorUtils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Spinner, PageContainer, ConfirmationModal, Button, Input, Textarea } from '@/components';
 import { Seo } from '@/features/seo';
 import { CategoryDto } from '../features/category';
-import {
-  getAllCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from '../features/category';
 
 const CategoryManagementPage: React.FC = () => {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const taxonomyQuery = useCategoryPage({ page: 0, size: 100 });
+  const categories = taxonomyQuery.data?.content ?? [];
+  const loading = taxonomyQuery.isLoading;
+  const writes = useCategoryMutations();
   const [displayedCount, setDisplayedCount] = useState<number>(5);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -28,28 +26,12 @@ const CategoryManagementPage: React.FC = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const fetchCategories = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await getAllCategories({ page: 0, size: 100 });
-      setCategories(response.content);
-    } catch (err: any) {
-      setError(getErrorMessage(err) || 'Failed to fetch categories.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
   const openCreate = () => {
     setEditing(null);
     setName('');
     setDesc('');
     setFormError(null);
+    writes.create.reset();
     setShowForm(true);
   };
 
@@ -58,11 +40,13 @@ const CategoryManagementPage: React.FC = () => {
     setName(cat.name);
     setDesc(cat.description || '');
     setFormError(null);
+    writes.create.reset();
     setShowForm(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSubmitting) return;
     setFormError(null);
     setFormSubmitting(true);
 
@@ -74,13 +58,13 @@ const CategoryManagementPage: React.FC = () => {
 
     try {
       if (editing) {
-        await updateCategory(editing.id, { name: name.trim(), description: desc.trim() });
+        await writes.update.mutateAsync({ id: editing.id, data: { name: name.trim(), description: desc.trim() } });
       } else {
-        await createCategory({ name: name.trim(), description: desc.trim() });
+        await writes.create.mutateAsync({ name: name.trim(), description: desc.trim() });
       }
+      setError(null);
       setShowForm(false);
-      await fetchCategories();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(getErrorMessage(err) || 'Failed to save category.');
     } finally {
       setFormSubmitting(false);
@@ -97,9 +81,9 @@ const CategoryManagementPage: React.FC = () => {
     
     setIsDeleting(true);
     try {
-      await deleteCategory(categoryToDelete);
-      await fetchCategories();
-    } catch (err: any) {
+      await writes.remove.mutateAsync(categoryToDelete);
+      setError(null);
+    } catch (err: unknown) {
       setError(getErrorMessage(err) || 'Failed to delete category.');
     } finally {
       setIsDeleting(false);
@@ -107,6 +91,8 @@ const CategoryManagementPage: React.FC = () => {
       setCategoryToDelete(null);
     }
   };
+
+  const displayedError = error ?? taxonomyQuery.error?.message;
 
   return (
     <>
@@ -129,9 +115,9 @@ const CategoryManagementPage: React.FC = () => {
         <div className="flex justify-center py-8">
           <Spinner size="lg" />
         </div>
-      ) : error ? (
+      ) : displayedError ? (
         <div className="bg-theme-bg-danger border border-theme-border-danger rounded-md p-4">
-          <p className="text-theme-interactive-danger">{error}</p>
+          <p className="text-theme-interactive-danger">{displayedError}</p>
         </div>
       ) : categories.length === 0 ? (
         <div className="text-center py-8">

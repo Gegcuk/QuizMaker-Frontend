@@ -75,6 +75,55 @@ npx eslint path/to/changed-file.tsx
 The pull request workflow runs lint, Vitest, browser smoke, critical E2E, and
 build checks for every pull request to `main`.
 
+## Taxonomy cache ownership
+
+Tags and categories share the existing `metadataKeys` family. List keys include
+page, size, and ordered sort criteria; detail keys use the record ID. Management,
+selectors, quiz cards/lists/filters/managers, search filters, and tag usage displays
+read through the same Query hooks. Page limits and server ordering remain intact.
+Legacy readers still fetch on mount and on list-parameter changes, including a
+return to a cached page, and recover manually. Metadata readers retain 15-minute
+freshness and the provider's retry/focus defaults. Mutations never retry automatically.
+
+Shared mutation hooks apply server-confirmed renames/deletions, cancel older
+reads, and invalidate only that taxonomy's list variants. Active pages refetch;
+inactive pages refresh when next observed. Failed writes leave confirmed data
+unchanged. A failed refresh remains a read error rather than reporting a committed
+write as failed. Creation returns the existing ID payload; forms load the canonical
+record separately and retry only that read if it fails. The quiz tag manager also
+keeps created IDs as authoring intent and observes their canonical detail records,
+so a new tag outside the first page remains selectable without extending the
+cached server page. Shared renames and deletions still update those choices.
+Management clears a previous action error after a confirmed successful write;
+failed writes and failed list refreshes retain their existing error feedback.
+
+Confirmed deletion evidence stays in the same session's Query cache. Deleted
+records are excluded from choices, including late list responses. Existing draft
+IDs remain untouched and display as unavailable with an explicit removal action.
+Missing records in a partial page are not treated as deleted. Saved quiz
+relationships and disabled authoring features are unchanged.
+
+The existing session-generation boundary clears and replaces the Query client.
+Its provider is keyed by generation so mounted observers and drafts cannot remain
+attached to the previous account. `SessionProviders` keeps authentication outside
+this remount boundary, so a successful login does not trigger a second bootstrap
+validation. Taxonomy work also checks its originating client
+generation. Writes serialize per taxonomy and client; queued work settles safely
+after logout instead of waiting on a cleared mutation cache.
+
+Regression coverage for #205:
+
+| Outcome | Coverage |
+| --- | --- |
+| Create/rename/delete converge across readers | `taxonomyConsumers.test.tsx`, `useTaxonomyMutations.test.tsx`, taxonomy browser journey |
+| Failed writes retain server truth; committed creation does not replay | Both taxonomy suites and existing management/form tests |
+| Deleted choices disappear; selected draft IDs remain removable | Consumer integration tests, selectors, quiz managers |
+| Late reads/writes and account changes cannot restore old data | Mutation session tests with `QueryProvider`, existing session/HTTP suites |
+| Shared parameter keys, pagination, manual retry, existing UI | Metadata hooks, paginated list/form/selector tests, desktop/mobile browser gates |
+| Returning to visited pages reads current server data; failed reads retain cache and recover manually | `taxonomyPagination.test.tsx` for both lists; metadata hook tests preserve fresh-card/filter reuse |
+| Login validates once while account caches still reset | `AuthContext.test.tsx` using the production `SessionProviders`, existing Query/session tests |
+| Management recovers after failed deletion; created tags beyond page one remain selectable | `taxonomyConsumers.test.tsx`, including failed-save retention, canonical details, read-only retry, shared rename/delete |
+
 ## CI/CD
 
 - `.github/workflows/frontend-pr.yml` runs lint, Vitest, browser smoke, critical E2E, and build on every pull request to `main`.

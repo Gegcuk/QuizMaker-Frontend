@@ -8,7 +8,11 @@ const serviceMocks = vi.hoisted(() => ({
   getAllTags: vi.fn(),
 }));
 
-vi.mock('@/services', () => serviceMocks);
+vi.mock('@/services', () => ({
+  api: {},
+  TagService: class { getTags = serviceMocks.getAllTags; },
+  categoryService: { getCategories: serviceMocks.getAllCategories },
+}));
 
 const tag = {
   id: 'tag-1',
@@ -50,8 +54,8 @@ describe('quiz metadata hooks', () => {
     await waitFor(() => expect(tagsHook.result.current.data).toEqual([tag]));
     await waitFor(() => expect(categoriesHook.result.current.data).toEqual([category]));
 
-    expect(serviceMocks.getAllTags).toHaveBeenCalledWith({ page: 0, size: 1000 });
-    expect(serviceMocks.getAllCategories).toHaveBeenCalledWith({ page: 0, size: 1000 });
+    expect(serviceMocks.getAllTags).toHaveBeenCalledWith({ page: 0, size: 1000 }, expect.any(AbortSignal));
+    expect(serviceMocks.getAllCategories).toHaveBeenCalledWith({ page: 0, size: 1000 }, expect.any(AbortSignal));
   });
 
   it('combines metadata and exposes memoized lookup helpers', async () => {
@@ -83,6 +87,26 @@ describe('quiz metadata hooks', () => {
     expect(result.current.getCategoryName).toBe(helpers.getCategoryName);
     expect(result.current.getTagById).toBe(helpers.getTagById);
     expect(result.current.getCategoryById).toBe(helpers.getCategoryById);
+  });
+
+  it.each([
+    { name: 'tags', useMetadata: useTags, service: serviceMocks.getAllTags, record: tag },
+    { name: 'categories', useMetadata: useCategories, service: serviceMocks.getAllCategories, record: category },
+  ])('reuses fresh $name metadata when a later consumer mounts', async ({ useMetadata, service, record }) => {
+    service.mockResolvedValue({ content: [record] });
+    const queryClient = createTestQueryClient();
+    const wrapper = createQueryWrapper(queryClient);
+    const first = renderHook(() => useMetadata(), { wrapper });
+    await waitFor(() => expect(first.result.current.data).toEqual([record]));
+    first.unmount();
+
+    // The convenience readers retain their existing freshness despite list navigation refreshes.
+    service.mockResolvedValue({ content: [{ ...record, name: 'Changed elsewhere' }] });
+    const later = renderHook(() => useMetadata(), { wrapper });
+    await act(async () => later.rerender());
+    expect(later.result.current.data).toEqual([record]);
+    expect(later.result.current.isFetching).toBe(false);
+    expect(service).toHaveBeenCalledTimes(1);
   });
 
   it('surfaces a metadata query error after the combined loading state settles', async () => {

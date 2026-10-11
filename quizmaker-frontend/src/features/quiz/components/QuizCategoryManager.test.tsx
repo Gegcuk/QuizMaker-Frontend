@@ -31,12 +31,15 @@ describe('QuizCategoryManager', () => {
     await user.click(await screen.findByRole('checkbox', { name: /Architecture/ }));
 
     expect(onCategoryChange).toHaveBeenCalledTimes(1);
-    expect(onCategoryChange).toHaveBeenCalledWith('category-1');
+    await waitFor(() => expect(onCategoryChange).toHaveBeenCalledWith('category-1'));
   });
 
   it('creates a category and selects the fully loaded result', async () => {
     const onCategoryChange = vi.fn();
-    categoryService.createCategory.mockResolvedValue({ categoryId: 'category-3' });
+    categoryService.createCategory.mockImplementation(async () => {
+      categoryService.getCategories.mockResolvedValue({ content: [...categories, { id: 'category-3', name: 'Data', description: 'Data platform architecture' }] });
+      return { categoryId: 'category-3' };
+    });
     categoryService.getCategoryById.mockResolvedValue({
       id: 'category-3',
       name: 'Data',
@@ -59,8 +62,8 @@ describe('QuizCategoryManager', () => {
         description: 'Data platform architecture',
       });
     });
-    expect(categoryService.getCategoryById).toHaveBeenCalledWith('category-3');
-    expect(onCategoryChange).toHaveBeenCalledWith('category-3');
+    expect(categoryService.getCategoryById).toHaveBeenCalledWith('category-3', expect.any(AbortSignal));
+    await waitFor(() => expect(onCategoryChange).toHaveBeenCalledWith('category-3'));
     expect(screen.getByText('Data')).toBeInTheDocument();
   });
 });

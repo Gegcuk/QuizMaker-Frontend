@@ -4,6 +4,7 @@ import QuizTagManager from './QuizTagManager';
 
 const tagService = vi.hoisted(() => ({
   getTags: vi.fn(),
+  getTagById: vi.fn(),
   createTag: vi.fn(),
 }));
 
@@ -11,6 +12,7 @@ vi.mock('@/services', () => ({
   api: {},
   TagService: class {
     getTags = tagService.getTags;
+    getTagById = tagService.getTagById;
     createTag = tagService.createTag;
   },
 }));
@@ -49,7 +51,11 @@ describe('QuizTagManager', () => {
   });
 
   it('creates a tag and makes it available for later selection', async () => {
-    tagService.createTag.mockResolvedValue({ tagId: 'tag-3' });
+    tagService.getTagById.mockResolvedValue({ id: 'tag-3', name: 'data', description: 'Data platform architecture' });
+    tagService.createTag.mockImplementation(async () => {
+      tagService.getTags.mockResolvedValue({ content: [...tags, { id: 'tag-3', name: 'data', description: 'Data platform architecture' }] });
+      return { tagId: 'tag-3' };
+    });
     const { user } = renderWithProviders(
       <QuizTagManager quizId="quiz-1" currentTagIds={[]} onTagsChange={vi.fn()} />,
       { withAuthProvider: false },
@@ -67,6 +73,6 @@ describe('QuizTagManager', () => {
         description: 'Data platform architecture',
       });
     });
-    expect(screen.getByText('#data')).toBeInTheDocument();
+    expect(await screen.findByText('#data')).toBeInTheDocument();
   });
 });

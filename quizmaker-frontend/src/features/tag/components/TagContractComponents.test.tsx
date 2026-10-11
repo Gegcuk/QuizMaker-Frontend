@@ -11,6 +11,7 @@ const serviceMocks = vi.hoisted(() => ({
   deleteTag: vi.fn(),
   getQuizzes: vi.fn(),
   getTags: vi.fn(),
+  getTagById: vi.fn(),
   updateTag: vi.fn(),
 }));
 
@@ -23,6 +24,7 @@ vi.mock('@/services', () => ({
     createTag = serviceMocks.createTag;
     deleteTag = serviceMocks.deleteTag;
     getTags = serviceMocks.getTags;
+    getTagById = serviceMocks.getTagById;
     updateTag = serviceMocks.updateTag;
   },
 }));
@@ -116,6 +118,8 @@ describe('tag components with deployed TagDto payloads', () => {
 
   it('creates quiz tags without synthesizing timestamp fields', async () => {
     serviceMocks.getTags.mockResolvedValueOnce(tagPage([]));
+    serviceMocks.getTags.mockResolvedValue(tagPage([]));
+    serviceMocks.getTagById.mockResolvedValue(tag({ id: 'tag-new' }));
     const onTagsChange = vi.fn();
     const { user } = renderWithProviders(
       <QuizTagManager

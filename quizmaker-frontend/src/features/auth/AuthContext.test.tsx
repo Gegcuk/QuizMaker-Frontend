@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryProvider } from '@/providers/QueryProvider';
+import { SessionProviders } from '@/providers/SessionProviders';
 import { server } from '@/test/msw/server';
 import { getAccessToken, setAccessToken, setTokens } from '@/utils/tokenUtils';
-import { AuthProvider, useAuth } from './AuthContext';
+import { useAuth } from './AuthContext';
 
 const currentUserEndpoint = 'http://localhost:3000/api/v1/auth/me';
 const logoutEndpoint = 'http://localhost:3000/api/v1/auth/logout';
@@ -22,7 +23,8 @@ const authenticatedUser = {
 };
 
 const AuthProbe = () => {
-  const { isLoading, logout, user } = useAuth();
+  const { isLoading, login, logout, user } = useAuth();
+  const [loginError, setLoginError] = useState('');
 
   return (
     <div>
@@ -32,21 +34,47 @@ const AuthProbe = () => {
       <button type="button" onClick={() => void logout()}>
         Log out
       </button>
+      <button type="button" onClick={() => {
+        void login({ username: 'account-a', password: 'fixture-password' })
+          .catch(() => setLoginError('Login failed'));
+      }}>Log in</button>
+      {loginError && <p>{loginError}</p>}
     </div>
   );
 };
 
 const renderAuth = () => render(
   <MemoryRouter initialEntries={['/quizzes']}>
-    <QueryProvider>
-      <AuthProvider>
-        <AuthProbe />
-      </AuthProvider>
-    </QueryProvider>
+    <SessionProviders>
+      <AuthProbe />
+    </SessionProviders>
   </MemoryRouter>,
 );
 
 describe('AuthProvider session transitions', () => {
+  it('validates a credential login once without remounting authentication during cache replacement', async () => {
+    const user = userEvent.setup();
+    let currentUserRequests = 0;
+    server.use(
+      http.post('http://localhost:3000/api/v1/auth/login', () =>
+        HttpResponse.json({ accessToken: 'access-a', refreshToken: 'refresh-a' })),
+      http.get(currentUserEndpoint, () => {
+        currentUserRequests += 1;
+        return currentUserRequests === 1
+          ? HttpResponse.json(authenticatedUser)
+          : new HttpResponse(null, { status: 503 });
+      }),
+    );
+
+    renderAuth();
+    await screen.findByText('anonymous');
+    await user.click(screen.getByRole('button', { name: 'Log in' }));
+    await waitFor(() => expect(screen.getByLabelText('Authentication state')).toHaveTextContent('account-a'));
+    expect(currentUserRequests).toBe(1);
+    expect(getAccessToken()).toBe('access-a');
+    expect(screen.queryByText('Login failed')).not.toBeInTheDocument();
+  });
+
   it('crosses the local boundary before revoking the captured server session', async () => {
     const user = userEvent.setup();
     let logoutAuthorization: string | null = null;

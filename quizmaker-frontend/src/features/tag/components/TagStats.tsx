@@ -1,6 +1,8 @@
+import { useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import React, { useState, useEffect } from 'react';
 import { TagDto, QuizDto } from '@/types';
-import { TagService, QuizService, api } from '@/services';
+import { QuizService, api } from '@/services';
 import { Spinner } from '@/components';
 
 interface TagStatsProps {
@@ -29,47 +31,28 @@ export const TagStats: React.FC<TagStatsProps> = ({
   className = '',
   showDetails = true
 }) => {
-  const [stats, setStats] = useState<TagStatistics | null>(null);
+  const taxonomyQuery = useTagPage({ page: 0, size: 1000, sort: 'name,asc' });
+  const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const tagService = new TagService(api);
-  const quizService = new QuizService(api);
 
   useEffect(() => {
-    loadTagStats();
+    let active = true;
+    const generation = getSessionGeneration();
+    setLoading(true);
+    setError(null);
+    void new QuizService(api).getQuizzes({ page: 0, size: 1000 }).then(response => {
+      if (active && isCurrentSessionGeneration(generation)) setQuizzes(response.content);
+    }).catch(error => {
+      if (active && isCurrentSessionGeneration(generation)) {
+        setError(error instanceof Error ? error.message : 'Failed to load tag statistics');
+      }
+    }).finally(() => {
+      if (active && isCurrentSessionGeneration(generation)) setLoading(false);
+    });
+    return () => { active = false; };
   }, []);
-
-  const loadTagStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load all tags
-      const tagsResponse = await tagService.getTags({
-        page: 0,
-        size: 1000,
-        sort: 'name,asc'
-      });
-
-      // Load all quizzes to calculate usage
-      const quizzesResponse = await quizService.getQuizzes({
-        page: 0,
-        size: 1000
-      });
-
-      const allTags = tagsResponse.content;
-      const allQuizzes = quizzesResponse.content;
-
-      // Calculate statistics
-      const calculatedStats = calculateStats(allTags, allQuizzes);
-      setStats(calculatedStats);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tag statistics');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const calculateStats = (tags: TagDto[], quizzes: QuizDto[]): TagStatistics => {
     // Calculate usage for each tag
@@ -114,7 +97,9 @@ export const TagStats: React.FC<TagStatsProps> = ({
     };
   };
 
-  if (loading) {
+  const stats = taxonomyQuery.data ? calculateStats(taxonomyQuery.data.content, quizzes) : null;
+
+  if (loading || taxonomyQuery.isLoading) {
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-sm border p-6 ${className}`}>
         <div className="flex items-center justify-center">
@@ -125,14 +110,14 @@ export const TagStats: React.FC<TagStatsProps> = ({
     );
   }
 
-  if (error) {
+  if (error || taxonomyQuery.error) {
     return (
       <div className={`bg-theme-bg-danger border border-theme-border-danger rounded-lg p-4 ${className}`}>
         <div className="flex items-center">
           <svg className="w-5 h-5 text-theme-interactive-danger mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
-          <span className="text-theme-interactive-danger">{error}</span>
+          <span className="text-theme-interactive-danger">{error ?? taxonomyQuery.error?.message}</span>
         </div>
       </div>
     );

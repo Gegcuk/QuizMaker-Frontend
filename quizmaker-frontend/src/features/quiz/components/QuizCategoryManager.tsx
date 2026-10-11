@@ -1,13 +1,15 @@
+import { useQueryClient, useQueries } from '@tanstack/react-query';
+import { useCategoryPage, useDeletedCategories, categoryDetailOptions } from '../hooks/useQuizMetadataQueries';
+import { useCategoryMutations } from '../hooks/useTaxonomyMutations';
+import { assertCurrentSessionGeneration, getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import { getErrorMessage } from '@/utils/errorUtils';
 // src/components/QuizCategoryManager.tsx
 // ---------------------------------------------------------------------------
 // Change quiz category based on QUIZ_ENDPOINTS
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
-import { CategoryDto } from '@/types';
-import { categoryService } from '@/services';
-import { api } from '@/services';
+import React, { useState } from 'react';
+
 import type { AxiosError } from 'axios';
 import { Button, Input, Textarea, Checkbox, Alert } from '@/components';
 
@@ -25,59 +27,46 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
   className = ''
 }) => {
   
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [displayedCount, setDisplayedCount] = useState<number>(5);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedReadError, setDismissedReadError] = useState<Error | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  // Load available categories
-  useEffect(() => {
-    const loadCategories = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const response = await categoryService.getCategories();
-        setCategories(response.content);
-      } catch (err) {
-        const axiosError = err as AxiosError<{ message?: string }>;
-        const errorMessage = getErrorMessage(axiosError) || 'Failed to load categories';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCategories();
-  }, []);
+  const taxonomyQuery = useCategoryPage();
+  const categories = taxonomyQuery.data?.content ?? [];
+  const deleted = useDeletedCategories();
+  const writes = useCategoryMutations();
+  const queryClient = useQueryClient();
+  const createdId = writes.create.data?.categoryId;
+  const isLoading = taxonomyQuery.isLoading;
+  const displayedError = error ?? (taxonomyQuery.error === dismissedReadError ? null : taxonomyQuery.error?.message);
 
   // Handle category selection
   const handleCategoryChange = (categoryId: string) => {
+    if (deleted[categoryId]) return;
     const newCategoryId = categoryId === currentCategoryId ? undefined : categoryId;
     onCategoryChange(newCategoryId);
   };
 
   // Handle creating new category
   const handleCreateCategory = async () => {
-    if (!newCategoryName.trim()) return;
+    if (isCreating || (!createdId && !newCategoryName.trim())) return;
 
+    const generation = getSessionGeneration();
+    let committed = Boolean(createdId);
     try {
       setIsCreating(true);
       setError(null);
       
-      const result = await categoryService.createCategory({ 
-        name: newCategoryName.trim(), 
-        description: newCategoryDescription.trim() 
-      });
-      
-      // Fetch the full category data
-      const newCategory = await categoryService.getCategoryById(result.categoryId);
-      
-      setCategories(prev => [...prev, newCategory]);
+      const id = createdId ?? (await writes.create.mutateAsync({
+        name: newCategoryName.trim(), description: newCategoryDescription.trim(),
+      })).categoryId;
+      committed = true;
+      const newCategory = await queryClient.fetchQuery(categoryDetailOptions(id));
+      assertCurrentSessionGeneration(generation);
       onCategoryChange(newCategory.id);
       setNewCategoryName('');
       setNewCategoryDescription('');
@@ -85,14 +74,18 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string }>;
       const errorMessage = getErrorMessage(axiosError) || 'Failed to create category';
-      setError(errorMessage);
+      if (isCurrentSessionGeneration(generation)) {
+        setError(committed ? 'Category was saved, but could not be loaded. Retry loading it. ' + errorMessage : errorMessage);
+      }
     } finally {
       setIsCreating(false);
     }
   };
 
   // Get current category
-  const currentCategory = categories.find(cat => cat.id === currentCategoryId);
+  const [currentRecord] = useQueries({ queries: (currentCategoryId ? [currentCategoryId] : [])
+    .map(id => ({ ...categoryDetailOptions(id), enabled: false })) });
+  const currentCategory = categories.find(cat => cat.id === currentCategoryId) ?? currentRecord?.data;
 
   if (isLoading) {
     return (
@@ -124,7 +117,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowCreateForm(!showCreateForm)}
+            onClick={() => { writes.create.reset(); setShowCreateForm(!showCreateForm); }}
           >
             {showCreateForm ? 'Cancel' : '+ Add New Category'}
           </Button>
@@ -132,10 +125,19 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
       </div>
 
       <div className="px-6 py-4">
-        {error && (
-          <Alert type="error" dismissible onDismiss={() => setError(null)} className="mb-4">
-            {error}
+        {displayedError && (
+          <Alert type="error" dismissible onDismiss={() => { setError(null); setDismissedReadError(taxonomyQuery.error); }} className="mb-4">
+            {displayedError}
           </Alert>
+        )}
+
+        {currentCategoryId && deleted[currentCategoryId] && (
+          <div className="mb-2 flex items-center gap-2 text-theme-text-secondary">
+            <span>{deleted[currentCategoryId].name} (unavailable)</span>
+            <Button variant="ghost" size="sm" onClick={() => onCategoryChange(undefined)}>
+              Remove unavailable category
+            </Button>
+          </div>
         )}
 
         {/* Create new category form */}
@@ -145,6 +147,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
             <div className="space-y-3">
               <Input
                 id="new-category-name"
+                disabled={Boolean(createdId)}
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="Enter category name..."
@@ -157,6 +160,7 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
               />
               <Textarea
                 id="new-category-description"
+                disabled={Boolean(createdId)}
                 value={newCategoryDescription}
                 onChange={(e) => setNewCategoryDescription(e.target.value)}
                 placeholder="Enter category description..."
@@ -172,12 +176,13 @@ const QuizCategoryManager: React.FC<QuizCategoryManagerProps> = ({
                   disabled={!newCategoryName.trim() || isCreating}
                   loading={isCreating}
                 >
-                  Create Category
+                  {createdId ? 'Retry loading category' : 'Create Category'}
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() => {
+                    writes.create.reset();
                     setShowCreateForm(false);
                     setNewCategoryName('');
                     setNewCategoryDescription('');

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useTagMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
+import React, { useState } from 'react';
 import { TagDto } from '@/types';
-import { TagService, api } from '@/services';
+
 import { Spinner, Card, CardHeader, CardBody, Table, Input, Dropdown, Button, Alert } from '@/components';
 import { TableColumn } from '@/components/ui/Table';
 
@@ -19,44 +21,23 @@ export const TagList: React.FC<TagListProps> = ({
   showActions = true,
   className = ''
 }) => {
-  const [tags, setTags] = useState<TagDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedReadError, setDismissedReadError] = useState<Error | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const tagService = new TagService(api);
 
-  const loadTags = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const sortParam = `${sortBy},${sortOrder}`;
-      const response = await tagService.getTags({
-        page: currentPage,
-        size: pageSize,
-        sort: sortParam
-      });
-
-      setTags(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tags');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTags();
-  }, [currentPage, pageSize, sortBy, sortOrder]);
+  const taxonomyQuery = useTagPage({ page: currentPage, size: pageSize, sort: `${sortBy},${sortOrder}` });
+  const tags = taxonomyQuery.data?.content ?? [];
+  const totalPages = taxonomyQuery.data?.totalPages ?? 0;
+  const totalElements = taxonomyQuery.data?.totalElements ?? 0;
+  const loading = taxonomyQuery.isLoading;
+  const writes = useTagMutations();
+  const displayedError = error ?? (taxonomyQuery.error === dismissedReadError ? null : taxonomyQuery.error?.message);
+  const loadTags = () => { setError(null); setDismissedReadError(null); void taxonomyQuery.refetch(); };
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -77,11 +58,11 @@ export const TagList: React.FC<TagListProps> = ({
   };
 
   const handleDelete = async (tagId: string) => {
+    if (writes.remove.isPending) return;
     if (window.confirm('Are you sure you want to delete this tag?')) {
       try {
-        await tagService.deleteTag(tagId);
+        await writes.remove.mutateAsync(tagId);
         onDeleteTag(tagId);
-        loadTags(); // Reload the list
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete tag');
       }
@@ -165,11 +146,11 @@ export const TagList: React.FC<TagListProps> = ({
     );
   }
 
-  if (error) {
+  if (displayedError) {
     return (
       <div className={className}>
-        <Alert type="error" dismissible onDismiss={() => setError(null)}>
-          {error}
+        <Alert type="error" dismissible onDismiss={() => { setError(null); setDismissedReadError(taxonomyQuery.error); }}>
+          {displayedError}
           <div className="mt-2">
             <Button variant="ghost" size="sm" onClick={loadTags}>
               Try again

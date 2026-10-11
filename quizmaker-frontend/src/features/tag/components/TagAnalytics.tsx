@@ -1,6 +1,8 @@
+import { useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import React, { useState, useEffect } from 'react';
 import { TagDto, QuizDto } from '@/types';
-import { TagService, QuizService, api } from '@/services';
+import { QuizService, api } from '@/services';
 import { Spinner, Dropdown, Alert } from '@/components';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -41,47 +43,30 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
   className = '',
   timeRange = 'month'
 }) => {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const taxonomyQuery = useTagPage({ page: 0, size: 1000, sort: 'name,asc' });
+  const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState(timeRange);
 
-  const tagService = new TagService(api);
-  const quizService = new QuizService(api);
   const { currentPalette } = useTheme();
 
   useEffect(() => {
-    loadAnalyticsData();
+    let active = true;
+    const generation = getSessionGeneration();
+    setLoading(true);
+    setError(null);
+    void new QuizService(api).getQuizzes({ page: 0, size: 1000 }).then(response => {
+      if (active && isCurrentSessionGeneration(generation)) setQuizzes(response.content);
+    }).catch(error => {
+      if (active && isCurrentSessionGeneration(generation)) {
+        setError(error instanceof Error ? error.message : 'Failed to load analytics data');
+      }
+    }).finally(() => {
+      if (active && isCurrentSessionGeneration(generation)) setLoading(false);
+    });
+    return () => { active = false; };
   }, [selectedTimeRange]);
-
-  const loadAnalyticsData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load all tags
-      const tagsResponse = await tagService.getTags({
-        page: 0,
-        size: 1000,
-        sort: 'name,asc'
-      });
-
-      // Load all quizzes
-      const quizzesResponse = await quizService.getQuizzes({
-        page: 0,
-        size: 1000
-      });
-
-      const allTags = tagsResponse.content;
-      const allQuizzes = quizzesResponse.content;
-      const calculatedData = calculateAnalyticsData(allTags, allQuizzes, selectedTimeRange);
-      setAnalyticsData(calculatedData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load analytics data');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const calculateAnalyticsData = (tags: TagDto[], quizzes: QuizDto[], range: string): AnalyticsData => {
     const now = new Date();
@@ -107,7 +92,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     });
 
     // Top tags by usage
-    const topTagsByUsage = Array.from(tagUsageMap.entries())
+    const topTagsByUsage = Array.from(tagUsageMap.entries()).filter(([id]) => tags.some(tag => tag.id === id))
       .map(([tagId, usageCount]) => {
         const tag = tags.find(t => t.id === tagId);
         return {
@@ -121,7 +106,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
 
     // Tag efficiency
     const averageQuizzesPerTag = tags.length > 0 ? totalQuizzes / tags.length : 0;
-    const mostEfficientTags = Array.from(tagUsageMap.entries())
+    const mostEfficientTags = Array.from(tagUsageMap.entries()).filter(([id]) => tags.some(tag => tag.id === id))
       .map(([tagId, usageCount]) => {
         const tag = tags.find(t => t.id === tagId);
         return {
@@ -170,7 +155,7 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
 
     filteredQuizzes.forEach(quiz => {
       if (quiz.tagIds.length > 1) {
-        const sortedTags = quiz.tagIds.sort();
+        const sortedTags = [...quiz.tagIds].sort();
         const combination = sortedTags.join(',');
         combinationMap.set(combination, (combinationMap.get(combination) || 0) + 1);
       }
@@ -342,7 +327,10 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     );
   };
 
-  if (loading) {
+  const analyticsData = taxonomyQuery.data
+    ? calculateAnalyticsData(taxonomyQuery.data.content, quizzes, selectedTimeRange) : null;
+
+  if (loading || taxonomyQuery.isLoading) {
     return (
       <div className={`bg-theme-bg-primary rounded-lg shadow-theme border border-theme-border-primary p-6 ${className}`}>
         <div className="flex items-center justify-center">
@@ -353,11 +341,11 @@ export const TagAnalytics: React.FC<TagAnalyticsProps> = ({
     );
   }
 
-  if (error) {
+  if (error || taxonomyQuery.error) {
     return (
       <div className={className}>
         <Alert type="error">
-          {error}
+          {error ?? taxonomyQuery.error?.message}
         </Alert>
       </div>
     );

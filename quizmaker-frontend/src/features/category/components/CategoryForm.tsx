@@ -1,6 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { categoryDetailOptions } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useCategoryMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
+import { assertCurrentSessionGeneration, getSessionGeneration, isCurrentSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import React, { useState, useEffect } from 'react';
 import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '@/types';
-import { categoryService } from '@/services';
+
 import { Button, Input, Textarea, Alert } from '@/components';
 
 interface CategoryFormProps {
@@ -24,6 +28,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
+  const writes = useCategoryMutations();
+  const queryClient = useQueryClient();
+  const createdId = category ? undefined : writes.create.data?.categoryId;
   const isEditing = !!category;
 
   useEffect(() => {
@@ -74,11 +81,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (loading) return;
+    if (!createdId && !validateForm()) {
       return;
     }
 
     setLoading(true);
+    const generation = getSessionGeneration();
+    let committed = Boolean(createdId);
     try {
       let savedCategory: CategoryDto;
 
@@ -87,19 +97,23 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           name: formData.name,
           description: formData.description
         };
-        savedCategory = await categoryService.updateCategory(category.id, updateData);
+        savedCategory = await writes.update.mutateAsync({ id: category.id, data: updateData });
       } else {
-        const result = await categoryService.createCategory(formData);
-        // Fetch the created category to get full details
-        savedCategory = await categoryService.getCategoryById(result.categoryId);
+        const id = createdId ?? (await writes.create.mutateAsync(formData)).categoryId;
+        committed = true;
+        savedCategory = await queryClient.fetchQuery(categoryDetailOptions(id));
       }
 
+      assertCurrentSessionGeneration(generation);
+      writes.create.reset();
       onSave(savedCategory);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to save category';
-      setErrors({ submit: errorMessage });
+      if (isCurrentSessionGeneration(generation)) {
+        setErrors({ submit: committed ? 'Category was saved, but could not be loaded. Retry loading it. ' + errorMessage : errorMessage });
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentSessionGeneration(generation)) setLoading(false);
     }
   };
 
@@ -161,6 +175,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               type="text"
               id="name"
               name="name"
+              disabled={Boolean(createdId)}
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter category name (3-100 characters)"
@@ -182,6 +197,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             </div>
             <Textarea
               id="description"
+              disabled={Boolean(createdId)}
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
@@ -217,7 +233,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               disabled={loading || !formData.name.trim()}
               loading={loading}
             >
-              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Category' : 'Create Category')}
+              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Category' : createdId ? 'Retry loading category' : 'Create Category')}
             </Button>
           </div>
         </form>

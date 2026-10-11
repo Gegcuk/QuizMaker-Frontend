@@ -29,9 +29,10 @@ export class CategoryService {
     page?: number;
     size?: number;
     sort?: string | string[];
-  }): Promise<CategoryPage> {
+  }, signal?: AbortSignal): Promise<CategoryPage> {
     try {
       const response = await this.axiosInstance.get<CategoryPage>(CATEGORY_ENDPOINTS.CATEGORIES, {
+        ...(signal ? { signal } : {}),
         params: {
           page: params?.page ?? 0,
           size: params?.size ?? 20,
@@ -48,9 +49,11 @@ export class CategoryService {
    * Get category by ID
    * GET /api/v1/categories/{categoryId}
    */
-  async getCategoryById(categoryId: string): Promise<CategoryDto> {
+  async getCategoryById(categoryId: string, signal?: AbortSignal): Promise<CategoryDto> {
     try {
-      const response = await this.axiosInstance.get<CategoryDto>(CATEGORY_ENDPOINTS.CATEGORY_BY_ID(categoryId));
+      const response = signal
+        ? await this.axiosInstance.get<CategoryDto>(CATEGORY_ENDPOINTS.CATEGORY_BY_ID(categoryId), { signal })
+        : await this.axiosInstance.get<CategoryDto>(CATEGORY_ENDPOINTS.CATEGORY_BY_ID(categoryId));
       return response.data;
     } catch (error) {
       throw this.handleCategoryError(error);

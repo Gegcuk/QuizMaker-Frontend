@@ -1,8 +1,9 @@
+import { useCategoryPage, useTagPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
 import { diagnostics } from '@/features/diagnostics/reporter';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizService, TagService, api } from '@/services';
-import { categoryService } from '@/services';
+import { QuizService, api } from '@/services';
+
 import { Button, Input, Dropdown, Checkbox } from '@/components';
 import { 
   QuizDto, 
@@ -22,6 +23,9 @@ interface SearchBarProps {
 
 type SearchResult = Paginated<QuizDto>;
 
+const EMPTY_CATEGORIES: CategoryDto[] = [];
+const EMPTY_TAGS: TagDto[] = [];
+
 const SearchBar: React.FC<SearchBarProps> = ({ 
   className = '', 
   placeholder = 'Search quizzes, questions, categories...',
@@ -38,8 +42,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [tags, setTags] = useState<TagDto[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | ''>('');
@@ -53,24 +55,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const searchCache = useRef<Map<string, SearchResult>>(new Map());
   const abortControllerRef = useRef<AbortController | undefined>(undefined);
 
-  // Load categories and tags on mount
-  useEffect(() => {
-    const loadFilters = async () => {
-      try {
-        const [categoriesResponse, tagsResponse] = await Promise.all([
-          categoryService.getCategories({ size: 100 }),
-          new TagService(api).getTags({ size: 100 })
-        ]);
-        setCategories(categoriesResponse.content);
-        setTags(tagsResponse.content);
-      } catch (err) {
-        diagnostics.report(err, 'application');
-
-      }
-    };
-
-    loadFilters();
-  }, []);
+  const categories = useCategoryPage({ size: 100 }).data?.content ?? EMPTY_CATEGORIES;
+  const tags = useTagPage({ size: 100 }).data?.content ?? EMPTY_TAGS;
 
   // Load search history from localStorage
   useEffect(() => {

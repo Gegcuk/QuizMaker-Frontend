@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useCategoryPage } from '@/features/quiz/hooks/useQuizMetadataQueries';
+import { useCategoryMutations } from '@/features/quiz/hooks/useTaxonomyMutations';
+import React, { useState } from 'react';
 import { CategoryDto } from '@/types';
-import { categoryService } from '@/services';
+
 import { Spinner, Button, Input, Dropdown, Alert } from '@/components';
 
 interface CategoryListProps {
@@ -18,43 +20,23 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   showActions = true,
   className = ''
 }) => {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedReadError, setDismissedReadError] = useState<Error | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
 
 
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const sortParam = `${sortBy},${sortOrder}`;
-      const response = await categoryService.getCategories({
-        page: currentPage,
-        size: pageSize,
-        sort: sortParam
-      });
-
-      setCategories(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load categories');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, [currentPage, pageSize, sortBy, sortOrder]);
+  const taxonomyQuery = useCategoryPage({ page: currentPage, size: pageSize, sort: `${sortBy},${sortOrder}` });
+  const categories = taxonomyQuery.data?.content ?? [];
+  const totalPages = taxonomyQuery.data?.totalPages ?? 0;
+  const totalElements = taxonomyQuery.data?.totalElements ?? 0;
+  const loading = taxonomyQuery.isLoading;
+  const writes = useCategoryMutations();
+  const displayedError = error ?? (taxonomyQuery.error === dismissedReadError ? null : taxonomyQuery.error?.message);
+  const loadCategories = () => { setError(null); setDismissedReadError(null); void taxonomyQuery.refetch(); };
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -75,11 +57,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   };
 
   const handleDelete = async (categoryId: string) => {
+    if (writes.remove.isPending) return;
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
-        await categoryService.deleteCategory(categoryId);
+        await writes.remove.mutateAsync(categoryId);
         onDeleteCategory(categoryId);
-        loadCategories(); // Reload the list
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete category');
       }
@@ -99,11 +81,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     );
   }
 
-  if (error) {
+  if (displayedError) {
     return (
       <div className={className}>
-        <Alert type="error" dismissible onDismiss={() => setError(null)}>
-          {error}
+        <Alert type="error" dismissible onDismiss={() => { setError(null); setDismissedReadError(taxonomyQuery.error); }}>
+          {displayedError}
           <div className="mt-2">
             <Button variant="ghost" size="sm" onClick={loadCategories}>
               Try again
