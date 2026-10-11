@@ -588,3 +588,77 @@ export default tseslint.config({
   },
 })
 ```
+
+## Generation start recovery
+
+All generation start screens share the account-scoped lifecycle in
+`src/features/quiz/services/generationOperations.ts` and
+`src/features/quiz/hooks/useGenerationOperation.ts`. The service methods accept an
+optional key; existing headerless consumers keep their transport behavior. Live
+`/v3/api-docs/quizzes` remains the request/response contract authority.
+
+A confirmed submission creates an opaque UUID. Browser storage must successfully
+write and read back its metadata before a POST can be sent. Metadata contains
+only the account ID, entry point, source kind, key, timestamps, lifecycle state,
+retry deadline and, when available, document/job/quiz IDs and job status. It never
+contains source text, file bytes or names, titles/descriptions, credentials,
+content hashes or request/response bodies. Neither metadata nor source content
+is added to diagnostics or analytics.
+
+Each entry point retains its pending command until the user explicitly abandons
+it, confirms a new start, the 30-day recovery window expires, or the account
+session changes. Expiry requires a new confirmation; it never silently sends a
+new command. Abandonment removes client recovery information and does not cancel
+a server job. Its confirmation explains that a new start may reserve tokens
+again. The new key is allocated only on the subsequent submit click.
+
+After reload, text/upload users must re-enter the exact original source and all
+original generation settings, including any selected pages. The frontend stores
+no input snapshot. Document starts restore the original document ID through the
+existing ownership-checked read endpoints; selections and settings are restored
+by the user. The backend decides whether the reconstructed command is identical.
+Different text/file bytes/settings with the retained key produce a conflict.
+
+A fresh or replayed `202` records the same job ID and uses the existing job
+viewer. Reload with a known job restores that viewer without another start POST.
+Verified status/result reads store a small terminal receipt; an explicitly
+confirmed new start can then replace it. Failure to read progress is not evidence
+that a new generation command is needed.
+
+Temporary failures never schedule start retries on reconnect, focus, timers or
+reload. The user must submit again. `429` and `503` use a validated `Retry-After`
+(seconds or HTTP date), with a 30-second fallback when guidance is absent or
+malformed. The deadline survives reload. The pre-POST uncertainty marker also
+holds a 30-second recovery deadline if the response cannot be observed.
+The existing single `401` refresh/resend remains unchanged and retains the key.
+A non-balance `409` blocks further starts until a new command is confirmed;
+existing insufficient-balance handling remains available.
+
+Storage failure before POST means no POST. Failure after POST retains the key and
+any known receipt in memory, blocks starts and abandonment, and offers **Retry
+saving recovery information**. That button only saves metadata. It never sends a
+POST. A durable earlier record remains available after reload. Unreadable or
+malformed metadata fails closed instead of silently allocating another key.
+Session transitions clear pending metadata even when no generation form is
+mounted. Storage cleanup failure does not prevent logout; old-account metadata
+is excluded, and cleanup is required before another session can use the store.
+Late old-session responses are rejected. Web Locks serialize same-entry-point
+starts across supporting browser tabs, and an in-memory guard blocks double
+submission within a tab.
+
+| Acceptance outcome | Regression coverage |
+| --- | --- |
+| Same key for all three sources through retry/reload | `generationOperations.test.ts`, `generationStartRecovery.test.tsx`, `generationCallerWiring.test.tsx`, browser recovery journey |
+| Existing payloads, multipart/query, optional header | `quiz.service.test.ts`, existing generation form tests, browser journeys |
+| Same replayed job, no reload POST for known job | Lifecycle, recovery screen and browser tests |
+| Conflict requires explicit new confirmation | Lifecycle and recovery screen tests |
+| Retry-After and no background start retries | Lifecycle clock tests; service call-count tests |
+| Storage failure before/after POST | Lifecycle and recovery screen tests |
+| Logout/account change and late response isolation | `GenerationOperationBoundary.test.tsx`, lifecycle and session tests |
+| No source/credentials in recovery persistence | Exact metadata allowlist tests, seeded UI and browser assertions, production privacy gate |
+| Existing 401 refresh keeps command identity | `axiosInstance.test.ts` |
+
+The recovery browser journey runs text at desktop width and upload/document at
+mobile width, using local API fixtures and no AI/payment provider. The selected
+pages caller is covered at the component boundary; this change does not add a
+route for that existing component or extend backend recovery APIs.

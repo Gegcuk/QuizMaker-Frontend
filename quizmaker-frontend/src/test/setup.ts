@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { clearTokens } from '@/utils';
 import { resetAxiosAuthStateForTests } from '@/api/axiosInstance';
 import { resetAuthSessionForTests } from '@/features/auth/services/sessionLifecycle';
+import { generationOperations } from '@/features/quiz/services/generationOperations';
 import { server } from './msw/server';
 
 class ResizeObserverMock {
@@ -39,6 +40,7 @@ beforeAll(() => {
 afterEach(() => {
   cleanup();
   server.resetHandlers();
+  generationOperations.clearSession();
   localStorage.clear();
   sessionStorage.clear();
   clearTokens();

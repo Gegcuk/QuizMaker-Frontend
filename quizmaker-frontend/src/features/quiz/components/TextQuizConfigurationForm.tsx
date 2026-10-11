@@ -18,6 +18,7 @@ interface TextQuizConfigurationFormProps {
   errors: Record<string, string | undefined>;
   onCreateQuiz: (data?: QuizWizardDraft) => void;
   isCreating: boolean;
+  startDisabled?: boolean;
 }
 
 interface TextGenerationConfig {
@@ -30,7 +31,8 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   onDataChange,
   errors,
   onCreateQuiz,
-  isCreating
+  isCreating,
+  startDisabled = false
 }) => {
   const { addToast } = useToast();
   
@@ -110,7 +112,7 @@ export const TextQuizConfigurationForm: React.FC<TextQuizConfigurationFormProps>
   };
 
   const missingRequirements = getMissingRequirements();
-  const isButtonDisabled = isCreating || missingRequirements.length > 0;
+  const isButtonDisabled = isCreating || startDisabled || missingRequirements.length > 0;
 
   const handleQuestionTypeChange = (type: string, count: number) => {
     const getMaxForType = (t: string) => {

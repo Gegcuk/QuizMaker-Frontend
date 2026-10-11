@@ -20,6 +20,7 @@ interface DocumentQuizConfigurationFormProps {
   errors: Record<string, string | undefined>;
   onCreateQuiz: (data?: QuizWizardDraft) => void;
   isCreating: boolean;
+  startDisabled?: boolean;
 }
 
 interface DocumentGenerationConfig {
@@ -33,7 +34,8 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   onDataChange,
   errors,
   onCreateQuiz,
-  isCreating
+  isCreating,
+  startDisabled = false
 }) => {
   const { addToast } = useToast();
   
@@ -259,7 +261,7 @@ export const DocumentQuizConfigurationForm: React.FC<DocumentQuizConfigurationFo
   };
 
   const missingRequirements = getMissingRequirements();
-  const isButtonDisabled = isCreating || missingRequirements.length > 0;
+  const isButtonDisabled = isCreating || startDisabled || missingRequirements.length > 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

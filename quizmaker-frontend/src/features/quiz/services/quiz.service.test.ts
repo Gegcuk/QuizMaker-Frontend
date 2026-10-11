@@ -487,3 +487,39 @@ describe('QuizService', () => {
     await expect(service.getQuizById('quiz-1')).rejects.toMatchObject({ category: 'unexpected' });
   });
 });
+
+// Header injection remains additive: the pre-existing tests above cover no-header calls.
+describe('generation idempotency transport', () => {
+  it.each(['document', 'text', 'upload'] as const)('sends the supplied %s key unchanged on fresh starts and replays', async source => {
+    const axios = createAxiosMock();
+    const service = new QuizService(axios.instance);
+    const key = '6c8a1b4d-f8ab-4ce1-86ec-a413db9f7a71';
+    axios.post.mockResolvedValue({ data: generationResponse });
+    const upload = new FormData();
+    upload.append('file', new File(['private-source'], 'original.txt', { type: 'text/plain' }));
+    upload.append('questionsPerType', '{"TRUE_FALSE":2}');
+    const send = () => source === 'document'
+      ? service.generateQuizFromDocument({ documentId: 'document-1', questionsPerType: { TRUE_FALSE: 2 } }, key)
+      : source === 'text' ? service.generateQuizFromText({ text: 'private-source', questionsPerType: { TRUE_FALSE: 2 } }, key)
+      : service.generateQuizFromUpload(upload, key);
+    expect((await send()).jobId).toBe('job-1');
+    expect((await send()).jobId).toBe('job-1');
+    expect(axios.post).toHaveBeenCalledTimes(2);
+    for (const [, body, config] of axios.post.mock.calls) {
+      expect(config?.headers).toEqual({ 'Idempotency-Key': key });
+      if (source === 'upload') {
+        expect(Array.from((body as FormData).keys())).toEqual(['file']);
+        expect(config).toMatchObject({ _isFileUpload: true, params: { questionsPerType: '{"TRUE_FALSE":2}' } });
+      } else expect(body).not.toHaveProperty('idempotencyKey');
+    }
+  });
+
+  it.each([409, 429, 503])('keeps HTTP %s metadata and never retries the service POST automatically', async status => {
+    const axios = createAxiosMock();
+    const service = new QuizService(axios.instance);
+    axios.post.mockRejectedValue({ response: { status, headers: { 'Retry-After': '45' } } });
+    await expect(service.generateQuizFromText({ text: 'private-source', questionsPerType: { TRUE_FALSE: 2 } }, 'key-1'))
+      .rejects.toMatchObject({ status, retryAfterSeconds: 45 });
+    expect(axios.post).toHaveBeenCalledOnce();
+  });
+});

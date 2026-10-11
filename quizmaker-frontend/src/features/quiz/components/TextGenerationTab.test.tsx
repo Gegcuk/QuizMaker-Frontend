@@ -48,8 +48,10 @@ describe('TextGenerationTab', () => {
         quizTitle: 'Architecture decisions',
         chunkingStrategy: 'SIZE_BASED',
         maxChunkSize: 100000,
-      }));
+      }), expect.stringMatching(/^[0-9a-f-]{36}$/));
     });
     expect(screen.getByText('Generation job: job-2')).toBeInTheDocument();
   });
 });
+
+vi.mock('@/features/auth', async importOriginal => ({ ...await importOriginal<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));

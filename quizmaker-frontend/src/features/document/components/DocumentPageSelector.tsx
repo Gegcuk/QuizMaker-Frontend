@@ -21,12 +21,14 @@ interface DocumentPageSelectorProps {
   }) => void;
   onCancel?: () => void;
   className?: string;
+  initialDocumentId?: string;
 }
 
 export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
   onSelectionComplete,
   onCancel,
-  className = ''
+  className = '',
+  initialDocumentId
 }) => {
   const { addToast } = useToast();
   const [step, setStep] = useState<'upload' | 'select'>('upload');
@@ -45,6 +47,18 @@ export const DocumentPageSelector: React.FC<DocumentPageSelectorProps> = ({
   const [previewChunk, setPreviewChunk] = useState<DocumentChunkDto | null>(null);
   
   const documentService = new DocumentService(api);
+
+  useEffect(() => {
+    if (!initialDocumentId) return;
+    let current = true;
+    setIsLoadingChunks(true);
+    void new DocumentService(api).getDocumentById(initialDocumentId).then(document => {
+      if (current) { setUploadedDocument(document); setStep('select'); }
+    }).catch(() => { if (current) setUploadError('Could not restore the original document. Restore access and reload.'); })
+      .finally(() => { if (current) setIsLoadingChunks(false); });
+    return () => { current = false; };
+  }, [initialDocumentId]);
+
 
   useEffect(() => {
     if (uploadedDocument && step === 'select') {

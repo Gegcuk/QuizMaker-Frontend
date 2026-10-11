@@ -76,3 +76,5 @@ describe('DocumentUpload', () => {
     expect(screen.getByRole('button', { name: 'Generate Quiz from Document' })).toBeInTheDocument();
   });
 });
+
+vi.mock('@/features/auth', async importOriginal => ({ ...await importOriginal<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));

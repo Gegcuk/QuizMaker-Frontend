@@ -1,3 +1,5 @@
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
 import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/quiz/DocumentUploadTab.tsx
 // ---------------------------------------------------------------------------
@@ -5,7 +7,7 @@ import { diagnostics } from '@/features/diagnostics/reporter';
 // Extracted from DocumentUploadWithQuizPage for integration into the new tabbed interface
 // ---------------------------------------------------------------------------
 
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api, tokenEstimationService } from '@/services';
 import { QuizQuestionType, Difficulty, QuizScope, QuestionType } from '@/types';
@@ -15,12 +17,16 @@ import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 export const DocumentUploadTab: React.FC = () => {
   const navigate = useNavigate();
   const quizService = new QuizService(api);
+  const generation = useGenerationOperation('upload-tab');
   
   const [isDragActive, setIsDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
+  useEffect(() => {
+    if (generation.operation?.jobId) setActiveGenerationJob(generation.operation.jobId);
+  }, [generation.operation?.jobId]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,7 +153,7 @@ export const DocumentUploadTab: React.FC = () => {
         formData.append('quizDescription', quizConfig.quizDescription);
       }
 
-      const response = await quizService.generateQuizFromUpload(formData);
+      const response = await generation.start('upload', key => quizService.generateQuizFromUpload(formData, key));
       
       setSelectedFile(null);
       setActiveGenerationJob(response.jobId);
@@ -247,6 +253,7 @@ export const DocumentUploadTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - File Upload */}
         <div className="space-y-6">
@@ -584,7 +591,7 @@ export const DocumentUploadTab: React.FC = () => {
           <Button
             variant="primary"
             onClick={handleUploadAndGenerate}
-            disabled={!selectedFile}
+            disabled={!selectedFile || generation.blocked}
             className="px-8 py-3 text-lg"
           >
             Upload Document & Start Quiz Generation
