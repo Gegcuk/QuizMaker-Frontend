@@ -137,8 +137,10 @@ describe('taxonomy Query ownership', () => {
     await act(async () => { await result.current.writes.remove.mutateAsync(architecture.id); });
     expect(oldSignal.aborted).toBe(true);
     await act(async () => { late.resolve(page([architecture, security])); await oldRead; });
-    expect(result.current.read.data?.content).toEqual([security]);
-    expect(result.current.deleted[architecture.id].name).toBe('Architecture');
+    await waitFor(() => {
+      expect(result.current.read.data?.content).toEqual([security]);
+      expect(result.current.deleted[architecture.id].name).toBe('Architecture');
+    });
   });
 
   it('serializes concurrent writes across consumers and preserves the last confirmed result', async () => {

@@ -70,7 +70,10 @@ export function getGenerationErrorMessage(error: unknown): string {
   return error instanceof GenerationOperationError ? error.message : toApplicationError(error).message;
 }
 
-type ObservationEvent = { kind: 'accepted'; accountId: string; response: QuizGenerationResponse; superseded: boolean } | { kind: 'recover'; accountId: string };
+type ObservationEvent =
+  | { kind: 'started'; accountId: string; requestId: number }
+  | { kind: 'accepted'; accountId: string; requestId: number; response: QuizGenerationResponse; superseded: boolean }
+  | { kind: 'recover'; accountId: string; requestId: number };
 
 export class GenerationOperations {
   private readonly observationListeners = new Set<(event: ObservationEvent) => void>();
@@ -315,13 +318,14 @@ export class GenerationOperations {
       // Order actual dispatches, independently of response arrival and the job
       // cache. Failed pre-POST persistence must not supersede an earlier start.
       const startSequence = ++this.startSequence;
+      this.notifyObservation({ kind: 'started', accountId, requestId: startSequence });
       let response: QuizGenerationResponse;
       try {
         response = await send(operation.key);
       } catch (error) {
         if (!isCurrentSessionGeneration(generation) || this.accountId !== accountId) throw new SessionChangedError();
         const safe = toApplicationError(error);
-        this.notifyObservation({ kind: 'recover', accountId });
+        this.notifyObservation({ kind: 'recover', accountId, requestId: startSequence });
         const isConflict = safe.status === 409 && safe.code !== 'INSUFFICIENT_BALANCE';
         const delay = safe.status === 429 || safe.status === 503
           ? (safe.retryAfterSeconds === undefined ? DEFAULT_WAIT_MS : safe.retryAfterSeconds * 1000) : 0;
@@ -332,10 +336,10 @@ export class GenerationOperations {
       }
       if (!isCurrentSessionGeneration(generation) || this.accountId !== accountId) throw new SessionChangedError();
       if (!validId(response.jobId) || (response.status !== undefined && !statuses.includes(response.status))) {
-        this.notifyObservation({ kind: 'recover', accountId });
+        this.notifyObservation({ kind: 'recover', accountId, requestId: startSequence });
         throw new GenerationOperationError('The server response could not be verified. Retry the original operation with the same input.');
       }
-      this.notifyObservation({ kind: 'accepted', accountId, response, superseded: startSequence !== this.startSequence });
+      this.notifyObservation({ kind: 'accepted', accountId, requestId: startSequence, response, superseded: startSequence !== this.startSequence });
       this.save({ ...operation, state: response.status && terminal(response.status) ? 'terminal' : 'accepted',
         notBefore: 0, jobId: response.jobId, jobStatus: response.status ?? 'PENDING' });
       return response;

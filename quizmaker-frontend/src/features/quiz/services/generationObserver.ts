@@ -38,6 +38,10 @@ export class GenerationObserver {
   private readonly generation = getSessionGeneration();
   private readonly completed = new Set<string>();
   private readonly observedResultIds = new Set<string>();
+  // At most one dispatched request per entry point. Another tab's starts cannot
+  // share our local counter, so retain observation and discovery order instead.
+  private readonly startedObservations = new Map<number, { jobId: string | null; discoveryRevision: number }>();
+  private discoveryRevision = 0;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private flight: Promise<void> | null = null;
   private cancellation: Promise<void> | null = null;
@@ -49,6 +53,9 @@ export class GenerationObserver {
   // Keep required reads until a current response satisfies them. Blocking on
   // another request, cancellation, visibility or Retry-After must not lose intent.
   private discoveryRequested: 'refresh' | 'recovery' | null = null;
+  // An ambiguous receipt is still an exact known job. If no work is active on
+  // rediscovery, reconcile this ID once: it may already have completed.
+  private receiptFallback: string | null = null;
   private statusRequested = false;
   private readonly abort = new AbortController();
   private cleanup: (() => void)[] = [];
@@ -95,8 +102,16 @@ export class GenerationObserver {
       subscribeToSessionTransitions(() => this.destroy()),
       generationOperations.subscribeObservation(event => {
         if (!this.current() || event.accountId !== this.accountId) return;
-        if (event.kind === 'accepted') this.accept(event.response, event.superseded);
-        else this.recover();
+        if (event.kind === 'started') {
+          this.startedObservations.set(event.requestId, { jobId: this.state.jobId, discoveryRevision: this.discoveryRevision });
+          return;
+        }
+        const atDispatch = this.startedObservations.get(event.requestId);
+        const observationChanged = !atDispatch || atDispatch.jobId !== this.state.jobId
+          || atDispatch.discoveryRevision !== this.discoveryRevision;
+        this.startedObservations.delete(event.requestId);
+        if (event.kind === 'accepted') this.accept(event.response, { superseded: event.superseded, observationChanged });
+        else this.requestDiscovery('recovery');
       }),
     ];
     document.addEventListener('visibilitychange', this.resume);
@@ -124,6 +139,8 @@ export class GenerationObserver {
     this.abort.abort();
     this.cleanup.forEach(cleanup => cleanup());
     this.cleanup = [];
+    this.startedObservations.clear();
+    this.receiptFallback = null;
     document.removeEventListener('visibilitychange', this.resume);
     window.removeEventListener('online', this.resume);
     window.removeEventListener('offline', this.resume);
@@ -142,15 +159,18 @@ export class GenerationObserver {
     this.publish({ paused: !this.available() });
     if (this.available()) void this.refresh(!isActiveGeneration(this.job()) && Boolean(this.job()));
   };
-  private recover() {
-    this.discoveryRequested = 'recovery';
+  private requestDiscovery(reason: 'refresh' | 'recovery') {
+    this.discoveryRequested = reason === 'recovery' ? 'recovery' : this.discoveryRequested ?? 'refresh';
     this.version++;
-    this.publish({ recoveryNotice: true, discovered: false });
-    // A pre-start discovery response cannot establish whether the lost command
-    // was accepted. Queue a fresh traversal behind the current request lane.
+    this.publish({ ...(reason === 'recovery' ? { recoveryNotice: true } : {}), discovered: false });
+    // An earlier read cannot resolve a lost command or a receipt conflicting
+    // with observation. Queue a fresh traversal behind the current request lane.
     void this.refresh(true);
   }
-  accept(response: QuizGenerationResponse, superseded = false) {
+  accept(response: QuizGenerationResponse, { superseded = false, observationChanged = false }: {
+    superseded?: boolean;
+    observationChanged?: boolean;
+  } = {}) {
     if (!this.current()) return;
     const previous = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId));
     const receipt: QuizGenerationStatus = { jobId: response.jobId, status: response.status ?? 'PENDING' };
@@ -163,15 +183,24 @@ export class GenerationObserver {
     // A superseded dispatch cannot replace newer observation or interrupt its
     // recovery, even if this is our first evidence of the older job. Still keep
     // the receipt for that exact job and let its command save recovery metadata.
-    // Known or terminal replays also must not displace a different active job.
-    if (this.state.jobId !== response.jobId && (superseded
+    // Discovery begun after dispatch can observe work started in another tab.
+    // Preserve both its pending intent and a discovered job, even when dispatch
+    // predates this observer. Resolve ambiguous receipts through a fresh list.
+    const needsDiscovery = isActiveGeneration(known) && observationChanged
+      && (this.state.jobId !== null || this.discoveryRequested !== null);
+    if (this.state.jobId !== response.jobId && (superseded || needsDiscovery
       || ((previous !== undefined || !isActiveGeneration(known)) && isActiveGeneration(this.job())))) {
       if (terminalReceipt && known.status === 'COMPLETED') this.refreshQuizzes();
+      if (needsDiscovery && !superseded) {
+        this.receiptFallback = response.jobId;
+        this.requestDiscovery('refresh');
+      }
       return;
     }
     // Only an ordinary refresh can yield to an exact start receipt. Another
     // command's delayed receipt cannot satisfy recovery of a lost start response.
-    if (isActiveGeneration(known) && this.discoveryRequested !== 'recovery') this.discoveryRequested = null;
+    if (!superseded && response.jobId !== this.state.jobId) this.receiptFallback = null;
+    if (!superseded && isActiveGeneration(known) && this.discoveryRequested !== 'recovery' && !this.receiptFallback) this.discoveryRequested = null;
     this.select(response.jobId, updated && terminalReceipt);
     if (terminalReceipt) this.confirm(known, false);
   }
@@ -209,6 +238,7 @@ export class GenerationObserver {
     this.clearTimer();
     const version = this.version;
     const jobId = this.discoveryRequested ? null : this.state.jobId;
+    if (!jobId) this.discoveryRevision++;
     this.publish({ checking: true });
     const work = this.read(jobId, version);
     this.flight = work.finally(() => {
@@ -259,6 +289,7 @@ export class GenerationObserver {
         this.discoveryRequested = null;
         this.publish({ discovered: true });
         if (active) {
+          this.receiptFallback = null;
           this.statusRequested = false;
           this.client.setQueryData(generationStatusKey(this.accountId, active.jobId), active);
           this.publish({ jobId: active.jobId, ...(active.jobId !== this.state.jobId ? { cancelError: null } : {}) });
@@ -268,9 +299,12 @@ export class GenerationObserver {
           this.publish({ error: null });
           // Absence is not evidence that an uncertain start failed: it may have completed.
           if (this.state.recoveryNotice) this.refreshQuizzes();
-          if (this.state.jobId) {
+          const fallback = this.receiptFallback ?? this.state.jobId;
+          this.receiptFallback = null;
+          if (fallback) {
+            if (fallback !== this.state.jobId) this.publish({ jobId: fallback, cancelError: null, accessStopped: false });
             this.statusRequested = true;
-            await this.read(this.state.jobId, version);
+            await this.read(fallback, version);
           }
         }
       }
