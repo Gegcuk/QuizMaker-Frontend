@@ -52,7 +52,7 @@ export class GenerationObserver {
   private nextPoll = 0;
   // Keep required reads until a current response satisfies them. Blocking on
   // another request, cancellation, visibility or Retry-After must not lose intent.
-  private discoveryRequested: 'refresh' | 'recovery' | null = null;
+  private discoveryRequested: 'refresh' | 'resume' | 'recovery' | null = null;
   // An ambiguous receipt is still an exact known job. If no work is active on
   // rediscovery, reconcile this ID once: it may already have completed.
   private receiptFallback: string | null = null;
@@ -160,18 +160,28 @@ export class GenerationObserver {
   }
   private resume = () => {
     this.clearTimer();
-    this.publish({ paused: !this.available() });
-    if (this.available()) void this.refresh(!isActiveGeneration(this.job()) && Boolean(this.job()));
+    const available = this.available();
+    const resumed = available && this.state.paused;
+    this.publish({ paused: !available });
+    if (!available) return;
+    // Another tab may have completed the cached job and started new work. A
+    // real resume requires discovery newer than any read begun before pausing;
+    // repeated available signals join that traversal through the shared lane.
+    if (resumed) this.requestDiscovery('resume');
+    else void this.refresh(true);
   };
-  private requestDiscovery(reason: 'refresh' | 'recovery') {
-    this.discoveryRequested = reason === 'recovery' ? 'recovery' : this.discoveryRequested ?? 'refresh';
-    if (reason === 'recovery' && this.notFoundJobId && this.state.accessStopped) this.failures = 0;
+  private requestDiscovery(reason: 'refresh' | 'resume' | 'recovery') {
+    // Recovery and real resume require a fresh traversal. An accepted receipt
+    // may replace an ordinary refresh, but cannot establish other tabs' state.
+    if (reason === 'recovery' || this.discoveryRequested === null) this.discoveryRequested = reason;
+    else if (reason === 'resume' && this.discoveryRequested === 'refresh') this.discoveryRequested = reason;
+    if (this.notFoundJobId && this.state.accessStopped) this.failures = 0;
     this.version++;
-    // A lost start has no new ID yet. An earlier exact-job 404 must not block
-    // its owned collection read; retain the missing ID to avoid polling it again.
+    // Discovery can find another tab's work or a lost start without a new ID.
+    // An exact-job 404 cannot block the collection; keep its ID out of polling.
     this.publish({ discovered: false,
       ...(reason === 'recovery' ? { recoveryNotice: true } : {}),
-      ...(reason === 'recovery' && this.notFoundJobId ? { error: null, accessStopped: false } : {}) });
+      ...(this.notFoundJobId ? { error: null, accessStopped: false } : {}) });
     // An earlier read cannot resolve a lost command or a receipt conflicting
     // with observation. Queue a fresh traversal behind the current request lane.
     void this.refresh(true);
@@ -214,10 +224,10 @@ export class GenerationObserver {
       }
       return;
     }
-    // Only an ordinary refresh can yield to an exact start receipt. Another
-    // command's delayed receipt cannot satisfy recovery of a lost start response.
+    // Only an ordinary refresh can yield to an exact start receipt. A delayed
+    // receipt cannot satisfy resume discovery or recovery of a lost response.
     if (!superseded && response.jobId !== this.state.jobId) this.receiptFallback = null;
-    if (!superseded && isActiveGeneration(known) && this.discoveryRequested !== 'recovery' && !this.receiptFallback) this.discoveryRequested = null;
+    if (!superseded && isActiveGeneration(known) && this.discoveryRequested === 'refresh' && !this.receiptFallback) this.discoveryRequested = null;
     this.select(response.jobId, updated && terminalReceipt);
     if (terminalReceipt) this.confirm(known, false);
   }
@@ -371,10 +381,10 @@ export class GenerationObserver {
   }
   private readError(error: unknown, jobId: string | null = null) {
     const safe = toApplicationError(error);
-    // A late cancellation can report the old job missing after another start
-    // queued discovery, with or without a receipt. Only this exact ID is missing.
+    // An exact-job 404 cannot revoke a queued owned collection read, whether
+    // discovery was requested by resume or another start. Only this ID is gone.
     const recoverDiscovery = safe.status === 404 && jobId !== null
-      && (this.discoveryRequested === 'recovery'
+      && (this.discoveryRequested !== null
         || (this.receiptFallback !== null && this.receiptFallback !== jobId));
     // A transient collection failure does not undo the old job's confirmed 404.
     // Access failures replace its scope and must still stop all observation.

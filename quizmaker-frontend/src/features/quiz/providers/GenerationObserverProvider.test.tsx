@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { act, fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
-import { generationOperations } from '../services/generationOperations';
+import { GenerationOperations, generationOperations } from '../services/generationOperations';
 import { establishSession, terminateSession } from '@/features/auth/services/sessionLifecycle';
 import { QueryProvider } from '@/providers/QueryProvider';
 import type { QuizGenerationStatus } from '@/types';
 import { GenerationObserverProvider } from './GenerationObserverProvider';
 import { GenerationJobBlock } from '../components/GenerationJobBlock';
+import { QuizGenerationStatus as GenerationStatusView } from '../components/QuizGenerationStatus';
 import { useGenerationObservation } from '../hooks/useGenerationObservation';
 import { generationStatusKey, ownedQuizzesKey, type GenerationObserver } from '../services/generationObserver';
 
@@ -37,6 +38,42 @@ function scopeFor(scopes: Map<string, SessionScope>, accountId: string) {
 }
 
 describe('generation observer session boundary', () => {
+  it.each(['visibility', 'reconnect'] as const)('updates the full progress screen and compact block together when %s discovers another tab\'s job', async trigger => {
+    vi.useFakeTimers();
+    const visible = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+    const connected = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    try {
+      const oldJob: QuizGenerationStatus = { jobId: 'old-job', status: 'PROCESSING', progressPercentage: 35 };
+      const newJob: QuizGenerationStatus = { jobId: 'new-job', status: 'PROCESSING', progressPercentage: 77 };
+      mock.jobs.mockResolvedValueOnce(page([oldJob])).mockResolvedValue(page([newJob]));
+      mock.status.mockImplementation(async jobId => jobId === newJob.jobId ? newJob : { ...oldJob, status: 'COMPLETED' });
+      const root = renderWithProviders(<QueryProvider><GenerationObserverProvider>
+        <GenerationStatusView jobId={oldJob.jobId} /><GenerationJobBlock />
+      </GenerationObserverProvider></QueryProvider>, { withAuthProvider: false });
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(screen.getAllByText('35%')).toHaveLength(2);
+      act(() => {
+        if (trigger === 'visibility') { visible.mockReturnValue('hidden'); fireEvent(document, new Event('visibilitychange')); }
+        else { connected.mockReturnValue(false); fireEvent(window, new Event('offline')); }
+      });
+      const otherTab = new GenerationOperations();
+      const post = vi.fn().mockResolvedValue({ jobId: newJob.jobId, status: 'PENDING', message: 'queued', estimatedTimeSeconds: 10 });
+      await act(async () => { await otherTab.start('account-a', 'upload-tab', 'upload', post); });
+      act(() => {
+        if (trigger === 'visibility') { visible.mockReturnValue('visible'); fireEvent(document, new Event('visibilitychange')); }
+        else { connected.mockReturnValue(true); fireEvent(window, new Event('online')); }
+      });
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(screen.getAllByText('77%')).toHaveLength(2);
+      expect(screen.queryByText('35%')).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Generating Your Quiz' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'AI quiz generation' })).toBeInTheDocument();
+      expect(mock.jobs).toHaveBeenCalledTimes(2);
+      expect(mock.status).not.toHaveBeenCalled();
+      expect(post).toHaveBeenCalledTimes(1);
+      root.unmount();
+    } finally { vi.useRealTimers(); vi.restoreAllMocks(); }
+  });
   it('does not render old account jobs after account replacement or a late old response', async () => {
     let resolveA!: (value: ReturnType<typeof page>) => void;
     mock.jobs.mockImplementationOnce(() => new Promise(resolve => { resolveA = resolve; })).mockResolvedValue(page([{ jobId: 'job-b', status: 'PENDING' }]));

@@ -45,6 +45,168 @@ describe('account generation observer', () => {
     expect(service.getGenerationJobs).toHaveBeenCalledTimes(1); expect(observer.getSnapshot().jobId).toBe('new-job');
     expect(generationOperations.getSnapshot().pending.wizard?.jobId).toBe('job-1');
   });
+  it.each(['hidden', 'offline'] as const)('discovers newer work from another tab when returning from %s with a stale active job', async mode => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    // The server finishes job-1, then the other tab starts new-job. Its command
+    // owner does not share this observer's events or local dispatch counter.
+    const otherTab = new GenerationOperations();
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job', progressPercentage: 12 };
+    const post = vi.fn().mockResolvedValue({ ...accepted, jobId: newerJob.jobId });
+    await otherTab.start('account-a', 'upload-tab', 'upload', post);
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockImplementation(async jobId => jobId === newerJob.jobId ? newerJob : complete);
+    await tick(60_000);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationStatus).not.toHaveBeenCalled();
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    await tick();
+    expect(observer.getSnapshot().jobId).toBe(newerJob.jobId);
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    await tick(5_000);
+    expect(service.getGenerationStatus).toHaveBeenCalledExactlyOnceWith(newerJob.jobId, expect.any(AbortSignal));
+    const newerCompleted = { ...complete, jobId: newerJob.jobId, generatedQuizId: 'new-quiz' };
+    service.getGenerationStatus.mockResolvedValue(newerCompleted); await tick(5_000);
+    expect(job()).toEqual(newerCompleted);
+    expect(observer.getSnapshot().newQuizIds).toEqual(['new-quiz']);
+    await tick(120_000);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(service.cancelGenerationJob).not.toHaveBeenCalled();
+  });
+  it.each(['hidden', 'offline'] as const)('discards a pre-pause status response before discovering work on return from %s', async mode => {
+    const { observer, service, client, job } = setup(); observer.start(); await tick();
+    const oldRead = deferred<QuizGenerationStatus>();
+    service.getGenerationStatus.mockReturnValueOnce(oldRead.promise);
+    const reading = observer.refresh();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    // Additional signals while the lane is busy must join the queued traversal.
+    window.dispatchEvent(new Event('online')); document.dispatchEvent(new Event('visibilitychange'));
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    oldRead.resolve(complete); await reading; await tick();
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, error: null, newQuizIds: [] });
+    expect(job()).toEqual(newerJob);
+    expect(client.getQueryData(generationStatusKey('account-a', 'job-1'))).toEqual(pending);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    await tick(5_000);
+    expect(service.getGenerationStatus.mock.calls.map(call => call[0])).toEqual(['job-1', 'new-job']);
+  });
+  it('does not let a pre-resume collection snapshot satisfy fresh discovery or duplicate simultaneous resume events', async () => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    const oldDiscovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(oldDiscovery.promise);
+    const discovering = observer.refresh(true);
+    visibility('hidden'); online(false); visibility('visible');
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    online(true); window.dispatchEvent(new Event('online')); document.dispatchEvent(new Event('visibilitychange'));
+    oldDiscovery.resolve(page([])); await discovering; await tick();
+    expect(job()).toEqual(newerJob);
+    expect(observer.getSnapshot().jobId).toBe(newerJob.jobId);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(3);
+    expect(service.getGenerationStatus).not.toHaveBeenCalled();
+  });
+  it.each(['hidden', 'offline'] as const)('discovers new work on return from %s after the old exact job returned 404', async mode => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'not-found', status: 404 }));
+    await observer.refresh();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    await tick();
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, accessStopped: false, error: null });
+    expect(job()).toEqual(newerJob);
+    await tick(5_000);
+    expect(service.getGenerationStatus.mock.calls.map(call => call[0])).toEqual(['job-1', 'new-job']);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+  });
+  it.each(['hidden', 'offline'] as const)('keeps Retry-After before discovering another tab\'s work on return from %s', async mode => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'rate-limit', status: 429, retryAfterSeconds: 120 }));
+    await observer.refresh();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    await tick(119_999);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    await tick(1);
+    expect(job()).toEqual(newerJob);
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, error: null });
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+  });
+  it.each(['hidden', 'offline'] as const)('reconciles the old completed result once when resume from %s finds no active work', async mode => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    service.getGenerationJobs.mockResolvedValue(page([]));
+    service.getGenerationStatus.mockResolvedValue(complete);
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    await tick(120_000);
+    expect(job()).toEqual(complete);
+    expect(observer.getSnapshot().newQuizIds).toEqual(['quiz-1']);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+  });
+  it.each(['hidden', 'offline'] as const)('rejects a late resume discovery after account replacement on return from %s', async mode => {
+    establishSession('test-a', 'refresh-a');
+    const a = setup(); a.observer.start(); await tick();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const discovery = deferred<GenerationJobPage>();
+    a.service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    await tick();
+    expect(a.service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    establishSession('test-b', 'refresh-b', 'account-switch');
+    const b = setup('account-b'); b.observer.start(); await tick();
+    discovery.resolve(page([{ ...pending, jobId: 'private-job-a', progressPercentage: 91 }])); await tick();
+    expect(a.client.getQueryData(generationStatusKey('account-a', 'private-job-a'))).toBeUndefined();
+    expect(b.client.getQueryData(generationStatusKey('account-a', 'private-job-a'))).toBeUndefined();
+    expect(b.job()).toEqual(pending);
+    expect(b.observer.getSnapshot()).toMatchObject({ newQuizIds: [], error: null, cancelError: null });
+    expect(a.service.getGenerationStatus).not.toHaveBeenCalled();
+  });
+  it.each(['hidden', 'offline'] as const)('retains mandatory resume discovery when the old start receipt matches the stale selected job on return from %s', async mode => {
+    const { observer, service, job } = setup(); service.getGenerationJobs.mockResolvedValue(page([]));
+    observer.start(); await tick();
+    const receipt = deferred<QuizGenerationResponse>();
+    const oldPost = vi.fn().mockReturnValue(receipt.promise);
+    const oldStarting = generationOperations.start('account-a', 'wizard', 'text', oldPost);
+    await tick();
+    // Owned discovery confirms job-1 before its original POST response arrives.
+    service.getGenerationJobs.mockResolvedValue(page([pending]));
+    window.dispatchEvent(new Event('online')); await tick();
+    const status = deferred<QuizGenerationStatus>();
+    service.getGenerationStatus.mockReturnValueOnce(status.promise);
+    const reading = observer.refresh();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const otherTab = new GenerationOperations();
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    const newPost = vi.fn().mockResolvedValue({ ...accepted, jobId: newerJob.jobId });
+    await otherTab.start('account-a', 'upload-tab', 'upload', newPost);
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockImplementation(async jobId => jobId === newerJob.jobId ? newerJob : complete);
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    // This older receipt is still the latest local dispatch, but another tab
+    // has newer work. It must not satisfy the queued post-resume collection read.
+    receipt.resolve(accepted); await oldStarting;
+    status.resolve(complete); await reading; await tick();
+    expect(job()).toEqual(newerJob);
+    expect(observer.getSnapshot().jobId).toBe(newerJob.jobId);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(3);
+    await tick(5_000);
+    expect(service.getGenerationStatus.mock.calls.map(call => call[0])).toEqual(['job-1', 'new-job']);
+    expect(oldPost).toHaveBeenCalledTimes(1); expect(newPost).toHaveBeenCalledTimes(1);
+  });
   it('shares an in-flight read and continues independently of consumer subscriptions', async () => {
     const { observer, service } = setup(); observer.start(); await tick();
     const off = observer.subscribe(vi.fn()); const off2 = observer.subscribe(vi.fn());
@@ -53,6 +215,35 @@ describe('account generation observer', () => {
     off(); off2(); await tick(30_000); expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
     reply.resolve(pending); await tick(); await tick(5_000); expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
     expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+  });
+  it.each(['hidden', 'offline'] as const)('keeps resume discovery after a late old cancellation 404 on return from %s', async mode => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    let rejectCancellation!: (error: unknown) => void;
+    service.cancelGenerationJob.mockReturnValueOnce(new Promise<QuizGenerationStatus>((_, reject) => { rejectCancellation = reject; }));
+    const cancelling = observer.cancel(); await tick();
+    if (mode === 'hidden') visibility('hidden'); else online(false);
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    if (mode === 'hidden') visibility('visible'); else online(true);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    rejectCancellation(new ApplicationError({ category: 'not-found', status: 404 })); await cancelling; await tick();
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, accessStopped: false, error: null, cancelError: null, cancelling: false });
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.cancelGenerationJob).toHaveBeenCalledExactlyOnceWith('job-1', expect.any(AbortSignal));
+    expect(service.getGenerationStatus).not.toHaveBeenCalled();
+  });
+  it.each([401, 403, 404])('keeps collection HTTP %s stopped after resume replaces an old exact-job 404', async status => {
+    const { observer, service } = setup(); observer.start(); await tick();
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'not-found', status: 404 }));
+    await observer.refresh(); visibility('hidden');
+    service.getGenerationJobs.mockRejectedValueOnce(new ApplicationError({ category: status === 404 ? 'not-found' : status === 401 ? 'authentication' : 'authorization', status }));
+    visibility('visible'); await tick();
+    expect(observer.getSnapshot().error?.status).toBe(status);
+    expect(observer.getSnapshot().accessStopped).toBe(true);
+    visibility('hidden'); visibility('visible'); online(false); online(true); await tick(120_000);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
   });
   it('finds active work beyond the first page and rejects incomplete absence', async () => {
     const terminal = { ...complete, jobId: 'old' };
@@ -108,9 +299,18 @@ describe('account generation observer', () => {
     const { observer, service } = setup(); observer.start(); await tick();
     service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'rate-limit', status: 429, retryAfterSeconds: 120 }));
     await tick(5_000); visibility('hidden'); online(false); await tick(30_000); visibility('visible'); online(true); await tick(89_999);
-    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1); await tick(1); expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
-    visibility('hidden'); await tick(20_000); expect(service.getGenerationStatus).toHaveBeenCalledTimes(2); visibility('visible'); await tick(); expect(service.getGenerationStatus).toHaveBeenCalledTimes(3);
-    online(false); await tick(20_000); expect(service.getGenerationStatus).toHaveBeenCalledTimes(3); online(true); await tick(); expect(service.getGenerationStatus).toHaveBeenCalledTimes(4);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    await tick(1); expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    visibility('hidden'); await tick(20_000);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    visibility('visible'); await tick(); expect(service.getGenerationJobs).toHaveBeenCalledTimes(3);
+    online(false); await tick(20_000);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(3);
+    online(true); await tick(); expect(service.getGenerationJobs).toHaveBeenCalledTimes(4);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    await tick(5_000); expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(4);
   });
   it.each(['COMPLETED', 'FAILED', 'CANCELLED'] as const)('stops polling after %s', async status => {
     const { observer, service } = setup(); observer.start(); await tick(); service.getGenerationStatus.mockResolvedValue({ ...complete, status });
@@ -911,7 +1111,7 @@ describe('account generation observer', () => {
   it.each(['hidden', 'offline'] as const)('does not start the known-job fallback of an empty discovery while %s', async mode => {
     await generationOperations.start('account-a', 'wizard', 'text', async () => accepted);
     const { observer, service } = setup(); const discovery = deferred<GenerationJobPage>();
-    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise).mockResolvedValue(page([]));
     service.getGenerationStatus.mockResolvedValue(complete);
     observer.start(); const discovering = observer.refresh();
     if (mode === 'hidden') visibility('hidden'); else online(false);
