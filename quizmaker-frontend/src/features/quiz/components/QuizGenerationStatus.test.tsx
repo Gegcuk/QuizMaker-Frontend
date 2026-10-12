@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, createTestQueryClient, renderWithProviders, screen, waitFor } from '@/test/render';
 import { QuizGenerationStatus } from './QuizGenerationStatus';
+import GenerationProgress from '@/features/ai/components/GenerationProgress';
 import { GenerationJobBlock } from './GenerationJobBlock';
 import { GenerationObserverProvider } from '../providers/GenerationObserverProvider';
 import { ApplicationError } from '@/utils/applicationError';
@@ -24,6 +25,29 @@ beforeEach(() => {
 const view = (ui: React.ReactNode, queryClient = createTestQueryClient()) => renderWithProviders(<GenerationObserverProvider>{ui}</GenerationObserverProvider>, { withAuthProvider: false, queryClient });
 
 describe('shared generation UI', () => {
+  it('keeps the full progress layouts and server timing details separate from the compact My Quizzes block', async () => {
+    const job = { ...processing, elapsedTimeSeconds: 180, estimatedTimeRemainingSeconds: 45, processedChunks: 2, totalChunks: 5 };
+    service.getGenerationJobs.mockResolvedValue({ content: [job], number: 0, size: 20, totalPages: 1, totalElements: 1, last: true, numberOfElements: 1 });
+    view(<><GenerationProgress jobId="job-1" /><QuizGenerationStatus jobId="job-1" /><GenerationJobBlock /></>);
+    await screen.findByRole('heading', { name: 'Quiz Generation Progress' });
+    await waitFor(() => expect(screen.getAllByRole('progressbar', { name: 'Generation progress' })).toHaveLength(3));
+    expect(screen.getByRole('heading', { name: 'Generating Your Quiz' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'AI quiz generation' })).toBeInTheDocument();
+    expect(screen.getByText('Time Elapsed')).toBeInTheDocument();
+    expect(screen.getByText('Elapsed Time')).toBeInTheDocument();
+    expect(screen.getAllByText('3:00')).toHaveLength(2);
+    expect(screen.getAllByText('0:45')).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: /Abandon|Prepare new generation|Show existing generation job/ })).not.toBeInTheDocument();
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationStatus.mock.calls.length).toBeLessThanOrEqual(1);
+  });
+  it('does not invent timing or processing stages in the full progress view for nullable legacy fields', async () => {
+    service.getGenerationJobs.mockResolvedValue({ content: [{ ...processing, progressPercentage: null, elapsedTimeSeconds: null, estimatedTimeRemainingSeconds: null }], number: 0, size: 20, totalPages: 1, totalElements: 1, last: true, numberOfElements: 1 });
+    view(<GenerationProgress jobId="job-1" />);
+    await screen.findByText('Generating your quiz');
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Time Elapsed|Estimated Time Remaining|Processing Stages|Document analysis completed|NaN|null|undefined/)).not.toBeInTheDocument();
+  });
   it('shows the same server progress for several consumers without independent status reads', async () => {
     view(<><GenerationJobBlock /><QuizGenerationStatus jobId="job-1" /></>);
     await waitFor(() => expect(screen.getAllByText('Generating your quiz')).toHaveLength(2));
@@ -35,6 +59,16 @@ describe('shared generation UI', () => {
     const onCancel = vi.fn(); const { user } = view(<QuizGenerationStatus jobId="job-1" onCancel={onCancel} />);
     await screen.findByText('Generating your quiz'); await user.click(screen.getByRole('button', { name: 'Cancel Generation' }));
     await screen.findByText('Generation cancelled'); expect(service.cancelGenerationJob).toHaveBeenCalledTimes(1); expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+  it('returns to generation settings after a confirmed failure without sending a new command', async () => {
+    service.getGenerationJobs.mockResolvedValue({ content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0 });
+    service.getGenerationStatus.mockResolvedValue({ ...processing, status: 'FAILED' });
+    const onRetry = vi.fn(); const { user } = view(<QuizGenerationStatus jobId="job-1" onRetry={onRetry} />);
+    await screen.findByText('Generation failed');
+    await user.click(screen.getByRole('button', { name: 'Try Again' }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    expect(service.cancelGenerationJob).not.toHaveBeenCalled();
   });
   it('renders a completed result when cancellation races with completion', async () => {
     service.cancelGenerationJob.mockRejectedValue(new ApplicationError({ category: 'validation', status: 400 }));

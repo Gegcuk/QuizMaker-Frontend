@@ -795,8 +795,18 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.locator('input[placeholder="Brief description..."]').fill('Generated from a local E2E fixture.');
         await page.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
         await page.getByRole('button', { name: 'Generate Quiz from Text' }).click();
-        await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+        await page.getByRole('heading', { name: /^(Generating Your Quiz|Quiz Generation Progress)$/ }).waitFor();
         await page.getByText('Generating your quiz', { exact: true }).waitFor();
+        assert.equal(await page.getByRole('button', { name: 'Prepare new generation', exact: true }).count(), 0, 'Active progress does not expose command reset');
+        assert.equal(await page.getByRole('button', { name: 'Show existing generation job', exact: true }).count(), 0, 'Active progress has no redundant recovery actions');
+        const progressView = page.getByRole('region', { name: /^(Generating Your Quiz|Quiz Generation Progress)$/ });
+        await page.setViewportSize({ width: 1280, height: 800 });
+        await progressView.evaluate(element => element.scrollIntoView({ block: 'center' }));
+        await progressView.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', 'issue193-full-progress-1280.png'), animations: 'disabled' });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await progressView.evaluate(element => element.scrollIntoView({ block: 'center' }));
+        await progressView.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', 'issue193-full-progress-390.png'), animations: 'disabled' });
+        await page.setViewportSize({ width: 1280, height: 800 });
         await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
 
         assert.deepEqual(generationRequest, {
@@ -894,7 +904,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.getByRole('button', { name: 'All', exact: true }).click();
         await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
         await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
-        await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+        await page.getByRole('heading', { name: /^(Generating Your Quiz|Quiz Generation Progress)$/ }).waitFor();
         await page.getByText('Generating your quiz', { exact: true }).waitFor();
         await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
 
@@ -1982,7 +1992,7 @@ test('selected PDF text uploads replace rejected control glyphs and preserve con
     await page.getByRole('img', { name: 'Page 1', exact: true }).click();
     await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
     await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
-    await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
+    await page.getByRole('heading', { name: /^(Generating Your Quiz|Quiz Generation Progress)$/ }).waitFor();
     await page.getByText('Generating your quiz', { exact: true }).waitFor();
     assert.ok(uploadRequest, 'The active wizard sent the upload');
     assert.equal(uploadRequest.method, 'POST');
@@ -2259,7 +2269,9 @@ test('late generation receipt in another tab preserves the newer command and rep
     await navigateToAppRoute(oldPage, '/quizzes/create');
     await oldPage.getByText('Queued', { exact: true }).waitFor();
     await navigateToAppRoute(nextPage, '/quizzes/create');
-    await nextPage.getByRole('button', { name: 'Abandon operation / prepare new start' }).click();
+    await nextPage.waitForFunction(key => JSON.parse(localStorage.getItem(key))?.state === 'terminal', storageKey);
+    await nextPage.reload({ waitUntil: 'domcontentloaded' });
+    await nextPage.getByRole('button', { name: 'Prepare new generation' }).click();
     await nextPage.getByRole('button', { name: 'Confirm new start', exact: true }).click();
     await nextPage.locator('input[placeholder="Enter quiz title..."]').fill('New command fixture');
     await nextPage.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
@@ -2367,8 +2379,14 @@ test('generation observation survives navigation and reload, updates owned quizz
         assert.equal(statusReads, terminalReads, 'Terminal observation stops polling');
         assert.equal(starts, 0, 'Recovery never sends generation POST');
         await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-generation-${width}.png`), animations: 'disabled' });
+        const compactHeadingSize = await block.getByRole('heading').evaluate(element => parseFloat(getComputedStyle(element).fontSize));
         await navigateToAppRoute(page, `/quizzes/${QUIZ_ID}/generation`);
-        await page.getByRole('region', { name: 'AI quiz generation' }).waitFor();
+        const fullProgress = page.getByRole('region', { name: 'AI quiz generation' });
+        await fullProgress.waitFor();
+        await fullProgress.getByText('No active generation found', { exact: true }).waitFor();
+        const fullHeadingSize = await fullProgress.getByRole('heading').evaluate(element => parseFloat(getComputedStyle(element).fontSize));
+        assert.ok(fullHeadingSize > compactHeadingSize, 'Legacy progress keeps the large heading; My Quizzes stays compact');
+        await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-full-legacy-${width}.png`), animations: 'disabled' });
         assert.equal(await page.getByText('Introduction to React', { exact: true }).count(), 0, 'Legacy route contains no demonstration data');
         assert.equal(starts, 0);
       } finally { await context.close(); }

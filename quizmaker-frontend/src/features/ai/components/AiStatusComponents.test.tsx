@@ -39,7 +39,7 @@ describe('AI status components', () => {
   it('delegates generation progress and callbacks to the shared session component', () => {
     const onGenerationCancelled = vi.fn();
     renderWithProviders(<GenerationProgress jobId="job-1" onGenerationCancelled={onGenerationCancelled} />, { withAuthProvider: false });
-    expect(screen.getByRole('heading', { name: 'Generating Your Quiz' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Quiz Generation Progress' })).toBeInTheDocument();
     expect(serviceMocks.getGenerationStatus).not.toHaveBeenCalled();
     expect(onGenerationCancelled).not.toHaveBeenCalled();
   });

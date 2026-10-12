@@ -5,6 +5,7 @@ import { DocumentUploadTab } from './DocumentUploadTab';
 import DocumentUpload from '@/features/document/components/DocumentUpload';
 import { generationOperations, GENERATION_STORAGE_PREFIX } from '../services/generationOperations';
 import { toApplicationError } from '@/utils/applicationError';
+import { Button } from '@/components';
 
 const mocks = vi.hoisted(() => ({ text: vi.fn(), upload: vi.fn(), document: vi.fn(), getDocument: vi.fn() }));
 vi.mock('@/features/auth', async original => ({ ...await original<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));
@@ -19,13 +20,19 @@ vi.mock('@/services', () => ({
   tokenEstimationService: { estimateFromText: () => null },
 }));
 vi.mock('@/features/ai', () => ({
-  GenerationProgress: ({ jobId }: { jobId: string }) => <div>Generation job: {jobId}</div>,
+  GenerationProgress: ({ jobId, onGenerationCancelled }: { jobId: string; onGenerationCancelled?: () => void }) => <div>
+    Generation job: {jobId}
+    <Button onClick={async () => {
+      await generationOperations.recordJob(jobId, 'CANCELLED');
+      onGenerationCancelled?.();
+    }}>Cancel Generation</Button>
+  </div>,
   TokenEstimationDisplay: () => null,
 }));
 const sourceText = 'Private source material about photosynthesis, respiration, and plant nutrition. '.repeat(7);
 const file = new File([sourceText], 'original.txt', { type: 'text/plain' });
 const lostResponse = () => toApplicationError({ isAxiosError: true, code: 'ERR_NETWORK' });
-const accepted = { jobId: 'same-job', status: 'PENDING', message: 'queued', estimatedTimeSeconds: 10 };
+const accepted = { jobId: 'same-job', status: 'PENDING' as const, message: 'queued', estimatedTimeSeconds: 10 };
 afterEach(() => { vi.restoreAllMocks(); vi.clearAllMocks(); });
 
 async function fillText(user: ReturnType<typeof renderWithProviders>['user']) {
@@ -59,9 +66,12 @@ describe('generation start recovery screens', () => {
     await fillText(view.user);
     await view.user.click(screen.getByRole('button', { name: /Generate Quiz from Text/ }));
     await screen.findByText('Generation job: same-job');
+    expect(screen.queryByRole('button', { name: 'Prepare new generation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Show existing generation job' })).not.toBeInTheDocument();
+    await view.user.click(screen.getByRole('button', { name: 'Cancel Generation' }));
     const key = generationOperations.getSnapshot().pending['text-tab']?.key;
     const remove = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => { throw new DOMException('Unavailable'); });
-    await view.user.click(screen.getByRole('button', { name: 'Abandon operation / prepare new start' }));
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
     await view.user.click(screen.getByRole('button', { name: 'Confirm new start' }));
     await screen.findByRole('button', { name: 'Retry saving recovery information' });
     await view.user.click(screen.getByRole('button', { name: 'Keep existing operation' }));
@@ -70,12 +80,25 @@ describe('generation start recovery screens', () => {
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Retry saving recovery information' })).not.toBeInTheDocument());
     expect(generationOperations.getSnapshot().pending['text-tab']?.key).toBe(key);
     expect(mocks.text).toHaveBeenCalledOnce();
-    await view.user.click(screen.getByRole('button', { name: 'Abandon operation / prepare new start' }));
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
     await view.user.click(screen.getByRole('button', { name: 'Confirm new start' }));
     await waitFor(() => expect(generationOperations.getSnapshot().pending['text-tab']).toBeUndefined());
     expect(mocks.text).toHaveBeenCalledOnce();
   });
 
+  it('keeps a completed command on the new-generation form until the user explicitly prepares a new start', async () => {
+    await generationOperations.start('account-a', 'text-tab', 'text', async () => accepted);
+    await generationOperations.recordJob(accepted.jobId, 'COMPLETED', 'completed-quiz');
+    const originalKey = generationOperations.getSnapshot().pending['text-tab']?.key;
+    const view = renderWithProviders(<TextGenerationTab />, { withAuthProvider: false });
+    await screen.findByRole('button', { name: 'Prepare new generation' });
+    expect(screen.queryByText('Generation job: same-job')).not.toBeInTheDocument();
+    expect(mocks.text).not.toHaveBeenCalled();
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
+    await view.user.click(screen.getByRole('button', { name: 'Keep existing operation' }));
+    expect(generationOperations.getSnapshot().pending['text-tab']?.key).toBe(originalKey);
+    expect(mocks.text).not.toHaveBeenCalled();
+  });
   it('shows an unknown deadline after reload and blocks POST until explicit new-start confirmation', async () => {
     mocks.text.mockResolvedValue(accepted);
     const createdAt = Date.now() - 60_000;
@@ -88,7 +111,7 @@ describe('generation start recovery screens', () => {
     expect(screen.getByText(/previous request outcome was not saved/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Generate Quiz from Text/ })).toBeDisabled();
     expect(mocks.text).not.toHaveBeenCalled();
-    await view.user.click(screen.getByRole('button', { name: 'Abandon operation / prepare new start' }));
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
     await view.user.click(screen.getByRole('button', { name: 'Confirm new start' }));
     await waitFor(() => expect(screen.getByRole('button', { name: /Generate Quiz from Text/ })).toBeEnabled());
     expect(mocks.text).not.toHaveBeenCalled();
@@ -173,10 +196,10 @@ describe('generation start recovery screens', () => {
     expect(mocks.text).toHaveBeenCalledOnce();
     expect(screen.getByRole('button', { name: /Generate Quiz from Text/ })).toBeDisabled();
     const oldKey = mocks.text.mock.calls[0][1];
-    await view.user.click(screen.getByRole('button', { name: 'Abandon operation / prepare new start' }));
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
     await view.user.click(screen.getByRole('button', { name: 'Keep existing operation' }));
     expect(mocks.text).toHaveBeenCalledOnce();
-    await view.user.click(screen.getByRole('button', { name: 'Abandon operation / prepare new start' }));
+    await view.user.click(screen.getByRole('button', { name: 'Prepare new generation' }));
     await view.user.click(screen.getByRole('button', { name: 'Confirm new start' }));
     expect(mocks.text).toHaveBeenCalledOnce();
     await view.user.click(screen.getByRole('button', { name: /Generate Quiz from Text/ }));

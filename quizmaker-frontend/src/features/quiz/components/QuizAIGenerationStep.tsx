@@ -36,8 +36,8 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationJobId, setGenerationJobId] = useState<string | null>(null);
   useEffect(() => {
-    if (generation.operation?.jobId) setGenerationJobId(generation.operation.jobId);
-  }, [generation.operation?.jobId]);
+    if (generation.operation?.jobId && generation.operation.state === 'accepted') setGenerationJobId(generation.operation.jobId);
+  }, [generation.operation?.jobId, generation.operation?.state]);
   const [error, setError] = useState<string | null>(null);
   
   // Text generation state
@@ -247,8 +247,11 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
 
   if (generationJobId) {
     return <div className="max-w-2xl mx-auto">
-      <GenerationOperationNotice controller={generation} onNewStart={() => setGenerationJobId(null)} />
-      <GenerationProgress jobId={generationJobId} onGenerationComplete={onComplete} onGenerationError={setError} />
+      {generation.storageError && <GenerationOperationNotice controller={generation} showNewStart={false} />}
+      <GenerationProgress jobId={generationJobId} onGenerationComplete={onComplete} onGenerationError={message => {
+        setGenerationJobId(null);
+        setError(message);
+      }} onGenerationCancelled={() => setGenerationJobId(null)} />
     </div>;
   }
 

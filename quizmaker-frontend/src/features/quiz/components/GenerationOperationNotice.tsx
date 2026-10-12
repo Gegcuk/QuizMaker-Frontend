@@ -4,10 +4,11 @@ import type { GenerationOperationController } from '../hooks/useGenerationOperat
 import { getGenerationErrorMessage } from '../services/generationOperations';
 
 /** Recovery controls deliberately never send a start request themselves. */
-export function GenerationOperationNotice({ controller, onNewStart, onResumeJob }: {
+export function GenerationOperationNotice({ controller, onNewStart, onResumeJob, showNewStart = true }: {
   controller: GenerationOperationController;
   onNewStart?: () => void;
   onResumeJob?: (jobId: string) => void;
+  showNewStart?: boolean;
 }) {
   const { operation, storageError, busy } = controller;
   const [confirmNew, setConfirmNew] = useState(false);
@@ -40,7 +41,7 @@ export function GenerationOperationNotice({ controller, onNewStart, onResumeJob 
         {operation.state === 'expired' || operation.expiresAt <= now
           ? 'The 30-day recovery window expired. A new generation needs your confirmation.'
           : operation.jobId ? 'This operation already has a generation job. Its identity is retained across reloads.'
-          : operation.state === 'uncertain' ? busy ? 'The generation request is being submitted. Its recovery key has been saved.' : 'The previous request outcome was not saved, so its retry deadline is unknown. Restore recovery information in the original tab or explicitly abandon the operation before confirming a new start.'
+          : operation.state === 'uncertain' ? busy ? 'The generation request is being submitted. Its recovery key has been saved.' : 'The previous request outcome was not saved. Restore it in the original tab, or prepare a new generation after confirming that you want to start over.'
           : operation.state === 'conflict' ? 'Generation conflict (409). A new command needs your confirmation.'
           : operation.source === 'document' ? 'A pending document generation was restored. Restore the original page selections and generation settings before retrying the same operation key.' : 'A pending generation operation was restored. Re-enter the exact original text or select the original file and restore all generation settings. Submitting again retries the same operation key.'}
         {wait > 0 && ` Wait ${wait} seconds before retrying.`}
@@ -48,7 +49,7 @@ export function GenerationOperationNotice({ controller, onNewStart, onResumeJob 
       {operation.jobId && onResumeJob && <Button variant="secondary" disabled={controlsBusy} onClick={() => {
         if (operation.jobId) onResumeJob(operation.jobId);
       }}>Show existing generation job</Button>}
-      <Button variant="secondary" disabled={controlsBusy || Boolean(storageError)} onClick={() => setConfirmNew(true)}>Abandon operation / prepare new start</Button>
+      {showNewStart && <Button variant="secondary" disabled={controlsBusy || Boolean(storageError)} onClick={() => setConfirmNew(true)}>Prepare new generation</Button>}
     </>}
     <Modal isOpen={confirmNew} onClose={() => setConfirmNew(false)} title="Confirm a new generation start">
       <p className="text-theme-text-primary mb-4">The previous request may already have created a job. Abandoning its recovery information does not cancel that job. A new submission may reserve tokens again.</p>

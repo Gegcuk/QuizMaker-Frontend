@@ -283,7 +283,7 @@ const QuizList: React.FC<QuizListProps> = ({
       
       <ul className="divide-y divide-theme-border-primary">
         {quizzes.map((quiz) => (
-          <li key={quiz.id} onMouseEnter={() => acknowledgeQuiz(quiz.id)} onFocusCapture={() => acknowledgeQuiz(quiz.id)} onClickCapture={() => acknowledgeQuiz(quiz.id)} className={`hover:bg-theme-bg-tertiary transition-colors duration-150 ${selectedQuizzes.includes(quiz.id) ? 'bg-theme-bg-info' : ''}`}>
+          <li key={quiz.id} onMouseEnter={() => acknowledgeQuiz(quiz.id)} onFocusCapture={() => acknowledgeQuiz(quiz.id)} onClickCapture={() => acknowledgeQuiz(quiz.id)} className={`hover:bg-theme-bg-tertiary transition-colors duration-150 ${newQuizIds.includes(quiz.id) ? 'ring-2 ring-inset ring-theme-interactive-info' : ''} ${selectedQuizzes.includes(quiz.id) ? 'bg-theme-bg-info' : ''}`}>
             <div className="px-4 py-4 sm:px-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">

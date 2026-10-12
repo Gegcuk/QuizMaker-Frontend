@@ -9,5 +9,5 @@ interface GenerationProgressProps {
 }
 
 export default function GenerationProgress({ jobId, onGenerationComplete, onGenerationError, onGenerationCancelled, className = '' }: GenerationProgressProps) {
-  return <div className={className}><QuizGenerationStatus jobId={jobId} onComplete={onGenerationComplete} onError={onGenerationError} onCancel={onGenerationCancelled} /></div>;
+  return <QuizGenerationStatus layout="panel" className={className} jobId={jobId} onComplete={onGenerationComplete} onError={onGenerationError} onCancel={onGenerationCancelled} />;
 }

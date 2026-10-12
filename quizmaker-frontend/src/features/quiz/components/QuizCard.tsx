@@ -264,7 +264,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
   return (
     <>
-    <div onMouseEnter={acknowledge} onFocusCapture={acknowledge} onClickCapture={acknowledge}>
+    <div className={isNew ? 'rounded-lg ring-2 ring-theme-interactive-info' : ''} onMouseEnter={acknowledge} onFocusCapture={acknowledge} onClickCapture={acknowledge}>
     <Card 
       variant="elevated" 
       padding="md" 

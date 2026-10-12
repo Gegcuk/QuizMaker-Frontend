@@ -25,8 +25,8 @@ export const DocumentUploadTab: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
   useEffect(() => {
-    if (generation.operation?.jobId) setActiveGenerationJob(generation.operation.jobId);
-  }, [generation.operation?.jobId]);
+    if (generation.operation?.jobId && generation.operation.state === 'accepted') setActiveGenerationJob(generation.operation.jobId);
+  }, [generation.operation?.jobId, generation.operation?.state]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -253,7 +253,7 @@ export const DocumentUploadTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />
+      {(!activeGenerationJob || generation.storageError) && <GenerationOperationNotice controller={generation} showNewStart={!activeGenerationJob} onResumeJob={!activeGenerationJob ? setActiveGenerationJob : undefined} onNewStart={() => setActiveGenerationJob(null)} />}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - File Upload */}
         <div className="space-y-6">

@@ -1,8 +1,8 @@
 import { useCallback, useContext, useEffect, useSyncExternalStore } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { QuizGenerationStatus } from '@/types';
+import type { Paginated, QuizDto, QuizGenerationStatus } from '@/types';
 import { ObserverContext } from '../providers/GenerationObserverContext';
-import { emptyObservation, generationStatusKey } from '../services/generationObserver';
+import { emptyObservation, generationStatusKey, ownedQuizzesKey } from '../services/generationObserver';
 const noSubscription = () => () => {};
 const emptySnapshot = () => emptyObservation;
 
@@ -30,4 +30,18 @@ export function useObservedQuizMarkers() {
   const newQuizIds = useSyncExternalStore(observer?.subscribe ?? noSubscription,
     observer ? () => observer.getSnapshot().newQuizIds : () => emptyObservation.newQuizIds);
   return { newQuizIds, acknowledge: (quizId: string) => observer?.acknowledge(quizId) };
+}
+
+/** Read a title only for the exact confirmed result in the current account's list. */
+export function useObservedQuizTitle(job: QuizGenerationStatus | undefined) {
+  const observer = useContext(ObserverContext);
+  const client = useQueryClient();
+  const accountId = observer?.accountId ?? '';
+  const subscribe = useCallback((notify: () => void) => client.getQueryCache().subscribe(event => {
+    if (event.query.queryKey[0] === 'owned-quizzes' && event.query.queryKey[1] === accountId) notify();
+  }), [client, accountId]);
+  const quizzes = useSyncExternalStore(subscribe,
+    () => client.getQueryData<Paginated<QuizDto>>(ownedQuizzesKey(accountId)));
+  return job?.status === 'COMPLETED' && job.generatedQuizId
+    ? quizzes?.content.find(quiz => quiz.id === job.generatedQuizId)?.title : undefined;
 }

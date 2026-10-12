@@ -11,7 +11,7 @@ import { getErrorMessage } from '@/utils/errorUtils';
 // 3. Add questions (using the new quiz ID)
 // ---------------------------------------------------------------------------
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CreateQuizRequest, QuizDto, QuestionDifficulty, GenerateQuizFromTextRequest } from '@/types';
 import { createQuiz } from '@/services';
@@ -70,10 +70,15 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   const recoveredKey = generation.operation?.key;
   const recoveredSource = generation.operation?.source;
   const recoveredJobId = generation.operation?.jobId;
+  const recoveredState = generation.operation?.state;
+  const restoredGeneration = useRef<string | null>(null);
   useEffect(() => {
     if (!recoveredKey) return;
+    const identity = `${recoveredKey}:${recoveredJobId ?? ''}`;
+    if (restoredGeneration.current === identity) return;
+    restoredGeneration.current = identity;
     setCreationMethod(recoveredSource === 'text' ? 'text' : 'document');
-    if (recoveredJobId) {
+    if (recoveredJobId && recoveredState === 'accepted') {
       setCreatedQuiz(previous => previous?.id === recoveredJobId ? previous : { id: recoveredJobId, title: 'Recovered generation', description: '', difficulty: 'MEDIUM',
         visibility: 'PRIVATE', status: 'DRAFT', estimatedTime: 30, isRepetitionEnabled: false, timerEnabled: false, timerDuration: 30,
         tagIds: [], creatorId: '', createdAt: '', updatedAt: '' });
@@ -81,7 +86,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
     } else {
       setCurrentStep(2);
     }
-  }, [recoveredKey, recoveredSource, recoveredJobId]);
+  }, [recoveredKey, recoveredSource, recoveredJobId, recoveredState]);
 
   const [errors, setErrors] = useState<FormErrors>({});
   
@@ -384,6 +389,10 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
               jobId={createdQuiz.id}
               initialStatus="PENDING"
               estimatedTimeSeconds={60}
+              onRetry={() => {
+                setCreatedQuiz(null);
+                setCurrentStep(2);
+              }}
               onComplete={(quizId: string) => {
                 // Update the created quiz with the real quiz ID
                 setCreatedQuiz(prev => prev ? { ...prev, id: quizId } : null);
@@ -444,9 +453,9 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
-      <GenerationOperationNotice controller={generation} onNewStart={() => {
+      {(currentStep <= 2 || generation.storageError) && <GenerationOperationNotice controller={generation} showNewStart={currentStep <= 2} onNewStart={() => {
         setCreatedQuiz(null); setCurrentStep(2); setErrors({});
-      }} />
+      }} />}
       {/* Back button at top */}
       {canGoBack && (
         <div className="mb-4">

@@ -1,12 +1,9 @@
 import ProgressBar from '@/components/ui/ProgressBar';
-import { useCallback, useId, useSyncExternalStore } from 'react';
+import { useId } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Card, CardBody } from '@/components';
-import type { Paginated, QuizDto } from '@/types';
-import { useGenerationObservation } from '../hooks/useGenerationObservation';
+import { useGenerationObservation, useObservedQuizTitle } from '../hooks/useGenerationObservation';
 import { isActiveGeneration } from '../services/generationJobs';
-import { ownedQuizzesKey } from '../services/generationObserver';
 
 interface Props { jobId?: string; className?: string; showEmpty?: boolean; title?: string }
 const labels = {
@@ -14,22 +11,12 @@ const labels = {
   FAILED: 'Generation failed', CANCELLED: 'Generation cancelled',
 } as const;
 
-/** Presentation only: both the compact block and generation screens use the session owner. */
+/** Compact presentation for My Quizzes; observation belongs to the session owner. */
 export function GenerationJobBlock({ jobId, className = '', showEmpty = false, title = 'AI quiz generation' }: Props) {
   const headingId = useId();
   const navigate = useNavigate();
   const { job, checking, discovered, cancelling, paused, error, cancelError, accessStopped, recoveryNotice, observer } = useGenerationObservation(jobId);
-  const client = useQueryClient();
-  const accountId = observer?.accountId ?? '';
-  // Subscribe to the cached list without replacing the owning query's fetch
-  // options. Titles are linked only by the server-confirmed result ID.
-  const subscribeQuizzes = useCallback((notify: () => void) => client.getQueryCache().subscribe(event => {
-    if (event.query.queryKey[0] === 'owned-quizzes' && event.query.queryKey[1] === accountId) notify();
-  }), [client, accountId]);
-  const quizzes = useSyncExternalStore(subscribeQuizzes,
-    () => client.getQueryData<Paginated<QuizDto>>(ownedQuizzesKey(accountId)));
-  const resultTitle = job?.status === 'COMPLETED' && job.generatedQuizId
-    ? quizzes?.content.find(quiz => quiz.id === job.generatedQuizId)?.title : undefined;
+  const resultTitle = useObservedQuizTitle(job);
   const startDate = job?.startedAt ? new Date(job.startedAt) : null;
   const startedAt = startDate && Number.isFinite(startDate.getTime())
     ? startDate.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : null;
