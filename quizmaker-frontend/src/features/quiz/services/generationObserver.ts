@@ -56,6 +56,9 @@ export class GenerationObserver {
   // An ambiguous receipt is still an exact known job. If no work is active on
   // rediscovery, reconcile this ID once: it may already have completed.
   private receiptFallback: string | null = null;
+  // A missing exact job does not revoke access to a different confirmed job.
+  // Collection failures and authentication/authorization failures stay stopped.
+  private notFoundJobId: string | null = null;
   private statusRequested = false;
   private readonly abort = new AbortController();
   private cleanup: (() => void)[] = [];
@@ -141,6 +144,7 @@ export class GenerationObserver {
     this.cleanup = [];
     this.startedObservations.clear();
     this.receiptFallback = null;
+    this.notFoundJobId = null;
     document.removeEventListener('visibilitychange', this.resume);
     window.removeEventListener('online', this.resume);
     window.removeEventListener('offline', this.resume);
@@ -180,14 +184,21 @@ export class GenerationObserver {
     // earlier active receipt cannot reverse an already confirmed terminal job.
     if (updated) this.client.setQueryData(generationStatusKey(this.accountId, response.jobId), { ...previous, ...receipt });
     const known = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId)) ?? receipt;
+    if (!superseded && this.notFoundJobId && this.notFoundJobId !== response.jobId) {
+      this.notFoundJobId = null;
+      this.publish({ error: null, accessStopped: false });
+    }
     // A superseded dispatch cannot replace newer observation or interrupt its
     // recovery, even if this is our first evidence of the older job. Still keep
     // the receipt for that exact job and let its command save recovery metadata.
     // Discovery begun after dispatch can observe work started in another tab.
     // Preserve both its pending intent and a discovered job, even when dispatch
     // predates this observer. Resolve ambiguous receipts through a fresh list.
-    const needsDiscovery = isActiveGeneration(known) && observationChanged
-      && (this.state.jobId !== null || this.discoveryRequested !== null);
+    const needsDiscovery = (isActiveGeneration(known) && observationChanged
+      && (this.state.jobId !== null || this.discoveryRequested !== null))
+      // A terminal replay identifies the result to reconcile if the currently
+      // selected active job has actually finished. It must not lose that ID.
+      || (terminalReceipt && isActiveGeneration(this.job()));
     if (this.state.jobId !== response.jobId && (superseded || needsDiscovery
       || ((previous !== undefined || !isActiveGeneration(known)) && isActiveGeneration(this.job())))) {
       if (terminalReceipt && known.status === 'COMPLETED') this.refreshQuizzes();
@@ -223,6 +234,7 @@ export class GenerationObserver {
     this.failures = 0;
     this.nextPoll = 0;
     this.statusRequested = true;
+    this.notFoundJobId = null;
     this.publish({ jobId, error: null, cancelError: null, accessStopped: false });
     // The lane's finally block schedules this exact job if another read or
     // cancellation is in flight. Retry-After remains an account-wide deadline.
@@ -311,10 +323,11 @@ export class GenerationObserver {
     } catch (error) {
       if (!this.current() || version !== this.version) return;
       const safe = toApplicationError(error);
-      if (!isCancelledError(error) && safe.category !== 'cancelled') this.readError(safe);
+      if (!isCancelledError(error) && safe.category !== 'cancelled') this.readError(safe, jobId);
     }
   }
   private confirm(job: QuizGenerationStatus, resetReadBackoff = true) {
+    this.notFoundJobId = null;
     if (resetReadBackoff) {
       this.failures = 0;
       this.notBefore = 0;
@@ -344,14 +357,20 @@ export class GenerationObserver {
     if (reads.length) void Promise.allSettled(reads).then(invalidate);
     else invalidate();
   }
-  private readError(error: unknown) {
+  private readError(error: unknown, jobId: string | null = null) {
     const safe = toApplicationError(error);
+    // A late cancellation can report the old job missing after a different
+    // receipt has already queued discovery. That 404 cannot stop its recovery.
+    const recoverReceipt = safe.status === 404 && jobId !== null
+      && this.receiptFallback !== null && this.receiptFallback !== jobId;
+    this.notFoundJobId = safe.status === 404 && !recoverReceipt ? jobId : null;
     this.failures++;
     const backoff = Math.min(60_000, 10_000 * 2 ** Math.min(this.failures - 1, 3));
     const delay = backoff * (0.9 + Math.random() * 0.2);
     this.notBefore = Date.now() + (canRetry(safe) ? Math.max(delay, (safe.retryAfterSeconds ?? 0) * 1000) : 0);
     this.nextPoll = this.notBefore;
-    this.publish({ error: safe, accessStopped: safe.status === 401 || safe.status === 403 || safe.status === 404 });
+    this.publish({ error: recoverReceipt ? null : safe,
+      accessStopped: safe.status === 401 || safe.status === 403 || (safe.status === 404 && !recoverReceipt) });
   }
   cancel = (): Promise<void> => {
     if (this.cancellation) return this.cancellation;
@@ -384,7 +403,7 @@ export class GenerationObserver {
         const safe = toApplicationError(error);
         this.publish({ cancelError: safe });
         // A 400/409 can mean completion won the race. A lost DELETE response is also uncertain.
-        if (safe.status === 401 || safe.status === 403 || safe.status === 404) this.readError(safe);
+        if (safe.status === 401 || safe.status === 403 || safe.status === 404) this.readError(safe, jobId);
         else {
           this.notBefore = Math.max(this.notBefore, Date.now() + (safe.retryAfterSeconds ?? 0) * 1000);
           this.publish({ cancelling: false });
