@@ -1,3 +1,4 @@
+import { ApplicationError } from '@/utils/applicationError';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAxiosMock, type AxiosMock } from '@/test/mockAxios';
 import type {
@@ -307,15 +308,29 @@ describe('QuizService', () => {
       data: { ...generationStatus, status: 'CANCELLED' },
     });
 
-    await expect(service.getGenerationStatus('job-1')).resolves.toBe(generationStatus);
+    await expect(service.getGenerationStatus('job-1')).resolves.toEqual(generationStatus);
     await expect(service.getGeneratedQuiz('job-1')).resolves.toBe(quiz);
     await expect(service.cancelGenerationJob('job-1')).resolves.toMatchObject({
       status: 'CANCELLED',
     });
 
-    expect(axios.get).toHaveBeenNthCalledWith(1, '/v1/quizzes/generation-status/job-1');
+    expect(axios.get).toHaveBeenNthCalledWith(1, '/v1/quizzes/generation-status/job-1', { signal: undefined });
     expect(axios.get).toHaveBeenNthCalledWith(2, '/v1/quizzes/generated-quiz/job-1');
-    expect(axios.delete).toHaveBeenCalledWith('/v1/quizzes/generation-status/job-1');
+    expect(axios.delete).toHaveBeenCalledWith('/v1/quizzes/generation-status/job-1', { signal: undefined });
+  });
+
+  it('reads only the published owned-jobs pagination parameters and safely handles legacy nullable fields', async () => {
+    const signal = new AbortController().signal;
+    axios.get.mockResolvedValue({ data: { content: [{ jobId: 'job-1', status: 'PENDING', progressPercentage: null, startedAt: null }], number: 1, size: 20, totalPages: 2, totalElements: 21, last: true, numberOfElements: 1 } });
+    await expect(service.getGenerationJobs(1, signal)).resolves.toMatchObject({ content: [{ jobId: 'job-1', progressPercentage: null, startedAt: null }], number: 1 });
+    expect(axios.get).toHaveBeenCalledWith('/v1/quizzes/generation-jobs', { params: { page: 1, size: 20 }, signal });
+  });
+
+  it('rejects incomplete page metadata and mismatched job identities rather than treating them as empty or completed', async () => {
+    axios.get.mockResolvedValueOnce({ data: { content: [] } });
+    await expect(service.getGenerationJobs()).rejects.toBeInstanceOf(ApplicationError);
+    axios.get.mockResolvedValueOnce({ data: { jobId: 'other-job', status: 'COMPLETED' } });
+    await expect(service.getGenerationStatus('job-1')).rejects.toBeInstanceOf(ApplicationError);
   });
 
   it('retrieves result summaries and leaderboard entries', async () => {

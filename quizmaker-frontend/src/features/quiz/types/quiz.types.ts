@@ -166,18 +166,19 @@ export interface QuizGenerationResponse {
 export interface QuizGenerationStatus {
   jobId: string;                    // Job identifier
   status: GenerationStatus;         // Current status
-  totalChunks: number;              // Total chunks to process
-  processedChunks: number;          // Chunks processed so far
-  progressPercentage: number;       // Progress percentage (0-100)
-  currentChunk: string;             // Current chunk being processed
-  estimatedCompletion: string;      // ISO timestamp for estimated completion
-  errorMessage: string | null;      // Error message if failed
-  totalQuestionsGenerated: number;  // Total questions generated so far
-  elapsedTimeSeconds: number;       // Time elapsed since start
-  estimatedTimeRemainingSeconds: number; // Estimated time remaining
-  generatedQuizId: string | null;   // Quiz ID when completed
-  startedAt: string;                // ISO timestamp when started
-  completedAt: string | null;       // ISO timestamp when completed
+  // Legacy jobs can omit these fields or return null. Status is authoritative.
+  totalChunks?: number | null;
+  processedChunks?: number | null;
+  progressPercentage?: number | null;
+  currentChunk?: string | null;
+  estimatedCompletion?: string | null;
+  errorMessage?: string | null;
+  totalQuestionsGenerated?: number | null;
+  elapsedTimeSeconds?: number | null;
+  estimatedTimeRemainingSeconds?: number | null;
+  generatedQuizId?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
 }
 
 /**

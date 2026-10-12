@@ -79,7 +79,7 @@ const QuizGenerationJobsPage: React.FC = () => {
         {/* Page Header */}
         <PageHeader
         title="AI Quiz Generation Jobs"
-        subtitle={`Manage AI generation jobs for "${quiz.title}"`}
+        subtitle="Current generation for your account. This status is also available in My Quizzes."
         showBreadcrumb={true}
         showBackButton={true}
         backTo={`/quizzes/${quizId}`}

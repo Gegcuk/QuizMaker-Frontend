@@ -70,7 +70,15 @@ export function getGenerationErrorMessage(error: unknown): string {
   return error instanceof GenerationOperationError ? error.message : toApplicationError(error).message;
 }
 
+type ObservationEvent = { kind: 'accepted'; accountId: string; response: QuizGenerationResponse } | { kind: 'recover'; accountId: string };
+
 export class GenerationOperations {
+  private readonly observationListeners = new Set<(event: ObservationEvent) => void>();
+  subscribeObservation = (listener: (event: ObservationEvent) => void) => {
+    this.observationListeners.add(listener);
+    return () => { this.observationListeners.delete(listener); };
+  };
+  private notifyObservation(event: ObservationEvent) { this.observationListeners.forEach(listener => listener(event)); }
   private accountId: string | null = null;
   private hydrated = false;
   private requireClear = false;
@@ -309,6 +317,7 @@ export class GenerationOperations {
       } catch (error) {
         if (!isCurrentSessionGeneration(generation) || this.accountId !== accountId) throw new SessionChangedError();
         const safe = toApplicationError(error);
+        this.notifyObservation({ kind: 'recover', accountId });
         const isConflict = safe.status === 409 && safe.code !== 'INSUFFICIENT_BALANCE';
         const delay = safe.status === 429 || safe.status === 503
           ? (safe.retryAfterSeconds === undefined ? DEFAULT_WAIT_MS : safe.retryAfterSeconds * 1000) : 0;
@@ -319,8 +328,10 @@ export class GenerationOperations {
       }
       if (!isCurrentSessionGeneration(generation) || this.accountId !== accountId) throw new SessionChangedError();
       if (!validId(response.jobId) || (response.status !== undefined && !statuses.includes(response.status))) {
+        this.notifyObservation({ kind: 'recover', accountId });
         throw new GenerationOperationError('The server response could not be verified. Retry the original operation with the same input.');
       }
+      this.notifyObservation({ kind: 'accepted', accountId, response });
       this.save({ ...operation, state: response.status && terminal(response.status) ? 'terminal' : 'accepted',
         notBefore: 0, jobId: response.jobId, jobStatus: response.status ?? 'PENDING' });
       return response;

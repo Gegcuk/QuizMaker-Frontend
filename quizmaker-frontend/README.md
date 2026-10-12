@@ -612,7 +612,8 @@ new command. Abandonment removes client recovery information and does not cancel
 a server job. Its confirmation explains that a new start may reserve tokens
 again. The new key is allocated only on the subsequent submit click.
 
-After reload, text/upload users must re-enter the exact original source and all
+For an explicit retry of the original command after reload, text/upload users
+must re-enter the exact original source and all
 original generation settings, including any selected pages. The frontend stores
 no input snapshot. Document starts restore the original document ID through the
 existing ownership-checked read endpoints; selections and settings are restored
@@ -682,3 +683,60 @@ The recovery browser journey runs text at desktop width and upload/document at
 mobile width, using local API fixtures and no AI/payment provider. The selected
 pages caller is covered at the component boundary; this change does not add a
 route for that existing component or extend backend recovery APIs.
+
+
+### Shared generation observation (#193)
+
+The authenticated session owns one generation observer inside the existing
+account-scoped QueryProvider. My Quizzes shows a compact information card beside
+active attempts. Generation screens and the legacy `/quizzes/:quizId/generation`
+route consume the same cached status; they do not own timers or duplicate reads.
+
+On restoration, discovery reads the live owned-jobs collection page by page,
+using only the published `page` and `size` parameters. It stops when it finds a
+PENDING/PROCESSING job. Absence requires consistent pagination metadata, unique
+rows, and a complete traversal; missing or changing pages produce a read error,
+not an empty result. Since there is no active filter or snapshot cursor, an idle
+restoration/focus/reconnect can require reading the history once. Once a job is
+known, polling reads only its status. An accepted start hands over its job ID
+immediately, even if saving its command receipt subsequently fails.
+
+There is no idle interval. A known active job is read approximately every five
+seconds while visible and online. Transient read failures retain confirmed state
+and wait 10/20/40/60 seconds with ±10% jitter, or longer for Retry-After. Successful
+reads reset the interval. Visibility/reconnect events share the request lane and
+respect that deadline. Terminal states, authentication/access failures, unmount,
+logout and account replacement stop polling. Cancellation is one explicit DELETE;
+its response is authoritative. A failed/uncertain cancellation triggers a status
+read, never a repeated DELETE or a locally invented CANCELLED state.
+
+Lost start responses trigger fresh owned-job discovery without needing the source
+input. An earlier in-flight discovery cannot establish the outcome of a later
+command. Discovery never associates an unknown command key with a historical job
+by title/time or submits generation POST. If no active job is found, the quiz list
+is refreshed: the command could already have completed, and its outcome remains
+unconfirmed. The #174 lifecycle and explicit same-input command retries remain
+separate from observation.
+
+COMPLETED invalidates the owned quiz list, including after an older in-flight
+initial list response settles. A result link opens the confirmed generated quiz.
+Only results completed during the current account's observation get an in-memory
+“New” marker. Rendering/fetching does not acknowledge it; hover, keyboard focus
+within existing card controls, or a click/tap does. Manual/imported/historical
+fixtures receive no marker. This metadata is neither persisted nor sent to an
+invented API. Durable freshness and acknowledgement across reloads/devices remain
+backend [#812](https://github.com/Gegcuk/QuizMaker/issues/812).
+
+| Acceptance outcome | Focused coverage |
+| --- | --- |
+| One observation across consumers/navigation; no idle interval | `generationObserver.test.ts`, shared UI tests, generation browser journey |
+| Discovery on reload/lost start; complete pagination; no duplicate POST | Observer fixtures and browser reload/navigation journey |
+| 429/5xx, bounded backoff/jitter, Retry-After, hidden/offline/reconnect | Observer fake-timer tests; existing HTTP Retry-After normalization tests |
+| Terminal/access stopping, late responses and account isolation | Observer and `GenerationObserverProvider.test.tsx` |
+| Real cancellation, uncertain errors and completion race | Observer and `QuizGenerationStatus.test.tsx` |
+| Nullable data, accessible progress, compatible legacy route | Shared UI tests and desktop/mobile browser journey |
+| Completion refreshes an open list, even with an older response | `MyQuizzesPage.test.tsx` and browser journey |
+| Current-account marker, acknowledgement without extra tab stops | `ObservedQuizMarker.test.tsx` and browser journey |
+
+Tests use local fixtures and fake clocks; no AI, payment or production API calls
+are needed. The deployed Quizzes specification remains the contract authority.

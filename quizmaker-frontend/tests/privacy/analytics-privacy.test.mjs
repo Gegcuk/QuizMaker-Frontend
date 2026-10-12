@@ -202,6 +202,9 @@ test('production checkout recovery preserves privacy and backend authority on de
           return route.fallback();
         }
         const json = value => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(value) });
+        if (request.method() === 'GET' && url.pathname === '/api/v1/quizzes/generation-jobs') return json({
+          content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0,
+        });
         if (url.pathname === '/api/v1/auth/me') return json({
           id: accountId, username: 'checkout-test', email: 'checkout@example.test', roles: ['ROLE_USER'], isActive: true,
           createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
@@ -292,6 +295,9 @@ test('production error recovery excludes seeded secrets on desktop and mobile', 
           const url = new URL(request.url());
           if (!url.pathname.startsWith('/api/')) return route.fallback();
           const json = value => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(value) });
+          if (request.method() === 'GET' && url.pathname === '/api/v1/quizzes/generation-jobs') return json({
+            content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0,
+          });
           if (url.pathname === '/api/v1/auth/me') return json({
             id: '11111111-1111-4111-8111-111111111111', username: 'privacy-test',
             email: 'privacy@example.test', roles: ['ROLE_USER'], isActive: true,

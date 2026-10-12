@@ -30,6 +30,7 @@ import {
 } from '@/types';
 import { BaseService } from '../../../api/base.service';
 import api from '../../../api/axiosInstance';
+import { readGenerationPage, readGenerationStatus, type GenerationJobPage } from './generationJobs';
 import { generationOperations } from './generationOperations';
 import { assertCurrentSessionGeneration, getSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import { ApplicationError, toApplicationError } from '@/utils/applicationError';
@@ -261,14 +262,29 @@ export class QuizService extends BaseService<QuizDto> {
    * Get generation status
    * GET /api/v1/quizzes/generation-status/{jobId}
    */
-  async getGenerationStatus(jobId: string): Promise<QuizGenerationStatus> {
+  async getGenerationStatus(jobId: string, signal?: AbortSignal): Promise<QuizGenerationStatus> {
     const generation = getSessionGeneration();
     try {
-      const response = await this.axiosInstance.get<QuizGenerationStatus>(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId));
+      const response = await this.axiosInstance.get<QuizGenerationStatus>(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId), { signal });
       assertCurrentSessionGeneration(generation);
-      await generationOperations.recordJob(jobId, response.data.status, response.data.generatedQuizId ?? undefined);
+      const status = readGenerationStatus(response.data);
+      if (status.jobId !== jobId) throw new ApplicationError({ category: 'unexpected' });
+      await generationOperations.recordJob(jobId, status.status, status.generatedQuizId ?? undefined);
       assertCurrentSessionGeneration(generation);
-      return response.data;
+      return status;
+    } catch (error) {
+      throw this.handleQuizError(error);
+    }
+  }
+
+  async getGenerationJobs(page = 0, signal?: AbortSignal): Promise<GenerationJobPage> {
+    const generation = getSessionGeneration();
+    try {
+      const response = await this.axiosInstance.get<unknown>(QUIZ_ENDPOINTS.GENERATION_JOBS, {
+        params: { page, size: 20 }, signal,
+      });
+      assertCurrentSessionGeneration(generation);
+      return readGenerationPage(response.data, page);
     } catch (error) {
       throw this.handleQuizError(error);
     }
@@ -295,16 +311,18 @@ export class QuizService extends BaseService<QuizDto> {
    * Cancel generation job
    * DELETE /api/v1/quizzes/generation-status/{jobId}
    */
-  async cancelGenerationJob(jobId: string): Promise<QuizGenerationStatus> {
+  async cancelGenerationJob(jobId: string, signal?: AbortSignal): Promise<QuizGenerationStatus> {
     const generation = getSessionGeneration();
     try {
       const response = await this.axiosInstance.delete<QuizGenerationStatus>(
-        QUIZ_ENDPOINTS.GENERATION_STATUS(jobId)
+        QUIZ_ENDPOINTS.GENERATION_STATUS(jobId), { signal }
       );
       assertCurrentSessionGeneration(generation);
-      await generationOperations.recordJob(jobId, response.data.status);
+      const status = readGenerationStatus(response.data);
+      if (status.jobId !== jobId) throw new ApplicationError({ category: 'unexpected' });
+      await generationOperations.recordJob(jobId, status.status, status.generatedQuizId ?? undefined);
       assertCurrentSessionGeneration(generation);
-      return response.data;
+      return status;
     } catch (error) {
       throw this.handleQuizError(error);
     }

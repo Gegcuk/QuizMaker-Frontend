@@ -8,7 +8,10 @@ import { getErrorMessage } from '@/utils/errorUtils';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
-import { QuizDto } from '@/types';
+import { QuizDto, type Paginated } from '@/types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ownedQuizzesKey } from '../services/generationObserver';
+import { GenerationJobBlock } from './GenerationJobBlock';
 import { getMyQuizzes, deleteQuiz } from '@/services';
 import { QuizGrid, QuizList, QuizPagination, QuizSortDropdown, QuizFilterDropdown } from './';
 import { UserAttempts } from '@/features/attempt';
@@ -25,8 +28,9 @@ import { sanitizeQuizExportBlob } from '../utils/quizExportSanitizer';
 import { QuizGroupSummaryDto, QuizSummaryDto } from '../types/quiz.types';
 import type { SortOption } from './QuizSortDropdown';
 import type { FilterOptions } from './QuizFilterDropdown';
-import type { AxiosError } from 'axios';
 import api from '@/api/axiosInstance';
+
+const emptyQuizzes: QuizDto[] = [];
 
 interface MyQuizzesPageProps {
   className?: string;
@@ -178,9 +182,16 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
   const { user } = useAuth();
 
   // State management
-  const [quizzes, setQuizzes] = useState<QuizDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const quizKey = ownedQuizzesKey(user?.id ?? '');
+  const quizQuery = useQuery({ queryKey: quizKey, queryFn: () => getMyQuizzes({ size: 1000 }), enabled: Boolean(user?.id), retry: false });
+  const quizzes = quizQuery.data?.content ?? emptyQuizzes;
+  const isLoading = quizQuery.isPending;
+  const [actionError, setError] = useState<string | null>(null);
+  const error = actionError ?? (quizQuery.error ? getErrorMessage(quizQuery.error) : null);
+  const setQuizzes = (update: (previous: QuizDto[]) => QuizDto[]) => {
+    queryClient.setQueryData<Paginated<QuizDto>>(quizKey, previous => previous ? { ...previous, content: update(previous.content) } : previous);
+  };
   const [hasActiveAttempts, setHasActiveAttempts] = useState(false);
   
   // View mode - supports 'grid', 'list', and 'groups'
@@ -418,28 +429,6 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
     // Reset mobile displayed count when filters/sorting change
     setMobileDisplayedCount(10);
   }, [filteredAndSortedQuizzes.length, pageSize]);
-
-  // Load quizzes
-  useEffect(() => {
-    const loadQuizzes = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // Load all quizzes at once for client-side pagination
-        // Set a large size to get all user's quizzes (backend default is only 20)
-        const response = await getMyQuizzes({ size: 1000 });
-        setQuizzes(response.content || []);
-      } catch (error) {
-        const axiosError = error as AxiosError<{ message?: string }>;
-        setError(getErrorMessage(axiosError) || 'Failed to load your quizzes');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadQuizzes();
-  }, []);
 
   // Load quiz groups function
   const loadGroups = React.useCallback(async () => {
@@ -749,6 +738,7 @@ const MyQuizzesPage: React.FC<MyQuizzesPageProps> = ({ className = '' }) => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* User Attempts Section - Always render to allow callback to fire */}
+          <GenerationJobBlock className="mb-6" />
           <UserAttempts onAttemptsLoaded={handleAttemptsLoaded} />
 
           {/* Section Divider - Only show if there are active attempts */}

@@ -9,7 +9,8 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { QuizDto } from '@/types';
 import { useQuizMetadata, useCreateGroup } from '../hooks';
-import { Button, Card, CardBody, Checkbox } from '@/components';
+import { useObservedQuizMarkers } from '../hooks/useGenerationObservation';
+import { Button, Card, CardBody, Checkbox, Badge } from '@/components';
 import QuizGroupMenu from './QuizGroupMenu';
 import CreateGroupModal from './CreateGroupModal';
 
@@ -36,6 +37,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
   onSelect,
   className = ''
 }) => {
+  const { newQuizIds, acknowledge: acknowledgeQuiz } = useObservedQuizMarkers();
+  const isNew = newQuizIds.includes(quiz.id);
+  const acknowledge = () => { if (isNew) acknowledgeQuiz(quiz.id); };
   const { getTagName, getCategoryName } = useQuizMetadata();
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState<{ top: number; right: number } | null>(null);
@@ -260,6 +264,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
 
   return (
     <>
+    <div onMouseEnter={acknowledge} onFocusCapture={acknowledge} onClickCapture={acknowledge}>
     <Card 
       variant="elevated" 
       padding="md" 
@@ -268,6 +273,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
       className={className}
     >
       <CardBody>
+        {isNew && <Badge variant="info" size="sm">New</Badge>}
         {/* Mobile Layout - Simplified */}
         <div className="md:hidden">
           {/* Header with checkbox, title and 3-dots menu */}
@@ -696,6 +702,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
         </div>
       </CardBody>
     </Card>
+    </div>
 
     {/* Create Group Modal - Rendered at QuizCard level to persist when dropdown closes */}
     <CreateGroupModal

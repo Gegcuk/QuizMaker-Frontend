@@ -1,3 +1,4 @@
+import { useObservedQuizMarkers } from '../hooks/useGenerationObservation';
 // src/components/QuizList.tsx
 // ---------------------------------------------------------------------------
 // List layout for quiz listings
@@ -38,6 +39,7 @@ const QuizList: React.FC<QuizListProps> = ({
   onSelectAll,
   className = ''
 }) => {
+  const { newQuizIds, acknowledge: acknowledgeQuiz } = useObservedQuizMarkers();
   const { getTagName, getCategoryName } = useQuizMetadata();
   const [openMenuQuizId, setOpenMenuQuizId] = useState<string | null>(null);
   const [menuPositions, setMenuPositions] = useState<Record<string, { top: number; right: number }>>({});
@@ -281,7 +283,7 @@ const QuizList: React.FC<QuizListProps> = ({
       
       <ul className="divide-y divide-theme-border-primary">
         {quizzes.map((quiz) => (
-          <li key={quiz.id} className={`hover:bg-theme-bg-tertiary transition-colors duration-150 ${selectedQuizzes.includes(quiz.id) ? 'bg-theme-bg-info' : ''}`}>
+          <li key={quiz.id} onMouseEnter={() => acknowledgeQuiz(quiz.id)} onFocusCapture={() => acknowledgeQuiz(quiz.id)} onClickCapture={() => acknowledgeQuiz(quiz.id)} className={`hover:bg-theme-bg-tertiary transition-colors duration-150 ${selectedQuizzes.includes(quiz.id) ? 'bg-theme-bg-info' : ''}`}>
             <div className="px-4 py-4 sm:px-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
@@ -297,6 +299,7 @@ const QuizList: React.FC<QuizListProps> = ({
                       title={quiz.title}
                     >
                       {quiz.title}
+                      {newQuizIds.includes(quiz.id) && <Badge variant="info" size="sm" className="ml-2">New</Badge>}
                     </h3>
                     <div className="flex items-center space-x-2">
                       <Badge

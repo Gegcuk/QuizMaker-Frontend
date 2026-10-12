@@ -20,4 +20,8 @@ export const mockCurrentUserHandler = (user: UserDto = testUser) =>
     return HttpResponse.json(user);
   });
 
-export const handlers = [];
+export const handlers = [
+  http.get('*/api/v1/quizzes/generation-jobs', () => HttpResponse.json({
+    content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0,
+  })),
+];

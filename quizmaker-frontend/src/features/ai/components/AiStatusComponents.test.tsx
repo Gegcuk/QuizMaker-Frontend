@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { renderWithProviders, screen } from '@/test/render';
 import GenerationProgress from './GenerationProgress';
 import { TokenEstimationDisplay } from './TokenEstimationDisplay';
 
@@ -36,37 +36,11 @@ describe('AI status components', () => {
     expect(screen.getByText('2.4K')).toBeInTheDocument();
   });
 
-  it('shows processing progress and allows cancellation', async () => {
-    serviceMocks.getGenerationStatus.mockResolvedValue({
-      status: 'PROCESSING', processedChunks: 2, totalChunks: 4, progressPercentage: 50,
-      estimatedTimeRemainingSeconds: 60, elapsedTimeSeconds: 30,
-    });
-    serviceMocks.cancelGenerationJob.mockResolvedValue(undefined);
+  it('delegates generation progress and callbacks to the shared session component', () => {
     const onGenerationCancelled = vi.fn();
-    const { user } = renderWithProviders(
-      <GenerationProgress jobId="job-1" onGenerationCancelled={onGenerationCancelled} />,
-      { withAuthProvider: false },
-    );
-    expect(await screen.findByText('Processing chunk 2 of 4')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Cancel Generation' }));
-    await waitFor(() => expect(serviceMocks.cancelGenerationJob).toHaveBeenCalledWith('job-1'));
-    expect(onGenerationCancelled).toHaveBeenCalledOnce();
-  });
-
-  it('retrieves completed quizzes and exposes polling failures to callers', async () => {
-    serviceMocks.getGenerationStatus.mockResolvedValueOnce({ status: 'COMPLETED' });
-    serviceMocks.getGeneratedQuiz.mockResolvedValue({ id: 'quiz-1' });
-    const onGenerationComplete = vi.fn();
-    const { unmount } = renderWithProviders(
-      <GenerationProgress jobId="job-1" onGenerationComplete={onGenerationComplete} />,
-      { withAuthProvider: false },
-    );
-    await waitFor(() => expect(onGenerationComplete).toHaveBeenCalledWith('quiz-1'));
-    unmount();
-
-    serviceMocks.getGenerationStatus.mockRejectedValueOnce(new Error('Status unavailable.'));
-    const onGenerationError = vi.fn();
-    renderWithProviders(<GenerationProgress jobId="job-2" onGenerationError={onGenerationError} />, { withAuthProvider: false });
-    await waitFor(() => expect(onGenerationError).toHaveBeenCalledWith('Status unavailable.'));
+    renderWithProviders(<GenerationProgress jobId="job-1" onGenerationCancelled={onGenerationCancelled} />, { withAuthProvider: false });
+    expect(screen.getByRole('heading', { name: 'Generating Your Quiz' })).toBeInTheDocument();
+    expect(serviceMocks.getGenerationStatus).not.toHaveBeenCalled();
+    expect(onGenerationCancelled).not.toHaveBeenCalled();
   });
 });

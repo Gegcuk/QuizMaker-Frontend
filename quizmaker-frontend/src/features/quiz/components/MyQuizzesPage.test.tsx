@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
 import type { QuizDto } from '@/types';
+import { GenerationObserverProvider } from '../providers/GenerationObserverProvider';
+import { QuizGenerationStatus } from './QuizGenerationStatus';
 import MyQuizzesPage from './MyQuizzesPage';
 
 const services = vi.hoisted(() => ({
   getMyQuizzes: vi.fn(),
+  getGenerationJobs: vi.fn(),
+  getGenerationStatus: vi.fn(),
   deleteQuiz: vi.fn(),
   getQuizGroups: vi.fn(),
   addQuizzesToGroup: vi.fn(),
@@ -24,6 +28,7 @@ vi.mock('../services', () => ({
     deleteQuizGroup: services.deleteQuizGroup,
   },
 }));
+vi.mock('../services/quiz.service', () => ({ QuizService: class { getGenerationJobs = services.getGenerationJobs; getGenerationStatus = services.getGenerationStatus; } }));
 vi.mock('../hooks', () => ({ useCreateGroup: () => ({ handleCreateGroup: vi.fn() }) }));
 vi.mock('@/hooks', () => ({
   useQuizFiltering: (quizzes: QuizDto[]) => quizzes,
@@ -70,6 +75,8 @@ describe('MyQuizzesPage', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    services.getGenerationJobs.mockResolvedValue({ content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0 });
+    services.getGenerationStatus.mockResolvedValue({ jobId: 'job-1', status: 'COMPLETED', generatedQuizId: 'new-quiz' });
     services.getQuizGroups.mockResolvedValue({ content: [] });
   });
 
@@ -80,6 +87,17 @@ describe('MyQuizzesPage', () => {
     expect(await screen.findByText('List: Owned architecture quiz')).toBeInTheDocument();
     expect(services.getMyQuizzes).toHaveBeenCalledWith({ size: 1000 });
     expect(screen.getByText('1 quizzes found')).toBeInTheDocument();
+  });
+
+  it('refreshes an already mounted quiz list after generation completes, including an older in-flight list response', async () => {
+    let resolveList!: (value: { content: QuizDto[] }) => void;
+    const oldList = new Promise<{ content: QuizDto[] }>(resolve => { resolveList = resolve; });
+    services.getMyQuizzes.mockReturnValueOnce(oldList).mockResolvedValue({ content: [quiz, { ...quiz, id: 'new-quiz', title: 'Generated quiz' }] });
+    renderWithProviders(<GenerationObserverProvider><MyQuizzesPage /><QuizGenerationStatus jobId="job-1" /></GenerationObserverProvider>, { withAuthProvider: false });
+    await screen.findAllByText('COMPLETED');
+    resolveList({ content: [quiz] });
+    expect(await screen.findByText('List: Owned architecture quiz, Generated quiz')).toBeInTheDocument();
+    expect(services.getMyQuizzes).toHaveBeenCalledTimes(2);
   });
 
   it('shows the first-quiz empty state when no quizzes exist', async () => {

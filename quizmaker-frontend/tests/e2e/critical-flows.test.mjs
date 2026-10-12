@@ -418,6 +418,9 @@ const fulfillJson = (route, body, status = 200) =>
 
 const installUnexpectedApiBlock = async (page) => {
   await page.route('**/api/v1/**', (route) => route.abort('blockedbyclient'));
+  await page.route('**/api/v1/quizzes/generation-jobs?**', route => fulfillJson(route, {
+    content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0,
+  }));
 };
 
 const installAuthMeMock = async (page) => {
@@ -2192,12 +2195,14 @@ test('generation start recovery keeps command keys across reload and preserves s
         if (source === 'upload') assert.equal(await page.locator('#document-upload').inputValue(), '');
         await fill();
         await submit();
-        await page.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        assert.equal(await page.evaluate(() => Object.values(localStorage).map(value => { try { return JSON.parse(value); } catch { return null; } }).find(value => value?.jobId)?.jobId), GENERATION_JOB_ID);
         assert.equal(requests.length, 2);
         assert.equal(requests[1].key, requests[0].key);
         if (source !== 'upload') assert.deepEqual(JSON.parse(requests[1].body), JSON.parse(requests[0].body));
         await page.reload({ waitUntil: 'domcontentloaded' });
-        await page.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        assert.equal(await page.evaluate(() => Object.values(localStorage).map(value => { try { return JSON.parse(value); } catch { return null; } }).find(value => value?.jobId)?.jobId), GENERATION_JOB_ID);
         assert.equal(requests.length, 2, 'Restoring the known job must not POST again');
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
         assert.equal(overflow, false, `${source} recovery must fit its viewport`);
@@ -2252,19 +2257,21 @@ test('late generation receipt in another tab preserves the newer command and rep
       }));
     }
     await navigateToAppRoute(oldPage, '/quizzes/create');
-    await oldPage.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    await oldPage.getByText('PENDING', { exact: true }).waitFor();
     await navigateToAppRoute(nextPage, '/quizzes/create');
     await nextPage.getByRole('button', { name: 'Abandon operation / prepare new start' }).click();
     await nextPage.getByRole('button', { name: 'Confirm new start', exact: true }).click();
     await nextPage.locator('input[placeholder="Enter quiz title..."]').fill('New command fixture');
     await nextPage.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
     await nextPage.getByRole('button', { name: 'Generate Quiz from Text', exact: true }).click();
-    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    await nextPage.getByText('PROCESSING', { exact: true }).waitFor();
+    assert.equal(await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)).jobId, storageKey), DOCUMENT_GENERATION_JOB_ID);
     assert.notEqual(nextKey, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
     releaseOldStatus();
     await oldPage.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
     await nextPage.reload({ waitUntil: 'domcontentloaded' });
-    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    await nextPage.getByText('PROCESSING', { exact: true }).waitFor();
+    assert.equal(await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)).jobId, storageKey), DOCUMENT_GENERATION_JOB_ID);
     assert.equal(starts, 1, 'Late old receipts and reload must not create another command');
     const restored = await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
     assert.equal(restored.key, nextKey);
@@ -2275,4 +2282,90 @@ test('late generation receipt in another tab preserves the newer command and rep
     await browser?.close();
     await stopDevServer(server);
   }
+});
+
+test('generation observation survives navigation and reload, updates owned quizzes, and marks only observed completion', { timeout: 90_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    for (const width of [1280, 390]) {
+      const context = await createTestContext(browser, { viewport: { width, height: 900 }, hasTouch: width < 640 });
+      try {
+        await context.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+          localStorage.setItem('quizmaker-my-quizzes-view-mode', 'grid');
+        });
+        const page = await context.newPage();
+        await page.clock.install();
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        let finished = false;
+        let discoveries = 0;
+        let statusReads = 0;
+        let starts = 0;
+        const generated = { ...quiz, id: GENERATED_QUIZ_ID, title: 'New AI fixture quiz' };
+        const currentJob = () => ({
+          jobId: GENERATION_JOB_ID, status: finished ? 'COMPLETED' : 'PROCESSING',
+          progressPercentage: finished ? 100 : 35, generatedQuizId: finished ? GENERATED_QUIZ_ID : null,
+          startedAt: null, estimatedTimeRemainingSeconds: null,
+        });
+        page.on('request', request => { if (request.method() === 'POST' && /generate-from-/.test(request.url())) starts++; });
+        await page.route('**/api/v1/quizzes/generation-jobs?**', route => {
+          discoveries++;
+          return fulfillJson(route, { content: [currentJob()], number: 0, size: 20, totalPages: 1, totalElements: 1, last: true, numberOfElements: 1 });
+        });
+        await page.route(`**/api/v1/quizzes/generation-status/${GENERATION_JOB_ID}`, route => { statusReads++; return fulfillJson(route, currentJob()); });
+        await page.route('**/api/v1/quizzes?**', route => fulfillJson(route, { content: finished ? [quiz, generated] : [quiz], number: 0, totalPages: 1, totalElements: finished ? 2 : 1 }));
+        await page.route('**/api/v1/quiz-groups**', route => fulfillJson(route, { content: [] }));
+        await page.route('**/api/v1/attempts?**', route => fulfillJson(route, { content: [] }));
+        await page.route('**/api/v1/categories**', route => fulfillJson(route, []));
+        await page.route('**/api/v1/tags**', route => fulfillJson(route, []));
+        await page.route(`**/api/v1/quizzes/${QUIZ_ID}`, route => fulfillJson(route, quiz));
+        await navigateToAppRoute(page, '/my-quizzes');
+        const block = page.getByRole('region', { name: 'AI quiz generation' });
+        await block.getByText('PROCESSING', { exact: true }).waitFor();
+        assert.equal(discoveries, 1, `${width}: one startup discovery`);
+        assert.equal(await page.getByText('New', { exact: true }).count(), 0, 'Existing/manual/imported fixtures receive no fresh marker');
+        await block.getByRole('button', { name: 'Cancel Generation' }).focus();
+        assert.ok(await block.getByRole('button', { name: 'Cancel Generation' }).evaluate(button => button === document.activeElement));
+        const layout = await block.evaluate(element => ({ overflow: element.scrollWidth > element.clientWidth, width: element.getBoundingClientRect().width }));
+        assert.ok(!layout.overflow && layout.width <= width, `${width}: compact block fits viewport`);
+        await page.getByRole('link', { name: 'Create Quiz', exact: true }).first().click();
+        await page.waitForURL('**/quizzes/create');
+        const nextStatus = page.waitForResponse(response => response.url().includes(`/generation-status/${GENERATION_JOB_ID}`));
+        await page.clock.runFor(5_000); await nextStatus;
+        assert.equal(statusReads, 1, 'Observation continues after its visible consumer unmounts');
+        assert.equal(discoveries, 1, 'Navigation does not scan history again');
+        const rediscovery = page.waitForResponse(response => response.url().includes('/generation-jobs?'));
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await rediscovery;
+        await page.getByRole('link', { name: 'Quizzence', exact: true }).first().click();
+        await page.waitForURL('**/my-quizzes');
+        await block.getByText('PROCESSING', { exact: true }).waitFor();
+        assert.equal(discoveries, 2, 'Reload discovers work without requiring input');
+        finished = true;
+        const completion = page.waitForResponse(response => response.url().includes(`/generation-status/${GENERATION_JOB_ID}`));
+        await page.clock.runFor(5_000); await completion;
+        await block.getByText('COMPLETED', { exact: true }).waitFor();
+        await page.getByRole('heading', { name: generated.title, exact: true }).first().waitFor();
+        const marker = page.getByText('New', { exact: true });
+        await marker.waitFor();
+        await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-new-${width}.png`), animations: 'disabled' });
+        if (width < 640) await marker.tap(); else await marker.hover();
+        await marker.waitFor({ state: 'hidden' });
+        const terminalReads = statusReads;
+        await page.clock.runFor(60_000);
+        assert.equal(statusReads, terminalReads, 'Terminal observation stops polling');
+        assert.equal(starts, 0, 'Recovery never sends generation POST');
+        await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-generation-${width}.png`), animations: 'disabled' });
+        await navigateToAppRoute(page, `/quizzes/${QUIZ_ID}/generation`);
+        await page.getByRole('region', { name: 'AI quiz generation' }).waitFor();
+        assert.equal(await page.getByText('Introduction to React', { exact: true }).count(), 0, 'Legacy route contains no demonstration data');
+        assert.equal(starts, 0);
+      } finally { await context.close(); }
+    }
+  } finally { await browser?.close(); await stopDevServer(server); }
 });
