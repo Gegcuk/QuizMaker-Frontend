@@ -8,6 +8,7 @@ import { ApplicationError } from '@/utils/applicationError';
 import { generationOperations } from '../services/generationOperations';
 import { generationStatusKey, ownedQuizzesKey } from '../services/generationObserver';
 import type { QuizGenerationStatus as GenerationStatusDto } from '@/types';
+import type { GenerationJobPage } from '../services/generationJobs';
 
 vi.mock('@/features/auth', async original => ({ ...await original<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));
 const service = vi.hoisted(() => ({ cancelGenerationJob: vi.fn(), getGenerationStatus: vi.fn(), getGenerationJobs: vi.fn() }));
@@ -24,8 +25,93 @@ beforeEach(() => {
   service.cancelGenerationJob.mockResolvedValue({ ...processing, status: 'CANCELLED' });
 });
 const view = (ui: React.ReactNode, queryClient = createTestQueryClient()) => renderWithProviders(<GenerationObserverProvider>{ui}</GenerationObserverProvider>, { withAuthProvider: false, queryClient });
+const jobPage = (content: GenerationStatusDto[]): GenerationJobPage => ({
+  content, number: 0, size: 20, totalPages: content.length ? 1 : 0,
+  totalElements: content.length, last: true, numberOfElements: content.length,
+});
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
+  return { promise, resolve, reject };
+}
 
 describe('shared generation UI', () => {
+  it.each(['empty', 'active'] as const)('keeps the compact block hidden during initial discovery until the %s result arrives', async outcome => {
+    const discovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    view(<GenerationJobBlock />);
+    await waitFor(() => expect(service.getGenerationJobs).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('region', { name: 'AI quiz generation' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Checking your generation jobs…')).not.toBeInTheDocument();
+
+    await act(async () => {
+      discovery.resolve(jobPage(outcome === 'empty' ? [] : [{ jobId: 'job-1', status: 'PROCESSING', progressPercentage: 50 }]));
+    });
+    if (outcome === 'empty') {
+      expect(screen.queryByRole('region', { name: 'AI quiz generation' })).not.toBeInTheDocument();
+    } else {
+      expect(await screen.findByText('Generating your quiz')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel Generation' })).toBeEnabled();
+    }
+  });
+  it('shows a discovery error in the compact block after initially hiding background loading', async () => {
+    const discovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    view(<GenerationJobBlock />);
+    await waitFor(() => expect(service.getGenerationJobs).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('region', { name: 'AI quiz generation' })).not.toBeInTheDocument();
+    await act(async () => { discovery.reject(new ApplicationError({ category: 'server', status: 503 })); });
+    expect(await screen.findByText('Generation jobs are unavailable')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Refresh status' })).toBeEnabled();
+  });
+  it('keeps a confirmed job visible while its status is being refreshed', async () => {
+    vi.useFakeTimers();
+    try {
+      const status = deferred<GenerationStatusDto>();
+      service.getGenerationStatus.mockReturnValueOnce(status.promise);
+      const root = view(<GenerationJobBlock />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(screen.getByText('Generating your quiz')).toBeInTheDocument();
+      await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
+      expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('region', { name: 'AI quiz generation' })).toBeInTheDocument();
+      expect(screen.getByText('50%')).toBeInTheDocument();
+      await act(async () => {
+        status.resolve({ jobId: 'job-1', status: 'COMPLETED', generatedQuizId: 'quiz-1' });
+        await vi.advanceTimersByTimeAsync(0);
+      });
+      expect(screen.getByText('Quiz ready')).toBeInTheDocument();
+      root.unmount();
+    } finally { vi.useRealTimers(); }
+  });
+  it('keeps uncertain-start recovery visible even while owned discovery is pending', async () => {
+    service.getGenerationJobs.mockResolvedValueOnce(jobPage([]));
+    view(<GenerationJobBlock />);
+    await waitFor(() => expect(service.getGenerationJobs).toHaveBeenCalledTimes(1));
+    const discovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    await act(async () => {
+      await generationOperations.start('account-a', 'text-tab', 'text', async () => {
+        throw new ApplicationError({ category: 'network' });
+      }).catch(() => undefined);
+    });
+    expect(screen.getByRole('region', { name: 'AI quiz generation' })).toBeInTheDocument();
+    expect(screen.getByText('Checking your generation jobs…')).toBeInTheDocument();
+    await act(async () => { discovery.resolve(jobPage([])); });
+    expect(await screen.findByText(/Your earlier request may already have completed/)).toBeInTheDocument();
+  });
+  it('preserves explicit loading and empty states when showEmpty is requested', async () => {
+    const discovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    view(<GenerationJobBlock showEmpty />);
+    expect(screen.getByRole('region', { name: 'AI quiz generation' })).toBeInTheDocument();
+    expect(screen.getByText('Checking your generation jobs…')).toBeInTheDocument();
+    expect(screen.queryByText('No active generation found')).not.toBeInTheDocument();
+    await act(async () => { discovery.resolve(jobPage([])); });
+    expect(await screen.findByText('No active generation found')).toBeInTheDocument();
+  });
   it('keeps the full progress layouts and server timing details separate from the compact My Quizzes block', async () => {
     const job = { ...processing, elapsedTimeSeconds: 180, estimatedTimeRemainingSeconds: 45, processedChunks: 2, totalChunks: 5 };
     service.getGenerationJobs.mockResolvedValue({ content: [job], number: 0, size: 20, totalPages: 1, totalElements: 1, last: true, numberOfElements: 1 });

@@ -2296,6 +2296,66 @@ test('late generation receipt in another tab preserves the newer command and rep
   }
 });
 
+test('My Quizzes never flashes an empty generation block during delayed discovery', { timeout: 60_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    for (const width of [1280, 390]) {
+      const context = await createTestContext(browser, { viewport: { width, height: 900 }, hasTouch: width < 640 });
+      let releaseDiscovery;
+      try {
+        await context.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+          window.emptyGenerationBlockAppeared = false;
+          new MutationObserver(records => {
+            for (const record of records) for (const node of record.addedNodes) {
+              if (!(node instanceof Element)) continue;
+              const headings = node.matches('h3') ? [node] : node.querySelectorAll('h3');
+              if ([...headings].some(heading => heading.textContent === 'AI quiz generation')) {
+                window.emptyGenerationBlockAppeared = true;
+              }
+            }
+          }).observe(document, { childList: true, subtree: true });
+        });
+        const page = await context.newPage();
+        await page.clock.install();
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        let discoveries = 0;
+        let statusReads = 0;
+        const discoveryGate = new Promise(resolve => { releaseDiscovery = resolve; });
+        await page.route('**/api/v1/quizzes/generation-jobs?**', async route => {
+          discoveries++;
+          await discoveryGate;
+          await fulfillJson(route, { content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0 });
+        });
+        await page.route('**/api/v1/quizzes/generation-status/**', route => { statusReads++; return route.abort('blockedbyclient'); });
+        await page.route('**/api/v1/quizzes?**', route => fulfillJson(route, { content: [quiz], number: 0, totalPages: 1, totalElements: 1 }));
+        await page.route('**/api/v1/quiz-groups**', route => fulfillJson(route, { content: [] }));
+        await page.route('**/api/v1/categories**', route => fulfillJson(route, []));
+        await page.route('**/api/v1/tags**', route => fulfillJson(route, []));
+        const requested = page.waitForRequest(request => request.url().includes('/generation-jobs?'));
+        await navigateToAppRoute(page, '/my-quizzes');
+        await requested;
+        await page.getByRole('heading', { name: quiz.title, exact: true }).first().waitFor();
+        const block = page.getByRole('region', { name: 'AI quiz generation' });
+        assert.equal(await block.count(), 0, `${width}: background discovery does not render an empty card`);
+        const response = page.waitForResponse(result => result.url().includes('/generation-jobs?'));
+        releaseDiscovery();
+        await response;
+        await page.clock.runFor(60_000);
+        assert.equal(await block.count(), 0, `${width}: no card after confirming absence`);
+        assert.equal(await page.evaluate(() => window.emptyGenerationBlockAppeared), false, `${width}: no transient card was inserted`);
+        assert.equal(discoveries, 1, 'An empty result does not start periodic discovery');
+        assert.equal(statusReads, 0, 'No exact status is polled without a job');
+      } finally { releaseDiscovery?.(); await context.close(); }
+    }
+  } finally { await browser?.close(); await stopDevServer(server); }
+});
+
 test('generation observation survives navigation and reload, updates owned quizzes, and marks only observed completion', { timeout: 90_000 }, async () => {
   const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
   let browser;

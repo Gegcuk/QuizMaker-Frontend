@@ -22,7 +22,8 @@ export function GenerationJobBlock({ jobId, className = '', showEmpty = false, t
     ? startDate.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : null;
   const hasChunkCounts = job?.totalChunks != null && job.totalChunks > 0
     && job.processedChunks != null && job.processedChunks <= job.totalChunks;
-  if (!job && !checking && !error && !recoveryNotice && !showEmpty) return null;
+  // Background discovery alone must not flash an empty card on My Quizzes.
+  if (!job && !error && !recoveryNotice && !showEmpty) return null;
   return (
     <section aria-labelledby={headingId} className={className}>
       <Card className="border-l-4 border-theme-interactive-info bg-theme-bg-info" padding="sm">
