@@ -251,6 +251,40 @@ describe('account generation observer', () => {
     expect(replay).toHaveBeenCalledExactlyOnceWith(originalKey);
     expect(generationOperations.getSnapshot().pending.wizard?.jobStatus).toBe('FAILED');
   });
+  it.each(['COMPLETED', 'FAILED', 'CANCELLED'] as const)('preserves %s when an old GET and a terminal replay settle together, even if reconciliation fails', async status => {
+    await generationOperations.start('account-a', 'wizard', 'text', async () => { throw new ApplicationError({ category: 'network' }); }).catch(() => undefined);
+    const originalKey = generationOperations.getSnapshot().pending.wizard?.key;
+    const { observer, service, client, job } = setup(); observer.start(); await tick();
+    const oldRead = deferred<QuizGenerationStatus>();
+    const replayResponse = deferred<QuizGenerationResponse>();
+    service.getGenerationStatus.mockReturnValueOnce(oldRead.promise).mockRejectedValue(new ApplicationError({ category: 'server', status: 503 }));
+    const reading = observer.refresh();
+    const replay = vi.fn().mockReturnValue(replayResponse.promise);
+    const replaying = generationOperations.start('account-a', 'wizard', 'text', replay);
+    let terminalReceived = false;
+    const cachedStatuses: string[] = [];
+    const off = client.getQueryCache().subscribe(() => {
+      const cached = client.getQueryData<QuizGenerationStatus>(generationStatusKey('account-a', 'job-1'));
+      if (cached?.status === status) terminalReceived = true;
+      if (terminalReceived && cached) cachedStatuses.push(cached.status);
+    });
+    // Resolve GET first: its queryFn resumes before the command receipt, but
+    // TanStack Query commits that result after the receipt has reached the cache.
+    oldRead.resolve(pending);
+    replayResponse.resolve({ ...accepted, status });
+    await Promise.all([reading, replaying]); await tick();
+    expect(job()).toMatchObject({ status });
+    expect(observer.getSnapshot().error?.status).toBe(503);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
+    await tick(120_000); off();
+    expect(cachedStatuses).toContain(status);
+    expect(cachedStatuses).not.toContain('PROCESSING');
+    expect(job()).toMatchObject({ status });
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
+    expect(replay).toHaveBeenCalledExactlyOnceWith(originalKey);
+    expect(generationOperations.getSnapshot().pending.wizard?.jobStatus).toBe(status);
+    expect(service.cancelGenerationJob).not.toHaveBeenCalled();
+  });
   it('retains recovery discovery while a previous cancellation awaits its response', async () => {
     const { observer, service, client } = setup(); observer.start(); await tick();
     const deletion = deferred<QuizGenerationStatus>(); service.cancelGenerationJob.mockReturnValueOnce(deletion.promise);

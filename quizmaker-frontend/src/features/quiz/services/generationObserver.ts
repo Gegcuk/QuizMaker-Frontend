@@ -1,4 +1,4 @@
-import { isCancelledError, QueryClient } from '@tanstack/react-query';
+import { isCancelledError, QueryClient, replaceEqualDeep } from '@tanstack/react-query';
 import type { QuizGenerationResponse, QuizGenerationStatus } from '@/types';
 import { getSessionGeneration, isCurrentSessionGeneration, subscribeToSessionTransitions } from '@/features/auth/services/sessionLifecycle';
 import { ApplicationError, toApplicationError } from '@/utils/applicationError';
@@ -56,7 +56,18 @@ export class GenerationObserver {
   constructor(readonly accountId: string, private readonly client: QueryClient, private readonly service: GenerationReader) {
     // Discovery can seed status before an exact-job read. Its lifetime belongs
     // to this session owner, independently of visible query consumers.
-    client.setQueryDefaults(['generation-observer', accountId, 'status'], { gcTime: Infinity });
+    client.setQueryDefaults(['generation-observer', accountId, 'status'], {
+      gcTime: Infinity,
+      structuralSharing: (previous, incoming) => {
+        // This prefix stores generation status DTOs only. Reconcile against the
+        // current cache at the synchronous write, not before queryFn resolves:
+        // a terminal receipt may arrive between those two points.
+        const cached = previous as QuizGenerationStatus | undefined;
+        const job = incoming as QuizGenerationStatus;
+        if (cached?.jobId === job.jobId && !isActiveGeneration(cached) && isActiveGeneration(job)) return cached;
+        return replaceEqualDeep(previous, incoming);
+      },
+    });
   }
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
@@ -211,8 +222,8 @@ export class GenerationObserver {
           queryFn: async ({ signal }) => {
             this.assertReadCurrent(version, signal, true);
             const result = await this.service.getGenerationStatus(jobId, signal);
-            // fetchQuery writes its result before its caller resumes. Check
-            // inside queryFn so a stale response never reaches the shared cache.
+            // Reject obsolete requests here. The status cache's write policy
+            // also preserves terminal receipts arriving after this check.
             this.assertReadCurrent(version, signal);
             return this.preserveTerminal(result);
           },
