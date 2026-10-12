@@ -70,7 +70,7 @@ export function getGenerationErrorMessage(error: unknown): string {
   return error instanceof GenerationOperationError ? error.message : toApplicationError(error).message;
 }
 
-type ObservationEvent = { kind: 'accepted'; accountId: string; response: QuizGenerationResponse } | { kind: 'recover'; accountId: string };
+type ObservationEvent = { kind: 'accepted'; accountId: string; response: QuizGenerationResponse; superseded: boolean } | { kind: 'recover'; accountId: string };
 
 export class GenerationOperations {
   private readonly observationListeners = new Set<(event: ObservationEvent) => void>();
@@ -87,6 +87,7 @@ export class GenerationOperations {
   // Only a key allocated here with no successful write may create a missing record.
   private readonly dirty = new Map<GenerationEntryPoint, boolean>();
   private readonly startFlights = new Set<string>();
+  private startSequence = 0;
 
   constructor(private readonly storage: () => Storage = () => window.localStorage) {}
   getSnapshot = (): Snapshot => this.snapshot;
@@ -311,6 +312,9 @@ export class GenerationOperations {
         this.publish({ pending: { ...this.snapshot.pending, [entry]: operation } });
         throw error;
       }
+      // Order actual dispatches, independently of response arrival and the job
+      // cache. Failed pre-POST persistence must not supersede an earlier start.
+      const startSequence = ++this.startSequence;
       let response: QuizGenerationResponse;
       try {
         response = await send(operation.key);
@@ -331,7 +335,7 @@ export class GenerationOperations {
         this.notifyObservation({ kind: 'recover', accountId });
         throw new GenerationOperationError('The server response could not be verified. Retry the original operation with the same input.');
       }
-      this.notifyObservation({ kind: 'accepted', accountId, response });
+      this.notifyObservation({ kind: 'accepted', accountId, response, superseded: startSequence !== this.startSequence });
       this.save({ ...operation, state: response.status && terminal(response.status) ? 'terminal' : 'accepted',
         notBefore: 0, jobId: response.jobId, jobStatus: response.status ?? 'PENDING' });
       return response;

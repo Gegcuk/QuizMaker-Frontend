@@ -95,7 +95,7 @@ export class GenerationObserver {
       subscribeToSessionTransitions(() => this.destroy()),
       generationOperations.subscribeObservation(event => {
         if (!this.current() || event.accountId !== this.accountId) return;
-        if (event.kind === 'accepted') this.accept(event.response);
+        if (event.kind === 'accepted') this.accept(event.response, event.superseded);
         else this.recover();
       }),
     ];
@@ -150,7 +150,7 @@ export class GenerationObserver {
     // was accepted. Queue a fresh traversal behind the current request lane.
     void this.refresh(true);
   }
-  accept(response: QuizGenerationResponse) {
+  accept(response: QuizGenerationResponse, superseded = false) {
     if (!this.current()) return;
     const previous = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId));
     const receipt: QuizGenerationStatus = { jobId: response.jobId, status: response.status ?? 'PENDING' };
@@ -160,9 +160,12 @@ export class GenerationObserver {
     // earlier active receipt cannot reverse an already confirmed terminal job.
     if (updated) this.client.setQueryData(generationStatusKey(this.accountId, response.jobId), { ...previous, ...receipt });
     const known = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId)) ?? receipt;
-    // A receipt for a previously observed job can predate the discovery of a
-    // different active job. It must not switch observation back to that old job.
-    if ((previous !== undefined || !isActiveGeneration(known)) && this.state.jobId !== response.jobId && isActiveGeneration(this.job())) {
+    // A superseded dispatch cannot replace newer observation or interrupt its
+    // recovery, even if this is our first evidence of the older job. Still keep
+    // the receipt for that exact job and let its command save recovery metadata.
+    // Known or terminal replays also must not displace a different active job.
+    if (this.state.jobId !== response.jobId && (superseded
+      || ((previous !== undefined || !isActiveGeneration(known)) && isActiveGeneration(this.job())))) {
       if (terminalReceipt && known.status === 'COMPLETED') this.refreshQuizzes();
       return;
     }

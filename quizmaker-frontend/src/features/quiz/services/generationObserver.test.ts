@@ -232,6 +232,78 @@ describe('account generation observer', () => {
     expect(generationOperations.getSnapshot().pending.wizard?.jobId).toBe('job-1');
     expect(generationOperations.getSnapshot().pending['upload-tab']?.jobId).toBeUndefined();
   });
+  it('observes a newer accepted start even while the cached earlier job still appears active', async () => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    // The previous job has finished on the server, but its next status read has
+    // not happened yet when the user explicitly starts another generation.
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    const post = vi.fn().mockResolvedValue({ ...accepted, jobId: newerJob.jobId });
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post); await tick(5_000);
+    expect(observer.getSnapshot().jobId).toBe(newerJob.jobId);
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationStatus.mock.calls.every(call => call[0] === newerJob.jobId)).toBe(true);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it('keeps observing a delayed accepted start when a later command fails before dispatch', async () => {
+    const { observer, service, job } = setup(); service.getGenerationJobs.mockResolvedValue(page([]));
+    observer.start(); await tick();
+    const response = deferred<QuizGenerationResponse>();
+    const post = vi.fn().mockReturnValue(response.promise);
+    const starting = generationOperations.start('account-a', 'wizard', 'text', post);
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('Unavailable'); });
+    const blockedPost = vi.fn();
+    await expect(generationOperations.start('account-a', 'upload-tab', 'upload', blockedPost)).rejects.toThrow('Cannot save');
+    write.mockRestore();
+    response.resolve(accepted); await starting; await tick(5_000);
+    expect(observer.getSnapshot().jobId).toBe(accepted.jobId);
+    expect(job()).toEqual(pending);
+    expect(service.getGenerationStatus).toHaveBeenCalledWith(accepted.jobId, expect.any(AbortSignal));
+    expect(post).toHaveBeenCalledTimes(1); expect(blockedPost).not.toHaveBeenCalled();
+  });
+  it.each(['before-discovery', 'after-discovery'] as const)('keeps newer recovery when an uncached old start receipt arrives %s', async receiptTiming => {
+    const { observer, service, client, job } = setup();
+    service.getGenerationJobs.mockResolvedValueOnce(page([]));
+    observer.start(); await tick();
+    const oldResponse = deferred<QuizGenerationResponse>();
+    const oldPost = vi.fn().mockReturnValue(oldResponse.promise);
+    const oldStarting = generationOperations.start('account-a', 'wizard', 'text', oldPost);
+    // The old job completes on the server before the second start is accepted,
+    // but no response or list read has introduced that old job to this client.
+    const oldCompleted: QuizGenerationStatus = { ...complete, jobId: 'old-job', generatedQuizId: 'old-quiz' };
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job', progressPercentage: 12 };
+    const discovery = deferred<GenerationJobPage>();
+    service.getGenerationJobs.mockReturnValueOnce(discovery.promise);
+    service.getGenerationStatus.mockImplementation(async jobId => jobId === newerJob.jobId ? newerJob : oldCompleted);
+    const newPost = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', newPost).catch(() => undefined);
+    await tick();
+    if (receiptTiming === 'after-discovery') {
+      discovery.resolve(page([newerJob])); await observer.refresh();
+    }
+    expect(client.getQueryData(generationStatusKey('account-a', 'old-job'))).toBeUndefined();
+    oldResponse.resolve({ ...accepted, jobId: 'old-job', status: 'PROCESSING' });
+    await oldStarting; await tick();
+    expect(observer.getSnapshot().jobId).toBe(receiptTiming === 'after-discovery' ? newerJob.jobId : null);
+    if (receiptTiming === 'before-discovery') {
+      discovery.resolve(page([newerJob])); await observer.refresh();
+    }
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, discovered: true, error: null });
+    expect(job()).toEqual(newerJob);
+    await tick(5_000);
+    expect(service.getGenerationStatus).toHaveBeenCalledExactlyOnceWith(newerJob.jobId, expect.any(AbortSignal));
+    const newerCompleted: QuizGenerationStatus = { ...complete, jobId: newerJob.jobId, generatedQuizId: 'new-quiz' };
+    service.getGenerationStatus.mockResolvedValue(newerCompleted);
+    await tick(5_000);
+    expect(job()).toEqual(newerCompleted);
+    expect(observer.getSnapshot().newQuizIds).toEqual(['new-quiz']);
+    await tick(120_000);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(oldPost).toHaveBeenCalledTimes(1); expect(newPost).toHaveBeenCalledTimes(1);
+    expect(generationOperations.getSnapshot().pending.wizard?.jobId).toBe('old-job');
+    expect(generationOperations.getSnapshot().pending['upload-tab']?.jobId).toBeUndefined();
+  });
   it.each(['hidden', 'offline'] as const)('suspends a multi-page discovery when the tab becomes %s and restarts on resume', async mode => {
     const { observer, service } = setup();
     const firstPage = deferred<GenerationJobPage>();
