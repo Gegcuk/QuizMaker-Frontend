@@ -56,7 +56,7 @@ export class GenerationObserver {
   // An ambiguous receipt is still an exact known job. If no work is active on
   // rediscovery, reconcile this ID once: it may already have completed.
   private receiptFallback: string | null = null;
-  // A missing exact job does not revoke access to a different confirmed job.
+  // A missing exact job does not revoke access to another start's recovery.
   // Collection failures and authentication/authorization failures stay stopped.
   private notFoundJobId: string | null = null;
   private statusRequested = false;
@@ -165,8 +165,13 @@ export class GenerationObserver {
   };
   private requestDiscovery(reason: 'refresh' | 'recovery') {
     this.discoveryRequested = reason === 'recovery' ? 'recovery' : this.discoveryRequested ?? 'refresh';
+    if (reason === 'recovery' && this.notFoundJobId && this.state.accessStopped) this.failures = 0;
     this.version++;
-    this.publish({ ...(reason === 'recovery' ? { recoveryNotice: true } : {}), discovered: false });
+    // A lost start has no new ID yet. An earlier exact-job 404 must not block
+    // its owned collection read; retain the missing ID to avoid polling it again.
+    this.publish({ discovered: false,
+      ...(reason === 'recovery' ? { recoveryNotice: true } : {}),
+      ...(reason === 'recovery' && this.notFoundJobId ? { error: null, accessStopped: false } : {}) });
     // An earlier read cannot resolve a lost command or a receipt conflicting
     // with observation. Queue a fresh traversal behind the current request lane.
     void this.refresh(true);
@@ -179,6 +184,7 @@ export class GenerationObserver {
     const previous = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId));
     const receipt: QuizGenerationStatus = { jobId: response.jobId, status: response.status ?? 'PENDING' };
     const terminalReceipt = !isActiveGeneration(receipt);
+    if (this.notFoundJobId === response.jobId && !terminalReceipt) return;
     const updated = !previous || (isActiveGeneration(previous) && terminalReceipt);
     // A terminal replay is newer evidence than an in-flight status read. An
     // earlier active receipt cannot reverse an already confirmed terminal job.
@@ -216,7 +222,7 @@ export class GenerationObserver {
     if (terminalReceipt) this.confirm(known, false);
   }
   watch(jobId: string) {
-    if (!this.current() || jobId === this.state.jobId) return;
+    if (!this.current() || jobId === this.state.jobId || jobId === this.notFoundJobId) return;
     // A stale screen must not replace the account's currently active job.
     if (isActiveGeneration(this.job())) return;
     if (this.discoveryRequested && this.flight && !this.state.jobId) {
@@ -313,7 +319,13 @@ export class GenerationObserver {
           if (this.state.recoveryNotice) this.refreshQuizzes();
           const fallback = this.receiptFallback ?? this.state.jobId;
           this.receiptFallback = null;
-          if (fallback) {
+          if (fallback && fallback === this.notFoundJobId) {
+            // A complete traversal and this job's 404 establish that the old
+            // active snapshot is gone. Do not revive it through a stale screen.
+            this.statusRequested = false;
+            this.publish({ jobId: null, cancelError: null, accessStopped: false });
+            this.client.removeQueries({ queryKey: generationStatusKey(this.accountId, fallback), exact: true });
+          } else if (fallback) {
             if (fallback !== this.state.jobId) this.publish({ jobId: fallback, cancelError: null, accessStopped: false });
             this.statusRequested = true;
             await this.read(fallback, version);
@@ -359,18 +371,23 @@ export class GenerationObserver {
   }
   private readError(error: unknown, jobId: string | null = null) {
     const safe = toApplicationError(error);
-    // A late cancellation can report the old job missing after a different
-    // receipt has already queued discovery. That 404 cannot stop its recovery.
-    const recoverReceipt = safe.status === 404 && jobId !== null
-      && this.receiptFallback !== null && this.receiptFallback !== jobId;
-    this.notFoundJobId = safe.status === 404 && !recoverReceipt ? jobId : null;
-    this.failures++;
+    // A late cancellation can report the old job missing after another start
+    // queued discovery, with or without a receipt. Only this exact ID is missing.
+    const recoverDiscovery = safe.status === 404 && jobId !== null
+      && (this.discoveryRequested === 'recovery'
+        || (this.receiptFallback !== null && this.receiptFallback !== jobId));
+    // A transient collection failure does not undo the old job's confirmed 404.
+    // Access failures replace its scope and must still stop all observation.
+    if (safe.status === 404) this.notFoundJobId = jobId;
+    else if (!canRetry(safe)) this.notFoundJobId = null;
+    if (!recoverDiscovery) this.failures++;
     const backoff = Math.min(60_000, 10_000 * 2 ** Math.min(this.failures - 1, 3));
     const delay = backoff * (0.9 + Math.random() * 0.2);
-    this.notBefore = Date.now() + (canRetry(safe) ? Math.max(delay, (safe.retryAfterSeconds ?? 0) * 1000) : 0);
+    const notBefore = Date.now() + (canRetry(safe) ? Math.max(delay, (safe.retryAfterSeconds ?? 0) * 1000) : 0);
+    this.notBefore = Math.max(this.notBefore, notBefore);
     this.nextPoll = this.notBefore;
-    this.publish({ error: recoverReceipt ? null : safe,
-      accessStopped: safe.status === 401 || safe.status === 403 || (safe.status === 404 && !recoverReceipt) });
+    this.publish({ error: recoverDiscovery ? null : safe,
+      accessStopped: safe.status === 401 || safe.status === 403 || (safe.status === 404 && !recoverDiscovery) });
   }
   cancel = (): Promise<void> => {
     if (this.cancellation) return this.cancellation;

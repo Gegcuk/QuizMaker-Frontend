@@ -5,6 +5,7 @@ import GenerationProgress from '@/features/ai/components/GenerationProgress';
 import { GenerationJobBlock } from './GenerationJobBlock';
 import { GenerationObserverProvider } from '../providers/GenerationObserverProvider';
 import { ApplicationError } from '@/utils/applicationError';
+import { generationOperations } from '../services/generationOperations';
 import { generationStatusKey, ownedQuizzesKey } from '../services/generationObserver';
 import type { QuizGenerationStatus as GenerationStatusDto } from '@/types';
 
@@ -97,6 +98,31 @@ describe('shared generation UI', () => {
     service.getGenerationStatus.mockResolvedValue({ ...processing, progressPercentage: 100 });
     const onComplete = vi.fn(); view(<><GenerationJobBlock /><QuizGenerationStatus jobId="job-1" onComplete={onComplete} /></>);
     await waitFor(() => expect(screen.getAllByRole('progressbar')[0]).toHaveAttribute('aria-valuenow', '100')); expect(screen.queryByRole('button', { name: 'View Generated Quiz' })).not.toBeInTheDocument(); expect(onComplete).not.toHaveBeenCalled();
+  });
+  it('removes a missing old active snapshot from both layouts when lost-start recovery confirms no active work', async () => {
+    vi.useFakeTimers();
+    try {
+      const root = view(<><QuizGenerationStatus jobId="job-1" /><GenerationJobBlock /></>);
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(screen.getAllByText('Generating your quiz')).toHaveLength(2);
+      service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'not-found', status: 404 }));
+      await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
+      service.getGenerationJobs.mockResolvedValue({ content: [], number: 0, size: 20, totalPages: 0, totalElements: 0, last: true, numberOfElements: 0 });
+      const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+      await act(async () => {
+        await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+        await vi.advanceTimersByTimeAsync(0);
+      });
+      expect(screen.getAllByText('No active generation found')).toHaveLength(2);
+      expect(screen.queryByText('Generating your quiz')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Cancel Generation' })).not.toBeInTheDocument();
+      root.rerender(<GenerationObserverProvider><QuizGenerationStatus key="reopened" jobId="job-1" /><GenerationJobBlock /></GenerationObserverProvider>);
+      await act(async () => { await vi.advanceTimersByTimeAsync(120_000); });
+      expect(screen.getAllByText('No active generation found')).toHaveLength(2);
+      expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+      expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+      expect(post).toHaveBeenCalledTimes(1);
+    } finally { vi.useRealTimers(); }
   });
   it('identifies an old server-reported active job without inferring completion from its processing message', async () => {
     const job = { ...processing, progressPercentage: 0, startedAt: '2025-11-24T19:05:06', totalChunks: 1, processedChunks: 1, currentChunk: 'Generation completed successfully' };

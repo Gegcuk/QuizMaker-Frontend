@@ -486,6 +486,172 @@ describe('account generation observer', () => {
     expect(service.cancelGenerationJob).toHaveBeenCalledExactlyOnceWith(otherJob.jobId, expect.any(AbortSignal));
     expect(post).toHaveBeenCalledTimes(1);
   });
+  it('restores a lost new start after the previously observed job returns 404', async () => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    let rejectStart!: (error: unknown) => void;
+    const post = vi.fn().mockReturnValue(new Promise<QuizGenerationResponse>((_, reject) => { rejectStart = reject; }));
+    const starting = generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    await tick();
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'not-found', status: 404 }));
+    await observer.refresh();
+    expect(observer.getSnapshot().accessStopped).toBe(true);
+    // The old job is gone. The backend accepted new work, but its POST response
+    // is lost: recovery has no exact new ID and must read the owned collection.
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    rejectStart(new ApplicationError({ category: 'network' })); await starting; await tick();
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, accessStopped: false, error: null });
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(generationOperations.getSnapshot().pending['upload-tab']?.jobId).toBeUndefined();
+    const newerCompleted = { ...complete, jobId: newerJob.jobId, generatedQuizId: 'new-quiz' };
+    service.getGenerationStatus.mockResolvedValue(newerCompleted); await tick(5_000);
+    expect(job()).toEqual(newerCompleted);
+    expect(observer.getSnapshot().newQuizIds).toEqual(['new-quiz']);
+    await tick(120_000);
+    expect(service.getGenerationStatus.mock.calls.map(call => call[0])).toEqual(['job-1', 'new-job']);
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(service.cancelGenerationJob).not.toHaveBeenCalled();
+  });
+  it('restores a lost new start when the old cancellation returns 404 after recovery was queued', async () => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    let rejectCancellation!: (error: unknown) => void;
+    service.cancelGenerationJob.mockReturnValueOnce(new Promise<QuizGenerationStatus>((_, reject) => { rejectCancellation = reject; }));
+    const cancelling = observer.cancel(); await tick();
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    rejectCancellation(new ApplicationError({ category: 'not-found', status: 404 }));
+    await cancelling; await tick();
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, accessStopped: false, error: null, cancelError: null, cancelling: false });
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(generationOperations.getSnapshot().pending['upload-tab']?.jobId).toBeUndefined();
+    const newerCompleted = { ...complete, jobId: newerJob.jobId, generatedQuizId: 'new-quiz' };
+    service.getGenerationStatus.mockResolvedValue(newerCompleted); await tick(5_000);
+    expect(job()).toEqual(newerCompleted);
+    await tick(120_000);
+    expect(service.getGenerationStatus).toHaveBeenCalledExactlyOnceWith(newerJob.jobId, expect.any(AbortSignal));
+    expect(service.cancelGenerationJob).toHaveBeenCalledExactlyOnceWith('job-1', expect.any(AbortSignal));
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it.each(['status-first', 'cancel-last'] as const)('stops reading a missing old job when lost-start recovery finds no active work (%s)', async order => {
+    const { observer, service, client } = setup(); observer.start(); await tick();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    let rejectCancellation!: (error: unknown) => void;
+    let cancelling = Promise.resolve();
+    if (order === 'status-first') {
+      service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'not-found', status: 404 }));
+      await observer.refresh();
+    } else {
+      service.cancelGenerationJob.mockReturnValueOnce(new Promise<QuizGenerationStatus>((_, reject) => { rejectCancellation = reject; }));
+      cancelling = observer.cancel(); await tick();
+    }
+    service.getGenerationJobs.mockResolvedValue(page([]));
+    const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    if (order === 'cancel-last') {
+      rejectCancellation(new ApplicationError({ category: 'not-found', status: 404 })); await cancelling;
+    }
+    await tick(120_000);
+    expect(observer.getSnapshot()).toMatchObject({ jobId: null, discovered: true, accessStopped: false, error: null, cancelError: null, recoveryNotice: true });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ownedQuizzesKey('account-a') });
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(order === 'status-first' ? 1 : 0);
+    expect(client.getQueryData(generationStatusKey('account-a', 'job-1'))).toBeUndefined();
+    // A stale progress screen and an old active receipt cannot resurrect work
+    // whose absence was confirmed by both its exact endpoint and the collection.
+    observer.watch('job-1'); observer.accept(accepted); await tick(120_000);
+    expect(observer.getSnapshot().jobId).toBeNull();
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(order === 'status-first' ? 1 : 0);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it('keeps the old job missing across a transient lost-start discovery failure', async () => {
+    const { observer, service, client } = setup(); observer.start(); await tick();
+    service.getGenerationStatus.mockRejectedValue(new ApplicationError({ category: 'not-found', status: 404 }));
+    await observer.refresh();
+    service.getGenerationJobs.mockRejectedValueOnce(new ApplicationError({ category: 'server', status: 503 })).mockResolvedValue(page([]));
+    const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined); await tick();
+    expect(observer.getSnapshot().error?.status).toBe(503);
+    await tick(9_999); expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    await tick(1);
+    expect(observer.getSnapshot()).toMatchObject({ jobId: null, discovered: true, accessStopped: false, error: null, recoveryNotice: true });
+    expect(client.getQueryData(generationStatusKey('account-a', 'job-1'))).toBeUndefined();
+    await tick(120_000);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(3);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    ['status', 401], ['status', 403], ['collection', 401], ['collection', 403], ['collection', 404],
+  ] as const)('keeps %s HTTP %s stopped when a later start response is lost', async (endpoint, status) => {
+    const { observer, service } = setup(); observer.start(); await tick();
+    const error = new ApplicationError({ category: status === 404 ? 'not-found' : status === 401 ? 'authentication' : 'authorization', status });
+    if (endpoint === 'status') service.getGenerationStatus.mockRejectedValueOnce(error);
+    else service.getGenerationJobs.mockRejectedValueOnce(error);
+    await observer.refresh(endpoint === 'collection');
+    const discoveryReads = service.getGenerationJobs.mock.calls.length;
+    const statusReads = service.getGenerationStatus.mock.calls.length;
+    const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    visibility('hidden'); visibility('visible'); online(false); online(true); await tick(120_000);
+    expect(observer.getSnapshot()).toMatchObject({ accessStopped: true, error });
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(discoveryReads);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(statusReads);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it.each([401, 403])('does not override a late cancellation HTTP %s with queued lost-start recovery', async status => {
+    const { observer, service } = setup(); observer.start(); await tick();
+    let rejectCancellation!: (error: unknown) => void;
+    service.cancelGenerationJob.mockReturnValueOnce(new Promise<QuizGenerationStatus>((_, reject) => { rejectCancellation = reject; }));
+    const cancelling = observer.cancel(); await tick();
+    const post = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    const error = new ApplicationError({ category: status === 401 ? 'authentication' : 'authorization', status });
+    rejectCancellation(error); await cancelling; await tick(120_000);
+    expect(observer.getSnapshot()).toMatchObject({ accessStopped: true, error, cancelling: false });
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    expect(service.getGenerationStatus).not.toHaveBeenCalled();
+    expect(service.cancelGenerationJob).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+  it.each(['before-loss', 'after-loss'] as const)('retains Retry-After when the old cancellation 404 arrives %s', async order => {
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'rate-limit', status: 429, retryAfterSeconds: 120 }));
+    await observer.refresh();
+    let rejectCancellation!: (error: unknown) => void;
+    service.cancelGenerationJob.mockReturnValueOnce(new Promise<QuizGenerationStatus>((_, reject) => { rejectCancellation = reject; }));
+    const cancelling = observer.cancel(); await tick();
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job' };
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    service.getGenerationStatus.mockResolvedValue(newerJob);
+    let rejectStart!: (error: unknown) => void;
+    const post = vi.fn().mockReturnValue(new Promise<QuizGenerationResponse>((_, reject) => { rejectStart = reject; }));
+    const starting = generationOperations.start('account-a', 'upload-tab', 'upload', post).catch(() => undefined);
+    await tick();
+    if (order === 'before-loss') {
+      rejectCancellation(new ApplicationError({ category: 'not-found', status: 404 })); await cancelling;
+    }
+    rejectStart(new ApplicationError({ category: 'network' })); await starting;
+    if (order === 'after-loss') {
+      rejectCancellation(new ApplicationError({ category: 'not-found', status: 404 })); await cancelling;
+    }
+    visibility('hidden'); visibility('visible'); online(false); online(true);
+    await tick(119_999); expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    await tick(1);
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, accessStopped: false, error: null });
+    expect(job()).toEqual(newerJob);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
+    expect(service.cancelGenerationJob).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
   it.each([401, 403, 404])('keeps a collection-level %s stopped after an ambiguous accepted receipt', async status => {
     const { observer, service } = setup(); observer.start(); await tick();
     const response = deferred<QuizGenerationResponse>();
