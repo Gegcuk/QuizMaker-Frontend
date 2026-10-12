@@ -72,6 +72,11 @@ test('CDN relay preserves image bytes and blocks unknown origins and redirects w
     await page.locator('img').evaluate(image => { image.loading = 'lazy'; image.style.marginTop = '100000px'; image.src = 'https://unknown.test/lazy'; });
     await assert.rejects(boundary.assertAllowedImages(), /image origin rejected/);
   });
+  await t.test('authored analytics images remain forbidden rather than bypassing the image policy', async () => {
+    const { page, boundary } = await pageWithImage('https://www.googletagmanager.com/td?fixture=authored-image');
+    await page.goto(origin);
+    await assert.rejects(boundary.assertAllowedImages(), /image origin rejected/);
+  });
   await t.test('closing the renderer aborts an in-flight host image request', async () => {
     let started;
     const ready = new Promise(resolve => { started = resolve; });

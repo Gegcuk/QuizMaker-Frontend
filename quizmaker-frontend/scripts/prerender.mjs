@@ -58,13 +58,14 @@ const setupApiProxy = async (page, apiBaseUrl) => {
     const requestUrl = request.url();
 
     if (!isApiRequest(requestUrl)) {
-      await route.continue();
+      // Preserve lower-priority resource handlers and local provider fakes.
+      await route.fallback();
       return;
     }
 
     const targetUrl = resolveTargetUrl(requestUrl);
     if (!targetUrl) {
-      await route.continue();
+      await route.fallback();
       return;
     }
 
@@ -159,6 +160,13 @@ export const prerender = async ({
     if (!staticOnly) {
       await setupApiProxy(page, apiBaseUrl);
     }
+
+    // Rendering build-time pages must not execute Google's downloaded tag or
+    // emit its delayed /td image requests. Keep the HTML loader and bootstrap
+    // intact for real visitors; only this browser receives an empty script.
+    await page.route(/^https:\/\/www\.googletagmanager\.com\/gtag\/js(?:\?|$)/, route => route.fulfill({
+      status: 200, contentType: 'application/javascript', body: '',
+    }));
 
     imageBoundary = await setupPrerenderImages(page, previewOrigin);
 
