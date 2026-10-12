@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { isCancelledError, QueryClient } from '@tanstack/react-query';
 import type { QuizGenerationResponse, QuizGenerationStatus } from '@/types';
 import { getSessionGeneration, isCurrentSessionGeneration, subscribeToSessionTransitions } from '@/features/auth/services/sessionLifecycle';
 import { ApplicationError, toApplicationError } from '@/utils/applicationError';
@@ -37,6 +37,7 @@ export class GenerationObserver {
   private readonly listeners = new Set<() => void>();
   private readonly generation = getSessionGeneration();
   private readonly completed = new Set<string>();
+  private readonly observedResultIds = new Set<string>();
   private timer: ReturnType<typeof setTimeout> | undefined;
   private flight: Promise<void> | null = null;
   private cancellation: Promise<void> | null = null;
@@ -45,10 +46,18 @@ export class GenerationObserver {
   private failures = 0;
   private notBefore = 0;
   private nextPoll = 0;
+  // Keep required reads until a current response satisfies them. Blocking on
+  // another request, cancellation, visibility or Retry-After must not lose intent.
+  private discoveryRequested = false;
+  private statusRequested = false;
   private readonly abort = new AbortController();
   private cleanup: (() => void)[] = [];
 
-  constructor(readonly accountId: string, private readonly client: QueryClient, private readonly service: GenerationReader) {}
+  constructor(readonly accountId: string, private readonly client: QueryClient, private readonly service: GenerationReader) {
+    // Discovery can seed status before an exact-job read. Its lifetime belongs
+    // to this session owner, independently of visible query consumers.
+    client.setQueryDefaults(['generation-observer', accountId, 'status'], { gcTime: Infinity });
+  }
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private publish(patch: Partial<ObservationState>) {
@@ -59,6 +68,15 @@ export class GenerationObserver {
   private current() { return !this.stopped && isCurrentSessionGeneration(this.generation); }
   private available() { return document.visibilityState !== 'hidden' && navigator.onLine !== false; }
   private job() { return this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, this.state.jobId)); }
+  private assertReadCurrent(version: number, signal: AbortSignal, startingRequest = false) {
+    if (!this.current() || version !== this.version || signal.aborted || (startingRequest && !this.available())) {
+      throw new ApplicationError({ category: 'cancelled' });
+    }
+  }
+  private preserveTerminal(job: QuizGenerationStatus) {
+    const previous = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, job.jobId));
+    return previous && !isActiveGeneration(previous) && isActiveGeneration(job) ? previous : job;
+  }
 
   start() {
     generationOperations.activate(this.accountId);
@@ -102,8 +120,10 @@ export class GenerationObserver {
   private clearTimer() { if (this.timer !== undefined) clearTimeout(this.timer); this.timer = undefined; }
   private schedule() {
     this.clearTimer();
-    if (!this.current() || !this.available() || this.state.accessStopped || this.state.cancelling || !this.state.jobId || (this.job() && !isActiveGeneration(this.job())) || (this.state.error && !canRetry(this.state.error))) return;
-    this.timer = setTimeout(() => { void this.refresh(); }, Math.max(0, this.nextPoll - Date.now(), this.notBefore - Date.now()));
+    if (!this.current() || !this.available() || this.flight || this.state.accessStopped || this.state.cancelling || (this.state.error && !canRetry(this.state.error))) return;
+    const requested = this.discoveryRequested || this.statusRequested;
+    if (!requested && (!this.state.jobId || !isActiveGeneration(this.job()))) return;
+    this.timer = setTimeout(() => { void this.refresh(); }, Math.max(0, (requested ? 0 : this.nextPoll) - Date.now(), this.notBefore - Date.now()));
   }
   private resume = () => {
     this.clearTimer();
@@ -113,44 +133,63 @@ export class GenerationObserver {
   private recover() {
     this.version++;
     this.publish({ recoveryNotice: true, discovered: false });
-    const pending = this.flight;
     // A pre-start discovery response cannot establish whether the lost command
-    // was accepted. Wait for that lane, then make a fresh owned-jobs read.
-    if (pending) void pending.then(() => this.refresh(true));
-    else void this.refresh(true);
+    // was accepted. Queue a fresh traversal behind the current request lane.
+    void this.refresh(true);
   }
   accept(response: QuizGenerationResponse) {
     if (!this.current()) return;
     const previous = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId));
-    // Do not reverse a terminal result with an earlier start receipt/replay.
-    if (!previous) this.client.setQueryData(generationStatusKey(this.accountId, response.jobId), { jobId: response.jobId, status: response.status ?? 'PENDING' });
-    this.select(response.jobId);
+    const receipt: QuizGenerationStatus = { jobId: response.jobId, status: response.status ?? 'PENDING' };
+    const terminalReceipt = !isActiveGeneration(receipt);
+    const updated = !previous || (isActiveGeneration(previous) && terminalReceipt);
+    // A terminal replay is newer evidence than an in-flight status read. An
+    // earlier active receipt cannot reverse an already confirmed terminal job.
+    if (updated) this.client.setQueryData(generationStatusKey(this.accountId, response.jobId), { ...previous, ...receipt });
+    const known = this.client.getQueryData<QuizGenerationStatus>(generationStatusKey(this.accountId, response.jobId)) ?? receipt;
+    if (isActiveGeneration(known)) this.discoveryRequested = false;
+    // Replaying an old terminal command must not displace another active job.
+    if (!isActiveGeneration(known) && this.state.jobId !== response.jobId && isActiveGeneration(this.job())) {
+      if (terminalReceipt && known.status === 'COMPLETED') this.refreshQuizzes();
+      return;
+    }
+    this.select(response.jobId, updated && terminalReceipt);
+    if (terminalReceipt) this.confirm(known, false);
   }
   watch(jobId: string) {
     if (!this.current() || jobId === this.state.jobId) return;
     // A stale screen must not replace the account's currently active job.
     if (isActiveGeneration(this.job())) return;
+    if (this.discoveryRequested && this.flight && !this.state.jobId) {
+      // A screen supplies a fallback ID, not new server evidence. The ongoing
+      // discovery still decides which job is active; absence reconciles this ID.
+      this.statusRequested = true;
+      this.publish({ jobId });
+      return;
+    }
     this.select(jobId);
   }
-  private select(jobId: string) {
-    if (jobId === this.state.jobId) return;
+  private select(jobId: string, reconcile = false) {
+    if (jobId === this.state.jobId && !reconcile) return;
     this.version++;
     this.failures = 0;
-    this.notBefore = 0;
     this.nextPoll = 0;
+    this.statusRequested = true;
     this.publish({ jobId, error: null, cancelError: null, accessStopped: false });
-    // If discovery is in flight, its version check discards it; follow with this exact job.
-    const pending = this.flight;
-    if (pending) void pending.then(() => this.refresh());
-    else void this.refresh();
+    // The lane's finally block schedules this exact job if another read or
+    // cancellation is in flight. Retry-After remains an account-wide deadline.
+    void this.refresh();
   }
   refresh = (discover = false): Promise<void> => {
+    if (!this.current()) return Promise.resolve();
+    if (discover || !this.state.jobId) this.discoveryRequested = true;
     if (this.flight) return this.flight;
-    if (!this.current() || !this.available() || this.state.cancelling || this.state.accessStopped) return Promise.resolve();
+    if (!this.discoveryRequested && this.state.jobId) this.statusRequested = true;
+    if (!this.available() || this.state.cancelling || this.state.accessStopped) return Promise.resolve();
     if (Date.now() < this.notBefore) { this.schedule(); return Promise.resolve(); }
     this.clearTimer();
     const version = this.version;
-    const jobId = discover ? null : this.state.jobId;
+    const jobId = this.discoveryRequested ? null : this.state.jobId;
     this.publish({ checking: true });
     const work = this.read(jobId, version);
     this.flight = work.finally(() => {
@@ -161,52 +200,85 @@ export class GenerationObserver {
     return this.flight;
   };
   private async read(jobId: string | null, version: number) {
+    if (!this.current() || version !== this.version || !this.available()) return;
+    // Reconcile terminal receipts once, then stop even if that read fails.
+    // A later explicit refresh/resume can still request another read.
+    if (jobId && this.job() && !isActiveGeneration(this.job())) this.statusRequested = false;
     try {
       if (jobId) {
         const job = await this.client.fetchQuery({
           queryKey: generationStatusKey(this.accountId, jobId),
-          queryFn: ({ signal }) => this.service.getGenerationStatus(jobId, signal),
-          staleTime: 0, retry: false, gcTime: Infinity,
+          queryFn: async ({ signal }) => {
+            this.assertReadCurrent(version, signal, true);
+            const result = await this.service.getGenerationStatus(jobId, signal);
+            // fetchQuery writes its result before its caller resumes. Check
+            // inside queryFn so a stale response never reaches the shared cache.
+            this.assertReadCurrent(version, signal);
+            return this.preserveTerminal(result);
+          },
+          staleTime: 0, retry: false, gcTime: Infinity, networkMode: 'always',
         });
         if (!this.current() || version !== this.version) return;
+        this.statusRequested = false;
         this.confirm(job);
       } else {
         const active = await this.client.fetchQuery({
           queryKey: ['generation-observer', this.accountId, 'discovery'],
-          queryFn: ({ signal }) => discoverActiveGeneration(page => {
-            if (!this.current() || signal.aborted) throw new ApplicationError({ category: 'cancelled' });
-            return this.service.getGenerationJobs(page, signal);
-          }),
-          staleTime: 0, retry: false,
+          queryFn: async ({ signal }) => {
+            const result = await discoverActiveGeneration(async page => {
+              this.assertReadCurrent(version, signal, true);
+              const pageResult = await this.service.getGenerationJobs(page, signal);
+              this.assertReadCurrent(version, signal);
+              return { ...pageResult, content: pageResult.content.map(job => this.preserveTerminal(job)) };
+            });
+            this.assertReadCurrent(version, signal);
+            return result;
+          },
+          staleTime: 0, retry: false, networkMode: 'always',
         });
         if (!this.current() || version !== this.version) return;
+        this.discoveryRequested = false;
         this.publish({ discovered: true });
         if (active) {
+          this.statusRequested = false;
           this.client.setQueryData(generationStatusKey(this.accountId, active.jobId), active);
-          this.publish({ jobId: active.jobId });
+          this.publish({ jobId: active.jobId, ...(active.jobId !== this.state.jobId ? { cancelError: null } : {}) });
           this.confirm(active);
           await generationOperations.recordJob(active.jobId, active.status, active.generatedQuizId ?? undefined);
         } else {
           this.publish({ error: null });
           // Absence is not evidence that an uncertain start failed: it may have completed.
           if (this.state.recoveryNotice) this.refreshQuizzes();
-          if (this.state.jobId) await this.read(this.state.jobId, version);
+          if (this.state.jobId) {
+            this.statusRequested = true;
+            await this.read(this.state.jobId, version);
+          }
         }
       }
     } catch (error) {
       if (!this.current() || version !== this.version) return;
-      this.readError(error);
+      const safe = toApplicationError(error);
+      if (!isCancelledError(error) && safe.category !== 'cancelled') this.readError(safe);
     }
   }
-  private confirm(job: QuizGenerationStatus) {
-    this.failures = 0;
-    this.notBefore = 0;
+  private confirm(job: QuizGenerationStatus, resetReadBackoff = true) {
+    if (resetReadBackoff) {
+      this.failures = 0;
+      this.notBefore = 0;
+    }
     this.nextPoll = Date.now() + 5_000;
     this.publish({ error: null, accessStopped: false, ...(!isActiveGeneration(job) ? { cancelError: null } : {}) });
-    if (job.status === 'COMPLETED' && !this.completed.has(job.jobId)) {
-      this.completed.add(job.jobId);
-      if (job.generatedQuizId) this.publish({ newQuizIds: [...new Set([...this.state.newQuizIds, job.generatedQuizId])] });
-      this.refreshQuizzes();
+    if (job.status === 'COMPLETED') {
+      // Nullable legacy results can acquire a confirmed ID on reconciliation.
+      // Acknowledging a marker must still survive subsequent reads in memory.
+      if (job.generatedQuizId && !this.observedResultIds.has(job.generatedQuizId)) {
+        this.observedResultIds.add(job.generatedQuizId);
+        this.publish({ newQuizIds: [...this.state.newQuizIds, job.generatedQuizId] });
+      }
+      if (!this.completed.has(job.jobId)) {
+        this.completed.add(job.jobId);
+        this.refreshQuizzes();
+      }
     }
   }
   private refreshQuizzes() {
@@ -235,20 +307,27 @@ export class GenerationObserver {
     this.clearTimer();
     this.publish({ cancelling: true, cancelError: null });
     const work = async () => {
-      // Serialize cancellation behind an existing read, avoiding a late PROCESSING overwrite.
-      await this.flight;
-      if (!this.current() || jobId !== this.state.jobId) return;
       try {
+        // Include the wait and every early return in finally. A new accepted
+        // job must not inherit a stuck cancellation flag from this job.
+        await this.flight;
+        if (!this.current() || jobId !== this.state.jobId || !isActiveGeneration(this.job()) || !this.available()) return;
         const job = await this.service.cancelGenerationJob(jobId, this.abort.signal);
-        if (!this.current() || jobId !== this.state.jobId) return;
-        this.client.setQueryData(generationStatusKey(this.accountId, jobId), job);
-        this.confirm(job);
+        // A queued discovery does not invalidate this exact-job mutation. A
+        // replacement job or a newer terminal receipt does invalidate it.
+        if (!this.current() || jobId !== this.state.jobId || !isActiveGeneration(this.job())) return;
+        const confirmed = this.preserveTerminal(job);
+        this.client.setQueryData(generationStatusKey(this.accountId, jobId), confirmed);
+        this.statusRequested = false;
+        // A successful DELETE does not shorten a Retry-After imposed on reads.
+        this.confirm(confirmed, false);
         if (job.status === 'COMPLETED') {
+          this.statusRequested = true;
           this.publish({ cancelling: false });
           await this.refresh();
         }
       } catch (error) {
-        if (!this.current() || jobId !== this.state.jobId) return;
+        if (!this.current() || jobId !== this.state.jobId || !isActiveGeneration(this.job())) return;
         const safe = toApplicationError(error);
         this.publish({ cancelError: safe });
         // A 400/409 can mean completion won the race. A lost DELETE response is also uncertain.

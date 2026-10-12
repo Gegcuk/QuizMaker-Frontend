@@ -796,7 +796,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
         await page.getByRole('button', { name: 'Generate Quiz from Text' }).click();
         await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
-        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Generating your quiz', { exact: true }).waitFor();
         await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
 
         assert.deepEqual(generationRequest, {
@@ -895,7 +895,7 @@ test('critical frontend journeys use local mocked API responses', { timeout: 120
         await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
         await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
         await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
-        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Generating your quiz', { exact: true }).waitFor();
         await page.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
 
         assert.deepEqual(uploadRequest?.query, {
@@ -1983,7 +1983,7 @@ test('selected PDF text uploads replace rejected control glyphs and preserve con
     await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
     await page.getByRole('button', { name: 'Generate Quiz from Document' }).click();
     await page.getByRole('heading', { name: 'Generating Your Quiz' }).waitFor();
-    await page.getByText('PROCESSING', { exact: true }).waitFor();
+    await page.getByText('Generating your quiz', { exact: true }).waitFor();
     assert.ok(uploadRequest, 'The active wizard sent the upload');
     assert.equal(uploadRequest.method, 'POST');
     assert.match(uploadRequest.contentType, /^multipart\/form-data; boundary=/);
@@ -2195,13 +2195,13 @@ test('generation start recovery keeps command keys across reload and preserves s
         if (source === 'upload') assert.equal(await page.locator('#document-upload').inputValue(), '');
         await fill();
         await submit();
-        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Generating your quiz', { exact: true }).waitFor();
         assert.equal(await page.evaluate(() => Object.values(localStorage).map(value => { try { return JSON.parse(value); } catch { return null; } }).find(value => value?.jobId)?.jobId), GENERATION_JOB_ID);
         assert.equal(requests.length, 2);
         assert.equal(requests[1].key, requests[0].key);
         if (source !== 'upload') assert.deepEqual(JSON.parse(requests[1].body), JSON.parse(requests[0].body));
         await page.reload({ waitUntil: 'domcontentloaded' });
-        await page.getByText('PROCESSING', { exact: true }).waitFor();
+        await page.getByText('Generating your quiz', { exact: true }).waitFor();
         assert.equal(await page.evaluate(() => Object.values(localStorage).map(value => { try { return JSON.parse(value); } catch { return null; } }).find(value => value?.jobId)?.jobId), GENERATION_JOB_ID);
         assert.equal(requests.length, 2, 'Restoring the known job must not POST again');
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -2257,20 +2257,20 @@ test('late generation receipt in another tab preserves the newer command and rep
       }));
     }
     await navigateToAppRoute(oldPage, '/quizzes/create');
-    await oldPage.getByText('PENDING', { exact: true }).waitFor();
+    await oldPage.getByText('Queued', { exact: true }).waitFor();
     await navigateToAppRoute(nextPage, '/quizzes/create');
     await nextPage.getByRole('button', { name: 'Abandon operation / prepare new start' }).click();
     await nextPage.getByRole('button', { name: 'Confirm new start', exact: true }).click();
     await nextPage.locator('input[placeholder="Enter quiz title..."]').fill('New command fixture');
     await nextPage.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
     await nextPage.getByRole('button', { name: 'Generate Quiz from Text', exact: true }).click();
-    await nextPage.getByText('PROCESSING', { exact: true }).waitFor();
+    await nextPage.getByText('Generating your quiz', { exact: true }).waitFor();
     assert.equal(await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)).jobId, storageKey), DOCUMENT_GENERATION_JOB_ID);
     assert.notEqual(nextKey, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
     releaseOldStatus();
     await oldPage.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
     await nextPage.reload({ waitUntil: 'domcontentloaded' });
-    await nextPage.getByText('PROCESSING', { exact: true }).waitFor();
+    await nextPage.getByText('Generating your quiz', { exact: true }).waitFor();
     assert.equal(await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)).jobId, storageKey), DOCUMENT_GENERATION_JOB_ID);
     assert.equal(starts, 1, 'Late old receipts and reload must not create another command');
     const restored = await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
@@ -2310,7 +2310,7 @@ test('generation observation survives navigation and reload, updates owned quizz
         const currentJob = () => ({
           jobId: GENERATION_JOB_ID, status: finished ? 'COMPLETED' : 'PROCESSING',
           progressPercentage: finished ? 100 : 35, generatedQuizId: finished ? GENERATED_QUIZ_ID : null,
-          startedAt: null, estimatedTimeRemainingSeconds: null,
+          startedAt: '2026-10-12T10:30:00Z', totalChunks: 5, processedChunks: finished ? 5 : 2, estimatedTimeRemainingSeconds: null,
         });
         page.on('request', request => { if (request.method() === 'POST' && /generate-from-/.test(request.url())) starts++; });
         await page.route('**/api/v1/quizzes/generation-jobs?**', route => {
@@ -2326,13 +2326,18 @@ test('generation observation survives navigation and reload, updates owned quizz
         await page.route(`**/api/v1/quizzes/${QUIZ_ID}`, route => fulfillJson(route, quiz));
         await navigateToAppRoute(page, '/my-quizzes');
         const block = page.getByRole('region', { name: 'AI quiz generation' });
-        await block.getByText('PROCESSING', { exact: true }).waitFor();
+        await block.getByText('Generating your quiz', { exact: true }).waitFor();
+        await block.getByText('Chunks processed: 2/5', { exact: true }).waitFor();
+        assert.equal(await block.locator('time').getAttribute('datetime'), '2026-10-12T10:30:00Z');
+        assert.equal(await block.getByText('35%', { exact: true }).count(), 1, 'Progress is displayed once');
         assert.equal(discoveries, 1, `${width}: one startup discovery`);
         assert.equal(await page.getByText('New', { exact: true }).count(), 0, 'Existing/manual/imported fixtures receive no fresh marker');
         await block.getByRole('button', { name: 'Cancel Generation' }).focus();
         assert.ok(await block.getByRole('button', { name: 'Cancel Generation' }).evaluate(button => button === document.activeElement));
-        const layout = await block.evaluate(element => ({ overflow: element.scrollWidth > element.clientWidth, width: element.getBoundingClientRect().width }));
+        const layout = await block.evaluate(element => ({ overflow: element.scrollWidth > element.clientWidth, width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }));
         assert.ok(!layout.overflow && layout.width <= width, `${width}: compact block fits viewport`);
+        assert.ok(layout.height <= (width < 640 ? 175 : 115), `${width}: compact active block is ${layout.height}px high`);
+        await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-compact-active-${width}.png`), animations: 'disabled' });
         await page.getByRole('link', { name: 'Create Quiz', exact: true }).first().click();
         await page.waitForURL('**/quizzes/create');
         const nextStatus = page.waitForResponse(response => response.url().includes(`/generation-status/${GENERATION_JOB_ID}`));
@@ -2344,13 +2349,14 @@ test('generation observation survives navigation and reload, updates owned quizz
         await rediscovery;
         await page.getByRole('link', { name: 'Quizzence', exact: true }).first().click();
         await page.waitForURL('**/my-quizzes');
-        await block.getByText('PROCESSING', { exact: true }).waitFor();
+        await block.getByText('Generating your quiz', { exact: true }).waitFor();
         assert.equal(discoveries, 2, 'Reload discovers work without requiring input');
         finished = true;
         const completion = page.waitForResponse(response => response.url().includes(`/generation-status/${GENERATION_JOB_ID}`));
         await page.clock.runFor(5_000); await completion;
-        await block.getByText('COMPLETED', { exact: true }).waitFor();
+        await block.getByText('Quiz ready', { exact: true }).waitFor();
         await page.getByRole('heading', { name: generated.title, exact: true }).first().waitFor();
+        await block.getByText(generated.title, { exact: true }).waitFor();
         const marker = page.getByText('New', { exact: true });
         await marker.waitFor();
         await page.screenshot({ path: join(process.env.E2E_SCREENSHOT_DIR || '/tmp', `issue193-new-${width}.png`), animations: 'disabled' });

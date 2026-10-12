@@ -94,7 +94,7 @@ describe('MyQuizzesPage', () => {
     const oldList = new Promise<{ content: QuizDto[] }>(resolve => { resolveList = resolve; });
     services.getMyQuizzes.mockReturnValueOnce(oldList).mockResolvedValue({ content: [quiz, { ...quiz, id: 'new-quiz', title: 'Generated quiz' }] });
     renderWithProviders(<GenerationObserverProvider><MyQuizzesPage /><QuizGenerationStatus jobId="job-1" /></GenerationObserverProvider>, { withAuthProvider: false });
-    await screen.findAllByText('COMPLETED');
+    await screen.findAllByText('Quiz ready');
     resolveList({ content: [quiz] });
     expect(await screen.findByText('List: Owned architecture quiz, Generated quiz')).toBeInTheDocument();
     expect(services.getMyQuizzes).toHaveBeenCalledTimes(2);
