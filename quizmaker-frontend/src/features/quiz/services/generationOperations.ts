@@ -1,5 +1,5 @@
 import type { GenerationStatus, QuizGenerationResponse } from '@/types';
-import { getSessionGeneration, isCurrentSessionGeneration, SessionChangedError } from '@/features/auth/services/sessionLifecycle';
+import { assertCurrentSessionGeneration, getSessionGeneration, isCurrentSessionGeneration, SessionChangedError } from '@/features/auth/services/sessionLifecycle';
 import { toApplicationError } from '@/utils/applicationError';
 
 export const generationEntryPoints = ['text-tab', 'upload-tab', 'wizard', 'ai-step', 'document-upload', 'selected-pages'] as const;
@@ -76,7 +76,7 @@ export class GenerationOperations {
   private requireClear = false;
   private snapshot: Snapshot = { pending: {}, storageError: null, busy: {} };
   private readonly listeners = new Set<() => void>();
-  // Only a key allocated here before its first POST may recreate a missing record.
+  // Only a key allocated here with no successful write may create a missing record.
   private readonly dirty = new Map<GenerationEntryPoint, boolean>();
   private readonly startFlights = new Set<string>();
 
@@ -175,6 +175,9 @@ export class GenerationOperations {
       const encoded = JSON.stringify(operation);
       const storage = this.storage();
       storage.setItem(this.storageKey(operation.entryPoint), encoded);
+      // Once written, another tab may abandon it even if our read-back fails.
+      allowMissing = false;
+      this.dirty.set(operation.entryPoint, false);
       if (storage.getItem(this.storageKey(operation.entryPoint)) !== encoded) throw new GenerationOperationError(storageMessage);
       this.dirty.delete(operation.entryPoint);
       this.publish({ storageError: this.dirty.size ? storageMessage : null });
@@ -342,8 +345,12 @@ export class GenerationOperations {
           this.save({ ...operation, jobStatus: status, state: terminal(status) ? 'terminal' : 'accepted', ...(quizId ? { quizId } : {}) });
         });
       }
-      catch { /* Recovery metadata remains in memory; the UI offers saving, never a new POST. */ }
+      catch (error) {
+        if (error instanceof SessionChangedError) throw error;
+        /* Recovery metadata remains in memory; the UI offers saving, never a new POST. */
+      }
     }
+    assertCurrentSessionGeneration(generation);
   }
 }
 

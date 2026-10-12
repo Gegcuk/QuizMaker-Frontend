@@ -31,6 +31,7 @@ import {
 import { BaseService } from '../../../api/base.service';
 import api from '../../../api/axiosInstance';
 import { generationOperations } from './generationOperations';
+import { assertCurrentSessionGeneration, getSessionGeneration } from '@/features/auth/services/sessionLifecycle';
 import { ApplicationError, toApplicationError } from '@/utils/applicationError';
 
 type QuizListParams = {
@@ -261,9 +262,12 @@ export class QuizService extends BaseService<QuizDto> {
    * GET /api/v1/quizzes/generation-status/{jobId}
    */
   async getGenerationStatus(jobId: string): Promise<QuizGenerationStatus> {
+    const generation = getSessionGeneration();
     try {
       const response = await this.axiosInstance.get<QuizGenerationStatus>(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId));
+      assertCurrentSessionGeneration(generation);
       await generationOperations.recordJob(jobId, response.data.status, response.data.generatedQuizId ?? undefined);
+      assertCurrentSessionGeneration(generation);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);
@@ -275,9 +279,12 @@ export class QuizService extends BaseService<QuizDto> {
    * GET /api/v1/quizzes/generated-quiz/{jobId}
    */
   async getGeneratedQuiz(jobId: string): Promise<QuizDto> {
+    const generation = getSessionGeneration();
     try {
       const response = await this.axiosInstance.get<QuizDto>(QUIZ_ENDPOINTS.GENERATED_QUIZ(jobId));
+      assertCurrentSessionGeneration(generation);
       await generationOperations.recordJob(jobId, 'COMPLETED', response.data.id);
+      assertCurrentSessionGeneration(generation);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);
@@ -289,11 +296,14 @@ export class QuizService extends BaseService<QuizDto> {
    * DELETE /api/v1/quizzes/generation-status/{jobId}
    */
   async cancelGenerationJob(jobId: string): Promise<QuizGenerationStatus> {
+    const generation = getSessionGeneration();
     try {
       const response = await this.axiosInstance.delete<QuizGenerationStatus>(
         QUIZ_ENDPOINTS.GENERATION_STATUS(jobId)
       );
+      assertCurrentSessionGeneration(generation);
       await generationOperations.recordJob(jobId, response.data.status);
+      assertCurrentSessionGeneration(generation);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);

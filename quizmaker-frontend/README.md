@@ -650,11 +650,15 @@ malformed metadata fails closed instead of silently allocating another key.
 Session transitions clear pending metadata even when no generation form is
 mounted. Storage cleanup failure does not prevent logout; old-account metadata
 is excluded, and cleanup is required before another session can use the store.
-Late old-session responses are rejected. Web Locks serialize all same-entry-point
-mutations across supporting browser tabs: starts, receipts, recovery saves and
+Late old-session responses are rejected, including status, result and cancellation
+responses that wait for a metadata lock during logout or an account switch.
+Web Locks serialize all same-entry-point mutations across supporting browser
+tabs: starts, receipts, recovery saves and
 confirmed removal. Each mutation checks the current durable key before writing
 or deleting. A stale tab cannot resurrect an abandoned operation or overwrite a
-newer command, including when retrying a failed receipt save. Receipt writes
+newer command, including when retrying a failed receipt save.
+After the first successful storage write, a failed read-back cannot authorize
+recreating that key if another tab subsequently abandons it. Receipt writes
 cannot reverse an already stored terminal status. An in-memory guard blocks
 double submission within a tab.
 
@@ -666,12 +670,13 @@ double submission within a tab.
 | Conflict requires explicit new confirmation | Lifecycle and recovery screen tests |
 | Retry-After and no background start retries | Lifecycle clock tests; service call-count tests |
 | Storage failure before/after POST | Lifecycle and recovery screen tests |
-| Logout/account change and late response isolation | `GenerationOperationBoundary.test.tsx`, lifecycle and session tests |
+| Logout/account change and late response isolation | `GenerationOperationBoundary.test.tsx`, lifecycle and session tests, service tests with queued receipt locks |
 | No source/credentials in recovery persistence | Exact metadata allowlist tests, seeded UI and browser assertions, production privacy gate |
 | Existing 401 refresh keeps command identity | `axiosInstance.test.ts` |
 | Late old-tab receipts/saves/confirmations preserve the newer command | Lifecycle shared-storage tests, two-tab browser journey |
 | Unsaved Retry-After blocks reload POST until outcome recovery or explicit abandonment | Lifecycle clock tests for 429/503, unknown-outcome screen test |
 | Read/removal failures recover without an automatic POST or removal | Lifecycle and recovery-button screen tests |
+| Failed read-back after a successful first write cannot resurrect an abandoned key | Lifecycle tests for document/upload/text; existing-key recovery still requires an explicit POST |
 
 The recovery browser journey runs text at desktop width and upload/document at
 mobile width, using local API fixtures and no AI/payment provider. The selected

@@ -378,6 +378,9 @@ storage failures, confirmation, expiry, account boundaries and test coverage.
 
 Await lifecycle metadata mutations. All entry writers share the start lock and
 check durable command ownership; a late receipt must not overwrite a newer key.
+Successful storage writes consume permission to create a missing record even if
+read-back fails. Recheck the session after awaiting a receipt lock; status, result
+and cancellation responses must not complete in a different account session.
 If an outcome was not persisted, a restored uncertainty marker blocks POST:
 recover the observed result in the original tab or explicitly abandon and confirm
 a new command. A missing saved deadline is never equivalent to a 30-second wait.

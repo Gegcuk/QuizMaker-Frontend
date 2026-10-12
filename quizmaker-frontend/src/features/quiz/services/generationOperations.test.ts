@@ -8,6 +8,50 @@ const fail = (status: number, retryAfter?: string) => toApplicationError({ respo
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('generation command lifecycle', () => {
+  it.each(['document', 'upload', 'text'] as const)('cannot recreate an abandoned %s key after its successful first write and failed read-back', async source => {
+    const storageKey = `${GENERATION_STORAGE_PREFIX}account-a:wizard`;
+    const nativeWrite = Storage.prototype.setItem;
+    const read = vi.spyOn(Storage.prototype, 'getItem');
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function(this: Storage, key, value) {
+      nativeWrite.call(this, key, value);
+      if (key === storageKey) read.mockImplementationOnce(() => { throw new DOMException('Read-back unavailable'); });
+    });
+    const original = new GenerationOperations();
+    const send = vi.fn().mockResolvedValue(accepted);
+    await expect(original.start('account-a', 'wizard', source, send, source === 'document' ? 'document-1' : undefined)).rejects.toThrow('Cannot save');
+    const key = original.getSnapshot().pending.wizard?.key;
+    write.mockRestore();
+    read.mockRestore();
+    expect(localStorage.getItem(storageKey)).toContain(key);
+    expect(send).not.toHaveBeenCalled();
+    const otherTab = new GenerationOperations();
+    otherTab.activate('account-a');
+    await otherTab.abandon('wizard');
+    await expect(original.retrySaving()).rejects.toThrow('changed in another tab');
+    expect(localStorage.getItem(storageKey)).toBeNull();
+    expect(original.getSnapshot().pending.wizard).toBeUndefined();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('can repair a failed first read-back when its saved identity still exists, without changing the key or sending a POST', async () => {
+    const nativeWrite = Storage.prototype.setItem;
+    const read = vi.spyOn(Storage.prototype, 'getItem');
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function(this: Storage, key, value) {
+      nativeWrite.call(this, key, value);
+      if (key.startsWith(GENERATION_STORAGE_PREFIX)) read.mockImplementationOnce(() => { throw new DOMException('Read-back unavailable'); });
+    });
+    const store = new GenerationOperations();
+    const send = vi.fn().mockResolvedValue(accepted);
+    await expect(store.start('account-a', 'wizard', 'text', send)).rejects.toThrow('Cannot save');
+    const key = store.getSnapshot().pending.wizard?.key;
+    write.mockRestore();
+    read.mockRestore();
+    await store.retrySaving();
+    expect(send).not.toHaveBeenCalled();
+    await store.start('account-a', 'wizard', 'text', send);
+    expect(send).toHaveBeenCalledExactlyOnceWith(key);
+  });
+
   it('serializes explicit abandonment behind a dispatched start with browser entry locks', async () => {
     const tails = new Map<string, Promise<void>>();
     vi.stubGlobal('navigator', { locks: { request: <T,>(name: string, action: () => T | Promise<T>) => {
