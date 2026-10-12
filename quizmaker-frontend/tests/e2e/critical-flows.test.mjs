@@ -2205,3 +2205,74 @@ test('generation start recovery keeps command keys across reload and preserves s
     }
   } finally { await browser?.close(); await stopDevServer(server); }
 });
+
+test('late generation receipt in another tab preserves the newer command and replay job', { timeout: 60_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  let context;
+  let releaseOldStatus;
+  const oldStatusAllowed = new Promise(resolve => { releaseOldStatus = resolve; });
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    context = await createTestContext(browser, { viewport: { width: 1280, height: 900 } });
+    await context.addInitScript(() => {
+      localStorage.setItem('accessToken', 'e2e-access-token');
+      localStorage.setItem('refreshToken', 'e2e-refresh-token');
+    });
+    const oldPage = await context.newPage();
+    const nextPage = await context.newPage();
+    const storageKey = `quizzence:generation-start:v1:${USER_ID}:wizard`;
+    await oldPage.addInitScript(({ storageKey, accountId, jobId }) => {
+      const createdAt = Date.now();
+      localStorage.setItem(storageKey, JSON.stringify({ version: 1, accountId, entryPoint: 'wizard', source: 'text',
+        key: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', createdAt, expiresAt: createdAt + 30 * 24 * 60 * 60 * 1000,
+        state: 'accepted', notBefore: 0, jobId, jobStatus: 'PENDING' }));
+    }, { storageKey, accountId: USER_ID, jobId: GENERATION_JOB_ID });
+    let nextKey;
+    let starts = 0;
+    for (const page of [oldPage, nextPage]) {
+      await installUnexpectedApiBlock(page);
+      await installAuthMeMock(page);
+      await page.route(`**/api/v1/quizzes/generation-status/${GENERATION_JOB_ID}`, async route => {
+        if (page === oldPage) await oldStatusAllowed;
+        await fulfillJson(route, { jobId: GENERATION_JOB_ID, status: 'COMPLETED', totalChunks: 1, processedChunks: 1,
+          progressPercentage: 100, totalQuestionsGenerated: 25, elapsedTimeSeconds: 10, estimatedTimeRemainingSeconds: 0,
+          generatedQuizId: GENERATED_QUIZ_ID, startedAt: '2026-01-01T00:00:00Z', completedAt: '2026-01-01T00:00:10Z' });
+      });
+      await page.route('**/api/v1/quizzes/generate-from-text', async route => {
+        starts++;
+        nextKey = route.request().headers()['idempotency-key'];
+        await fulfillJson(route, { jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PENDING', message: 'new command', estimatedTimeSeconds: 10 }, 202);
+      });
+      await page.route(`**/api/v1/quizzes/generation-status/${DOCUMENT_GENERATION_JOB_ID}`, route => fulfillJson(route, {
+        jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PROCESSING', totalChunks: 1, processedChunks: 0,
+        progressPercentage: 0, totalQuestionsGenerated: 0, elapsedTimeSeconds: 0, estimatedTimeRemainingSeconds: 10,
+        generatedQuizId: null, startedAt: '2026-01-01T00:00:00Z', completedAt: null,
+      }));
+    }
+    await navigateToAppRoute(oldPage, '/quizzes/create');
+    await oldPage.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    await navigateToAppRoute(nextPage, '/quizzes/create');
+    await nextPage.getByRole('button', { name: 'Abandon operation / prepare new start' }).click();
+    await nextPage.getByRole('button', { name: 'Confirm new start', exact: true }).click();
+    await nextPage.locator('input[placeholder="Enter quiz title..."]').fill('New command fixture');
+    await nextPage.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
+    await nextPage.getByRole('button', { name: 'Generate Quiz from Text', exact: true }).click();
+    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    assert.notEqual(nextKey, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+    releaseOldStatus();
+    await oldPage.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+    await nextPage.reload({ waitUntil: 'domcontentloaded' });
+    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    assert.equal(starts, 1, 'Late old receipts and reload must not create another command');
+    const restored = await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
+    assert.equal(restored.key, nextKey);
+    assert.equal(restored.jobId, DOCUMENT_GENERATION_JOB_ID);
+  } finally {
+    releaseOldStatus();
+    await context?.close();
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});

@@ -263,7 +263,7 @@ export class QuizService extends BaseService<QuizDto> {
   async getGenerationStatus(jobId: string): Promise<QuizGenerationStatus> {
     try {
       const response = await this.axiosInstance.get<QuizGenerationStatus>(QUIZ_ENDPOINTS.GENERATION_STATUS(jobId));
-      generationOperations.recordJob(jobId, response.data.status, response.data.generatedQuizId ?? undefined);
+      await generationOperations.recordJob(jobId, response.data.status, response.data.generatedQuizId ?? undefined);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);
@@ -277,7 +277,7 @@ export class QuizService extends BaseService<QuizDto> {
   async getGeneratedQuiz(jobId: string): Promise<QuizDto> {
     try {
       const response = await this.axiosInstance.get<QuizDto>(QUIZ_ENDPOINTS.GENERATED_QUIZ(jobId));
-      generationOperations.recordJob(jobId, 'COMPLETED', response.data.id);
+      await generationOperations.recordJob(jobId, 'COMPLETED', response.data.id);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);
@@ -293,7 +293,7 @@ export class QuizService extends BaseService<QuizDto> {
       const response = await this.axiosInstance.delete<QuizGenerationStatus>(
         QUIZ_ENDPOINTS.GENERATION_STATUS(jobId)
       );
-      generationOperations.recordJob(jobId, response.data.status);
+      await generationOperations.recordJob(jobId, response.data.status);
       return response.data;
     } catch (error) {
       throw this.handleQuizError(error);

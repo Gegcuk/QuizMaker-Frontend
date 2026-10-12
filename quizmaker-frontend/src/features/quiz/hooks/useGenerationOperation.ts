@@ -10,7 +10,7 @@ export function useGenerationOperation(entryPoint: GenerationEntryPoint) {
   const pending = snapshot.pending[entryPoint];
   const operation = pending?.accountId === user?.id ? pending : undefined;
   const [now, setNow] = useState(Date.now);
-  const notBefore = operation?.notBefore ?? 0;
+  const notBefore = operation?.state === 'uncertain' ? 0 : operation?.notBefore ?? 0;
   const expiresAt = operation?.expiresAt;
   useEffect(() => {
     setNow(Date.now());
@@ -32,7 +32,7 @@ export function useGenerationOperation(entryPoint: GenerationEntryPoint) {
   return {
     operation,
     blocked: isLoading || !user || Boolean(snapshot.storageError) || Boolean(snapshot.busy[entryPoint])
-      || Boolean(operation && (operation.jobId || operation.notBefore > now || operation.expiresAt <= now || ['conflict', 'terminal', 'expired'].includes(operation.state))),
+      || Boolean(operation && (operation.jobId || operation.notBefore > now || operation.expiresAt <= now || ['uncertain', 'conflict', 'terminal', 'expired'].includes(operation.state))),
     busy: Boolean(snapshot.busy[entryPoint]),
     storageError: snapshot.storageError,
     start: (source: GenerationSource, send: (key: string) => Promise<QuizGenerationResponse>, documentId?: string) => {

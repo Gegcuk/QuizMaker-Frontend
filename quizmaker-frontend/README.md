@@ -628,8 +628,14 @@ that a new generation command is needed.
 Temporary failures never schedule start retries on reconnect, focus, timers or
 reload. The user must submit again. `429` and `503` use a validated `Retry-After`
 (seconds or HTTP date), with a 30-second fallback when guidance is absent or
-malformed. The deadline survives reload. The pre-POST uncertainty marker also
-holds a 30-second recovery deadline if the response cannot be observed.
+malformed. The deadline survives reload when the outcome is saved. Before POST,
+the lifecycle stores an uncertainty marker. If the outcome cannot be saved,
+reload cannot distinguish a lost response from an observed but unsaved longer
+`Retry-After`. It therefore blocks start retries even after 30 seconds. Restore
+the outcome using **Retry saving recovery information** in the original tab, or
+explicitly abandon the operation and confirm a new command. Merely rereading the
+uncertainty marker does not authorize another POST. Ordinary network failures
+whose recovery state was saved remain manually retryable with the same key.
 The existing single `401` refresh/resend remains unchanged and retains the key.
 A non-balance `409` blocks further starts until a new command is confirmed;
 existing insufficient-balance handling remains available.
@@ -637,14 +643,20 @@ existing insufficient-balance handling remains available.
 Storage failure before POST means no POST. Failure after POST retains the key and
 any known receipt in memory, blocks starts and abandonment, and offers **Retry
 saving recovery information**. That button only saves metadata. It never sends a
-POST. A durable earlier record remains available after reload. Unreadable or
+POST. Recovery also rechecks storage after read or removal failures, preserving
+the key and requiring another explicit confirmation for any removal. A durable
+earlier uncertainty marker remains available after reload. Unreadable or
 malformed metadata fails closed instead of silently allocating another key.
 Session transitions clear pending metadata even when no generation form is
 mounted. Storage cleanup failure does not prevent logout; old-account metadata
 is excluded, and cleanup is required before another session can use the store.
-Late old-session responses are rejected. Web Locks serialize same-entry-point
-starts across supporting browser tabs, and an in-memory guard blocks double
-submission within a tab.
+Late old-session responses are rejected. Web Locks serialize all same-entry-point
+mutations across supporting browser tabs: starts, receipts, recovery saves and
+confirmed removal. Each mutation checks the current durable key before writing
+or deleting. A stale tab cannot resurrect an abandoned operation or overwrite a
+newer command, including when retrying a failed receipt save. Receipt writes
+cannot reverse an already stored terminal status. An in-memory guard blocks
+double submission within a tab.
 
 | Acceptance outcome | Regression coverage |
 | --- | --- |
@@ -657,6 +669,9 @@ submission within a tab.
 | Logout/account change and late response isolation | `GenerationOperationBoundary.test.tsx`, lifecycle and session tests |
 | No source/credentials in recovery persistence | Exact metadata allowlist tests, seeded UI and browser assertions, production privacy gate |
 | Existing 401 refresh keeps command identity | `axiosInstance.test.ts` |
+| Late old-tab receipts/saves/confirmations preserve the newer command | Lifecycle shared-storage tests, two-tab browser journey |
+| Unsaved Retry-After blocks reload POST until outcome recovery or explicit abandonment | Lifecycle clock tests for 429/503, unknown-outcome screen test |
+| Read/removal failures recover without an automatic POST or removal | Lifecycle and recovery-button screen tests |
 
 The recovery browser journey runs text at desktop width and upload/document at
 mobile width, using local API fixtures and no AI/payment provider. The selected

@@ -375,3 +375,9 @@ than another POST. Do not turn a progress-read failure or a persistence failure
 into a new command. Start retries are manual; only the existing centralized
 401 refresh/resend is retained. README's generation recovery section documents
 storage failures, confirmation, expiry, account boundaries and test coverage.
+
+Await lifecycle metadata mutations. All entry writers share the start lock and
+check durable command ownership; a late receipt must not overwrite a newer key.
+If an outcome was not persisted, a restored uncertainty marker blocks POST:
+recover the observed result in the original tab or explicitly abandon and confirm
+a new command. A missing saved deadline is never equivalent to a 30-second wait.

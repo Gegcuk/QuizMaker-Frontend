@@ -33,6 +33,8 @@ interface Snapshot {
   busy: Partial<Record<GenerationEntryPoint, boolean>>;
 }
 const storageMessage = 'Cannot save generation recovery information. No new request will be sent. Restore browser storage and retry saving; your existing operation key will be kept.';
+const changedMessage = 'Recovery information changed in another tab. Reload to review the current operation before confirming a new start.';
+const uncertainMessage = 'The previous request outcome was not saved, so its retry deadline is unknown. Restore recovery information in the original tab or explicitly abandon the operation before confirming a new start.';
 const statuses: readonly string[] = ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED'];
 const terminal = (status: GenerationStatus) => ['COMPLETED', 'FAILED', 'CANCELLED'].includes(status);
 const validId = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 128 && /^[a-zA-Z0-9_-]+$/.test(value);
@@ -61,6 +63,9 @@ function parseMetadata(raw: string, accountId: string, entryPoint: GenerationEnt
 export class GenerationOperationError extends Error {
   constructor(message: string) { super(message); this.name = 'GenerationOperationError'; }
 }
+class OperationChangedError extends GenerationOperationError {
+  constructor() { super(changedMessage); }
+}
 export function getGenerationErrorMessage(error: unknown): string {
   return error instanceof GenerationOperationError ? error.message : toApplicationError(error).message;
 }
@@ -71,7 +76,8 @@ export class GenerationOperations {
   private requireClear = false;
   private snapshot: Snapshot = { pending: {}, storageError: null, busy: {} };
   private readonly listeners = new Set<() => void>();
-  private readonly dirty = new Set<GenerationEntryPoint>();
+  // Only a key allocated here before its first POST may recreate a missing record.
+  private readonly dirty = new Map<GenerationEntryPoint, boolean>();
   private readonly startFlights = new Set<string>();
 
   constructor(private readonly storage: () => Storage = () => window.localStorage) {}
@@ -86,6 +92,31 @@ export class GenerationOperations {
   }
   private storageKey(entry: GenerationEntryPoint): string {
     return `${GENERATION_STORAGE_PREFIX}${this.accountId}:${entry}`;
+  }
+  private withEntryLock<T>(accountId: string, entry: GenerationEntryPoint, generation: number, action: () => T | Promise<T>): Promise<T> {
+    const run = () => {
+      if (!isCurrentSessionGeneration(generation)) throw new SessionChangedError();
+      return action();
+    };
+    if (typeof navigator !== 'undefined' && navigator.locks) {
+      return navigator.locks.request(`${GENERATION_STORAGE_PREFIX}${accountId}:${entry}`, run);
+    }
+    try { return Promise.resolve(run()); } catch (error) { return Promise.reject(error); }
+  }
+  private read(entry: GenerationEntryPoint): PendingGenerationOperation | undefined {
+    const raw = this.storage().getItem(this.storageKey(entry));
+    return raw === null ? undefined : parseMetadata(raw, this.accountId ?? '', entry);
+  }
+  private assertOwnership(operation: PendingGenerationOperation, allowMissing = false): PendingGenerationOperation | undefined {
+    const current = this.read(operation.entryPoint);
+    if (current ? current.key !== operation.key : !allowMissing) {
+      this.dirty.delete(operation.entryPoint);
+      const pending = { ...this.snapshot.pending };
+      delete pending[operation.entryPoint];
+      this.publish({ pending, storageError: this.dirty.size ? storageMessage : null });
+      throw new OperationChangedError();
+    }
+    return current;
   }
   activate(accountId: string | null): void {
     if (accountId === this.accountId && this.hydrated) return;
@@ -134,43 +165,81 @@ export class GenerationOperations {
       this.publish({ pending: {}, busy: {}, storageError: storageMessage });
     }
   }
-  private save(operation: PendingGenerationOperation): void {
-    this.dirty.add(operation.entryPoint);
-    this.publish({ pending: { ...this.snapshot.pending, [operation.entryPoint]: operation } });
+  /** All callers hold the same entry lock, including receipt writes and recovery. */
+  private save(operation: PendingGenerationOperation, allowMissing = false): void {
     try {
+      const current = this.assertOwnership(operation, allowMissing);
+      if (current?.state === 'terminal') operation = current;
+      this.dirty.set(operation.entryPoint, allowMissing);
+      this.publish({ pending: { ...this.snapshot.pending, [operation.entryPoint]: operation } });
       const encoded = JSON.stringify(operation);
       const storage = this.storage();
       storage.setItem(this.storageKey(operation.entryPoint), encoded);
       if (storage.getItem(this.storageKey(operation.entryPoint)) !== encoded) throw new GenerationOperationError(storageMessage);
       this.dirty.delete(operation.entryPoint);
       this.publish({ storageError: this.dirty.size ? storageMessage : null });
-    } catch {
+    } catch (error) {
+      if (error instanceof OperationChangedError) throw error;
+      this.dirty.set(operation.entryPoint, allowMissing);
+      this.publish({ pending: { ...this.snapshot.pending, [operation.entryPoint]: operation }, storageError: storageMessage });
+      throw new GenerationOperationError(storageMessage);
+    }
+  }
+  async retrySaving(): Promise<void> {
+    const accountId = this.accountId;
+    if (!accountId) throw new GenerationOperationError(storageMessage);
+    const generation = getSessionGeneration();
+    if (!this.hydrated) {
+      this.activate(accountId);
+      if (this.snapshot.storageError) throw new GenerationOperationError(storageMessage);
+      return;
+    }
+    try {
+      for (const entry of generationEntryPoints) {
+        await this.withEntryLock(accountId, entry, generation, () => {
+          if (this.accountId !== accountId) throw new SessionChangedError();
+          const operation = this.snapshot.pending[entry];
+          if (this.dirty.has(entry) && operation) this.save(operation, this.dirty.get(entry));
+          else {
+            // Recheck reads/deletions even when there was no failed write to save.
+            const current = this.read(entry);
+            const pending = { ...this.snapshot.pending };
+            if (current) pending[entry] = current.expiresAt <= Date.now() ? { ...current, state: 'expired' } : current;
+            else delete pending[entry];
+            this.publish({ pending });
+          }
+        });
+      }
+      this.publish({ storageError: this.dirty.size ? storageMessage : null });
+    } catch (error) {
+      if (error instanceof SessionChangedError || error instanceof OperationChangedError) throw error;
       this.publish({ storageError: storageMessage });
       throw new GenerationOperationError(storageMessage);
     }
   }
-  retrySaving(): void {
-    if (!this.hydrated) { this.activate(this.accountId); return; }
-    for (const entry of this.dirty) {
-      const operation = this.snapshot.pending[entry];
-      if (operation) this.save(operation);
-    }
-  }
-  abandon(entry: GenerationEntryPoint): void {
+  async abandon(entry: GenerationEntryPoint): Promise<void> {
     if (this.snapshot.storageError) throw new GenerationOperationError(storageMessage);
     if (this.snapshot.busy[entry]) throw new GenerationOperationError('Wait for the current request to finish.');
-    // Deletion is mandatory before another confirmed command can receive a key.
-    try {
-      this.storage().removeItem(this.storageKey(entry));
-      if (this.storage().getItem(this.storageKey(entry)) !== null) throw new GenerationOperationError(storageMessage);
-      const pending = { ...this.snapshot.pending };
-      delete pending[entry];
-      this.dirty.delete(entry);
-      this.publish({ pending, storageError: this.dirty.size ? storageMessage : null });
-    } catch {
-      this.publish({ storageError: storageMessage });
-      throw new GenerationOperationError(storageMessage);
-    }
+    const operation = this.snapshot.pending[entry];
+    const accountId = this.accountId;
+    if (!operation || !accountId) throw new OperationChangedError();
+    await this.withEntryLock(accountId, entry, getSessionGeneration(), () => {
+      if (this.accountId !== accountId) throw new SessionChangedError();
+      // Deletion is mandatory, and may remove only the identity the user reviewed.
+      try {
+        this.assertOwnership(operation);
+        this.storage().removeItem(this.storageKey(entry));
+        if (this.storage().getItem(this.storageKey(entry)) !== null) throw new GenerationOperationError(storageMessage);
+        const pending = { ...this.snapshot.pending };
+        delete pending[entry];
+        this.dirty.delete(entry);
+        this.publish({ pending, storageError: this.dirty.size ? storageMessage : null });
+      } catch (error) {
+        if (error instanceof OperationChangedError) throw error;
+        this.publish({ storageError: storageMessage });
+        throw new GenerationOperationError(storageMessage);
+      }
+    });
   }
   start(accountId: string, entry: GenerationEntryPoint, source: GenerationSource,
     send: (key: string) => Promise<QuizGenerationResponse>, documentId?: string): Promise<QuizGenerationResponse> {
@@ -178,11 +247,8 @@ export class GenerationOperations {
     const flight = `${expectedGeneration}:${accountId}:${entry}`;
     if (this.startFlights.has(flight)) return Promise.reject(new GenerationOperationError('This generation request is already being submitted.'));
     this.startFlights.add(flight);
-    const run = () => isCurrentSessionGeneration(expectedGeneration)
-      ? this.performStart(accountId, entry, source, send, documentId) : Promise.reject(new SessionChangedError());
-    // Serialize identity allocation across tabs in browsers supporting Web Locks.
-    const result = typeof navigator !== 'undefined' && navigator.locks
-      ? navigator.locks.request(`${GENERATION_STORAGE_PREFIX}${accountId}:${entry}`, run) : run();
+    const result = this.withEntryLock(accountId, entry, expectedGeneration,
+      () => this.performStart(accountId, entry, source, send, documentId));
     return result.finally(() => this.startFlights.delete(flight));
   }
   private async performStart(accountId: string, entry: GenerationEntryPoint, source: GenerationSource,
@@ -196,15 +262,16 @@ export class GenerationOperations {
       const raw = this.storage().getItem(this.storageKey(entry));
       if (raw !== null) {
         const durable = parseMetadata(raw, accountId, entry);
-        if (existing && durable.key !== existing.key) throw new GenerationOperationError('Recovery information changed in another tab. Reload before confirming a new start.');
+        if (existing && durable.key !== existing.key) throw new OperationChangedError();
         existing = durable;
         this.publish({ pending: { ...this.snapshot.pending, [entry]: durable } });
       }
       else if (existing) {
         // Another tab explicitly abandoned this identity. Do not silently allocate a replacement.
-        throw new GenerationOperationError('Recovery information changed in another tab. Reload before confirming a new start.');
+        throw new OperationChangedError();
       }
     } catch (error) {
+      if (error instanceof OperationChangedError) throw error;
       this.publish({ storageError: storageMessage });
       throw error instanceof GenerationOperationError ? error : new GenerationOperationError(storageMessage);
     }
@@ -215,6 +282,7 @@ export class GenerationOperations {
     if (existing && (existing.source !== source || ['conflict', 'terminal'].includes(existing.state))) {
       throw new GenerationOperationError('This command cannot be retried. Confirm a new start to use changed input.');
     }
+    if (existing?.state === 'uncertain') throw new GenerationOperationError(uncertainMessage);
     if (existing?.jobId) return { jobId: existing.jobId, status: existing.jobStatus ?? 'PENDING', message: 'Existing generation job', estimatedTimeSeconds: 0 };
     if (existing && existing.notBefore > now) throw new GenerationOperationError(`Wait ${Math.ceil((existing.notBefore - now) / 1000)} seconds before retrying this operation.`);
     if (typeof crypto === 'undefined' || typeof crypto.randomUUID !== 'function') throw new GenerationOperationError('This browser cannot create a secure recovery key. Use a supported browser before starting generation.');
@@ -226,7 +294,7 @@ export class GenerationOperations {
     this.publish({ busy: { ...this.snapshot.busy, [entry]: true } });
     try {
       // Write before POST, including an uncertainty marker for an interrupted request.
-      try { this.save({ ...operation, state: 'uncertain', notBefore: now + DEFAULT_WAIT_MS }); }
+      try { this.save({ ...operation, state: 'uncertain', notBefore: now + DEFAULT_WAIT_MS }, !existing); }
       catch (error) {
         // There was no POST: recovery must not treat this as a dispatched attempt.
         this.publish({ pending: { ...this.snapshot.pending, [entry]: operation } });
@@ -257,11 +325,23 @@ export class GenerationOperations {
       if (this.accountId === accountId && isCurrentSessionGeneration(generation)) this.publish({ busy: { ...this.snapshot.busy, [entry]: false } });
     }
   }
-  recordJob(jobId: string, status: GenerationStatus, quizId?: string): void {
+  async recordJob(jobId: string, status: GenerationStatus, quizId?: string): Promise<void> {
     if (!validId(jobId) || !statuses.includes(status) || (quizId !== undefined && !validId(quizId))) return;
+    const generation = getSessionGeneration();
+    const accountId = this.accountId;
+    if (!accountId) return;
     for (const operation of Object.values(this.snapshot.pending)) {
       if (!operation || operation.jobId !== jobId) continue;
-      try { this.save({ ...operation, jobStatus: status, state: terminal(status) ? 'terminal' : 'accepted', ...(quizId ? { quizId } : {}) }); }
+      try {
+        await this.withEntryLock(accountId, operation.entryPoint, generation, () => {
+          if (this.accountId !== accountId) throw new SessionChangedError();
+          this.assertOwnership(operation);
+          const durable = this.read(operation.entryPoint);
+          // An older read cannot reverse a terminal receipt for the same key.
+          if (durable?.jobStatus && terminal(durable.jobStatus) && !terminal(status)) return;
+          this.save({ ...operation, jobStatus: status, state: terminal(status) ? 'terminal' : 'accepted', ...(quizId ? { quizId } : {}) });
+        });
+      }
       catch { /* Recovery metadata remains in memory; the UI offers saving, never a new POST. */ }
     }
   }
