@@ -1,7 +1,9 @@
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
 // src/pages/QuizFromSelectedPagesPage.tsx
 // Page for creating quizzes from selected document pages
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components';
 import { DocumentQuizConfigurationFormWithPageSelector } from '@/features/quiz';
@@ -25,10 +27,14 @@ const QuizFromSelectedPagesPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const quizService = new QuizService(api);
+  const generation = useGenerationOperation('selected-pages');
   
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
+  useEffect(() => {
+    if (generation.operation?.jobId) setActiveGenerationJob(generation.operation.jobId);
+  }, [generation.operation?.jobId]);
   const [quizData, setQuizData] = useState<QuizWizardDraft>({
     title: '',
     description: '',
@@ -67,7 +73,7 @@ const QuizFromSelectedPagesPage: React.FC = () => {
         return;
       }
 
-      const response = await quizService.generateQuizFromDocument(generationRequest);
+      const response = await generation.start('document', key => quizService.generateQuizFromDocument(generationRequest, key), generationRequest.documentId);
 
       addToast({ 
         type: 'success', 
@@ -117,6 +123,7 @@ const QuizFromSelectedPagesPage: React.FC = () => {
       backTo="/quizzes/new"
     >
       <div className="max-w-7xl mx-auto py-8">
+        <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />
         {activeGenerationJob ? (
           <div className="max-w-4xl mx-auto">
             <GenerationProgress
@@ -132,6 +139,8 @@ const QuizFromSelectedPagesPage: React.FC = () => {
             errors={errors}
             onCreateQuiz={handleCreateQuiz}
             isCreating={isCreating}
+            startDisabled={generation.blocked}
+            initialDocumentId={generation.operation?.documentId}
           />
         )}
       </div>

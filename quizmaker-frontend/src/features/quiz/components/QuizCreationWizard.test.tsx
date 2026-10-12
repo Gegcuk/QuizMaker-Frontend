@@ -122,3 +122,5 @@ it('renders a generation API quizTitle error beside the real title control and p
   expect(screen.getByLabelText('Text Content *')).toHaveValue(text);
   expect(document.body).not.toHaveTextContent('seeded-private-backend-value');
 });
+
+vi.mock('@/features/auth', async importOriginal => ({ ...await importOriginal<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));

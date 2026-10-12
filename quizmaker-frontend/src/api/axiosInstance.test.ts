@@ -138,3 +138,29 @@ describe('authenticated Axios session handling', () => {
     unsubscribe();
   });
 });
+
+it('preserves the generation command key through the existing single 401 refresh resend', async () => {
+  establishSession('old-access', 'old-refresh');
+  const key = '6c8a1b4d-f8ab-4ce1-86ec-a413db9f7a71';
+  const seenKeys: (string | null)[] = [];
+  let refreshes = 0;
+  server.use(
+    http.post('http://localhost:3000/api/v1/quizzes/generate-from-text', ({ request }) => {
+      seenKeys.push(request.headers.get('Idempotency-Key'));
+      return request.headers.get('Authorization') === 'Bearer refreshed-access'
+        ? HttpResponse.json({ jobId: 'original-job', status: 'PENDING' }, { status: 202 })
+        : new HttpResponse(null, { status: 401 });
+    }),
+    http.post(refreshEndpoint, () => {
+      refreshes += 1;
+      return HttpResponse.json({ accessToken: 'refreshed-access', refreshToken: 'refreshed-refresh' });
+    }),
+  );
+  const response = await api.post('/v1/quizzes/generate-from-text', {
+    text: 'seed-private-source', questionsPerType: { TRUE_FALSE: 1 },
+  }, { headers: { 'Idempotency-Key': key } });
+  expect(response.status).toBe(202);
+  expect(response.data.jobId).toBe('original-job');
+  expect(seenKeys).toEqual([key, key]);
+  expect(refreshes).toBe(1);
+});

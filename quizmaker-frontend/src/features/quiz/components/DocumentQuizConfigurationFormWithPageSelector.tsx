@@ -17,6 +17,8 @@ interface DocumentQuizConfigurationFormWithPageSelectorProps {
   errors: Record<string, string | undefined>;
   onCreateQuiz: (data?: QuizWizardDraft) => void;
   isCreating: boolean;
+  startDisabled?: boolean;
+  initialDocumentId?: string;
 }
 
 interface DocumentGenerationConfig {
@@ -31,7 +33,9 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
   onDataChange,
   errors,
   onCreateQuiz,
-  isCreating
+  isCreating,
+  startDisabled = false,
+  initialDocumentId
 }) => {
   const { addToast } = useToast();
   
@@ -236,6 +240,7 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
         </div>
 
         <DocumentPageSelector
+          initialDocumentId={initialDocumentId}
           onSelectionComplete={handlePageSelectionComplete}
           className="shadow-lg"
         />
@@ -402,7 +407,7 @@ export const DocumentQuizConfigurationFormWithPageSelector: React.FC<DocumentQui
           <Button
             type="submit"
             variant="primary"
-            disabled={isCreating || !localData.title?.trim() || !generationConfig.documentId}
+            disabled={isCreating || startDisabled || !localData.title?.trim() || !generationConfig.documentId}
             className="px-8"
           >
             {isCreating ? 'Generating Quiz...' : 'Generate Quiz from Selected Pages'}

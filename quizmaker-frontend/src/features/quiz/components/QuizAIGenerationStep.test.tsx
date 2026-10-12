@@ -36,7 +36,7 @@ describe('QuizAIGenerationStep', () => {
         text,
         quizTitle: 'Architecture decisions',
         estimatedTimePerQuestion: 2,
-      }));
+      }), expect.stringMatching(/^[0-9a-f-]{36}$/));
     });
   });
 
@@ -57,3 +57,7 @@ describe('QuizAIGenerationStep', () => {
     expect(onComplete).toHaveBeenCalledOnce();
   });
 });
+
+vi.mock('@/features/auth', async importOriginal => ({ ...await importOriginal<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));
+
+vi.mock('@/features/ai', () => ({ GenerationProgress: ({ jobId }: { jobId: string }) => <div>Generation job: {jobId}</div> }));

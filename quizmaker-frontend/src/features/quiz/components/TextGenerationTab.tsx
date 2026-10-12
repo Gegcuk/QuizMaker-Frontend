@@ -1,3 +1,5 @@
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
 import { diagnostics } from '@/features/diagnostics/reporter';
 // src/components/quiz/TextGenerationTab.tsx
 // ---------------------------------------------------------------------------
@@ -5,7 +7,7 @@ import { diagnostics } from '@/features/diagnostics/reporter';
 // Allows users to input plain text and generate quizzes using AI
 // ---------------------------------------------------------------------------
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api, tokenEstimationService } from '@/services';
 import { GenerateQuizFromTextRequest, QuizQuestionType, Difficulty, QuizScope, QuestionType } from '@/types';
@@ -15,10 +17,14 @@ import { Button, Alert, Input, Dropdown, Hint, Textarea } from '@/components';
 export const TextGenerationTab: React.FC = () => {
   const navigate = useNavigate();
   const quizService = new QuizService(api);
+  const generation = useGenerationOperation('text-tab');
   
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
+  useEffect(() => {
+    if (generation.operation?.jobId) setActiveGenerationJob(generation.operation.jobId);
+  }, [generation.operation?.jobId]);
   
   // Quiz generation configuration
   const [quizConfig, setQuizConfig] = useState({
@@ -111,7 +117,7 @@ export const TextGenerationTab: React.FC = () => {
         requestData.quizDescription = quizConfig.quizDescription;
       }
 
-      const response = await quizService.generateQuizFromText(requestData);
+      const response = await generation.start('text', key => quizService.generateQuizFromText(requestData, key));
       
       setActiveGenerationJob(response.jobId);
       setError(null);
@@ -158,6 +164,7 @@ export const TextGenerationTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Text Input */}
         <div className="space-y-6">
@@ -439,7 +446,7 @@ export const TextGenerationTab: React.FC = () => {
           <Button
             variant="primary"
             onClick={handleGenerateQuiz}
-            disabled={!text.trim()}
+            disabled={!text.trim() || generation.blocked}
             className="px-8 py-3 text-lg"
           >
             🚀 Generate Quiz from Text

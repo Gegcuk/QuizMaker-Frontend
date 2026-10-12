@@ -1,15 +1,18 @@
-import { getErrorMessage } from '@/utils/errorUtils';
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
+import { getGenerationErrorMessage } from '../services/generationOperations';
 // src/features/quiz/components/QuizAIGenerationStep.tsx
 // ---------------------------------------------------------------------------
 // Component for handling AI generation of questions after quiz creation.
 // This is used in the wizard flow for text and document-based creation.
 // ---------------------------------------------------------------------------
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizService, api } from '@/services';
 import { GenerateQuizFromTextRequest, Difficulty, QuizScope } from '@/types';
 import { Button, Input, useToast, Textarea, Dropdown, Alert } from '@/components';
+import { GenerationProgress } from '@/features/ai';
 import { CreationMethod } from './QuizCreationWizard';
 
 interface QuizAIGenerationStepProps {
@@ -28,9 +31,13 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
   const navigate = useNavigate();
   const { addToast } = useToast();
   const quizService = new QuizService(api);
+  const generation = useGenerationOperation('ai-step');
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationJobId, setGenerationJobId] = useState<string | null>(null);
+  useEffect(() => {
+    if (generation.operation?.jobId) setGenerationJobId(generation.operation.jobId);
+  }, [generation.operation?.jobId]);
   const [error, setError] = useState<string | null>(null);
   
   // Text generation state
@@ -81,7 +88,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
         tagIds: []
       };
 
-      const response = await quizService.generateQuizFromText(request);
+      const response = await generation.start('text', key => quizService.generateQuizFromText(request, key));
       setGenerationJobId(response.jobId);
       
       addToast({
@@ -89,19 +96,10 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
         message: 'Quiz generation started! This may take a few minutes.'
       });
 
-      // For now, we'll simulate completion after a delay
-      // In a real implementation, you'd poll the job status
-      setTimeout(() => {
-        setIsGenerating(false);
-        addToast({
-          type: 'success',
-          message: 'Quiz generation completed! Questions have been added to your quiz.'
-        });
-        onComplete();
-      }, 3000);
+      setIsGenerating(false);
 
     } catch (error: any) {
-      setError(getErrorMessage(error) || 'Failed to generate quiz from text');
+      setError(getGenerationErrorMessage(error) || 'Failed to generate quiz from text');
       setIsGenerating(false);
     }
   };
@@ -199,7 +197,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
           variant="primary"
           onClick={handleTextGeneration}
           loading={isGenerating}
-          disabled={isGenerating || textContent.length < 50}
+          disabled={isGenerating || generation.blocked || textContent.length < 50}
         >
           {isGenerating ? 'Generating Questions...' : 'Generate Questions from Text'}
         </Button>
@@ -247,9 +245,17 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
     </div>
   );
 
+  if (generationJobId) {
+    return <div className="max-w-2xl mx-auto">
+      <GenerationOperationNotice controller={generation} onNewStart={() => setGenerationJobId(null)} />
+      <GenerationProgress jobId={generationJobId} onGenerationComplete={onComplete} onGenerationError={setError} />
+    </div>;
+  }
+
   if (error) {
     return (
       <div className="text-center space-y-4">
+        <GenerationOperationNotice controller={generation} />
         <Alert type="error" dismissible onDismiss={() => setError(null)}>
           {error}
         </Alert>
@@ -269,6 +275,7 @@ export const QuizAIGenerationStep: React.FC<QuizAIGenerationStepProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
+      <GenerationOperationNotice controller={generation} />
       {creationMethod === 'text' && renderTextGenerationForm()}
       {creationMethod === 'document' && renderDocumentGenerationForm()}
     </div>

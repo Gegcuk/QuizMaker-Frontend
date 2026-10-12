@@ -1,3 +1,6 @@
+import { getGenerationErrorMessage } from '../services/generationOperations';
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
 import { toApplicationError } from '@/utils/applicationError';
 import { getErrorMessage } from '@/utils/errorUtils';
 // src/features/quiz/components/QuizCreationWizard.tsx
@@ -53,6 +56,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   const location = useLocation();
   const { addToast } = useToast();
   const quizService = new QuizService(api);
+  const generation = useGenerationOperation('wizard');
   
   // Wizard state
   const [currentStep, setCurrentStep] = useState(1);
@@ -63,6 +67,22 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
   const { confirmDiscard } = useUnsavedChangesController();
   const [createdQuiz, setCreatedQuiz] = useState<QuizDto | null>(null);
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
+  const recoveredKey = generation.operation?.key;
+  const recoveredSource = generation.operation?.source;
+  const recoveredJobId = generation.operation?.jobId;
+  useEffect(() => {
+    if (!recoveredKey) return;
+    setCreationMethod(recoveredSource === 'text' ? 'text' : 'document');
+    if (recoveredJobId) {
+      setCreatedQuiz(previous => previous?.id === recoveredJobId ? previous : { id: recoveredJobId, title: 'Recovered generation', description: '', difficulty: 'MEDIUM',
+        visibility: 'PRIVATE', status: 'DRAFT', estimatedTime: 30, isRepetitionEnabled: false, timerEnabled: false, timerDuration: 30,
+        tagIds: [], creatorId: '', createdAt: '', updatedAt: '' });
+      setCurrentStep(3);
+    } else {
+      setCurrentStep(2);
+    }
+  }, [recoveredKey, recoveredSource, recoveredJobId]);
+
   const [errors, setErrors] = useState<FormErrors>({});
   
   // Insufficient balance modal state
@@ -191,7 +211,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           addToast({ message: 'Generation request data is missing. Please try again.' });
           return;
         }
-        const response = await quizService.generateQuizFromText(generationRequest);
+        const response = await generation.start('text', key => quizService.generateQuizFromText(generationRequest, key));
         setInitialDraft(JSON.stringify(submissionData));
         markClean();
 
@@ -228,7 +248,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
           addToast({ message: 'Document generation request is invalid. Please re-upload your file.' });
           return;
         }
-        const response = await quizService.generateQuizFromUpload(generationRequest);
+        const response = await generation.start('upload', key => quizService.generateQuizFromUpload(generationRequest, key));
         setInitialDraft(JSON.stringify(submissionData));
         markClean();
 
@@ -257,7 +277,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
       }
     } catch (error: unknown) {
       const safe = toApplicationError(error, { balanceConflict: true });
-      const errorMessage = getErrorMessage(safe);
+      const errorMessage = creationMethod === 'manual' ? getErrorMessage(safe) : getGenerationErrorMessage(error);
       if (safe.code === 'INSUFFICIENT_BALANCE') {
         setBalanceErrorData({ message: errorMessage, ...safe.balance });
         setShowInsufficientBalanceModal(true);
@@ -326,6 +346,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
                       errors={errors}
                       onCreateQuiz={handleCreateQuiz}
                       isCreating={isCreatingQuiz}
+                      startDisabled={generation.blocked}
                     />
                   );
                 case 'document':
@@ -337,6 +358,7 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
                       errors={errors}
                       onCreateQuiz={handleCreateQuiz}
                       isCreating={isCreatingQuiz}
+                      startDisabled={generation.blocked}
                     />
                   );
                 default:
@@ -422,6 +444,9 @@ const QuizCreationWizard: React.FC<QuizCreationWizardProps> = ({ className = '' 
 
   return (
     <div className={`max-w-4xl mx-auto ${className}`}>
+      <GenerationOperationNotice controller={generation} onNewStart={() => {
+        setCreatedQuiz(null); setCurrentStep(2); setErrors({});
+      }} />
       {/* Back button at top */}
       {canGoBack && (
         <div className="mb-4">

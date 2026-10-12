@@ -359,3 +359,28 @@ npm run lint -- --quiet
 npm test
 npm run build
 ```
+
+## Quiz-generation start identity
+
+Generation screens use `useGenerationOperation` to persist account-scoped
+operational metadata before calling the three `QuizService` generation methods.
+Pass the lifecycle-supplied optional key as the second service argument; never
+put it in the JSON payload or multipart/query fields. Uploads still send the
+file as multipart and existing generation settings as query parameters.
+
+Use the same lifecycle for any additional start caller. Preserve its pending
+identity on a lost response, rebuild input only in memory, and let the live
+backend enforce changed-command conflicts. Restore known jobs with reads rather
+than another POST. Do not turn a progress-read failure or a persistence failure
+into a new command. Start retries are manual; only the existing centralized
+401 refresh/resend is retained. README's generation recovery section documents
+storage failures, confirmation, expiry, account boundaries and test coverage.
+
+Await lifecycle metadata mutations. All entry writers share the start lock and
+check durable command ownership; a late receipt must not overwrite a newer key.
+Successful storage writes consume permission to create a missing record even if
+read-back fails. Recheck the session after awaiting a receipt lock; status, result
+and cancellation responses must not complete in a different account session.
+If an outcome was not persisted, a restored uncertainty marker blocks POST:
+recover the observed result in the original tab or explicitly abandon and confirm
+a new command. A missing saved deadline is never equivalent to a 30-second wait.

@@ -50,3 +50,5 @@ describe('DocumentUploadTab', () => {
     expect(screen.getByText('Generation job: job-1')).toBeInTheDocument();
   });
 });
+
+vi.mock('@/features/auth', async importOriginal => ({ ...await importOriginal<typeof import('@/features/auth')>(), useAuth: () => ({ user: { id: 'account-a' }, isLoading: false }) }));

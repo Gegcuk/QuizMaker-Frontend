@@ -2107,3 +2107,172 @@ test('taxonomy mutations reconcile warm quiz cards on desktop and mobile', { tim
     await stopDevServer(server);
   }
 });
+
+test('generation start recovery keeps command keys across reload and preserves source privacy', { timeout: 90_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    for (const [source, viewport] of [
+      ['text', { width: 1280, height: 900 }],
+      ['upload', { width: 390, height: 844 }],
+      ['document', { width: 390, height: 844 }],
+    ]) {
+      const context = await createTestContext(browser, { viewport });
+      try {
+        const page = await context.newPage();
+        await page.addInitScript(() => {
+          localStorage.setItem('accessToken', 'e2e-access-token');
+          localStorage.setItem('refreshToken', 'e2e-refresh-token');
+        });
+        await installUnexpectedApiBlock(page);
+        await installAuthMeMock(page);
+        if (source === 'document') await page.route('**/api/v1/auth/me', route => fulfillJson(route, { ...user, roles: ['ROLE_USER', 'ROLE_QUIZ_CREATOR'] }));
+        const documentId = 'abcdabcd-abcd-4bcd-8bcd-abcdabcdabcd';
+        const doc = { id: documentId, title: 'Original source', originalFilename: 'original-private.txt',
+          contentType: 'text/plain', fileSize: 600, status: 'PROCESSED', totalPages: 1, totalChunks: 1,
+          uploadedAt: '2026-01-01T00:00:00Z', processedAt: '2026-01-01T00:00:00Z' };
+        await page.route('**/api/documents/config', route => fulfillJson(route, { defaultStrategy: 'AUTO', defaultMaxChunkSize: 1000 }));
+        await page.route('**/api/documents/upload**', route => fulfillJson(route, doc));
+        await page.route(`**/api/documents/${documentId}`, route => fulfillJson(route, doc));
+        const requests = [];
+        await page.route(`**/api/v1/quizzes/generate-from-${source === 'upload' ? 'upload**' : source}`, async route => {
+          requests.push({ key: route.request().headers()['idempotency-key'], body: route.request().postData() });
+          assert.match(requests.at(-1).key, /^[0-9a-f-]{36}$/);
+          if (requests.length === 1) return route.abort('failed');
+          return fulfillJson(route, { jobId: GENERATION_JOB_ID, status: 'PENDING', message: 'replayed original job', estimatedTimeSeconds: 10 }, 202);
+        });
+        await page.route(`**/api/v1/quizzes/generation-status/${GENERATION_JOB_ID}`, route => fulfillJson(route, {
+          jobId: GENERATION_JOB_ID, status: 'PROCESSING', totalChunks: 1, processedChunks: 0,
+          progressPercentage: 0, totalQuestionsGenerated: 0, elapsedTimeSeconds: 0,
+          estimatedTimeRemainingSeconds: 10, generatedQuizId: null, startedAt: '2026-01-01T00:00:00Z', completedAt: null,
+        }));
+        const fill = async () => {
+          if (source === 'text') {
+            await page.locator('input[placeholder="Enter quiz title..."]').fill('Original recovery quiz');
+            await page.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
+          } else if (source === 'upload') {
+            await page.locator('#document-upload').setInputFiles({ name: 'original-private.txt', mimeType: 'text/plain', buffer: Buffer.from(TEXT_GENERATION_SOURCE) });
+            await page.getByRole('heading', { name: 'original-private.txt', exact: true }).waitFor();
+            await page.getByRole('button', { name: 'All', exact: true }).click();
+            await page.getByRole('button', { name: 'Confirm Selection (1)' }).click();
+            await page.locator('input[placeholder="Title is auto-generated from filename if empty"]').fill('Original recovery quiz');
+          } else {
+            await page.getByRole('button', { name: 'Generate Quiz from Document', exact: true }).click();
+            await page.locator('input[placeholder="Enter quiz title..."]').fill('Original recovery quiz');
+            await page.locator('input[placeholder="Enter quiz description..."]').fill('Original recovery description');
+          }
+        };
+        const submit = () => page.getByRole('button', { name: source === 'text' ? 'Generate Quiz from Text' : source === 'upload' ? 'Generate Quiz from Document' : 'Start Quiz Generation', exact: true }).click();
+        const configurationReady = source === 'document'
+          ? page.waitForResponse(response => new URL(response.url()).pathname === '/api/documents/config').then(response => response.finished()) : null;
+        await navigateToAppRoute(page, source === 'document' ? '/documents/upload' : '/quizzes/create');
+        if (source === 'document') {
+          // File validation uses the asynchronously loaded document configuration.
+          await configurationReady;
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+          await page.locator('#document-file-upload').setInputFiles({ name: 'original-private.txt', mimeType: 'text/plain', buffer: Buffer.from(TEXT_GENERATION_SOURCE) });
+          await page.getByRole('button', { name: 'Upload Document', exact: true }).click();
+        } else await page.getByText(source === 'text' ? 'Generate from Text' : 'Generate from Document', { exact: true }).click();
+        await fill();
+        await submit();
+        await page.getByText(/Network error occurred/).first().waitFor();
+        assert.equal(requests.length, 1);
+        const storedBeforeReload = await page.evaluate(() => Object.entries(localStorage).filter(([key]) => key.startsWith('quizzence:generation-start:')));
+        const serialized = JSON.stringify(storedBeforeReload);
+        assert.ok(!serialized.includes(TEXT_GENERATION_SOURCE));
+        assert.ok(!serialized.includes('original-private.txt'));
+        assert.ok(!serialized.includes('e2e-access-token'));
+        assert.ok(!serialized.includes('Original recovery quiz'));
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.getByText(/pending generation operation was restored|pending document generation was restored/i).waitFor();
+        assert.equal(requests.length, 1, 'Reload must not submit a start');
+        if (source === 'text') assert.equal(await page.getByLabel('Text Content *').inputValue(), '');
+        if (source === 'upload') assert.equal(await page.locator('#document-upload').inputValue(), '');
+        await fill();
+        await submit();
+        await page.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+        assert.equal(requests.length, 2);
+        assert.equal(requests[1].key, requests[0].key);
+        if (source !== 'upload') assert.deepEqual(JSON.parse(requests[1].body), JSON.parse(requests[0].body));
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+        assert.equal(requests.length, 2, 'Restoring the known job must not POST again');
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+        assert.equal(overflow, false, `${source} recovery must fit its viewport`);
+      } finally { await context.close(); }
+    }
+  } finally { await browser?.close(); await stopDevServer(server); }
+});
+
+test('late generation receipt in another tab preserves the newer command and replay job', { timeout: 60_000 }, async () => {
+  const server = process.env.RELEASE_BASE_URL ? null : createDevServer();
+  let browser;
+  let context;
+  let releaseOldStatus;
+  const oldStatusAllowed = new Promise(resolve => { releaseOldStatus = resolve; });
+  try {
+    await waitForServer(BASE_URL);
+    browser = await launchBrowser();
+    context = await createTestContext(browser, { viewport: { width: 1280, height: 900 } });
+    await context.addInitScript(() => {
+      localStorage.setItem('accessToken', 'e2e-access-token');
+      localStorage.setItem('refreshToken', 'e2e-refresh-token');
+    });
+    const oldPage = await context.newPage();
+    const nextPage = await context.newPage();
+    const storageKey = `quizzence:generation-start:v1:${USER_ID}:wizard`;
+    await oldPage.addInitScript(({ storageKey, accountId, jobId }) => {
+      const createdAt = Date.now();
+      localStorage.setItem(storageKey, JSON.stringify({ version: 1, accountId, entryPoint: 'wizard', source: 'text',
+        key: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', createdAt, expiresAt: createdAt + 30 * 24 * 60 * 60 * 1000,
+        state: 'accepted', notBefore: 0, jobId, jobStatus: 'PENDING' }));
+    }, { storageKey, accountId: USER_ID, jobId: GENERATION_JOB_ID });
+    let nextKey;
+    let starts = 0;
+    for (const page of [oldPage, nextPage]) {
+      await installUnexpectedApiBlock(page);
+      await installAuthMeMock(page);
+      await page.route(`**/api/v1/quizzes/generation-status/${GENERATION_JOB_ID}`, async route => {
+        if (page === oldPage) await oldStatusAllowed;
+        await fulfillJson(route, { jobId: GENERATION_JOB_ID, status: 'COMPLETED', totalChunks: 1, processedChunks: 1,
+          progressPercentage: 100, totalQuestionsGenerated: 25, elapsedTimeSeconds: 10, estimatedTimeRemainingSeconds: 0,
+          generatedQuizId: GENERATED_QUIZ_ID, startedAt: '2026-01-01T00:00:00Z', completedAt: '2026-01-01T00:00:10Z' });
+      });
+      await page.route('**/api/v1/quizzes/generate-from-text', async route => {
+        starts++;
+        nextKey = route.request().headers()['idempotency-key'];
+        await fulfillJson(route, { jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PENDING', message: 'new command', estimatedTimeSeconds: 10 }, 202);
+      });
+      await page.route(`**/api/v1/quizzes/generation-status/${DOCUMENT_GENERATION_JOB_ID}`, route => fulfillJson(route, {
+        jobId: DOCUMENT_GENERATION_JOB_ID, status: 'PROCESSING', totalChunks: 1, processedChunks: 0,
+        progressPercentage: 0, totalQuestionsGenerated: 0, elapsedTimeSeconds: 0, estimatedTimeRemainingSeconds: 10,
+        generatedQuizId: null, startedAt: '2026-01-01T00:00:00Z', completedAt: null,
+      }));
+    }
+    await navigateToAppRoute(oldPage, '/quizzes/create');
+    await oldPage.getByText(`Job ID: ${GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    await navigateToAppRoute(nextPage, '/quizzes/create');
+    await nextPage.getByRole('button', { name: 'Abandon operation / prepare new start' }).click();
+    await nextPage.getByRole('button', { name: 'Confirm new start', exact: true }).click();
+    await nextPage.locator('input[placeholder="Enter quiz title..."]').fill('New command fixture');
+    await nextPage.getByLabel('Text Content *').fill(TEXT_GENERATION_SOURCE);
+    await nextPage.getByRole('button', { name: 'Generate Quiz from Text', exact: true }).click();
+    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    assert.notEqual(nextKey, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+    releaseOldStatus();
+    await oldPage.getByText('Quiz Created Successfully!', { exact: true }).waitFor();
+    await nextPage.reload({ waitUntil: 'domcontentloaded' });
+    await nextPage.getByText(`Job ID: ${DOCUMENT_GENERATION_JOB_ID}`, { exact: true }).waitFor();
+    assert.equal(starts, 1, 'Late old receipts and reload must not create another command');
+    const restored = await nextPage.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
+    assert.equal(restored.key, nextKey);
+    assert.equal(restored.jobId, DOCUMENT_GENERATION_JOB_ID);
+  } finally {
+    releaseOldStatus();
+    await context?.close();
+    await browser?.close();
+    await stopDevServer(server);
+  }
+});

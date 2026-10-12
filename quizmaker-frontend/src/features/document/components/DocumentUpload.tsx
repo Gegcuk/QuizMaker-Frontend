@@ -1,3 +1,5 @@
+import { useGenerationOperation } from '@/features/quiz/hooks/useGenerationOperation';
+import { GenerationOperationNotice } from '@/features/quiz/components/GenerationOperationNotice';
 import { diagnostics } from '@/features/diagnostics/reporter';
 // src/features/document/components/DocumentUpload.tsx
 // ---------------------------------------------------------------------------
@@ -35,6 +37,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   className = ''
 }) => {
   const location = useLocation();
+  const generation = useGenerationOperation('document-upload');
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -50,6 +53,9 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [activeGenerationJob, setActiveGenerationJob] = useState<string | null>(null);
+  useEffect(() => {
+    if (generation.operation?.jobId) setActiveGenerationJob(generation.operation.jobId);
+  }, [generation.operation?.jobId]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentService = new DocumentService(api);
@@ -182,6 +188,16 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
+  useEffect(() => {
+    const documentId = generation.operation?.documentId;
+    if (!documentId) return;
+    let current = true;
+    void new DocumentService(api).getDocumentById(documentId).then(document => {
+      if (current) setUploadedDocument(document);
+    }).catch(() => { if (current) setGenerationError('Could not restore the original document. Restore access and reload before retrying.'); });
+    return () => { current = false; };
+  }, [generation.operation?.documentId]);
+
   const handleGenerateQuiz = async () => {
     if (!uploadedDocument) return;
     
@@ -208,7 +224,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         estimatedTimePerQuestion: quizConfig.estimatedTimePerQuestion || 2
       };
       
-      const response = await quizService.generateQuizFromDocument(generationRequest);
+      const response = await generation.start('document', key => quizService.generateQuizFromDocument(generationRequest, key), generationRequest.documentId);
       
       setShowQuizGenerationModal(false);
       setActiveGenerationJob(response.jobId);
@@ -460,6 +476,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         </div>
       </div>
 
+      {!showQuizGenerationModal && <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />}
+
       {/* Quiz Generation Section */}
       {uploadedDocument && (
         <div className="mt-6 p-4 bg-theme-bg-success border border-theme-border-success rounded-lg">
@@ -490,6 +508,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               variant="primary"
               size="lg"
               fullWidth
+              disabled={Boolean(generation.operation?.jobId)}
               onClick={() => setShowQuizGenerationModal(true)}
               leftIcon={<SparklesIcon className="h-5 w-5" />}
             >
@@ -527,6 +546,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         title="Generate Quiz from Document"
       >
         <div className="space-y-6">
+          <GenerationOperationNotice controller={generation} onResumeJob={setActiveGenerationJob} onNewStart={() => setActiveGenerationJob(null)} />
           {generationError && (
             <Alert type="error" onDismiss={() => setGenerationError(null)}>
               {generationError}
@@ -735,7 +755,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               variant="primary"
               onClick={handleGenerateQuiz}
               loading={isGeneratingQuiz}
-              disabled={!quizConfig.quizTitle?.trim()}
+              disabled={!quizConfig.quizTitle?.trim() || generation.blocked}
             >
               {isGeneratingQuiz ? 'Starting Generation...' : 'Start Quiz Generation'}
             </Button>

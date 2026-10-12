@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAxiosMock, type AxiosMock } from '@/test/mockAxios';
 import type {
   LeaderboardEntryDto,
@@ -14,6 +14,10 @@ import type {
   QuizResultSummaryDto,
 } from '@/types';
 import { QuizService } from './quiz.service';
+import { generationOperations } from './generationOperations';
+import { establishSession, terminateSession } from '@/features/auth/services/sessionLifecycle';
+
+afterEach(() => vi.unstubAllGlobals());
 
 const quiz: QuizDto = {
   id: 'quiz-1',
@@ -88,6 +92,88 @@ describe('QuizService', () => {
   beforeEach(() => {
     axios = createAxiosMock();
     service = new QuizService(axios.instance);
+  });
+
+  it.each([
+    ['status', 'logout'], ['status', 'account-switch'],
+    ['result', 'logout'], ['result', 'account-switch'],
+    ['cancel', 'logout'], ['cancel', 'account-switch'],
+  ] as const)('rejects the old %s response after %s while its receipt waits for a browser lock', async (method, reason) => {
+    establishSession('fixture-access-a', 'fixture-refresh-a');
+    await generationOperations.start('account-a', 'wizard', 'text', async () => generationResponse);
+    axios.get.mockResolvedValue({ data: method === 'result' ? quiz : generationStatus });
+    axios.delete.mockResolvedValue({ data: { ...generationStatus, status: 'CANCELLED' } });
+    let receiptQueued!: () => void;
+    const queued = new Promise<void>(done => { receiptQueued = done; });
+    let release!: () => void;
+    const held = new Promise<void>(done => { release = done; });
+    vi.stubGlobal('navigator', { locks: { request: async (_name: string, action: () => unknown) => {
+      receiptQueued();
+      await held;
+      return action();
+    } } });
+    const completed = vi.fn();
+    const result = (method === 'status' ? service.getGenerationStatus('job-1')
+      : method === 'result' ? service.getGeneratedQuiz('job-1') : service.cancelGenerationJob('job-1')).then(completed);
+    await queued; // The HTTP response has arrived; only receipt persistence is pending.
+    if (reason === 'logout') terminateSession('logout');
+    else establishSession('fixture-access-b', 'fixture-refresh-b', 'account-switch');
+    generationOperations.clearSession();
+    generationOperations.activate(reason === 'logout' ? null : 'account-b');
+    const rejection = expect(result).rejects.toMatchObject({ code: 'SESSION_CHANGED', category: 'cancelled' });
+    release();
+    await rejection;
+    expect(completed).not.toHaveBeenCalled();
+    expect(generationOperations.getSnapshot().pending).toEqual({});
+  });
+
+  it('checks the session again after the receipt action completes but before returning the result', async () => {
+    establishSession('fixture-access-a', 'fixture-refresh-a');
+    await generationOperations.start('account-a', 'wizard', 'text', async () => generationResponse);
+    axios.get.mockResolvedValue({ data: quiz });
+    vi.stubGlobal('navigator', { locks: { request: async (_name: string, action: () => unknown) => {
+      const saved = action();
+      establishSession('fixture-access-b', 'fixture-refresh-b', 'account-switch');
+      generationOperations.clearSession();
+      generationOperations.activate('account-b');
+      return saved;
+    } } });
+    const completed = vi.fn();
+    await expect(service.getGeneratedQuiz('job-1').then(completed)).rejects.toMatchObject({ code: 'SESSION_CHANGED' });
+    expect(completed).not.toHaveBeenCalled();
+  });
+
+  it.each(['status', 'result', 'cancel'] as const)('rejects a %s response arriving after account switch even without recovery metadata', async method => {
+    establishSession('fixture-access-a', 'fixture-refresh-a');
+    const respond = async () => {
+      establishSession('fixture-access-b', 'fixture-refresh-b', 'account-switch');
+      return { data: method === 'result' ? quiz : generationStatus };
+    };
+    axios.get.mockImplementation(respond);
+    axios.delete.mockImplementation(respond);
+    const completed = vi.fn();
+    const result = (method === 'status' ? service.getGenerationStatus('job-1')
+      : method === 'result' ? service.getGeneratedQuiz('job-1') : service.cancelGenerationJob('job-1')).then(completed);
+    await expect(result).rejects.toMatchObject({ code: 'SESSION_CHANGED', category: 'cancelled' });
+    expect(completed).not.toHaveBeenCalled();
+  });
+
+  it.each(['status', 'result', 'cancel'] as const)('returns the current-session %s response when only receipt storage fails', async method => {
+    establishSession('fixture-access-a', 'fixture-refresh-a');
+    await generationOperations.start('account-a', 'wizard', 'text', async () => generationResponse);
+    const response = method === 'result' ? quiz : generationStatus;
+    axios.get.mockResolvedValue({ data: response });
+    axios.delete.mockResolvedValue({ data: response });
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('Storage unavailable'); });
+    try {
+      const result = method === 'status' ? service.getGenerationStatus('job-1')
+        : method === 'result' ? service.getGeneratedQuiz('job-1') : service.cancelGenerationJob('job-1');
+      await expect(result).resolves.toEqual(response);
+      expect(generationOperations.getSnapshot().storageError).toContain('Cannot save');
+      expect(generationOperations.getSnapshot().pending.wizard?.jobId).toBe('job-1');
+    } finally {
+      write.mockRestore();
+    }
   });
 
   it('creates a quiz and preserves the generated ID response', async () => {
@@ -485,5 +571,41 @@ describe('QuizService', () => {
     axios.get.mockRejectedValue(new Error('Network unavailable'));
 
     await expect(service.getQuizById('quiz-1')).rejects.toMatchObject({ category: 'unexpected' });
+  });
+});
+
+// Header injection remains additive: the pre-existing tests above cover no-header calls.
+describe('generation idempotency transport', () => {
+  it.each(['document', 'text', 'upload'] as const)('sends the supplied %s key unchanged on fresh starts and replays', async source => {
+    const axios = createAxiosMock();
+    const service = new QuizService(axios.instance);
+    const key = '6c8a1b4d-f8ab-4ce1-86ec-a413db9f7a71';
+    axios.post.mockResolvedValue({ data: generationResponse });
+    const upload = new FormData();
+    upload.append('file', new File(['private-source'], 'original.txt', { type: 'text/plain' }));
+    upload.append('questionsPerType', '{"TRUE_FALSE":2}');
+    const send = () => source === 'document'
+      ? service.generateQuizFromDocument({ documentId: 'document-1', questionsPerType: { TRUE_FALSE: 2 } }, key)
+      : source === 'text' ? service.generateQuizFromText({ text: 'private-source', questionsPerType: { TRUE_FALSE: 2 } }, key)
+      : service.generateQuizFromUpload(upload, key);
+    expect((await send()).jobId).toBe('job-1');
+    expect((await send()).jobId).toBe('job-1');
+    expect(axios.post).toHaveBeenCalledTimes(2);
+    for (const [, body, config] of axios.post.mock.calls) {
+      expect(config?.headers).toEqual({ 'Idempotency-Key': key });
+      if (source === 'upload') {
+        expect(Array.from((body as FormData).keys())).toEqual(['file']);
+        expect(config).toMatchObject({ _isFileUpload: true, params: { questionsPerType: '{"TRUE_FALSE":2}' } });
+      } else expect(body).not.toHaveProperty('idempotencyKey');
+    }
+  });
+
+  it.each([409, 429, 503])('keeps HTTP %s metadata and never retries the service POST automatically', async status => {
+    const axios = createAxiosMock();
+    const service = new QuizService(axios.instance);
+    axios.post.mockRejectedValue({ response: { status, headers: { 'Retry-After': '45' } } });
+    await expect(service.generateQuizFromText({ text: 'private-source', questionsPerType: { TRUE_FALSE: 2 } }, 'key-1'))
+      .rejects.toMatchObject({ status, retryAfterSeconds: 45 });
+    expect(axios.post).toHaveBeenCalledOnce();
   });
 });
