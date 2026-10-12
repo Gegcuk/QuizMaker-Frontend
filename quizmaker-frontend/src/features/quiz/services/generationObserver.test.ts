@@ -204,6 +204,34 @@ describe('account generation observer', () => {
     expect(service.getGenerationStatus).toHaveBeenCalledTimes(1);
     expect(post).toHaveBeenCalledTimes(1);
   });
+  it.each(['before-discovery', 'after-discovery'] as const)('retains newer lost-start recovery when an old start receipt arrives %s', async receiptTiming => {
+    const oldResponse = deferred<QuizGenerationResponse>();
+    const oldPost = vi.fn().mockReturnValue(oldResponse.promise);
+    const oldStarting = generationOperations.start('account-a', 'wizard', 'text', oldPost);
+    const { observer, service, job } = setup(); observer.start(); await tick();
+    const newerJob: QuizGenerationStatus = { ...pending, jobId: 'new-job', progressPercentage: 12 };
+    service.getGenerationStatus.mockRejectedValueOnce(new ApplicationError({ category: 'rate-limit', status: 429, retryAfterSeconds: 120 }))
+      .mockImplementation(async jobId => jobId === newerJob.jobId ? newerJob : complete);
+    await observer.refresh();
+    // The server finishes job-1 before accepting new-job. Only the old POST's
+    // response is delayed; losing the new POST's response requires discovery.
+    service.getGenerationJobs.mockResolvedValue(page([newerJob]));
+    const newPost = vi.fn().mockRejectedValue(new ApplicationError({ category: 'network' }));
+    await generationOperations.start('account-a', 'upload-tab', 'upload', newPost).catch(() => undefined);
+    await tick(119_999); expect(service.getGenerationJobs).toHaveBeenCalledTimes(1);
+    if (receiptTiming === 'after-discovery') await tick(1);
+    oldResponse.resolve(accepted); await oldStarting;
+    if (receiptTiming === 'before-discovery') await tick(1);
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(observer.getSnapshot()).toMatchObject({ jobId: newerJob.jobId, discovered: true, error: null });
+    expect(job()).toEqual(newerJob);
+    await tick(5_000);
+    expect(service.getGenerationStatus).toHaveBeenLastCalledWith(newerJob.jobId, expect.any(AbortSignal));
+    expect(service.getGenerationJobs).toHaveBeenCalledTimes(2);
+    expect(oldPost).toHaveBeenCalledTimes(1); expect(newPost).toHaveBeenCalledTimes(1);
+    expect(generationOperations.getSnapshot().pending.wizard?.jobId).toBe('job-1');
+    expect(generationOperations.getSnapshot().pending['upload-tab']?.jobId).toBeUndefined();
+  });
   it.each(['hidden', 'offline'] as const)('suspends a multi-page discovery when the tab becomes %s and restarts on resume', async mode => {
     const { observer, service } = setup();
     const firstPage = deferred<GenerationJobPage>();
