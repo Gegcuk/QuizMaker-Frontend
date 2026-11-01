@@ -106,7 +106,7 @@ jobs:
             test -x /usr/local/sbin/quizzence-release
             mkdir -p "/var/www/quizzence/incoming/${RELEASE_RUN}-${RELEASE_ATTEMPT}"
       - name: Transfer verified image without touching serving files
-        uses: burnett01/rsync-deployments@9.0.0
+        uses: burnett01/rsync-deployments@9.0.2
         with:
           switches: -avz
           path: release-bundle/
